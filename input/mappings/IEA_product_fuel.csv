@@ -1,0 +1,69 @@
+product,fuel
+Hard coal (if no detail) (kt),hard_coal
+Brown coal (if no detail) (kt),brown_coal
+Anthracite (kt),hard_coal
+Coking coal (kt),hard_coal
+Other bituminous coal (kt),hard_coal
+Sub-bituminous coal (kt),hard_coal
+Lignite (kt),brown_coal
+Patent fuel (kt),hard_coal
+Coke oven coke (kt),coal_coke
+Gas coke (kt),hard_coal
+Coal tar (kt),hard_coal
+BKB/peat briquettes (kt),hard_coal
+Gas works gas (TJ-gross),natural_gas
+Coke oven gas (TJ-gross),natural_gas
+Blast furnace gas (TJ-gross),natural_gas
+Other recovered gases (TJ-gross),natural_gas
+Peat (kt),brown_coal
+Natural gas (TJ-gross),natural_gas
+Natural Gas (TJ-gross),natural_gas
+Crude/NGL/feedstocks (if no detail) (kt),heavy_oil
+Crude oil (kt),heavy_oil
+Natural gas liquids (kt),diesel_oil
+Refinery feedstocks (kt),light_oil
+Additives/blending components (kt),light_oil
+Other hydrocarbons (kt),light_oil
+Refinery gas (kt),natural_gas
+Ethane (kt),light_oil
+Liquefied petroleum gases (LPG) (kt),light_oil
+Motor gasoline (kt),light_oil
+Aviation gasoline (kt),light_oil
+Gasoline type jet fuel (kt),light_oil
+Kerosene type jet fuel (kt),light_oil
+Other kerosene (kt),light_oil
+Other Kerosene (kt),light_oil
+Gas/diesel oil (kt),diesel_oil
+Fuel oil (kt),diesel_oil
+Naphtha (kt),light_oil
+White spirit & SBP (kt),light_oil
+Lubricants (kt),diesel_oil
+Bitumen (kt),heavy_oil
+Paraffin waxes (kt),heavy_oil
+Petroleum coke (kt),heavy_oil
+Non-specified oil products (kt),heavy_oil
+Industrial waste (TJ-net),biomass
+Municipal waste (renewable) (TJ-net),biomass
+Municipal waste (non-renewable) (TJ-net),biomass
+Primary solid biofuels (TJ-net),biomass
+Biogases (TJ-net),natural_gas
+Biogasoline (kt),light_oil
+Biodiesels (kt),diesel_oil
+Other liquid biofuels (kt),light_oil
+Non-specified primary biofuels and waste (TJ-net),biomass
+Charcoal (kt),biomass
+Elec/heat output from non-specified manufactured gases,
+Heat output from non-specified combustible fuels,
+Nuclear,
+Hydro,
+Geothermal (direct use in TJ-net),
+Solar photovoltaics,
+Solar thermal (direct use in TJ-net),
+"Tide, wave and ocean",
+Wind,
+Other sources,
+Electricity (GWh),
+Heat (TJ),
+Total,
+Total of all energy sources,
+Memo: Renewables,

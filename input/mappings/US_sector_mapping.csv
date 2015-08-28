@@ -1,0 +1,27 @@
+inv_sector,scaling_sector,ceds_sector
+FUEL COMB. INDUSTRIAL,industry,industry_comb
+OFF-HIGHWAY,industry,industry_minerals
+,industry,industry_agriculture
+FUEL COMB. ELEC. UTIL.,energytrans_electricity_gen,energytrans_electricity_gen
+HIGHWAY VEHICLES,transp_road,transp_road
+FUEL COMB. OTHER,misc,
+MISCELLANEOUS,misc,process_Other
+OTHER INDUSTRIAL PROCESSES,energytrans_other,energytrans_other
+PETROLEUM & RELATED INDUSTRIES,oil,crude_oil_production
+,oil,energytrans_petr_refin_Crude
+METALS PROCESSING,process_Smelting,process_Smelting
+STORAGE & TRANSPORT,transport,transp_domestic_air
+,transport,transp_domestic ship
+,transport,transp_rail
+,transport,transp_international_ship
+,transport,transp_international_air
+,transport,transp_unspecified
+Wildfires,,
+CHEMICAL & ALLIED PRODUCT MFG,,coal_production
+SOLVENT UTILIZATION,,natural_gas_production
+WASTE DISPOSAL & RECYCLING,,energytrans_heat_gen
+,,energytrans_coke_ovens
+,,rescom_buildings
+,,process_Al
+,,process_PulpPaper
+,,process_SAcidProduction

@@ -1,0 +1,71 @@
+# Assign a flow to each product for downscaling from IEA composite regions in selected years (e.g. USSR 1971-1989) to disaggregated countries,
+PRODUCT,FLOW
+Hard coal (if no detail) (kt),DOMSUP
+Brown coal (if no detail) (kt),DOMSUP
+Anthracite (kt),DOMSUP
+Coking coal (kt),DOMSUP
+Other bituminous coal (kt),DOMSUP
+Sub-bituminous coal (kt),DOMSUP
+Lignite (kt),DOMSUP
+Patent fuel (kt),TPATFUEL
+Coke oven coke (kt),TCOKEOVS
+Gas coke (kt),DOMSUP
+Coal tar (kt),DOMSUP
+BKB/peat briquettes (kt),TBKB
+Gas works gas (TJ-gross),TGASWKS
+Coke oven gas (TJ-gross),TCOKEOVS
+Blast furnace gas (TJ-gross),TBLASTFUR
+Other recovered gases (TJ-gross),DOMSUP
+Peat (kt),DOMSUP
+Natural gas (TJ-gross),DOMSUP
+Natural Gas (TJ-gross),DOMSUP
+Crude/NGL/feedstocks (if no detail) (kt),DOMSUP
+Crude oil (kt),DOMSUP
+Natural gas liquids (kt),DOMSUP
+Refinery feedstocks (kt),DOMSUP
+Additives/blending components (kt),DOMSUP
+Other hydrocarbons (kt),DOMSUP
+Refinery gas (kt),TREFINER
+Ethane (kt),FINCONS
+Liquefied petroleum gases (LPG) (kt),FINCONS
+Motor gasoline (kt),FINCONS
+Aviation gasoline (kt),FINCONS
+Gasoline type jet fuel (kt),FINCONS
+Kerosene type jet fuel (kt),FINCONS
+Other kerosene (kt),FINCONS
+Other Kerosene (kt),FINCONS
+Gas/diesel oil (kt),FINCONS
+Fuel oil (kt),FINCONS
+Naphtha (kt),FINCONS
+White spirit & SBP (kt),FINCONS
+Lubricants (kt),FINCONS
+Bitumen (kt),FINCONS
+Paraffin waxes (kt),FINCONS
+Petroleum coke (kt),FINCONS
+Non-specified oil products (kt),FINCONS
+Industrial waste (TJ-net),DOMSUP
+Municipal waste (renewable) (TJ-net),DOMSUP
+Municipal waste (non-renewable) (TJ-net),DOMSUP
+Primary solid biofuels (TJ-net),DOMSUP
+Biogases (TJ-net),DOMSUP
+Biogasoline (kt),DOMSUP
+Biodiesels (kt),DOMSUP
+Other liquid biofuels (kt),DOMSUP
+Non-specified primary biofuels/waste (TJ-net),DOMSUP
+Charcoal (kt),TCHARCOAL
+Elec/heat output from non-specified manufactured gases,FINCONS
+Heat output from non-specified combustible fuels,FINCONS
+Nuclear,DOMSUP
+Hydro,DOMSUP
+Geothermal (direct use in TJ-net),DOMSUP
+Solar photovoltaics,DOMSUP
+Solar thermal (direct use in TJ-net),DOMSUP
+"Tide, wave and ocean",DOMSUP
+Wind,DOMSUP
+Other sources,DOMSUP
+Electricity (GWh),FINCONS
+Heat (TJ),FINCONS
+Total,DOMSUP
+Total of all energy sources,DOMSUP
+Memo: Renewables,DOMSUP
+Coke oven coke (kt),DOMSUP

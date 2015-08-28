@@ -1,0 +1,9 @@
+fuel,so2_percent,so2_ef
+hard_coal,0.01,0.02
+brown_coal,0.01,0.02
+coal_coke,0.01,0.02
+natural_gas,0,0
+heavy_oil,0.01,0.02
+diesel_oil,0.002,0.004
+light_oil,0.0001,0.0002
+biomass,0,0
