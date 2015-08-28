@@ -1,0 +1,12 @@
+#Unversioned files
+
+#Logs and History
+*.log
+*.Rhistory
+
+#System Generated Documentation
+documentation/IO_documentation.csv
+
+#Proprietory Data
+input/energy/NonOECD_E_Stat.csv
+input/energy/OECD_E_Stat.csv
