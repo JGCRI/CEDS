@@ -95,16 +95,19 @@ clean-final :
 	rm -fv $(FINAL_OUT)/*
 
 clean-logs :
-	rm -fv $(LOGS)/*
+	rm -fv $(LOGS)/*.log
 
 clean-io :
 	rm -fv $(DOCS)/IO_documentation.csv
 
-clean-modBCD :
-	rm -fv $(MED_OUT)/B* \
-	rm -fv $(MED_OUT)/C* \
-	rm -fv $(MED_OUT)/D*
+clean-modD :
+	rm -fv $(MED_OUT)/B*
 
+clean-modC :
+	rm -fv $(MED_OUT)/C*
+
+clean-modD :
+	rm -fv $(MED_OUT)/D*
 
 # --------------------------------------------------------------
 
