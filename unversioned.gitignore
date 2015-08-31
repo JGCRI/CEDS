@@ -1,12 +1,12 @@
 #Unversioned files
 
 #Logs and History
-/**/*.log
-/**/*.Rhistory
+.log
+.Rhistory
 
 #System Generated Documentation
-/**/IO_documentation.csv
+IO_documentation.csv
 
 #Proprietory Data
-/**/NonOECD_E_Stat.csv
-/**/OECD_E_Stat.csv
+NonOECD_E_Stat.csv
+OECD_E_Stat.csv
