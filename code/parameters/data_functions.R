@@ -147,7 +147,7 @@ findDataStart <- function( df ){
 #               each combination thereof, with correct units and year columns.
 #               Can operate on iso-sector-fuel data or iso-activity data, using 
 #               boolean option parameters.
-# Dependencies: findDataStart, expand.grid, common_data.r
+# Dependencies: findDataStart, expand.grid, common_data.R
 # Author:       Jon Seibert
 # Parameters:   
 #   iso_list:           List of iso codes to be used in template [default: NULL]
@@ -166,7 +166,7 @@ buildCEDSTemplate <- function( iso_list = NULL, sector_list = NULL, fuel_list = 
                                activity_list = NULL, iso_sector_fuel = TRUE, iso_activity = FALSE ){
     
     # Required to get full list of names
-    source( paste( PARAM_DIR, "common_data.r", sep = "" ) )
+    source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
     
     # If any of the required id lists were not given in the function call, stop.
     if( is.null( iso_list ) || ( ( iso_sector_fuel && is.null( sector_list ) && is.null( fuel_list ) ) 
@@ -181,7 +181,7 @@ buildCEDSTemplate <- function( iso_list = NULL, sector_list = NULL, fuel_list = 
         # Data frame of all possible combinations
         template <- expand.grid( iso = iso_list, sector = sector_list, fuel = fuel_list )
         
-        # Create list of final names, including all Xyears from common_data.r
+        # Create list of final names, including all Xyears from common_data.R
         col_names <- c( "iso", "sector", "fuel", "units", X_emissions_years)
         
         # Add units for each sector
@@ -197,7 +197,7 @@ buildCEDSTemplate <- function( iso_list = NULL, sector_list = NULL, fuel_list = 
         # Data frame of all possible combinations
         template <- expand.grid( iso = iso_list, activity = activity_list )
         
-        # Create list of final names, including all Xyears from common_data.r
+        # Create list of final names, including all Xyears from common_data.R
         col_names <- c( "iso", "activity", "units", X_emissions_years )
         
         # Add units for each activity

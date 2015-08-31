@@ -46,22 +46,22 @@ if ( is.na( em ) ) em <- "SO2"
 # ----------------------------------------------------------------------------------
 # createNewEmissionsDb
 # Brief:         Creates a new, empty emissions database
-# Details:       Uses standard format headers and common_data.r year limits to generate
+# Details:       Uses standard format headers and common_data.R year limits to generate
 #                       an empty emissions database file to be filled in.
-# Dependencies:  common_data.r, IO_functions.R
+# Dependencies:  common_data.R, IO_functions.R
 # Author:        Jon Seibert
 # Parameters:    
 #   em:             emissions species (ex. SO2, CO2, BC) [required]
 # Return:        none
-# Input files:   common_data.r
+# Input files:   common_data.R
 # Output files:  C.[em]_emissions_db.csv
 createNewEmissionsDb <- function( em ){
     
-    # Read in necessary files and data: common_data.r required 
+    # Read in necessary files and data: common_data.R required 
     # to avoid variable overwrite carryover
-    source( paste( PARAM_DIR, "common_data.r", sep = "" ) )
+    source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
     
-    # Use values from common_data.r
+    # Use values from common_data.R
     years <- seq( start_year, end_year )
     X_years <- paste0( "X", years )
     

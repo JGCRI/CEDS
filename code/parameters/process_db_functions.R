@@ -19,7 +19,7 @@
 #                       with numerical year names to Xyears, and replaces the "Coutnry" column
 #                       with an iso code column if necessary. removeBlanks and Xyear conversion 
 #                       have options to disable if not needed- iso conversion has its own checks.
-# Dependencies:       common_data.r, findDataStart, readData, writeData, removeBlanks
+# Dependencies:       common_data.R, findDataStart, readData, writeData, removeBlanks
 # Author:             Jon Seibert
 # Parameters:    
 #     df:             Data frame to be cleaned [required]
@@ -93,7 +93,7 @@ cleanData <- function( df, remove_blanks = TRUE, first = "Country", user_cols = 
 # Details:          Takes a data frame as input and overwrites the existing entries in the
 #                       activity database where necessary, only adding on if the iso-activity
 #                       combination being examined is not already present in the database.
-# Dependencies:     common_data.r, IO_functions.R, data_functions.R, timeframe_functions.R
+# Dependencies:     common_data.R, IO_functions.R, data_functions.R, timeframe_functions.R
 # Author:           Jon Seibert
 # Parameters: 
 # 	df: 		    data frame containing data to be added to the activity database
@@ -109,12 +109,12 @@ cleanData <- function( df, remove_blanks = TRUE, first = "Country", user_cols = 
 # Usage examples: addToActivityDb( df, ext_forward = FALSE, ext_backward = FALSE )
 addToActivityDb <- function( df, ext_forward = TRUE, ext_backward = FALSE ){
 
-    # Read in necessary files and data: common_data.r required 
+    # Read in necessary files and data: common_data.R required 
     # to avoid variable overwrite carryover
-    source( paste( PARAM_DIR, "common_data.r", sep = "" ) )
+    source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
     activity_db <- readData( "MED_OUT", "A.NC_activity_db", meta = FALSE )
     
-    # Rebind values from common_data.r
+    # Rebind values from common_data.R
     X_start <- X_start_year
     X_end <- X_end_year
     ext_start_year <- start_year

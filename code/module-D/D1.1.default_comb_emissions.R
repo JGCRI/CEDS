@@ -84,7 +84,7 @@ calculateEmissions <- function( drivers, efs ){
     # efs <- ef_data
 
     # # Required to get full list of names
-    # source( paste( PARAM_DIR, "common_data.r", sep = "" ) )
+    # source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
 
     # Ensure data is in numeric form to avoid errors
     data_start <- findDataStart( efs )
