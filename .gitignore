@@ -1,8 +1,8 @@
 #Unversioned files
 
 #Logs and History
-**/.log
-**/.R.d
+.log
+.R.d
 .Rhistory
 
 #System Generated Documentation
