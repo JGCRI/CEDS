@@ -92,22 +92,23 @@ clean-diagnostic :
 	rm -fv $(DIAG_OUT)/*.csv
 
 clean-final :
-	rm -fv $(FINAL_OUT)/*
+	rm -fv $(FINAL_OUT)/*.csv
 
 clean-logs :
-	rm -fv $(LOGS)/*.log
+	rm -fv $(LOGS)/*.log \
+	rm -fv $(LOGS)/*.R.d
 
 clean-io :
 	rm -fv $(DOCS)/IO_documentation.csv
 
 clean-modD :
-	rm -fv $(MED_OUT)/B*
+	rm -fv $(MED_OUT)/B*.csv
 
 clean-modC :
-	rm -fv $(MED_OUT)/C*
+	rm -fv $(MED_OUT)/C*.csv
 
 clean-modD :
-	rm -fv $(MED_OUT)/D*
+	rm -fv $(MED_OUT)/D*.csv
 
 # --------------------------------------------------------------
 
