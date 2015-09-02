@@ -4,6 +4,7 @@
 .log
 .R.d
 .Rhistory
+.Rdata
 
 #System Generated Documentation
 IO_documentation.csv
