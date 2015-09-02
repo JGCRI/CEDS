@@ -46,16 +46,8 @@
 # ------------------------------------------------------------------------------
 # 1. Read in files and do preliminary setup
 # Download required packages if necessary
-    mirror <- "http://watson.nci.nih.gov/cran_mirror/"
-
-    if ( !require( "XLConnect", character.only = T ) ){
-      install.packages( "XLConnect", dep = T, repos = mirror )
-    }
-    if ( !require( "FAOSTAT", character.only = T ) ){
-      install.packages( "FAOSTAT", dep = T, repos = mirror )
-    }
-    library( XLConnect )
-    library( FAOSTAT )
+    load.package("XLConnect")
+    load.package("FAOSTAT")
    
 # Read in data
     # When new UN population data are released, update `url` and uncomment the following 2

@@ -19,7 +19,7 @@ addDep <- function( file_name ){ addDependency( paste0 ( PARAM_DIR, file_name ) 
 initialize <- function( script_name, log_msg, headers, common_data = TRUE ){
     
     # Include common_data.R by default
-    if( common_data && ( ! "common_data.r" %in% headers ) ){ headers <- c( headers, "common_data.r" ) }
+    if( common_data && ( ! "common_data.R" %in% headers ) ){ headers <- c( headers, "common_data.R" ) }
 
     # Ensure the critical headers are read in first, in the correct order
     if( ! "IO_functions.R" %in% headers ){ headers <- c( "IO_functions.R", headers ) }

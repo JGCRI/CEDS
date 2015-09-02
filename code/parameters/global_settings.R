@@ -10,13 +10,17 @@
 
 
 # Load required libraries. If library isn't installed, outputs warning message
-
-libs <- c( "ggplot2", "magrittr", "pbapply", "plyr", "dplyr", "reshape", "stringr", "XML", "readxl" )
+load.package<-function(package){
+  if( suppressMessages(!require( package, lib.loc=.libPaths()[ 1 ], character.only=T ) )){
+    cat( "Couldn't load '", package, "'. Please Install.\n" ,sep="")
+    stop(paste( "Couldn't load '", package, "'. Please Install.\n" ,sep=""))
+  }
+}
+libs <- c( "ggplot2", "magrittr", "pbapply", "plyr", "dplyr", "reshape", "stringr", "XML", "readxl")
 for( i in seq_along(libs)){
     package <- libs[[ i ]]
-	if( suppressMessages(!require( package, lib.loc=.libPaths()[ 1 ], character.only=T ) )){
-		cat( "Couldn't load '", package, "'. Please Install.\n" ,sep="")
-	}}
+    load.package(package)
+    }
 
 # # Excel output requires the xlsx package, which is dependent on rJava. rJava
 # #   requires an updated version of Java compatible with the version of R used
