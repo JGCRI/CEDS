@@ -2,7 +2,7 @@
 # Program Name: A2.1.IEA_en_bal.R
 # Author's Name: Page Kyle, for GCAM; modified for use in CEDS Project by 
 #               Steve Smith, Emily Voelker, Tyler Pitkanen, and Jon Seibert
-# Date Last Modified: June 16, 2015
+# Date Last Modified: August 31, 2015
 # Program Purpose: 
 # Input Files: A.IEA_en_stat_ctry_hist.csv, IEA_flow_sector.csv, 
 #              IEA_product_fuel.csv, Master_Fuel_Sector_List.xlsx
@@ -55,7 +55,8 @@
     printLog( paste0( "Matching intermediate sector names, and intermediate",
                      " fuel names into IEA energy statistics" ) )
     A.IEA_en_stat_ctry_hist <- A.IEA_en_stat_ctry_hist_full
-    conversionFactor <- 0.0238846  # For kt to TJ (multiply by kt to get TJ)
+    #conversionFactor <- 0.0238846  # For kt to TJ (multiply by kt to get TJ)
+    conversionFactor <- 16  # For kt to TJ (multiply by kt to get TJ)
 
 # Add in the fuel names and sector names
     A.IEA_en_stat_ctry_hist$sector <- IEA_flow_sector$sector[ match( 
