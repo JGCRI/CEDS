@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A1.1.UN_pop_WB_extension.R
-# Author: Linh Vu
-# Date Last Updated: August 18, 2015
+# Author: Linh Vu, Rachel Hoesly
+# Date Last Updated: September 3, 2015
 # Program Purpose: Produce input population data for CEDS emissions system from
 #                  United Nations data, and World Bank (WB) data where UN data are
 #                  unavailable. Output are 1950-2100 population.
@@ -36,7 +36,7 @@
     
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( "data_functions.R", "analysis_functions.R" ) # Additional function files required.
+    headers <- c( "IO_functions.R","data_functions.R", "analysis_functions.R" ) # Additional function files required.
     log_msg <- "Produce population data for CEDS from UN data" # First message to be printed to the log
     script_name <- "A1.1.UN_pop_WB_extension.R"
     
@@ -46,16 +46,19 @@
 # ------------------------------------------------------------------------------
 # 1. Read in files and do preliminary setup
 # Download required packages if necessary
-    load.package("XLConnect")
-    load.package("FAOSTAT")
+    loadPackage("FAOSTAT")
    
 # Read in data
     # When new UN population data are released, update `url` and uncomment the following 2
     # lines to download the new dataset to local directory
-#     url <- "http://esa.un.org/unpd/wpp/Excel-Data/EXCEL_FILES/1_Population/WPP2012_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.XLS"
-#     download.file( url, destfile = paste0( getwd(), "/general/UN_pop_raw.xlsx" ) ) 
+#   url <- "http://esa.un.org/unpd/wpp/Excel-Data/EXCEL_FILES/1_Population/WPP2012_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.XLS"
+#   download.file( url, destfile = paste0( getwd(), "/general/UN_pop_raw.xlsx" ) ) 
     
-    UN_pop_raw <- loadWorkbook( paste0( getwd(), "/general/UN_pop_raw.xlsx" ) )
+    UN_pop_raw <- readData(domain = "GEN_IN", file_name = 'UN_pop_raw', extension = '.xlsx',
+                           sheet_selection = "ALL", domain_extension = "", column_names = TRUE, 
+                           column_types = NULL, missing_value = "", skip_rows = 16, meta = F, 
+                           meta_domain = domain, meta_extension = extension, mute = FALSE)
+
     WB_pop <- getWDI( indicator = "SP.POP.TOTL", name = "pop")  # WB population data, pulled from WDI API
     #FAO_pop <- getFAO( name = "pop", domainCode = "OA", elementCode = 511, itemCode = 3010 )
     CEDS_ctry <- readData( "MAPPINGS", "IEA_ctry", meta = F )
@@ -65,25 +68,26 @@
 
 # Prepare UN population
     # readUNSheet(): reads individual UN sheet, reformats and returns results in a df
-    readUNSheet <- function( file, sheet ) {
-      newfile <-  # skip heading and drop irrelevant columns 
-        readWorksheet( file, sheet, startRow = 17, drop = c( "Index", "Notes" ), check.names = F )
+    readUNSheet <- function( sheet ) {
       newfile <-  # translate from UN code to iso3 
-        translateCountryCode( newfile, "UN_CODE", "ISO3_WB_CODE", "Country code" )
+        translateCountryCode( sheet, "UN_CODE", "ISO3_WB_CODE", "Country code" )
+      newfile[,'Index']<-NULL
+      newfile[,'Notes']<-NULL
       names( newfile )[ 1:4 ] <- c( "UN_code", "iso", "scenario", "country" )
       newfile$iso <- tolower( newfile$iso )  # change to lowercase ISO
+      
+      newfile <- melt( newfile, id = c( "UN_code", "iso", "scenario", "country" ), variable_name = "year", na.rm = T )
+      names( newfile )[ names( newfile ) == "value" ] <- "pop"
       return( newfile )
     }
  
     # Read UN data into one data frame
-    UN_sheets <- getSheets( UN_pop_raw )  # get sheet names
-    UN_sheets <- as.list( UN_sheets[ - length( UN_sheets ) ] )  # remove final sheet ('Notes'); result is list of pop scenarios
-    UN_pop <- lapply( UN_sheets, readUNSheet, file = UN_pop_raw )
-    UN_pop <- do.call( rbind.fill, UN_pop )
+    UN_sheets <- UN_pop_raw[1:9]  # remove final sheet ('Notes'); result is list of pop scenarios
+    UN_pop <- lapply( X=UN_sheets, FUN=readUNSheet)
+    UN_pop <- do.call( rbind, UN_pop )
     
     # Reshape and fix inconsistent/incomplete codes
-    UN_pop <- melt( UN_pop, id = c( "UN_code", "iso", "scenario", "country" ), variable_name = "year", na.rm = T )
-    names( UN_pop )[ names( UN_pop ) == "value" ] <- "pop"
+
     UN_pop$year <- as.numeric( as.character( UN_pop$year ) )  # convert from factor
     UN_pop$country[ UN_pop$UN_code == "158" ] <- "Taiwan"  # pull Taiwan from "Other non-specified areas"
     UN_pop$iso[ UN_pop$UN_code == 156 ] <- "chn"  # add ISO for China
