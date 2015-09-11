@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A1.1.UN_pop_WB_extension.R
 # Author: Linh Vu, Rachel Hoesly
-# Date Last Updated: September 3, 2015
+# Date Last Updated: September 11, 2015
 # Program Purpose: Produce input population data for CEDS emissions system from
 #                  United Nations data, and World Bank (WB) data where UN data are
 #                  unavailable. Output are 1950-2100 population.
@@ -100,7 +100,8 @@
 # Prepare WB population        
     WB_pop <-  # translate from iso2 to iso3 
       translateCountryCode( WB_pop, "ISO2_WB_CODE", "ISO3_WB_CODE", "ISO2_WB_CODE" ) %>%
-      select( -ISO2_WB_CODE )  # drop ISO2
+      select( -ISO2_WB_CODE ) %>%  # drop ISO2
+      filter( !is.na(pop) )  # drop non-data years
     names( WB_pop ) <- c( "iso", "country", "year", "pop" )
     WB_pop$iso <- tolower( WB_pop$iso )  # convert to lowercase ISO
     WB_pop$pop <- WB_pop$pop / 1000  # convert pop units to thous. people
