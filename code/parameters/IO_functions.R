@@ -5,9 +5,9 @@
 
 # This file must be sourced by all CEDS R scripts, generally as the second sourced script.
 # Functions contained:
-#   readData, writeData, RToXlsx, sourceData, readMetaData, addMetaData,
+#   readData, writeData, sourceData, readMetaData, addMetaData,
 #   addMetaNote, clearMeta, logStart, printLog, logStop, addDependency, writeMakeFileDepend,
-#   readDomainPathMap, filePath, collapseList
+#   readDomainPathMap, filePath, collapseList, readExcel
 
 # Notes: Many of these functions were originally written for the GCAM data system.
 #        Some relics of this past remain, such as the global variable names.
@@ -378,6 +378,8 @@ readExcel <- function( full_file_path, sheet_selection = "ALL", column_names = T
         }
     }
     # THIS DOES NOT WORK FOR SOME REASON- ADDRESS LATER
+    # Replace en-dashes and em-dashes with hyphens
+    names( x ) <- gsub( "—", "-", names( x ) )
     names( x ) <- gsub( "–", "-", names( x ) )
     
     return( list( x, multi_sheet ) )

@@ -6,7 +6,7 @@
 # This file should be sourced by any R script doing heavy-duty reformatting of CEDS data.
 # Functions contained:
 #   %!in%, gsub2, repeatAndAddVector, addCols, findDataStart, naReplace, addCols,
-#   buildCEDSTemplate
+#   buildCEDSTemplate, removeBlanks
 
 # Notes:
 
@@ -75,31 +75,92 @@ addCols <- function( table1, table2, col, matchcol ) {
     }
     
 # ----------------------------------------------------------------------------------
+# isYear: determines whether a string or number is a 4-digit year or Xyear
+
+# isNumYear: returns a boolean vector indicating whether the parameter's components are numerical years.
+isNumYear <- function( yrs ){
+    grepl( "^[0-9]{4}$", yrs )
+}
+
+# isXYear: returns a boolean vector indicating whether the parameter's components are xYears.
+isXYear <- function( yrs ){
+    grepl( "^[xX][0-9]{4}$", yrs )
+}
+
+isYear <- function( yrs ){ return( isNumYear( yrs ) | isXYear ( yrs ) ) }
+
+# ----------------------------------------------------------------------------------
 # removeBlanks
-# Brief: Eliminates non-data rows from an imported excel file and fixes column names.
-# Details: Puts imported excel sheet into a form that is easier to manipulate in R. Fixes 
-# 	     column names and eliminates white space, rows of NA values, sheet titles, etc.
-#	     Intended for use with reading xlsx files.
-# Dependencies: none
-# Authors: Jon Seibert, Tyler Pitkanen
+# Brief:        Eliminates non-data rows from an imported excel file and fixes column names.
+# Details:      Puts imported excel sheet into a form that is easier to manipulate in R. If
+#                   the column names for the sheet's data do not become the default column
+#                   names for the data frame (because of empty rows or rows with descriptive
+#                   information at the top of the sheet), removes said non-data rows and
+#                   sets the column names to the intended vector of names, if found with the
+#                   specified method (see "method" parameter). Intended for use with reading 
+#                   .xlsx files, but can be applied to any data frame. Also removes rows 
+#                   consisting solely of NAs within the body of the data frame. If the chosen
+#                   method fails, the function will return an error. If the data frame already
+#                   has a vector of names satisfying the method, the function will do nothing,
+#                   and return the data frame passed to it with no changes.
+# Dependencies: any, isYear, sapply, grep, rowSums
+# Authors:      Jon Seibert
 # Parameters: 
-# 	df: 		data frame of the imported excel sheet to be fixed [required]
-#	first_name: string of the intended name for column 1 [required]
-# Return: modified data frame with correct column names and no empty rows
-# Input files: none
+# 	df: 		Data frame of the imported excel sheet to be fixed [required]
+#   method:     String indicating which method of locating the column names and
+#                   removing the non-data rows is to be used. Options are:
+#                       year (first row with years in it is the names),
+#                       string (first non-blank row is the names) 
+#                       name (first row with the parameter first_name 
+#                             as the first entry is the names)
+#                   [default: "year"]
+#	first_name: String of the intended name for column 1. Required if using the "string" 
+#                   method. [default: ""]
+# Return:       modified data frame with correct column names and no empty rows
+# Input files:  none
 # Output files: none
+# Notes: only use the "string" option if all rows preceding the actual names for the columns
+#        are blank, including the default names.
 
 # Usage examples: df <- removeBlanks( df,"Country" )
-#			data_list <- lapply( data_list, removeBlanks, first_name = "Country" )
+#			      data_list <- lapply( data_list, removeBlanks, first_name = "Country" )
 
-removeBlanks <- function( df, first_name ){
-    if ( first_name %in% names( df ) ){ 
-        return( df ) 
-    }
-    data_row_start <- grep(first_name, df[ ,1] ) + 1
+removeBlanks <- function( df, method = "year", first_name = "iso" ){
+
+    data_row_start <- 1
+    
+    # First row with years in it is the names
+    if( method == "year" ){
+        if( any( isYear( names( df ) ) ) ) return( df )
+        # Finds the rows that are years in each column, and assumes the earliest such row contains
+        # the column names. Row where data begins is the row after the true column names.
+        data_row_start <- min( unlist( lapply( df, FUN = function( x ) which( isYear( x ) ) ) ) ) + 1
+    }else{
+    
+    # First non-blank row is names
+    if( method == "string" ){
+        if( !any( names( df ) == ""  ) && !any( is.na( names( df ) ) ) ) return( df )
+        data_row_start <- min( unlist( lapply( df, 
+                          FUN = function( x ) which( ( x != "" ) && !is.na( x ) ) ) ) ) + 1
+    }else{
+
+    # First row with the parameter first_name as the first entry is the names
+    if( method == "name" ){
+        if ( first_name %in% names( df ) ) return( df )
+        data_row_start <- grep(first_name, df[ ,1] ) + 1
+        if( length( data_row_start ) == 0 ) stop( "Specified name not found." )
+    }else{
+        stop( "Invalid method. Available options are: year, string, name" )
+    }}}
+    
     result <- df[ data_row_start:nrow( df ), ]
+    
+    # Remove rows of all NAs
     result <- result[ rowSums( is.na( result ) ) != ncol( result ), ]
-    names( result ) <- df[ data_row_start - 1, ]
+    if( data_row_start != 1 ) {
+        names( result ) <- df[ data_row_start - 1, ]
+    }else{ stop( "Column names not found." ) }
+
     return( result )
 }
 
