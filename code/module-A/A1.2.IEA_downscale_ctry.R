@@ -57,7 +57,7 @@
 	UN_pop_master <- readData( "MED_OUT", "A.UN_pop_master" )
 	OECD_E_Stat <- readData( "ENERGY_IN", "OECD_E_Stat", ".csv" )
 	NonOECD_E_Stat <- readData( "ENERGY_IN", "NonOECD_E_Stat", ".csv" )
-	IEA_ctry <- readData( "MAPPINGS", "IEA_ctry" )
+	IEA_ctry <- readData( "EN_MAPPINGS", "IEA_ctry" )
 
     options( warn=w )
 # ------------------------------------------------------------------------------

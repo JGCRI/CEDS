@@ -6,7 +6,8 @@
 #                  Alters BP data to agree with IEA data labels
 #                  Adds recent BP-projected data to historical years data         
 # Input Files: IEA_flow_sector.csv, A.en_stat_sector_fuel.csv, BP_energy_data.xlsx, 
-#              IEA_BP_mapping.csv, Master_Fuel_Sector_List.xlsx
+#              IEA_BP_mapping.csv, Master_Fuel_Sector_List.xlsx, 
+#              IEA_energy_activity_fuel_mapping.csv
 # Output Files: A.comb_activity.csv, A.IEA_BP_sum_comparison.csv, A.IEA_BP_trend_comparison.csv   
 # Notes: IEA_years, BP_years, end_year and X_ variants defined in common_data.r
 # TODO: Clean up formatting and section breaks, add subsections
@@ -44,11 +45,11 @@
 # 1. Read in files
 
     # un_pop_tot_full <- readData( "GEN_IN", "UN_pop_master" )
-    IEA_flow_sector <- readData( "ENERGY_IN", "IEA_flow_sector" )
-    IEA_enegy_activity_fuelcheck <- readData( "ENERGY_IN", "IEA_enegy_activity_fuelcheck" )
+    IEA_flow_sector <- readData( "EN_MAPPINGS", "IEA_flow_sector" )
+    IEA_energy_activity_fuel_mapping <- readData( "EN_MAPPINGS", "IEA_energy_activity_fuel_mapping" )
     iea_data_full <- readData( "MED_OUT", "A.en_stat_sector_fuel" )
     bp_energy_data <- readData( "ENERGY_IN","BP_energy_data", ".xlsx")
-    ctry_mapping <- readData( "MAPPINGS", "IEA_BP_mapping" )
+    ctry_mapping <- readData( "EN_MAPPINGS", "IEA_BP_mapping" )
     fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
     
     bp_oil_full  <- readData( "ENERGY_IN","BP_energy_data", ".xlsx", sheet_selection = 7 ) # Oil Consumption- Tonnes
@@ -255,7 +256,7 @@
  check_activty_fuel<-function(){   
     for(i in seq_along(activity_sectors)){
      sec<-activity_sectors[i] 
-     fuels<-IEA_enegy_activity_fuelcheck[which(IEA_enegy_activity_fuelcheck$sector==sec),'fuel'] 
+     fuels<-IEA_energy_activity_fuel_mapping[which(IEA_energy_activity_fuel_mapping$sector==sec),'fuel'] 
      activity_data<-IEA_BP_ext_activity[which(IEA_BP_ext_activity$sector==sec),]
      activity_fuels<-unique(activity_data$fuel)
      if(!all(activity_fuels %in% fuels)) 

@@ -9,6 +9,7 @@ SOCIO_DATA = input/general
 ENERGY_DATA = input/energy
 EF_DATA = input/default-emissions-data
 MAPPINGS = input/mappings
+EN_MAPPINGS = input/mappings/energy
 ACTIV = input/activity
 INV_DATA = input/emissions-inventories
 MED_OUT = intermediate-output
@@ -206,7 +207,7 @@ $(MED_OUT)/A.UN_pop_master.csv : \
 	$(PARAMS)/IO_functions.R \
 	$(PARAMS)/data_functions.R \
 	$(PARAMS)/analysis_functions.R \
-	$(MAPPINGS)/IEA_ctry.csv \
+	$(EN_MAPPINGS)/IEA_ctry.csv \
 	$(SOCIO_DATA)/UN_pop_raw.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 
@@ -215,7 +216,7 @@ $(MED_OUT)/A.UN_pop_master.csv : \
 $(MED_OUT)/A.IEA_en_stat_ctry_hist.csv : \
 	$(MOD_A)/A1.2.IEA_downscale_ctry.R \
 	$(MED_OUT)/A.UN_pop_master.csv \
-	$(MAPPINGS)/IEA_ctry.csv \
+	$(EN_MAPPINGS)/IEA_ctry.csv \
 	$(ENERGY_DATA)/OECD_E_stat.csv \
 	$(ENERGY_DATA)/NonOECD_E_stat.csv
 	Rscript $< $(EM) --nosave --no-restore
@@ -226,11 +227,11 @@ $(MED_OUT)/A.IEA_en_stat_ctry_hist.csv : \
 $(MED_OUT)/A.en_stat_sector_fuel.csv : \
 	$(MOD_A)/A2.1.IEA_en_bal.R \
 	$(MOD_A)/A2.2.fix_IEA_biomass.R \
-	$(MAPPINGS)/IEA_product_fuel.csv \
+	$(EN_MAPPINGS)/IEA_product_fuel.csv \
 	$(MED_OUT)/A.UN_pop_master.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(MED_OUT)/A.IEA_en_stat_ctry_hist.csv \
-	$(ENERGY_DATA)/IEA_flow_sector.csv
+	$(EN_MAPPINGS)/IEA_flow_sector.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 
@@ -241,7 +242,7 @@ $(MED_OUT)/A.en_stat_sector_fuel.csv : \
 $(MED_OUT)/A.comb_activity.csv : \
 	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
 	$(MOD_A)/A4.1.complete_energy_data.R \
-	$(MAPPINGS)/IEA_BP_mapping.csv \
+	$(EN_MAPPINGS)/IEA_BP_mapping.csv \
 	$(MED_OUT)/A.en_stat_sector_fuel.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(ENERGY_DATA)/BP_energy_data.xlsx
@@ -268,7 +269,8 @@ $(MED_OUT)/A.NC_activity_db.csv : \
 	$(MAPPINGS)/2011_NC_SO2_ctry.csv \
 	$(ACTIV)/Smelter-Feedstock-Sulfur.xlsx \
 	$(ACTIV)/Wood_Pulp_Consumption.xlsx \
-	$(ACTIV)/GDP.xlsx
+	$(ACTIV)/GDP.xlsx \
+	$(MED_OUT)/A.NC_activity_energy.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore

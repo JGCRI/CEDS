@@ -61,7 +61,7 @@
 
     WB_pop <- getWDI( indicator = "SP.POP.TOTL", name = "pop")  # WB population data, pulled from WDI API
     #FAO_pop <- getFAO( name = "pop", domainCode = "OA", elementCode = 511, itemCode = 3010 )
-    CEDS_ctry <- readData( "MAPPINGS", "IEA_ctry", meta = F )
+    CEDS_ctry <- readData( "EN_MAPPINGS", "IEA_ctry", meta = F )
 
 # ------------------------------------------------------------------------------
 # 2. Clean up input 
