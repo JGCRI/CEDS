@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A1.1.UN_pop_WB_extension.R
 # Author: Linh Vu, Rachel Hoesly
-# Date Last Updated: September 11, 2015
+# Date Last Updated: September 22, 2015
 # Program Purpose: Produce input population data for CEDS emissions system from
 #                  United Nations data, and World Bank (WB) data where UN data are
 #                  unavailable. Output are 1950-2100 population.
@@ -94,6 +94,8 @@
     UN_pop$iso[ UN_pop$iso == "zar" ] <- "cod"  # change ISO of Democratic Republic of Congo
     UN_pop$iso[ UN_pop$iso == "tmp" ] <- "tls"  # change ISO of Timor-Leste
     UN_pop$iso[ UN_pop$iso == "rom" ] <- "rou"  # change ISO of Romania
+    UN_pop$iso[ UN_pop$iso == "ado" ] <- "and"  # change ISO of Andorra
+    UN_pop$iso[ UN_pop$iso == "imy" ] <- "imn"  # change ISO of Isle of Man
     UN_pop <- filter( UN_pop, UN_code < 900 )  # skip aggregated regions
     UN_pop <- arrange( UN_pop, scenario, iso, year )
     
