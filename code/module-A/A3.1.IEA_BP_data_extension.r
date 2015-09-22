@@ -1,11 +1,11 @@
 #------------------------------------------------------------------------------
 # Program Name: A3.1.IEA_BP_data_extension.R
-# Authors Names: Tyler Pitkanen
+# Authors Names: Tyler Pitkanen, Rachel Hoesly
 # Date Last Modified: June 16, 2015
 # Program Purpose: Reads in BP data for years not yet covered by IEA data
 #                  Alters BP data to agree with IEA data labels
 #                  Adds recent BP-projected data to historical years data         
-# Input Files: A.en_stat_sector_fuel.csv, BP_energy_data.xlsx, 
+# Input Files: IEA_flow_sector.csv, A.en_stat_sector_fuel.csv, BP_energy_data.xlsx, 
 #              IEA_BP_mapping.csv, Master_Fuel_Sector_List.xlsx
 # Output Files: A.comb_activity.csv, A.IEA_BP_sum_comparison.csv, A.IEA_BP_trend_comparison.csv   
 # Notes: IEA_years, BP_years, end_year and X_ variants defined in common_data.r
@@ -44,6 +44,8 @@
 # 1. Read in files
 
     # un_pop_tot_full <- readData( "GEN_IN", "UN_pop_master" )
+    IEA_flow_sector <- readData( "ENERGY_IN", "IEA_flow_sector" )
+    IEA_enegy_activity_fuelcheck <- readData( "ENERGY_IN", "IEA_enegy_activity_fuelcheck" )
     iea_data_full <- readData( "MED_OUT", "A.en_stat_sector_fuel" )
     bp_energy_data <- readData( "ENERGY_IN","BP_energy_data", ".xlsx")
     ctry_mapping <- readData( "MAPPINGS", "IEA_BP_mapping" )
@@ -133,25 +135,6 @@
     names( iea_data ) <- c( "iso", "sector", "fuel", "units", "end_year" )
 
     printLog( "Reformatting combined data" )
-    
-# Reduce UN population data to only the relevant years (ext_years), use the
-#   medium population projection 
-# NOTE: Not using population data for this yet, so comment this out for now
-    # un_pop_tot_full$Country <- tolower( un_pop_tot_full$Country )
-    # un_pop_bp <- subset( un_pop_tot_full, un_pop_tot_full$Scenario == "MEDIUM" &
-        # un_pop_tot_full$Year %in% BP_years, c( Country, Year, Value ) )
-    # names( un_pop_bp ) <- c( "iso", "BP_years", "BP_years_pop_value" )
-    # un_pop_end <- subset( un_pop_tot_full, un_pop_tot_full$Scenario == "MEDIUM" &
-        # un_pop_tot_full$Year %in% end_year, c( Country, Value ) )
-    # names( un_pop_end ) <- c( "iso", "end_year_pop_value" )
-    # un_pop_tot <- addCols( un_pop_bp, un_pop_end, "end_year_pop_value", "iso" )
-
-# subset(fuel_list[1], fuel_list[2] == "coal")
-# oil_fuels <- c( "light_oil", "diesel_oil", "heavy_oil" )
-# c( "gas" , "natural_gas")
-# c( "brown_coal", "coal_coke", "hard_coal" )
-# c( "biomass", "refined biofuels_FT", "gasified biomass",
-#                         "refined biofuels_ethanol", "biomass_tradbio" )
     
 # Aggregate IEA over fuel -> oil, gas, coal, biomass, other   
         oil_fuels <- fuel_list[fuel_list$aggregated_fuel == "oil", "fuel"] 
@@ -255,18 +238,50 @@
     IEA_BP_ext <- merge( iea_data_full[, c( "iso", "sector", "fuel" ) ], 
         IEA_BP_ext, by = c( "iso", "sector", "fuel" ) )
 
-# -----------------------------------------------------------------------------
-# 5. Output
-# Add comments for each table
-    comments.A.energy_dataension <- c( paste0( "IEA energy statistics", 
-            " by intermediate sector / intermediate fuel / historical year,",
-            " extendForwarded with BP energy statistics for latest BP years" ) )
-												
-# write tables as CSV files
-    writeData( IEA_BP_ext, domain = "MED_OUT", fn = "A.comb_activity", 
-        comments = comments.A.energy_dataension )
-        
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# 5. Split Energy combustion and activity Data
+
+# List energy combustion/activity sectors
+    sectors <- unique(IEA_BP_ext$sector)
+    combustion_sectors <- sectors[-grep("production",sectors)]
+    activity_sectors <- sectors[grep("production",sectors)]
+# Split activity/combustion data    
+    IEA_BP_ext_comb <- IEA_BP_ext[which(
+                       IEA_BP_ext$sector %in% combustion_sectors ),]
+    IEA_BP_ext_activity <- IEA_BP_ext[which(
+      IEA_BP_ext$sector %in% activity_sectors ),]    
+    
+# Check fuels in Activity data
+ check_activty_fuel<-function(){   
+    for(i in seq_along(activity_sectors)){
+     sec<-activity_sectors[i] 
+     fuels<-IEA_enegy_activity_fuelcheck[which(IEA_enegy_activity_fuelcheck$sector==sec),'fuel'] 
+     activity_data<-IEA_BP_ext_activity[which(IEA_BP_ext_activity$sector==sec),]
+     activity_fuels<-unique(activity_data$fuel)
+     if(!all(activity_fuels %in% fuels)) 
+     { problem_fuel<-activity_fuels[-which(activity_fuels %in% fuels)]
+       problem_country<-IEA_BP_ext_activity[which(activity_data$fuel==problem_fuel),'iso']
+       stop(paste("Energy as activity data: fuels do not aggregate.\n Mixed units for ",
+                 problem_country,' in the ', sec," sector.\n ", problem_fuel, 
+                 " does not aggregate in the ", sec, " sector.",
+                 sep=""))}
+    }
+ }
+ check_activty_fuel()
+# Aggregate Activity data over fuels
+ printLog( "Aggregate Energy as Activity Data for energy production sectors" )
+ 
+ # change fuel to process
+ IEA_BP_ext_activity$fuel <- rep('process', nrow(IEA_BP_ext_activity))
+    
+ IEA_BP_ext_activity<-aggregate ( IEA_BP_ext_activity[
+   X_IEA_years],
+   by = list( fuel = IEA_BP_ext_activity$fuel,
+              sector = IEA_BP_ext_activity$sector, 
+              iso = IEA_BP_ext_activity$iso,
+              units= IEA_BP_ext_activity$units), sum ) 
+ 
+# ------------------------------------------------------------------------------
 # 6. Trend Check
 # Compare trends of projected IEA emissions for oil, gas, and coal to the trends
 #   of BP emissions for oil, gas, and coal
@@ -342,8 +357,7 @@
     
     iea_bp_trend_comparison <- rbind( iea_bp_trends[[1]], iea_bp_trends[[2]], 
                                       iea_bp_trends[[3]] )
-    writeData( iea_bp_trend_comparison, domain = "DIAG_OUT", fn = 
-        "A.IEA_BP_trend_comparison", comments = NULL, meta = F )
+
         
 # ------------------------------------------------------------------------------
 # 7. Sum check
@@ -425,11 +439,32 @@
     IEA_BP_sum_comp <- rbind( coal_totals, oil_totals, gas_totals )
     IEA_BP_sum_comp <- cbind( rbind(row_labels, row_labels, row_labels), IEA_BP_sum_comp )
     
-    writeData( IEA_BP_sum_comp, domain = "DIAG_OUT", fn = 
-        "A.IEA_BP_sum_comparison", comments = NULL, meta = F )
+
+
+
+# -----------------------------------------------------------------------------
+# 8. Output
+# Add comments for each table
+  comments.A.energy_dataension <- c( paste0( "IEA energy statistics", 
+                                               " by intermediate sector / intermediate fuel / historical year,",
+                                               " extendForwarded with BP energy statistics for latest BP years" ) )
     
-    # Every script should finish with this line
-    logStop()
+# write Energy activity and combustion data
+  writeData( IEA_BP_ext_comb, domain = "MED_OUT", fn = "A.comb_activity", 
+           comments = comments.A.energy_dataension )
+
+  writeData( IEA_BP_ext_activity, domain = "MED_OUT", fn = "A.NC_activity_energy", 
+             comments = comments.A.energy_dataension )
+  
+# Write out Diagnostic Output    
+  writeData( iea_bp_trend_comparison, domain = "DIAG_OUT", fn = 
+               "A.IEA_BP_trend_comparison", comments = NULL, meta = F )
+  
+  writeData( IEA_BP_sum_comp, domain = "DIAG_OUT", fn = 
+               "A.IEA_BP_sum_comparison", comments = NULL, meta = F )   
+        
+# Every script should finish with this line
+ logStop()
     
-    # END
+# END
     

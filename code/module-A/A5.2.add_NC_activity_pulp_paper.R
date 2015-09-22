@@ -5,7 +5,7 @@
 # Program Purpose: To process and reformat non-combustion (process) pulp and paper 
 #                  production activity_data, and add it to the activity database.
 # Input Files: A.NC_activty_db.csv, 2011_NC_SO2_ctry.csv, Wood_Pulp_Consumption.xlsx
-#               activity_input_mapping.xlsx
+#               activity_input_mapping.csv
 # Output Files: A.NC_activty_db.csv
 # Notes: 
 # TODO: 
@@ -54,7 +54,7 @@ input_domain <- "ACTIVITY_IN"
 # 1. Read in files
 
 # iso_mapping <- readData( "MAPPINGS","2011_NC_SO2_ctry" )
-act_input <- readData( "MAPPINGS", "activity_input_mapping", ".xlsx" )
+act_input <- readData( "MAPPINGS", "activity_input_mapping")
 MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
 
 activity_data <- readData( input_domain, input_name, input_ext )

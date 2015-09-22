@@ -256,6 +256,7 @@ $(MED_OUT)/A.NC_activity_db.csv : \
 	$(MOD_A)/A5.2.add_NC_activity_smelting.R \
 	$(MOD_A)/A5.2.add_NC_activity_pulp_paper.R \
 	$(MOD_A)/A5.2.add_NC_activity_gdp.R \
+	$(MOD_A)/A5.2.add_NC_activity_energy.R \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
 	$(PARAMS)/IO_functions.R \
@@ -263,7 +264,7 @@ $(MED_OUT)/A.NC_activity_db.csv : \
 	$(PARAMS)/analysis_functions.R \
 	$(PARAMS)/timeframe_functions.R \
 	$(PARAMS)/process_db_functions.R \
-	$(MAPPINGS)/activity_input_mapping.xlsx \
+	$(MAPPINGS)/activity_input_mapping.csv \
 	$(MAPPINGS)/2011_NC_SO2_ctry.csv \
 	$(ACTIV)/Smelter-Feedstock-Sulfur.xlsx \
 	$(ACTIV)/Wood_Pulp_Consumption.xlsx \
@@ -272,6 +273,7 @@ $(MED_OUT)/A.NC_activity_db.csv : \
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 	Rscript $(word 4,$^) $(EM) --nosave --no-restore
+	Rscript $(word 5,$^) $(EM) --nosave --no-restore
 
 # aa5-2a
 # Converts activity database into CEDS Standard and combines

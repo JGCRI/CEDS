@@ -269,9 +269,9 @@ comments.dropoff_data <- paste0( "Listing of those country-sector-fuel combinati
                                  " A lack of entry for either indicates nonzero activity_data at that end.")
 
 # Output
-writeData( no_data, domain = "DIAG_OUT", fn = "C.NC_missing_sectors", 
+writeData( no_data, domain = "DIAG_OUT", fn = "A.NC_missing_sectors", 
            meta = F, comments = comments.no_data )
-writeData( dropoff_data, domain = "DIAG_OUT", fn = "C.NC_dropoff_sectors", 
+writeData( dropoff_data, domain = "DIAG_OUT", fn = "A.NC_dropoff_sectors", 
            meta = F, comments = comments.dropoff_data )
 
 logStop()

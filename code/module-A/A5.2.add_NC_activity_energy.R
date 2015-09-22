@@ -1,10 +1,10 @@
 # ------------------------------------------------------------------------------
-# Program Name: A5.2.add_NC_activity_gdp.R
-# Author: Jon Seibert
-# Date Last Modified: June 19, 2015
+# Program Name: A5.2.add_NC_activity_energy.R
+# Author: Rachel Hoesly adapted from Jon Seibert
+# Date Last Modified: Sept 21, 2015
 # Program Purpose: To process and reformat non-combustion (process) GDP activity_data,
 #                  and add it to the activity database.
-# Input Files: A.NC_activty_db.csv, 2011_NC_SO2_ctry.csv, GDP.xlsx, activity_input_mapping.csv
+# Input Files: A.NC_activty_db.csv, activity_input_mapping.csv, A
 # Output Files: A.NC_activty_db.csv
 # Notes: 
 # TODO: 
@@ -16,38 +16,38 @@
 # Before we can load headers we need some paths defined. They may be provided by
 # a system environment variable or may have already been set in the workspace.
 # Set variable PARAM_DIR to be the activity_data system directory.
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for( i in 1:length( dirs ) ){
-        setwd(  paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if( length( wd ) > 0 ){
-            setwd( wd[ 1 ] )
-            break
-        }
-    }
-    
-    PARAM_DIR <- "../code/parameters/"
+dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
+for( i in 1:length( dirs ) ){
+  setwd(  paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
+  wd <- grep( 'CEDS/input', list.dirs(), value = T )
+  if( length( wd ) > 0 ){
+    setwd( wd[ 1 ] )
+    break
+  }
+}
+
+PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( "data_functions.R", "timeframe_functions.R", "process_db_functions.R", 
-                  "analysis_functions.R" ) # Additional function files required.
-    log_msg <- "Initial reformatting of gdp process activity activity_data" # First message to be printed to the log
-    script_name <- "A5.2.add_NC_activity_gdp.R"
-    
-    source( paste0( PARAM_DIR, "header.R" ) )
-    initialize( script_name, log_msg, headers )    
-    
+headers <- c( "data_functions.R", "timeframe_functions.R", "process_db_functions.R", 
+              "analysis_functions.R" ) # Additional function files required.
+log_msg <- "Initial reformatting of gdp process activity activity_data" # First message to be printed to the log
+script_name <- "A5.2.add_NC_activity_gdp.R"
+
+source( paste0( PARAM_DIR, "header.R" ) )
+initialize( script_name, log_msg, headers )    
+
 # -----------------------------------------------------------------------------
 # 0.5. Settings
 
 # Input file
-input_name <- "GDP"
-input_ext <- ".xlsx"
+input_name <- "A.NC_activity_energy"
+input_ext <- ".csv"
 input <- paste0( input_name, input_ext )
 
 # Location of input files relative to wd (input)
-input_domain <- "ACTIVITY_IN"
+input_domain <- "MED_OUT"
 
 # ------------------------------------------------------------------------------
 # 1. Read in files
@@ -58,25 +58,13 @@ MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection
 
 activity_data <- readData( input_domain, input_name, input_ext )
 
-activity_data <- activity_data[[ 6 ]]
-
-# Set variables with the activity of the input file and the associated units
-activity_name <- act_input$activity[ act_input$file == input ]
-unit <- unique( MSL$units[ MSL$activity == activity_name ] )
-
 # ------------------------------------------------------------------------------
 # 2. Reformatting
 
-# Apply reformatting header function
-activity_data <- cleanData( activity_data )
-
 # Applies activity and unit assignments, and reorders columns to standard form
-activity_data$activity <- activity_name
-activity_data$units <- unit
+activity_data$activity <- activity_data$sector
 
-activity_years <- names(activity_data)[grep("X",names(activity_data))]
-
-results <- cbind( activity_data[ c( "iso","activity","units" ) ] , activity_data[ activity_years ] )
+results <- cbind( activity_data[ c( "iso","activity","units" ) ] , activity_data[ X_IEA_years ] )
 
 # Sort results by iso and activity
 results <- results[ with( results, order( iso, activity ) ), ]
@@ -89,7 +77,7 @@ results <- results[ with( results, order( iso, activity ) ), ]
 # Only do this if the activityCheck header function determines that the activities in
 # the reformatted activity_data are all present in the Master List.
 if( activityCheck( results, check_all = FALSE ) ){
-    addToActivityDb( results )
+  addToActivityDb( results )
 }
 
 logStop()
