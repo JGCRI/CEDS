@@ -53,7 +53,7 @@ scripts <- c()
 
 # Set scripts to add emissions data for SO2
 if( em == "SO2" ){
-  scripts <- c( "B1.2.add_SO2_comb_EF_gains.R" )
+  scripts <- c( "B1.2.add_SO2_comb_EF_gains.R" , 'B1.2.add_SO2_comb_EF_ash_retention.R')
 }
 
 # Set scripts to add emissions data for BC or OC

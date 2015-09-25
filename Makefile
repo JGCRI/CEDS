@@ -300,6 +300,7 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(MOD_B)/B1.1.base_SO2_comb_EF.R \
 	$(MOD_B)/B1.1.base_BC_comb_EF.R \
 	$(MOD_B)/B1.2.add_SO2_comb_EF_gains.R \
+	$(MOD_B)/B1.2.add_SO2_comb_EF_ash_retention.R \
 	$(PARAMS)/timeframe_functions.R \
 	$(PARAMS)/process_db_functions.R \
 	$(MAPPINGS)/SO2_base_EF.csv \
