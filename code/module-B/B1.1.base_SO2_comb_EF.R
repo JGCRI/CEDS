@@ -44,7 +44,7 @@
 # 1. Read in files
     # "em" is defined from parent script
     em_lc <- tolower( em )
-    
+
     activity_data <- readData( "MED_OUT", "A.comb_activity" )
     fuel_efs <- readData( "MAPPINGS", paste0 ( em, "_base_EF" ) ) 
     fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
@@ -53,13 +53,14 @@
     fuelCheck( fuel_efs )
 
 # ------------------------------------------------------------------------------
-# 2. Copy out default emissions factors to relevant fuels and sectors.
+# 2. Create the base/default emissions factors db (use to fill in iso/fuel/sector/year
+# combinations at end).
 
-    # List out all fuels
+# List out all fuels
     all_fuels <- fuel_list[[ "fuel" ]]
     
-    # Remove "process" from the list, if present, to avoid errors,
-    # as it is not in the fuel_efs list.
+# Remove "process" from the list, if present, to avoid errors,
+# as it is not in the fuel_efs list.
     all_fuels <- all_fuels[ all_fuels != "process"]
     
     default_efs <- activity_data
@@ -73,18 +74,13 @@
     default_efs$units <- paste0( default_efs$units, "/", default_efs$units)
 
 # ------------------------------------------------------------------------------
-# 3. Output
+# 4. Output    
 
-    # writeData( default_efs, "MED_OUT", paste0( "B.", em ,"_default_EF" ) )
-    
     # Write out the base combustion emissions factors database
     writeData( default_efs, "MED_OUT", paste0( "B.", em ,"_", "comb", "_EF_db" ) )
     
     # NOTE: Users wishing to add more emissions factors data should create a new script
     # entitled B.add_?_EF.R in which to do so.
-    
-
-    # writeData( default_efs, "MED_OUT", paste0( "B.", em_species ,"_scaled_EF" ) )
 
 # Every script should finish with this line
     logStop()

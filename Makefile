@@ -296,8 +296,10 @@ $(MED_OUT)/A.NC_activity.csv : \
 # by calling a daughter script for the relevant emissions type
 $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(MOD_B)/B1.1.base_comb_EF.R \
+	$(MOD_B)/B1.2.add_comb_EF.R \
 	$(MOD_B)/B1.1.base_SO2_comb_EF.R \
 	$(MOD_B)/B1.1.base_BC_comb_EF.R \
+	$(MOD_B)/B1.2.add_SO2_comb_EF_gains.R \
 	$(PARAMS)/timeframe_functions.R \
 	$(PARAMS)/process_db_functions.R \
 	$(MAPPINGS)/SO2_base_EF.csv \
@@ -312,6 +314,7 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(INV_DATA)/Bond_Fuel-Central_1990.csv \
 	$(INV_DATA)/Bond_Fuel-Central_1996.csv
 	Rscript $< $(EM) --nosave --no-restore
+	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 
 # cc1-1
 # BRANCH BLOCK

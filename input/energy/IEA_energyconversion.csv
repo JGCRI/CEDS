@@ -1,0 +1,435 @@
+COUNTRY,FLOW,Hard coal (if no detail),Brown coal (if no detail),Anthracite,Coking coal,Other bituminous coal,Sub-bituminous coal,Lignite,Patent fuel,Coke oven coke,Gas coke,Coal tar,BKB/peat briquettes,Peat,Crude/NGL/feedstocks/non-crude (if no detail),Crude oil,Natural gas liquids,Refinery feedstocks,Additives/blending components,Other hydrocarbons,Refinery gas,Ethane,Liquefied petroleum gases (LPG),Motor gasoline,Aviation gasoline,Gasoline type jet fuel,Kerosene type jet fuel,Other kerosene,Gas/diesel oil,Fuel oil,Naphtha,White spirit & SBP,Lubricants,Bitumen,Paraffin waxes,Petroleum coke,Non-specified oil products,Biogasoline,Biodiesels,Other liquid biofuels,Charcoal
+Canada,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,42790,45220,42500,x,41868,48100,49400,47300,44800,44800,44800,44600,43800,42600,40200,45000,43000,42000,40000,x,32000,40000,26800,x,x,x
+Canada,NCV of production,x,x,x,24890,25514,17799,14464,x,28830,x,x,x,x,x,42790,45220,x,x,41868,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Canada,NCV of imports,x,x,26381,28329,25514,17799,14464,x,28830,x,x,x,x,x,42790,45220,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Canada,NCV of exports,x,x,x,24890,25514,17799,14464,x,28830,x,x,x,x,x,42790,45220,x,x,41868,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Canada,NCV of coke ovens,x,x,x,28329,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Canada,NCV of blast furnaces,x,x,x,x,x,x,x,x,28830,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Canada,NCV in main activity producer electricity plants,x,x,x,x,27200,18451,14250,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Canada,NCV in autoproducer electricity plants,x,x,x,x,29778,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Canada,NCV in main activity CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Canada,NCV in autoproducer CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Canada,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Canada,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Canada,NCV in industry,x,x,26381,x,25514,x,14464,x,28830,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Canada,NCV for other uses,x,x,26381,28329,25514,17799,14464,x,28830,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Chile,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,43176,48095,44799,x,x,48100,x,47300,44800,44800,x,44600,43800,43300,40200,45000,x,x,x,x,32000,40000,x,x,x,30800
+Chile,NCV of production,x,x,x,x,20736,x,x,x,28619,x,41338,x,x,x,43605,48095,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Chile,NCV of imports,x,x,x,28619,24283,x,x,x,27264,x,x,x,x,x,43166,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Chile,NCV of exports,x,x,x,x,x,x,x,x,29121,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Chile,NCV of coke ovens,x,x,x,29254,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Chile,NCV of blast furnaces,x,x,x,x,x,x,x,x,29254,x,41338,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Chile,NCV in main activity producer electricity plants,x,x,x,x,22402,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Chile,NCV in autoproducer electricity plants,x,x,x,x,28000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Chile,NCV in main activity CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Chile,NCV in autoproducer CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Chile,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Chile,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Chile,NCV in industry,x,x,x,x,26508,x,x,x,29374,x,41338,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Chile,NCV for other uses,x,x,x,28619,25841,x,x,x,28619,x,41338,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Czech Republic,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,41980,x,39500,39500,41868,49500,x,46000,44000,44000,x,43000,43000,42600,40000,44000,43600,42000,39000,40000,32000,40000,x,37100,x,x
+Czech Republic,NCV of production,x,x,x,28420,24404,x,13014,x,27967,x,37336,23873,x,x,41860,x,39500,39500,41868,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Czech Republic,NCV of imports,x,x,32000,24996,24800,x,14000,x,27734,x,37336,x,x,x,41980,x,x,39500,41868,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Czech Republic,NCV of exports,x,x,32000,27259,29364,x,13049,x,27835,x,37336,23900,x,x,42000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Czech Republic,NCV of coke ovens,x,x,x,28818,x,x,x,x,27911,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Czech Republic,NCV of blast furnaces,x,x,x,x,x,x,x,x,27911,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Czech Republic,NCV in main activity producer electricity plants,x,x,x,x,23500,x,11954,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Czech Republic,NCV in autoproducer electricity plants,x,x,x,x,x,x,12400,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Czech Republic,NCV in main activity CHP plants,x,x,x,x,23524,x,12500,x,x,x,38100,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Czech Republic,NCV in autoproducer CHP plants,x,x,x,x,x,x,12099,x,x,x,39667,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Czech Republic,NCV in main activity heat plants,x,x,x,x,23500,x,15000,x,27000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Czech Republic,NCV in autoproducer heat plants,x,x,x,x,22279,x,12500,x,30000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Czech Republic,NCV in industry,x,x,32000,x,22276,x,12268,x,28109,x,37336,23172,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Czech Republic,NCV for other uses,x,x,32000,28818,21061,x,13680,x,25839,x,37336,22919,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Denmark,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,43000,x,42700,x,x,49500,x,46000,44000,44000,x,43000,43000,42600,40000,44000,43600,42000,39000,x,32000,40000,x,37600,x,x
+Denmark,NCV of production,x,x,x,x,x,x,x,x,x,x,x,x,x,x,43000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Denmark,NCV of imports,x,x,x,x,24548,x,x,x,29300,x,x,x,x,x,43000,x,42700,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Denmark,NCV of exports,x,x,x,x,24401,x,x,x,x,x,x,x,x,x,43000,x,42700,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Denmark,NCV of coke ovens,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Denmark,NCV of blast furnaces,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Denmark,NCV in main activity producer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Denmark,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Denmark,NCV in main activity CHP plants,x,x,x,x,24414,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Denmark,NCV in autoproducer CHP plants,x,x,x,x,24800,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Denmark,NCV in main activity heat plants,x,x,x,x,25000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Denmark,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Denmark,NCV in industry,x,x,x,x,26500,x,x,x,29300,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Denmark,NCV for other uses,x,x,x,x,24552,x,x,x,29300,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Estonia,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,39218,x,x,46000,44000,44000,x,43000,x,42600,40000,x,x,42000,39000,x,x,x,x,x,x,x
+Estonia,NCV of production,x,x,x,x,x,x,8870,x,28500,x,x,16000,9405,x,x,x,x,x,39218,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Estonia,NCV of imports,x,x,x,x,27156,x,8032,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Estonia,NCV of exports,x,x,x,x,x,x,8728,x,28500,x,x,16000,12000,x,x,x,x,x,39220,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Estonia,NCV of coke ovens,x,x,x,x,x,x,11330,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Estonia,NCV of blast furnaces,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Estonia,NCV in main activity producer electricity plants,x,x,x,x,x,x,9064,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Estonia,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Estonia,NCV in main activity CHP plants,x,x,x,x,x,x,8715,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Estonia,NCV in autoproducer CHP plants,x,x,x,x,x,x,8286,x,x,x,x,x,7214,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Estonia,NCV in main activity heat plants,x,x,x,x,28333,x,8667,x,x,x,x,x,11000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Estonia,NCV in autoproducer heat plants,x,x,x,x,33000,x,x,x,x,x,x,x,10091,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Estonia,NCV in industry,x,x,x,x,27156,x,11640,x,x,x,x,x,9260,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Estonia,NCV for other uses,x,x,x,x,27156,x,8568,x,29308,x,x,16000,9260,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Finland,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,42390,45217,42496,25121,41868,49500,x,46000,44000,44000,x,43000,43000,42600,40000,44000,43600,42000,39000,40000,32000,40000,x,x,x,x
+Finland,NCV of production,x,x,x,x,x,x,x,x,29300,x,37000,x,10190,x,x,x,42496,25121,41868,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Finland,NCV of imports,x,x,x,29300,25500,x,x,x,29300,x,x,x,10200,x,42390,45217,x,25121,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Finland,NCV of exports,x,x,x,x,x,x,x,x,x,x,x,x,10190,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Finland,NCV of coke ovens,x,x,x,29300,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Finland,NCV of blast furnaces,x,x,x,x,x,x,x,x,29300,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Finland,NCV in main activity producer electricity plants,x,x,x,x,25514,x,x,x,x,x,x,x,10198,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Finland,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,47000,x,11000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Finland,NCV in main activity CHP plants,x,x,x,x,25504,x,x,x,x,x,x,x,10200,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Finland,NCV in autoproducer CHP plants,x,x,x,x,25889,x,x,x,x,x,x,x,10205,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Finland,NCV in main activity heat plants,x,x,x,x,25463,x,x,x,x,x,x,x,9460,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Finland,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,11333,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Finland,NCV in industry,x,x,x,x,25500,x,x,x,29300,x,37000,x,10190,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Finland,NCV for other uses,x,x,x,29300,25500,x,x,x,29300,x,37000,x,10190,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+France,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,41855,42000,41855,25120,x,49500,49500,46000,44000,44000,x,43000,43000,42600,40000,44000,43600,42000,39000,40000,32000,40000,26807,37867,x,x
+France,NCV of production,x,x,x,x,26000,x,x,32000,28000,x,38519,x,x,x,41855,42000,41855,25120,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+France,NCV of imports,x,x,x,30500,26000,x,17000,32000,28000,x,x,x,x,x,41855,x,x,25120,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+France,NCV of exports,x,x,x,30500,26000,x,x,x,28000,x,x,x,x,x,x,x,x,25120,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+France,NCV of coke ovens,x,x,x,30500,x,x,x,x,28000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+France,NCV of blast furnaces,x,x,x,x,26000,x,x,x,28000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+France,NCV in main activity producer electricity plants,x,x,x,x,26000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+France,NCV in autoproducer electricity plants,x,x,x,x,26019,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+France,NCV in main activity CHP plants,x,x,x,x,25817,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+France,NCV in autoproducer CHP plants,x,x,x,x,25933,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+France,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+France,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+France,NCV in industry,x,x,x,x,26000,x,17000,x,28000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+France,NCV for other uses,x,x,x,30500,26000,x,17000,32000,28000,x,38519,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Germany,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,42949,x,42496,25121,41868,49500,x,46000,44000,44000,x,43000,43000,42600,40000,44000,43600,42000,39000,40000,32000,40000,26800,37360,37600,x
+Germany,NCV of production,x,x,29700,29000,23580,x,9043,31400,28650,x,x,21433,8375,x,42949,x,42496,25121,41868,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Germany,NCV of imports,x,x,29700,30170,25820,x,8500,31400,28650,x,x,19127,x,x,42949,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Germany,NCV of exports,x,x,30500,x,30000,x,10489,31400,28650,x,x,21764,8375,x,42949,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Germany,NCV of coke ovens,x,x,x,29100,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Germany,NCV of blast furnaces,x,x,x,x,25100,x,x,x,28650,x,x,29900,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Germany,NCV in main activity producer electricity plants,x,x,29680,29000,25124,x,9096,x,x,x,x,31594,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Germany,NCV in autoproducer electricity plants,x,x,29680,29000,25100,x,9105,x,x,x,x,21027,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Germany,NCV in main activity CHP plants,x,x,x,29000,25125,x,9105,x,x,x,x,26290,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Germany,NCV in autoproducer CHP plants,x,x,x,29000,25100,x,x,x,x,x,x,21032,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Germany,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,21025,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Germany,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Germany,NCV in industry,x,x,29710,x,25300,x,10262,x,28650,x,x,21800,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Germany,NCV for other uses,x,x,29710,29100,25100,x,10260,31400,28650,x,x,19667,8375,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Greece,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,41228,41555,41318,41318,x,49500,x,46000,44000,x,43000,43000,43000,42600,40000,44000,x,42000,39000,x,32000,40000,x,x,x,x
+Greece,NCV of production,x,x,x,x,x,x,5151,x,x,x,x,14573,x,x,38158,41555,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Greece,NCV of imports,x,x,x,x,25618,x,x,x,29302,x,x,x,x,x,41540,x,41318,41318,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Greece,NCV of exports,x,x,x,x,25618,x,x,x,x,x,x,14573,x,x,41860,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Greece,NCV of coke ovens,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Greece,NCV of blast furnaces,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Greece,NCV in main activity producer electricity plants,x,x,x,x,x,x,5240,x,x,x,x,13889,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Greece,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Greece,NCV in main activity CHP plants,x,x,x,x,x,x,5244,x,x,x,x,19000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Greece,NCV in autoproducer CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Greece,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Greece,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Greece,NCV in industry,x,x,x,x,25618,x,9455,x,29302,x,x,14573,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Greece,NCV for other uses,x,x,x,x,25618,x,5200,x,29302,x,x,14573,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Hungary,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,42000,44000,43200,41800,40000,49500,x,46000,44000,44000,x,43000,x,42600,40000,44000,43600,42000,39000,40000,32000,40000,26800,x,x,x
+Hungary,NCV of production,x,x,x,x,x,x,7648,16065,29340,x,38100,x,x,x,41100,43000,43200,41800,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Hungary,NCV of imports,x,x,x,31429,24851,18038,x,x,29720,x,x,20000,x,x,42100,47000,41800,41800,40000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Hungary,NCV of exports,x,x,x,x,23820,18000,8807,x,29267,x,38100,x,x,x,42100,43000,x,41800,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Hungary,NCV of coke ovens,x,x,x,31429,x,x,x,x,29267,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Hungary,NCV of blast furnaces,x,x,x,x,x,x,x,x,29199,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Hungary,NCV in main activity producer electricity plants,x,x,x,x,25412,15961,7585,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Hungary,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Hungary,NCV in main activity CHP plants,x,x,x,x,25054,15658,11975,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Hungary,NCV in autoproducer CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Hungary,NCV in main activity heat plants,x,x,x,x,25472,14613,7377,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Hungary,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Hungary,NCV in industry,x,x,x,x,23828,x,16667,x,29183,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Hungary,NCV for other uses,x,x,x,31429,25890,21234,11978,16065,29443,x,38100,20000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Iceland,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,46000,44000,44000,x,43000,x,42600,40000,x,43600,42000,39000,x,32000,x,x,x,x,x
+Iceland,NCV of production,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Iceland,NCV of imports,x,x,x,28050,28050,x,x,x,26670,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Iceland,NCV of exports,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Iceland,NCV of coke ovens,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Iceland,NCV of blast furnaces,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Iceland,NCV in main activity producer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Iceland,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Iceland,NCV in main activity CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Iceland,NCV in autoproducer CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Iceland,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Iceland,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Iceland,NCV in industry,x,x,x,28050,28050,x,x,x,26670,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Iceland,NCV for other uses,x,x,x,28050,28050,x,x,x,26670,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Ireland,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,42830,x,42500,x,x,49500,x,46000,44000,44000,x,43000,43000,42600,40000,44000,43600,42000,39000,40000,32000,x,x,37273,x,x
+Ireland,NCV of production,x,x,28052,x,x,x,x,x,x,x,x,18548,8574,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Ireland,NCV of imports,x,x,27842,x,27838,x,19820,x,x,x,x,x,x,x,42830,x,42500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Ireland,NCV of exports,x,x,28052,x,27842,x,x,x,x,x,x,18548,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Ireland,NCV of coke ovens,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Ireland,NCV of blast furnaces,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Ireland,NCV in main activity producer electricity plants,x,x,x,x,25509,x,x,x,x,x,x,x,7910,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Ireland,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Ireland,NCV in main activity CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Ireland,NCV in autoproducer CHP plants,x,x,x,x,26400,x,x,x,x,x,x,x,12342,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Ireland,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Ireland,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Ireland,NCV in industry,x,x,x,x,27842,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Ireland,NCV for other uses,x,x,27979,x,27842,x,19820,x,x,x,x,18548,8574,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Israel,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,42538,x,44799,x,x,x,x,47300,44800,44800,x,x,43800,43300,40200,45000,x,x,39000,x,32000,40000,x,x,x,30800
+Israel,NCV of production,x,x,x,x,x,x,2931,x,x,x,x,x,x,x,42538,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Israel,NCV of imports,x,x,x,x,25473,x,x,x,x,x,x,x,x,x,42538,x,44799,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Israel,NCV of exports,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Israel,NCV of coke ovens,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Israel,NCV of blast furnaces,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Israel,NCV in main activity producer electricity plants,x,x,x,x,24473,x,2930,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Israel,NCV in autoproducer electricity plants,x,x,x,x,x,x,2931,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Israel,NCV in main activity CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Israel,NCV in autoproducer CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Israel,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Israel,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Israel,NCV in industry,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Israel,NCV for other uses,x,x,x,x,25473,x,2931,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Italy,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,41860,x,41860,25121,41868,49500,x,46000,44000,44000,x,43000,43000,42600,40000,44000,43600,42000,39000,40000,32000,40000,x,37400,x,30800
+Italy,NCV of production,x,x,x,x,26587,x,x,x,29000,x,x,x,x,x,41860,x,41860,25121,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Italy,NCV of imports,x,x,x,30984,26587,x,10468,x,29000,x,x,x,x,x,41860,x,41860,25121,41868,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Italy,NCV of exports,x,x,x,x,x,x,x,x,29000,x,x,x,x,x,41860,x,41860,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Italy,NCV of coke ovens,x,x,x,30984,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Italy,NCV of blast furnaces,x,x,x,x,26587,x,x,x,29000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Italy,NCV in main activity producer electricity plants,x,x,x,x,26160,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Italy,NCV in autoproducer electricity plants,x,x,x,x,25750,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Italy,NCV in main activity CHP plants,x,x,x,x,27650,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Italy,NCV in autoproducer CHP plants,x,x,x,x,26183,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Italy,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Italy,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Italy,NCV in industry,x,x,x,x,26587,x,10468,x,29000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Italy,NCV for other uses,x,x,x,30984,26587,x,10468,x,29000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Japan,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,42346,46544,42500,x,45499,48100,x,47700,44600,44600,x,44500,42900,42600,42600,43200,43000,42900,38800,40000,33800,40000,x,x,x,29300
+Japan,NCV of production,x,x,x,x,x,x,x,x,29400,x,35393,x,x,x,42346,46544,42500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Japan,NCV of imports,x,x,26362,28130,24801,x,x,x,29400,x,35393,x,x,x,42346,46544,x,x,45499,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Japan,NCV of exports,x,x,x,x,24801,x,x,x,29400,x,35393,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Japan,NCV of coke ovens,x,x,26362,28227,24801,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Japan,NCV of blast furnaces,x,x,x,27354,x,x,x,x,29400,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Japan,NCV in main activity producer electricity plants,x,x,x,x,25058,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Japan,NCV in autoproducer electricity plants,x,x,x,x,25058,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Japan,NCV in main activity CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Japan,NCV in autoproducer CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Japan,NCV in main activity heat plants,x,x,x,x,24680,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Japan,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Japan,NCV in industry,x,x,x,x,24801,x,x,x,29400,x,35393,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Japan,NCV for other uses,x,x,26362,27354,24801,x,x,x,29400,x,35393,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Korea,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,42700,x,44800,41868,41868,48100,x,47700,44600,x,x,44500,42900,42600,42600,43200,43000,42900,38800,40000,33800,40000,x,38210,x,x
+Korea,NCV of production,x,x,18638,x,x,x,x,19862,27214,x,x,x,x,x,42700,x,44800,41868,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Korea,NCV of imports,x,x,24546,27633,24900,20900,x,x,27214,x,x,x,x,x,42700,x,44800,41868,41868,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Korea,NCV of exports,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,41868,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Korea,NCV of coke ovens,x,x,x,27633,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Korea,NCV of blast furnaces,x,x,x,27633,x,x,x,x,27214,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Korea,NCV in main activity producer electricity plants,x,x,18841,x,27633,22399,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Korea,NCV in autoproducer electricity plants,x,x,x,x,27551,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Korea,NCV in main activity CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Korea,NCV in autoproducer CHP plants,x,x,x,x,27639,22408,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Korea,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Korea,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Korea,NCV in industry,x,x,24510,x,24900,x,x,x,27214,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Korea,NCV for other uses,x,x,17944,27633,24900,20900,x,19862,27214,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Luxembourg,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,46000,44000,x,x,43000,43000,42600,40000,x,x,42000,39000,x,x,x,x,x,39763,x
+Luxembourg,NCV of production,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Luxembourg,NCV of imports,x,x,26700,x,29300,x,x,x,28500,x,x,20100,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Luxembourg,NCV of exports,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Luxembourg,NCV of coke ovens,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Luxembourg,NCV of blast furnaces,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Luxembourg,NCV in main activity producer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Luxembourg,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Luxembourg,NCV in main activity CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Luxembourg,NCV in autoproducer CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Luxembourg,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Luxembourg,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Luxembourg,NCV in industry,x,x,26700,x,29300,x,x,x,28500,x,x,20100,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Luxembourg,NCV for other uses,x,x,29300,x,29300,x,x,x,28500,x,x,20100,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Mexico,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,44111,42661,x,46015,x,48100,49400,47300,44800,44800,x,44600,43800,42600,40200,45000,x,42000,40000,40000,32000,40000,x,x,x,x
+Mexico,NCV of production,x,x,x,23483,x,21952,x,x,26521,x,x,x,x,x,44111,42661,x,46015,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Mexico,NCV of imports,x,x,x,x,23483,21952,14100,x,26521,x,x,x,x,x,x,x,x,46015,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Mexico,NCV of exports,x,x,x,x,23483,x,x,x,26521,x,x,x,x,x,44111,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Mexico,NCV of coke ovens,x,x,x,23483,23483,x,14100,x,26521,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Mexico,NCV of blast furnaces,x,x,x,x,x,x,x,x,26521,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Mexico,NCV in main activity producer electricity plants,x,x,x,x,x,21952,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Mexico,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Mexico,NCV in main activity CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Mexico,NCV in autoproducer CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Mexico,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Mexico,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Mexico,NCV in industry,x,x,x,x,x,21952,x,x,26521,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Mexico,NCV for other uses,x,x,x,23483,23483,21952,14100,x,26521,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Netherlands,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,42700,44000,42496,x,x,49500,49500,46000,44000,44000,x,43000,43000,42600,40000,44000,43600,42000,39000,40000,32000,40000,28000,x,37186,30000
+Netherlands,NCV of production,x,x,x,x,x,x,x,x,28500,x,41900,x,x,x,42700,44000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Netherlands,NCV of imports,x,x,29300,28671,25111,x,20000,x,28500,x,41900,x,x,x,42700,44000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Netherlands,NCV of exports,x,x,29300,28671,25111,x,x,29300,28500,x,41900,x,x,x,42700,44000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Netherlands,NCV of coke ovens,x,x,x,28671,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Netherlands,NCV of blast furnaces,x,x,x,28671,x,x,x,x,28500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Netherlands,NCV in main activity producer electricity plants,x,x,x,x,25111,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Netherlands,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Netherlands,NCV in main activity CHP plants,x,x,x,x,25111,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Netherlands,NCV in autoproducer CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Netherlands,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Netherlands,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Netherlands,NCV in industry,x,x,29300,28671,x,x,20000,x,28500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Netherlands,NCV for other uses,x,x,29300,28671,25111,x,20000,x,28500,x,41900,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+New Zealand,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,42484,45650,41911,x,x,48100,x,47700,44600,44600,x,44500,42900,42600,42600,x,43000,42900,38800,x,33800,40000,x,x,x,x
+New Zealand,NCV of production,x,x,x,29934,28196,21299,15134,x,29500,x,x,x,x,x,42521,45650,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+New Zealand,NCV of imports,x,x,x,x,28196,21299,x,x,x,x,x,x,x,x,42143,x,41911,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+New Zealand,NCV of exports,x,x,x,29934,x,x,x,x,x,x,x,x,x,x,42787,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+New Zealand,NCV of coke ovens,x,x,x,x,x,21299,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+New Zealand,NCV of blast furnaces,x,x,x,x,x,x,x,x,29500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+New Zealand,NCV in main activity producer electricity plants,x,x,x,x,x,21080,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+New Zealand,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+New Zealand,NCV in main activity CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+New Zealand,NCV in autoproducer CHP plants,x,x,x,x,x,21167,14769,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+New Zealand,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+New Zealand,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+New Zealand,NCV in industry,x,x,x,x,28196,21299,15134,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+New Zealand,NCV for other uses,x,x,x,28400,28196,21299,15134,x,29500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Norway,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,42296,43795,42300,36800,x,49500,49500,46000,44000,44000,x,43000,43000,42600,40000,44000,43600,42000,39000,x,32000,40000,x,x,x,x
+Norway,NCV of production,x,x,x,x,28100,x,x,x,x,x,x,x,x,x,42296,43795,42300,36800,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Norway,NCV of imports,x,x,x,x,28100,x,x,x,28500,x,x,x,x,x,42296,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Norway,NCV of exports,x,x,x,x,28100,x,x,x,28500,x,x,x,x,x,42296,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Norway,NCV of coke ovens,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Norway,NCV of blast furnaces,x,x,x,x,x,x,x,x,28500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Norway,NCV in main activity producer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Norway,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Norway,NCV in main activity CHP plants,x,x,x,x,28320,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Norway,NCV in autoproducer CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Norway,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Norway,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Norway,NCV in industry,x,x,x,x,28100,x,x,x,28500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Norway,NCV for other uses,x,x,x,x,28100,x,x,x,28500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Poland,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,42484,x,42496,37713,42500,49500,x,46000,44000,44000,x,43000,43000,42600,40000,44000,43600,42000,39000,40000,32000,40000,29713,38425,38699,x
+Poland,NCV of production,x,x,x,29600,23060,x,8651,x,28219,x,38520,x,x,x,41761,x,42496,37713,42500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Poland,NCV of imports,x,x,x,29580,24500,x,x,x,27999,x,38520,17454,x,x,42490,x,42496,37713,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Poland,NCV of exports,x,x,x,29650,24570,x,8752,23245,28000,x,38520,x,x,x,40128,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Poland,NCV of coke ovens,x,x,x,29509,x,x,x,x,25682,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Poland,NCV of blast furnaces,x,x,x,x,x,x,x,x,28511,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Poland,NCV in main activity producer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Poland,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Poland,NCV in main activity CHP plants,x,x,x,x,21404,x,8742,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Poland,NCV in autoproducer CHP plants,x,x,x,x,22046,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Poland,NCV in main activity heat plants,x,x,x,x,22695,x,11688,x,27182,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Poland,NCV in autoproducer heat plants,x,x,x,29506,29367,x,11000,x,20000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Poland,NCV in industry,x,x,x,x,24418,x,9227,x,26799,x,x,17484,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Poland,NCV for other uses,x,x,x,28788,25481,x,8684,x,27923,x,37720,19267,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Portugal,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,42697,x,44984,x,x,49500,x,46000,44000,44000,x,43000,43000,42600,40000,44000,43600,42000,39000,40000,32000,40000,x,x,x,x
+Portugal,NCV of production,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Portugal,NCV of imports,x,x,31878,x,25562,x,x,x,28043,x,x,x,x,x,42697,x,44984,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Portugal,NCV of exports,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Portugal,NCV of coke ovens,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Portugal,NCV of blast furnaces,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Portugal,NCV in main activity producer electricity plants,x,x,x,x,25889,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Portugal,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Portugal,NCV in main activity CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Portugal,NCV in autoproducer CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Portugal,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Portugal,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Portugal,NCV in industry,x,x,31878,x,x,x,x,x,28043,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Portugal,NCV for other uses,x,x,31878,x,25562,x,x,x,28043,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovak Republic,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,41991,41800,43860,42864,41500,49500,49500,46000,44000,44000,x,43000,43000,42600,40000,44000,43600,42000,39000,40000,32000,40000,x,39955,x,30800
+Slovak Republic,NCV of production,x,x,x,x,x,x,10623,x,28340,x,33491,x,x,x,41200,41800,43860,42864,41500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovak Republic,NCV of imports,x,x,28700,29381,25581,x,13048,28000,28283,x,x,23000,x,x,42000,x,43860,43554,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovak Republic,NCV of exports,x,x,x,x,x,x,x,x,28347,x,33491,x,x,x,41719,x,43860,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovak Republic,NCV of coke ovens,x,x,x,29381,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovak Republic,NCV of blast furnaces,x,x,x,29381,x,x,x,x,28336,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovak Republic,NCV in main activity producer electricity plants,x,x,x,x,x,x,9622,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovak Republic,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovak Republic,NCV in main activity CHP plants,x,x,25311,x,25084,x,11007,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovak Republic,NCV in autoproducer CHP plants,x,x,x,x,25662,x,13087,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovak Republic,NCV in main activity heat plants,x,x,x,x,x,x,13828,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovak Republic,NCV in autoproducer heat plants,x,x,x,x,x,x,14667,x,28333,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovak Republic,NCV in industry,x,x,28700,29381,25581,x,12299,x,28336,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovak Republic,NCV for other uses,x,x,28700,29381,25581,x,12299,28000,28336,x,33491,23000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovenia,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,46000,44000,44000,x,43000,43000,42600,40000,x,43600,42000,39000,x,32000,40000,x,x,x,x
+Slovenia,NCV of production,x,x,x,x,x,x,10919,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovenia,NCV of imports,x,x,x,x,24498,20480,x,x,28443,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovenia,NCV of exports,x,x,x,x,x,20480,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovenia,NCV of coke ovens,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovenia,NCV of blast furnaces,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovenia,NCV in main activity producer electricity plants,x,x,x,x,x,x,12000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovenia,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovenia,NCV in main activity CHP plants,x,x,x,x,x,18214,10803,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovenia,NCV in autoproducer CHP plants,x,x,x,x,x,20375,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovenia,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovenia,NCV in autoproducer heat plants,x,x,x,x,x,20000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovenia,NCV in industry,x,x,x,x,24498,20381,x,x,28443,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Slovenia,NCV for other uses,x,x,x,x,24498,19558,10935,x,28443,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Spain,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,42665,x,42500,25100,x,49500,x,46000,44000,44000,x,43000,43000,42600,40000,44000,43600,42000,39000,40000,32000,40000,26753,37555,x,x
+Spain,NCV of production,x,x,19265,x,20977,12042,6503,x,28500,x,x,x,x,x,42665,x,42500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Spain,NCV of imports,x,x,25298,30020,24042,x,x,x,28500,x,x,x,x,x,42665,x,42500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Spain,NCV of exports,x,x,x,x,x,x,x,x,28500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Spain,NCV of coke ovens,x,x,x,30020,x,x,x,x,28500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Spain,NCV of blast furnaces,x,x,x,x,31253,x,x,x,28500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Spain,NCV in main activity producer electricity plants,x,x,20491,x,22879,13339,7657,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Spain,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Spain,NCV in main activity CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Spain,NCV in autoproducer CHP plants,x,x,x,x,24150,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Spain,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Spain,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Spain,NCV in industry,x,x,x,x,24210,x,x,x,28500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Spain,NCV for other uses,x,x,22826,30020,25249,12042,6503,x,28500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Sweden,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,42161,x,44244,x,x,49500,49500,46000,44000,44000,x,43000,43000,42600,40000,44000,43600,42000,39000,x,32000,40000,26886,37513,42000,x
+Sweden,NCV of production,x,x,x,x,x,x,x,x,28080,x,x,x,12500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Sweden,NCV of imports,x,x,x,30000,27400,x,x,x,28080,x,x,20097,12940,x,42161,x,44244,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Sweden,NCV of exports,x,x,x,x,27400,x,x,x,28080,x,x,20097,x,x,x,x,44244,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Sweden,NCV of coke ovens,x,x,x,30000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Sweden,NCV of blast furnaces,x,x,x,x,27400,x,x,x,28080,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Sweden,NCV in main activity producer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Sweden,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Sweden,NCV in main activity CHP plants,x,x,x,x,26952,x,x,x,x,x,x,x,12720,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Sweden,NCV in autoproducer CHP plants,x,x,x,x,22000,x,x,x,x,x,x,x,7000,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Sweden,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,11667,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Sweden,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Sweden,NCV in industry,x,x,x,x,26860,x,x,x,28080,x,x,20097,10800,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Sweden,NCV for other uses,x,x,x,30000,27400,x,x,x,28080,x,x,20097,12500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Switzerland,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,43225,x,43700,41325,x,49500,x,46000,44000,44000,x,43000,43000,42600,40000,44000,43600,42000,39000,40000,32000,40000,26524,32040,x,x
+Switzerland,NCV of production,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Switzerland,NCV of imports,x,x,28100,x,28100,x,20100,x,28100,x,x,x,x,x,43225,x,43700,41325,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Switzerland,NCV of exports,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Switzerland,NCV of coke ovens,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Switzerland,NCV of blast furnaces,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Switzerland,NCV in main activity producer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Switzerland,NCV in autoproducer electricity plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Switzerland,NCV in main activity CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Switzerland,NCV in autoproducer CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Switzerland,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Switzerland,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Switzerland,NCV in industry,x,x,28100,x,28100,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Switzerland,NCV for other uses,x,x,28100,x,28100,x,20100,x,28100,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Turkey,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,41520,x,42500,x,x,49500,x,46000,44000,x,x,43000,43000,42600,40000,44000,43600,42000,39000,40000,x,40000,x,x,x,x
+Turkey,NCV of production,x,x,x,29297,20078,18000,6999,x,29302,x,x,20930,x,x,41370,x,42500,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Turkey,NCV of imports,x,x,x,30988,26204,x,x,x,29302,x,x,x,x,x,41570,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Turkey,NCV of exports,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Turkey,NCV of coke ovens,x,x,x,31462,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Turkey,NCV of blast furnaces,x,x,x,x,x,x,x,x,29302,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Turkey,NCV in main activity producer electricity plants,x,x,x,x,20084,x,5711,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Turkey,NCV in autoproducer electricity plants,x,x,x,27807,x,x,16593,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Turkey,NCV in main activity CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Turkey,NCV in autoproducer CHP plants,x,x,x,29786,x,x,15362,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Turkey,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Turkey,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Turkey,NCV in industry,x,x,x,29633,28142,18000,12558,x,29302,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+Turkey,NCV for other uses,x,x,x,28363,27379,18000,12552,x,29302,x,x,20930,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United Kingdom,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,43415,46828,42496,x,x,49500,49500,46000,44000,44000,x,43000,43000,42600,40000,44000,43600,42000,39000,40000,32000,40000,26800,36800,x,x
+United Kingdom,NCV of production,x,x,x,30900,24600,x,x,30900,28310,x,38519,x,x,x,43415,46828,42496,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United Kingdom,NCV of imports,x,x,x,28900,25300,x,x,30900,28310,x,x,x,x,x,43415,x,42496,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United Kingdom,NCV of exports,x,x,x,30900,31300,x,x,30900,28310,x,x,x,x,x,43415,46828,42496,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United Kingdom,NCV of coke ovens,x,x,x,30900,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United Kingdom,NCV of blast furnaces,x,x,x,30900,x,x,x,x,28310,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United Kingdom,NCV in main activity producer electricity plants,x,x,x,x,24855,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United Kingdom,NCV in autoproducer electricity plants,x,x,x,x,24855,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United Kingdom,NCV in main activity CHP plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United Kingdom,NCV in autoproducer CHP plants,x,x,x,x,24856,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United Kingdom,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United Kingdom,NCV in autoproducer heat plants,x,x,x,x,24797,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United Kingdom,NCV in industry,x,x,x,30900,25300,x,x,x,28310,x,38519,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United Kingdom,NCV for other uses,x,x,x,30900,24500,x,x,30900,28310,x,38519,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United States,Average net calorific value,x,x,x,x,x,x,x,x,x,x,x,x,x,x,43063,46629,44066,25121,51004,48100,49400,47300,44800,44800,x,44600,43800,42600,40200,45000,43000,42000,40000,40000,32000,40000,26747,40933,21583,x
+United States,NCV of production,x,x,28724,28532,26895,19131,13654,27620,28842,x,x,x,x,x,43261,46478,x,25121,51004,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United States,NCV of imports,x,x,28958,28203,26363,25144,13834,x,28842,x,x,x,x,x,43056,47809,44066,25121,51004,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United States,NCV of exports,x,x,24334,27567,27710,18859,14325,x,28842,x,x,x,x,x,43261,46900,x,25121,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United States,NCV of coke ovens,x,x,x,29646,x,x,x,29556,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United States,NCV of blast furnaces,x,x,31995,x,29648,x,x,29214,28842,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United States,NCV in main activity producer electricity plants,x,x,12610,x,25542,19516,14265,27140,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United States,NCV in autoproducer electricity plants,x,x,x,x,24968,19423,14621,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United States,NCV in main activity CHP plants,x,x,12610,x,24627,22496,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United States,NCV in autoproducer CHP plants,x,x,17588,x,27029,19421,x,24763,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United States,NCV in main activity heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United States,NCV in autoproducer heat plants,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United States,NCV in industry,x,x,18106,x,27459,19912,16301,26017,28842,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
+United States,NCV for other uses,x,x,26533,28532,26959,19355,14081,24722,28842,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x
