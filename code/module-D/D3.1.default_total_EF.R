@@ -68,11 +68,7 @@ total_default_efs <- total_default_efs[ with( total_default_efs, order( iso, sec
 # ------------------------------------------------------------------------------
 # 3. Output
 
-writeData(total_default_efs, domain = "MED_OUT", fn = paste0( "D.", em, "_total_default_EF" ), meta = TRUE )
-
-# Write out the default EFs to the 2nd file called scaled_EFs. This file will be
-#   called and scaled later in Module E.
-# writeData(total_scaled_efs, domain = "MED_OUT", fn = paste0( "D.", em, "_total_scaled_EF" ), meta = TRUE )
+writeData(total_default_efs, domain = "MED_OUT", fn = paste0( "D.", em, "_default_total_EF" ), meta = TRUE )
 
 logStop()
 # END
