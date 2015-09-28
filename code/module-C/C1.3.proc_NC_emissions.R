@@ -89,14 +89,13 @@ missing_entries <- emissions_data[ emissions_data$iso == "No such iso", ]
 
 # Append a block with all missing isos for each sector
 for( sector_name in sector_list ){
-    sector_unit <- activity_data$units[ activity_data$sector == sector_name ][ 1 ]
     
     # Data frame of only ID columns
     blank <- data.frame(
       iso = missing_iso_list,
       sector = sector_name,
       fuel = "process",
-      units = sector_unit )
+      units = 'kt' )
 
     # Add data columns of all 0
     blank <- cbind( blank, emissions_data[ 1:nrow( blank ), data_start:length( emissions_data ) ] )

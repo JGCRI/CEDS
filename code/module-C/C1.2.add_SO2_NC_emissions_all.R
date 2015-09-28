@@ -68,12 +68,12 @@ data_list <- readData( input_domain, input[ 1 ], input[ 2 ] )
 data_length <- length( data_list )
 
 sector_list <- c()
-unit_list <- c()
+# unit_list <- c()
 for( input in names( data_list ) ){
     sect <- sector_input[ sector_input$file == input, "sector" ]
     sector_list <- c( sector_list, sect )
-    unit <- master_sector_list[ master_sector_list$sector == sect, "units" ]
-    unit_list <- c( unit_list, unit )
+#     unit <- master_sector_list[ master_sector_list$sector == sect, "units" ]
+#     unit_list <- c( unit_list, unit )
 }
 
 # ------------------------------------------------------------------------------
@@ -87,10 +87,12 @@ for( i in 1:data_length ){
     data <- data_list[[ i ]]
     data$sector <- sector_list[[ i ]]
     data$fuel <- fuel
-    data$units <- unit_list[[ i ]]
+    data$units <- "kt"
     data_list[[ i ]] <- cbind( data[ c( "iso","sector","fuel","units" ) ] ,
         data[ 2:( length( data ) - 3 ) ] )
 } 
+
+x<-data_list[[2]]
 
 # ------------------------------------------------------------------------------
 # 3. Output
