@@ -55,7 +55,7 @@
         extrapolation_after  <- "constant"
     
 # Load the scaling functions for Module E
-    source( paste0( PARAM_DIR, "E.emissions_scaling_functions.R" ) )    
+    source( paste0( PARAM_DIR, "emissions_scaling_functions.R" ) )    
     
 # Read in the inventory data, mapping file, the specified emissions species, and
 #   the latest versions of the scaled EFs and 
