@@ -234,7 +234,7 @@ addToActivityDb <- function( df, ext_forward = TRUE, ext_backward = FALSE ){
 # Output files:     C.[em]_[type]_emissions_db.csv
 # 
 # Usage examples: addToEmissionsDb( df, ext_forward = FALSE, ext_backward = FALSE )
-addToEmissionsDb <- function( df, em, type, ext_forward = TRUE, ext_backward = FALSE ){
+addToEmissionsDb<- function( df, em, type, ext_forward = TRUE, ext_backward = FALSE ){
 
     # # DEBUG
     # df <- data_list[[2]]
@@ -245,7 +245,7 @@ addToEmissionsDb <- function( df, em, type, ext_forward = TRUE, ext_backward = F
 
     # Read in necessary files and data: common_data.r required 
     # to avoid variable overwrite carryover
-    source( paste( PARAM_DIR, "common_data.r", sep = "" ) )
+    source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
     emissions_db <- readData( "MED_OUT", paste0( "C.", em, "_", type, "_emissions_db" ), meta = FALSE )
     
     # Rebind values from common_data.r
@@ -352,6 +352,108 @@ addToEmissionsDb <- function( df, em, type, ext_forward = TRUE, ext_backward = F
     writeData( results, domain = "MED_OUT", fn = paste0( "C.", em, "_", type, "_emissions_db" ), meta = FALSE )
 }
 
+#(Temporary?) Rewrite of addToEmissionsDb function. Similar functionality. Overwrite old data with new data for 
+# duplicate entries. Order of data to add: worst then best
+addToEmissionsDb_overwrite <- function( new_data, em, type, ext_forward = TRUE, ext_backward = FALSE ){
+  new_data <-as.data.frame(new_data)
+  # Read in necessary files and data: common_data.r required 
+  # to avoid variable overwrite carryover
+  source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
+  source( paste( PARAM_DIR, "IO_functions.R", sep = "" ) )
+  source( paste( PARAM_DIR, "timeframe_functions.R", sep = "" ) )
+  source( paste( PARAM_DIR, "data_functions.R", sep = "" ) )
+  
+  
+  emissions_db <- readData( "MED_OUT", paste0( "C.", em, "_", type, "_emissions_db" ), meta = FALSE )
+  
+  # Rebind values from common_data.R
+  X_start <- X_start_year
+  X_end <- X_end_year
+  ext_start_year <- start_year
+  ext_end_year <- end_year
+  
+  w <- getOption( "warn" )
+  options( warn=-1 )  # suppress the warnings about NAs introduced by coercion
+  db_start <- findDataStart( emissions_db )
+  data_start <- findDataStart( new_data )
+  
+  if( data_start != db_start ){ # If in incorrect format
+    printLog( paste0 ( "Error in addToEmissionsDb: ",
+                       "Data to be added must have the form iso-sector-fuel-units-years." ) )
+    return( 0 )
+  }
+  
+  # Check whether the new data has the same set of years as the database.
+  # If not, make it so via truncation and/or extension as necessary.
+  if( ( FALSE %in% ( names( emissions_db ) == names( new_data ) ) ) 
+      || ( length( emissions_db ) != length( new_data ) ) ){
+    
+    new_data <- truncateAtYear( new_data, X_start, X_end )
+    
+    options( warn=w )
+    
+    # Retrieve new starting and ending years
+    start_year <- getName( new_data, data_start )
+    cur_start_year <- xYearToNum( start_year )
+    end_year <- getEndYear( new_data )
+    cur_end_year <- xYearToNum( end_year )
+    
+    # If the data now has the correct years after truncation,
+    # or if the missing years are within the normal range and
+    # not at either end, do not attempt to extendForward the data.
+    # Doing so results in incorrect years.
+    if( start_year == X_start ){ ext_backward <- FALSE }
+    if( end_year == X_end ){ ext_forward <- FALSE }
+    
+    # Extend the data forward if necessary and the parameter is TRUE
+    if( ext_forward ){
+      ext_range <- getForwardExtensionRange( cur_end_year, ext_end_year )
+      X_range <- paste0( "X",ext_range )
+      new_data <- extendForward( new_data, end_year, X_range )
+    }
+    # Extend the data backward if necessary and the parameter is TRUE
+    if( ext_backward ){
+      past_ext_range <- getBackwardExtensionRange( cur_start_year, ext_start_year )
+      past_X_range <- paste0( "X",past_ext_range )
+      new_data <- extendForward( new_data, start_year, past_X_range )
+    }
+  }
+  
+  options( warn=w )
+  
+  # Insert the new data in the proper locations- 
+  # overwrite any existing data of the same combination and years,
+  # and rbind on any data without a spot.
+  #---------
+  
+  # melt old and new dbs
+  df_add<-melt(new_data,id=c("iso","sector","fuel","units"))
+  names(df_add)[which(names(df_add)=='variable')]<-'year'
+  names(df_add)[which(names(df_add)=='value')]<-'emissions_new'
+  
+  df_old<-melt(emissions_db,id=c("iso","sector","fuel","units"))
+  names(df_old)[which(names(df_old)=='variable')]<-'year'
+  names(df_old)[which(names(df_old)=='value')]<-'emissions'
+  
+  #merge
+  df_new<-merge(df_old,df_add,
+                by=c("iso","sector","fuel","units","year"),
+                all.x=TRUE,all.y=TRUE)
+  
+  df_new[which(is.na(df_new$emissions_new)),'emissions_new']<-df_new[which(is.na(df_new$emissions_new)),'emissions']
+  
+  df_new<-df_new[,c("iso","sector","fuel","units","year",'emissions_new')]
+  
+  df_new_wide<-cast(df_new, iso+sector+fuel+units~year, value = "emissions_new")
+  
+  # Sort
+  results<-df_new_wide
+  results <- results[ with( results, order( iso, sector, fuel ) ), ]
+  
+  # Output
+  writeData( results, domain = "MED_OUT", fn = paste0( "C.", em, "_", type, "_emissions_db" ), meta = FALSE )
+}
+
 # ----------------------------------------------------------------------------------
 # addToEFDb
 # Brief:            Adds data to the emissions factors database
@@ -372,15 +474,18 @@ addToEmissionsDb <- function( df, em, type, ext_forward = TRUE, ext_backward = F
 #   ext_backward:   boolean indicating whether to extendForward the new data backward to the
 #                       common start year, if missing starting years [default: FALSE]
 # Return:           none
-# Input files:      C.[em]_[type]_EF_db.csv, common_data.R
-# Output files:     C.[em]_[type]_EF_db.csv
+# Input files:      B.[em]_[type]_EF_db.csv, common_data.R
+# Output files:     B.[em]_[type]_EF_db.csv
 # 
 # Usage examples: addToEFDb( data, "SO2", "NC", ext_forward = FALSE, ext_backward = FALSE )
 addToEFDb <- function( df, em, type, ext_forward = TRUE, ext_backward = FALSE ){
 
     # Read in necessary files and data: common_data.r required 
     # to avoid variable overwrite carryover
-    source( paste( PARAM_DIR, "common_data.r", sep = "" ) )
+  source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
+  source( paste( PARAM_DIR, "IO_functions.R", sep = "" ) )
+  source( paste( PARAM_DIR, "timeframe_functions.R", sep = "" ) )
+  source( paste( PARAM_DIR, "data_functions.R", sep = "" ) )
     EF_db <- readData( "MED_OUT", paste0( "B.", em, "_", type, "_EF_db" ), meta = FALSE )
     
     # Rebind values from common_data.r
@@ -488,11 +593,9 @@ addToEFDb <- function( df, em, type, ext_forward = TRUE, ext_backward = FALSE ){
 }
 
 
-
-
-
-#(Temporary?) Rewrite of addToEFDb function. Same functionality.
-addToEFDb <- function( df, em, type, ext_forward = TRUE, ext_backward = FALSE ){
+#(Temporary?) Rewrite of addToEFDb function. Similar functionality. Overwrite old data with new data for 
+# duplicate entries. Order of data to add: worst then best
+addToEFDb_overwrite <- function( df, em, type, ext_forward = TRUE, ext_backward = FALSE ){
   
   # Read in necessary files and data: common_data.r required 
   # to avoid variable overwrite carryover
@@ -504,7 +607,7 @@ addToEFDb <- function( df, em, type, ext_forward = TRUE, ext_backward = FALSE ){
   
   EF_db <- readData( "MED_OUT", paste0( "B.", em, "_", type, "_EF_db" ), meta = FALSE )
   
-  # Rebind values from common_data.r
+  # Rebind values from common_data.R
   X_start <- X_start_year
   X_end <- X_end_year
   ext_start_year <- start_year
@@ -592,5 +695,7 @@ addToEFDb <- function( df, em, type, ext_forward = TRUE, ext_backward = FALSE ){
   # Output
   writeData( results, domain = "MED_OUT", fn = paste0( "B.", em, "_", type, "_EF_db" ), meta = FALSE )
 }
+
+
 
 # ----------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 # Program Name: B1.2.add_SO2_comb_EF_ash_retention.R
-# Author: Ryan Bolt
+# Author: Ryan Bolt, Rachel Hoesly
 # Date Last Updated: 20 September 2015 
 # Program Purpose: Aggregate GAINS ash retention data into Emissions Factors for SO2 and SO2 retention
 # values from 2005 back to 1975
@@ -126,7 +126,7 @@ ef_ash_adj_wide<-cast(ef_ash_adj[,c("iso","sector","fuel",'units',"year","ef_adj
 # -------------------------------------------------------------------------------
 # 5. Output
 printLog("Adding GAINS - ash retention adjusted emission factors to B.SO2_comb_EF_db")
-addToEFDb(ef_ash_adj_wide,em='SO2',type='comb')
+addToEFDb_overwrite(ef_ash_adj_wide,em='SO2',type='comb')
 writeData( ash_ret, domain = "MED_OUT", fn = "B.SO2_comb_EF_ash_retention")
 
 logStop()

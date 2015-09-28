@@ -246,7 +246,7 @@ EmissFactors <- extendback(EmissFactors, EmissFactors$EF_2005, 1)
 # 5. Output
 
  printLog("Adding GAINS SO2 EFs to B.SO2_comb_EF_db")
- addToEFDb(EmissFactors,em='SO2',type='comb')
+ addToEFDb_overwrite(EmissFactors,em='SO2',type='comb')
  writeData( EmissFactors, domain = "MED_OUT", fn = "B.SO2_comb_EF_gains")
 
 
