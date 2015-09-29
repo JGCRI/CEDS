@@ -55,8 +55,8 @@ else
 # recursive call, once EM has been specified, and triggers the
 # build of the entire system. This target must be the final
 # outputs of the system.
-emissions : $(MED_OUT)/D.$(EM)_default_total_EF.csv \
-	$(MED_OUT)/D.$(EM)_default_total_emissions.csv
+emissions : $(MED_OUT)/E.$(EM)_scaled_emissions.csv  \
+	$(MED_OUT)/E.$(EM)_scaled_EF.csv
 
 endif
 
@@ -110,6 +110,9 @@ clean-modC :
 
 clean-modD :
 	rm -fv $(MED_OUT)/D*.csv
+
+clean-modE :
+	rm -fv $(MED_OUT)/E*.csv
 
 # --------------------------------------------------------------
 
@@ -325,6 +328,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 	$(MOD_C)/C1.1.base_NC_emissions.R \
 	$(MOD_C)/C1.2.add_NC_emissions.R \
 	$(MOD_C)/C1.2.add_SO2_NC_emissions_all.R \
+	$(MOD_C)/C1.2.add_SO2_NC_emissions_FAO.R \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
 	$(PARAMS)/IO_functions.R \
@@ -379,15 +383,16 @@ $(MED_OUT)/D.$(EM)_default_total_EF.csv : \
 
 # ee1-1a
 # Creates scaled emissions and emissions factors for US data
-# $(MED_OUT)/E.$(EM)_total_scaled_emissions.csv : \
-	# $(MOD_E)/E1.1.US_scaling.R \
-	# $(PARAMS)/E.emissions_scaling_function.R.R \
-	# $(MAPPINGS)/US_sector_mapping.csv \
-	# $(MED_OUT)/C.$(EM)_total_default_emissions.csv \
-	# $(MED_OUT)/C.$(EM)_total_default_EF.csv \
-	# $(INV_DATA)/national_tier1_caps.xlsx
-	# Rscript $< $(EM) --nosave --no-restore
+$(MED_OUT)/E.$(EM)_scaled_emissions.csv : \
+	$(MOD_E)/E1.1.inventory_scaling.R \
+	$(MOD_E)/E1.1.US_scaling.R \
+	$(PARAMS)/emissions_scaling_functions.R \
+	$(MAPPINGS)/US_sector_mapping.csv \
+	$(MED_OUT)/D.$(EM)_default_total_emissions.csv \
+	$(MED_OUT)/D.$(EM)_default_total_EF.csv \
+	$(INV_DATA)/national_tier1_caps.xlsx
+	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-1b
-# $(MED_OUT)/E.$(EM)_total_scaled_EF.csv : \
-            # $(MED_OUT)/E.$(EM)_total_scaled_emissions.csv
+$(MED_OUT)/E.$(EM)_scaled_EF.csv : \
+	$(MED_OUT)/E.$(EM)_scaled_emissions.csv

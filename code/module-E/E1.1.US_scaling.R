@@ -5,8 +5,8 @@
 # Program Purpose: To create scaling factors and update emissions estimate for
 # the US region from latest emissions working copy by using aggregate 
 # US emission trends inventory data.
-# Input Files: E.emissions_scaling_functions.R, C.[em]_total_scaled_EF.csv, 
-#              C.[em]_total_scaled_emissions.csv, US_sector_mapping.csv, 
+# Input Files: emissions_scaling_functions.R, D.[em]_total_EF.csv, 
+#              D.[em]_total_emissions.csv, US_sector_mapping.csv, 
 #              national_tier1_caps.xlsx
 # Output Files: E.[em]_total_scaled_EF.csv, E.[em]_total_scaled_emissions.csv
 # Notes: 
@@ -29,7 +29,7 @@
     
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( "data_functions.R" ) # Additional function files required.
+    headers <- c( "data_functions.R" ,"emissions_scaling_functions.R" ) # Additional function files required.
     log_msg <- "Modifying emissions factors working copy from US inventory data" # First message to be printed to the log
     script_name <- "E1.1.US_scaling.R"
     
@@ -53,9 +53,6 @@
         interpolation <- "linear"
         extrapolation_before <- "constant"
         extrapolation_after  <- "constant"
-    
-# Load the scaling functions for Module E
-    source( paste0( PARAM_DIR, "emissions_scaling_functions.R" ) )    
     
 # Read in the inventory data, mapping file, the specified emissions species, and
 #   the latest versions of the scaled EFs and 
