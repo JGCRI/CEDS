@@ -53,7 +53,7 @@ scripts <- c()
 
 # Set scripts to add emissions data for SO2
 if( em == "SO2" ){
-  scripts <- c( "E1.1.US_scaling.R")
+  scripts <- c( "E1.1.US_scaling.R",'E1.1.CAN_scaling.R')
 }
 
 # Set scripts to add emissions data for BC or OC

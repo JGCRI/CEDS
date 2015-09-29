@@ -386,6 +386,7 @@ $(MED_OUT)/D.$(EM)_default_total_EF.csv : \
 $(MED_OUT)/E.$(EM)_scaled_emissions.csv : \
 	$(MOD_E)/E1.1.inventory_scaling.R \
 	$(MOD_E)/E1.1.US_scaling.R \
+	$(MOD_E)/E1.1.CAN_scaling.R \
 	$(PARAMS)/emissions_scaling_functions.R \
 	$(MAPPINGS)/US_sector_mapping.csv \
 	$(MED_OUT)/D.$(EM)_default_total_emissions.csv \
