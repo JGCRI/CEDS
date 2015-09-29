@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: Input and Output functions
-# Author(s): Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen
-# Last Updated: 22 June 2015
+# Author(s): Ben Bond-Lamberty, Page Kyle, Jon Seibert, Tyler Pitkanen
+# Last Updated: 15 September 2015
 
 # This file must be sourced by all CEDS R scripts, generally as the second sourced script.
 # Functions contained:
@@ -13,8 +13,20 @@
 #        Some relics of this past remain, such as the global variable names.
 
 # -----------------------------------------------------------------------------
-# printLog: time-stamped output
-# params: msg (message, can be many items); ts (add timestamp?), cr (print CR?)
+
+# -----------------------------------------------------------------------------
+# printLog
+# Brief:        Time-stamped output         
+# Details:      Prints a message string to the log along with a timestamp
+# Dependencies: None
+# Author(s):    Ben Bond-Lamberty
+# Params:       
+#   msg:        String to be printed to the script log [required]
+#   ts:         Boolean indicating whether to add a timestamp to the output [default: TRUE]
+#   cr:         Boolean indicating whether to add a newline to the end of the output string [default: TRUE]
+# Return:       None
+# Input Files:  None
+# Output Files: None
 printLog <- function( msg, ..., ts=TRUE, cr=TRUE ) {
 	if( ts ) cat( date(), GCAM_SOURCE_FN[ GCAM_SOURCE_RD ], "[", GCAM_SOURCE_RD, "]", ": " )
 	cat( msg, ... )
@@ -22,8 +34,17 @@ printLog <- function( msg, ..., ts=TRUE, cr=TRUE ) {
 }
 
 # -----------------------------------------------------------------------------
-# logStart: start a new log (to screen and optionally file)
-# params: fn (name of source file being executed), savelog (whether to write to disk)
+# logStart
+# Brief:        Start a new log (to screen and optionally file)
+# Details:      Start the log file for a CEDS R script
+# Dependencies: printLog
+# Author(s):    Ben Bond-Lamberty
+# Params:       
+#   fn:         String name of script being executed [required]
+#   savelog:    Boolean indicating whether to write to disk [default: TRUE]
+# Return:       None
+# Input Files:  None
+# Output Files: None
 logStart <- function( fn, savelog=T ) {
 	GCAM_SOURCE_RD <<- GCAM_SOURCE_RD + 1		# push
 	GCAM_SOURCE_FN[ GCAM_SOURCE_RD ]  <<- fn
@@ -38,7 +59,16 @@ logStart <- function( fn, savelog=T ) {
 }
 
 # -----------------------------------------------------------------------------
-# writeMakeFileDepend: write dependency information for inclusion in makefile
+# writeMakeFileDepend
+# Brief:        Write dependency information for inclusion in makefile
+# Details:      Writes the .d file for the current script
+# Dependencies: None
+# Author(s):    Ben Bond-Lamberty
+# Params:       
+#   outfile:    Path to the .log file for the script being executed [required]
+# Return:       None
+# Input Files:  None
+# Output Files: [fn].log
 writeMakeFileDepend <- function(outfile) {
 	of_parts <- unlist(strsplit(outfile,"\\."))
 	if(length(of_parts) == 1) {
@@ -55,7 +85,17 @@ writeMakeFileDepend <- function(outfile) {
 }
 
 # -------------------------------------------------------------------------------
-# collapseList: Collapse a list into a single character vector
+# collapseList 
+# Brief:        Collapse a list into a single character vector
+# Details:      Converts a list of strings into a single string with a separator between them
+# Dependencies: None
+# Author(s):    Jon Seibert
+# Params:       
+#   src_list:   List of string to be collapsed [required]
+#   sep:        String to separate the elements of the list [default: "\n"]
+# Return:       Collapsed string version of the list of strings
+# Input Files:  None
+# Output Files: None
 collapseList <- function( src_list, sep = "\n" ){
     result <- src_list[[ 1 ]]
     src_list <- src_list[ -1 ]
@@ -66,7 +106,16 @@ collapseList <- function( src_list, sep = "\n" ){
 }
 
 # -----------------------------------------------------------------------------
-# logStop: stop the current log (to screen and optionally file)
+# logStop
+# Brief:        Stop the current log (to screen and optionally file)
+# Details:      End the current script's log file and write out its IO information
+#                   to IO_documentation.csv
+# Dependencies: readData, writeData, filePath, collapseList, printLog, writeMakefileDepend
+# Author(s):    Ben Bond-Lamberty, Jon Seibert
+# Params:       None
+# Return:       None
+# Input Files:  IO_documentation.csv
+# Output Files: IO_documentation.csv, [fn].log
 logStop <- function() {
 
     # Retrieve file name
@@ -143,9 +192,16 @@ logStop <- function() {
 }
 
 # -----------------------------------------------------------------------------
-# readDomainPathMap: read the domain path map and return a list
-# The file path map is simply a central (location below) mapping of all files
-# and where they're to be found.
+# readDomainPathMap
+# Brief:        Read the domain path mapping and return a list version of it.
+# Details:      The file path map is simply a central (location below) mapping of all files
+#                   and where they're to be found.
+# Dependencies: read.csv
+# Author(s):    Ben Bond-Lamberty
+# Params:       None
+# Return:       List version of the domain path map file
+# Input Files:  domainmappings.csv
+# Output Files: None
 readDomainPathMap <- function() {
 	fn <- DOMAINPATHMAP
 	fpm <- tryCatch( {
@@ -176,9 +232,22 @@ readDomainPathMap <- function() {
 }
 
 # -----------------------------------------------------------------------------
-# filePath: given a domain name and a file name, return path+name (the fully qualified name)
-# Default extension is ".csv" but this can be overridden
-# This is the normal way for callers to get fqns for their files
+# filePath
+# Brief:                Given a domain name and a file name, return path+name 
+#                           (the fully qualified name).
+# Details:              Default extension is ".csv" but this can be overridden
+#                           This is the normal way for callers to get fqns for their files.
+# Dependencies:         readDomainPathMap, printLog
+# Author(s):            Ben Bond-Lamberty, Jon Seibert
+# Params:               
+#   domain:             CEDS domain name under which the file can be found [required]
+#   fn:                 Name of the file [required]
+#   extension:          Extension of the file [default: ".csv"]
+#   domain_extension:   Any additional path between the CEDS domain and the location of the 
+#                           file [default: ""]
+# Return:               String of the file name appended to the full file path.
+# Input Files:          None
+# Output Files:         None
 filePath <- function( domain, fn, extension=".csv", domain_extension = "" ) {
 	map <- readDomainPathMap()
 	if( domain %in% names( map ) ) {
@@ -387,8 +456,18 @@ readExcel <- function( full_file_path, sheet_selection = "ALL", column_names = T
 }
 
 # -----------------------------------------------------------------------------
-# sourceData: read a .R file used to store data
-# params: domain (location), fn (filename )
+# sourceData
+# Brief:        Read a .R file used to store data.
+# Details:      Source a CEDS R script used to define shared data or calculate required values.
+# Dependencies: printLog
+# Author(s):    Ben Bond-Lamberty
+# Params:       
+#   domain:     CEDS domain in which the script can be found [required]
+#   fn:         Name of the script [required]
+#   extension:  File extension for the script [default: ".R"]
+# Return:       None
+# Input Files:  None
+# Output Files: None
 # TODO: error handling (probably using try/catch)
 sourceData <- function( domain="none", fn="none", extension=".R", ... ) {
 
@@ -414,8 +493,17 @@ sourceData <- function( domain="none", fn="none", extension=".R", ... ) {
 }
 
 # -----------------------------------------------------------------------------
-# addDependency: Adds a fully qualified name to the dependency list
-# params: fqn (filename )
+# addDependency
+# Brief:        Adds a fully qualified name to the dependency list.
+# Details:      Determines whether the parameter file name is already in the
+#                   dependency list, and adds it if not.
+# Dependencies: None
+# Author(s):    Page Kyle
+# Params:       
+#   fqn:        File name to add to the list [required]
+# Return:       None
+# Input Files:  None
+# Output Files: None
 # TODO: error handling (probably using try/catch)
 addDependency <- function( fqn, ... ) {
 
@@ -793,12 +881,20 @@ writeMetaData <- function( domain, file_name = 'none', meta_name = 'none' ) {
 }
 
 # -----------------------------------------------------------------------------
-# clearMeta: clear the metadata accumulated thus far. Should be called at the 
-#            beginning of each script
+# clearMeta
+# Brief:        Clear the metadata accumulated thus far.
+# Details:      Removes the global variable "all_metadata". Should be called at the 
+#                   beginning of each script.
+# Dependencies: None
+# Author(s):    Tyler Pitkanen
+# Params:       None
+# Return:       None
+# Input Files:  None
+# Output Files: None
 clearMeta <- function( ) {
 
     if( exists( "all_metadata" ) ) {
         rm(all_metadata, pos = ".GlobalEnv")
     }
 }
-
+# --------------------------------------------------------------------------------------

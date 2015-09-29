@@ -9,13 +9,44 @@
 #   buildCEDSTemplate, removeBlanks
 
 # Notes:
-
 # -----------------------------------------------------------------------------
-#Function "is not an element of" (opposite of %in%)
+# Brief:        
+# Details:      
+# Dependencies: 
+# Author(s):    
+# Params:       
+#  
+# Return:       
+# Input Files:  
+# Output Files: 
+# -----------------------------------------------------------------------------
+# %!in%"
+# Brief:        Is not an element of" (opposite of %in%).
+# Details:      Determines whether the pattern is NOT found within y.
+# Dependencies: None
+# Author(s):    Ben Bond-Lamberty
+# Params:       
+#   x:          Pattern to search for within y [required]
+#   y:          List to search within for x [required]
+# Return:       Boolean indicating whether x is NOT found within y.
+# Input Files:  None
+# Output Files: None
 '%!in%' <- function( x, y ) !( '%in%'( x, y ) )
 
 # -----------------------------------------------------------------------------
-# gsub2: pattern replacement in a vector
+# gsub2
+# Brief:        Pattern replacement in a vector.
+# Details:      Performs gsub on each element of a vector.
+# Dependencies: gsub
+# Author(s):    Page Kyle
+# Params:       
+#  pattern:     Specific string or number to search for within x [required]
+#  replacement: Replacement for the pattern [required]
+#  x:           Vector of strings to be searched [required]
+# Return:       Input vector of strings with pattern replaced by its replacement.
+# Input Files:  None
+# Output Files: None
+
 gsub2 <- function( pattern, replacement, x, ... ) {
       for(i in 1:length(pattern))
       x <- gsub(pattern[i], replacement[i], x, ...)
@@ -23,7 +54,20 @@ gsub2 <- function( pattern, replacement, x, ... ) {
 }
 
 # -----------------------------------------------------------------------------
-# repeatAndAddVector: function for repeating a dataframe in order to add a new vector
+# repeatAndAddVector
+# Brief:            Function for repeating a dataframe in order to add a new vector.
+# Details:          Create a dataframe with a length greater than or equal to the length of 
+#                       vector_values by repeating the rows of the input dataframe, and append 
+#                       the new column (repeated as necessary).
+# Dependencies:     sort, rep
+# Author(s):        Tyler Pitkanen
+# Params:           
+#  data:            Dataframe to be repeated and added to [required]
+#  vector:          Location in the data frame to add the new vector [required]
+#  vector_values:   Vector to be added to the dataframe[required]
+# Return:           Modified data frame.
+# Input Files:      None
+# Output Files:     None
 repeatAndAddVector <- function( data, vector, vector_values ) {
      data_new <- data[ rep( 1:nrow( data ), times = length( vector_values ) ), ]
      data_new[[vector]] <- sort( rep( vector_values, length.out = nrow( data_new ) ) )
@@ -63,9 +107,19 @@ addCols <- function( table1, table2, col, matchcol ) {
 }
 
 # -----------------------------------------------------------------------------
-# naReplace: Replace NA or NaN values with something (generally a number 1 or 0). 
-#   Useful for making small assumptions about data to make data more easily
-#   workable.
+# naReplace
+# Brief:        Replace NA or NaN values with something (generally a number 1 or 0).
+# Details:      Useful for making small assumptions about data to make data more easily
+#                   workable.
+# Dependencies: apply
+# Author(s):    Tyler Pitkanen
+# Params:       
+#  data:        Data frame or vector to perform replacement in [required]
+#  target:      Data instances to be replaced [default: NA]
+#  sub:         Value to be subsistuted for the target instances [default: 0]
+# Return:       Modified data frame or vector.
+# Input Files:  None
+# Output Files: None
     naReplace <- function( data, target = NA, sub = 0 ) {
         if( is.na( target ) ) { list_targets <- apply( data, 2, is.na )
         } else { list_targets <- apply( data, 2, is.nan ) }

@@ -17,13 +17,13 @@
 # Dependencies:  IO_functions.R
 # Author(s):     Tyler Pitkanen, Jon Seibert  
 # Params: 
-#   data:        data frame to check, containing activity column [required]
+#   x:        data frame to check, containing activity column [required]
 #   colname:     name of the column containing activity designations [default: "activity"]
 #   check_valid: boolean to control whether the function checks that all present activities
 #                are valid [default: TRUE]
 #   check_all:   boolean to control whether the function checks if all activities are
 #                present [default: TRUE]
-# Return:        boolean indicating pass or failure on all checks run
+# Return:        boolean indicating pass or failure on all checks run, collectively.
 # Input Files:   none
 # Output Files:  none
 
@@ -96,13 +96,13 @@ activityCheck <- function( x, colname = "activity", check_valid = TRUE, check_al
 # Dependencies:  IO_functions.R
 # Author(s):     Tyler Pitkanen, Jon Seibert  
 # Params: 
-#   data:        data frame to check, containing sector column [required]
+#   x:        data frame to check, containing sector column [required]
 #   colname:     name of the column containing sector designations [default: "sector"]
 #   check_valid: boolean to control whether the function checks that all present sectors
 #                are valid [default: TRUE]
 #   check_all:   boolean to control whether the function checks if all sectors are
 #                present [default: TRUE]
-# Return:        boolean indicating pass or failure on all checks run
+# Return:        boolean indicating pass or failure on all checks run, collectively.
 # Input Files:   none
 # Output Files:  none
 
@@ -166,15 +166,26 @@ sectorCheck <- function( x, colname = "sector", check_valid = TRUE, check_all = 
 }
 
 # ---------------------------------------------------------------------------------
-# fuelCheck: Checks whether all the fuels in the given dataset are in the 
-# 		  master list, and whether all fuels in the master list are present in 
-#	  	  the data. Must be called while the log is running.
-# Params: data (dataset to check, containing fuel column)
+# fuelCheck
+# Brief:         Checks whether all the fuels in the given dataset are in the 
+# 		            master list, and whether all fuels in the master list are present in 
+#	  	            the data.
+# Details:       Uses printlog functions to print out detailed results: must be called 
+#                   while the log is running.
+# Dependencies:  IO_functions.R
+# Author(s):     Tyler Pitkanen, Jon Seibert  
+# Params: 
+#   x:           Data frame to check, containing fuel column [required]
+# Return:        Boolean indicating pass or failure on all checks run, collectively.
+# Input Files:   none
+# Output Files:  none
 
 fuelCheck <- function( x ){
 
 	fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", 
                             sheet_selection = "Fuels", mute = TRUE )
+                            
+    valid <- TRUE
 
 # Check that all fuels in set x exist in the master fuel list. Ignore blank
 #   spaces / NA values
@@ -190,6 +201,7 @@ fuelCheck <- function( x ){
 	}
     invalid_fuels <- unique( invalid_fuels )
     if( length( invalid_fuels ) > 0 ) {
+        valid <- FALSE
         printLog( "...Invalid fuels found:", paste( invalid_fuels, 
             collapse=', ' ), ts=F )
     } else {
@@ -213,25 +225,39 @@ fuelCheck <- function( x ){
     missing_fuels <- unique( missing_fuels )
     missing_fuels <- missing_fuels[ !is.na( missing_fuels ) ]
     if( length( missing_fuels ) > 0 ) {
+        valid <- FALSE
 		printLog( "...Fuels missing:", paste( missing_fuels, 
         collapse=', ' ), ts=F )
 	} else {
         printLog( "...OK. All fuels present.", ts=F )
     }
+    
+    return( valid )
 }
 
 
 # ---------------------------------------------------------------------------------
-# countryCheck: Checks whether all the countries in the given dataset are in the 
-# 		  master list, and whether all countries in the master list are present in 
-#	  	  the data. Must be called while the log is running.
-# Params: data (dataset to check, containing fuel column)
+# countryCheck
+# Brief:         Checks whether all the countries in the given dataset are in the master list,
+# 		            and whether all countries in the master list are present in the data.
+# Details:       Uses printlog functions to print out detailed results: must be called 
+#                   while the log is running.
+# Dependencies:  IO_functions.R
+# Author(s):     Tyler Pitkanen
+# Params: 
+#   data:        Data frame to check, containing iso column [required]
+#   cols:        
+# Return:        Boolean indicating pass or failure on all checks run, collectively.
+# Input Files:   none
+# Output Files:  none
 
 countryCheck <- function( data, cols = 1, convention = "ISO" ) {
 # Generally, there will be one region column per data set and it will be the first
 #   column in that data set, so cols = 1 by default. 
 # Naming convention can be specified with the convention argument set as "ISO", 
 #   "IEA", "IEA_Fert", or "BP" (not case-sensitive).
+
+    valid <- TRUE
 
 	country_list <- readData( "MAPPINGS", "Master_Country_List", meta=F, mute=T )
 
@@ -241,6 +267,7 @@ countryCheck <- function( data, cols = 1, convention = "ISO" ) {
 # Choose sections of reference country list to search based on user input
     if ( is.na( conv_col_num ) == T ) {  # if convention is invalid or unspecified
         ref_names <- unlist( country_list )
+        valid <- FALSE
         printLog( "Country check failed. Specify naming convention." )
     } else {  # if a valid convention is specified
         ref_names <- country_list[ , conv_col_num ]  
@@ -261,10 +288,13 @@ countryCheck <- function( data, cols = 1, convention = "ISO" ) {
     
 # Print output to log
     if ( length( unmatched_names ) > 0 ) {
+        valid <- FALSE
         unmatched_string <- paste( unmatched_names, collapse = ", " ) 
         printLog( "...Invalid names found for ", 
             convention, " naming: ", paste( unmatched_string, collapse = ', ' ), ts=F )
     } else {
         printLog( "...OK. All countries valid.", ts=F )
     }   
+    
+    return( valid )
 }
