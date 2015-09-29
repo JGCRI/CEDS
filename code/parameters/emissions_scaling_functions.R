@@ -42,8 +42,8 @@ E.readScalingData <- function( inventory = inventory_data_file,
 
 # Read in data    
     sourceData( "PARAM", "common_data", ".R" )
-    ef_file <- paste0( "D.", em_species, "_default_total_EF" )
-    em_file <- paste0( "D.", em_species, "_default_total_emissions" )
+    ef_file <- paste0( "E.", em_species, "_scaled_EF" )
+    em_file <- paste0( "E.", em_species, "_scaled_emissions" )
     input_ef <<- readData( "MED_OUT", ef_file )
     input_em <<- readData( "MED_OUT", em_file )
     inv_data_full <<- readData( "EM_INV", substr( inventory, 1, nchar( inventory ) - 5 ), ".xlsx" )

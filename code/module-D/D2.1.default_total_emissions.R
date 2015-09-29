@@ -61,6 +61,7 @@ total_default_em <- total_default_em[ with( total_default_em, order( iso, sector
 # 4. Output
 
 writeData(total_default_em, domain = "MED_OUT", fn = paste0( "D.", em, "_default_total_emissions" ), meta = TRUE )
+writeData(total_default_em, domain = "MED_OUT", fn = paste0( "E.", em, "_scaled_emissions" ), meta = TRUE )
 
 logStop()
 # END

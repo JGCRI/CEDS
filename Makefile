@@ -374,12 +374,18 @@ $(MED_OUT)/D.$(EM)_default_total_emissions.csv : \
 	$(MED_OUT)/D.$(EM)_default_comb_emissions.csv
 	Rscript $< $(EM) --nosave --no-restore
 
+$(MED_OUT)/E.$(EM)_scaled_emissions.csv : \
+	$(MED_OUT)/D.$(EM)_default_total_emissions.csv
+
 # dd3-1
 $(MED_OUT)/D.$(EM)_default_total_EF.csv : \
 	$(MOD_D)/D3.1.default_total_EF.R \
 	$(MED_OUT)/B.$(EM)_comb_EF_db.csv \
 	$(MED_OUT)/C.$(EM)_NC_EF_db.csv
 	Rscript $< $(EM) --nosave --no-restore
+
+$(MED_OUT)/E.$(EM)_scaled_EF.csv : \
+	$(MED_OUT)/D.$(EM)_default_total_EF.csv
 
 # ee1-1a
 # Creates scaled emissions and emissions factors for US data
@@ -389,8 +395,8 @@ $(MED_OUT)/E.$(EM)_scaled_emissions.csv : \
 	$(MOD_E)/E1.1.CAN_scaling.R \
 	$(PARAMS)/emissions_scaling_functions.R \
 	$(MAPPINGS)/US_sector_mapping.csv \
-	$(MED_OUT)/D.$(EM)_default_total_emissions.csv \
-	$(MED_OUT)/D.$(EM)_default_total_EF.csv \
+	$(MED_OUT)/E.$(EM)_scaled_emissions.csv \
+	$(MED_OUT)/E.$(EM)_scaled_EF.csv \
 	$(INV_DATA)/national_tier1_caps.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 
