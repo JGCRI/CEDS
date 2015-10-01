@@ -148,7 +148,7 @@ addMetaData( meta_note, meta_names)
 # ------------------------------------------------------------------------------
 # 5. Output
 
-writeData(UNFCCC_SO2, domain = "MED_OUT", fn = paste0( "E.", "SO2", "UNFCCC_inventory" ),
+writeData(UNFCCC_SO2, domain = "MED_OUT", fn = paste0( "E.", "SO2", "_UNFCCC_inventory" ),
 meta = TRUE )
 
 # Every script should finish with this line-
