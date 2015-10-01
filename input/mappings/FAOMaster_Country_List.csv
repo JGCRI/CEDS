@@ -1,0 +1,235 @@
+iso,IEAName,IEA_Fert_reg,BPName,FAO,Country,WorldBank
+alb,Albania,Central European countries,Other Europe & Eurasia,3,Albania,AL
+dza,Algeria,Africa,Algeria,4,Algeria,DZ
+ago,Angola,Africa,Other Africa,7,Angola,AO
+arg,Argentina,Latin America,Argentina,9,Argentina,AR
+arm,Armenia,CIS,Other Europe & Eurasia,1,Armenia,AM
+aus,Australia,Oceania,Australia,10,Australia,AU
+aut,Austria,Western Europe,Austria,11,Austria,AT
+aze,Azerbaijan,CIS,Azerbaijan,52,Azerbaijan,AZ
+bhr,Bahrain,Middle East,Other Middle East,13,Bahrain,BH
+bgd,Bangladesh,Other Asia,Bangladesh,16,Bangladesh,BD
+blr,Belarus,CIS,Belarus,57,Belarus,BY
+bel,Belgium,Western Europe,Belgium,255,Belgium,BE
+ben,Benin,Africa,Other Africa,53,Benin,BJ
+bol,Bolivia,Latin America,Other S. & Cent. America,19,Bolivia,BO
+bih,Bosnia and Herzegovina,Central European countries,Other Europe & Eurasia,80,Bosnia and Herzegovina,BA
+bwa,Botswana,Africa,Other Africa,20,Botswana,BW
+bra,Brazil,Latin America,Brazil,21,Brazil,BR
+brn,Brunei Darussalam,Other Asia,Other Asia Pacific,26,Brunei Darussalam,BN
+bgr,Bulgaria,Central European countries,Bulgaria,27,Bulgaria,BG
+khm,Cambodia,China,Other Asia Pacific,115,Cambodia,KH
+cmr,Cameroon,Africa,Other Africa,32,Cameroon,CM
+can,Canada,North America,Canada,33,Canada,CA
+chl,Chile,Latin America,Chile,40,Chile,CL
+twn,Chinese Taipei,Other Asia,Taiwan,214,Taiwan,TW
+col,Colombia,Latin America,Colombia,44,Colombia,CO
+cog,Congo,Africa,Other Africa,46,Congo,CG
+cri,Costa Rica,Latin America,Other S. & Cent. America,48,Costa Rica,CR
+civ,Cote dIvoire,Africa,Other Africa,107,Cote dIvoire,CI
+hrv,Croatia,Central European countries,Other Europe & Eurasia,98,Croatia,HR
+cub,Cuba,Latin America,Other S. & Cent. America,49,Cuba,CU
+cyp,Cyprus,Western Europe,Other Europe & Eurasia,50,Cyprus,CY
+cze,Czech Republic,Central European countries,Czech Republic,167,Czech Republic,CZ
+prk,Dem. Peoples Rep. of Korea,China,Other Asia Pacific,116,North Korea,KP
+cod,Democratic Republic of Congo,Africa,Other Africa,250,Democratic Republic of Congo,CD
+dnk,Denmark,Western Europe,Denmark,54,Denmark,DK
+dom,Dominican Republic,Latin America,Other S. & Cent. America,56,Dominican Republic,DO
+ecu,Ecuador,Latin America,Ecuador,58,Ecuador,EC
+egy,Egypt,Africa,Egypt,59,Egypt,EG
+slv,El Salvador,Latin America,Other S. & Cent. America,60,El Salvador,SV
+eri,Eritrea,Africa,Other Africa,178,Eritrea,ER
+est,Estonia,CIS,Other Europe & Eurasia,63,Estonia,EE
+eth,Ethiopia,Africa,Other Africa,62,Ethiopia,ET
+eth,Ethiopia,Africa,Other Africa,238,Ethiopia,ET
+fin,Finland,Western Europe,Finland,67,Finland,FI
+mkd,Former Yugoslav Republic of Macedonia,Central European countries,Other Europe & Eurasia,154,Macedonia,MK
+fra,France,Western Europe,France,68,France,FR
+gab,Gabon,Africa,Other Africa,74,Gabon,GA
+geo,Georgia,CIS,Other Europe & Eurasia,73,Georgia,GE
+deu,Germany,Western Europe,Germany,79,Germany,DE
+gha,Ghana,Africa,Other Africa,81,Ghana,GH
+gib,Gibraltar,Western Europe,Other Europe & Eurasia,0,Gibraltar,GI
+grc,Greece,Western Europe,Greece,84,Greece,GR
+gtm,Guatemala,Latin America,Other S. & Cent. America,89,Guatemala,GT
+hti,Haiti,Latin America,Other S. & Cent. America,93,Haiti,HT
+hnd,Honduras,Latin America,Other S. & Cent. America,95,Honduras,HN
+hkg,"Hong Kong, China",Other Asia,China Hong Kong SAR,96,Hong Kong,HK
+hun,Hungary,Central European countries,Hungary,97,Hungary,HU
+isl,Iceland,Western Europe,Other Europe & Eurasia,99,Iceland,IS
+ind,India,India,India,100,India,IN
+idn,Indonesia,Other Asia,Indonesia,101,Indonesia,ID
+irq,Iraq,Middle East,Other Middle East,103,Iraq,IQ
+irl,Ireland,Western Europe,Republic of Ireland,104,Ireland,IE
+irn,Islamic Republic of Iran,Middle East,Iran,102,Iran,IR
+isr,Israel,Middle East,Israel,105,Israel,IL
+ita,Italy,Western Europe,Italy,106,Italy,IT
+jam,Jamaica,Latin America,Other S. & Cent. America,109,Jamaica,JM
+jpn,Japan,Other Asia,Japan,110,Japan,JP
+jor,Jordan,Middle East,Other Middle East,112,Jordan,JO
+kaz,Kazakhstan,CIS,Kazakhstan,108,Kazakhstan,KZ
+ken,Kenya,Africa,Other Africa,114,Kenya,KE
+kor,Korea,Other Asia,South Korea,117,South Korea,KR
+srb (Kosovo),Kosovo,Central European countries,Other Europe & Eurasia,0,Kosovo,
+kwt,Kuwait,Middle East,Kuwait,118,Kuwait,KW
+kgz,Kyrgyzstan,CIS,Other Europe & Eurasia,113,Kyrgyzstan,KG
+lva,Latvia,CIS,Other Europe & Eurasia,119,Latvia,LV
+lbn,Lebanon,Middle East,Other Middle East,121,Lebanon,LB
+lby,Libya,Africa,Other Africa,124,Libya,LY
+ltu,Lithuania,CIS,Lithuania,126,Lithuania,LT
+lux,Luxembourg,Western Europe,Other Europe & Eurasia,256,Luxembourg,LU
+mys,Malaysia,Other Asia,Malaysia,131,Malaysia,MY
+mlt,Malta,Western Europe,Other Europe & Eurasia,134,Malta,MT
+mex,Mexico,Latin America,Mexico,138,Mexico,MX
+mng,Mongolia,China,Other Asia Pacific,141,Mongolia,MN
+mne,Montenegro,Central European countries,Other Europe & Eurasia,273,Montenegro,ME
+mar,Morocco,Africa,Other Africa,143,Morocco,MA
+moz,Mozambique,Africa,Other Africa,144,Mozambique,MZ
+mmr,Myanmar,Other Asia,Other Asia Pacific,28,Myanmar,MM
+nam,Namibia,Africa,Other Africa,147,Namibia,NA
+npl,Nepal,Other Asia,Other Asia Pacific,149,Nepal,NP
+nld,Netherlands,Western Europe,Netherlands,150,Netherlands,NL
+ant,Netherlands Antilles,Latin America,Other S. & Cent. America,0,Netherlands Antilles,AN
+nzl,New Zealand,Oceania,New Zealand,156,New Zealand,NZ
+nic,Nicaragua,Latin America,Other S. & Cent. America,157,Nicaragua,NI
+nga,Nigeria,Africa,Other Africa,159,Nigeria,NG
+nor,Norway,Western Europe,Norway,162,Norway,NO
+omn,Oman,Middle East,Other Middle East,221,Oman,OM
+pak,Pakistan,Other Asia,Pakistan,165,Pakistan,PK
+pan,Panama,Latin America,Other S. & Cent. America,166,Panama,PA
+pry,Paraguay,Latin America,Other S. & Cent. America,169,Paraguay,PY
+chn,Peoples Republic of China,China,China,41,China,CN
+per,Peru,Latin America,Peru,170,Peru,PE
+phl,Philippines,Other Asia,Philippines,171,Philippines,PH
+pol,Poland,Central European countries,Poland,173,Poland,PL
+prt,Portugal,Western Europe,Portugal,174,Portugal,PT
+qat,Qatar,Middle East,Qatar,179,Qatar,QA
+mda,Republic of Moldova,CIS,Other Europe & Eurasia,146,Moldova,MD
+rom,Romania,Central European countries,Romania,183,Romania,RO
+rus,Russian Federation,CIS,Russian Federation,185,Russia,RU
+sau,Saudi Arabia,Middle East,Saudi Arabia,194,Saudi Arabia,SA
+sen,Senegal,Africa,Other Africa,195,Senegal,SN
+srb,Serbia,Central European countries,Other Europe & Eurasia,272,Serbia,RS
+scg,Serbia and Montenegro,Central European countries,Other Europe & Eurasia,186,Serbia and Montenegro,
+sgp,Singapore,Other Asia,Singapore,200,Singapore,SG
+svk,Slovak Republic,Central European countries,Slovakia,199,Slovak Republic,SK
+svn,Slovenia,Central European countries,Other Europe & Eurasia,198,Slovenia,SI
+zaf,South Africa,Africa,South Africa,202,South Africa,ZA
+esp,Spain,Western Europe,Spain,203,Spain,ES
+lka,Sri Lanka,Other Asia,Other Asia Pacific,38,Sri Lanka,LK
+sdn,Sudan,Africa,Other Africa,206,Sudan,SD
+swe,Sweden,Western Europe,Sweden,210,Sweden,SE
+che,Switzerland,Western Europe,Switzerland,211,Switzerland,CH
+syr,Syrian Arab Republic,Middle East,Other Middle East,212,Syria,SY
+tjk,Tajikistan,CIS,Other Europe & Eurasia,208,Tajikistan,TJ
+tha,Thailand,Other Asia,Thailand,216,Thailand,TH
+tgo,Togo,Africa,Other Africa,217,Togo,TG
+tto,Trinidad and Tobago,Latin America,Trinidad & Tobago,220,Trinidad and Tobago,TT
+tun,Tunisia,Africa,Other Africa,222,Tunisia,TN
+tur,Turkey,Western Europe,Turkey,223,Turkey,TR
+tkm,Turkmenistan,CIS,Turkmenistan,213,Turkmenistan,TM
+ukr,Ukraine,CIS,Ukraine,230,Ukraine,UA
+are,United Arab Emirates,Middle East,United Arab Emirates,225,United Arab Emirates,AE
+gbr,United Kingdom,Western Europe,United Kingdom,229,United Kingdom,GB
+tza,United Republic of Tanzania,Africa,Other Africa,215,Tanzania,TZ
+usa,United States,North America,US,231,United States,US
+ury,Uruguay,Latin America,Other S. & Cent. America,234,Uruguay,UY
+uzb,Uzbekistan,CIS,Uzbekistan,235,Uzbekistan,UZ
+ven,Venezuela,Latin America,Venezuela,236,Venezuela,VE
+vnm,Vietnam,China,Vietnam,237,Vietnam,VN
+yem,Yemen,Middle East,Other Middle East,249,Yemen,YE
+zmb,Zambia,Africa,Other Africa,251,Zambia,ZM
+zwe,Zimbabwe,Africa,Other Africa,181,Zimbabwe,ZW
+arm,Former Soviet Union (if no detail),CIS,Other Europe & Eurasia,1,Armenia,AM
+aze,Former Soviet Union (if no detail),CIS,Other Europe & Eurasia,52,Azerbaijan,AZ
+blr,Former Soviet Union (if no detail),CIS,Other Europe & Eurasia,57,Belarus,BY
+est,Former Soviet Union (if no detail),CIS,Other Europe & Eurasia,63,Estonia,EE
+geo,Former Soviet Union (if no detail),CIS,Other Europe & Eurasia,268,Georgia,GE
+kaz,Former Soviet Union (if no detail),CIS,Other Europe & Eurasia,108,Kazakhstan,KZ
+kgz,Former Soviet Union (if no detail),CIS,Other Europe & Eurasia,113,Kyrgyzstan,KG
+ltu,Former Soviet Union (if no detail),CIS,Other Europe & Eurasia,126,Lithuania,LT
+lva,Former Soviet Union (if no detail),CIS,Other Europe & Eurasia,119,Latvia,LV
+mda,Former Soviet Union (if no detail),CIS,Other Europe & Eurasia,146,Moldova,MD
+rus,Former Soviet Union (if no detail),CIS,Other Europe & Eurasia,185,Russia,RU
+tjk,Former Soviet Union (if no detail),CIS,Other Europe & Eurasia,208,Tajikistan,TJ
+tkm,Former Soviet Union (if no detail),CIS,Other Europe & Eurasia,213,Turkmenistan,TM
+ukr,Former Soviet Union (if no detail),CIS,Other Europe & Eurasia,230,Ukraine,UA
+uzb,Former Soviet Union (if no detail),CIS,Other Europe & Eurasia,235,Uzbekistan,UZ
+bih,Former Yugoslavia (if no detail),Central European countries,Other Europe & Eurasia,80,Bosnia and Herzegovina,BA
+hrv,Former Yugoslavia (if no detail),Central European countries,Other Europe & Eurasia,98,Croatia,HR
+mkd,Former Yugoslavia (if no detail),Central European countries,Other Europe & Eurasia,154,Macedonia,MK
+mne,Former Yugoslavia (if no detail),Central European countries,Other Europe & Eurasia,273,Montengro,ME
+srb,Former Yugoslavia (if no detail),Central European countries,Other Europe & Eurasia,272,Serbia,RS
+srb (Kosovo),Former Yugoslavia (if no detail),Central European countries,Other Europe & Eurasia,0,Kosovo,
+svn,Former Yugoslavia (if no detail),Central European countries,Other Europe & Eurasia,198,Slovenia,SI
+bdi,Other Africa,Africa,Other Africa,29,Burundi,BI
+bfa,Other Africa,Africa,Other Africa,223,Burkina Faso,BF
+caf,Other Africa,Africa,Other Africa,37,Central African Republic,CF
+com,Other Africa,Africa,Other Africa,45,Comoros,KM
+cpv,Other Africa,Africa,Other Africa,35,Cape Verde,CV
+dji,Other Africa,Africa,Other Africa,72,Djibouti,DJ
+esh,Other Africa,Africa,Other Africa,0,Western Sahara,EH
+gin,Other Africa,Africa,Other Africa,90,Guinea,GN
+gmb,Other Africa,Africa,Other Africa,75,Gambia,GN
+gnb,Other Africa,Africa,Other Africa,175,Guinea-Bissau,GW
+gnq,Other Africa,Africa,Other Africa,61,Equatorial Guinea,GQ
+lbr,Other Africa,Africa,Other Africa,123,Liberia,LR
+lso,Other Africa,Africa,Other Africa,122,Lesotho,LS
+mdg,Other Africa,Africa,Other Africa,129,Madagascar,MG
+mli,Other Africa,Africa,Other Africa,133,Mali,ML
+mrt,Other Africa,Africa,Other Africa,136,Mauritania,MR
+mus,Other Africa,Africa,Other Africa,137,Mauritius,MU
+mwi,Other Africa,Africa,Other Africa,130,Malawi,MW
+ner,Other Africa,Africa,Other Africa,158,Niger,NE
+reu,Other Africa,Africa,Other Africa,182,Réunion,RE
+rwa,Other Africa,Africa,Other Africa,184,Rwanda,RW
+sle,Other Africa,Africa,Other Africa,197,Sierra Leone,SL
+som,Other Africa,Africa,Other Africa,201,Somalia,SO
+stp,Other Africa,Africa,Other Africa,193,Sao Tome and Principe,ST
+swz,Other Africa,Africa,Other Africa,209,Swaziland,SZ
+syc,Other Africa,Africa,Other Africa,196,Seychelles,SC
+tcd,Other Africa,Africa,Other Africa,39,Chad,TD
+uga,Other Africa,Africa,Other Africa,226,Uganada,UG
+abw,Other Non-OECD Americas,Latin America,Other S. & Cent. America,0,Aruba,AW
+atg,Other Non-OECD Americas,Latin America,Other S. & Cent. America,8,Antigua and Barbuda,AG
+bhs,Other Non-OECD Americas,Latin America,Other S. & Cent. America,12,Bahamas,BS
+blz,Other Non-OECD Americas,Latin America,Other S. & Cent. America,23,Belize,BZ
+bmu,Other Non-OECD Americas,Western Europe,Other S. & Cent. America,0,Bermuda,BM
+brb,Other Non-OECD Americas,Latin America,Other S. & Cent. America,14,Barbados,BB
+cym,Other Non-OECD Americas,Latin America,Other S. & Cent. America,0,Cayman Islands,KY
+dma,Other Non-OECD Americas,Latin America,Other S. & Cent. America,55,Dominica,DM
+flk,Other Non-OECD Americas,Latin America,Other S. & Cent. America,0,Falkland Islands,
+glp,Other Non-OECD Americas,Latin America,Other S. & Cent. America,0,Guadeloupe,GP
+grd,Other Non-OECD Americas,Latin America,Other S. & Cent. America,86,Grenada,GD
+guf,Other Non-OECD Americas,Latin America,Other S. & Cent. America,69,French Guiana,GF
+guy,Other Non-OECD Americas,Latin America,Other S. & Cent. America,91,Guyana,GY
+kna,Other Non-OECD Americas,Latin America,Other S. & Cent. America,188,Saint Kitts and Nevis,KN
+lca,Other Non-OECD Americas,Latin America,Other S. & Cent. America,189,Saint Lucia,LC
+msr,Other Non-OECD Americas,Latin America,Other S. & Cent. America,0,Montserrat,MS
+sur,Other Non-OECD Americas,Latin America,Other S. & Cent. America,207,Suriname,SR
+tca,Other Non-OECD Americas,Latin America,Other S. & Cent. America,0,Turks and Caicos Islands,TC
+vct,Other Non-OECD Americas,Latin America,Other S. & Cent. America,191,Saint Vincent And Grenadines,VC
+vgb,Other Non-OECD Americas,Latin America,Other S. & Cent. America,0,British Virgin Islands,VG
+afg,Other Asia,Other Asia,Other Asia Pacific,2,Afghanistan,AF
+btn,Other Asia,Other Asia,Other Asia Pacific,18,Bhutan,BT
+fji,Other Asia,Other Asia,Other Asia Pacific,66,Fiji,FJ
+kir,Other Asia,Other Asia,Other Asia Pacific,83,Kiribati,KI
+lao,Other Asia,Other Asia,Other Asia Pacific,120,Laos,LA
+mac,Other Asia,Other Asia,Other Asia Pacific,0,Macao,
+mdv,Other Asia,Other Asia,Other Asia Pacific,132,Maldives,MV
+ncl,Other Asia,Other Asia,Other Asia Pacific,153,New Caledonia,NC
+plw,Other Asia,Other Asia,Other Asia Pacific,180,Palau,PW
+png,Other Asia,Other Asia,Other Asia Pacific,168,Papua New Guinea,PG
+slb,Other Asia,Other Asia,Other Asia Pacific,25,Soloman Islands,SB
+tls,Other Asia,Other Asia,Other Asia Pacific,176,Timor-Leste,TL
+ton,Other Asia,Other Asia,Other Asia Pacific,219,Tongo,TO
+vut,Other Asia,Other Asia,Other Asia Pacific,155,Vanuatu,VU
+wsm,Other Asia,Other Asia,Other Asia Pacific,244,Samoa,WS
+csk,,,,51,,
+lie,,,,125,,
+fsm,,,,145,,
+pri,,,,177,,
+pse,,,,299,,
+USSR,,,,228,,
+YUG,,,,248,,
+BLX,,,,15,,
