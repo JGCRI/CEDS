@@ -4,6 +4,7 @@ MOD_B = code/module-B
 MOD_C = code/module-C
 MOD_D = code/module-D
 MOD_E = code/module-E
+MOD_F = code/module-F
 PARAMS = code/parameters
 SOCIO_DATA = input/general
 ENERGY_DATA = input/energy
@@ -55,8 +56,8 @@ else
 # recursive call, once EM has been specified, and triggers the
 # build of the entire system. This target must be the final
 # outputs of the system.
-emissions : $(MED_OUT)/E.$(EM)_scaled_emissions.csv  \
-	$(MED_OUT)/E.$(EM)_scaled_EF.csv
+emissions : $(MED_OUT)/F.$(EM)_scaled_emissions.csv  \
+	$(MED_OUT)/F.$(EM)_scaled_EF.csv
 
 endif
 
@@ -113,6 +114,9 @@ clean-modD :
 
 clean-modE :
 	rm -fv $(MED_OUT)/E*.csv
+
+clean-modF :
+	rm -fv $(MED_OUT)/F*.csv
 
 # --------------------------------------------------------------
 
@@ -374,7 +378,7 @@ $(MED_OUT)/D.$(EM)_default_total_emissions.csv : \
 	$(MED_OUT)/D.$(EM)_default_comb_emissions.csv
 	Rscript $< $(EM) --nosave --no-restore
 
-$(MED_OUT)/E.$(EM)_scaled_emissions.csv : \
+$(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 	$(MED_OUT)/D.$(EM)_default_total_emissions.csv
 
 # dd3-1
@@ -384,22 +388,28 @@ $(MED_OUT)/D.$(EM)_default_total_EF.csv : \
 	$(MED_OUT)/C.$(EM)_NC_EF_db.csv
 	Rscript $< $(EM) --nosave --no-restore
 
-$(MED_OUT)/E.$(EM)_scaled_EF.csv : \
+$(MED_OUT)/F.$(EM)_scaled_EF.csv : \
 	$(MED_OUT)/D.$(EM)_default_total_EF.csv
 
-# ee1-1a
+# ee1-1
 # Creates scaled emissions and emissions factors for US data
-$(MED_OUT)/E.$(EM)_scaled_emissions.csv : \
-	$(MOD_E)/E1.1.inventory_scaling.R \
-	$(MOD_E)/E1.1.US_scaling.R \
-	$(MOD_E)/E1.1.CAN_scaling.R \
+$(MED_OUT)/E.SO2_UNFCCC_inventory : \
+	$(MOD_E)/E.UNFCCC_SO2_emissions.R
+	Rscript $< $(EM) --nosave --no-restore
+
+# ff1-1a
+# Creates scaled emissions and emissions factors for US data
+$(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
+	$(MOD_F)/F1.1.inventory_scaling.R \
+	$(MOD_F)/F1.1.US_scaling.R \
+	$(MOD_F)/F1.1.CAN_scaling.R \
 	$(PARAMS)/emissions_scaling_functions.R \
 	$(MAPPINGS)/US_sector_mapping.csv \
-	$(MED_OUT)/E.$(EM)_scaled_emissions.csv \
-	$(MED_OUT)/E.$(EM)_scaled_EF.csv \
+	$(MED_OUT)/F.$(EM)_scaled_emissions.csv \
+	$(MED_OUT)/F.$(EM)_scaled_EF.csv \
 	$(INV_DATA)/national_tier1_caps.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 
-# ee1-1b
-$(MED_OUT)/E.$(EM)_scaled_EF.csv : \
-	$(MED_OUT)/E.$(EM)_scaled_emissions.csv
+# ff1-1b
+$(MED_OUT)/F.$(EM)_scaled_EF.csv : \
+	$(MED_OUT)/F.$(EM)_scaled_emissions.csv

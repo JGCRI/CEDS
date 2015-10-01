@@ -1,14 +1,14 @@
 #------------------------------------------------------------------------------
-# Program Name: E1.1.CAN_scaling.R
+# Program Name: F1.1.CAN_scaling.R
 # Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly
 # Date Last Modified: July 8, 2015
 # Program Purpose: To create scaling factors and update emissions estimate for
 # the US region from latest emissions working copy by using aggregate 
 # US emission trends inventory data.
-# Input Files: emissions_scaling_functions.R, D.[em]_total_EF.csv, 
-#              D.[em]_total_emissions.csv, CAN_sector_mapping.csv, 
+# Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv, 
+#              F.[em]_scaled_emissions.csv, CAN_sector_mapping.csv, 
 #              national_tier1_caps.xlsx
-# Output Files: E.[em]_total_scaled_EF.csv, E.[em]_total_scaled_emissions.csv
+# Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
 # Notes: 
 # TODO:
 
@@ -33,7 +33,7 @@ PARAM_DIR <- "../code/parameters/"
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R" ,"emissions_scaling_functions.R" ) # Additional function files required.
 log_msg <- "Modifying emissions factors working copy from CAN inventory data" # First message to be printed to the log
-script_name <- "E1.1.CAN_scaling.R"
+script_name <- "F1.1.CAN_scaling.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -41,7 +41,7 @@ initialize( script_name, log_msg, headers )
 # ------------------------------------------------------------------------------
 # 1. Define parameters and read in files
 
-# For each Module E script, define the following parameters:
+# For each Module F script, define the following parameters:
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
@@ -58,7 +58,7 @@ extrapolation_after  <- "constant"
 
 # Read in the inventory data, mapping file, the specified emissions species, and
 #   the latest versions of the scaled EFs and 
-E.readScalingData( inventory_data_file, sector_fuel_mapping )
+F.readScalingData( inventory_data_file, sector_fuel_mapping )
 
 # rename emissions inventory sheets to match emissions species
 names( inv_data_full ) <- c("TPM","PM10","PM25","SO2","NOx","VOC","CO","NH3")
@@ -87,7 +87,7 @@ scaling_years <- as.numeric( gsub2( 'X', '', X_scaling_years ) )
 std_form_inv <- inv_data[ , 1:( length( X_scaling_years ) + 1 ) ]
 
 # Remove redundant and blank rows, and aggregate by the mapping file 
-inv_data <- E.invAggregate( std_form_inv )
+inv_data <- F.invAggregate( std_form_inv )
 
 #Unit conversion. CAN inventory given in tonnes. divide by 1000 to get kt (Gg)
 inv_data[,2:ncol(inv_data)]<-inv_data[,2:ncol(inv_data)]/1000
@@ -97,13 +97,13 @@ inv_data[,2:ncol(inv_data)]<-inv_data[,2:ncol(inv_data)]/1000
 
 # Take the ceds data for the regions of interest and aggregate with the
 #   specified mapping method
-E.cedsAggregate( input_ef, input_em, region, mapping_method )
+F.cedsAggregate( input_ef, input_em, region, mapping_method )
 
 # ------------------------------------------------------------------------------
 # 4. Create scaling factors and scaled emissions factors
 
 # Get ratio of inventory data to CEDS data
-E.scale( ceds_em_data, inv_data, scaling_years, int_method = interpolation,
+F.scale( ceds_em_data, inv_data, scaling_years, int_method = interpolation,
          pre_ext_method = extrapolation_before, 
          post_ext_method = extrapolation_after, region )
 
@@ -113,7 +113,7 @@ E.scale( ceds_em_data, inv_data, scaling_years, int_method = interpolation,
 # Only those sectors/fuels/country that have been modified by this routine are changed
 
 
-E.write( ef_output, em_output, domain = "MED_OUT" ) 
+F.write( ef_output, em_output, domain = "MED_OUT" ) 
 
 logStop()
 

@@ -1,14 +1,14 @@
 #------------------------------------------------------------------------------
-# Program Name: E1.1.US_scaling.R
+# Program Name: F1.1.US_scaling.R
 # Authors' Names: Tyler Pitkanen, Jon Seibert
 # Date Last Modified: July 8, 2015
 # Program Purpose: To create scaling factors and update emissions estimate for
 # the US region from latest emissions working copy by using aggregate 
 # US emission trends inventory data.
-# Input Files: emissions_scaling_functions.R, D.[em]_total_EF.csv, 
-#              D.[em]_total_emissions.csv, US_sector_mapping.csv, 
+# Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv, 
+#              F.[em]_scaled_emissions.csv, US_sector_mapping.csv, 
 #              national_tier1_caps.xlsx
-# Output Files: E.[em]_total_scaled_EF.csv, E.[em]_total_scaled_emissions.csv
+# Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
 # Notes: 
 # TODO:
 # ------------------------------------------------------------------------------
@@ -31,7 +31,7 @@
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "data_functions.R" ,"emissions_scaling_functions.R" ) # Additional function files required.
     log_msg <- "Modifying emissions factors working copy from US inventory data" # First message to be printed to the log
-    script_name <- "E1.1.US_scaling.R"
+    script_name <- "F1.1.US_scaling.R"
     
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
@@ -56,7 +56,7 @@
     
 # Read in the inventory data, mapping file, the specified emissions species, and
 #   the latest versions of the scaled EFs and 
-    E.readScalingData( inventory_data_file, sector_fuel_mapping )
+    F.readScalingData( inventory_data_file, sector_fuel_mapping )
     
 # ------------------------------------------------------------------------------
 # 2. Select the inventory data and arrange it into the standard CEDS format
@@ -82,20 +82,20 @@
     std_form_inv <- inv_data[ , 1:( length( X_scaling_years ) + 1 ) ]
  
 # Remove redundant and blank rows, and aggregate by the mapping file 
-    inv_data <- E.invAggregate( std_form_inv )
+    inv_data <- F.invAggregate( std_form_inv )
     
 # ------------------------------------------------------------------------------
 # 3. Arrange the CEDS emissions data to match the inventory data
  
 # Take the ceds data for the regions of interest and aggregate with the
 #   specified mapping method
-    E.cedsAggregate( input_ef, input_em, region, mapping_method )
+    F.cedsAggregate( input_ef, input_em, region, mapping_method )
 
 # ------------------------------------------------------------------------------
 # 4. Create scaling factors and scaled emissions factors
 
 # Get ratio of inventory data to CEDS data
-    E.scale( ceds_em_data, inv_data, scaling_years, int_method = interpolation,
+    F.scale( ceds_em_data, inv_data, scaling_years, int_method = interpolation,
         pre_ext_method = extrapolation_before, 
         post_ext_method = extrapolation_after, region )
 
@@ -105,6 +105,6 @@
 # Only those sectors/fuels/country that have been modified by this routine are changed
 
     
-    E.write( ef_output, em_output, domain = "MED_OUT" ) 
+    F.write( ef_output, em_output, domain = "MED_OUT" ) 
 
     logStop()

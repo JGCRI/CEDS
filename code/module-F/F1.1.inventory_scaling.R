@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
-# Program Name: E1.1.inventory_scaling.R
-# Author: Jon Seibert
+# Program Name: F1.1.inventory_scaling.R
+# Author: Rachel Hoesly adapted from Jon Seibert
 # Date Last Updated: Sept 24, 2015
 # Program Purpose: To select and run the correct script(s) to fill out to the combustion
 #                   emissions database for the given emissions type.
@@ -31,7 +31,7 @@ PARAM_DIR <- "../code/parameters/"
 headers <- c() # Additional function files required.
 log_msg <- paste0( "Calling species-specific child script to scale emissions to",
                    " inventories" ) # First message to be printed to the log
-script_name <- "E1.1.inventory_scaling.R"
+script_name <- "F1.1.inventory_scaling.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -43,17 +43,17 @@ em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "SO2"
 em_lc <- tolower( em )    
 
-MODULE_E <- "../code/module-E/"
+MODULE_F <- "../code/module-F/"
 
 # Create a function that can be applied to source all child scripts for the given
 # emissions type.
-source_child <- function( file_name ){ source( paste( MODULE_E, file_name, sep = "" ) ) }
+source_child <- function( file_name ){ source( paste( MODULE_F, file_name, sep = "" ) ) }
 
 scripts <- c()
 
 # Set scripts to add emissions data for SO2
 if( em == "SO2" ){
-  scripts <- c( "E1.1.US_scaling.R",'E1.1.CAN_scaling.R')
+  scripts <- c( "F1.1.US_scaling.R",'F1.1.CAN_scaling.R')
 }
 
 # Set scripts to add emissions data for BC or OC

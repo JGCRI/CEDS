@@ -1,22 +1,22 @@
 #------------------------------------------------------------------------------
-# Program Name: E.emissions_scaling_functions.R
+# Program Name: F.emissions_scaling_functions.R
 # Author's Name: Tyler Pitkanen
 # Date Last Modified: June 16, 2015
 # Program Purpose: Header file containing generalized functions designed to
 #   scale CEDS emissions data and emissions factors based on inventory data. 
-#   This file is made to be sourced at the beginning of each module E script to
-#   load the functions for Module E's data read-in, inventory data arranging, 
+#   This file is made to be sourced at the beginning of each module F script to
+#   load the functions for Module F's data read-in, inventory data arranging, 
 #   scaled data arranging, scaling factor calculation and estimation, and data 
 #   write-out. 
-# Note: Only designed for use within Module E scaling scripts
+# Note: Only designed for use within Module F scaling scripts
 # TODO: Possibly add function to organize inv data
 #   Use R objects for readin/writeout of scaled EF and emissions data
 #   Add a master debug option that would also write out the .csv files
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
-# E.readScalingData
-# Brief: reads in data and makefile info for module E scripts
+# F.readScalingData
+# Brief: reads in data and makefile info for module F scripts
 # Details: reads in inventory data, the most recent versions of scaled emissions
 #   and EFs, the mapping file data, and the emissions species. Performs checks 
 #   for the ceds column of the mapping file as well as the input ceds data.
@@ -32,7 +32,7 @@
 #   C.[em]_scaled_emissions, specified inventory, specified mapping file
 # output files: null
 
-E.readScalingData <- function( inventory = inventory_data_file, 
+F.readScalingData <- function( inventory = inventory_data_file, 
     mapping = sector_fuel_mapping, method = mapping_method ) {
 # Select the data sheet corresponding the emissions species of interest. Pass in
 #   em_species via makefile, or use a default if running in R directly
@@ -42,8 +42,8 @@ E.readScalingData <- function( inventory = inventory_data_file,
 
 # Read in data    
     sourceData( "PARAM", "common_data", ".R" )
-    ef_file <- paste0( "E.", em_species, "_scaled_EF" )
-    em_file <- paste0( "E.", em_species, "_scaled_emissions" )
+    ef_file <- paste0( "F.", em_species, "_scaled_EF" )
+    em_file <- paste0( "F.", em_species, "_scaled_emissions" )
     input_ef <<- readData( "MED_OUT", ef_file )
     input_em <<- readData( "MED_OUT", em_file )
     inv_data_full <<- readData( "EM_INV", substr( inventory, 1, nchar( inventory ) - 5 ), ".xlsx" )
@@ -67,11 +67,11 @@ E.readScalingData <- function( inventory = inventory_data_file,
 }
 
 # ---------------------------------------------------------------------------------
-# E.invAggregate
+# F.invAggregate
 # Brief: aggregates inventory data to the scaling sectors
 # Details: reads in the standard form inv data, removes redundant rows, zeroes
 #   out specified terms (eg NA), and aggregates the data to the scaling sectors
-# Dependencies: CEDS_header.R, E.read(), module E scripts
+# Dependencies: CEDS_header.R, F.read(), module F scripts
 # Author: Tyler Pitkanen
 # parameters:
 #   std_form_inv: inv data put into standard ceds format, with years along the 
@@ -83,7 +83,7 @@ E.readScalingData <- function( inventory = inventory_data_file,
 # input files: null
 # output files: null
 
-E.invAggregate <- function( std_form_inv, zeroed_terms = c( NA, 'NA', 'NA ', '-' ) ) {
+F.invAggregate <- function( std_form_inv, zeroed_terms = c( NA, 'NA', 'NA ', '-' ) ) {
 
     printLog( "Aggregating inventory data" )
     
@@ -109,11 +109,11 @@ E.invAggregate <- function( std_form_inv, zeroed_terms = c( NA, 'NA', 'NA ', '-'
 }
 
 # ---------------------------------------------------------------------------------
-# E.cedsAggregate
+# F.cedsAggregate
 # Brief: aggregates ceds data over fuel or sectors
 # Details: reads in the ceds data, selects the region that corresponds to the
 #   inventory, aggregates by fuel and then aggregates to the scaling sectors
-# Dependencies: CEDS_header.R, module E scripts
+# Dependencies: CEDS_header.R, module F scripts
 # Author: Tyler Pitkanen
 # parameters:
 #   input_ef: the most recent version of the scaled EFs [default: input_ef]
@@ -126,7 +126,7 @@ E.invAggregate <- function( std_form_inv, zeroed_terms = c( NA, 'NA', 'NA ', '-'
 # input files: null
 # output files: null
 
-E.cedsAggregate <- function( input_ef, input_em, region, method = mapping_method ) {
+F.cedsAggregate <- function( input_ef, input_em, region, method = mapping_method ) {
     
 # Clean the data
     clean_input_ef <- removeBlanks( input_ef, 'name', 'iso' )
@@ -175,14 +175,14 @@ E.cedsAggregate <- function( input_ef, input_em, region, method = mapping_method
 }
 
 # ---------------------------------------------------------------------------------
-# E.scale
+# F.scale
 # Brief: produces scaling factors from aggregated ceds and inventory data
 # Details: takes in the ceds data and the inventory data that has been put in ceds
 #   standard form. Scaling factors are calculated by dividing inv data by ceds 
 #   data. The scaling factors are then interpolated and extrapolated to match
 #   ceds years in a specified manner. The ceds data is then disaggregated
 #   back into its original form
-# Dependencies: CEDS_header.R, E.invAggregate(), E.cedsAggregate
+# Dependencies: CEDS_header.R, F.invAggregate(), F.cedsAggregate
 # Author: Tyler Pitkanen
 # parameters:
 #   ceds_data:      ceds data for the inventory's region [default: ceds_data]
@@ -198,7 +198,7 @@ E.cedsAggregate <- function( input_ef, input_em, region, method = mapping_method
 # input files: null
 # output files: null
 
-E.scale <- function( ceds_data = ceds_em_data, inv_data, scaling_years, 
+F.scale <- function( ceds_data = ceds_em_data, inv_data, scaling_years, 
     int_method = interpolation, pre_ext_method = extrapolation_before, 
     post_ext_method = extrapolation_after, region ) {
 
@@ -352,13 +352,13 @@ E.scale <- function( ceds_data = ceds_em_data, inv_data, scaling_years,
 }
 
 # ---------------------------------------------------------------------------------
-# E.write
+# F.write
 # Brief: writes out newly scaled EF and emissions data
 # Details: automatically forms comments from region and inventory specifications,
 #   writes out emissions factor data as a csv, and updates the emissions object.
-#   The file name is generated from the emissions species: E.[em]_scaled_EF
+#   The file name is generated from the emissions species: F.[em]_scaled_EF
 #   Also writes out the emissions data, but this may be removed in the future.
-# Dependencies: CEDS_header.R, E.scale
+# Dependencies: CEDS_header.R, F.scale
 # Author: Tyler Pitkanen
 # parameters:
 #   ef: scaled emissions factors data [default: null]
@@ -369,9 +369,9 @@ E.scale <- function( ceds_data = ceds_em_data, inv_data, scaling_years,
 #             used and the regions affected
 # return: null
 # input files: null
-# output files: E.[em]_scaled_EF
+# output files: F.[em]_scaled_EF
 
-E.write <- function( ef = ef_output, em = em_output, domain = "MED_OUT", 
+F.write <- function( ef = ef_output, em = em_output, domain = "MED_OUT", 
                      comments = "default" ) {
     
 # Write the comments as default versions unless they are overridden     
@@ -380,26 +380,26 @@ E.write <- function( ef = ef_output, em = em_output, domain = "MED_OUT",
             "EFs have been scaled by data from", inventory_data_file )
         em_comment_text <- paste( "Global emissions, where", region,
             "emissions have been scaled by data from", inventory_data_file )
-        comments.E.scaled_EFs <- c( ef_comment_text )
-        comments.E.scaled_emissions <- c( em_comment_text )
+        comments.F.scaled_EFs <- c( ef_comment_text )
+        comments.F.scaled_emissions <- c( em_comment_text )
     } else {
-        comments.E.scaled_EFs <- comments
-        comments.E.scaled_emissions <- comments
+        comments.F.scaled_EFs <- comments
+        comments.F.scaled_emissions <- comments
     }
  
 # Create fn from em_species specification
-# The fn is selected such that it overwrites the previous E.[em]_scaled_EF
-#   version, so all module E scripts update it serially
-    ef_fn <- paste0( 'E.', em_species, '_scaled_EF' )
-    em_fn <- paste0( 'E.', em_species, '_scaled_emissions' )
+# The fn is selected such that it overwrites the previous F.[em]_scaled_EF
+#   version, so all module F scripts update it serially
+    ef_fn <- paste0( 'F.', em_species, '_scaled_EF' )
+    em_fn <- paste0( 'F.', em_species, '_scaled_emissions' )
  
 # Write EF table as a csv file 
     writeData( ef, domain = domain, fn = ef_fn, 
-        comments = comments.E.scaled_EFs )
+        comments = comments.F.scaled_EFs )
 
 # May be removed later; data file may not be necessary 
     writeData( em, domain = domain, fn = em_fn, 
-        comments = comments.E.scaled_emissions )
+        comments = comments.F.scaled_emissions )
 
 # This creates or updates an R object in the global environment. It has a name
 #   equivalent to the string in em_fn, and it has the value of em.
