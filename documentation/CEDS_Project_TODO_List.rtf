@@ -1,10 +1,10 @@
 {\rtf1\ansi\ansicpg1252\cocoartf1348\cocoasubrtf170
 \cocoascreenfonts1{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\froman\fcharset0 TimesNewRomanPSMT;\f2\fnil\fcharset0 Calibri;
 \f3\froman\fcharset0 Times-Roman;\f4\fnil\fcharset0 LucidaGrande;}
-{\colortbl;\red255\green255\blue255;\red255\green0\blue0;}
+{\colortbl;\red255\green255\blue255;\red255\green0\blue0;\red217\green11\blue0;}
 {\info
 {\author test}
-{\*\company PNNL}}\margl1440\margr1440\vieww15660\viewh17980\viewkind1
+{\*\company PNNL}}\margl1440\margr1440\vieww13940\viewh11040\viewkind1
 \deftab720
 \pard\pardeftab720\ri0
 
@@ -77,13 +77,6 @@ Update CEDS coding guide with CEDS specific guidelines
 \b \cf2  Done
 \b0 \cf0 \
 \
-\pard\pardeftab720\ri0
-\cf0 Update metadata where it doesn't now exist 
-\b \cf2 Partially Done
-\b0 \cf0 \
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
-\cf0   -- Make sure all input files have metadata\
-\
 Document input emissions format for system, including units 
 \b \cf2 Not Done
 \b0 \cf0 \
@@ -105,7 +98,7 @@ Add system for producing population datasets (ideally using world bank and UN AP
 \b \cf2  Done
 \b0 \cf0 \
   -- Later: Add urban/rural split
-\b \cf2  Not Done
+\b \cf2  Not Done - not high priority
 \b0 \cf0 \
   -- Later: extend to previous historical years using HYDE population time series
 \b \cf2  Not Done
@@ -141,49 +134,26 @@ Update SO2 default emission factors for Coal to consist of three components
        -- Someone do simple analysis of split by country to see which countries this changes over time.\
 \
 Update SO2 default emission factors for petroleum products
-\b  \'96 Linh \cf2 Partially done \
+\b  \'96 Linh \cf2 Done \
 
 \b0 \cf0   -- For developing countries, use UNEP data that Grace collected\
   -- Will need to develop similar dataset for OECD and FSU countries\
   -- As a result, default emission factors (effectively S content) will vary over time, and differently for the different liquid fuels\
 \
 Update data for metal smelting SO2 emissions estimate
-\b  \'96 Ryan \cf2 Partially Done
+\b  \'96 Ryan \cf2 Done
 \b0 \cf0 \
   -- Update metals production data from USGS\
   -- Update sulfur removal data from USGS\
 \
-Update to 2015 edition of IEA energy balances 
-\b \cf2 Not Available - SJS to preorder
-\b0 \cf0 \
-  -- Should be available "any day now" (OECD released July 1, waiting for non-OECD, available in August)\
-\
 Integrate routine to pull FAO driver data into system
 \b  - Ryan & Jon Linh \cf2 Done
 \b0 \cf0 \
-\
   -- Including construction of pulp and paper emissions driver (perhaps ultimately as separate routine?)\
   -- Note there will be other FAO drivers for process emissions that will eventually be added, but not for SO2, so ok to keep it simple for now\
 \
-Process US NEI data into CEDS sector and fuel categories - 
-\b Cecilia
-\b0 \
-  -- First do this for 2011 
-\b \cf2 Partially Done
-\b0 \cf0 \
-  -- Eventually do this for earliest NEI year available (will require routine to update SSC->NFR) 
-\b \cf2 Not Done
-\b0 \cf0 \
-  -- For mobile sources: create default combustion EFs for 2011 by dividing NEI emissions by NEI CO2 from NEI 
-\b \cf2  Not Done
-\b0 \cf0 \
-  -- For other sectors: create default combustion EFs for 2011 by dividing NEI emissions by fuel  consumption from IEA. (Problematic for some sectors. Need to be careful about industry process use, building biomass, etc.)
-\b \cf2  Not Done
-\b0 \cf0 \
- \
-\
 Process GAINS sulfur info default EFs -
-\b  \cf2 Ready for resting and commit
+\b  \cf2 Done
 \b0 \cf0 \
   -- This will result in an EF and control % (for coal) for 2005\
   -- Assumptions for coal (aside from control%) will be constant. \
@@ -193,19 +163,44 @@ Process GAINS sulfur info default EFs -
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
 \cf0 \
 Create code to consolidate and check consistency of downloaded UNFCCC emissions - ???
-\b \cf2  \cf0 Patrick\cf2  - Not Done 
+\b \cf2  \cf0 Patrick\cf2  - Partially Done
 \b0 \cf0 \
   -- A package of CSV files has been downloaded using a web browser macro program (on JGCRI server)\
   -- Need to identify which sectors/subsectors have data (this is inconsistent)\
     -- Perhaps have a dataframe that lists countries and sectors and flags (1/0 or true/false) which have data\
-  -- Need to create mapping between UN categories and new CEDS categories\
+  -- Need to create mapping between UN categories and new CEDS categories - 
+\b not done
+\b0 \
+\
+Process US NEI data into CEDS sector and fuel categories - 
+\b Cecilia
+\b0 \
+  -- First do this for 2011 
+\b \cf2 Done - but not in system
+\b0 \cf0 \
+  -- Eventually do this for earliest NEI year available (will require routine to update SSC->NFR) 
+\b \cf2 Not Done - Linh
+\b0 \cf0 \
+  -- For mobile sources: create default combustion EFs for 2011 by dividing NEI emissions by NEI CO2 from NEI 
+\b \cf2  Not Done
+\b0 \cf0 \
+  -- For other sectors: create default combustion EFs for 2011 by dividing NEI emissions by fuel  consumption from IEA. (Problematic for some sectors. Need to be careful about industry process use, building biomass, etc.)
+\b \cf2  Not Done
+\b0 \cf0 \
 \
 Start analysis of pre-industrial and pre-control emission factors - 
-\b Rachel
-\b0 \
+\b \cf3 Rachel - Not Done
+\b0 \cf0 \
   -- Goal: come up with a default set of emission factors. \
   -- These might be the same from 1850-1970, or might vary - if we have enough info to determine this\
   -- Some data sources: implied EF from earlier US EPA trends data, RETRO, HYDE\
+\
+\pard\pardeftab720\ri0
+\cf0 Update metadata where it doesn't now exist 
+\b \cf2 Partially Done
+\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
+\cf0   -- Make sure all input files have metadata files\
 \
 Transition to more detailed sector breakdown 
 \b \cf2 Not Done
@@ -215,12 +210,28 @@ Transition to more detailed sector breakdown
  -- Should use more detailed breakdown for any work with more detailed inventories (NEI, UNFCCC, etc.)\
 \
 Update scaling routine to provide more options 
-\b \cf2 Not Done
+\b \cf2 Partially Done
 \b0 \cf0 \
   -- For some sectors (e.g. canada smelting industry), will want to subtract the smaller combustion component and just scale the larger component. \
   -- This prevents unrealistic scaling of small emission sources\
   -- Will want to do analysis of resulting EFs to make sure are reasonable (e.g., write out to diagnostic file as first step)\
   -- Consider scaling back in time that is not constant but ramps to some trusted earlier (e.g. ~1970 value)\
+\
+Update to 2015 edition of IEA energy balances 
+\b \cf2 Not Available - SJS to preorder
+\b0 \cf0 \
+  -- Should be available "any day now" (OECD released July 1, waiting for non-OECD, available in August)\
+\
+More Robust API download routine. 
+\b \cf2 Not Done - Rachel
+\b0 \cf0 \
+- provide backup file if API doesn\'92t respond\
+- system flag for downloading new data or not\
+\
+More detailed meta data system for large data frames. 
+\b \cf2 Not Done - Rachel
+\b0 \cf0 \
+- Meta data entry for every value, like Linh\'92s Sulfur standards xls doc\
 \
 
 \b Medium Priority 
@@ -231,6 +242,7 @@ Update scaling routine to provide more options
 
 \b0 \
 Move to using numerical country codes so that historical changes are uniquely specified\
+\
 Add CEDS-specific guidelines to R style guide (documentation format, metadata use, etc.)\
  
 \b \cf2 Done
@@ -247,9 +259,14 @@ Add CEDS-specific guidelines to R style guide (documentation format, metadata us
 \i0 )
 \b \
 
-\b0 Move to git instead of svn.\
+\b0 Move to git instead of svn. - 
+\b \cf3 DONE
+\b0 \cf0 \
   -- When do that, save copy of svn log to the git repository to preserve history\
-  -- Will need to have a plan for large data files (such as US NEI)\
+  \
+-- Will need to have a plan for large data files (such as US NEI) - 
+\b \cf3 \cb3 NOT DONE
+\b0 \cf0 \cb1 \
 \
 Add simple unit processing for emission calculations. Add units to all data.\
 \
