@@ -44,8 +44,9 @@
  
  sulfateEmisFactor <- 4
  SulfiteEmisFactor <- 8
+ lbs_to_kt <- 4.536*10^-7
 
- unit <- "tons"
+ unit <- "kt"
  act <- "Pulp_Paper_Production"
 
 # -----------------------------------------------------------------------------
@@ -76,183 +77,143 @@ sulfurdioxide <- with(FAOquery.df,
 
 # The data is given as a list of dataframes. The piece we care about is the 
 # dataframe entitled entity. We can simplify the code by creating a new object for
-# that dataframe, entity.
-entity <- sulfurdioxide$entity
+# that dataframe, total_emiss.
+total_emiss <- sulfurdioxide$entity
 
 # Replace NA's with 0 because thats what they are.
-entity[is.na(entity)] <- 0
+total_emiss[is.na(total_emiss)] <- 0
 
 # Now we want to add the two sulfate procedure columns together and the 
 # two sulfite procedure columns together. Following this we mulitply by the
 # emission factor for each process.
-entity$sulfateEmission <-
-    (entity$sulfateB + entity$sulfateUn)*sulfateEmisFactor
-entity$SulfiteEmission <-
-    (entity$SulfiteB + entity$SulfiteUn)*SulfiteEmisFactor
+total_emiss$sulfateEmission <-
+    (total_emiss$sulfateB + total_emiss$sulfateUn)*sulfateEmisFactor * lbs_to_kt
+total_emiss$SulfiteEmission <-
+    (total_emiss$SulfiteB + total_emiss$SulfiteUn)*SulfiteEmisFactor * lbs_to_kt
+
+# We want all the emissions combined, therefore we add column of both emission types
+total_emiss$emission <- total_emiss$SulfiteEmission + total_emiss$sulfateEmission
 
 # Adding a column containing the iso codes then removing the columns with the STAT
 # code and the four columns containing the nonaggregated data.
-entity$iso <- iso.codes$iso[ match( entity$FAOST_CODE, iso.codes$FAO ) ]
-keeps <- c("iso", "Year", "sulfateEmission", "SulfiteEmission")
-entity <- entity[!entity$FAOST_CODE >= 351,keeps]
-
-#-----------------------------------------------------------------------------
-# 4. Reformating Slovania data
-# Slovania seemed to have had an error where there was a jump from 0 
-# prodcution to around 600,000 with a corresponding drop in sulfite prodcution 
-# for 2003 and 2004. This doesn't make sense as it takes a lot to change 
-# production and we believe this to be a reporting error. Therefore, we added 
-# these two data points sulfate Pulp to the Sulfite Pulp.
-
-years <- c(2003,2004)
-entity[(entity$iso %in% "svn" & entity$Year %in% years),"SulfiteEmission"] <-
-    entity[(entity$iso %in% "svn" & entity$Year %in% years),"SulfiteEmission"] + 
-    entity[(entity$iso %in% "svn" & entity$Year %in% years),"sulfateEmission"]
-entity[(entity$iso %in% "svn" & entity$Year %in% years),"sulfateEmission"] <- 0
+total_emiss$iso <- iso.codes$iso[ match( total_emiss$FAOST_CODE, iso.codes$FAO ) ]
+keeps <- c("iso", "Year", "emission")
+total_emiss <- total_emiss[!total_emiss$FAOST_CODE >= 351,keeps]
 
 #----------------------------------------------------------------------------------
-# 5. Split into sulphite and sulfate, reformat to CEDS Standard
-
-# Remove sulfate.procedure
-sulfite.procedure <- entity[ -3 ]
+# 4. Split into sulphite and sulfate, reformat to CEDS Standard
 
 # Change names to allow casting
-names( sulfite.procedure ) <- c( "iso","variable","value" )
+names( total_emiss ) <- c( "iso","variable","value" )
 
 # Reshape the data so that the years are columns
-sulfite.procedure <- cast( sulfite.procedure, iso~variable, mean )
+total_emiss <- cast( total_emiss, iso~variable, mean )
 
 # Rename the columns for consistency with CEDS Standard
-names( sulfite.procedure )[ 2:length( sulfite.procedure ) ] <- 
-      paste0( "X", names( sulfite.procedure )[ 2:length( sulfite.procedure ) ] )
+names( total_emiss )[ 2:length( total_emiss ) ] <- 
+      paste0( "X", names( total_emiss )[ 2:length( total_emiss ) ] )
 
 # Set previously nonexistent data spots to 0
 # **Consider leaving NAs and handling later to avoid overwriting actual data?**
-sulfite.procedure[ is.na( sulfite.procedure ) ] <- 0
+total_emiss[ is.na( total_emiss ) ] <- 0
 
 # Add activity and units columns
-sulfite.procedure$activity <- act
-sulfite.procedure$units <- unit
-
-L <- length( sulfite.procedure )
+total_emiss$activity <- act
+total_emiss$units <- unit
 
 # Reorder columns
-sulfite.procedure <- cbind( sulfite.procedure[ 1 ],
-      cbind( sulfite.procedure[ ( L - 1 ):L ], sulfite.procedure[ 2:( L - 2 ) ]  ) )
-
-# Set up sulfate.procedure in same way
-sulfate.procedure <- entity[ -4 ]
-names( sulfate.procedure ) <- c("iso","variable","value")
-sulfate.procedure <- cast( sulfate.procedure, iso~variable, mean )
-names( sulfate.procedure )[ 2:length( sulfate.procedure ) ] <- 
-      paste0( "X", names( sulfate.procedure )[ 2:length( sulfate.procedure ) ] )
-sulfate.procedure[ is.na( sulfate.procedure ) ] <- 0
-sulfate.procedure$activity <- act
-sulfate.procedure$units <- unit
-L <- length( sulfate.procedure )
-sulfate.procedure <- cbind( sulfate.procedure[ 1 ], 
-      cbind( sulfate.procedure[ ( L - 1 ):L ], sulfate.procedure[ 2:( L - 2 ) ]  ) )
+order <- c("iso","activity", "units", paste0("X",1961:2014))
+total_emiss <- total_emiss[,order]
 
 #--------------------------------------------------------------------------------
-# 6. Country Splitting
+# 5 Splitting of aggregate countries
+country_splitting <- function(emission, info, sector = c("nosectors"), sec_loc = 2){
+    if(match(info[3],emission$iso,nomatch = 0) > 0){
 
-country_splitting <- function(emission, info){
-# A few definitions - the sectors/products/flows in the country data and removing
-# pieces of the info data to make the information easier to use. 
+# A few defintions taken from the info read into function such as the parent
+# country, successor countries, and years the parent country existed.
+      successor_start <- as.numeric(info[2])
+      years <- paste0("X",info[1]:(successor_start - 1))
+      parent_country <- info[3]
+      info <- info[-3]
+      info <- as.character(na.omit(info[match(emission$iso,info)]))
+      successor_cols <- paste0("X",successor_start)
+      sector <- unique(sector)
 
-    sector <- unique(emission[,2])
-    info.noyear <- info[-1]
-    info.noparent <- info.noyear[-1]
-    end <- (as.numeric(info[1]) - 1)
-    successor_cols <- paste0("X",info[1])
-    years <- paste0("X",1961:end)
-
-# In the case of multiple sectors/products/flows the for loop goes through each sector.
-    for(product in seq_along(sector)){
-
-# This if statement says that if the sum of emissions in their first year is not 0,
-# do the following. Otherwise, move onto the next sector/end function.
-      if(0 != sum(subset(emission, emission[,2] == 
-          sector[product] & iso %in% info.noparent)[,successor_cols])){
-
-# Defining a data frames for the sucessor countries and parent country, and the sum of
-# emissions of sucessor countries in first year.
-      activity.df <- subset(emission, emission[,2] == sector[product])
-      successor <- subset(activity.df, activity.df$iso %in% info.noparent)
-      combined <- sum(successor[successor_cols]) 
-      parent <- activity.df[(activity.df$iso %in% info.noyear[1]),]
+# Determine if there are multiple sectors or only one sector based on the read in.
+      if(length(sector) == 1) {
+# Defining data frames for successor and parent countries. Secondly, the sum
+# of total_emiss in the successor countries first year.
+        successor <- subset(emission, emission$iso %in% info)
+        combined <- sum(successor[,successor_cols]) 
+        parent <- emission[(emission$iso %in% parent_country),]
 
 # Developing the multiplying factor and then using the multiplying factor on the
 # parent country, finallying pasting the adjusted information into the successors.
-      multiplying.factor <- successor[1:length(info.noparent), successor_cols]/combined
-      successor[1:length(successor$iso),years] <- parent[,years]
-      successor <- successor[,years] * 
-            multiplying.factor[1:length(successor$iso)]
-      emission[emission$iso %in% info.noparent & emission[,2] %in% 
-              sector[product],years] <- successor[,years]
-      } # End of if statement
-    } # End of Sector Loop
+        multiplying.factor <- successor[1:length(info), successor_cols]/combined
+        successor[1:nrow(successor),years] <- parent[,years]
+        successor <- successor[,years] * multiplying.factor[1:nrow(successor)]
+        emission[emission$iso %in% info,years] <- successor[,years]
+      } else {
 
+# The for loop: In the case of multiple sectors/products/flows sequences along each
+# The if statement: If the split in a specific sector will be zero for each, keep
+# 0's in place and move on to the next sector. Speeds up function when data is 0.
+        for(product in seq_along(sector)){
+          if(0 != sum(subset(emission, emission[,sec_loc] == 
+              sector[product] & iso %in% info)[,successor_cols])){
+
+# Defining a data frames for the sucessor countries and parent country, and the sum of
+# total_emiss of sucessor countries in first year.
+          activity.df <- subset(emission, emission[,sec_loc] == sector[product])
+          successor <- subset(activity.df, activity.df$iso %in% info)
+          combined <- sum(successor[,successor_cols]) 
+          parent <- activity.df[(activity.df$iso %in% parent_country),]
+
+# Developing the multiplying factor and then using the multiplying factor on the
+# parent country, finallying pasting the adjusted information into the successors.
+          multiplying.factor <- successor[1:length(info), successor_cols]/combined
+          successor[1:nrow(successor),years] <- parent[,years]
+          successor <- successor[,years] * multiplying.factor[1:nrow(successor)]
+          emission[emission$iso %in% info & emission[,sec_loc] %in% 
+                sector[product],years] <- successor[,years]
+          } # End of sector data if statement
+        } # End of Sector Loop
+	} # End of if determining number of sectors
 # Removing parent country from data
-    emission <- emission[!(emission$iso %in% info.noyear[1]),]
+    emission <- emission[!(emission$iso %in% parent_country),]
+    } # End of "does parent exist if"
     return(emission)
 } # End of Function 
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 # To perform a country split, data must be read in along with a LIST of information.
 # To add a country, the year when the successor countries appear must be first 
 # (For example, the Soviet Union disolved in 1991, therefore the first year of the 
 # successor countries is 1992), secondly the parent country, finally, the 
 # successor countries follow.
 # If you have a list of lists to store country info, be sure to use DOUBLE BRACKETS.
+# The function is also capable of multiple sectors. A list of sectors/activities
+# is to be added to function. Also note, sectors/activities column in expected to be
+# in column 2. 
 
-country_splits <- list(czech.slovkia = c(1993, "csk","cze","svk"), 
-                 bel.lux = c(2000, "BLX","bel","lux"),
-                 yugo = c(1992, "YUG", "scg", "svn", "mkd","hrv","bih"),
-                 ser.mont = c(2006, "scg","srb","mne"),
-                 soviet = c(1992, "USSR","arm","aze","blr","est","geo","kaz","kgz",
-                            "ltu","lva","mda","rus","tjk","tkm","ukr","uzb"))
+cou_info <- list(czech.slovkia = c(1961, 1993, "csk","cze","svk"), 
+                 bel.lux = c(1961, 2000, "BLX","bel","lux"),
+                 yugo = c(1961, 1992, "YUG", "scg", "svn", "mkd","hrv","bih"),
+                 ser.mont = c(1961, 2006, "scg","srb","mne"),
+                 soviet = c(1961, 1992, "USSR","arm","aze","blr","est","geo","kaz",
+                            "kgz","ltu","lva","mda","rus","tjk","tkm","ukr","uzb"))
 
-new.sulfate.procedure <- sulfate.procedure
-new.sulfite.procedure <- sulfite.procedure
-
-for (m in seq_along(list)){
-    new.sulfate.procedure <- country_splitting(new.sulfate.procedure, country_splits[[m]])
-    new.sulfite.procedure <- country_splitting(new.sulfite.procedure,country_splits[[m]])
+for (m in seq_along(cou_info)){
+    total_emiss <- country_splitting(total_emiss, cou_info[[m]])
 }
 
-
-#--------------------------------------------------------------------------------
-# 6. combine Sulfit and Sulfate - convert to kt
-sulfite<-melt(new.sulfite.procedure, id=c("iso",'activity','units'))
-names(sulfite)<-c('iso','sector','units','year','sulfite')
-sulfate<-melt(new.sulfate.procedure, id=c("iso",'activity','units'))
-names(sulfate)<-c('iso','sector','units','year','sulfate')
-total_emissions<-merge(sulfite,sulfate,by=c("iso",'sector','units','year'))
-total_emissions$units<-'kt'
-total_emissions$sulfite<-total_emissions$sulfite/1000
-total_emissions$sulfate<-total_emissions$sulfate/1000
-total_emissions$total<-total_emissions$sulfite+total_emissions$sulfate
-total_emissions$sector<-'process_PulpPaper'
-total_emissions$fuel<-'process'
-total<-cast(total_emissions[,c("iso","sector","fuel",'units',"year","total")],
-     iso+sector+fuel+units~year, value = "total")
-
-sulfite<-cast(total_emissions[,c("iso","sector","fuel",'units',"year","sulfite")],
-            iso+sector+fuel+units~year, value = "sulfite")
-
-sulfate<-cast(total_emissions[,c("iso","sector","fuel",'units',"year","sulfate")],
-            iso+sector+fuel+units~year, value = "sulfate")
-
-total<-as.data.frame(total)
 # --------------------------------------------------------------------------------
-# 7. Output
-  addToEmissionsDb_overwrite(total,em='SO2',type='NC')
+# 6. Output
+  addToEmissionsDb_overwrite(total_emiss,em='SO2',type='NC')
   
-  writeData( total, domain = "MED_OUT", fn = "C.SO2_NC_emissions_PulpPaper")
-  writeData( sulfite, domain = "MED_OUT", fn = "C.SO2_NC_emissions_PulpPaperSulfite")
-  writeData( sulfate, domain = "MED_OUT", fn = "C.SO2_NC_emissions_PulpPaperSulfate")
-  
+  writeData( total_emiss, domain = "MED_OUT", fn = "C.SO2_NC_emissions_PulpPaper")
+ 
   logStop()
 # END
