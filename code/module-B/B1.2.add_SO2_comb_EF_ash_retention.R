@@ -28,7 +28,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R", "analysis_functions.R" ) # Additional function files may be required.
+headers <- c( "data_functions.R", "analysis_functions.R","process_db_functions.R" ) # Additional function files may be required.
 log_msg <- "Processing GAINS ash_retention data" # First message to be printed to the log
 script_name <- "B1.2.add_comb_SO2_EF_ash_retention.R"
 
@@ -122,6 +122,8 @@ ef_ash_adj$ef_adj<-ef_ash_adj$ef*(1-ef_ash_adj$retention)
 
 ef_ash_adj_wide<-cast(ef_ash_adj[,c("iso","sector","fuel",'units',"year","ef_adj")],
                       iso+sector+fuel+units~year, value = "ef_adj")
+
+
 
 # -------------------------------------------------------------------------------
 # 5. Output
