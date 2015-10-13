@@ -1,8 +1,7 @@
 # Program Name: B1.2.add_comb_SO2_EF_gains.R
 # Author: Ryan Bolt
 # Date Last Updated: 11 August 2015 
-# Program Purpose: Aggregate GAINS data into Emissions Factors for SO2 and SO2 retention
-# values from 2005 back to 1975
+# Program Purpose: Process GAINS emissions and fuel to calculate GAINS EF
 # 
 # Input Files: aen_act_sect-nohead-EU28.csv , emiss_act_sect-EU28-2005-SO2_nohead.csv,
 #               
@@ -193,50 +192,12 @@ EmissFactors <- EmissFactors[!EmissFactors$Fuel %in% out,]
 EmissFactors$units <- c("kt/kt")
 EmissFactors$EF_2005 <- EmissFactors$Sulfur_emiss/EmissFactors$Energy
 EmissFactors <- EmissFactors[,c("iso","Sector", "Fuel", "units", "EF_2005")]
+EmissFactors <- EmissFactors[complete.cases(EmissFactors),]
+EmissFactors <- EmissFactors[-which(EmissFactors$EF_2005=='Inf'),]
+names(EmissFactors) <- c("iso","sector", "fuel", "units", "EF_2005")
 
-# 2.7 Adding emissions factors back from 2005 to 1975 using extend Function
-
-# ---- GAINS Extending Function ----
-# This function will take a column and extend it linearly back to a certain percentage
-# of the initial values. 
-# Parameters
-#          *Required - The dataframe that needs to be extended
-#          *Required - The latest values, in the case of GAINS, 2005 
-#                              and is worked back from 2005
-#          The percent total for the earliest year (in decimal form). Default - 0
-#          The earliest year desired. Default - 1975
-#          The varaibles that describe the row. default - iso, Sector, Fuel, unit.
-
-extendback <- function(df, ret, percent_total = 0, extention = 1975, 
-                           vars = c("iso", "Sector","Fuel","units") ) {
-# Multiply the data by the percent total to get final year. Then take the difference
-# of those new and old. Get the number of years since the earliest year. 
-    df <- df[,vars]
-    old <- ret * percent_total
-    dif <- (ret - old)
-    years <- (extention:2005) - extention
-
-# "percent_change" is how much of a change there is year over year. 
-    percent_change <- dif / (2005-extention)
-
-# We repeat each number by the number of rows in the dataframe. 
-    years <- rep(years, each = nrow(df))
-
-# This is the extended data in a single vector.
-    changed <- (percent_change * years) + old
-
-# Setting up the dataframe to stick the data into.
-    start <- ncol(df) + 1
-    last <- as.numeric(ncol(df) + (2005-extention) + 1)
-
-# Putting the data into the df and changing column names. We then return the df.
-    df[ ,start:last] <- changed
-    colnames(df) <- c("iso", "sector", "fuel", "units", paste0("X",extention:2005))
-    return(df)
-}
-
-EmissFactors <- extendback(EmissFactors, EmissFactors$EF_2005, 1)
-
+#get rid of 
+EmissFactors <- EmissFactors[-which(EmissFactors$EF_2005>10^4),]
 # -------------------------------------------------------------------------------
 # 4. Apply Multipliers to EFs
 
@@ -246,7 +207,6 @@ EmissFactors <- extendback(EmissFactors, EmissFactors$EF_2005, 1)
 # 5. Output
 
  printLog("Adding GAINS SO2 EFs to B.SO2_comb_EF_db")
- addToEFDb_overwrite(EmissFactors,em='SO2',type='comb')
  writeData( EmissFactors, domain = "MED_OUT", fn = "B.SO2_comb_EF_gains")
 
 
