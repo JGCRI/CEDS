@@ -85,6 +85,10 @@ multipliers <- function(conversion, IEAfuels) {
   return(unit_multiplier)
 }
 
+# diagnostic-output
+    writeData( conversion, domain = "DIAG_OUT", 
+               fn = "B1.2.energy_conversion_factors") 
+
 # Using the function and IEA fuels to create a unit conversion multiplier for
 # the CEDS categories in the GAINS data. 
 
