@@ -192,7 +192,7 @@ printLog( paste0( "Aggregating energy statistics by intermediate sector",
 
 # diagnostic-output
     writeData( DroppedData, domain = "DIAG_OUT", 
-               fn = "A.en_balace_dropped_data",
+               fn = "A.en_balance_dropped_data",
                comments = comments.A.en_stat_sector_fuel) 
 												
 # write tables as CSV files
