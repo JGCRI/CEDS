@@ -94,6 +94,9 @@
 # ------------------------------------------------------------------------------
 # 4. Create scaling factors and scaled emissions factors
 
+   writeData( inv_data, fn = "USADebug_inventory_data", domain = "DIAG_OUT" ) 
+   writeData( ceds_em_data, fn = "USADebug_scaled_em_data", domain = "DIAG_OUT" ) 
+
 # Get ratio of inventory data to CEDS data
     F.scale( ceds_em_data, inv_data, scaling_years, int_method = interpolation,
         pre_ext_method = extrapolation_before, 
