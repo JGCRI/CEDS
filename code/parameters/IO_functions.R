@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: Input and Output functions
-# Author(s): Ben Bond-Lamberty, Page Kyle, Jon Seibert, Tyler Pitkanen
-# Last Updated: 15 September 2015
+# Author(s): Ben Bond-Lamberty, Page Kyle, Jon Seibert, Tyler Pitkanen, Linh Vu
+# Last Updated: 16 October 2015
 
 # This file must be sourced by all CEDS R scripts, generally as the second sourced script.
 # Functions contained:
@@ -261,29 +261,34 @@ filePath <- function( domain, fn, extension=".csv", domain_extension = "" ) {
 # -----------------------------------------------------------------------------
 # readData
 # Brief:            Read an arbitrary data file.
-# Details:          Reads a specified .csv .xlsx file (or a )into R as a data frame.
+# Details:          Reads a specified .csv .xlsx .xls file, or a .csv inside a .zip file into R as a 
+#                   data frame.
 # Dependencies:     filePath, printLog, read.csv, readExcel, lapply, readMetaData
-# Author(s):        Page Kyle, Jon Seibert
+# Author(s):        Page Kyle, Jon Seibert, Linh Vu
 # params:           
 #   domain:             CEDS domain in which the file is located. [required]
 #   file_name:          Name of the file to read in, minus the file extension. [required]
-#   extension:          File extension (type): readData only accepts .csv and .xlsx files.
+#   extension:          File extension (type): readData only accepts .csv, .xlsx, .xls, .zip files.
 #                           [default: ".csv"]
+#   readin_selection:   Name of file to read in inside .zip file, minus the file extension. 
+#                           For .zip files only.
+#   readin_extension:   Extension of file to read in inside .zip file. Currently only accepts .csv.
+#                           For .zip files only. [default: ".csv"]
 #   sheet_selection:    Either "ALL" (to read all sheets), a list of sheet names or numbers 
 #                           (to read a set of sheets), or single sheet name/number. 
-#                           For .xlsx files only. [default: "ALL"]
+#                           For .xlsx .xls files only. [default: "ALL"]
 #   domain_extension:   Additional filepath to follow after locating the specified domain.
 #                           [default: ""]
 #   column_names:       Either TRUE to use the first row as column names, FALSE to number 
 #                           columns sequentially from X1 to Xn, or a character vector giving 
-#                           a name for each column. For .xlsx files only. [default: TRUE]
+#                           a name for each column. For .xlsx .xls files only. [default: TRUE]
 #   column_types:       Either NULL to guess from the spreadsheet or a character vector 
 #                           containing "blank", "numeric", "date" or "text". For .xlsx files only. 
 #                           [default: NULL]
 #   missing_value:      Missing value. By default readxl converts blank cells to missing data. 
 #                           Set this value if you have used a sentinel value for missing values. 
-#                           For .xlsx files only. [default: ""]
-#   skip_rows:          Number of rows to skip before reading any data. For .xlsx files only. 
+#                           For .xlsx .xls files only. [default: ""]
+#   skip_rows:          Number of rows to skip before reading any data. For .xlsx .xls files only. 
 #                           [default: 0]
 #   meta:               Boolean indicating whether to look for and read in metadata for the
 #                           input file. [default: TRUE]
@@ -292,21 +297,24 @@ filePath <- function( domain, fn, extension=".csv", domain_extension = "" ) {
 #   mute:               Boolean indicating whether to output progress messages. TRUE silences
 #                           the function, while FALSE allows the messages. [default: FALSE]
 # Return:           Data frame of the read-in file, or a list of data frames of 
-#                   multiple sheets from a .xlsx file
+#                   multiple sheets from a .xlsx .xls file
 # Input Files:      Specified in file_name
 # Output Files:     None
 # 
 # Usage examples: readData( "MED_OUT", "A.energy_data" )
 #                 readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
 #                 readData( "EM_INV", domain_extension = "US_EPA/", "SCCactiveJul2015_NFRmap", ".xlsx", sheet_selection = "SCCsActiveJul2015_NFRmap" )
-# 
+#                 readData( "MAPPINGS", "Archive", ".zip", readin_selection = "Master_Fuel_Sector_List" )
+#
 # TODO: error handling (probably using try/catch)
 #       switch to read_csv from readr package
+#       read Excel from inside .zip (?not possible: http://stackoverflow.com/questions/26763377/)
 readData <- function( domain = "none", file_name = "none", extension = ".csv", 
+                      readin_selection = "none", readin_extension = ".csv",
                       sheet_selection = "ALL", domain_extension = "", column_names = TRUE, 
                       column_types = NULL, missing_value = "", skip_rows = 0, meta = TRUE, 
                       meta_domain = domain, meta_extension = extension, mute = FALSE, ... ) {
-                      
+    
     # # DEBUG
     # domain <- "DOCUMENTATION"
     # file_name <- "System_Documentation"
@@ -347,7 +355,7 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
 						 comment.char = GCAM_DATA_COMMENT,	# Our comment signal
 						 ... ) )
     
-    } else { if( extension == ".xlsx" ){
+    } else if( extension == ".xlsx" | extension == ".xls" ){
     
         results <- readExcel( full_file_path, sheet_selection, column_names, 
                               column_types, missing_value, skip_rows )
@@ -355,9 +363,27 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
         x <- results[[ 1 ]]
         multi_sheet <- results[[ 2 ]]
         
+    } else if( extension == ".zip" ){
+        
+        if( readin_selection == "none" ) {
+            printLog( "ERROR in readData: no read-in file specified", file_name )
+            stop( "ERROR in readData: you need to specify a read-in filename" )
+        }
+      
+        readin_fn = paste0( readin_selection, readin_extension )  # read-in file name with extension
+        
+        if( readin_extension == ".csv" ){
+            x <- ( read.csv( unz( full_file_path, readin_fn ), na.strings = missing_value, 
+                             stringsAsFactors = F, comment.char = GCAM_DATA_COMMENT,	# Our comment signal
+                             ... ) )
+        } else { # If read-in file extension not recognized
+            stop( "ERROR in readData(): Invalid file type. readData() only accepts .csv file inside .zip file." )
+        }
+      
     } else { # If extension not recognized
-        stop( "ERROR in readData(): Invalid file type. readData() accepts .csv and .xlsx files." )
-    }}
+        stop( "ERROR in readData(): Invalid file type. readData() accepts .csv, .xlsx, .xls files, or .csv files
+              inside a .zip file." )
+    }
     
 	if( mute == F ) { # Print stats
         if( multi_sheet ){
@@ -379,25 +405,25 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
 
 # -----------------------------------------------------------------------------
 # readExcel
-# Brief:                Sub-function to read .xlsx files.
-# Details:              Handles read logic and parsing of .xlsx files for readData().
+# Brief:                Sub-function to read .xlsx .xls files.
+# Details:              Handles read logic and parsing of .xlsx .xls files for readData().
 # Dependencies:         read_excel, lapply
 # Author(s):            Jon Seibert
 # params:               
-#   full_file_path:     Path to the .xlsx file to read in [required]
+#   full_file_path:     Path to the .xlsx .xls file to read in [required]
 #   sheet_selection:    Either "ALL" (to read all sheets), a list of sheet names or numbers 
 #                           (to read a set of sheets), or single sheet name/number. 
-#                           For .xlsx files only. [default: "ALL"]
+#                           For .xlsx .xls files only. [default: "ALL"]
 #   column_names:       Either TRUE to use the first row as column names, FALSE to number 
 #                           columns sequentially from X1 to Xn, or a character vector giving 
-#                           a name for each column. For .xlsx files only. [default: TRUE]
+#                           a name for each column. For .xlsx .xls files only. [default: TRUE]
 #   column_types:       Either NULL to guess from the spreadsheet or a character vector 
-#                           containing "blank", "numeric", "date" or "text". For .xlsx files only. 
+#                           containing "blank", "numeric", "date" or "text". For .xlsx .xls files only. 
 #                           [default: NULL]
 #   missing_value:      Missing value. By default readxl converts blank cells to missing data. 
 #                           Set this value if you have used a sentinel value for missing values. 
-#                           For .xlsx files only. [default: ""]
-#   skip_rows:          Number of rows to skip before reading any data. For .xlsx files only. 
+#                           For .xlsx .xls files only. [default: ""]
+#   skip_rows:          Number of rows to skip before reading any data. For .xlsx .xls files only. 
 #                           [default: 0]
 # Return:               Vector of the data frame (or list of data frames) and the boolean 
 #                           "multi_sheet" indicating whether the result is a list or a single
