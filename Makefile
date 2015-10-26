@@ -215,7 +215,8 @@ $(MED_OUT)/A.UN_pop_master.csv : \
 	$(PARAMS)/data_functions.R \
 	$(PARAMS)/analysis_functions.R \
 	$(EN_MAPPINGS)/IEA_ctry.csv \
-	$(SOCIO_DATA)/UN_pop_raw.xlsx
+	$(SOCIO_DATA)/WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.XLS \
+	$(SOCIO_DATA)/WUP2014-F21-Proportion_Urban_Annual.xls
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa1-2
