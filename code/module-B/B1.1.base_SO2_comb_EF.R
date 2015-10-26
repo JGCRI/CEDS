@@ -42,6 +42,11 @@
 
 # ------------------------------------------------------------------------------
 # 1. Read in files
+    # for running directly from R - defines emission species (normally from command line)
+    args_from_makefile <- commandArgs( TRUE )
+    em <- args_from_makefile[ 1 ]
+    if ( is.na( em ) ) em <- "SO2"
+    
     # "em" is defined from parent script
     em_lc <- tolower( em )
 
@@ -65,7 +70,7 @@
     
     default_efs <- activity_data
 
-    for ( i in 1:length( all_fuels ) ) {
+    for ( i in seq_along( all_fuels ) ) {
         default_efs[ default_efs$fuel == all_fuels[[ i ]], X_emissions_years ] <-
             fuel_efs[ fuel_efs$fuel == all_fuels[[ i ]], 
                       paste0( em_lc, "_ef" ) ]

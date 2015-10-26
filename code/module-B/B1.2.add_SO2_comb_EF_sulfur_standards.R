@@ -107,11 +107,15 @@ loadPackage('zoo')
   region_average_wide<-cast(region_average_long,iso~variable,value='average')
   region_average_wide<-merge(MCL[,c('iso','Region')],region_average_wide)
   
-  diesel_standards_region_filled<-diesel_standards_region_tofill
-  diesel_standards_region_filled[,X_standard_years]<-  region_average_wide[match(diesel_standards_region_filled$Region,region_average_wide$Region),X_standard_years]
+  diesel_standards_region_filled <-diesel_standards_region_tofill
+  diesel_standards_region_filled[,X_standard_years]<-  
+    region_average_wide[match(diesel_standards_region_filled$Region,region_average_wide$Region),X_standard_years]
   
-  diesel_standards_ppm_complete<-rbind(diesel_standards_region_filled[,c('iso',X_standard_years)],diesel_standards_ppm_filled)
+  diesel_standards_ppm_complete <-
+    rbind(diesel_standards_region_filled[,c('iso',X_standard_years)],diesel_standards_ppm_filled)
   
+  # select only countries in Master Country List
+  diesel_standards_ppm_complete <- diesel_standards_ppm_complete[ diesel_standards_ppm_complete$iso %in% MCL$iso, ]
 # -------------------------------------------------------------------------------
 # 3. Calculate EF, fill in sectors and fuel
   
