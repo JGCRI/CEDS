@@ -141,7 +141,7 @@
     
 # Diagnostic - write out new biomass time series
 # TODO: also write out industrial combustion as well once that is updated
-res_biomass_fixed.wide <- cast(res_biomass_fixed, iso+sector+fuel+units ~ year, value="biomass")
+res_biomass_fixed.wide <- cast(res_biomass_fixed, iso+sector+fuel+units ~ year, value="consumption")
 writeData( res_biomass_fixed.wide, domain = "DIAG_OUT", fn = "A2.2.residential_biomass_cons", 
            meta = F )
     
