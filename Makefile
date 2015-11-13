@@ -106,7 +106,7 @@ clean-io :
 
 clean-modB :
 	rm -fv $(MED_OUT)/B*.csv
-	
+
 clean-modC :
 	rm -fv $(MED_OUT)/C*.csv
 
@@ -218,9 +218,7 @@ $(MED_OUT)/A.UN_pop_master.csv : \
 	$(EN_MAPPINGS)/IEA_ctry.csv \
 	$(SOCIO_DATA)/WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.XLS \
 	$(SOCIO_DATA)/WUP2014-F21-Proportion_Urban_Annual.xls \
-
 	$(SOCIO_DATA)/WB_SP.POP.TOTL.csv \
-
 	$(SOCIO_DATA)/WB_SP.URB.TOTL.csv
 	Rscript $< $(EM) --nosave --no-restore
 
@@ -349,7 +347,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 	$(PARAMS)/timeframe_functions.R \
 	$(PARAMS)/process_db_functions.R \
 	$(MAPPINGS)/sector_input_mapping.xlsx \
-	$(ACTIV)/Process_SO2_Emissions_to_2005.xlsx \
+	$(ACTIV)/Process_SO2_Emissions_to_2005.xlsx \ 
 	$(INV_DATA)/FAO_SO2_emissions.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
