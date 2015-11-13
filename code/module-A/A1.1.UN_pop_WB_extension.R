@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A1.1.UN_pop_WB_extension.R
 # Author: Linh Vu, Rachel Hoesly
-# Date Last Updated: 22 October 2015
+# Date Last Updated: 13 November 2015
 # Program Purpose: Produce input population data for CEDS emissions system from
 #                  United Nations data, and World Bank (WB) data where UN data are
 #                  unavailable. Output are 1950-2100 population and urban population
@@ -70,11 +70,14 @@
                                     ".xls", sheet_selection = "ANNUAL DATA",
                                     skip_rows = 16, meta = F )
     
-# Pull WB population and urban population data from the WDI API
-    WB_pop_raw <- getWDI( indicator = "SP.POP.TOTL", name = "pop" ) %>% 
-      filter( !is.na( pop ) )  # drop non-data rows
-    WB_urban_pop_raw <- getWDI( indicator = "SP.URB.TOTL", name = "urban_pop" ) %>% 
-      filter( !is.na( urban_pop ) )  # drop non-data rows
+# Read WB population and urban population data, either by pulling from the WDI API 
+#   or reading from directory (currently selected)
+#     WB_pop_raw <- getWDI( indicator = "SP.POP.TOTL", name = "pop" ) %>% 
+#       filter( !is.na( pop ) )  # drop non-data rows
+#     WB_urban_pop_raw <- getWDI( indicator = "SP.URB.TOTL", name = "urban_pop" ) %>% 
+#       filter( !is.na( urban_pop ) )  # drop non-data rows
+    WB_pop_raw <- readData( "GEN_IN", "WB_SP.POP.TOTL", meta = F )
+    WB_urban_pop_raw <- readData( "GEN_IN", "WB_SP.URB.TOTL", meta = F )
 
 # Read CEDS country list
     CEDS_ctry <- readData( "EN_MAPPINGS", "IEA_ctry", meta = F )
