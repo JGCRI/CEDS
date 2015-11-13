@@ -354,8 +354,8 @@ addToEmissionsDb<- function( df, em, type, ext_forward = TRUE, ext_backward = FA
 
 #(Temporary?) Rewrite of addToEmissionsDb function. Similar functionality. Overwrite old data with new data for 
 # duplicate entries. Order of data to add: worst then best
-addToEmissionsDb_overwrite <- function( new_data, em, type, ext_forward = TRUE, ext_backward = FALSE ){
-  new_data <-as.data.frame(new_data)
+addToEmissionsDb_overwrite <- function( df, em, type ){
+  
   # Read in necessary files and data: common_data.r required 
   # to avoid variable overwrite carryover
   source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
@@ -375,27 +375,27 @@ addToEmissionsDb_overwrite <- function( new_data, em, type, ext_forward = TRUE, 
   w <- getOption( "warn" )
   options( warn=-1 )  # suppress the warnings about NAs introduced by coercion
   db_start <- findDataStart( emissions_db )
-  data_start <- findDataStart( new_data )
+  data_start <- findDataStart( df )
   
   if( data_start != db_start ){ # If in incorrect format
-    printLog( paste0 ( "Error in addToEmissionsDb: ",
+    printLog( paste0 ( "Error in addToEmissionsDb_overwrite: ",
                        "Data to be added must have the form iso-sector-fuel-units-years." ) )
     return( 0 )
   }
   
   # Check whether the new data has the same set of years as the database.
   # If not, make it so via truncation and/or extension as necessary.
-  if( ( FALSE %in% ( names( emissions_db ) == names( new_data ) ) ) 
-      || ( length( emissions_db ) != length( new_data ) ) ){
+  if( ( FALSE %in% ( names( emissions_db ) == names( df ) ) ) 
+      || ( length( emissions_db ) != length( df ) ) ){
     
-    new_data <- truncateAtYear( new_data, X_start, X_end )
+    df <- truncateAtYear( df, X_start, X_end )
     
     options( warn=w )
     
     # Retrieve new starting and ending years
-    start_year <- getName( new_data, data_start )
+    start_year <- getName( df, data_start )
     cur_start_year <- xYearToNum( start_year )
-    end_year <- getEndYear( new_data )
+    end_year <- getEndYear( df )
     cur_end_year <- xYearToNum( end_year )
     
     # If the data now has the correct years after truncation,
@@ -409,46 +409,51 @@ addToEmissionsDb_overwrite <- function( new_data, em, type, ext_forward = TRUE, 
     if( ext_forward ){
       ext_range <- getForwardExtensionRange( cur_end_year, ext_end_year )
       X_range <- paste0( "X",ext_range )
-      new_data <- extendForward( new_data, end_year, X_range )
+      df <- extendForward( df, end_year, X_range )
     }
     # Extend the data backward if necessary and the parameter is TRUE
     if( ext_backward ){
       past_ext_range <- getBackwardExtensionRange( cur_start_year, ext_start_year )
       past_X_range <- paste0( "X",past_ext_range )
-      new_data <- extendForward( new_data, start_year, past_X_range )
+      df <- extendForward( df, start_year, past_X_range )
     }
   }
   
   options( warn=w )
   
-  # Insert the new data in the proper locations- 
-  # overwrite any existing data of the same combination and years,
-  # and rbind on any data without a spot.
   #---------
   
   # melt old and new dbs
-  df_add<-melt(new_data,id=c("iso","sector","fuel","units"))
+  df_add<-melt(df,id=c("iso","sector","fuel","units"))
   names(df_add)[which(names(df_add)=='variable')]<-'year'
-  names(df_add)[which(names(df_add)=='value')]<-'emissions_new'
+  names(df_add)[which(names(df_add)=='value')]<-'em_new'
   
   df_old<-melt(emissions_db,id=c("iso","sector","fuel","units"))
   names(df_old)[which(names(df_old)=='variable')]<-'year'
-  names(df_old)[which(names(df_old)=='value')]<-'emissions'
+  names(df_old)[which(names(df_old)=='value')]<-'em'
   
   #merge
   df_new<-merge(df_old,df_add,
                 by=c("iso","sector","fuel","units","year"),
                 all.x=TRUE,all.y=TRUE)
   
-  df_new[which(is.na(df_new$emissions_new)),'emissions_new']<-df_new[which(is.na(df_new$emissions_new)),'emissions']
+  df_new[which(is.na(df_new$em_new)),'em_new']<-df_new[which(is.na(df_new$em_new)),'em']
   
-  df_new<-df_new[,c("iso","sector","fuel","units","year",'emissions_new')]
+  df_new<-df_new[,c("iso","sector","fuel","units","year",'em_new')]
   
-  df_new_wide<-cast(df_new, iso+sector+fuel+units~year, value = "emissions_new")
+  df_new_wide<-cast(df_new, iso+sector+fuel+units~year, value = "em_new")
   
   # Sort
   results<-df_new_wide
   results <- results[ with( results, order( iso, sector, fuel ) ), ]
+  
+  # Check for NAs
+  if( na_error == 1){
+    
+    if( all(is.na(results[,X_emissions_years]) %in% FALSE) ){
+      printLog("Checking NAs... No NA's in EF_db")} else  Stop("Checking NAs... NA's in EF_db. Check Code.")
+    
+  }
   
   # Output
   writeData( results, domain = "MED_OUT", fn = paste0( "C.", em, "_", type, "_emissions_db" ), meta = FALSE )
@@ -595,14 +600,14 @@ addToEFDb <- function( df, em, type, ext_forward = TRUE, ext_backward = FALSE ){
 
 #(Temporary?) Rewrite of addToEFDb function. Similar functionality. Overwrite old data with new data for 
 # duplicate entries. Order of data to add: worst then best
-addToEFDb_overwrite <- function( df, em, type, ext_forward = TRUE, ext_backward = FALSE ){
+addToEFDb_overwrite <- function( df, em, type ){
   
   # Read in necessary files and data: common_data.r required 
   # to avoid variable overwrite carryover
-  source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
-  source( paste( PARAM_DIR, "IO_functions.R", sep = "" ) )
-  source( paste( PARAM_DIR, "timeframe_functions.R", sep = "" ) )
-  source( paste( PARAM_DIR, "data_functions.R", sep = "" ) )
+  #   source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
+  #   source( paste( PARAM_DIR, "IO_functions.R", sep = "" ) )
+  #   source( paste( PARAM_DIR, "timeframe_functions.R", sep = "" ) )
+  #   source( paste( PARAM_DIR, "data_functions.R", sep = "" ) )
   
   
   EF_db <- readData( "MED_OUT", paste0( "B.", em, "_", type, "_EF_db" ), meta = FALSE )
@@ -626,11 +631,11 @@ addToEFDb_overwrite <- function( df, em, type, ext_forward = TRUE, ext_backward 
   
   # Check whether the new data has the same set of years as the database.
   # If not, make it so via truncation and/or extension as necessary.
-  if( ( FALSE %in% ( names( EF_db ) == names( df ) ) ) 
-      || ( length( EF_db ) != length( df ) ) ){
+  if( !identical(sort(names(EF_db)[-1:-4]),
+                 sort(names(df)[-1:-4]) ) ){
     
-    df <- truncateAtYear( df, X_start, X_end )
-    
+    #truncate to X_emission_Years 
+    df <- df[ , names(df) %in% c('iso','sector','fuel','units',X_emissions_years) ]
     options( warn=w )
     
     # Retrieve new starting and ending years
@@ -638,26 +643,28 @@ addToEFDb_overwrite <- function( df, em, type, ext_forward = TRUE, ext_backward 
     cur_start_year <- xYearToNum( start_year )
     end_year <- getEndYear( df )
     cur_end_year <- xYearToNum( end_year )
-    
-    # If the data now has the correct years after truncation,
-    # or if the missing years are within the normal range and
-    # not at either end, do not attempt to extendForward the data.
-    # Doing so results in incorrect years.
-    if( start_year == X_start ){ ext_backward <- FALSE }
-    if( end_year == X_end ){ ext_forward <- FALSE }
-    
-    # Extend the data forward if necessary and the parameter is TRUE
-    if( ext_forward ){
-      ext_range <- getForwardExtensionRange( cur_end_year, ext_end_year )
-      X_range <- paste0( "X",ext_range )
-      df <- extendForward( df, end_year, X_range )
-    }
-    # Extend the data backward if necessary and the parameter is TRUE
-    if( ext_backward ){
-      past_ext_range <- getBackwardExtensionRange( cur_start_year, ext_start_year )
-      past_X_range <- paste0( "X",past_ext_range )
-      df <- extendForward( df, start_year, past_X_range )
-    }
+    #     
+    #     # If the data now has the correct years after truncation,
+    #     # or if the missing years are within the normal range and
+    #     # not at either end, do not attempt to extendForward the data.
+    #     # Doing so results in incorrect years.
+    #     ext_backward <- TRUE
+    #     ext_forward <- TRUE
+    #     if( start_year == X_start ){ ext_backward <- FALSE }
+    #     if( end_year == X_end ){ ext_forward <- FALSE }
+    #     
+    #     # Extend the data forward if necessary and the parameter is TRUE
+    #     if( ext_forward ){
+    #       ext_range <- getForwardExtensionRange( cur_end_year, ext_end_year )
+    #       X_range <- paste0( "X",ext_range )
+    #       df <- extendForward( df, end_year, X_range )
+    #     }
+    #     # Extend the data backward if necessary and the parameter is TRUE
+    #     if( ext_backward ){
+    #       past_ext_range <- getBackwardExtensionRange( cur_start_year, ext_start_year )
+    #       past_X_range <- paste0( "X",past_ext_range )
+    #       df <- extendForward( df, start_year, past_X_range )
+    #     }
   }
   
   options( warn=w )
@@ -665,7 +672,7 @@ addToEFDb_overwrite <- function( df, em, type, ext_forward = TRUE, ext_backward 
   # Insert the new data in the proper locations- 
   # overwrite any existing data of the same combination and years,
   # and rbind on any data without a spot.
-  results <- EF_db
+  # results <- EF_db
   #---------
   
   # melt old and new dbs
@@ -686,11 +693,19 @@ addToEFDb_overwrite <- function( df, em, type, ext_forward = TRUE, ext_backward 
   
   df_new<-df_new[,c("iso","sector","fuel","units","year",'ef_new')]
   
-  df_new_wide<-cast(df_new, iso+sector+fuel+units~year, value = "ef_new")
+  df_new_long<-cast(df_new, iso+sector+fuel+units~year, value = "ef_new")
   
   # Sort
-  results<-df_new_wide
+  results<-df_new_long
   results <- results[ with( results, order( iso, sector, fuel ) ), ]
+  
+  # Check for NAs
+  if( na_error == 1){
+    
+    if( all(is.na(results[,X_emissions_years]) %in% FALSE) ){
+      printLog("Checking NAs... No NA's in EF_db")} else  Stop("Checking NAs... NA's in EF_db. Check Code.")
+    
+  }
   
   # Output
   writeData( results, domain = "MED_OUT", fn = paste0( "B.", em, "_", type, "_EF_db" ), meta = FALSE )
