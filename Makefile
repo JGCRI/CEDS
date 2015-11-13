@@ -347,7 +347,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 	$(PARAMS)/timeframe_functions.R \
 	$(PARAMS)/process_db_functions.R \
 	$(MAPPINGS)/sector_input_mapping.xlsx \
-	$(ACTIV)/Process_SO2_Emissions_to_2005.xlsx \ 
+	$(ACTIV)/Process_SO2_Emissions_to_2005.xlsx \
 	$(INV_DATA)/FAO_SO2_emissions.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
