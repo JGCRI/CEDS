@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: C.1.2.add_SO2_NC_emissions_FAO_pulp_paper.R
-# Authors: Ryan Bolt, Jon Seibert
-# Date Last Modified: June 18, 2015
+# Authors: Ryan Bolt, Jon Seibert, Linh Vu
+# Date Last Modified: 13 November 2015
 # Program Purpose: Use the package FAOSTAT to retrieve data on pulp production
 #                  and with an emission factor to produce driver data.
 # Input Files: 
@@ -65,20 +65,23 @@ FAOquery.df = data.frame(varName = c("sulfateB", "sulfateUn",
     elementCode = c(5510,5510,5510,5510),
     stringsAsFactors = FALSE)
 
-# Actually retriving the data with the function getFAOtoSYB
-sulfurdioxide <- with(FAOquery.df, 
-    getFAOtoSYB(name = varName, domainCode = domainCode,
-    itemCode = itemCode, elementCode = elementCode,
-    useCHMT = TRUE, outputFormat = "wide"))
+# Either retrieve the data with the function getFAOtoSYB or read from local
+# directory (currently selected)
+
+# sulfurdioxide <- with(FAOquery.df, 
+#     getFAOtoSYB(name = varName, domainCode = domainCode,
+#     itemCode = itemCode, elementCode = elementCode,
+#     useCHMT = TRUE, outputFormat = "wide"))
+# 
+# # The data is given as a list of dataframes. The piece we care about is the 
+# # dataframe entitled entity. We can simplify the code by creating a new object for
+# # that dataframe, total_emiss.
+# total_emiss <- sulfurdioxide$entity
+
+total_emiss <- readData( "EM_INV", "FAO_SO2_emissions", meta = F )
 
 #----------------------------------------------------------------------------
-# 3. The Data has been retrieved as a list of dataframes, now we can start 
-# manipulating it into giving us emission data.
-
-# The data is given as a list of dataframes. The piece we care about is the 
-# dataframe entitled entity. We can simplify the code by creating a new object for
-# that dataframe, total_emiss.
-total_emiss <- sulfurdioxide$entity
+# 3. Manipulate emission data.
 
 # Replace NA's with 0 because thats what they are.
 total_emiss[is.na(total_emiss)] <- 0
