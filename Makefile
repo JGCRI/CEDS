@@ -11,6 +11,7 @@ ENERGY_DATA = input/energy
 EF_DATA = input/default-emissions-data
 MAPPINGS = input/mappings
 EN_MAPPINGS = input/mappings/energy
+SC_MAPPINGS = input/mappings/scaling
 ACTIV = input/activity
 INV_DATA = input/emissions-inventories
 MED_OUT = intermediate-output
@@ -309,6 +310,8 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(MOD_B)/B1.1.base_BC_comb_EF.R \
 	$(MOD_B)/B1.2.add_SO2_comb_EF_gains.R \
 	$(MOD_B)/B1.2.add_SO2_comb_EF_ash_retention.R \
+	$(MOD_B)/B1.2.add_SO2_comb_EF_control_percent.R \
+	$(MOD_B)/B1.2.add_SO2_comb_EF_sulfur_standards.R \
 	$(PARAMS)/timeframe_functions.R \
 	$(PARAMS)/process_db_functions.R \
 	$(MAPPINGS)/SO2_base_EF.csv \
@@ -403,11 +406,11 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 	$(MOD_F)/F1.1.UNFCCC_scaling.R \
 	$(PARAMS)/emissions_scaling_functions.R \
 	$(MED_OUT)/E.SO2_UNFCCC_inventory.csv \
-	$(MAPPINGS)/UNFCCC_sector_mapping.csv \
-	$(MAPPINGS)/US_sector_mapping.csv \
+	$(SC_MAPPINGS)/UNFCCC_scaling_mapping.xlsx \
+	$(SC_MAPPINGS)/US_scaling_mapping.xlsx \
+	$(SC_MAPPINGS)/CAN_scaling_mapping.xlsx \
 	$(MED_OUT)/D.$(EM)_default_total_EF.csv \
-	$(MED_OUT)/D.$(EM)_default_total_emissions.csv \
-	$(INV_DATA)/national_tier1_caps.xlsx
+	$(MED_OUT)/D.$(EM)_default_total_emissions.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 # ff1-1b

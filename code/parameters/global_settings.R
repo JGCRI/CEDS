@@ -66,3 +66,14 @@ DOMAINPATHMAP 			<- paste( MODULE_PROC_ROOT, "../input/mappings/domainmapping.cs
 
 # Specify the location of the module from the data system root directory
 MODULE_PROC_ROOT		<- PARAM_DIR
+
+
+# -----------------------------------------------------------------------------
+# Logical Check - Options
+
+
+#na_error : Check for NA's. 
+# 1: If NA's exists in in EF database or dataframes, then error and stop script. 
+# There should be no NA's in these files. NA's  are the result of faulty code
+#
+na_error <- 1

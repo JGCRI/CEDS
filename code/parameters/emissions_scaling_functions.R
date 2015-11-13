@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: F.emissions_scaling_functions.R
-# Author's Name: Tyler Pitkanen
-# Date Last Modified: June 16, 2015
+# Author's Name: Tyler Pitkanen, Rachel Hoesly
+# Date Last Modified: Nov 3, 2015
 # Program Purpose: Header file containing generalized functions designed to
 #   scale CEDS emissions data and emissions factors based on inventory data. 
 #   This file is made to be sourced at the beginning of each module F script to
@@ -9,61 +9,117 @@
 #   scaled data arranging, scaling factor calculation and estimation, and data 
 #   write-out. 
 # Note: Only designed for use within Module F scaling scripts
-# TODO: Possibly add function to organize inv data
-#   Use R objects for readin/writeout of scaled EF and emissions data
-#   Add a master debug option that would also write out the .csv files
+# TODO: change F.apply to use addToEmDb_overwrite for use with meta data tracking
+# 
+# 
 # ------------------------------------------------------------------------------
 
+# Special Packages
+
+loadPackage('zoo')
+
 # ------------------------------------------------------------------------------
+# F.initializeMeta
+# Brief: creates default meta data for scaled emissions and ef
+# Dependencies: IO_functions.R
+# Author: Rachel Hoesly
+# parameters: input - default emissions of ef. uses the iso-sector-fuel combinations
+# return: null 
+# input files: default emissions or ef
+# output : null
+# return: list of variables to be used in subsequent scaling functions
+
+F.initializeMeta <- function(input) {
+
+  # Create default meta data for scaling
+  meta <- melt( input, id.vars = c('iso','sector','fuel','units'))
+  meta <- meta[,c('iso','sector','fuel','variable')]
+  names(meta) <- c('iso','sector','fuel','year')
+  meta$comment <- 'default'
+  
+  writeData( meta, 'MED_OUT', paste0( 'F.', em, '_scaled_emissions-value_metadata' ) )
+  writeData( meta, 'MED_OUT', paste0( 'F.', em, '_scaled_EF-value_metadata' ) ) 
+  
+}
+
 # F.readScalingData
-# Brief: reads in data and makefile info for module F scripts
+# Brief: reads in data files and defines variables for scaling functions
 # Details: reads in inventory data, the most recent versions of scaled emissions
-#   and EFs, the mapping file data, and the emissions species. Performs checks 
+#   and EFs, the mapping file data. Performs checks 
 #   for the ceds column of the mapping file as well as the input ceds data.
 # Dependencies: CEDS_header.R, makefile specifications, modules B, C, and E
-# Author: Tyler Pitkanen
+# Author: Tyler Pitkanen, Rachel Hoesly
 # parameters:
 #   inventory: file name of the inventory used in the script [default: inventory]
 #   mapping:   file name of the mapping file [default: map]
 #   method:    mapping method used to relate the inventory and ceds data 
 #              [default: mapping_method]
-# return: input_ef, input_em, inv_data_full, mapping_data
-# input files: makefile args, common_data.R, B.[em]_scaled_EF, 
-#   C.[em]_scaled_emissions, specified inventory, specified mapping file
-# output files: null
+# return: 
+# input files: inventory = inventory_data_file, inv_data_folder,
+#              mapping = sector_fuel_mapping, method = mapping_method,
+#              region, inv_name, inv_years
 
-F.readScalingData <- function( inventory = inventory_data_file, 
-    mapping = sector_fuel_mapping, method = mapping_method ) {
-# Select the data sheet corresponding the emissions species of interest. Pass in
-#   em_species via makefile, or use a default if running in R directly
-    args_from_makefile <- commandArgs( TRUE )
-    em_species <<- args_from_makefile[1]
-    if ( is.na( em_species ) ) em_species <<- "SO2"
+# output : null
+# return: list of variables to be used in subsequent scaling functions
 
-# Read in data    
-    sourceData( "PARAM", "common_data", ".R" )
-    ef_file <- paste0( "F.", em_species, "_scaled_EF" )
-    em_file <- paste0( "F.", em_species, "_scaled_emissions" )
-    input_ef <<- readData( "MED_OUT", ef_file )
-    input_em <<- readData( "MED_OUT", em_file )
-    inv_data_full <<- readData( "EM_INV", substr( inventory, 1, nchar( inventory ) - 5 ), ".xlsx" )
-    mapping_data <<- readData( "MAPPINGS", mapping )
-
-# Determine scaling method and set params
-    if( method == 'sector' ) {
-        scaling_name  <<- "scaling_sector"
-        inv_matchcol_name  <<- 'inv_sector'
-        ceds_matchcol_name <<- 'ceds_sector'
-    } else if( method == 'fuel'   ) {
-        scaling_name  <<- "scaling_fuel"
-        inv_matchcol_name <<- 'inv_fuel'
-        ceds_matchcol_name <<- 'ceds_fuel'
-    } else if( method == 'both'   )  {
-        scaling_name  <<- "scaling_activity"
-        inv_matchcol_name <<- 'inv_activity'
-        ceds_matchcol_name <<- 'ceds_activity'
-    }
-    
+F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
+                               mapping = sector_fuel_mapping, 
+                               method = mapping_method,
+                               region, inv_name, inv_years) {
+  ###add iso column for single country inventories
+  
+  # Select the data sheet corresponding the emissions species of interest. Pass in
+  #   em via makefile, or use a default if running in R directly
+  args_from_makefile <- commandArgs( TRUE )
+  em <- args_from_makefile[1]
+  if ( is.na( em ) ) em <- "SO2"
+  
+  # Determine scaling method and set params
+  if( method == 'sector' ) {
+    scaling_name  <- "scaling_sector"
+    inv_matchcol_name  <- 'inv_sector'
+    ceds_matchcol_name <- 'ceds_sector'
+    method_col <- c('sector')
+  } else if( method == 'fuel' ) {
+    scaling_name  <- "scaling_fuel"
+    inv_matchcol_name <- 'inv_fuel'
+    ceds_matchcol_name <- 'ceds_fuel'
+    method_col <- c('fuel')
+  } else if( method == 'both' )  {
+    scaling_name  <- c( 'scaling_sector' , 'scaling_fuel' )
+    inv_matchcol_name <- c( 'inv_sector' , 'inv_fuel' )
+    ceds_matchcol_name <- c( 'ceds_sector' , 'ceds_fuel' )
+    method_col <- c('sector','fuel')
+  }
+  
+  # Read in data    
+  inv_data_full <- readData( inv_data_folder , inventory)
+  scaling_map <- readData( "SCALE_MAPPINGS", mapping , ".xlsx", sheet_selection = 'map' )  
+  ext_method <- readData( "SCALE_MAPPINGS", mapping , ".xlsx", sheet_selection = 'method' ) 
+  ext_year <- readData( "SCALE_MAPPINGS", mapping , ".xlsx", sheet_selection = "year" ) 
+  
+  ef_file <- paste0( "F.", em, "_scaled_EF" )
+  em_file <- paste0( "F.", em, "_scaled_emissions" )
+  input_ef_read <- readData( "MED_OUT", ef_file )
+  input_em_read <- readData( "MED_OUT", em_file )
+  input_ef <- input_ef_read
+  input_em <- input_em_read
+  
+  #Inventory Specific Data/Variables
+  X_inv_years<-paste("X",inv_years,sep="")
+  
+  std_form_inv<-inv_data_full
+  
+  out <- list(  method, scaling_name ,inv_matchcol_name , ceds_matchcol_name,
+             method_col, inv_data_full, scaling_map, ext_method, ext_year,
+             ef_file, em_file, input_ef_read, input_em_read, input_ef,
+             input_em, X_inv_years, std_form_inv)
+  names(out) <- c( 'method', 'scaling_name' ,'inv_matchcol_name' , 'ceds_matchcol_name',
+                  'method_col', 'inv_data_full', 'scaling_map', 'ext_method', 'ext_year',
+                  'ef_file', 'em_file', 'input_ef_read', 'input_em_read', 'input_ef',
+                  'input_em', 'X_inv_years', 'std_form_inv')
+  
+  return (  out )
 }
 
 # ---------------------------------------------------------------------------------
@@ -71,107 +127,92 @@ F.readScalingData <- function( inventory = inventory_data_file,
 # Brief: aggregates inventory data to the scaling sectors
 # Details: reads in the standard form inv data, removes redundant rows, zeroes
 #   out specified terms (eg NA), and aggregates the data to the scaling sectors
-# Dependencies: CEDS_header.R, F.read(), module F scripts
-# Author: Tyler Pitkanen
+# Dependencies: CEDS_header.R, F.readScalingData(), module F scripts
+# Author: Tyler Pitkanen, Rachel Hoesly
 # parameters:
 #   std_form_inv: inv data put into standard ceds format, with years along the 
 #                 y axis and sectors along x [default: std_form_inv]
 #   zeroed_terms: inv data terms to make zero, such as blank cells (NA), '-',
 #                 etc; this depends on the inventory's notation for zeroes.
 #                 [default: c(NA, 'NA', 'NA ', '-')]
-# return: inv_data
-# input files: null
-# output files: null
+#   region: list of regions in inventory. Default - region
+#   mapping_method: mapping method. Default - mapping_method
+#   return: inv_data
+#   input files: std_form_inv, region , mapping_method . All defined by early code
 
-F.invAggregate <- function( std_form_inv, zeroed_terms = c( NA, 'NA', 'NA ', '-' ) ) {
-
-    printLog( "Aggregating inventory data" )
-    
-# Discard redundant rows
-    inv_data <- subset( std_form_inv, std_form_inv$inv_sector %in% 
-        mapping_data$inv_sector )
-    inv_data_app <- addCols( inv_data, mapping_data, scaling_name,
-        matchcol = inv_matchcol_name )
-
-# Replace NA values with zero and make the data numeric
-    suppressWarnings( inv_data_app[ sapply( 
-        inv_data_app, function(x) x %in% zeroed_terms ) ] <- 0 )
-    inv_data_num <- data.frame( apply( inv_data_app[ , X_scaling_years ], 
-        2, as.numeric ) ) 
-
-# Perform aggregation    
-    inv_data_list <- cbind( inv_data_app[ , scaling_name ], inv_data_num )
-    names( inv_data_list )[[1]] <- scaling_name
-    inv_data <- aggregate( inv_data_list[ , X_scaling_years ], by =
-        list( scaling_col = inv_data_list[ , scaling_name ] ), sum ) 
-        
-    return( inv_data )
+F.invAggregate <- function( std_form_inv, region , mapping_method, 
+                            zeroed_terms = c(NA, 'NA', 'NA ', '-')) {
+  
+  printLog( "Aggregating inventory data" )
+  
+  inv_data <- std_form_inv
+  
+  # Make data numeric
+  
+  inv_data[,X_inv_years] <- suppressWarnings( apply( inv_data[,X_inv_years] , 2, as.numeric ) )
+  
+  # Select regions
+  inv_data <- inv_data[ inv_data$iso %in% region,]
+  
+  # Add scaling names, 
+  inv_data <- merge(inv_data, scaling_map[,c(inv_matchcol_name,scaling_name)],
+                    by.x = method_col,
+                    by.y = inv_matchcol_name)
+  inv_data <- inv_data[ complete.cases (inv_data[,c(scaling_name)]),]
+  
+  # Perform aggregation    
+  inv_data_long <- melt(inv_data[,c('iso',scaling_name,X_inv_years)], id = c('iso', scaling_name) )
+  inv_data_long <- inv_data_long[complete.cases(inv_data_long[,c(scaling_name,'value')]),]
+  
+  if ( method %in% c("sector","fuel") ) cast.formula <- paste('iso +', scaling_name , '~ variable')
+  if ( method == "both" ) cast.formula <- 'iso + scaling_sector + scaling_fuel ~ variable'
+  agg_inv_data <- cast(inv_data_long, cast.formula , sum)
+ 
+  return( agg_inv_data )
 }
 
 # ---------------------------------------------------------------------------------
 # F.cedsAggregate
 # Brief: aggregates ceds data over fuel or sectors
 # Details: reads in the ceds data, selects the region that corresponds to the
-#   inventory, aggregates by fuel and then aggregates to the scaling sectors
-# Dependencies: CEDS_header.R, module F scripts
-# Author: Tyler Pitkanen
+#   inventory, aggregates according to scaling map
+# Dependencies: CEDS_header.R, F.readScalingData() ,module F scripts
+# Author: Tyler Pitkanen, Rachel Hoesly
 # parameters:
-#   input_ef: the most recent version of the scaled EFs [default: input_ef]
 #   input_em: the most recent version of the scaled emissions [default: input_em]
 #   region:   the iso code(s) of the region(s) corresponding to the regions
 #             covered by the inventory [required]
-#   mapping_method: the method used to aggregate and scale inv and ceds data
+#   method: the method used to aggregate and scale inv and ceds data
 #             [default: mapping_method]
 # return: ceds_data
 # input files: null
 # output files: null
 
-F.cedsAggregate <- function( input_ef, input_em, region, method = mapping_method ) {
-    
-# Clean the data
-    clean_input_ef <- removeBlanks( input_ef, 'name', 'iso' )
-    clean_input_em <- removeBlanks( input_em, 'name', 'iso' )
-    
-# Skip the aggregation if mapping by both sector and fuel
-    if( method == 'both' ) return( invisible( ) )
-    
-# Select the CEDS data that corresponds to the inventory region(s)
-    sub_input_ef <- subset( clean_input_ef, clean_input_ef$iso %in% region )
-    sub_input_em <- subset( clean_input_em, clean_input_em$iso %in% region )
+F.cedsAggregate <- function( input_em, region, method = mapping_method ) {
 
-# Make data numeric
-    region_input_ef <- data.frame( apply( sub_input_ef[ , X_emissions_years ], 
-                        2, as.numeric ) ) 
-    region_input_ef <<- cbind( sub_input_ef[ , c( 'iso', 'sector', 'fuel', 'units' ) ], region_input_ef )
-    region_input_em <<- data.frame( apply( sub_input_em[ , X_emissions_years ], 
-                        2, as.numeric ) ) 
-
-# If scaling by sector, aggregate over all fuels. If scaling by fuel, aggregate over all sectors.
-    if( method == 'sector' ) {
-        region_input_em <- cbind( region_input_em, sub_input_em[ , c( 'sector', 'iso' ) ] )
-        region_em_sec <- aggregate( region_input_em[ , X_emissions_years], by = list( 
-            iso = region_input_em$iso, ceds_sector = region_input_em$sector ), sum )
-    } else if( method == 'fuel' ) {
-        region_input_em <- cbind( region_input_em, sub_input_em[ , c( 'fuel', 'iso' ) ] )
-        region_em_sec <- aggregate( region_input_em[ , X_emissions_years], by = list( 
-            iso = region_input_em$iso, ceds_fuel = region_input_em$fuel ), sum )
-    } else if( method == 'both' ) region_em_sec <- region_input_em
-
-# Map the data from CEDS sectors/fuels to the scaling sectors/fuels
-    if( method %in% c( 'sector', 'both' ) ){
-    # Aggregate CEDS sectors to scaling sectors
-        region_em_sec_appended <- addCols( region_em_sec, mapping_data, scaling_name,
-            matchcol = ceds_matchcol_name )
-        ceds_em_data <<- aggregate( region_em_sec_appended[ , X_emissions_years], by =
-            list( scaling_col = region_em_sec_appended[ , scaling_name ] ), sum )  
-    } else if( method %in% c( 'fuel', 'both' ) ) {
-    # Aggregate CEDS fuels to scaling fuels
-        if( method == 'both' ) region_em_sec <- ceds_em_data
-        region_em_sec_appended <- addCols( region_em_sec, mapping_data, scaling_name,
-            matchcol = ceds_matchcol_name )
-        ceds_em_data <<- aggregate( region_em_sec_appended[ , X_emissions_years], by =
-            list( scaling_col = region_em_sec_appended[ , scaling_name ] ), sum )             
-    }
+  #Select data in inventory region and inventory years
+  region_input_em <- input_em[ input_em$iso %in% region , c('iso','sector','fuel','units',X_inv_years) ] 
+  
+  # Make data numeric
+  if( length(X_inv_years) >1)
+  region_input_em[,X_inv_years] <- suppressWarnings( apply( region_input_em[,X_inv_years] , 2, as.numeric ) )
+  if (length(X_inv_years) == 1) region_input_em[,X_inv_years] <- as.numeric(region_input_em[,X_inv_years])
+  
+  # Add scaling names, 
+  ceds_data <- merge(region_input_em, scaling_map[,c(ceds_matchcol_name,scaling_name)],
+                    by.x = method_col,
+                    by.y = ceds_matchcol_name)
+  ceds_data <- ceds_data[ complete.cases (ceds_data[,c(scaling_name)]),]
+  
+  # Perform aggregation    
+  ceds_data_long <- melt(ceds_data[,c('iso',scaling_name,X_inv_years)], id = c('iso', scaling_name) )
+  ceds_data_long <- ceds_data_long[complete.cases(ceds_data_long[,c(scaling_name,'value')]),]
+  
+  if ( method %in% c("sector","fuel") ) cast.formula <- paste('iso +', scaling_name , '~ variable')
+  if ( method == "both" ) cast.formula <- 'iso + scaling_sector + scaling_fuel ~ variable'
+  
+  ceds_data <- cast(ceds_data_long, cast.formula , sum)
+  return(ceds_data)
 }
 
 # ---------------------------------------------------------------------------------
@@ -180,175 +221,663 @@ F.cedsAggregate <- function( input_ef, input_em, region, method = mapping_method
 # Details: takes in the ceds data and the inventory data that has been put in ceds
 #   standard form. Scaling factors are calculated by dividing inv data by ceds 
 #   data. The scaling factors are then interpolated and extrapolated to match
-#   ceds years in a specified manner. The ceds data is then disaggregated
-#   back into its original form
+#   ceds years in a specified manner.
 # Dependencies: CEDS_header.R, F.invAggregate(), F.cedsAggregate
-# Author: Tyler Pitkanen
+# Author: Tyler Pitkanen, Rachel Hoesly
 # parameters:
 #   ceds_data:      ceds data for the inventory's region [default: ceds_data]
 #   inv_data:       inv data in ceds standard form [default: inv_data]
-#   scaling_years:  the years covered by the inventory data [default: scaling_years]
-#   int_method:     the interpolation method used to estimate scaling factors for 
-#                   years not covered by inventory data, linear or none [default: linear]
-#   pre_ext_method: the extrapolation method used to estimate scaling factors
-#                   for years before inventory data begins [default: constant]
-#   post_ext_method: the extrapolation method used to estimate scaling factors
-#                    for years after inventory data ends [default: constant]
-# return: null
-# input files: null
-# output files: null
+#   region:   the iso code(s) of the region(s) corresponding to the regions
+#             covered by the inventory [required]
+#   ext_start_year: year to extend scaling factors back to.  
+#             Default to global environment variable ‘start_year’ - 1960
+#   ext_end_year: year to extend scaling factors forward to. 
+#             Default to global environment variable ‘end_year’ - 2013
+#   interp_default: default interpolation method for scaling factors within the 
+#             inventory years. Either ‘interpolation’ or ‘constant’. 
+#             Defaults to linear interpolation.
+#   pre_ext_default = default extrapolation method for pre inventory years. 
+#             Either ‘interpolation’, 'linear_1', or ‘constant’. Defaults to ‘constant’.
+#   post_ext_default = default extrapolation method for post inventory years. 
+#             Either ‘interpolation’, 'linear_1', or ‘constant’. Defaults to ‘constant’.
+#   replacement_method = Either 'none' or ‘replace’. If ‘replace’ then function checks scaling 
+#             factors and replaces values above and below the threshold defined by max scaling factor.
+#   max_scaling_factor = if  replacement method = ‘replace’.  Scaling factors greater 
+#             than max_scaling_factors and less than 1/maximum_scaling_factor are replaced by 
+#   replacement_scaling factor or 1/replacement_scaling_factor.
+#   replacement_scaling_factor = value to replace too small/large scaling factors with. 
+#             Defaults to max_scaling_factor.
+#   return: scaling_ext
+#   input files: null
+#   output files: null
 
-F.scale <- function( ceds_data = ceds_em_data, inv_data, scaling_years, 
-    int_method = interpolation, pre_ext_method = extrapolation_before, 
-    post_ext_method = extrapolation_after, region ) {
+F.scaling <- function( ceds_data, inv_data, region,
+                       ext_start_year = start_year, ext_end_year = end_year,
+                       ext = TRUE, interp_default = 'linear', 
+                       pre_ext_default = 'constant', post_ext_default = 'constant', 
+                       replacement_method = 'none', max_scaling_factor = 100, 
+                       replacement_scaling_factor = max_scaling_factor,
+                       meta = TRUE) {
 
-# If interpolation and extrapolation methods aren't specified, use defaults
-    if( !exists( int_method ) )      int_method <- "linear"
-    if( !exists( pre_ext_method  ) ) pre_ext_method  <- "constant"
-    if( !exists( post_ext_method ) ) post_ext_method <- "constant"
-
-# Calculate the scaling factors by taking the ratio of inventory data to CEDS 
-#   data. This only gives a partial set of the scaling factors because they are
-#   only calculated where inventory data is available. The remaining scaling
-#   factors are calculated through interpolation and extrapolation.
-    region_data_scaling_years <- ceds_data[ , c( "scaling_col", X_scaling_years ) ]
-    row_arrangement <- match( region_data_scaling_years[ ,1], inv_data[ ,1] )
-    scaling <- mapply( '/', region_data_scaling_years[ , 2:ncol( region_data_scaling_years ) ], 
-        inv_data[ row_arrangement, 2:ncol( inv_data ) ] )
-    scaling <- data.frame( scaling )
-    scaling[ , scaling_name ] <- paste( inv_data[ row_arrangement, 1 ] )
-
-# Make some adjustments to the preliminary scaling factor data set:
-    # Inf results where a CEDS emissions is almost zero and its corresponding inv
-    #   emission is simply listed as zero. This difference in rounding is solved
-    #   by changing all instances of Inf to 1
-    scaling[ sapply( scaling, is.infinite ) ] <- 1
-    
-    # NaN results where both a CEDS and inv value are zero. Again we change the
-    #   ratio to 1 because there is a 1:1 correspondence between CEDS data and inv
-    #   data.
-    scaling[ sapply( scaling, is.na ) ] <- 1
-
-# Now expand the inventory data for X_scaling_years to all X_emissions_years,
-#   i.e. fill in the gaps where inv data isn't present. needed_years represents 
-#   the years where an estimation (inter/extrapolation) is needed
-    needed_years <- emissions_years[ emissions_years %!in% scaling_years ]
-    needed_years <- needed_years[ needed_years >= start_year & needed_years <= end_year ]
-    X_needed_years <- paste0( 'X', needed_years )
-    
-# Make a column of ones. This is used if 'none' is selected for pre/post 
-#   extrapolation or interpolation; scaling factors for needed years will just be
-#   set as a column of ones so the emissions/EFs are unaffected for those years.
-    col_of_ones <- scaling[ , 1]
-    col_of_ones[] <- 1 
-
-# Begin extrapolation/interpolation calculations 
-    added_cols <- list()
-    n <- 1
-    for( i in needed_years ) {
-        # Extrapolate for years before first inventory data point. 
-        if( i < min( scaling_years ) ) { 
-            if( pre_ext_method == 'constant' ) {
-            # Use the first year's scaling factors for all previous years
-                added_cols[[n]] <- scaling[ , X_scaling_years[1] ] 
-                n <- n + 1
-            } else if( pre_ext_method == 'linear' ) {
-            # Use the slope of the last two year's scaling factors to extendForward
-            #   to previous years
-                factor_change <- scaling[ , X_scaling_years[2]] - 
-                    scaling[ , X_scaling_years[1]]
-                year_change <- X_scaling_years[2] - X_scaling_years[1]
-                slope <- factor_change / year_change
-                years <- needed_years[i] - X_scaling_years[1]
-                added_cols[[n]] <- years * slope
-                n <- n + 1
-            } else if( pre_ext_method == 'none' ) {
-            # Use a column of ones so emissions factors are unaffected by scaling
-                added_cols[[n]] <- col_of_ones
-                n <- n + 1
-            }
-        # Extrapolate for years after last inventory data point. 
-        } else if( i > max( scaling_years ) ) { 
-            if( post_ext_method == 'constant' ) {
-            # Use the last year's scaling factors for all following years
-                added_cols[[n]] <- scaling[ , X_scaling_years[ length( 
-                    X_scaling_years ) ] ]
-                    n <- n + 1
-            } else if( post_ext_method == 'linear' ) {
-            # Use the slope of the last two year's scaling factors to extendForward
-            #   to following years
-                last <- length( X_scaling_years )
-                factor_change <- scaling[ , X_scaling_years[last]] - 
-                    scaling[ , X_scaling_years[last - 1]]
-                year_change <- X_scaling_years[last] - X_scaling_years[last - 1]
-                slope <- factor_change / year_change
-                years <- needed_years[i] - X_scaling_years[last]
-                added_cols[[n]] <- years * slope
-                n <- n + 1
-            } else if( post_ext_method == 'none' ) {
-            # Use a column of ones so emissions factors are unaffected by scaling
-                added_cols[[n]] <- col_of_ones
-                n <- n + 1
-            }
-        # Interpolate for years between inventory data points. 
-        } else { 
-            if( int_method == 'linear' ) {
-            # Use the slope of the nearest surrounding years to determine scaling
-            #   for intermittent years
-                dif  <- scaling_years - i
-                ub   <- min( scaling_years[ dif > 0 ] )
-                lb   <- max( scaling_years[ dif < 0 ] )
-                X_ub <- paste0( 'X', ub )
-                X_lb <- paste0( 'X', lb )
-                
-                year_range  <- ub - lb
-                data_range  <- scaling[ , X_ub ] - scaling[ , X_lb ]
-                year_change <- i - lb
-                data_change <- data_range / year_range * year_change
-                
-                added_cols[[n]] <- scaling[ , X_lb ] + data_change
-                n <- n + 1
-            } else if( int_method == 'none' ) {
-            # Use a column of ones so emissions factors are unaffected by scaling
-                added_cols[[n]] <- col_of_ones
-                n <- n + 1
-            }
-        }
+  ###
+  ext_start_year = start_year
+  ext_end_year = end_year
+  ext = TRUE
+  interp_default = 'linear'
+  pre_ext_default = 'constant'
+  post_ext_default = 'constant' 
+  replacement_method = 'none'
+  max_scaling_factor = 100 
+  replacement_scaling_factor = max_scaling_factor
+  meta = TRUE
+  ###
+  
+  # Define simple function for use later. If TRUE, all values NA
+  all.na <- function(x){
+    return(all(is.na(x)))}
+  
+  valid_interp_methods <- c('linear','constant')
+  valid_pre_ext_methods  <- c('constant','linear_1')
+  valid_post_ext_methods  <- c('linear','constant','linear_1')
+  
+  # ------------------------------------
+  # Default Methods and Scaling years by country and sector/fuel
+  
+  # Check Default options  
+  if( interp_default %!in% valid_interp_methods) {
+    warning( paste0('"',interp_default, 
+                    '" is not a valid interpolation method. Replacing interpolation default with "linear".'))
+    interp_default <- 'linear'}
+  if( pre_ext_default %!in% valid_pre_ext_methods) {
+    warning( paste0('"',pre_ext_default, 
+                    '" is not a valid extrapolation method. Replacing pre-extrapolation default with "constant".'))
+    pre_ext_default <- 'constant'}
+  if( post_ext_default %!in% valid_post_ext_methods) {
+    warning( paste0('"',post_ext_default, 
+                    '" is not a valid extrapolation method. Replacing post-extrapolation default with "constant".'))
+    post_ext_default <- 'constant'}
+  if( pre_ext_default == 'linear' && length(inv_years) == 1 ) {
+    warning( 'Not enough inventory years to extend backward linearly. Replacing pre-extrapolation default with "constant".')
+    pre_ext_default <- 'constant'
+  }
+  if( pre_ext_default == 'linear' && length(inv_years) == 1 ) {
+    warning( 'Not enough inventory years to extend backward linearly. Replacing pre-extrapolation default with "constant".')
+    pre_ext_default <- 'constant'
+  }
+  if( post_ext_default == 'linear' && length(inv_years) == 1 ) {
+    warning( 'Not enough inventory years to extend backward linearly. Replacing post-extrapolation default with "constant".')
+    post_ext_default <- 'constant'
+  }
+  
+  # Check Years
+  if( !(ext_start_year <= min(inv_years) & ext_start_year >= min(emissions_years) ) ){
+    ext_start_year <- min(inv_data)
+    warning( 'Invalid scaling start year ("ext_start_year"). Using the first year of scaling inventory data.')
+  }
+  if( !(ext_end_year >= max(inv_years) & ext_end_year <= max(emissions_years) ) ){
+    ext_start_year <- max(inv_data)
+    warning( 'Invalid scaling end year ("ext_end_year"). Using the last year of scaling inventory data.') 
+  }
+  
+  # Check Scaling Factor Replacement
+  if (replacement_method %!in% c('none','replace')){
+    warning( 'Invalid scaling factor replacement method. Must be "none" or "replace". Using default: "none"')
+    replacement_method <- 'none'   
+  }
+  if (replacement_method == 'replace'){
+    if (!is.numeric(max_scaling_factor) ) {
+      warning( 'Invalid maximum scaling factor ("max_scaling_factor"). 
+               Must be numeric. Using default max scaling factor = 100')
+      max_scaling_factor <- 100
     }
-    names( added_cols ) <- X_needed_years
+    if (!is.numeric(replacement_scaling_factor) ) {
+      warning( 'Invalid replacement scaling factor ("replacement_scaling_factor"). 
+               Must be numeric. Using default, max_scaling_factor')
+      replacement_scaling_factor <- max_scaling_factor
+    }
+  }
+  
+  # Check Methods and replace with default if invalid  
+  if ( ! all( ext_method$interp_method %in% c(valid_interp_methods,'NA') )) {
+    index <- which( ext_method$interp_method %in% valid_interp_methods == FALSE )
+    warning( paste0(  ext_method$interp_method[index] , ': invalid interpolation method. Using default option: ',
+                      "'" ,interp_default),"'" )
+    ext_method$interp_method[index] <- interp_default }
+  
+  if ( ! all( ext_method$pre_ext_method %in% c(valid_pre_ext_methods,'NA') )) {
+    index <- which( ext_method$pre_ext_method %in% valid_pre_ext_methods == FALSE )
+    warning( paste0(  ext_method$pre_ext_method[index] , ': invalid pre-extrapolation method. Using default option: ',
+                      "'" ,pre_ext_default),"'" )
+    ext_method$pre_ext_method[index] <- pre_ext_default } 
+  
+  if ( ! all( ext_method$post_ext_method %in% c(valid_post_ext_methods,'NA') )) {
+    index <- which( ext_method$post_ext_method %in% valid_post_ext_methods == FALSE )
+    warning( paste0(  ext_method$post_ext_method[index] , ': invalid pre-extrapolatio method. Using default option: ',
+                      "'" ,post_ext_default,"'") )
+    ext_method$post_ext_method[index] <- post_ext_default } 
+  
+  # ------------------------------------
+  # Create Methods and Year Data frame
+  
+  # Define Default Methods Data frame, update with mapping file
+  if ( 'all' %in% ext_method$scaling) 
+    warning(' "all" is not a valid scaling sector/fuel option. Using default options.')
+  # defaults
+  ext_method_default <- inv_data[,c('iso',scaling_name)]
+  ext_method_default[,'interp_method'] <- interp_default
+  ext_method_default[,'pre_ext_method'] <- pre_ext_default
+  ext_method_default[,'post_ext_method'] <- post_ext_default
+  # update with mapping file
+  methods <- c('interp_method','pre_ext_method','post_ext_method')
+  for( n in seq_along(methods)){
+    all <- ext_method[ext_method$iso %in% 'all', c(scaling_name,methods[n])]
+    for ( i in seq_along(all$scaling)){
+      ext_method_default[ ext_method_default$scaling %in% all$scaling[i],methods[n]] <- all[i,methods[n]]}
     
-# Combine the directly calculated scaling factors with inter/extrapolated ones
-    scaling_ext <- cbind( scaling, added_cols )
-    scaling_ext <- scaling_ext[ , order( names( scaling_ext ) ) ]  
+    other <- ext_method[ext_method$iso %!in% 'all', c(scaling_name,methods[n])]
+    for ( i in seq_along(other$scaling)){
+      ext_method_default[ ext_method_default$scaling %in% other$scaling[i],methods[n]] <- other[i,methods[n]]}
+  }
+  
+  # Define Default Years, update with mapping file
+  if ( 'all' %in% ext_method$scaling ) 
+    warning(' "all" is not a valid scaling sector/fuel option. Using default options.')
+  # defaults
+  ext_year_default <- inv_data[,c('iso',scaling_name)]
+  ext_year_default[,'pre_ext_year'] <- ext_start_year
+  ext_year_default[,'post_ext_year'] <- ext_end_year
+  # update with mapping file
+  years <- c('pre_ext_year','post_ext_year')
+  for( n in seq_along(years)){
+    all <- ext_year[ext_year$iso %in% 'all', c(scaling_name,years[n])]
+    for ( i in seq_along(all$scaling)){
+      ext_year_default[ ext_year_default$scaling %in% all$scaling[i],years[n]] <- all[i,years[n]]}
+    
+    other <- ext_year[ext_year$iso %!in% 'all', c(scaling_name,years[n])]
+    for ( i in seq_along(other$scaling)){
+      ext_year_default[ ext_year_default$scaling %in% other$scaling[i],years[n]] <- other[i,years[n]]}
+  }
+  
+  # ------------------------------------
+  # Create Meta data notes
+  
+  if (meta == TRUE) {
+    names <- c('iso',scaling_name,'year','meta_comment')
+    meta_notes <- data.frame(matrix(ncol = length(names), nrow = 0))
+    names(meta_notes) <- names
+  }
 
-    printLog( "Applying scaling factors to CEDS EFs and emissions" )
+  # ------------------------------------
+  # Calculate the scaling factor
+  
+  printLog('Calculating Scaling Factors')
+  #   by taking the ratio of CECS data over inventory 
+  #   data. This only gives a partial set of the scaling factors because they are
+  #   only calculated where inventory data is available. The remaining scaling
+  #   factors are calculated through interpolation and extrapolation.
+  
+  inv_long <- melt(inv_data, id= c('iso', scaling_name))
+  names(inv_long)[which(names(inv_long)=='value')] <- 'inv_value'
+  ceds_long <- melt(ceds_data, id= c('iso', scaling_name))  
+  names(ceds_long)[which(names(ceds_long)=='value')] <- 'ceds_value'
+  
+  scaling <- merge(inv_long, ceds_long , all.x = TRUE)
+  scaling$scaling_factor <- scaling$inv_value/scaling$ceds_value 
+  
+  # Add Meta notes
+  if (meta == TRUE) {
+    meta_add <- scaling[,c('iso',scaling_name,'variable','scaling_factor')]
+    names(meta_add) <-  c('iso',scaling_name,'year','scaling_factor') 
+    meta_add <- meta_add[which(meta_add$scaling_factor != 0),]
+    meta_add <- meta_add[which(meta_add$scaling_factor != Inf),]
+    meta_add <- meta_add[,c('iso',scaling_name,'year')]
+    meta_add$comment <- paste('Scaled to Inventory -', inv_name )
+    meta_notes <- rbind(meta_notes, meta_add) }
+  
+  # Make adjustments to the preliminary scaling factor data set:
+  # Inf values - divide by zero - ceds value = 0
+  scaling[which(scaling$scaling_factor==Inf),'scaling_factor'] <- NA
+  scaling[which(scaling$scaling_factor==0),'scaling_factor'] <- NA
+  scaling[which( is.na(scaling$scaling_factor) ),'scaling_factor'] <- NA
+  
+  # Cast melted data    
+  if ( method %in% c("sector","fuel") ) cast.formula <- paste('iso +', scaling_name , '~ variable')
+  if ( method == "both" ) cast.formula <- 'iso + scaling_sector + scaling_fuel ~ variable'
+  scaling <- cast(scaling, cast.formula, value='scaling_factor')
 
-# Disaggregate from scaling sectors to CEDS sectors and create CEDS scaling that
-#   is matched to the CEDS rows from the input
-    disagg_rows <- match( mapping_data[ , scaling_name ], scaling_ext[ , scaling_name ] )
-    ceds_scaling <- scaling_ext[ disagg_rows, ]
-    ceds_scaling[ , ceds_matchcol_name ] <- mapping_data[ , ceds_matchcol_name ]
-    ceds_scaling_col <- ceds_scaling[ , c( length( ceds_scaling ), 2:( length( ceds_scaling ) - 1 ) ) ]
-    ceds_scaling_col[ sapply( ceds_scaling_col, is.na ) ] <- 1
+  # ------------------------------------
+  # Extend Scaling Factors 
+  # with sector specific methods for X_scaling_years to all X_emissions_years,
+  #   i.e. fill in the gaps where inv data isn't present. needed_years represents 
+  #   the years where an estimation (inter/extrapolation) is needed
+  
+  printLog('Extending scaling factors over scaling years')
+  # ------------------------------------
+  # Interpolation   
+  
+  # Fill missing years with NAs
+  X_inv_years_full <- paste0( 'X' , min(inv_years):max(inv_years)  )
+  scaling_interp <- as.data.frame(matrix(data=NA, nrow = nrow(scaling), ncol = length(X_inv_years_full)))
+  scaling_interp <- cbind( scaling[,c('iso', scaling_name)],scaling_interp)
+  names(scaling_interp) <- c('iso', scaling_name , X_inv_years_full )
+  scaling_interp[, X_inv_years ] <- scaling[ , X_inv_years]
+  
+  # identify any non-trailing/leading na's
+  interpolation_rows<-c()
+  for( i in seq_along(scaling_interp$iso)){
+    row <- as.numeric(scaling_interp[i,X_inv_years_full])
+    if( length(rle(is.na(c(NA,row,NA)))$values)>3 ) interpolation_rows<- rbind(interpolation_rows,i)
+    }
+  interpolation_rows <- as.vector(interpolation_rows)
+  
+  #############
+  # Interpolate
+  if( length(interpolation_rows)>0){
+    linear <- scaling_interp[which(ext_method_default$interp_method == 'linear'),]
+    #remove rows with all NA data
+    linear <-  linear[!apply(linear[,X_inv_years_full], 1, all.na),]
+    if ( nrow(linear)>0){
+      # Add Meta notes
+      if (meta == TRUE) {
+        meta_pre_add <- scaling_interp[interpolation_rows,]
+        meta_pre_add <- merge(meta_pre_add, ext_method_default[,c('iso', scaling_name,'interp_method')],
+                          all.x=TRUE, all.y=FALSE)
+        meta_pre_add <- meta_pre_add[which(meta_pre_add$interp_method == 'linear'),c('iso',scaling_name,X_inv_years_full)]
+        
+        meta_add <- c()
+        for ( i in seq_along(meta_pre_add$iso)){
+          row <- meta_pre_add[i,c('iso',scaling_name,X_inv_years_full)]
+          min <- min( match( as.numeric(row[1,X_inv_years_full]), row[1,]), na.rm=TRUE)
+          max <- max( match( as.numeric(row[1,X_inv_years_full]), row[1,]), na.rm=TRUE)         
+          non.trailing <- cbind( row[,c('iso',scaling_name)]  , row[, c( min:max)] )
+          add <- melt(non.trailing, id.vars = c('iso',scaling_name))
+          add <- add[which(is.na(add$value)),c('iso',scaling_name,'variable')]
+          meta_add <- rbind(meta_add, add)
+        }
+        if(nrow(meta_add)>0){
+        names(meta_add) <- c('iso',scaling_name,'year')
+        meta_add$comment <- paste('Linearly interpolated from inventory -', inv_name)
+        meta_notes <- rbind(meta_notes, meta_add)
+        }}
+      
+    linear_int <- t( na.approx( t(linear[,X_inv_years_full])  ) )
+    linear <- cbind( linear[,c('iso', scaling_name)] , linear_int)
+    names(linear) <- c('iso', scaling_name , X_inv_years_full ) }
+  
+    constant <- scaling_interp[which(ext_method_default$interp_method == 'constant'),]
+    constant <-  constant[apply(constant[,X_inv_years_full], 1, all.na),]
+    if( nrow(constant)>0){
+      # Add Meta notes
+      if (meta == TRUE) {
+        meta_pre_add <- scaling_interp[interpolation_rows,]
+        meta_pre_add <- merge(meta_pre_add, ext_method_default[,c('iso', scaling_name,'interp_method')],
+                              all.x=TRUE, all.y=FALSE)
+        meta_pre_add <- meta_pre_add[which(meta_pre_add$interp_method == 'constant'),c('iso',scaling_name,X_inv_years_full)]
+        
+        meta_add <- c()
+        for ( i in seq_along(meta_pre_add$iso)){
+          row <- meta_pre_add[i,c('iso',scaling_name,X_inv_years_full)]
+          min <- min( match( as.numeric(row[1,X_inv_years_full]), row[1,]), na.rm=TRUE)
+          max <- max( match( as.numeric(row[1,X_inv_years_full]), row[1,]), na.rm=TRUE)         
+          non.trailing <- cbind( row[,c('iso',scaling_name)]  , row[, c( min:max)] )
+          add <- melt(non.trailing, id.vars = c('iso',scaling_name))
+          add <- add[which(is.na(add$value)),c('iso',scaling_name,'variable')]
+          meta_add <- rbind(meta_add, add)
+        }
+        if(nrow(meta_add)>0){
+          names(meta_add) <- c('iso',scaling_name,'year')
+          meta_add$comment <- paste('Constant interpolated from inventory -', inv_name)
+          meta_notes <- rbind(meta_notes, meta_add)
+        }}
+    constant_int <- t( na.locf( t(constant[,X_inv_years_full])  ) )
+    constant <- cbind( constant[,c('iso', scaling_name)] , constant_int)
+    names(constant) <- c('iso', scaling_name , X_inv_years_full ) }
+
+    scaling_interp <- rbind(linear, constant)  
+    
+    if(method %in% c('sector','fuel'))
+          scaling_interp <- scaling_interp[ order(scaling_interp[,'iso'], scaling_interp[,scaling_name]),]
+    if(method == 'both')
+          scaling_interp <- scaling_interp[ order(scaling_interp$iso, scaling_interp$scaling_sector, scaling_interp$scaling_fuel),]
+    
+  } else {scaling_interp <- scaling
+  X_inv_years_full <- X_inv_years}
+  
+  # ------------------------------------
+  # Extend Scaling Factors through Scaling Years and fill remaing (with scaling factor = 1)
+  
+  scaling_ext <- as.data.frame(matrix(data=NA,nrow = nrow(scaling_interp), ncol = length(X_emissions_years)))
+  names(scaling_ext) <- X_emissions_years
+  scaling_ext <- cbind(scaling_interp[,c('iso', scaling_name)], scaling_ext)
+  # 
+  for (i in seq_along(scaling_ext$iso)){
+    # Interpolated inventory data
+    scaling_ext[i,X_inv_years_full] <- scaling_interp[i,X_inv_years_full]
+    
+    if( !all(is.na( scaling_interp[i,X_inv_years_full] )) ){
+    
+    # Pre-Extrapolation
+    min_inv_year <- emissions_years[ min( which(!is.na(scaling_ext[i,X_emissions_years]))) ]
+    if( min_inv_year > ext_year_default[i,'pre_ext_year']){
+      # Define Pre-Extrapolation Years 
+      pre_scaling_ext_years <- c( ext_year_default[i,'pre_ext_year']:(min_inv_year-1) )
+      X_pre_scaling_ext_years <- paste0( 'X', pre_scaling_ext_years )
+      # Fill Years with scaling factor = 1, NA, or interpolated Scaling factor
+      pre_scaling_ext_line <- as.data.frame(matrix(data=NA, nrow = 1, 
+                                                   ncol = length(X_pre_scaling_ext_years)+length(X_inv_years_full)   ))
+      names(pre_scaling_ext_line)<- c( X_pre_scaling_ext_years , X_inv_years_full )
+      pre_scaling_ext_line[1,X_inv_years_full] <- scaling_ext[i,X_inv_years_full]
+      
+      # Linear Extrapolation
+      if( ext_method_default[i,'pre_ext_method'] == 'linear' ){
+        x = min_inv_year:max(inv_years)
+        y = t(scaling_interp[i,X_inv_years_full])
+        xout = pre_scaling_ext_years
+        
+        if ( !length(x[complete.cases(x)]) > 1){
+          printLog('Not enough data points to Linearly interpolate. Constantly extending.')
+          ext_method_default[i,'pre_ext_method'] <- 'constant'
+        }
+        if (length(x[complete.cases(x)]) > 1){
+        
+        pre.lm <- lm(y ~ x)  
+        fitted <- predict(pre.lm, data.frame(x=xout),interval='none')
+        
+        pre_scaling_ext_line[1,X_pre_scaling_ext_years] <- fitted
+          # Add meta notes          
+          if(meta==TRUE){
+            year <- X_pre_scaling_ext_years
+            add <- data.frame(year)
+            add$iso <- scaling_ext[i,c('iso')]
+            if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
+            if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
+            add$comment <-  paste('Scaled to Inventory - Linearly extrapolated backward -', inv_name)
+            meta_notes <- rbind(meta_notes, add)
+          } }
+      # if linear interpolation, but only 1 inventory year
+      } else if( ext_method_default[i,'pre_ext_method'] == 'linear' && length(X_inv_years_full)>1 ){
+        ext_method_default[i,'pre_ext_method'] <- 'constant'
+        printLog('Not enough data to linearly extend. Constant extending backward.')
+      # Constant Extrapolation
+      } else if( ext_method_default[i,'pre_ext_method'] == 'constant'){
+        # Add meta notes          
+        if(meta==TRUE){
+          year <- X_pre_scaling_ext_years
+          add <- data.frame(year)
+          add$iso <- scaling_ext[i,c('iso')]
+          if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
+          if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
+          
+          add$comment <-  paste('Scaled to Inventory - constant extrapolated backward -', inv_name)
+          meta_notes <- rbind(meta_notes, add)
+        }
+        pre_scaling_ext_line[1,] <-t(na.locf(t(pre_scaling_ext_line[1,]), fromLast = TRUE))
+      # Linear Extrapolation to Scaling Factor = 1, from most recent value
+      } else if( ext_method_default[i,'pre_ext_method'] == 'linear_1'){
+        pre_scaling_ext_line[1,1]<-1
+        pre_scaling_ext_line[1,] <- na.approx(  t(pre_scaling_ext_line[1,]) , maxgap = Inf)
+        # Add meta notes          
+        if(meta==TRUE){
+          year <- X_pre_scaling_ext_years
+          add <- data.frame(year)
+          add$iso <- scaling_ext[i,c('iso')]
+          if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
+          if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
+          add$comment <-  paste('Scaled to Inventory - Linearly extrapolated backward to 1 -', inv_name)
+          meta_notes <- rbind(meta_notes, add)
+        }
+      }
+      scaling_ext[i,X_pre_scaling_ext_years] <- pre_scaling_ext_line[1,X_pre_scaling_ext_years]
+    } # end Pre-Extrapolation
+    
+    # Post-Extrapolation
+    if( max(inv_years)<ext_year_default[i,'post_ext_year']){  
+      # Define post-Extrapolation Years 
+      post_scaling_ext_years <- c( max(inv_years):ext_year_default[i,'post_ext_year'] )
+      post_scaling_ext_years <- post_scaling_ext_years[-1]
+      X_post_scaling_ext_years <- paste0( 'X', post_scaling_ext_years )
+      # Fill Years with scaling factor = 1, NA, or interpolated Scaling factor
+      post_scaling_ext_line <- as.data.frame(matrix(data=NA, nrow = 1, 
+                                                    ncol = length(X_post_scaling_ext_years)+length(X_inv_years_full)   ))
+      names(post_scaling_ext_line)<- c(  X_inv_years_full, X_post_scaling_ext_years  )
+      post_scaling_ext_line[1,X_inv_years_full] <- scaling_ext[i,X_inv_years_full]
+      
+      # Linear Extrapolation
+      if( ext_method_default[i,'post_ext_method'] == 'linear'){
+        x = min(inv_years):max(inv_years)
+        y = t(scaling_ext[i,X_inv_years_full])
+        xout = post_scaling_ext_years
+        
+        if ( !length(x[complete.cases(x)]) > 1){
+          printLog('Not enough data points to Linearly interpolate. Constantly extending.')
+          ext_method_default[i,'pre_ext_method'] <- 'constant'
+        }
+        if (length(x[complete.cases(x)]) > 1){ 
+        
+        post.lm <- lm(y ~ x)  
+        fitted <- predict(post.lm, data.frame(x=xout),interval='none')
+        
+        post_scaling_ext_line[1,X_post_scaling_ext_years] <- fitted
+        # Add meta notes          
+        if(meta==TRUE){
+          year <- X_post_scaling_ext_years
+          add <- data.frame(year)
+          add$iso <- scaling_ext[i,c('iso')]
+          if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
+          if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
+          add$comment <-  paste('Scaled to Inventory - Linearly extrapolated forward -', inv_name)
+          meta_notes <- rbind(meta_notes, add)
+        }
+      }}
+      # Constant Extrapolation
+      else if( ext_method_default[i,'post_ext_method'] == 'constant'){
+        post_scaling_ext_line[1,] <-t(na.fill(t(post_scaling_ext_line[1,]), "extend"))
+        # Add meta notes          
+        if(meta==TRUE){
+          year <- X_post_scaling_ext_years
+          add <- data.frame(year)
+          add$iso <- scaling_ext[i,c('iso')]
+          if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
+          if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
+          add$comment <-  paste('Scaled to Inventory - Linearly extrapolated forward -', inv_name)
+          meta_notes <- rbind(meta_notes, add)
+        }
+      }
+      # Linear Extrapolation to Scaling Factor = 1, from most recent value
+      else if( ext_method_default[i,'post_ext_method'] == 'linear_1'){
+        post_scaling_ext_line[1,ncol(post_scaling_ext_line)]<-1
+        post_scaling_ext_line[1,] <- na.approx(  t(post_scaling_ext_line[1,]) , maxgap = Inf)
+        # Add meta notes          
+        if(meta==TRUE){
+          year <- X_post_scaling_ext_years
+          add <- data.frame(year)
+          add$iso <- scaling_ext[i,c('iso')]
+          if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
+          if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
+          add$comment <-  paste('Scaled to Inventory - Linearly extrapolated forward -', inv_name)
+          meta_notes <- rbind(meta_notes, add)
+        }
+      }
+      scaling_ext[i,X_post_scaling_ext_years] <- post_scaling_ext_line[1,X_post_scaling_ext_years]
+    } # End Post-Extrapolation
+    
+    scaling_ext[,X_emissions_years] <- replace(scaling_ext[,X_emissions_years], 
+                                               scaling_ext[,X_emissions_years] < 0 , 1/max_scaling_factor )
+    
+    }}# End for loop over all scaling countries and sector/fuels
+  
+  # ------------------------------------
+  # Check validity of and replace Scaling Factors
+  
+  if ( replacement_method == 'replace'){
+    printLog( "Checking scaling factors... " )
+    
+    if (is.na(replacement_scaling_factor)) replacement_scaling_factor <- max_scaling_factor
+    
+    max <- max_scaling_factor
+    min <- 1/max_scaling_factor
+    index <- rbind( which( scaling_ext[,X_emissions_years] >= max , arr.ind=T ) ,
+              which( scaling_ext[,X_emissions_years] <= min , arr.ind=T) )
+    
+    if(nrow(index)>0){
+      printLog( "Replacing very large/small scaling factors." )
+      problem_scaling_factors <- melt(scaling_ext, id.vars = c('iso', scaling_name))
+      
+      problem_scaling_factors <- problem_scaling_factors[  problem_scaling_factors$value >= max |  
+                                                             problem_scaling_factors$value <= min , ]
+      names(problem_scaling_factors) <- c('iso',scaling_name, 'year', 'calculated_scaling_factor')
+      
+      if(meta == TRUE) {
+        add <- problem_scaling_factors
+        add[,c('new_note')] <- paste('- truncated at max scaling factor (','=', max_scaling_factor,')')
+        add <- merge(meta_notes, add[,c('iso',scaling_name,'year','new_note')],
+                     all=TRUE)
+        
+        add[which(!is.na(add$new_note)),'comment'] <- paste( add[which(!is.na(add$new_note)),'comment'],
+                                                              add[which(!is.na(add$new_note)),'new_note'])
+        meta_notes <- add[,c('iso',scaling_name,'year','comment')]
+      }
+      
+      writeData( problem_scaling_factors , domain = "DIAG_OUT" , paste0('F.Problem_Scaling_Factors_',inv_name))
+      
+      scaling_ext[,X_emissions_years] <- replace(scaling_ext[,X_emissions_years], 
+                                                 scaling_ext[,X_emissions_years] > max , max )
+      scaling_ext[,X_emissions_years] <- replace(scaling_ext[,X_emissions_years], 
+                                                 scaling_ext[,X_emissions_years] < min , min )
+    }  }
+  
+  out <- melt(scaling_ext, id.vars= c('iso', scaling_name))
+  out <- out[-which(is.na(out$value)),] 
+  out <- out[complete.cases(out),]
+  names(out) <- c('iso',scaling_name, 'year','scaling_factor')
+  
+  writeData( scaling_ext , domain = "DIAG_OUT", paste0('F.Scaling_Factors_',inv_name))
+  
+  list.out <- list(out,meta_notes)
+  names(list.out) <- c( 'scaling_factors', 'meta_notes')
+  
+  return(list.out)
+    }
+
+
+# ---------------------------------------------------------------------------------
+# F.scalingToCeds
+# Brief: dissaggregates data frame from scaling aggregation to ceds sectors/fuel.
+# Details: input and output in long form
+# Dependencies: 
+# Author: Rachel Hoesly
+  
+# return: data frame in ceds aggregation, long or wide form
+# input files: data frame in scaling aggregation
+# output files: 
+
+F.scalingToCeds <- function( scalingData , valueCol , valueLab = valueCol){
+  # Disaggregate from scaling sectors to CEDS sectors and create CEDS scaling that
+  #   is matched to the CEDS rows from the input
+
+  names(scalingData)[which(names(scalingData)==method_col)] <- scaling_name
+  by_ceds <- merge(scalingData,
+                   unique(scaling_map[complete.cases(scaling_map),
+                                      c(scaling_name,ceds_matchcol_name)]),
+                   all = TRUE)
+  by_ceds <- by_ceds[ , c('iso',ceds_matchcol_name,'year',valueCol)]
+  names(by_ceds) <- c('iso',method_col,'year',valueLab)
+  
+  return(by_ceds)
+}
+
+
+# ---------------------------------------------------------------------------------
+# F.applyScale
+# Brief: produces scaling factors from aggregated ceds and inventory data
+# Details: 
+# Dependencies: CEDS_header.R, F.invAggregate(), F.cedsAggregate
+# Author: Rachel Hoesly
+# parameters:
+#   
+# return: dataframes of scaled emissions and scaled EFs
+# input files: null
+# output files: list of data frames containing scaled_em and scaled_ef
+
+F.applyScale <- function(scaling_factors){  
+  
+  printLog( "Applying scaling factors to CEDS EFs and emissions" )
+  
+  # Disaggregate from scaling sectors to CEDS sectors and create CEDS scaling that
+  #   is matched to the CEDS rows from the input
+  
+  # scaling factors by ceds sectors in long format
+  scaling_factors_by_ceds <- merge(scaling_factors,
+                                   unique(scaling_map[complete.cases(scaling_map),c(scaling_name,ceds_matchcol_name)]),
+                                   all = TRUE)
+  scaling_factors_by_ceds <- scaling_factors_by_ceds[ , c('iso',ceds_matchcol_name,'year','scaling_factor')]
+  names(scaling_factors_by_ceds)[which(names(scaling_factors_by_ceds)==ceds_matchcol_name)] <- method_col
+  
+  # current emissions/ef
+  em_long <- input_em[ input_em$iso %in% region,]
+  em_long <- melt(em_long, id.vars = c('iso','sector','fuel','units'))
+  names(em_long) <- c('iso','sector','fuel','units', 'year', 'emissions')
+  ef_long <- input_ef[ input_ef$iso %in% region,]
+  ef_long <- melt(ef_long, id.vars = c('iso','sector','fuel','units'))
+  names(ef_long) <- c('iso','sector','fuel','units', 'year', 'ef')
+  
+  # merge scaling factors and current emissions/ef
+  em_long_sf <- merge(em_long, scaling_factors_by_ceds, all.x = TRUE)
+  ef_long_sf <- merge(ef_long, scaling_factors_by_ceds, all.x = TRUE)
+  em_scaled <- em_long_sf[complete.cases(em_long_sf),]
+  ef_scaled <- ef_long_sf[complete.cases(ef_long_sf),]
+  
+  # calculate new emissions/ef
+  em_scaled$scaled <- em_scaled$emissions * em_scaled$scaling_factor
+  ef_scaled$scaled <- ef_scaled$ef * ef_scaled$scaling_factor
+  
+  em_scaled <- em_scaled[,c('iso','sector','fuel','year','scaled')]
+  ef_scaled <- ef_scaled[,c('iso','sector','fuel','year','scaled')]
+  
+  # drop emissios that are zero, remained unchanged
+  em_scaled <- em_scaled[-which(em_scaled$scaled == 0) , ]
+  ef_scaled <- ef_scaled[-which(ef_scaled$scaled == 0) , ]
+  
+  out <-  list(ef_scaled,em_scaled)
+  return(out)
+}
+
+# ---------------------------------------------------------------------------------
+# F.update-value_metadata
+# Brief: update meta comments and rewrites meta data files
+# Details: input, meta comments in scaling aggregation
+# Dependencies: CEDS_header.R, F.invAggregate(), F.cedsAggregate
+# Author: Rachel Hoesly
+# parameters:
+#   
+# return: null
+# input files: meta_notes - new meta notes in scaling aggregation
+# output files: NULL
+
+F.update_value_metadata <- function(type, meta_notes = meta_notes ){
+  
+  if( type %!in% c('EF','emissions')) stop('Invalid emission type. Cannot update scaled value metadata')
+  
+  # read in previsou value-meta data
+  meta <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE )
+  # aggregate scaling factor meta data to ceds 
+  meta_new <- F.scalingToCeds(meta_notes, 'comment','new_comment')
+  
+  meta_old_unchanged <- meta[ meta$iso %!in% unique(meta_notes$iso),]
+  meta_old_changed <- meta[ meta$iso %in% unique(meta_notes$iso),]
+  
+  meta_combined <- merge(meta_new, meta_old_changed, all.y = TRUE)
+  meta_combined[which(is.na(meta_combined$new_comment)),'new_comment'] <- 
+    meta_combined[which(is.na(meta_combined$new_comment)),'comment']
+  
+  meta_combined <- meta_combined[,c('iso','sector','fuel','year','new_comment')]
+  names(meta_combined) <- c('iso','sector','fuel','year','comment')
  
-    ceds_rows <- match( region_input_ef$sector, ceds_scaling_col[ , ceds_matchcol_name ] )
-    ceds_scaling <- ceds_scaling_col[ ceds_rows, ] 
-    ceds_scaling[ , ceds_matchcol_name ] <- region_input_ef$sector
-    ceds_scaling[ sapply( ceds_scaling, is.na ) ] <- 1
-
-# Apply ceds scaling to the most recent scaled emissions factors  
-    scaled_region_ef <- mapply( '*', region_input_ef[ , 5:ncol( region_input_ef ) ], 
-                                ceds_scaling[ , 2:ncol( ceds_scaling ) ] )
-    scaled_ef <- removeBlanks( input_ef,'name', 'iso' )
-    scaled_ef[ scaled_ef$iso %in% region, 5:ncol( scaled_ef ) ] <- scaled_region_ef
-    ef_output <<- scaled_ef
-    
-# Apply ceds scaling to the most recent scaled emissions
-    scaled_region_em <- mapply( '*', region_input_em,
-        ceds_scaling[ , 2:ncol( ceds_scaling ) ] )
-    scaled_em <- removeBlanks( input_em, 'name','iso' )
-    scaled_em[ scaled_em$iso %in% region, 5:ncol( scaled_em ) ] <- scaled_region_em
-    em_output <<- scaled_em
+  new_meta_out <- rbind(meta_combined, meta_old_unchanged)
+  
+  writeData( new_meta_out, domain = 'MED_OUT', 
+             fn =paste0( "F.", em, "_", "scaled_",type,"-value_metadata") )
+  
 }
 
 # ---------------------------------------------------------------------------------
@@ -371,39 +900,120 @@ F.scale <- function( ceds_data = ceds_em_data, inv_data, scaling_years,
 # input files: null
 # output files: F.[em]_scaled_EF
 
-F.write <- function( ef = ef_output, em = em_output, domain = "MED_OUT", 
+F.write <- function( scaled_ef = scaled_ef, scaled_em = scaled_em, domain = "MED_OUT", 
                      comments = "default" ) {
+  
+  # Write the comments as default versions unless they are overridden     
+  if ( comments == "default" ) {
+    ef_comment_text <- paste( "Global emissions factors, where", region,
+                              "EFs have been scaled by data from", inventory_data_file )
+    em_comment_text <- paste( "Global emissions, where", region,
+                              "emissions have been scaled by data from", inventory_data_file )
+    comments.F.scaled_EFs <- c( ef_comment_text )
+    comments.F.scaled_emissions <- c( em_comment_text )
+  } else {
+    comments.F.scaled_EFs <- comments
+    comments.F.scaled_emissions <- comments
+  }
+  
+  # Create fn from em specification
+  # The fn is selected such that it overwrites the previous F.[em]_scaled_EF
+  #   version, so all module F scripts update it serially
+  ef_fn <- paste0( 'F.', em, '_scaled_EF' )
+  em_fn <- paste0( 'F.', em, '_scaled_emissions' )
+  
+  # Write EF table as a csv file 
+  writeData( scaled_ef, domain = domain, fn = ef_fn, 
+             comments = comments.F.scaled_emissions )
+  
+  # May be removed later; data file may not be necessary 
+  writeData( scaled_em, domain = domain, fn = em_fn, 
+             comments = comments.F.scaled_emissions )
+  
+  # This creates or updates an R object in the global environment. It has a name
+  #   equivalent to the string in em_fn, and it has the value of em.
+  # We use this format so the assignment works for a general emissions species;
+  #   this method allows us to evaluate em and include it in the object name 
+  assign( em_fn, em, envir = .GlobalEnv )
+}
+
+# ---------------------------------------------------------------------------------
+# F.addScaledToDb
+# Brief: overwrites emissions with scaled emissions and updates meta comments
+# Details: 
+# Dependencies: 
+# Author: 
+# parameters:
+# return: null
+# input files: null
+# output files: 
+
+F.addScaledToDb <- function( ef_scaled, em_scaled,
+                             meta_notes ){
+  printLog( "Updating database with scaled emissions/emission factors." )
+  
+  # pre-scaled emissions and new emissions
+  old_emissions <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_emissions" ), 
+                             meta = FALSE )
+  old_efs <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_EF" ), meta = FALSE )
+  
+  #---------
+  
+  # melt old db and merge with new scaled values
+  # emissions
+  old_em <- melt(old_emissions,id=c("iso","sector","fuel","units"))
+  names(old_em) <- c("iso","sector","fuel","units",'year','old_em')
+  
+  #split old emissions into two dfs. [only perform merge where you have to]
+  old_em_changed <- old_em[ old_em$iso %in% region , ]
+  old_em_unchanged <- old_em[ old_em$iso %!in% region , ]
+  old_em_unchanged$scaled_em <- NA
+  
+  new_em <- merge(old_em_changed, em_scaled, all = TRUE)
+  new_em <- new_em[,c("iso","sector","fuel",'units','year','old_em','scaled')]
+  names(new_em) <- c("iso","sector","fuel",'units','year','old_em','scaled_em')
+  new_em <- rbind(new_em, old_em_unchanged)
+  new_em[which(is.na(new_em$scaled)),'scaled_em'] <- new_em[which(is.na(new_em$scaled)),'old_em']
+  new_em <- new_em[,c("iso","sector","fuel",'units','year','scaled_em')]
+  
+  # efs
+  old_ef <- melt(old_efs,id=c("iso","sector","fuel","units"))
+  names(old_ef) <- c("iso","sector","fuel","units",'year','old_ef')
+  
+  old_ef_changed <- old_ef[ old_ef$iso %in% region , ]
+  old_ef_unchanged <- old_ef[ old_ef$iso %!in% region , ]
+  old_ef_unchanged$scaled_ef <- NA
+  
+  new_ef <- merge(old_ef_changed, ef_scaled, all = TRUE)
+  new_ef <- new_ef[,c("iso","sector","fuel",'units','year','old_ef','scaled')]
+  names(new_ef) <- c("iso","sector","fuel",'units','year','old_ef','scaled_ef')
+  new_ef <- rbind(new_ef, old_ef_unchanged)
+  new_ef[which(is.na(new_ef$scaled)),'scaled_ef'] <- new_ef[which(is.na(new_ef$scaled)),'old_ef']
+  new_ef <- new_ef[,c("iso","sector","fuel",'units','year','scaled_ef')]
+  
+  # update value_metadata
+  F.update_value_metadata('EF', meta_notes)
+  F.update_value_metadata('emissions', meta_notes) 
+  
+  # cast to wide format 
+  scaled_em_out <- cast ( new_em , iso + sector + fuel + units ~ year , value = 'scaled_em')
+  scaled_ef_out <- cast ( new_ef , iso + sector + fuel + units ~ year , value = 'scaled_ef')
+  
+  # Sort
+  scaled_em_out <- scaled_em_out[ with( scaled_em_out, order( iso, sector, fuel ) ), ]
+  scaled_ef_out <- scaled_ef_out[ with( scaled_ef_out, order( iso, sector, fuel ) ), ]
+  
+  # Check for NAs
+  if( na_error == 1){
     
-# Write the comments as default versions unless they are overridden     
-    if ( comments == "default" ) {
-        ef_comment_text <- paste( "Global emissions factors, where", region,
-            "EFs have been scaled by data from", inventory_data_file )
-        em_comment_text <- paste( "Global emissions, where", region,
-            "emissions have been scaled by data from", inventory_data_file )
-        comments.F.scaled_EFs <- c( ef_comment_text )
-        comments.F.scaled_emissions <- c( em_comment_text )
-    } else {
-        comments.F.scaled_EFs <- comments
-        comments.F.scaled_emissions <- comments
-    }
- 
-# Create fn from em_species specification
-# The fn is selected such that it overwrites the previous F.[em]_scaled_EF
-#   version, so all module F scripts update it serially
-    ef_fn <- paste0( 'F.', em_species, '_scaled_EF' )
-    em_fn <- paste0( 'F.', em_species, '_scaled_emissions' )
- 
-# Write EF table as a csv file 
-    writeData( ef, domain = domain, fn = ef_fn, 
-        comments = comments.F.scaled_EFs )
-
-# May be removed later; data file may not be necessary 
-    writeData( em, domain = domain, fn = em_fn, 
-        comments = comments.F.scaled_emissions )
-
-# This creates or updates an R object in the global environment. It has a name
-#   equivalent to the string in em_fn, and it has the value of em.
-# We use this format so the assignment works for a general emissions species;
-#   this method allows us to evaluate em_species and include it in the object name 
-    assign( em_fn, em, envir = .GlobalEnv )
+    if( all(is.na(scaled_em_out[,X_emissions_years]) %in% FALSE) ){
+      printLog("Checking NAs... No NA's in EF_db")} else  Stop("Checking NAs... NA's in EF_db. Check Code.")
+    if( all(is.na(scaled_ef_out[,X_emissions_years]) %in% FALSE) ){
+      printLog("Checking NAs... No NA's in EF_db")} else  Stop("Checking NAs... NA's in EF_db. Check Code.")
+    
+  }
+  
+  # write
+  F.write( scaled_ef = scaled_ef_out, scaled_em = scaled_em_out, domain = "MED_OUT")
+  
 }
