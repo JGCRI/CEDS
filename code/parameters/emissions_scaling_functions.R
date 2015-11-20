@@ -258,19 +258,6 @@ F.scaling <- function( ceds_data, inv_data, region,
                        replacement_method = 'none', max_scaling_factor = 100, 
                        replacement_scaling_factor = max_scaling_factor,
                        meta = TRUE) {
-
-  ###
-  ext_start_year = start_year
-  ext_end_year = end_year
-  ext = TRUE
-  interp_default = 'linear'
-  pre_ext_default = 'constant'
-  post_ext_default = 'constant' 
-  replacement_method = 'none'
-  max_scaling_factor = 100 
-  replacement_scaling_factor = max_scaling_factor
-  meta = TRUE
-  ###
   
   # Define simple function for use later. If TRUE, all values NA
   all.na <- function(x){
@@ -406,7 +393,7 @@ F.scaling <- function( ceds_data, inv_data, region,
     meta_notes <- data.frame(matrix(ncol = length(names), nrow = 0))
     names(meta_notes) <- names
   }
-
+  
   # ------------------------------------
   # Calculate the scaling factor
   
@@ -444,7 +431,7 @@ F.scaling <- function( ceds_data, inv_data, region,
   if ( method %in% c("sector","fuel") ) cast.formula <- paste('iso +', scaling_name , '~ variable')
   if ( method == "both" ) cast.formula <- 'iso + scaling_sector + scaling_fuel ~ variable'
   scaling <- cast(scaling, cast.formula, value='scaling_factor')
-
+  
   # ------------------------------------
   # Extend Scaling Factors 
   # with sector specific methods for X_scaling_years to all X_emissions_years,
@@ -467,7 +454,7 @@ F.scaling <- function( ceds_data, inv_data, region,
   for( i in seq_along(scaling_interp$iso)){
     row <- as.numeric(scaling_interp[i,X_inv_years_full])
     if( length(rle(is.na(c(NA,row,NA)))$values)>3 ) interpolation_rows<- rbind(interpolation_rows,i)
-    }
+  }
   interpolation_rows <- as.vector(interpolation_rows)
   
   #############
@@ -481,7 +468,7 @@ F.scaling <- function( ceds_data, inv_data, region,
       if (meta == TRUE) {
         meta_pre_add <- scaling_interp[interpolation_rows,]
         meta_pre_add <- merge(meta_pre_add, ext_method_default[,c('iso', scaling_name,'interp_method')],
-                          all.x=TRUE, all.y=FALSE)
+                              all.x=TRUE, all.y=FALSE)
         meta_pre_add <- meta_pre_add[which(meta_pre_add$interp_method == 'linear'),c('iso',scaling_name,X_inv_years_full)]
         
         meta_add <- c()
@@ -495,15 +482,15 @@ F.scaling <- function( ceds_data, inv_data, region,
           meta_add <- rbind(meta_add, add)
         }
         if(nrow(meta_add)>0){
-        names(meta_add) <- c('iso',scaling_name,'year')
-        meta_add$comment <- paste('Linearly interpolated from inventory -', inv_name)
-        meta_notes <- rbind(meta_notes, meta_add)
+          names(meta_add) <- c('iso',scaling_name,'year')
+          meta_add$comment <- paste('Linearly interpolated from inventory -', inv_name)
+          meta_notes <- rbind(meta_notes, meta_add)
         }}
       
-    linear_int <- t( na.approx( t(linear[,X_inv_years_full])  ) )
-    linear <- cbind( linear[,c('iso', scaling_name)] , linear_int)
-    names(linear) <- c('iso', scaling_name , X_inv_years_full ) }
-  
+      linear_int <- t( na.approx( t(linear[,X_inv_years_full])  ) )
+      linear <- cbind( linear[,c('iso', scaling_name)] , linear_int)
+      names(linear) <- c('iso', scaling_name , X_inv_years_full ) }
+    
     constant <- scaling_interp[which(ext_method_default$interp_method == 'constant'),]
     constant <-  constant[apply(constant[,X_inv_years_full], 1, all.na),]
     if( nrow(constant)>0){
@@ -529,16 +516,16 @@ F.scaling <- function( ceds_data, inv_data, region,
           meta_add$comment <- paste('Constant interpolated from inventory -', inv_name)
           meta_notes <- rbind(meta_notes, meta_add)
         }}
-    constant_int <- t( na.locf( t(constant[,X_inv_years_full])  ) )
-    constant <- cbind( constant[,c('iso', scaling_name)] , constant_int)
-    names(constant) <- c('iso', scaling_name , X_inv_years_full ) }
-
+      constant_int <- t( na.locf( t(constant[,X_inv_years_full]) , na.rm = FALSE ) )
+      constant <- cbind( constant[,c('iso', scaling_name)] , constant_int)
+      names(constant) <- c('iso', scaling_name , X_inv_years_full ) }
+    
     scaling_interp <- rbind(linear, constant)  
     
     if(method %in% c('sector','fuel'))
-          scaling_interp <- scaling_interp[ order(scaling_interp[,'iso'], scaling_interp[,scaling_name]),]
+      scaling_interp <- scaling_interp[ order(scaling_interp[,'iso'], scaling_interp[,scaling_name]),]
     if(method == 'both')
-          scaling_interp <- scaling_interp[ order(scaling_interp$iso, scaling_interp$scaling_sector, scaling_interp$scaling_fuel),]
+      scaling_interp <- scaling_interp[ order(scaling_interp$iso, scaling_interp$scaling_sector, scaling_interp$scaling_fuel),]
     
   } else {scaling_interp <- scaling
   X_inv_years_full <- X_inv_years}
@@ -555,35 +542,51 @@ F.scaling <- function( ceds_data, inv_data, region,
     scaling_ext[i,X_inv_years_full] <- scaling_interp[i,X_inv_years_full]
     
     if( !all(is.na( scaling_interp[i,X_inv_years_full] )) ){
-    
-    # Pre-Extrapolation
-    min_inv_year <- emissions_years[ min( which(!is.na(scaling_ext[i,X_emissions_years]))) ]
-    if( min_inv_year > ext_year_default[i,'pre_ext_year']){
-      # Define Pre-Extrapolation Years 
-      pre_scaling_ext_years <- c( ext_year_default[i,'pre_ext_year']:(min_inv_year-1) )
-      X_pre_scaling_ext_years <- paste0( 'X', pre_scaling_ext_years )
-      # Fill Years with scaling factor = 1, NA, or interpolated Scaling factor
-      pre_scaling_ext_line <- as.data.frame(matrix(data=NA, nrow = 1, 
-                                                   ncol = length(X_pre_scaling_ext_years)+length(X_inv_years_full)   ))
-      names(pre_scaling_ext_line)<- c( X_pre_scaling_ext_years , X_inv_years_full )
-      pre_scaling_ext_line[1,X_inv_years_full] <- scaling_ext[i,X_inv_years_full]
       
-      # Linear Extrapolation
-      if( ext_method_default[i,'pre_ext_method'] == 'linear' ){
-        x = min_inv_year:max(inv_years)
-        y = t(scaling_interp[i,X_inv_years_full])
-        xout = pre_scaling_ext_years
+      # Pre-Extrapolation
+      min_inv_year <- emissions_years[ min( which(!is.na(scaling_ext[i,X_emissions_years]))) ]
+      if( min_inv_year > ext_year_default[i,'pre_ext_year']){
+        # Define Pre-Extrapolation Years 
+        pre_scaling_ext_years <- c( ext_year_default[i,'pre_ext_year']:(min_inv_year-1) )
+        X_pre_scaling_ext_years <- paste0( 'X', pre_scaling_ext_years )
+        # Fill Years with scaling factor = 1, NA, or interpolated Scaling factor
+        pre_scaling_ext_line <- as.data.frame(matrix(data=NA, nrow = 1, 
+                                                     ncol = length(X_pre_scaling_ext_years)+length(X_inv_years_full)   ))
+        names(pre_scaling_ext_line)<- c( X_pre_scaling_ext_years , X_inv_years_full )
+        pre_scaling_ext_line[1,X_inv_years_full] <- scaling_ext[i,X_inv_years_full]
         
-        if ( !length(x[complete.cases(x)]) > 1){
-          printLog('Not enough data points to Linearly interpolate. Constantly extending.')
+        # Linear Extrapolation
+        if( ext_method_default[i,'pre_ext_method'] == 'linear' ){
+          x = min_inv_year:max(inv_years)
+          y = t(scaling_interp[i,X_inv_years_full])
+          xout = pre_scaling_ext_years
+          
+          if ( !length(x[complete.cases(x)]) > 1){
+            printLog('Not enough data points to Linearly interpolate. Constantly extending.')
+            ext_method_default[i,'pre_ext_method'] <- 'constant'
+          }
+          if (length(x[complete.cases(x)]) > 1){
+            
+            pre.lm <- lm(y ~ x)  
+            fitted <- predict(pre.lm, data.frame(x=xout),interval='none')
+            
+            pre_scaling_ext_line[1,X_pre_scaling_ext_years] <- fitted
+            # Add meta notes          
+            if(meta==TRUE){
+              year <- X_pre_scaling_ext_years
+              add <- data.frame(year)
+              add$iso <- scaling_ext[i,c('iso')]
+              if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
+              if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
+              add$comment <-  paste('Scaled to Inventory - Linearly extrapolated backward -', inv_name)
+              meta_notes <- rbind(meta_notes, add)
+            } }
+          # if linear interpolation, but only 1 inventory year
+        } else if( ext_method_default[i,'pre_ext_method'] == 'linear' && length(X_inv_years_full)>1 ){
           ext_method_default[i,'pre_ext_method'] <- 'constant'
-        }
-        if (length(x[complete.cases(x)]) > 1){
-        
-        pre.lm <- lm(y ~ x)  
-        fitted <- predict(pre.lm, data.frame(x=xout),interval='none')
-        
-        pre_scaling_ext_line[1,X_pre_scaling_ext_years] <- fitted
+          printLog('Not enough data to linearly extend. Constant extending backward.')
+          # Constant Extrapolation
+        } else if( ext_method_default[i,'pre_ext_method'] == 'constant'){
           # Add meta notes          
           if(meta==TRUE){
             year <- X_pre_scaling_ext_years
@@ -591,119 +594,103 @@ F.scaling <- function( ceds_data, inv_data, region,
             add$iso <- scaling_ext[i,c('iso')]
             if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
             if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
-            add$comment <-  paste('Scaled to Inventory - Linearly extrapolated backward -', inv_name)
+            
+            add$comment <-  paste('Scaled to Inventory - constant extrapolated backward -', inv_name)
             meta_notes <- rbind(meta_notes, add)
-          } }
-      # if linear interpolation, but only 1 inventory year
-      } else if( ext_method_default[i,'pre_ext_method'] == 'linear' && length(X_inv_years_full)>1 ){
-        ext_method_default[i,'pre_ext_method'] <- 'constant'
-        printLog('Not enough data to linearly extend. Constant extending backward.')
-      # Constant Extrapolation
-      } else if( ext_method_default[i,'pre_ext_method'] == 'constant'){
-        # Add meta notes          
-        if(meta==TRUE){
-          year <- X_pre_scaling_ext_years
-          add <- data.frame(year)
-          add$iso <- scaling_ext[i,c('iso')]
-          if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
-          if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
-          
-          add$comment <-  paste('Scaled to Inventory - constant extrapolated backward -', inv_name)
-          meta_notes <- rbind(meta_notes, add)
+          }
+          pre_scaling_ext_line[1,] <-t(na.locf(t(pre_scaling_ext_line[1,]), fromLast = TRUE, na.rm = FALSE))
+          # Linear Extrapolation to Scaling Factor = 1, from most recent value
+        } else if( ext_method_default[i,'pre_ext_method'] == 'linear_1'){
+          pre_scaling_ext_line[1,1]<-1
+          pre_scaling_ext_line[1,] <- na.approx(  t(pre_scaling_ext_line[1,]) , maxgap = Inf)
+          # Add meta notes          
+          if(meta==TRUE){
+            year <- X_pre_scaling_ext_years
+            add <- data.frame(year)
+            add$iso <- scaling_ext[i,c('iso')]
+            if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
+            if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
+            add$comment <-  paste('Scaled to Inventory - Linearly extrapolated backward to 1 -', inv_name)
+            meta_notes <- rbind(meta_notes, add)
+          }
         }
-        pre_scaling_ext_line[1,] <-t(na.locf(t(pre_scaling_ext_line[1,]), fromLast = TRUE))
-      # Linear Extrapolation to Scaling Factor = 1, from most recent value
-      } else if( ext_method_default[i,'pre_ext_method'] == 'linear_1'){
-        pre_scaling_ext_line[1,1]<-1
-        pre_scaling_ext_line[1,] <- na.approx(  t(pre_scaling_ext_line[1,]) , maxgap = Inf)
-        # Add meta notes          
-        if(meta==TRUE){
-          year <- X_pre_scaling_ext_years
-          add <- data.frame(year)
-          add$iso <- scaling_ext[i,c('iso')]
-          if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
-          if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
-          add$comment <-  paste('Scaled to Inventory - Linearly extrapolated backward to 1 -', inv_name)
-          meta_notes <- rbind(meta_notes, add)
-        }
-      }
-      scaling_ext[i,X_pre_scaling_ext_years] <- pre_scaling_ext_line[1,X_pre_scaling_ext_years]
-    } # end Pre-Extrapolation
-    
-    # Post-Extrapolation
-    if( max(inv_years)<ext_year_default[i,'post_ext_year']){  
-      # Define post-Extrapolation Years 
-      post_scaling_ext_years <- c( max(inv_years):ext_year_default[i,'post_ext_year'] )
-      post_scaling_ext_years <- post_scaling_ext_years[-1]
-      X_post_scaling_ext_years <- paste0( 'X', post_scaling_ext_years )
-      # Fill Years with scaling factor = 1, NA, or interpolated Scaling factor
-      post_scaling_ext_line <- as.data.frame(matrix(data=NA, nrow = 1, 
-                                                    ncol = length(X_post_scaling_ext_years)+length(X_inv_years_full)   ))
-      names(post_scaling_ext_line)<- c(  X_inv_years_full, X_post_scaling_ext_years  )
-      post_scaling_ext_line[1,X_inv_years_full] <- scaling_ext[i,X_inv_years_full]
+        scaling_ext[i,X_pre_scaling_ext_years] <- pre_scaling_ext_line[1,X_pre_scaling_ext_years]
+      } # end Pre-Extrapolation
       
-      # Linear Extrapolation
-      if( ext_method_default[i,'post_ext_method'] == 'linear'){
-        x = min(inv_years):max(inv_years)
-        y = t(scaling_ext[i,X_inv_years_full])
-        xout = post_scaling_ext_years
+      # Post-Extrapolation
+      if( max(inv_years)<ext_year_default[i,'post_ext_year']){  
+        # Define post-Extrapolation Years 
+        post_scaling_ext_years <- c( max(inv_years):ext_year_default[i,'post_ext_year'] )
+        post_scaling_ext_years <- post_scaling_ext_years[-1]
+        X_post_scaling_ext_years <- paste0( 'X', post_scaling_ext_years )
+        # Fill Years with scaling factor = 1, NA, or interpolated Scaling factor
+        post_scaling_ext_line <- as.data.frame(matrix(data=NA, nrow = 1, 
+                                                      ncol = length(X_post_scaling_ext_years)+length(X_inv_years_full)   ))
+        names(post_scaling_ext_line)<- c(  X_inv_years_full, X_post_scaling_ext_years  )
+        post_scaling_ext_line[1,X_inv_years_full] <- scaling_ext[i,X_inv_years_full]
         
-        if ( !length(x[complete.cases(x)]) > 1){
-          printLog('Not enough data points to Linearly interpolate. Constantly extending.')
-          ext_method_default[i,'pre_ext_method'] <- 'constant'
+        # Linear Extrapolation
+        if( ext_method_default[i,'post_ext_method'] == 'linear'){
+          x = min(inv_years):max(inv_years)
+          y = t(scaling_ext[i,X_inv_years_full])
+          xout = post_scaling_ext_years
+          
+          if ( !length(x[complete.cases(x)]) > 1){
+            printLog('Not enough data points to Linearly interpolate. Constantly extending.')
+            ext_method_default[i,'pre_ext_method'] <- 'constant'
+          }
+          if (length(x[complete.cases(x)]) > 1){ 
+            
+            post.lm <- lm(y ~ x)  
+            fitted <- predict(post.lm, data.frame(x=xout),interval='none')
+            
+            post_scaling_ext_line[1,X_post_scaling_ext_years] <- fitted
+            # Add meta notes          
+            if(meta==TRUE){
+              year <- X_post_scaling_ext_years
+              add <- data.frame(year)
+              add$iso <- scaling_ext[i,c('iso')]
+              if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
+              if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
+              add$comment <-  paste('Scaled to Inventory - Linearly extrapolated forward -', inv_name)
+              meta_notes <- rbind(meta_notes, add)
+            }
+          }}
+        # Constant Extrapolation
+        else if( ext_method_default[i,'post_ext_method'] == 'constant'){
+          post_scaling_ext_line[1,] <-t(na.fill(t(post_scaling_ext_line[1,]), "extend"))
+          # Add meta notes          
+          if(meta==TRUE){
+            year <- X_post_scaling_ext_years
+            add <- data.frame(year)
+            add$iso <- scaling_ext[i,c('iso')]
+            if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
+            if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
+            add$comment <-  paste('Scaled to Inventory - Linearly extrapolated forward -', inv_name)
+            meta_notes <- rbind(meta_notes, add)
+          }
         }
-        if (length(x[complete.cases(x)]) > 1){ 
-        
-        post.lm <- lm(y ~ x)  
-        fitted <- predict(post.lm, data.frame(x=xout),interval='none')
-        
-        post_scaling_ext_line[1,X_post_scaling_ext_years] <- fitted
-        # Add meta notes          
-        if(meta==TRUE){
-          year <- X_post_scaling_ext_years
-          add <- data.frame(year)
-          add$iso <- scaling_ext[i,c('iso')]
-          if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
-          if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
-          add$comment <-  paste('Scaled to Inventory - Linearly extrapolated forward -', inv_name)
-          meta_notes <- rbind(meta_notes, add)
+        # Linear Extrapolation to Scaling Factor = 1, from most recent value
+        else if( ext_method_default[i,'post_ext_method'] == 'linear_1'){
+          post_scaling_ext_line[1,ncol(post_scaling_ext_line)]<-1
+          post_scaling_ext_line[1,] <- na.approx(  t(post_scaling_ext_line[1,]) , maxgap = Inf)
+          # Add meta notes          
+          if(meta==TRUE){
+            year <- X_post_scaling_ext_years
+            add <- data.frame(year)
+            add$iso <- scaling_ext[i,c('iso')]
+            if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
+            if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
+            add$comment <-  paste('Scaled to Inventory - Linearly extrapolated forward -', inv_name)
+            meta_notes <- rbind(meta_notes, add)
+          }
         }
-      }}
-      # Constant Extrapolation
-      else if( ext_method_default[i,'post_ext_method'] == 'constant'){
-        post_scaling_ext_line[1,] <-t(na.fill(t(post_scaling_ext_line[1,]), "extend"))
-        # Add meta notes          
-        if(meta==TRUE){
-          year <- X_post_scaling_ext_years
-          add <- data.frame(year)
-          add$iso <- scaling_ext[i,c('iso')]
-          if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
-          if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
-          add$comment <-  paste('Scaled to Inventory - Linearly extrapolated forward -', inv_name)
-          meta_notes <- rbind(meta_notes, add)
-        }
-      }
-      # Linear Extrapolation to Scaling Factor = 1, from most recent value
-      else if( ext_method_default[i,'post_ext_method'] == 'linear_1'){
-        post_scaling_ext_line[1,ncol(post_scaling_ext_line)]<-1
-        post_scaling_ext_line[1,] <- na.approx(  t(post_scaling_ext_line[1,]) , maxgap = Inf)
-        # Add meta notes          
-        if(meta==TRUE){
-          year <- X_post_scaling_ext_years
-          add <- data.frame(year)
-          add$iso <- scaling_ext[i,c('iso')]
-          if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
-          if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
-          add$comment <-  paste('Scaled to Inventory - Linearly extrapolated forward -', inv_name)
-          meta_notes <- rbind(meta_notes, add)
-        }
-      }
-      scaling_ext[i,X_post_scaling_ext_years] <- post_scaling_ext_line[1,X_post_scaling_ext_years]
-    } # End Post-Extrapolation
-    
-    scaling_ext[,X_emissions_years] <- replace(scaling_ext[,X_emissions_years], 
-                                               scaling_ext[,X_emissions_years] < 0 , 1/max_scaling_factor )
-    
+        scaling_ext[i,X_post_scaling_ext_years] <- post_scaling_ext_line[1,X_post_scaling_ext_years]
+      } # End Post-Extrapolation
+      
+      scaling_ext[,X_emissions_years] <- replace(scaling_ext[,X_emissions_years], 
+                                                 scaling_ext[,X_emissions_years] < 0 , 1/max_scaling_factor )
+      
     }}# End for loop over all scaling countries and sector/fuels
   
   # ------------------------------------
@@ -717,7 +704,7 @@ F.scaling <- function( ceds_data, inv_data, region,
     max <- max_scaling_factor
     min <- 1/max_scaling_factor
     index <- rbind( which( scaling_ext[,X_emissions_years] >= max , arr.ind=T ) ,
-              which( scaling_ext[,X_emissions_years] <= min , arr.ind=T) )
+                    which( scaling_ext[,X_emissions_years] <= min , arr.ind=T) )
     
     if(nrow(index)>0){
       printLog( "Replacing very large/small scaling factors." )
@@ -734,7 +721,7 @@ F.scaling <- function( ceds_data, inv_data, region,
                      all=TRUE)
         
         add[which(!is.na(add$new_note)),'comment'] <- paste( add[which(!is.na(add$new_note)),'comment'],
-                                                              add[which(!is.na(add$new_note)),'new_note'])
+                                                             add[which(!is.na(add$new_note)),'new_note'])
         meta_notes <- add[,c('iso',scaling_name,'year','comment')]
       }
       

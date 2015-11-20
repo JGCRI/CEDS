@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: database functions
-# Authors: Jon Seibert
+# Authors: Jon Seibert, Rachel Hoesly
 # Last Updated: 22 June 2015
 
 # This file should be sourced by any R script altering the CEDS databases
@@ -600,116 +600,72 @@ addToEFDb <- function( df, em, type, ext_forward = TRUE, ext_backward = FALSE ){
 
 #(Temporary?) Rewrite of addToEFDb function. Similar functionality. Overwrite old data with new data for 
 # duplicate entries. Order of data to add: worst then best
-addToEFDb_overwrite <- function( df, em, type ){
+# file_extention: file name of database. Text after B.em_ for example 'comb_EF_db' for combustion EFs
+
+addToDb_overwrite <- function( new_data, em, type, file_extention ){
+  #   # for original_db
+  #   file_extention = paste0(type, "_original_db" )
+  #   #for SO2 parameters
+  #   file_extention = paste0(type, "_original_db" )
   
-  # Read in necessary files and data: common_data.r required 
-  # to avoid variable overwrite carryover
-  #   source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
-  #   source( paste( PARAM_DIR, "IO_functions.R", sep = "" ) )
-  #   source( paste( PARAM_DIR, "timeframe_functions.R", sep = "" ) )
-  #   source( paste( PARAM_DIR, "data_functions.R", sep = "" ) )
+  #   Read in necessary files and data: common_data.r required 
+  #   to avoid variable overwrite carryover
+  source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
+  source( paste( PARAM_DIR, "IO_functions.R", sep = "" ) )
+  source( paste( PARAM_DIR, "timeframe_functions.R", sep = "" ) )
+  source( paste( PARAM_DIR, "data_functions.R", sep = "" ) )
   
+  original_db <- readData( "MED_OUT", paste0( "B.", em, "_", file_extention ), meta = FALSE )
   
-  EF_db <- readData( "MED_OUT", paste0( "B.", em, "_", type, "_EF_db" ), meta = FALSE )
+  # Check id variables
+  names <- names( new_data )
+  id.names.new <- names[-grep( "X", names)]
+  names <- names( original_db )
+  id.names.old <- names[-grep( "X", names)]
   
-  # Rebind values from common_data.R
-  X_start <- X_start_year
-  X_end <- X_end_year
-  ext_start_year <- start_year
-  ext_end_year <- end_year
-  
-  w <- getOption( "warn" )
-  options( warn=-1 )  # suppress the warnings about NAs introduced by coercion
-  db_start <- findDataStart( EF_db )
-  data_start <- findDataStart( df )
-  
-  if( data_start != db_start ){ # If in incorrect format
-    printLog( paste0 ( "Error in addToEFDb: ",
-                       "Data to be added must have the form iso-sector-fuel-units-years." ) )
-    return( 0 )
-  }
-  
-  # Check whether the new data has the same set of years as the database.
-  # If not, make it so via truncation and/or extension as necessary.
-  if( !identical(sort(names(EF_db)[-1:-4]),
-                 sort(names(df)[-1:-4]) ) ){
-    
-    #truncate to X_emission_Years 
-    df <- df[ , names(df) %in% c('iso','sector','fuel','units',X_emissions_years) ]
-    options( warn=w )
-    
-    # Retrieve new starting and ending years
-    start_year <- getName( df, data_start )
-    cur_start_year <- xYearToNum( start_year )
-    end_year <- getEndYear( df )
-    cur_end_year <- xYearToNum( end_year )
-    #     
-    #     # If the data now has the correct years after truncation,
-    #     # or if the missing years are within the normal range and
-    #     # not at either end, do not attempt to extendForward the data.
-    #     # Doing so results in incorrect years.
-    #     ext_backward <- TRUE
-    #     ext_forward <- TRUE
-    #     if( start_year == X_start ){ ext_backward <- FALSE }
-    #     if( end_year == X_end ){ ext_forward <- FALSE }
-    #     
-    #     # Extend the data forward if necessary and the parameter is TRUE
-    #     if( ext_forward ){
-    #       ext_range <- getForwardExtensionRange( cur_end_year, ext_end_year )
-    #       X_range <- paste0( "X",ext_range )
-    #       df <- extendForward( df, end_year, X_range )
-    #     }
-    #     # Extend the data backward if necessary and the parameter is TRUE
-    #     if( ext_backward ){
-    #       past_ext_range <- getBackwardExtensionRange( cur_start_year, ext_start_year )
-    #       past_X_range <- paste0( "X",past_ext_range )
-    #       df <- extendForward( df, start_year, past_X_range )
-    #     }
-  }
-  
-  options( warn=w )
+  if( !identical(id.names.new, id.names.old)){ stop("In addToDb_overwrite, id variables (iso, sector, fuel, units) 
+                                                    of database and new data to be added to database are not the same.")}
+  if( !identical(unique(original_db$units), unique(original_db$units))){ stop("In addToDb_overwrite, units of database and 
+                                                                              new data to be added to database are not the same.")}
   
   # Insert the new data in the proper locations- 
   # overwrite any existing data of the same combination and years,
   # and rbind on any data without a spot.
-  # results <- EF_db
+  # results <- original_db
   #---------
   
   # melt old and new dbs
-  df_add<-melt(df,id=c("iso","sector","fuel","units"))
+  df_add<-melt(new_data,id=c("iso","sector","fuel","units"))
   names(df_add)[which(names(df_add)=='variable')]<-'year'
-  names(df_add)[which(names(df_add)=='value')]<-'ef_new'
+  names(df_add)[which(names(df_add)=='value')]<-'new_value'
   
-  df_old<-melt(EF_db,id=c("iso","sector","fuel","units"))
+  df_old<-melt(original_db,id=c("iso","sector","fuel","units"))
   names(df_old)[which(names(df_old)=='variable')]<-'year'
-  names(df_old)[which(names(df_old)=='value')]<-'ef'
+  names(df_old)[which(names(df_old)=='value')]<-'old_value'
   
   #merge
   df_new<-merge(df_old,df_add,
                 by=c("iso","sector","fuel","units","year"),
                 all.x=TRUE,all.y=TRUE)
-  
-  df_new[which(is.na(df_new$ef_new)),'ef_new']<-df_new[which(is.na(df_new$ef_new)),'ef']
-  
-  df_new<-df_new[,c("iso","sector","fuel","units","year",'ef_new')]
-  
-  df_new_long<-cast(df_new, iso+sector+fuel+units~year, value = "ef_new")
+  df_new[ which(is.na(df_new$new_value)),'new_value'] <- df_new[which(is.na(df_new$new_value)),'old_value']
+  df_new<-df_new[,c("iso","sector","fuel","units","year",'new_value')]
+  df_new_wide<-as.data.frame(cast(df_new, iso+sector+fuel+units~year, value = "new_value"))
   
   # Sort
-  results<-df_new_long
+  results<-df_new_wide
   results <- results[ with( results, order( iso, sector, fuel ) ), ]
   
   # Check for NAs
   if( na_error == 1){
     
     if( all(is.na(results[,X_emissions_years]) %in% FALSE) ){
-      printLog("Checking NAs... No NA's in EF_db")} else  Stop("Checking NAs... NA's in EF_db. Check Code.")
+      printLog("Checking NAs... No NA's in original_db")} else  stop("Checking NAs... NA's in original_db. Check Code.")
     
   }
   
   # Output
-  writeData( results, domain = "MED_OUT", fn = paste0( "B.", em, "_", type, "_EF_db" ), meta = FALSE )
-}
+  writeData( results, domain = "MED_OUT", fn = paste0( "B.", em, "_", file_extention), meta = FALSE )
+  }
 
 
 
