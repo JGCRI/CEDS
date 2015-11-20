@@ -308,15 +308,15 @@ $(MED_OUT)/A.NC_activity.csv : \
 $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(MOD_B)/B1.1.base_comb_EF.R \
 	$(MOD_B)/B1.2.add_comb_EF.R \
-	$(MOD_B)/B1.1.base_SO2_comb_EF.R \
+	$(MOD_B)/B1.1.base_SO2_comb_EF_parameters.R \
 	$(MOD_B)/B1.1.base_BC_comb_EF.R \
-	$(MOD_B)/B1.2.add_SO2_comb_EF_gains.R \
-	$(MOD_B)/B1.2.add_SO2_comb_EF_ash_retention.R \
-	$(MOD_B)/B1.2.add_SO2_comb_EF_control_percent.R \
-	$(MOD_B)/B1.2.add_SO2_comb_EF_sulfur_standards.R \
+	$(MOD_B)/B1.2.add_SO2_GAINS_AshRet.R \
+	$(MOD_B)/B1.2.add_SO2_GAINS_ControlFrac.R \
+	$(MOD_B)/B1.3.proc_SO2_comb_EF.R \
 	$(PARAMS)/timeframe_functions.R \
 	$(PARAMS)/process_db_functions.R \
-	$(MAPPINGS)/SO2_base_EF.csv \
+	$(PARAMS)/interpolation_extention_functions.R \
+	$(EF_DATA)/SO2_base_EF.csv \
 	$(MED_OUT)/A.comb_activity.csv \
 	$(MAPPINGS)/Bond_ctry_mapping.csv \
 	$(MAPPINGS)/Bond_fuel_mapping.csv \

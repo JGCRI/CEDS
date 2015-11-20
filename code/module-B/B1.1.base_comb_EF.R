@@ -53,7 +53,7 @@ scripts <- c()
 
 # Set scripts to generate base emission factors for SO2
 if( em == "SO2" ){
-    scripts <- c( "B1.1.base_SO2_comb_EF.R" )
+    scripts <- c( "B1.1.base_SO2_comb_EF_parameters.R" )
 }
 
 # Set scripts to generate base emission factors for BC or OC
