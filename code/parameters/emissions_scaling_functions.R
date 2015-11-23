@@ -216,6 +216,47 @@ F.cedsAggregate <- function( input_em, region, method = mapping_method ) {
 }
 
 # ---------------------------------------------------------------------------------
+# F.scalingToCeds
+# Brief: dissaggregates data frame from scaling aggregation to ceds sectors/fuel.
+# Details: input and output in long form
+# Dependencies: 
+# Author: Rachel Hoesly
+
+# return: data frame in ceds aggregation, long or wide form
+# input files: data frame in scaling aggregation
+# output files: 
+
+F.scalingToCeds <- function( scalingData , dataFormat ,valueCol , valueLab = valueCol){
+  # Disaggregate from scaling sectors to CEDS sectors and create CEDS scaling that
+  #   is matched to the CEDS rows from the input
+  #Format - 'long' or 'wide'. Long format has 'year' column and a value column, 
+  wide.names <- names(scalingData)
+  wide.names <- wide.names[-which(wide.names == 'iso')]
+  X_years <- names(scalingData)[grep('X',names(scalingData))]
+  wide.names <- wide.names[-which(wide.names %in% X_years)]
+     if (dataFormat == 'wide'){
+     by_ceds <- merge(scalingData,
+                      unique(scaling_map[complete.cases(scaling_map),
+                                         c(scaling_name,ceds_matchcol_name)]),
+                      all = TRUE,
+                      by.x = c(wide.names),
+                      by.y = scaling_name)
+     by_ceds <- by_ceds[ , c('iso',wide.names,X_years)]
+     names(by_ceds) <- c('iso',wide.names,X_years) 
+   }else if (dataFormat == 'long'){
+  names(scalingData)[which(names(scalingData)==method_col)] <- scaling_name
+  by_ceds <- merge(scalingData,
+                   unique(scaling_map[complete.cases(scaling_map),
+                                      c(scaling_name,ceds_matchcol_name)]),
+                   all = TRUE)
+  by_ceds <- by_ceds[ , c('iso',ceds_matchcol_name,'year',valueCol)]
+  names(by_ceds) <- c('iso',method_col,'year',valueLab) }
+  
+  return(by_ceds)
+}
+
+
+# ---------------------------------------------------------------------------------
 # F.scale
 # Brief: produces scaling factors from aggregated ceds and inventory data
 # Details: takes in the ceds data and the inventory data that has been put in ceds
@@ -259,6 +300,18 @@ F.scaling <- function( ceds_data, inv_data, region,
                        replacement_scaling_factor = max_scaling_factor,
                        meta = TRUE) {
   
+  ext_start_year = start_year 
+  ext_end_year = end_year
+  ext = TRUE
+  interp_default = 'linear'
+  pre_ext_default = 'constant' 
+  post_ext_default = 'constant' 
+  replacement_method = 'none' 
+  max_scaling_factor = 100 
+  replacement_scaling_factor = max_scaling_factor
+  meta = TRUE
+  
+
   # Define simple function for use later. If TRUE, all values NA
   all.na <- function(x){
     return(all(is.na(x)))}
@@ -734,44 +787,19 @@ F.scaling <- function( ceds_data, inv_data, region,
     }  }
   
   out <- melt(scaling_ext, id.vars= c('iso', scaling_name))
-  out <- out[-which(is.na(out$value)),] 
   out <- out[complete.cases(out),]
   names(out) <- c('iso',scaling_name, 'year','scaling_factor')
   
-  writeData( scaling_ext , domain = "DIAG_OUT", paste0('F.Scaling_Factors_',inv_name))
+  scaling_ext_byCEDS <- F.scalingToCeds(scalingData=scaling_ext, dataFormat = 'wide')
+  writeData( scaling_ext_byCEDS , domain = "DIAG_OUT", paste0('F.Scaling_Factors_ceds_sectors_',inv_name))
+  
+  writeData( scaling_ext , domain = "DIAG_OUT", paste0('F.Scaling_Factors_scaling_sectors_',inv_name))
   
   list.out <- list(out,meta_notes)
   names(list.out) <- c( 'scaling_factors', 'meta_notes')
   
   return(list.out)
     }
-
-
-# ---------------------------------------------------------------------------------
-# F.scalingToCeds
-# Brief: dissaggregates data frame from scaling aggregation to ceds sectors/fuel.
-# Details: input and output in long form
-# Dependencies: 
-# Author: Rachel Hoesly
-  
-# return: data frame in ceds aggregation, long or wide form
-# input files: data frame in scaling aggregation
-# output files: 
-
-F.scalingToCeds <- function( scalingData , valueCol , valueLab = valueCol){
-  # Disaggregate from scaling sectors to CEDS sectors and create CEDS scaling that
-  #   is matched to the CEDS rows from the input
-
-  names(scalingData)[which(names(scalingData)==method_col)] <- scaling_name
-  by_ceds <- merge(scalingData,
-                   unique(scaling_map[complete.cases(scaling_map),
-                                      c(scaling_name,ceds_matchcol_name)]),
-                   all = TRUE)
-  by_ceds <- by_ceds[ , c('iso',ceds_matchcol_name,'year',valueCol)]
-  names(by_ceds) <- c('iso',method_col,'year',valueLab)
-  
-  return(by_ceds)
-}
 
 
 # ---------------------------------------------------------------------------------
@@ -795,7 +823,8 @@ F.applyScale <- function(scaling_factors){
   
   # scaling factors by ceds sectors in long format
   scaling_factors_by_ceds <- merge(scaling_factors,
-                                   unique(scaling_map[complete.cases(scaling_map),c(scaling_name,ceds_matchcol_name)]),
+                  unique(scaling_map[complete.cases(scaling_map[,c(scaling_name,ceds_matchcol_name)]),
+                                     c(scaling_name,ceds_matchcol_name)]),
                                    all = TRUE)
   scaling_factors_by_ceds <- scaling_factors_by_ceds[ , c('iso',ceds_matchcol_name,'year','scaling_factor')]
   names(scaling_factors_by_ceds)[which(names(scaling_factors_by_ceds)==ceds_matchcol_name)] <- method_col
@@ -848,7 +877,7 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
   # read in previsou value-meta data
   meta <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE )
   # aggregate scaling factor meta data to ceds 
-  meta_new <- F.scalingToCeds(meta_notes, 'comment','new_comment')
+  meta_new <- F.scalingToCeds(meta_notes, dataFormat = 'long','comment','new_comment')
   
   meta_old_unchanged <- meta[ meta$iso %!in% unique(meta_notes$iso),]
   meta_old_changed <- meta[ meta$iso %in% unique(meta_notes$iso),]

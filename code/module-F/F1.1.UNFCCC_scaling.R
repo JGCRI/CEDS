@@ -101,6 +101,7 @@
                                 replacement_scaling_factor = 100)
   list2env(scaling_factors_list , envir = .GlobalEnv)
   
+  
   # Apply Scaling Factors to Ceds data
   scaled <- F.applyScale(scaling_factors)
   scaled_ef <- scaled[[1]]
