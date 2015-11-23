@@ -48,31 +48,38 @@ em_lc <- tolower( em )
 S_content <- readData( "MED_OUT", "B.SO2_S_Content_db" )
 ash_ret <- readData( "MED_OUT", "B.SO2_AshRet_db" )
 control_frac <- readData( "MED_OUT", "B.SO2_ControlFrac_db" )
-layout <- activity_data <- readData( "MED_OUT", "A.comb_activity" )
+layout <- readData( "MED_OUT", "A.comb_activity" )
 # ------------------------------------------------------------------------------
 # 2.Combine S_Content, Ash_Ret, and control_frac to generate sulfur EF database
 
-S_content[,5:ncol(S_content)] <- lapply(S_content[,5:ncol(S_content)], as.numeric)
-ash_ret[,5:ncol(ash_ret)] <- lapply(ash_ret[,5:ncol(ash_ret)], as.numeric)
-control_frac[,5:ncol(control_frac)] <- lapply(control_frac[,5:ncol(control_frac)], as.numeric)
+# sort
+S_content <- S_content[ with( S_content, order( iso, sector, fuel ) ), ]
+ash_ret <- ash_ret[ with( ash_ret, order( iso, sector, fuel ) ), ]
+control_frac <- control_frac[ with( control_frac, order( iso, sector, fuel ) ), ]
+layout <- layout[ with( layout, order( iso, sector, fuel ) ), ]
+
+# make sure values are numeric
+S_content[,X_emissions_years] <- lapply(S_content[,X_emissions_years], as.numeric)
+ash_ret[,X_emissions_years] <- lapply(ash_ret[,X_emissions_years], as.numeric)
+control_frac[,X_emissions_years] <- lapply(control_frac[,X_emissions_years], as.numeric)
 
 # Set output layout
-layout[,5:ncol(layout)] <- 0
+layout[,X_emissions_years] <- 0
 layout$units <- NA
 
 # Do layout check for each database
-check_1 <- identical(layout[,1:3],S_content[,1:3])
-check_2 <- identical(layout[,1:3],ash_ret[,1:3])
-check_3 <- identical(layout[,1:3],control_frac[,1:3])
+check_1 <- all.equal(layout[,c('iso','sector','fuel')],S_content[,c('iso','sector','fuel')], check.attributes = FALSE)
+check_2 <- all.equal(layout[,c('iso','sector','fuel')],ash_ret[,c('iso','sector','fuel')], check.attributes = FALSE)
+check_3 <- all.equal(layout[,c('iso','sector','fuel')],control_frac[,c('iso','sector','fuel')], check.attributes = FALSE)
 check_4 <- identical(ncol(layout),ncol(S_content))
 check_5 <- identical(ncol(layout),ncol(ash_ret))
 check_6 <- identical(ncol(layout),ncol(control_frac))
 checkls <- c(check_1,check_2,check_3,check_4,check_5,check_6)
 
 if (F %in% checkls == F){
-  layout[,5:ncol(layout)] <- S_content[,5:ncol(S_content)]*2*(1-ash_ret[,5:ncol(ash_ret)])*(1-control_frac[,5:ncol(control_frac)])
+  layout[,X_emissions_years] <- S_content[,X_emissions_years]*2*(1-ash_ret[,X_emissions_years])*(1-control_frac[,X_emissions_years])
 } else {
-  print('Cannot generate SO2_EF_db. The iso/fuel/sector in each database my not be consistant. ')
+  stop('Cannot generate SO2_EF_db. The iso/fuel/sector in each database my not be consistant. ')
   }
 
 default_efs <- layout
