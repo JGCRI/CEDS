@@ -8,7 +8,8 @@ MOD_F = code/module-F
 PARAMS = code/parameters
 SOCIO_DATA = input/general
 ENERGY_DATA = input/energy
-EF_DATA = input/default-emissions-data
+EF_DATA = input/default_emissions_data
+EF_PARAMETERS = input/default_emissions_data/EF_parameters
 MAPPINGS = input/mappings
 EN_MAPPINGS = input/mappings/energy
 SC_MAPPINGS = input/mappings/scaling
@@ -86,7 +87,7 @@ all: SO2-emissions BC-emissions
 
 # Targets used to remove output files for a fresh run
 clean-all : \
-	clean-intermediate clean-diagnostic clean-final clean-logs clean-io
+	clean-intermediate clean-diagnostic clean-final clean-logs clean-io clean-modB
 
 clean-intermediate :
 	rm -fv $(MED_OUT)/*.csv
@@ -105,7 +106,8 @@ clean-io :
 	rm -fv $(DOCS)/IO_documentation.csv
 
 clean-modB :
-	rm -fv $(MED_OUT)/B*.csv
+	rm -fv $(MED_OUT)/B*.csv \
+	rm -fv $(EF_PARAMETERS)/B.*.csv
 
 clean-modC :
 	rm -fv $(MED_OUT)/C*.csv
@@ -308,11 +310,16 @@ $(MED_OUT)/A.NC_activity.csv : \
 $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(MOD_B)/B1.1.base_comb_EF.R \
 	$(MOD_B)/B1.2.add_comb_EF.R \
-	$(MOD_B)/B1.1.base_SO2_comb_EF_parameters.R \
 	$(MOD_B)/B1.1.base_BC_comb_EF.R \
-	$(MOD_B)/B1.2.add_SO2_GAINS_AshRet.R \
-	$(MOD_B)/B1.2.add_SO2_GAINS_ControlFrac.R \
-	$(MOD_B)/B1.3.proc_SO2_comb_EF.R \
+	$(MOD_B)/B1.1.base_comb_EF_control_percent.R \
+	$(MOD_B)/B1.1.base_SO2_comb_EF_parameters.R \
+	$(MOD_B)/B1.2.add_comb_control_percent.R \
+	$(MOD_B)/B1.2.add_SO2_comb_diesel_sulfur_content.R \
+	$(MOD_B)/B1.2.add_SO2_comb_GAINS_ash_ret.R \
+	$(MOD_B)/B1.2.add_SO2_comb_GAINS_control_percent.R \
+	$(MOD_B)/B1.2.add_SO2_comb_S_content_ash.R \
+	$(MOD_B)/B1.3.proc_comb_EF_control_percent.R \
+	$(MOD_B)/B1.3.proc_SO2_comb_EF_S_content_ash.R \
 	$(PARAMS)/timeframe_functions.R \
 	$(PARAMS)/process_db_functions.R \
 	$(PARAMS)/interpolation_extention_functions.R \
@@ -329,6 +336,7 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(INV_DATA)/Bond_Fuel-Central_1996.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
+	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 
 # cc1-1
 # BRANCH BLOCK

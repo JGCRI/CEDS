@@ -58,7 +58,7 @@ NONconversion <- readData( "ENERGY_IN",  "IEA_NonOECDconversion" )
 
 s_content <- readData( "MED_OUT", 'B.SO2_S_Content_db')
 
-gains_ashret <- readData('MED_OUT', 'B.GAINS_SO2_AshRet_db')
+gains_ashret <- readData('DEFAULT_EF_PARAM', 'B.GAINS_SO2_ash_ret')
 
 # ---------------------------------------------------------------------------
 # 2. GAINS multipliers (unit conversions from energy to mass)
@@ -85,8 +85,9 @@ OECD <- OECDconversion[OECDconversion$COUNTRY %in% EU &
 NONOECD <- NONconversion[NONconversion$COUNTRY %in% EU & 
                            NONconversion$FLOW %in% Flows,]
 conversion <- rbind(NONOECD, OECD) 
+
 conversion[,3:ncol(conversion)] <- 
-  lapply(conversion[,3:ncol(conversion)], as.numeric)
+  suppressWarnings(lapply(conversion[,3:ncol(conversion)], as.numeric))
 
 # Define multipliers function
 multipliers <- function(conversion, IEAfuels) {
@@ -279,14 +280,9 @@ if( identical(control_percent_extended$iso, control_percent$iso) &&
                                  control_percent_extended[, names(control_percent_extended)[names(control_percent_extended) %!in% c('iso','sector','fuel','units')] ]) }
 
 # -------------------------------------------------------------------------------
-# 4. Add to parameter Db
+# 4. Output
 
-addToDb_overwrite( new_data = control_percent_extended , em = 'SO2' , type = 'comb' , file_extention = "ControlFrac_db" )
-
-# -------------------------------------------------------------------------------
-# 5. Output
-
-writeData( control_percent_extended, domain = "MED_OUT", fn = "B.GAINS_SO2_ControlFrac_db")
+writeData( control_percent_extended, domain = "DEFAULT_EF_PARAM", fn = "B.GAINS_SO2_control_percent")
 
 
 logStop()

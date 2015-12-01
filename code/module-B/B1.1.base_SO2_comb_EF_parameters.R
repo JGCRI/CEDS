@@ -74,8 +74,8 @@ for ( i in seq_along( all_fuels ) ) {
               paste0( em_lc, "_percent" ) ]
 }
 
-#No unit for sulfur content persentage
-default_S_Content$units <- NA
+#unit for sulfur content persentage
+default_S_Content$units <- 'kt/kt'
 
 # Create default ash retention database
 default_AshRet <- activity_data
@@ -89,15 +89,9 @@ for ( fuel in all_fuels  ) {
 }
 
 #unit for sulfur content percentage
-default_AshRet$units <- 'NA'
+default_AshRet$units <- 'kt/kt'
 
-# Create default control fraction database
-default_ControlFrac <- activity_data
-# The default for control percentage is 0
-default_ControlFrac[,5:ncol(default_ControlFrac)] <- 0
 
-#No unit for sulfur content percentage
-default_ControlFrac$units <- 'NA'
 
 # ------------------------------------------------------------------------------
 # 4. Output    
@@ -105,7 +99,6 @@ default_ControlFrac$units <- 'NA'
 # Write out all three default databases
 writeData( default_S_Content, "MED_OUT", paste0( "B.", em ,"_", "S_Content_db") )
 writeData( default_AshRet, "MED_OUT", paste0( "B.", em ,"_", "AshRet_db") )
-writeData( default_ControlFrac, "MED_OUT", paste0( "B.", em ,"_", "ControlFrac_db") )
 # NOTE: Users wishing to add more sulfur content data should create a new script
 # entitled B.add_?_S_Content.R in which to do so.
 

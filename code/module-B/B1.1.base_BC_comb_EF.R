@@ -59,8 +59,11 @@
 
 # ------------------------------------------------------------------------------
 # 1. Read in files and do preliminary setup
-    # "em" is defined from parent script
-    #em <- "BC"
+  # define em
+    args_from_makefile <- commandArgs( TRUE )
+    em <- args_from_makefile[ 1 ]
+    if ( is.na( em ) ) em <- "SO2"
+    em_lc <- tolower( em ) 
 
     energy_consumption_1990 <- readData( "EM_INV", "Bond_Fuel-Central_1990", meta = F )
     energy_consumption_1996 <- readData( "EM_INV", "Bond_Fuel-Central_1996", meta = F )

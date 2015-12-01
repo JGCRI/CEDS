@@ -49,16 +49,16 @@ MODULE_B <- "../code/module-B/"
 # emissions type.
 source_child <- function( file_name ){ source( paste( MODULE_B, file_name, sep = "" ) ) }
 
-scripts <- c()
+scripts <- c('B1.1.base_comb_EF_control_percent.R')
 
 # Set scripts to generate base emission factors for SO2
 if( em == "SO2" ){
-    scripts <- c( "B1.1.base_SO2_comb_EF_parameters.R" )
+    scripts <- c( scripts, "B1.1.base_SO2_comb_EF_parameters.R" )
 }
 
 # Set scripts to generate base emission factors for BC or OC
 if( em == "BC" || em == "OC" ){
-    scripts <- c( "B1.1.base_BC_comb_EF.R" )
+    scripts <- c( scripts, "B1.1.base_BC_comb_EF.R" )
 }
 
 # Run all child scripts for the given emissions type. The call to

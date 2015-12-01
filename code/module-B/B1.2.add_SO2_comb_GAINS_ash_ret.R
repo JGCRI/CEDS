@@ -88,13 +88,8 @@ if( identical(gainsash_ret_extended$iso, gainsash_ret$iso) &&
                                    gainsash_ret_extended[, names(gainsash_ret_extended)[names(gainsash_ret_extended) %!in% c('iso','sector','fuel','units')] ]) }
 
 # -------------------------------------------------------------------------------
-# 4. Add to parameter Db
-
-addToDb_overwrite( new_data = gainsash_ret_extended , em = 'SO2' , type = 'comb' , file_extention = 'AshRet_db' )
-
-# -------------------------------------------------------------------------------
-# 5. Output
-writeData(gainsash_ret_extended, domain = "MED_OUT", fn = "B.GAINS_SO2_AshRet_db")
+# 4. Output
+writeData(gainsash_ret_extended, domain = "DEFAULT_EF_PARAM", fn = "B.GAINS_SO2_ash_ret")
 
 
 

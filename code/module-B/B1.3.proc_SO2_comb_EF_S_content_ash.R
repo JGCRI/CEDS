@@ -1,12 +1,12 @@
 #------------------------------------------------------------------------------
-# Program Name: B1.3.proc_SO2_comb_EF.R.R
+# Program Name: B1.3.proc_SO2_comb_EF_S_content_ash.R.R
 # Authors: Leyang Feng
 # Date Last Updated: Nov 9, 2015
-# Program Purpose: Use sulfur content, ash retention, control percentage database to 
+# Program Purpose: Use sulfur content, ash retention database to 
 # generate sulfur EF database corresponding to the fuels and sectors in A.comb_activity.csv
 # Input Files: A.comb_activity.csv, B.SO2_S_Content_db.csv, 
-#              B.SO2_S_AshRet_db.csv, B.SO2_S_ControlFrac_db.csv   
-# Output Files: B.[em]_com_EF_db.csv
+#              B.SO2_S_AshRet_db.csv,   
+# Output Files: B.[em]_comb_EF_db.csv
 # Notes: 
 # TODO: 
 # ------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ PARAM_DIR <- "../code/parameters/"
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R" ) # Additional function files required.
 log_msg <- "Extrapolating default emissions factors to full dataset" # First message to be printed to the log
-script_name <- "B1.3.proc_SO2_comb_EF.R"
+script_name <- "B1.3.proc_SO2_comb_EF_S_content_ash.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -47,39 +47,35 @@ em_lc <- tolower( em )
 
 S_content <- readData( "MED_OUT", "B.SO2_S_Content_db" )
 ash_ret <- readData( "MED_OUT", "B.SO2_AshRet_db" )
-control_frac <- readData( "MED_OUT", "B.SO2_ControlFrac_db" )
+
 layout <- readData( "MED_OUT", "A.comb_activity" )
 # ------------------------------------------------------------------------------
-# 2.Combine S_Content, Ash_Ret, and control_frac to generate sulfur EF database
+# 2.Combine S_Content, Ash_Ret to generate sulfur EF database
 
 # sort
 S_content <- S_content[ with( S_content, order( iso, sector, fuel ) ), ]
 ash_ret <- ash_ret[ with( ash_ret, order( iso, sector, fuel ) ), ]
-control_frac <- control_frac[ with( control_frac, order( iso, sector, fuel ) ), ]
 layout <- layout[ with( layout, order( iso, sector, fuel ) ), ]
 
 # make sure values are numeric
 S_content[,X_emissions_years] <- lapply(S_content[,X_emissions_years], as.numeric)
 ash_ret[,X_emissions_years] <- lapply(ash_ret[,X_emissions_years], as.numeric)
-control_frac[,X_emissions_years] <- lapply(control_frac[,X_emissions_years], as.numeric)
 
 # Set output layout
 layout[,X_emissions_years] <- 0
-layout$units <- NA
+layout$units <- 'kt/kt'
 
 # Do layout check for each database
 check_1 <- all.equal(layout[,c('iso','sector','fuel')],S_content[,c('iso','sector','fuel')], check.attributes = FALSE)
 check_2 <- all.equal(layout[,c('iso','sector','fuel')],ash_ret[,c('iso','sector','fuel')], check.attributes = FALSE)
-check_3 <- all.equal(layout[,c('iso','sector','fuel')],control_frac[,c('iso','sector','fuel')], check.attributes = FALSE)
-check_4 <- identical(ncol(layout),ncol(S_content))
-check_5 <- identical(ncol(layout),ncol(ash_ret))
-check_6 <- identical(ncol(layout),ncol(control_frac))
-checkls <- c(check_1,check_2,check_3,check_4,check_5,check_6)
+check_3 <- identical(ncol(layout),ncol(S_content))
+check_4 <- identical(ncol(layout),ncol(ash_ret))
+checkls <- c(check_1,check_2,check_3,check_4)
 
 if (F %in% checkls == F){
-  layout[,X_emissions_years] <- S_content[,X_emissions_years]*2*(1-ash_ret[,X_emissions_years])*(1-control_frac[,X_emissions_years])
-} else {
-  stop('Cannot generate SO2_EF_db. The iso/fuel/sector in each database my not be consistant. ')
+  layout[,X_emissions_years] <- S_content[,X_emissions_years]*2*(1-ash_ret[,X_emissions_years])
+}else {
+  stop('Cannot generate EF_db. The iso/fuel/sector in each database my not be consistant. ')
   }
 
 default_efs <- layout

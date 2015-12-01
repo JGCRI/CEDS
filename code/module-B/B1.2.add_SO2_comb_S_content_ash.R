@@ -1,0 +1,89 @@
+# Program Name: B1.2.add_SO2_S_content_ash.R
+# Author: Rachel Hoesly
+# Date Last Updated: 23 Nov 2015 
+# Program Purpose: generates list of sulfur content and ash retention datafiles
+#        and adds them to EF_parameter database
+# Input Files: variable files in input/default_emissions_data/EF_parameters
+#               
+# Output Files: B.SO2_S_ControlFrac_db.csv
+# Notes: 
+# TODO: 
+# ---------------------------------------------------------------------------
+
+# 0. Read in global settings and headers
+
+# Before we can load headers we need some paths defined. They may be provided by
+#   a system environment variable or may have already been set in the workspace.
+  dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
+  for ( i in 1:length( dirs ) ) {
+    setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
+    wd <- grep( 'CEDS/input', list.dirs(), value = T )
+    if ( length( wd ) > 0 ) {
+      setwd( wd[ 1 ] )
+      break
+    }
+  }
+  PARAM_DIR <- "../code/parameters/"
+
+# Call standard script header function to read in universal header files - 
+# provide logging, file support, and system functions - and start the script log.
+  headers <- c( "data_functions.R", "analysis_functions.R",'process_db_functions.R',
+                'common_data.r') # Additional function files may be required.
+  log_msg <- "Adding data files of EF parameters (sulfur and ash ret) to SO2 EF parameter databases" # First message to be printed to the log
+  script_name <- "B1.2.add_SO2_SouthAfricanCoal.R"
+  
+  source( paste0( PARAM_DIR, "header.R" ) )
+  initialize( script_name, log_msg, headers )
+
+# ---------------------------------------------------------------------------
+# 0.5 Load Packages
+
+  loadPackage('tools')
+  
+# ---------------------------------------------------------------------------
+# 1. Reading data and mapppings into script
+
+  # Read in parameter files
+  printLog('Loading EF parameter data files')
+  
+  files_list <- list.files(path = './default_emissions_data/EF_parameters', pattern = '*.csv')
+  files_list <- file_path_sans_ext( files_list )
+  
+  #select s content and ash ret files
+  s_content_file_list <- files_list[grep(pattern = "_content", files_list )]
+  ash_ret_file_list <-  files_list[grep(pattern = "_ash_ret", files_list )]
+
+  #select SO2 files
+  s_content_file_list <- s_content_file_list[grep(pattern = 'SO2', s_content_file_list )]
+  ash_ret_file_list <-  ash_ret_file_list[grep(pattern = 'SO2', ash_ret_file_list )]
+    
+  #de select meta-data files
+  s_content_file_list <-   s_content_file_list [-grep(pattern = "metadata",   s_content_file_list )]
+  ash_ret_file_list  <-   ash_ret_file_list [-grep(pattern = "metadata",     ash_ret_file_list )]
+  
+
+# ---------------------------------------------------------------------------
+# 2. Expand all variable
+  printLog('Expanding data and converting to wide form')
+  
+  ash_ret_list <- lapply ( X = ash_ret_file_list, FUN = readData, domain = "DEFAULT_EF_PARAM")
+  s_content_list <- lapply ( X = s_content_file_list, FUN = readData, domain = "DEFAULT_EF_PARAM")
+ 
+  ash_ret_list <- lapply ( X = ash_ret_list, FUN = expandAll, toWide=TRUE)
+  s_content_list <- lapply ( X = s_content_list, FUN = expandAll, toWide=TRUE)
+
+  s_content <- do.call("rbind.fill", s_content_list)  
+  ash_ret <- do.call("rbind.fill", ash_ret_list)
+  
+  s_content$units <- 'kt/kt'
+  ash_ret$units <- 'kt/kt'
+# ---------------------------------------------------------------------------
+# 2. Add to existing parameter Dbs
+
+  addToDb_overwrite(new_data = s_content, em = 'SO2', type = 'comb', file_extention = 'S_Content_db')
+  
+  addToDb_overwrite(new_data = ash_ret, em = 'SO2', type = 'comb', file_extention = 'AshRet_db')
+  
+  logStop()
+# END
+  
