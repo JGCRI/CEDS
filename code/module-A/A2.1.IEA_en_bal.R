@@ -45,6 +45,7 @@
     A.IEA_en_stat_ctry_hist_full <- readData( "MED_OUT", "A.IEA_en_stat_ctry_hist" )
     IEA_flow_sector <- readData( "EN_MAPPINGS", "IEA_flow_sector" )
     IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
+    IEA_process_sectors <- readData( "EN_MAPPINGS", "IEA_process_sectors" )
     fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
     IEA_energy_balance_factor <- readData( "ENERGY_IN", "IEA_energy_balance_factor" )
 
@@ -100,6 +101,10 @@
                                    TJ_fuels ] <- "TJ"
   A.IEA_en_stat_ctry_hist$units[ A.IEA_en_stat_ctry_hist$fuel %!in%
                                    TJ_fuels ] <- "kt"
+  
+# Drop rows that don't map to a CEDS sector or fuel
+  A.IEA_en_stat_ctry_hist <-A.IEA_en_stat_ctry_hist[complete.cases(A.IEA_en_stat_ctry_hist[,c("sector","fuel")]),]
+  
 # ------------------------------------------------------------------------------
 # 3. Fix Energy Balance
 
@@ -128,55 +133,52 @@
   A.IEA_en_stat_ctry_hist_units[  X_IEA_years ]<-A.IEA_en_stat_ctry_hist_units[  X_IEA_years ] * 
     A.IEA_en_stat_ctry_hist_units$conversion *  A.IEA_en_stat_ctry_hist_units$balance_correction
 
-# ------------------------------------------------------------------------------
-# 3. Other Data Cleaning
-  A.IEA_en_stat_bal <- A.IEA_en_stat_ctry_hist_units
-  printLog( paste0( "Performing other data cleaning" ) )
-  
-# Drop rows that don't map to a CEDS sector or fuel
-  A.IEA_en_stat_bal <-A.IEA_en_stat_bal[complete.cases(A.IEA_en_stat_bal[,c("sector","fuel")]),]
-
-# Drop rows with negative data (negative energy balance, outputs in energy tranformation)
+  # Drop rows with negative data (negative energy balance, outputs in energy tranformation)
   negativeBalance<-c()
   positiveBalance<-c()
-  for (i in 1:nrow( A.IEA_en_stat_bal )) {
-    vals<-A.IEA_en_stat_bal[i,X_IEA_years]
+  for (i in 1:nrow( A.IEA_en_stat_ctry_hist_units )) {
+    vals<-A.IEA_en_stat_ctry_hist_units[i,X_IEA_years]
     if (all(vals<=0) ) {negativeBalance<-c(negativeBalance,i)}
     else {positiveBalance<-c(positiveBalance,i)}
   }
   
-  DroppedData<-A.IEA_en_stat_bal[negativeBalance,]
-  A.IEA_en_stat_bal<-A.IEA_en_stat_bal[positiveBalance,]
+  DroppedData<-A.IEA_en_stat_ctry_hist_units[negativeBalance,]
+  A.IEA_en_stat_ctry_hist_units<-A.IEA_en_stat_ctry_hist_units[positiveBalance,]  
+ 
+  # ------------------------------------------------------------------------------
+  # 4. Energy Production Sectors - energy production as activity/process data
+  printLog( paste0( "Correcting energy production sectors used for activity/driver data." ) )
+   A.IEA_en_stat_process <- A.IEA_en_stat_ctry_hist_units
   
+  # seperate production sectors and assign correct ceds sector/fuel
+  A.IEA_en_activity <- A.IEA_en_stat_process[which(A.IEA_en_stat_process$sector == 'xxx_production'),]
+  A.IEA_en_stat_process<-A.IEA_en_stat_process[-which(A.IEA_en_stat_process$sector=='xxx_production'),]
+  A.IEA_en_activity <- merge(A.IEA_en_activity[, !names(A.IEA_en_activity) %in% c('sector','fuel')], IEA_process_sectors,
+                             all.x = TRUE)
+  # add back to combustion data
+  DroppedData<-rbind.fill(DroppedData, A.IEA_en_activity[!complete.cases(A.IEA_en_activity[,c('sector','fuel')]), ])
+  A.IEA_en_activity <- A.IEA_en_activity[complete.cases(A.IEA_en_activity[,c('sector','fuel')]), ]
+  A.IEA_en_stat_process <- rbind.fill(A.IEA_en_stat_process, A.IEA_en_activity)
+  A.IEA_en_activity <- A.IEA_en_activity[ , c('iso','sector','fuel','units', X_IEA_years)]
   
-# Replace "xxx_production" sector names with specific product-corresponding 
-# native production sector names (fossil fuels only)
-  for(i in 1:length(A.IEA_en_stat_bal$sector)){
-    target = A.IEA_en_stat_bal$fuel[[i]]
-    if(A.IEA_en_stat_bal$sector[[i]] == "xxx_production" && target != "biomass"){
-      new_sector = fuel_list[fuel_list$fuel == target,"sector_replacement"]
-      A.IEA_en_stat_bal$sector[[i]] = new_sector
-    }
-  }
+# ------------------------------------------------------------------------------
+# 3. Other Data Cleaning and aggregation by CEDS fuel
 
-#Drop data with unmapped production sector - 'xxx_production'   
-  DroppedData<-rbind(DroppedData,
-                     A.IEA_en_stat_bal[which(A.IEA_en_stat_bal$sector=='xxx_production'),])
-  A.IEA_en_stat_bal<-A.IEA_en_stat_bal[-which(A.IEA_en_stat_bal$sector=='xxx_production'),]
+  printLog( paste0( "Performing other data cleaning" ) )
   
 # Aggregate by relevant categories   
     
-printLog( paste0( "Aggregating energy statistics by intermediate sector",
+  printLog( paste0( "Aggregating energy statistics by intermediate sector",
                       " and intermediate fuel" ) )
 #  aggregate() messes up row or column order depending
 #   on how you call it, so fix that after    
     
-  A.en_stat_sector_fuel <- aggregate( A.IEA_en_stat_bal[ 
+  A.en_stat_sector_fuel <- aggregate( A.IEA_en_stat_process[ 
     X_IEA_years ],
-    by = list( fuel = A.IEA_en_stat_bal$fuel,
-             sector = A.IEA_en_stat_bal$sector, 
-             iso = A.IEA_en_stat_bal$iso,
-             units= A.IEA_en_stat_bal$units), sum ) 
+    by = list( fuel = A.IEA_en_stat_process$fuel,
+             sector = A.IEA_en_stat_process$sector, 
+             iso = A.IEA_en_stat_process$iso,
+             units= A.IEA_en_stat_process$units), sum ) 
   
 # Rearrange first three columns to resemble how they came in from the previous
 #   script
@@ -184,7 +186,7 @@ printLog( paste0( "Aggregating energy statistics by intermediate sector",
         c( 'iso', 'sector','fuel','units', X_IEA_years ) ]
 
 # -----------------------------------------------------------------------------
-# 3. Output
+# 5. Output
 # Add comments for each table
     comments.A.en_stat_sector_fuel <- c( paste0( "Energy statistics", 
             " by intermediate sector / intermediate fuel / historical year" ),
@@ -195,7 +197,7 @@ printLog( paste0( "Aggregating energy statistics by intermediate sector",
                fn = "A.en_balance_dropped_data",
                comments = comments.A.en_stat_sector_fuel) 
 												
-# write tables as CSV files
+# Main Output
     writeData( A.en_stat_sector_fuel, domain = "MED_OUT", 
         fn = "A.en_stat_sector_fuel",
         comments = comments.A.en_stat_sector_fuel)

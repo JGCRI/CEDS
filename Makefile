@@ -105,6 +105,9 @@ clean-logs :
 clean-io :
 	rm -fv $(DOCS)/IO_documentation.csv
 
+clean-modA :
+	rm -fv $(MED_OUT)/A*.csv \
+
 clean-modB :
 	rm -fv $(MED_OUT)/B*.csv \
 	rm -fv $(EF_PARAMETERS)/B.*.csv
@@ -241,6 +244,7 @@ $(MED_OUT)/A.en_stat_sector_fuel.csv : \
 	$(MOD_A)/A2.1.IEA_en_bal.R \
 	$(MOD_A)/A2.2.fix_IEA_biomass.R \
 	$(EN_MAPPINGS)/IEA_product_fuel.csv \
+	$(EN_MAPPINGS)/IEA_process_sectors.csv \
 	$(MED_OUT)/A.UN_pop_master.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(MED_OUT)/A.IEA_en_stat_ctry_hist.csv \
@@ -249,18 +253,31 @@ $(MED_OUT)/A.en_stat_sector_fuel.csv : \
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 
 # aa3-1
-# naming note: includes both module A3 and A4
-# Extends IEA energy data to include additional years in BP data
-# Expands energy data to include all possible id combinations
-$(MED_OUT)/A.comb_activity.csv : \
+# Extends IEA data with BP data
+$(MED_OUT)/A.IEA_BP_energy_ext.csv : \
 	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
-	$(MOD_A)/A4.1.complete_energy_data.R \
+	$(EN_MAPPINGS)/IEA_flow_sector.csv \
+	$(EN_MAPPINGS)/IEA_process_sectors.csv \
+	$(EN_MAPPINGS)/IEA_energy_activity_fuel_mapping.csv \
 	$(EN_MAPPINGS)/IEA_BP_mapping.csv \
 	$(MED_OUT)/A.en_stat_sector_fuel.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(ENERGY_DATA)/BP_energy_data.xlsx
 	Rscript $< $(EM) --nosave --no-restore
-	Rscript $(word 2,$^) $(EM) --nosave --no-restore
+
+# aa4-1
+# naming note: includes both module A3 and A4
+# Expands energy data to include all possible id combinations
+# Splits energy combustion data and energy activity data
+$(MED_OUT)/A.comb_activity.csv : \
+	$(MOD_A)/A4.1.complete_energy_data.R \
+	$(MED_OUT)/A.IEA_BP_energy_ext.csv \
+	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
+	$(MAPPINGS)/Master_Country_List.csv
+	Rscript $< $(EM) --nosave --no-restore
+
+$(MED_OUT)/A.NC_activity_energy.csv : \
+	$(MED_OUT)/A.comb_activity.csv
 
 # aa5-1
 # BRANCH BLOCK
@@ -318,8 +335,8 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(MOD_B)/B1.2.add_SO2_comb_GAINS_ash_ret.R \
 	$(MOD_B)/B1.2.add_SO2_comb_GAINS_control_percent.R \
 	$(MOD_B)/B1.2.add_SO2_comb_S_content_ash.R \
-	$(MOD_B)/B1.3.proc_comb_EF_control_percent.R \
 	$(MOD_B)/B1.3.proc_SO2_comb_EF_S_content_ash.R \
+	$(MOD_B)/B1.3.proc_comb_EF_control_percent.R \
 	$(PARAMS)/timeframe_functions.R \
 	$(PARAMS)/process_db_functions.R \
 	$(PARAMS)/interpolation_extention_functions.R \

@@ -40,46 +40,51 @@
 # 1. Read in files
 
 input_path <- paste0( getwd(), "/mappings/" )
-
-energy_data <- readData( "MED_OUT", "A.comb_activity" )
+energy_data <- readData( "MED_OUT", "A.IEA_BP_energy_ext" ) 
 MFL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
 MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
 MCL <- readData( "MAPPINGS", "Master_Country_List" )
 
 # ------------------------------------------------------------------------------
-# 2. Populate missing iso-sector-fuel combinations
+# 2. Separate combustion and activity energy data
 
-# Build empty energy data database will all combinations
+energy_data_combustion <- energy_data[!which(energy_data$fuel == 'process'),]
+energy_data_activity <- energy_data[which(energy_data$fuel == 'process'),]
+
+# ------------------------------------------------------------------------------
+# 3. Create combustion activity database - Populate missing iso-sector-fuel combinations
+
+# Build empty energy data database with all combinations
 
 # Whether these lists include biomass and/or process sectors is easily editable- 
 # left out for now via reasonable assumption.
 iso_list <- unique( MCL$iso )
 sector_list <- unique( c( MSL$sector[ MSL$activity == "Energy_Combustion" ], 
-                          unique( energy_data$sector[ energy_data$sector != "NA" ] ) ) )
+                          unique( energy_data_combustion$sector[ energy_data_combustion$sector != "NA" ] ) ) )
 # fuel_list <- unique( MFL$fuel[ MFL$fuel != "process" & MFL$fuel != "biomass" ] )
 fuel_list <- unique( MFL$fuel[ MFL$fuel != "process" ] )
 
 # Remove NA-sector biomass entries for now
-energy_data <- na.omit( energy_data[ energy_data$sector != "NA", ] )
+energy_data_combustion <- na.omit( energy_data_combustion[ energy_data_combustion$sector != "NA", ] )
 
 # Use header function to generate blank template data frame
 template <- buildCEDSTemplate( iso_list, sector_list, fuel_list )
 
 # Insert existing data into blank template
-full_energy_data <- merge(template, energy_data, by = c("iso","sector","fuel"), all.x = TRUE, suffixes = c(".t",".e"))
+full_energy_data_combustion <- merge(template, energy_data_combustion, by = c("iso","sector","fuel"), all.x = TRUE, suffixes = c(".t",".e"))
 
 original_names <- c( "iso", "sector", "fuel", "units", X_emissions_years)
 merge_names <- c( "iso", "sector", "fuel", "units.t", paste0( X_emissions_years, ".e" ) )
 
 # Extract energy data columns and rename
-full_energy_data <- full_energy_data[ merge_names ]
-names( full_energy_data ) <- original_names
+full_energy_data_combustion <- full_energy_data_combustion[ merge_names ]
+names( full_energy_data_combustion ) <- original_names
 
 # Replace merge-generated NAs with 0
-full_energy_data[ is.na( full_energy_data ) ] <- 0
+full_energy_data_combustion[ is.na( full_energy_data_combustion ) ] <- 0
 
 # Sort
-full_energy_data <- full_energy_data[ with( full_energy_data, order( iso, sector, fuel ) ), ]
+full_energy_data_combustion <- full_energy_data_combustion[ with( full_energy_data_combustion, order( iso, sector, fuel ) ), ]
 
 # ------------------------------------------------------------------------------
 # 3. Output
@@ -88,9 +93,9 @@ comments.A.comb_activity <- c( paste0( "IEA energy statistics",
         " by intermediate sector / intermediate fuel / historical year,",
         " extended with BP data and filled out with all combustion iso-sector-fuel combinations." ) )
                                             
-# write tables as CSV files
-# writeData( full_energy_data, domain = "TEST_FILES", fn = "A.comb_activity", comments = comments.A.comb_activity )
-writeData( full_energy_data, domain = "MED_OUT", fn = "A.comb_activity", comments = comments.A.comb_activity )
+# write out data
+writeData( full_energy_data_combustion, domain = "MED_OUT", fn = "A.comb_activity", comments = comments.A.comb_activity )
+writeData( energy_data_activity, domain = "MED_OUT", fn = "A.NC_activity_energy", comments = comments.A.comb_activity )
     
 logStop()
 

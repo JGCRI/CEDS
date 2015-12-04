@@ -46,6 +46,7 @@
 
     # un_pop_tot_full <- readData( "GEN_IN", "UN_pop_master" )
     IEA_flow_sector <- readData( "EN_MAPPINGS", "IEA_flow_sector" )
+    IEA_process_sectors <- readData( "EN_MAPPINGS", "IEA_process_sectors" )
     IEA_energy_activity_fuel_mapping <- readData( "EN_MAPPINGS", "IEA_energy_activity_fuel_mapping" )
     iea_data_full <- readData( "MED_OUT", "A.en_stat_sector_fuel" )
     bp_energy_data <- readData( "ENERGY_IN","BP_energy_data", ".xlsx")
@@ -240,47 +241,17 @@
         IEA_BP_ext, by = c( "iso", "sector", "fuel" ) )
 
 # ------------------------------------------------------------------------------
-# 5. Split Energy combustion and activity Data
-
-# List energy combustion/activity sectors
-    sectors <- unique(IEA_BP_ext$sector)
-    combustion_sectors <- sectors[-grep("production",sectors)]
-    activity_sectors <- sectors[grep("production",sectors)]
-# Split activity/combustion data    
-    IEA_BP_ext_comb <- IEA_BP_ext[which(
-                       IEA_BP_ext$sector %in% combustion_sectors ),]
-    IEA_BP_ext_activity <- IEA_BP_ext[which(
-      IEA_BP_ext$sector %in% activity_sectors ),]    
+# 5. Aggregate Data by fuel
     
-# Check fuels in Activity data
- check_activty_fuel<-function(){   
-    for(i in seq_along(activity_sectors)){
-     sec<-activity_sectors[i] 
-     fuels<-IEA_energy_activity_fuel_mapping[which(IEA_energy_activity_fuel_mapping$sector==sec),'fuel'] 
-     activity_data<-IEA_BP_ext_activity[which(IEA_BP_ext_activity$sector==sec),]
-     activity_fuels<-unique(activity_data$fuel)
-     if(!all(activity_fuels %in% fuels)) 
-     { problem_fuel<-activity_fuels[-which(activity_fuels %in% fuels)]
-       problem_country<-IEA_BP_ext_activity[which(activity_data$fuel==problem_fuel),'iso']
-       stop(paste("Energy as activity data: fuels do not aggregate.\n Mixed units for ",
-                 problem_country,' in the ', sec," sector.\n ", problem_fuel, 
-                 " does not aggregate in the ", sec, " sector.",
-                 sep=""))}
-    }
- }
- check_activty_fuel()
 # Aggregate Activity data over fuels
  printLog( "Aggregate Energy as Activity Data for energy production sectors" )
- 
- # change fuel to process
- IEA_BP_ext_activity$fuel <- rep('process', nrow(IEA_BP_ext_activity))
     
- IEA_BP_ext_activity<-aggregate ( IEA_BP_ext_activity[
-   X_IEA_years],
-   by = list( fuel = IEA_BP_ext_activity$fuel,
-              sector = IEA_BP_ext_activity$sector, 
-              iso = IEA_BP_ext_activity$iso,
-              units= IEA_BP_ext_activity$units), sum ) 
+ IEA_BP_ext<-aggregate ( IEA_BP_ext[
+   X_emissions_years],
+   by = list( fuel = IEA_BP_ext$fuel,
+              sector = IEA_BP_ext$sector, 
+              iso = IEA_BP_ext$iso,
+              units= IEA_BP_ext$units), sum ) 
  
 # ------------------------------------------------------------------------------
 # 6. Trend Check
@@ -295,7 +266,7 @@
         bp_data[[3]] <- subset( bp_data[[3]], T, c( "BPName", X_ext_years ) )
         bp_data[[3]][, i+1] <- as.numeric( bp_data[[3]][, i+1] )
     }
-    
+ 
     iea_trends <- list()
     bp_trends  <- list()
     iea_bp_trends <- list()
@@ -441,21 +412,16 @@
     IEA_BP_sum_comp <- cbind( rbind(row_labels, row_labels, row_labels), IEA_BP_sum_comp )
     
 
-
-
 # -----------------------------------------------------------------------------
 # 8. Output
 # Add comments for each table
-  comments.A.energy_dataension <- c( paste0( "IEA energy statistics", 
+  comments.A.energy_data_extension <- c( paste0( "IEA energy statistics", 
                                                " by intermediate sector / intermediate fuel / historical year,",
                                                " extendForwarded with BP energy statistics for latest BP years" ) )
     
-# write Energy activity and combustion data
-  writeData( IEA_BP_ext_comb, domain = "MED_OUT", fn = "A.comb_activity", 
-           comments = comments.A.energy_dataension )
-
-  writeData( IEA_BP_ext_activity, domain = "MED_OUT", fn = "A.NC_activity_energy", 
-             comments = comments.A.energy_dataension )
+# write extended energy data
+  writeData( IEA_BP_ext, domain = "MED_OUT", fn = "A.IEA_BP_energy_ext", 
+           comments = comments.A.energy_data_extension )
   
 # Write out Diagnostic Output    
   writeData( iea_bp_trend_comparison, domain = "DIAG_OUT", fn = 
