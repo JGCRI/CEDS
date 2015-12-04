@@ -40,11 +40,6 @@ initialize( script_name, log_msg, headers )
 MCL <- readData( "MAPPINGS", "Master_Country_List" )
 loadPackage('tools')
 
-# Location of input files relative to working directory/set new directory (so that only UNFCCC SO2 data
-# is read in)
-
-setwd( "./emissions-inventories/UNFCCC")
-
 
 # -----------------------------------------------------------------------------------------------------------
 # 1. Read in files
@@ -56,13 +51,10 @@ em <<- args_from_makefile[1]
 if ( is.na( em ) ) em <- "SO2"
 
 # Create a List of the UNFCCC S02 Files
-file.list = list.files( pattern = paste0('*',em) )
+file.list = list.files(path = "./emissions-inventories/UNFCCC", pattern = paste0('*',em) )
 
 # Removes Extension of File Name
 file.list2 <- file_path_sans_ext( file.list ) 
-
-# Naviagte Back to Home Directory (/input)
-setwd(INPUT)
 
 # Location of Input Files Relative to the Working Directory
 input_domain <- "UNFCCC_IN" 
