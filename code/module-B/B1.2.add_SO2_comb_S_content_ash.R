@@ -80,9 +80,9 @@
 # ---------------------------------------------------------------------------
 # 2. Add to existing parameter Dbs
 
-  addToDb_overwrite(new_data = s_content, em = 'SO2', type = 'comb', file_extention = 'S_Content_db')
+  addToDb_overwrite(new_data = s_content, em = 'SO2', file_extention = 'S_Content_db')
   
-  addToDb_overwrite(new_data = ash_ret, em = 'SO2', type = 'comb', file_extention = 'AshRet_db')
+  addToDb_overwrite(new_data = ash_ret, em = 'SO2', file_extention = 'AshRet_db')
   
   logStop()
 # END

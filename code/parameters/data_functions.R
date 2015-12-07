@@ -34,6 +34,49 @@
 '%!in%' <- function( x, y ) !( '%in%'( x, y ) )
 
 # -----------------------------------------------------------------------------
+# replaceValueColMatch
+# Brief:  replace values in one column of database x with values of column in database y 
+#         based on 2 or more matching files matching columns     
+# Details:      
+# Dependencies: None
+# Author(s):    
+# Params:       
+
+# Return: data frame similar to x with replaced values from y where applicable   
+# Input Files:  None
+# Output Files: None
+
+replaceValueColMatch <- function( x,y,x.ColName,y.ColName = x.ColName,
+                                  match.x,match.y=match.x,
+                                  addEntries){
+  out <- x
+  n<-length(match.x)
+  x.match.cols <- x[,match.x[1]]
+  y.match.cols <- y[,match.y[1]]
+  for (i in 2:n){
+    x.match.cols <- paste0(x.match.cols, x[,match.x[i]]  )
+    y.match.cols <- paste0(y.match.cols, y[,match.y[i]]  )
+  }
+  
+  out[,x.ColName] <- y[match(x.match.cols,y.match.cols),
+                       y.ColName]
+  out[which(is.na(out[,x.ColName])),x.ColName] <- x[which(is.na(out[,x.ColName])),x.ColName]
+  
+  if (addEntries){
+    x.names <- names(x)
+    
+    hybrid.names <- x.names
+    hybrid.names[which( hybrid.names %in% match.x)] <- match.y
+    hybrid.names[which( hybrid.names== x.ColName)] <- y.ColName
+    if( ! identical(x.names, hybrid.names)) stop(paste0('Cannot add entries to original dataframe ',
+                                                        'in replaceValueColMatch. Check column names.'))
+    out <- rbind.fill(out, y[which(is.na(match(y.match.cols,x.match.cols))),])
+  }
+  return(out)  
+}
+
+
+# -----------------------------------------------------------------------------
 # gsub2
 # Brief:        Pattern replacement in a vector.
 # Details:      Performs gsub on each element of a vector.

@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: B1.2.add_SO2_comb_diesel_sulfur_standards.R
+# Program Name: B1.2.add_SO2_comb_diesel_sulfur_content.R
 # Author: Rachel Hoesly
 # Date Last Updated: Oct 1 2015 
 # Program Purpose: Add Sulfur Standards to default sulfur EF
@@ -31,7 +31,7 @@ PARAM_DIR <- "../code/parameters/"
 headers <- c( "data_functions.R", "analysis_functions.R",'process_db_functions.R',
               'common_data.r', 'IO_functions.R', 'data_functions.R', 'timeframe_functions.R') # Additional function files may be required.
 log_msg <- "Adding sulfur standards to diesel SO2 EF" # First message to be printed to the log
-script_name <- "B1.2.add_SO2_comb_EF_sulfur_standards.R"
+script_name <- "B1.2.add_SO2_comb_diesel_sulfur_content.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -71,6 +71,7 @@ loadPackage('zoo')
   diesel_standards_ppm <- diesel_standards_ppm[-which(is.na(diesel_standards_ppm$iso)),]
 # -------------------------------------------------------------------------------
 # 3. Fill in default and interpolate between data estimates
+  printLog('Extrapolate diesel standards over time and regions')
   
   # default starting standard = 8000ppm
   diesel_standards_ppm[which(is.na(diesel_standards_ppm$X1970)),'X1970']<-8000
@@ -118,6 +119,8 @@ loadPackage('zoo')
   diesel_standards_ppm_complete <- diesel_standards_ppm_complete[ diesel_standards_ppm_complete$iso %in% MCL$iso, ]
 # -------------------------------------------------------------------------------
 # 3. Calculate EF, fill in sectors and fuel
+  
+  printLog("Calculating diesel sulfer EF")
   
   diesel_EF<-diesel_standards_ppm_complete
   diesel_EF[,X_standard_years]<-diesel_EF[,X_standard_years]/10^6/2

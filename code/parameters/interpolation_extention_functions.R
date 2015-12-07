@@ -12,6 +12,103 @@
 loadPackage('zoo')
 
 # ------------------------------------------------------------------------------
+# expandAll
+# Brief: take a mapping file and expand the "all" option to all unique iso, sectors, fuels, or years
+# Dependencies: 
+# Author: Rachel Hoesly
+# parameters: 
+# return:  
+# input files: 
+#     
+# TODO: meta functionality does not work right now. must be false
+
+expandAll <- function(input,
+                      start = start_year,
+                      end = end_year,
+                      iso=NA , sector=NA, fuel=NA,
+                      toWide = FALSE
+){
+  source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
+  source( paste( PARAM_DIR, "data_functions.R", sep = "" ) )
+  
+  #debug
+  #     input <- data.frame(iso= c("aus" , "aut" , "bel", "all"),
+  #                       sector= c('all','transp_road','industry_comb','unc_gas_production'),
+  #                       fuel=c('hard_coal','coal_coke','all','natural_gas'),
+  #                       year= c('X1990','all','1980','all'),
+  #                       Ash = c(.2,.1,.23,.25),
+  #                       stringsAsFactors = FALSE)
+  #   input<-ash_ret_list[[2]]
+  #     start = start_year
+  #     end = end_year
+  #     iso=NA 
+  #     sector=NA 
+  #     fuel=NA
+  #     toWide = TRUE
+  
+  if (any(input =='all')){
+    
+    year <- start:end 
+    
+    # Define parameters from data
+    names <- names( input )
+    if( length(grep( "X", names)) >0 ){ 
+      all.id.names <- names[-grep( "X", names)]
+      toWide <- FALSE 
+    }else{ all.id.names <- names }
+    id.names <- all.id.names[ all.id.names %in% c('iso','sector','fuel','year')  ]
+    
+    if(all(is.na(iso)) & 
+       'iso' %in% id.names &
+       'all' %in% input$iso){
+      MCL <- readData( "MAPPINGS", "Master_Country_List" )
+      iso <- unique(MCL$iso)}
+    if(all(is.na(sector)) & 
+       'sector' %in% id.names &
+       'all' %in% input$sector){
+      MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
+      sector <- unique(MSL$sector) }
+    if(all(is.na(fuel)) & 
+       'fuel' %in% id.names &
+       'all' %in% input$fuel){
+      MFL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
+      fuel <- unique(MFL$fuel)}
+    
+    all <- list()
+    if ( 'iso' %in% id.names)   all[[length(all)+1]] <- iso
+    if ( 'sector' %in% id.names) all[[length(all)+1]] <- sector
+    if ( 'fuel' %in% id.names) all[[length(all)+1]] <- fuel
+    if ( 'year' %in% id.names) all[[length(all)+1]] <- year
+    
+    for (n in seq_along(id.names) ){ 
+      name <- id.names[n]
+      unique <- all[[n]]
+      replace <- input[which(input[,name]=='all'),]
+      while (nrow(replace)>0){
+        replace.index <- min(which(input[,name]=='all'))
+        replace.row <- input[replace.index,]  
+        input <- input[-replace.index,]  
+        add <- data.frame(replace = unique)
+        names(add) <- name
+        other.name <- names(input)[ names(input) %!in% name ]
+        add[, other.name ] <- replace.row[, other.name ]
+        input <- rbind(input, add)
+        replace <- input[which(input[,name]=='all'),]  
+      }}
+    
+    if ('year' %in% id.names){
+      input$year <- sub("X","",input$year)
+      input$year <- paste0('X',input$year)
+      if( toWide == TRUE) {
+        input<- cast( input, 
+                      formula = paste(paste(id.names[id.names %in% c('iso','sector','fuel')], collapse=' + '), '~ year'), 
+                      value = all.id.names[all.id.names %!in% c('iso','sector','fuel','year')])}
+    }
+  }
+  return(input)
+}
+
+# ------------------------------------------------------------------------------
 # interpolateValues
 # Brief: Interpolates missing "in between" years by linear or constant extension
 # Dependencies: 

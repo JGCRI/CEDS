@@ -1,10 +1,11 @@
 # Program Name: B1.2.add_comb_control_percent.R
 # Author: Rachel Hoesly
 # Date Last Updated: 23 Nov 2015 
-# Program Purpose: Creates a list of control_percent
-# Input Files: 
+# Program Purpose: Adds control_percent data in the EF_parameters folder to the 
+#                  ControlFrac_db
+# Input Files:    files in the EF_parameters folder contailing control_percent and em
 #               
-# Output Files: 
+# Output Files:   B.[em]_ControlFrac_db
 # Notes: 
 # TODO: 
 # ---------------------------------------------------------------------------
@@ -26,7 +27,9 @@
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-  headers <- c( 'process_db_functions.R','common_data.r') # Additional function files may be required.
+  headers <- c( 'process_db_functions.R','data_functions.R',
+                'interpolation_extention_functions.R','common_data.R') 
+#                 Additional function files may be required.
   log_msg <- "Adding control percent" # First message to be printed to the log
   script_name <- "B1.2.add_comb_control_percent.R"
   
@@ -71,8 +74,7 @@
 # 2. Add to existing parameter Dbs
 
   if( length(control_percent_list)>0 ){
-  addToDb_overwrite(new_data = control_percent, em = em, type = 'comb', 
-                    file_extention = 'ControlFrac_db') }
+  addToDb_overwrite(new_data = control_percent, em = em, file_extention = 'ControlFrac_db') }
   
   logStop()
   # END
