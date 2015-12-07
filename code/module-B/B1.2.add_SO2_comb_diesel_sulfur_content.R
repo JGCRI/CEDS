@@ -1,13 +1,13 @@
 # ------------------------------------------------------------------------------
 # Program Name: B1.2.add_SO2_comb_diesel_sulfur_content.R
-# Author: Rachel Hoesly
+# Author: Rachel Hoesly, Linh Vu
 # Date Last Updated: Oct 1 2015 
 # Program Purpose: Add Sulfur Standards to default sulfur EF
 # values from 2005 back to 1975
 # 
-# Input Files: 
+# Input Files: Diesel_transport_S_trend.xls
 #               
-# Output Files: 
+# Output Files: B.SO2_diesel_sulfur_content.csv
 # TODO: 
 # ---------------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ loadPackage('zoo')
   diesel_standards_ppm <- diesel_standards_ppm[-which(is.na(diesel_standards_ppm$iso)),]
 # -------------------------------------------------------------------------------
 # 3. Fill in default and interpolate between data estimates
-  printLog('Extrapolate diesel standards over time and regions')
+  printLog('Interpolate diesel standards over time')
   
   # default starting standard = 8000ppm
   diesel_standards_ppm[which(is.na(diesel_standards_ppm$X1970)),'X1970']<-8000
@@ -94,6 +94,8 @@ loadPackage('zoo')
 # -------------------------------------------------------------------------------
 # 3. Fill in regional average for countries with no data
 
+  printLog('Extrapolate diesel standards over regions')
+  
   iso.region.average<-setdiff(unique(MCL$iso),diesel_standards_ppm_filled$iso)
   
   diesel_standards_ppm_all<-merge(diesel_standards_ppm_filled,unique(MCL[,c('iso','Region')]),
