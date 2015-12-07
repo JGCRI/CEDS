@@ -48,7 +48,7 @@ MCL <- readData( "MAPPINGS", "Master_Country_List" )
 # ------------------------------------------------------------------------------
 # 2. Separate combustion and activity energy data
 
-energy_data_combustion <- energy_data[!which(energy_data$fuel == 'process'),]
+energy_data_combustion <- energy_data[which(energy_data$fuel != 'process'),]
 energy_data_activity <- energy_data[which(energy_data$fuel == 'process'),]
 
 # ------------------------------------------------------------------------------
