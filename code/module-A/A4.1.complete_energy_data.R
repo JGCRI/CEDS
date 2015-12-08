@@ -5,7 +5,7 @@
 # Program Purpose: To expand IEA_BP energy data to include entries for all possible
 #                  id combinations.
 # Input Files: A.comb_activity.csv 
-# Output Files: A.comb_activity.csv 
+# Output Files: A.comb_activity.csv , A.NC_activity_energy
 # Notes: 
 # TODO: DEAL WITH BIOMASS NA SECTOR, 
 #       DEAL WITH "PROCESS" SECTORS IN ENERGY_DATA- MAKE PROCESS-ONLY / TREAT AS PROCESS DATA?
@@ -48,11 +48,17 @@ MCL <- readData( "MAPPINGS", "Master_Country_List" )
 # ------------------------------------------------------------------------------
 # 2. Separate combustion and activity energy data
 
-energy_data_combustion <- energy_data[which(energy_data$fuel != 'process'),]
-energy_data_activity <- energy_data[which(energy_data$fuel == 'process'),]
+energy_data_combustion <- energy_data[energy_data$fuel != 'process',]
+energy_data_activity <- energy_data[energy_data$fuel == 'process',]
 
 # ------------------------------------------------------------------------------
-# 3. Create combustion activity database - Populate missing iso-sector-fuel combinations
+# 3. Process energy production as activity/driver data
+
+energy_data_activity <- energy_data_activity[,c('iso','sector','units', X_emissions_years)]
+names(energy_data_activity) <- c('iso','activity','units', X_emissions_years)
+
+# ------------------------------------------------------------------------------
+# 4. Create combustion activity database - Populate missing iso-sector-fuel combinations
 
 # Build empty energy data database with all combinations
 

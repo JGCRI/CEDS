@@ -54,13 +54,15 @@ replaceValueColMatch <- function( x,y,x.ColName,y.ColName = x.ColName,
   x.match.cols <- x[,match.x[1]]
   y.match.cols <- y[,match.y[1]]
   for (i in 2:n){
-    x.match.cols <- paste0(x.match.cols, x[,match.x[i]]  )
-    y.match.cols <- paste0(y.match.cols, y[,match.y[i]]  )
+    x.match.cols <- paste(x.match.cols, x[,match.x[i]]  )
+    y.match.cols <- paste(y.match.cols, y[,match.y[i]]  )
   }
   
   out[,x.ColName] <- y[match(x.match.cols,y.match.cols),
                        y.ColName]
-  out[which(is.na(out[,x.ColName])),x.ColName] <- x[which(is.na(out[,x.ColName])),x.ColName]
+  
+  index <- which(!complete.cases(out[,x.ColName]))
+  out[index,x.ColName] <- x[index,x.ColName]
   
   if (addEntries){
     x.names <- names(x)

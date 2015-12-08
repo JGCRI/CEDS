@@ -103,7 +103,7 @@
                                    TJ_fuels ] <- "kt"
   
 # Drop rows that don't map to a CEDS sector or fuel
-  A.IEA_en_stat_ctry_hist <-A.IEA_en_stat_ctry_hist[complete.cases(A.IEA_en_stat_ctry_hist[,c("sector","fuel")]),]
+  # A.IEA_en_stat_ctry_hist <-A.IEA_en_stat_ctry_hist[complete.cases(A.IEA_en_stat_ctry_hist[,c("sector","fuel")]),]
   
 # ------------------------------------------------------------------------------
 # 3. Fix Energy Balance
@@ -133,12 +133,12 @@
   A.IEA_en_stat_ctry_hist_units[  X_IEA_years ]<-A.IEA_en_stat_ctry_hist_units[  X_IEA_years ] * 
     A.IEA_en_stat_ctry_hist_units$conversion *  A.IEA_en_stat_ctry_hist_units$balance_correction
 
-  # Drop rows with negative data (negative energy balance, outputs in energy tranformation)
+# Drop rows with negative data (negative energy balance, outputs in energy tranformation)
   negativeBalance<-c()
   positiveBalance<-c()
   for (i in 1:nrow( A.IEA_en_stat_ctry_hist_units )) {
     vals<-A.IEA_en_stat_ctry_hist_units[i,X_IEA_years]
-    if (all(vals<=0) ) {negativeBalance<-c(negativeBalance,i)}
+    if (all(vals<0) | all(is.na(vals)) ) {negativeBalance<-c(negativeBalance,i)}
     else {positiveBalance<-c(positiveBalance,i)}
   }
   
@@ -148,28 +148,27 @@
   # ------------------------------------------------------------------------------
   # 4. Energy Production Sectors - energy production as activity/process data
   printLog( paste0( "Correcting energy production sectors used for activity/driver data." ) )
-   A.IEA_en_stat_process <- A.IEA_en_stat_ctry_hist_units
+  A.IEA_en_stat_process <- A.IEA_en_stat_ctry_hist_units
   
-  # seperate production sectors and assign correct ceds sector/fuel
-  A.IEA_en_activity <- A.IEA_en_stat_process[which(A.IEA_en_stat_process$sector == 'xxx_production'),]
-  A.IEA_en_stat_process<-A.IEA_en_stat_process[-which(A.IEA_en_stat_process$sector=='xxx_production'),]
-  A.IEA_en_activity <- merge(A.IEA_en_activity[, !names(A.IEA_en_activity) %in% c('sector','fuel')], IEA_process_sectors,
-                             all.x = TRUE)
-  # add back to combustion data
-  DroppedData<-rbind.fill(DroppedData, A.IEA_en_activity[!complete.cases(A.IEA_en_activity[,c('sector','fuel')]), ])
-  A.IEA_en_activity <- A.IEA_en_activity[complete.cases(A.IEA_en_activity[,c('sector','fuel')]), ]
-  A.IEA_en_stat_process <- rbind.fill(A.IEA_en_stat_process, A.IEA_en_activity)
-  A.IEA_en_activity <- A.IEA_en_activity[ , c('iso','sector','fuel','units', X_IEA_years)]
+  # assign correct ceds sector/fuel
+  A.IEA_en_stat_process <- replaceValueColMatch(A.IEA_en_stat_process,IEA_process_sectors,
+                               x.ColName = c('sector','fuel'), y.ColName = c('activity','fuel'),
+                               match.x = c('FLOW','PRODUCT'), match.y = c('FLOW','PRODUCT'),
+                               addEntries = FALSE)
+  
+  # Drop data that doesn't map to a CEDS sector/fuel and extra columns
+  DroppedData<-rbind.fill(DroppedData, A.IEA_en_stat_process[!complete.cases(A.IEA_en_stat_process[,c('sector','fuel')]), ])
+  A.IEA_en_stat_process <- A.IEA_en_stat_process[ , c('iso','sector','fuel','units', X_IEA_years)]
+  A.IEA_en_stat_process <- A.IEA_en_stat_process[complete.cases(A.IEA_en_stat_process),]
   
 # ------------------------------------------------------------------------------
 # 3. Other Data Cleaning and aggregation by CEDS fuel
 
-  printLog( paste0( "Performing other data cleaning" ) )
+  printLog( "Performing other data cleaning" )
   
 # Aggregate by relevant categories   
     
-  printLog( paste0( "Aggregating energy statistics by intermediate sector",
-                      " and intermediate fuel" ) )
+  printLog( "Aggregating energy statistics by ceds sector and fuel" )
 #  aggregate() messes up row or column order depending
 #   on how you call it, so fix that after    
     

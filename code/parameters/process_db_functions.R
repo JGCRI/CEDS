@@ -112,11 +112,20 @@ cleanData <- function( df, remove_blanks = TRUE, first = "Country", user_cols = 
 # 
 # Usage examples: addToActivityDb( df, ext_forward = FALSE, ext_backward = FALSE )
 addToActivityDb <- function( df, ext_forward = TRUE, ext_backward = FALSE ){
-
+    
+    activity_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", 
+                             sheet_selection = "Sectors", mute = TRUE )
+    activity_list_unique <- unique(activity_list$activity)
+    
     # Read in necessary files and data: common_data.R required 
     # to avoid variable overwrite carryover
     source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
     activity_db <- readData( "MED_OUT", "A.NC_activity_db", meta = FALSE )
+    
+    if ( !all(unique(df$activity) %in% activity_list_unique)){
+      printLog("Not all activities are in the master list. Those are not added to A.NC_activity_db.")
+      df <- df[df$activity %in% activity_list_unique,]
+    }
     
     # Rebind values from common_data.R
     X_start <- X_start_year

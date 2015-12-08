@@ -33,7 +33,7 @@ PARAM_DIR <- "../code/parameters/"
 headers <- c( "data_functions.R", "timeframe_functions.R", "process_db_functions.R", 
               "analysis_functions.R" ) # Additional function files required.
 log_msg <- "Initial reformatting of gdp process activity activity_data" # First message to be printed to the log
-script_name <- "A5.2.add_NC_activity_gdp.R"
+script_name <- "A5.2.add_NC_activity_energy.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )    
@@ -62,7 +62,6 @@ activity_data <- readData( input_domain, input_name, input_ext )
 # 2. Reformatting
 
 # Applies activity and unit assignments, and reorders columns to standard form
-activity_data$activity <- activity_data$sector
 
 results <- cbind( activity_data[ c( "iso","activity","units" ) ] , activity_data[ X_IEA_years ] )
 
@@ -76,9 +75,9 @@ results <- results[ with( results, order( iso, activity ) ), ]
 # By default, it will be extended forward to the common end year, but not backwards.
 # Only do this if the activityCheck header function determines that the activities in
 # the reformatted activity_data are all present in the Master List.
-if( activityCheck( results, check_all = FALSE ) ){
+  activityCheck( results, check_all = FALSE )
   addToActivityDb( results )
-}
+
 
 logStop()
 # END
