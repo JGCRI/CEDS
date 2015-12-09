@@ -3,13 +3,13 @@
 # Author's Name: Page Kyle, for GCAM; modified for use in CEDS Project by 
 #               Steve Smith, Emily Voelker, Tyler Pitkanen, Jon Seibert, 
 #               and Rachel Hoesly
-# Date Last Modified: August 31, 2015
+# Date Last Modified: Dec 8, 2015
 # Program Purpose: 
 # Input Files: A.IEA_en_stat_ctry_hist.csv, IEA_flow_sector.csv, 
 #              IEA_product_fuel.csv, Master_Fuel_Sector_List.xlsx, 
 #              IEA_energy_balance_factor.csv
 # Output Files: A.en_stat_sector_fuel.csv
-# Notes: TPES Calculation deleted, not applicable to data in physical units.
+# Notes: 
 # To Do: 
 #   Make sure all input files feature fuel units, and that flow, sectors,
 #   and units match up across the board. 
@@ -182,7 +182,7 @@
   
   if ( nrow(combustion_data_process_sectors)){
     unique <- unique(combustion_data_process_sectors[,c('sector','fuel')])
-    writeData( DroppedData, domain = "DIAG_OUT", 
+    writeData( combustion_data_process_sectors, domain = "DIAG_OUT", 
                fn = "A.en_balance_non_process_fuels_process_sectors",
                comments = paste0('Combustion Data in process sectors, that are not specifically ',
                                  'mapped to a process sector activity in mappings/energy/IEA_process_sectors.csv'))
