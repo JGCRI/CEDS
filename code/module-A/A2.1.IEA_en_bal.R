@@ -46,7 +46,7 @@
     IEA_flow_sector <- readData( "EN_MAPPINGS", "IEA_flow_sector" )
     IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
     IEA_process_sectors <- readData( "EN_MAPPINGS", "IEA_process_sectors" )
-    fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
+    MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
     IEA_energy_balance_factor <- readData( "ENERGY_IN", "IEA_energy_balance_factor" )
 
 # Check that files contain the proper names
@@ -101,10 +101,6 @@
                                    TJ_fuels ] <- "TJ"
   A.IEA_en_stat_ctry_hist$units[ A.IEA_en_stat_ctry_hist$fuel %!in%
                                    TJ_fuels ] <- "kt"
-  
-# Drop rows that don't map to a CEDS sector or fuel
-  # A.IEA_en_stat_ctry_hist <-A.IEA_en_stat_ctry_hist[complete.cases(A.IEA_en_stat_ctry_hist[,c("sector","fuel")]),]
-  
 # ------------------------------------------------------------------------------
 # 3. Fix Energy Balance
 
@@ -133,18 +129,17 @@
   A.IEA_en_stat_ctry_hist_units[  X_IEA_years ]<-A.IEA_en_stat_ctry_hist_units[  X_IEA_years ] * 
     A.IEA_en_stat_ctry_hist_units$conversion *  A.IEA_en_stat_ctry_hist_units$balance_correction
 
-# Drop rows with negative data (negative energy balance, outputs in energy tranformation)
-  negativeBalance<-c()
-  positiveBalance<-c()
-  for (i in 1:nrow( A.IEA_en_stat_ctry_hist_units )) {
-    vals<-A.IEA_en_stat_ctry_hist_units[i,X_IEA_years]
-    if (all(vals<0) | all(is.na(vals)) ) {negativeBalance<-c(negativeBalance,i)}
-    else {positiveBalance<-c(positiveBalance,i)}
-  }
+# Replace NAs with 0
+  A.IEA_en_stat_ctry_hist_units[is.na(A.IEA_en_stat_ctry_hist_units)] <- 0
+  A.IEA_en_stat_ctry_hist_units[A.IEA_en_stat_ctry_hist_units$sector == 0,'sector'] <- NA
+  A.IEA_en_stat_ctry_hist_units[A.IEA_en_stat_ctry_hist_units$fuel == 0,'fuel'] <- NA
+
+# Drop rows with all zero or negative data (negative energy balance, outputs in energy tranformation)
+ logical <- A.IEA_en_stat_ctry_hist_units[,X_IEA_years] <= 0  
+ drop.row <- apply ( logical , MARGIN = 1, FUN = all )
+ DroppedData<-A.IEA_en_stat_ctry_hist_units[drop.row,]
+ A.IEA_en_stat_ctry_hist_units<-A.IEA_en_stat_ctry_hist_units[!drop.row,] 
   
-  DroppedData<-A.IEA_en_stat_ctry_hist_units[negativeBalance,]
-  A.IEA_en_stat_ctry_hist_units<-A.IEA_en_stat_ctry_hist_units[positiveBalance,]  
- 
   # ------------------------------------------------------------------------------
   # 4. Energy Production Sectors - energy production as activity/process data
   printLog( paste0( "Correcting energy production sectors used for activity/driver data." ) )
@@ -178,7 +173,26 @@
              sector = A.IEA_en_stat_process$sector, 
              iso = A.IEA_en_stat_process$iso,
              units= A.IEA_en_stat_process$units), sum ) 
+
+# Check Combustion Sectors vs Process Sectors - If non process fuels for process sectors, seperate and
+# write to diagnostic file
+  combustion_sectors <- MSL[which(MSL$activity == 'Energy_Combustion'),'sector']
   
+  combustion_data_process_sectors <- A.en_stat_sector_fuel[ which(A.en_stat_sector_fuel$sector %!in% combustion_sectors & A.en_stat_sector_fuel$fuel != 'process'),]
+  
+  if ( nrow(combustion_data_process_sectors)){
+    unique <- unique(combustion_data_process_sectors[,c('sector','fuel')])
+    writeData( DroppedData, domain = "DIAG_OUT", 
+               fn = "A.en_balance_non_process_fuels_process_sectors",
+               comments = paste0('Combustion Data in process sectors, that are not specifically ',
+                                 'mapped to a process sector activity in mappings/energy/IEA_process_sectors.csv'))
+    warning(paste(paste('IEA data contains non-zero energy data for CEDS fuels other than "process" ',
+                     'for process sectors. Removing from IEA data: '),
+                  paste(unique$sector, unique$fuel, sep = '-', collapse = ', ')))
+    
+    A.en_stat_sector_fuel <- A.en_stat_sector_fuel[ -which(A.en_stat_sector_fuel$sector %!in% combustion_sectors & A.en_stat_sector_fuel$fuel != 'process'),]
+  }
+
 # Rearrange first three columns to resemble how they came in from the previous
 #   script
     A.en_stat_sector_fuel <- A.en_stat_sector_fuel[ 
