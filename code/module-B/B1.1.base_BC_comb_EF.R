@@ -62,9 +62,10 @@
   # define em
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "SO2"
+    if ( is.na( em ) ) em <- "BC"
     em_lc <- tolower( em ) 
 
+    activity_data <- readData( "MED_OUT", "A.comb_activity" )
     energy_consumption_1990 <- readData( "EM_INV", "Bond_Fuel-Central_1990", meta = F )
     energy_consumption_1996 <- readData( "EM_INV", "Bond_Fuel-Central_1996", meta = F )
     emission_1990 <- readData( "EM_INV", "Bond_BC1-Central_1990", meta = F )
@@ -368,11 +369,22 @@
     s6 <- interpolate( s6, "1990", "1996", "linear" )
     
     names( s6 ) <- c( "iso", "sector", "fuel", "units", X_emissions_years )
+
+# ------------------------------------------------------------------------------
+# 7. Put Bond Data in same format as activity combustion data
     
+  results <- activity_data[,c('iso','sector','fuel')] 
+  results$units <- 'g/kg'
+  results <- merge(results, s6, all.x=TRUE, all.y=FALSE)
+  results[is.na(results)] <- 0
+  
+  # Sort
+  results <- results[ with( results, order( iso, sector, fuel ) ), ]
+  
 # ------------------------------------------------------------------------------
 # 7. Write output
     
-    writeData( s6, "MED_OUT", paste0( "B.", em ,"_", "comb", "_EF_db" ) )
+    writeData( results, "MED_OUT", paste0( "B.", em ,"_", "comb", "_EF_db" ) )
 #     writeData( diag_missingEF, "DIAG_OUT", "B.EF.diag_missingallEF" )
 #     writeData( diag_sd, "DIAG_OUT", "B.diag_sd" )
 #     writeData( diag, "DIAG_OUT", "B.missing_ef_mapped")

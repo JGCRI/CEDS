@@ -64,7 +64,7 @@ names(energy_data_activity) <- c('iso','activity','units', X_emissions_years)
 
 # Whether these lists include biomass and/or process sectors is easily editable- 
 # left out for now via reasonable assumption.
-iso_list <- unique( MCL$iso )
+iso_list <- sort( unique( MCL$iso ) )
 sector_list <- unique( c( MSL$sector[ MSL$activity == "Energy_Combustion" ], 
                           unique( energy_data_combustion$sector[ energy_data_combustion$sector != "NA" ] ) ) )
 # fuel_list <- unique( MFL$fuel[ MFL$fuel != "process" & MFL$fuel != "biomass" ] )
