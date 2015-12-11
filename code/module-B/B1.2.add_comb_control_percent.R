@@ -49,27 +49,37 @@
   
 # ---------------------------------------------------------------------------
 # 1. Reading data and mapppings into script
-
+  
+  printLog(paste('start of add comb control percent - sink number: ', sink.number()))
   # Read in parameter files
 
   files_list <- list.files(path =  './default_emissions_data/EF_parameters', pattern = '*.csv')
   files_list <- file_path_sans_ext( files_list )
+  
   #select "control_percent"
   control_percent_file_list <- files_list[grep(pattern = "_control_percent", files_list )]
+  
   #de select meta-data
   control_percent_file_list <- control_percent_file_list[-grep(pattern = "metadata", control_percent_file_list )]
+  
   # select emission
   control_percent_file_list <- control_percent_file_list[grep(pattern = em, control_percent_file_list )]
   
   control_percent_list <- lapply ( X = control_percent_file_list, FUN = readData, 
                                    domain = "DEFAULT_EF_PARAM")
 # ---------------------------------------------------------------------------
-# 2. Expand "all" variable and convert list to one df
-  control_percent_list <- lapply( X = control_percent_list, FUN = expandAll, toWide=TRUE)
+# 2. Expand "all" variable and extend over time, convert list to one df
+
+  # Expand all, interpolate and Extend forward and back
+  control_percent_extended <- lapply( X= control_percent_list, FUN = extendDefaultEF, 
+                                   pre_ext_method_default = 'linear_0')
   
-  control_percent <- do.call("rbind.fill", control_percent_list)
+  control_percent <- do.call("rbind.fill", control_percent_extended)
   
   control_percent$units <- 'percent'
+  
+  printLog(paste('start of add comb control percent - sink number: ', sink.number()))
+
 # ---------------------------------------------------------------------------
 # 2. Add to existing parameter Dbs
 

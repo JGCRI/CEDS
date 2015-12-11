@@ -78,21 +78,12 @@ loadPackage('zoo')
   
   # extend most recent standard through 2015
   diesel_standard_extend <-  t(diesel_standards_ppm[,-1])
-  for (i in seq_along(diesel_standard_extend[1,]) ){
-  x<-diesel_standard_extend[,i]
-  lx<-length(x)
-  xtrim<-na.trim(x)
-  lxtrim<-length(xtrim)
-  if(lx > lxtrim) diesel_standard_extend[,i]<-c(xtrim,rep(x[lxtrim],time=lx-lxtrim))
-  }
-  
-  # fill in NA. constant 
-  diesel_standards_fill<-na.approx(diesel_standard_extend,method='constant')
+  diesel_standard_extend <- na.locf(diesel_standard_extend)
   diesel_standards_ppm_filled <-diesel_standards_ppm
-  diesel_standards_ppm_filled[,-1]<-t(diesel_standards_fill)
+  diesel_standards_ppm_filled[,-1]<-t(diesel_standard_extend)
 
 # -------------------------------------------------------------------------------
-# 3. Fill in regional average for countries with no data
+# 4. Fill in regional average for countries with no data
 
   printLog('Extrapolate diesel standards over regions')
   
@@ -120,7 +111,7 @@ loadPackage('zoo')
   # select only countries in Master Country List
   diesel_standards_ppm_complete <- diesel_standards_ppm_complete[ diesel_standards_ppm_complete$iso %in% MCL$iso, ]
 # -------------------------------------------------------------------------------
-# 3. Calculate EF, fill in sectors and fuel
+# 5. Calculate EF, fill in sectors and fuel
   
   printLog("Calculating diesel sulfer EF")
   
@@ -130,11 +121,12 @@ loadPackage('zoo')
   diesel_EF$fuel<-'diesel_oil'
   diesel_EF$sector<-'transp_road'
   diesel_EF$units <- 'kt/kt'
-  diesel_EF <- diesel_EF[,c('iso','sector','fuel','units', X_standard_years)]
+  diesel_EF <- diesel_EF[,c('iso','sector','fuel','units', 
+                            X_standard_years[X_standard_years %in% X_emissions_years])]
 
 
 # -------------------------------------------------------------------------------
-# 5. Output
+# 6. Output
   
 printLog("Adding diesel sulfer standard SO2 EFs to B.SO2_comb_EF_db")
 

@@ -1,0 +1,2 @@
+This folder contains data files with default emissions factors and default emission factor parameters (sulfur content, ash retention, and control percentage) to be added to the data system.
+This include both input data files and files written out by various scripts in module B.

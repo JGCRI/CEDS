@@ -1,59 +1,1 @@
-Sector,GAINS Sectors,GAINS long name
-,WASTE_AGR,Waste: Agricultural waste burning
-energytrans_other,CON_COMB,Oth. En. Sect. ? combustion
-energytrans_other,CON_LOSS,En. Sect. - own use and loss
-rescom_buildings,DOM,"Residential, commercial, services, agriculture, etc."
-industry_comb,IN_BO_CHEM,Industry: chemical industry (combustion in boilers)
-industry_comb,IN_BO_CON,"Industry, transformation sector, combustion in boilers"
-industry_comb,IN_BO_OTH,Industry: other sectors; combustion of fossil fuels other than brown coal/lignite and hard coal
-industry_comb,IN_BO_OTH_L,Industry: other sectors; combustion of brown coal/lignite and hard coal in large boilers ( > 20 MWth )
-industry_comb,IN_BO_OTH_S,Industry: other sectors; combustion of brown coal/lignite and hard coal in small boilers ( < 20 MWth )
-industry_comb,IN_BO_PAP,Industry: paper and pulp production (combustion in boilers)
-industry_comb,IN_OC,Industry: Other combustion (used in emission tables)
-industry_comb,IN_BO,
-,NONEN,Nonenergy use of fuels
-energytrans_electricity_gen,PP_ENG,Power & district heat plants with internal combustion engines
-energytrans_electricity_gen,PP_EX_L,"Power & district heat plants, existing; brown coal/lignite and hard coal fired, large generation units ( > 50 MW el )"
-energytrans_electricity_gen,PP_EX_OTH,"Power & district heat plants, existing; fired with fuels other than brown coal/lignite and hard coal"
-energytrans_electricity_gen,PP_EX_S,"Power & district heat plants, existing; brown coal/lignite and hard coal fired, small generation units ( < 50 MW el )"
-energytrans_electricity_gen,PP_IGCC,Power & district heat plants: Integrated Gasification Combined Cycle
-energytrans_electricity_gen,PP_IGCC_CCS,Power & district heat plants: Integrated Gasification Combined Cycle with carbon capture and storage
-energytrans_electricity_gen,PP_MOD,"Modern power plants (supercritical, ultrasupercritical), brown coal/lignite and hard coal fired"
-energytrans_electricity_gen,PP_MOD_CCS,"Modern power plants (supercritical, ultrasupercritical), brown coal/lignite and hard coal fired with carbon capture and storage"
-energytrans_electricity_gen,PP_NEW,"Power & district heat plants, new; fired with fuels other than brown coal/lignite and hard coal "
-energytrans_electricity_gen,PP_NEW_L,"Power & district heat plants, new; brown coal/lignite and hard coal fired, large generation units"
-energytrans_heat_gen,PP_TOTAL,"Power & district heat plants (total); used for reporting total fossil fuels inputs, inputs of non-fossil fuels as well as total electricity and heat generation "
-energytrans_electricity_gen,PP_EX_WB,
-process_Other,PR_CEM,Ind. Process: Cement production
-process_Other,PR_LIME,Ind. Process: Lime production
-transp_unspecified,TRA_OT,"Other transport, non-road"
-transp_international_ship,TRA_OTS,Other transport: maritime activities
-transp_international_ship,TRA_OTS_L,"Other transport: maritime, large vessels, >1000 GRT "
-transp_international_ship,TRA_OTS_M,"Other transport: maritime, medium vessels <1000GRT"
-industry_agriculture,TRA_OT_AGR,Other transport: agriculture and forestry
-transp_domestic_air,TRA_OT_AIR,Other transport: air traffic - civil aviation
-transp_unspecified,TRA_OT_CNS,Other transport: mobile sources in construction and industry
-transp_domestic_ship,TRA_OT_INW,Other transport: inland waterways 
-transp_unspecified,TRA_OT_LB,"Other transport: other off-road; sources with 4-stroke engines (military, households, etc., for GAS also pipeline compressors)"
-transp_unspecified,TRA_OT_LD2,Other transport: off-road; sources with 2-stroke engines
-transp_rail,TRA_OT_RAI,Other transport: rail 
-transp_road,TRA_RD,Road vehicles
-transp_road,TRA_RD_HDB,Heavy duty vehicles - buses 
-transp_road,TRA_RD_HDT,Heavy duty vehicles - trucks 
-transp_road,TRA_RD_LD2,"Motorcycles, mopeds and cars with 2-stroke engines"
-transp_road,TRA_RD_LD4C,Light duty vehicles: cars and small buses with 4-stroke engines 
-transp_road,TRA_RD_LD4T,Light duty vehicles: light commercial trucks with 4-stroke engines
-transp_road,TRA_RD_M4,Motorcycles with 4-stroke engines
-process_Other,OTHER_SO2,Other SO2 emissions not included separately in GAINS and statistical differences
-process_Other,PR_BRICK,Ind. Process: Bricks production
-process_Other,PR_COKE,Ind. Process: Coke oven
-process_Other,PR_GLASS,"Ind. Process: Glass production (flat, blown, container glass)"
-process_Other,PR_NIAC,Ind. Process: Nitric acid
-process_smelting,PR_OT_NFME,Ind. Process: Other non-ferrous metals prod. - primary and secondary
-process_smelting,PR_PIGI,"Ind. Process: Pig iron, blast furnace"
-proccess_PulpPaper,PR_PULP,Ind. Process: Paper pulp mills
-oil_production,PR_REF,Ind. Process: Crude oil & other products - input to Petroleum refineries
-process_Other,PR_SINT,Ind. Process: Agglomeration plant - sinter
-proccess_SAcidProduction,PR_SUAC,Ind. Process: Sulfuric acid
-,WASTE_FLR,Waste: Flaring in gas and oil industry
-,WASTE_RES,Waste: Open burning of residential waste
+sector,GAINS sectors,GAINS long name,WASTE_AGR,Waste: Agricultural waste burningenergytrans_other,CON_COMB,Oth. En. Sect. ? combustionenergytrans_other,CON_LOSS,En. Sect. - own use and lossrescom_buildings,DOM,"Residential, commercial, services, agriculture, etc."industry_comb,IN_BO_CHEM,Industry: chemical industry (combustion in boilers)industry_comb,IN_BO_CON,"Industry, transformation sector, combustion in boilers"industry_comb,IN_BO_OTH,Industry: other sectors; combustion of fossil fuels other than brown coal/lignite and hard coalindustry_comb,IN_BO_OTH_L,Industry: other sectors; combustion of brown coal/lignite and hard coal in large boilers ( > 20 MWth )industry_comb,IN_BO_OTH_S,Industry: other sectors; combustion of brown coal/lignite and hard coal in small boilers ( < 20 MWth )industry_comb,IN_BO_PAP,Industry: paper and pulp production (combustion in boilers)industry_comb,IN_OC,Industry: Other combustion (used in emission tables)industry_comb,IN_BO,,NONEN,Nonenergy use of fuelsenergytrans_electricity_gen,PP_ENG,Power & district heat plants with internal combustion enginesenergytrans_electricity_gen,PP_EX_L,"Power & district heat plants, existing; brown coal/lignite and hard coal fired, large generation units ( > 50 MW el )"energytrans_electricity_gen,PP_EX_OTH,"Power & district heat plants, existing; fired with fuels other than brown coal/lignite and hard coal"energytrans_electricity_gen,PP_EX_S,"Power & district heat plants, existing; brown coal/lignite and hard coal fired, small generation units ( < 50 MW el )"energytrans_electricity_gen,PP_IGCC,Power & district heat plants: Integrated Gasification Combined Cycleenergytrans_electricity_gen,PP_IGCC_CCS,Power & district heat plants: Integrated Gasification Combined Cycle with carbon capture and storageenergytrans_electricity_gen,PP_MOD,"Modern power plants (supercritical, ultrasupercritical), brown coal/lignite and hard coal fired"energytrans_electricity_gen,PP_MOD_CCS,"Modern power plants (supercritical, ultrasupercritical), brown coal/lignite and hard coal fired with carbon capture and storage"energytrans_electricity_gen,PP_NEW,"Power & district heat plants, new; fired with fuels other than brown coal/lignite and hard coal "energytrans_electricity_gen,PP_NEW_L,"Power & district heat plants, new; brown coal/lignite and hard coal fired, large generation units"energytrans_heat_gen,PP_TOTAL,"Power & district heat plants (total); used for reporting total fossil fuels inputs, inputs of non-fossil fuels as well as total electricity and heat generation "energytrans_electricity_gen,PP_EX_WB,process_Other,PR_CEM,Ind. Process: Cement productionprocess_Other,PR_LIME,Ind. Process: Lime productiontransp_unspecified,TRA_OT,"Other transport, non-road"transp_international_ship,TRA_OTS,Other transport: maritime activitiestransp_international_ship,TRA_OTS_L,"Other transport: maritime, large vessels, >1000 GRT "transp_international_ship,TRA_OTS_M,"Other transport: maritime, medium vessels <1000GRT"industry_agriculture,TRA_OT_AGR,Other transport: agriculture and forestrytransp_domestic_air,TRA_OT_AIR,Other transport: air traffic - civil aviationtransp_unspecified,TRA_OT_CNS,Other transport: mobile sources in construction and industrytransp_domestic_ship,TRA_OT_INW,Other transport: inland waterways transp_unspecified,TRA_OT_LB,"Other transport: other off-road; sources with 4-stroke engines (military, households, etc., for GAS also pipeline compressors)"transp_unspecified,TRA_OT_LD2,Other transport: off-road; sources with 2-stroke enginestransp_rail,TRA_OT_RAI,Other transport: rail transp_road,TRA_RD,Road vehiclestransp_road,TRA_RD_HDB,Heavy duty vehicles - buses transp_road,TRA_RD_HDT,Heavy duty vehicles - trucks transp_road,TRA_RD_LD2,"Motorcycles, mopeds and cars with 2-stroke engines"transp_road,TRA_RD_LD4C,Light duty vehicles: cars and small buses with 4-stroke engines transp_road,TRA_RD_LD4T,Light duty vehicles: light commercial trucks with 4-stroke enginestransp_road,TRA_RD_M4,Motorcycles with 4-stroke enginesprocess_Other,OTHER_SO2,Other SO2 emissions not included separately in GAINS and statistical differencesprocess_Other,PR_BRICK,Ind. Process: Bricks productionprocess_Other,PR_COKE,Ind. Process: Coke ovenprocess_Other,PR_GLASS,"Ind. Process: Glass production (flat, blown, container glass)"process_Other,PR_NIAC,Ind. Process: Nitric acidprocess_smelting,PR_OT_NFME,Ind. Process: Other non-ferrous metals prod. - primary and secondaryprocess_smelting,PR_PIGI,"Ind. Process: Pig iron, blast furnace"proccess_PulpPaper,PR_PULP,Ind. Process: Paper pulp millsoil_production,PR_REF,Ind. Process: Crude oil & other products - input to Petroleum refineriesprocess_Other,PR_SINT,Ind. Process: Agglomeration plant - sinterproccess_SAcidProduction,PR_SUAC,Ind. Process: Sulfuric acid,WASTE_FLR,Waste: Flaring in gas and oil industry,WASTE_RES,Waste: Open burning of residential waste

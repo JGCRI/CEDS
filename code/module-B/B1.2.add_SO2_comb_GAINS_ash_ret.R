@@ -49,47 +49,19 @@ sectormap <- readData( "GAINS_MAPPINGS",  "GAINS_sector_mapping" )
 gainsash_ret[gainsash_ret == "n.a"] <- 0
 gainsash_ret[,4:ncol(gainsash_ret)] <- lapply(gainsash_ret[,4:ncol(gainsash_ret)], as.numeric)
 gainsash_ret <- melt(gainsash_ret, id.vars = c("cou_abb", "reg_abb", "fuel"))
-colnames(gainsash_ret) <- c("iso", "reg_abb", "Fuel", "Sector", "X2005")
-gainsash_ret$Fuel <- fuelmap[match(gainsash_ret$Fuel,fuelmap$GAINS.fuel),'fuel']
-gainsash_ret$Sector <- sectormap[match(gainsash_ret$Sector,sectormap$GAINS.Sectors),'Sector']
+colnames(gainsash_ret) <- c("iso", "reg_abb", "fuel", "sector", "X2005")
+gainsash_ret$fuel <- fuelmap[match(gainsash_ret$fuel,fuelmap$GAINS.fuel),'fuel']
+gainsash_ret$sector <- sectormap[match(gainsash_ret$sector,sectormap$GAINS.sectors),'sector']
 gainsash_ret$iso <- tolower(gainstoiso[match(gainsash_ret$iso,gainstoiso$country),'ISO.code'])
 
 # 2.1 Aggregating by taking the mean of the Sulfur Retention Values.
 gainsash_ret <- aggregate(gainsash_ret[c("X2005")], 
-                     by = gainsash_ret[c("iso","Sector", "Fuel")], FUN=mean)
-
-# 2.2 Formatting
-
-colnames(gainsash_ret)[which(names(gainsash_ret) == 'Sector')] <- 'sector'
-colnames(gainsash_ret)[which(names(gainsash_ret) == 'Fuel')] <- 'fuel'
-gainsash_ret$units <- 'NA'
-gainsash_ret$pre_ext_method<- 'constant'
-gainsash_ret$pre_ext_year <- 1960
-gainsash_ret$interp_method <- 'linear'
-gainsash_ret$post_ext_method <- 'constant'
-gainsash_ret$post_ext_year <- 2014
-gainsash_ret<- gainsash_ret[c('iso','sector','fuel','units','pre_ext_method','pre_ext_year','interp_method','post_ext_method','post_ext_year','X2005')]
+                     by = gainsash_ret[c("iso","sector", "fuel")], FUN=mean)
+gainsash_ret <- gainsash_ret[which( gainsash_ret$X2005 > 0),]
 
 # -------------------------------------------------------------------------------
-# 3. Extrapolation/Interpolation
-
-gainsash_ret_values <- gainsash_ret[,c('iso','sector','fuel','units','X2005')]
-gainsash_ret_interp_method <- gainsash_ret[c('iso','sector','fuel','interp_method')]
-gainsash_ret_ext_method <- gainsash_ret[c('iso','sector','fuel','pre_ext_method','post_ext_method')]
-gainsash_ret_ext_year <- gainsash_ret[c('iso','sector','fuel','pre_ext_year','post_ext_year')]
-
-gainsash_ret_extended <- interpolateValues(gainsash_ret_values, interp_method = gainsash_ret_interp_method)
-
-gainsash_ret_extended <- extendValues(gainsash_ret_extended, pre_ext_default = 'linear_0', 
-                                      ext_method = gainsash_ret_ext_method, ext_year = gainsash_ret_ext_year)
-if( identical(gainsash_ret_extended$iso, gainsash_ret$iso) &&
-    identical(gainsash_ret_extended$sector, gainsash_ret$sector)){
-    gainsash_ret_extended <- cbind(gainsash_ret[,c('iso','sector','fuel','units')],
-                                   gainsash_ret_extended[, names(gainsash_ret_extended)[names(gainsash_ret_extended) %!in% c('iso','sector','fuel','units')] ]) }
-
-# -------------------------------------------------------------------------------
-# 4. Output
-writeData(gainsash_ret_extended, domain = "DEFAULT_EF_PARAM", fn = "B.GAINS_SO2_ash_ret")
+# 3. Output
+writeData(gainsash_ret, domain = "DEFAULT_EF_PARAM", fn = "B.SO2_GAINS_ash_ret")
 
 
 

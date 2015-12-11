@@ -64,9 +64,9 @@ if( em == "BC" || em == "OC" ){
   scripts <- c(  )
 }
 
-
 # Add control percent and processing script for all emission types
-scripts <- c(scripts,'B1.2.add_comb_control_percent.R', 'B1.3.proc_comb_EF_control_percent.R')
+scripts <- c(scripts,'B1.2.add_comb_control_percent.R', 'B1.2.add_comb_default_EF.R',
+             'B1.3.proc_comb_EF_control_percent.R')
 
 # Run all child scripts for the given emissions type. The call to
 # invisible() prevents extraneous output from appearing in the console.

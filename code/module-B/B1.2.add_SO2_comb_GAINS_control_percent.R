@@ -39,15 +39,23 @@ source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
 # ---------------------------------------------------------------------------
-# 0.5 Load Packages
+# 0.5 Load Packages, define functions
 
 loadPackage('zoo')
+
+# Define multipliers function
+multipliers <- function(conversion, IEAfuels) {
+  conversion <- conversion[,IEAfuels]
+  unit_multiplier <- sum(colSums(conversion, na.rm = T)) / 
+    length(na.omit(unlist(conversion)))
+  return(unit_multiplier)
+}
 
 # ---------------------------------------------------------------------------
 # 1. Reading data and mapppings into script
 
-EUemiss  <- readData( "EM_INV", "GAINS_emiss_act_sect-EU28-2005-SO2_nohead")
-EUfuel  <- readData( "EM_INV",  "GAINS_aen_act_sect-nohead-EU28" )
+EUemiss.import  <- readData( "EM_INV", "GAINS_emiss_act_sect-EU28-2005-SO2_nohead")
+EUfuel.import  <- readData( "EM_INV",  "GAINS_aen_act_sect-nohead-EU28" )
 
 gainstoiso <- readData( "GAINS_MAPPINGS",  "GAINS_country_mapping" )
 fuelmap <- readData(  "GAINS_MAPPINGS", "GAINS_fuel_mapping" )
@@ -88,14 +96,6 @@ conversion <- rbind(NONOECD, OECD)
 
 conversion[,3:ncol(conversion)] <- 
   suppressWarnings(lapply(conversion[,3:ncol(conversion)], as.numeric))
-
-# Define multipliers function
-multipliers <- function(conversion, IEAfuels) {
-  conversion <- conversion[,IEAfuels]
-  unit_multiplier <- sum(colSums(conversion, na.rm = T)) / 
-    length(na.omit(unlist(conversion)))
-  return(unit_multiplier)
-}
 
 # diagnostic-output
 writeData( conversion, domain = "DIAG_OUT", 
@@ -143,6 +143,9 @@ GAINS_multipliers <- data.frame(fuel=c('brown_coal', 'hard_coal', 'biomass', 'li
 #colnames( EUemiss ) <- c( EUemiss[7,] )
 #EUemiss <- EUemiss[-c(1:7), ]
 
+EUfuel <- EUfuel.import
+EUemiss <- EUemiss.import
+
 # 2.1 Preparing the data, changing n.a's into 0's and making numbers numeric
 EUfuel[EUfuel == "n.a"] <- 0
 EUfuel[,4:ncol(EUfuel)] <- lapply(EUfuel[,4:ncol(EUfuel)], as.numeric) 
@@ -154,12 +157,12 @@ EUfuel <- melt(EUfuel, id.vars = c( "cou_abb", "reg_abb","sector.activity"))
 EUemiss <- melt(EUemiss, id.vars = c( "cou_abb", "reg_abb", "Sector.Activity"))
 
 # 2.3 Changing column names along with puting sectors and fuels into CEDS names
-colnames(EUfuel) <- c("iso", "reg_abb", "Sector", "Fuel", "Energy")
-EUfuel$Sector <- sectormap[match(EUfuel$Sector,sectormap$GAINS.Sectors),1]
-EUfuel$Fuel <- fuelmap[match(EUfuel$Fuel,fuelmap$GAINS.fuel),1]
-colnames(EUemiss) <- c("iso", "reg_abb", "Sector", "Fuel", "Sulfur_emiss")
-EUemiss$Sector <- sectormap[match(EUemiss$Sector,sectormap$GAINS.Sectors),1]
-EUemiss$Fuel <- fuelmap[match(EUemiss$Fuel,fuelmap$GAINS.fuel),1]
+colnames(EUfuel) <- c("iso", "reg_abb", "sector", "fuel", "Energy")
+EUfuel$sector <- sectormap[match(EUfuel$sector,sectormap$GAINS.sectors),1]
+EUfuel$fuel <- fuelmap[match(EUfuel$fuel,fuelmap$GAINS.fuel),1]
+colnames(EUemiss) <- c("iso", "reg_abb", "sector", "fuel", "Sulfur_emiss")
+EUemiss$sector <- sectormap[match(EUemiss$sector,sectormap$GAINS.sectors),1]
+EUemiss$fuel <- fuelmap[match(EUemiss$fuel,fuelmap$GAINS.fuel),1]
 
 #Convert to isocode
 EUemiss$iso <- tolower(gainstoiso$ISO.code[match(EUemiss$iso,gainstoiso$country)])
@@ -167,9 +170,9 @@ EUfuel$iso <- tolower(gainstoiso$ISO.code[match(EUfuel$iso,gainstoiso$country)])
 
 # 2.4 Aggregating and Creating Emissions Factors
 EUfuel <- aggregate(EUfuel[c("Energy")], 
-                    by = EUfuel[c("iso","Sector", "Fuel")], FUN=sum)
+                    by = EUfuel[c("iso","sector", "fuel")], FUN=sum)
 EUemiss <- aggregate(EUemiss[c("Sulfur_emiss")], 
-                     by = EUemiss[c("iso","Sector", "Fuel")], FUN=sum)
+                     by = EUemiss[c("iso","sector", "fuel")], FUN=sum)
 EmissFactors <- merge(EUfuel,EUemiss, all.x = T, all.y = F)
 
 # 2.5 Converting units of energy from PJ into kt
@@ -204,16 +207,19 @@ EmissFactors[EmissFactors$Fuel %in% "heavy_oil", "Energy"] <-
 # 2.6 Creating Emission Factor for 2005
 # The following sectors are not important to this information set, therefore remove
 out <- c("Heat", "Electricity", "Hydro", "Hydrogen", "Nuclear", "Renewables", "")
-EmissFactors <- EmissFactors[!EmissFactors$Fuel %in% out,]
+EmissFactors <- EmissFactors[!EmissFactors$fuel %in% out,]
 EmissFactors$units <- c("NA")
 EmissFactors$EF_2005 <- EmissFactors$Sulfur_emiss/EmissFactors$Energy
-EmissFactors <- EmissFactors[,c("iso","Sector", "Fuel", "units", "EF_2005")]
+EmissFactors <- EmissFactors[,c("iso","sector", "fuel", "units", "EF_2005")]
 EmissFactors <- EmissFactors[complete.cases(EmissFactors),]
 EmissFactors <- EmissFactors[-which(EmissFactors$EF_2005=='Inf'),]
 names(EmissFactors) <- c("iso","sector", "fuel", "units", "EF_2005")
 
-#get rid of 
-EmissFactors <- EmissFactors[-which(EmissFactors$EF_2005>10^4),]
+# keep non zero EF
+EmissFactors <- EmissFactors[which(EmissFactors$EF_2005 > 0),]
+
+#get rid of very large EF
+EmissFactors <- EmissFactors[which(EmissFactors$EF_2005 < 10^4),]
 
 # -------------------------------------------------------------------------------
 # 3.Calculate GAINS control percentage using GAINS emission factors
@@ -230,16 +236,17 @@ base$X2005 <- base$X2005*2
 default <- join(base, gains_ashret, by=c('iso','sector', 'fuel'))
 default$default_EF <- default$X2005*(1-default[,ncol(default)])
 default <- default[!is.na(default$default_EF),]
+default$units <- NA
 default <- default[,c('iso',"sector",'fuel', 'units', 'default_EF')]
 colnames(default)[which(names(default) == "default_EF")] <- 'X2005'
 
-default.wide <- melt(default, c('iso','sector','fuel', 'units'), val='X2005')
-names(default.wide)<-c('iso','sector','fuel','units','years','default')
+default.long <- melt(default, c('iso','sector','fuel', 'units'), val='X2005')
+names(default.long)<-c('iso','sector','fuel','units','years','default')
 
-gains.wide <- melt(Gains_EF, c('iso','sector','fuel','units'))
-names(gains.wide)<-c('iso','sector','fuel','units','years','gains')
+gains.long <- melt(Gains_EF, c('iso','sector','fuel','units'))
+names(gains.long)<-c('iso','sector','fuel','units','years','gains')
 
-combined<-merge(gains.wide, default.wide, by=c('iso','sector','fuel','units','years'),
+combined<-merge(gains.long, default.long, by=c('iso','sector','fuel','units','years'),
                 all.x = TRUE, all.y=FALSE)
 
 
@@ -252,37 +259,11 @@ combined <- combined[which(is.finite(combined$control_percent)),]
 control_percent <- cast(combined[,c('iso','sector','fuel','units','years','control_percent')],
                         iso+sector+fuel+units~years,
                         value = 'control_percent')
-# Gard code formatting
-control_percent$pre_ext_method <- 'linear_0'
-control_percent$pre_ext_year <- 1960
-control_percent$interp_method <- 'linear'
-control_percent$post_ext_method <- 'constant'
-control_percent$post_ext_year <- 2014
-control_percent<- control_percent[c('iso','sector','fuel','units','pre_ext_method','pre_ext_year',
-                                    'interp_method','post_ext_method','post_ext_year','X2005')]
-
-
-# -------------------------------------------------------------------------------
-# 3. Extrapolation/Interpolation
-
-control_percent_values <- control_percent[,c('iso','sector','fuel','units','X2005')]
-control_percent_interp_method <- control_percent[c('iso','sector','fuel','interp_method')]
-control_percent_ext_method <- control_percent[c('iso','sector','fuel','pre_ext_method','post_ext_method')]
-control_percent_ext_year <- control_percent[c('iso','sector','fuel','pre_ext_year','post_ext_year')]
-
-control_percent_extended <- interpolateValues(control_percent_values, interp_method = control_percent_interp_method)
-
-control_percent_extended <- extendValues(control_percent_extended, pre_ext_default = 'linear_0', 
-                                      ext_method = control_percent_ext_method, ext_year = control_percent_ext_year)
-if( identical(control_percent_extended$iso, control_percent$iso) &&
-    identical(control_percent_extended$sector, control_percent$sector)){
-  control_percent_extended <- cbind(control_percent[,c('iso','sector','fuel','units')],
-                                 control_percent_extended[, names(control_percent_extended)[names(control_percent_extended) %!in% c('iso','sector','fuel','units')] ]) }
 
 # -------------------------------------------------------------------------------
 # 4. Output
 
-writeData( control_percent_extended, domain = "DEFAULT_EF_PARAM", fn = "B.GAINS_SO2_control_percent")
+writeData( control_percent, domain = "DEFAULT_EF_PARAM", fn = "B.SO2_GAINS_control_percent")
 
 
 logStop()

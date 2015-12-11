@@ -38,25 +38,26 @@ expandAll <- function(input,
   #                       year= c('X1990','all','1980','all'),
   #                       Ash = c(.2,.1,.23,.25),
   #                       stringsAsFactors = FALSE)
-  #   input<-ash_ret_list[[2]]
-  #     start = start_year
-  #     end = end_year
-  #     iso=NA 
-  #     sector=NA 
-  #     fuel=NA
-  #     toWide = TRUE
+
+#    input<-ash_ret_list[[1]]
+#    start = start_year
+#    end = end_year
+#    iso=NA 
+#    sector=NA 
+#    fuel=NA
+#    toWide = TRUE
+  
+  # Define parameters from data
+  inp <- input
+  year <- start:end 
+  names <- names( input )
+  if( length(grep( "X", names)) >0 ){ 
+    all.id.names <- names[-grep( "X", names)]
+    toWide <- FALSE 
+  }else{ all.id.names <- names }
+  id.names <- all.id.names[ all.id.names %in% c('iso','sector','fuel','year')  ]
   
   if (any(input =='all')){
-    
-    year <- start:end 
-    
-    # Define parameters from data
-    names <- names( input )
-    if( length(grep( "X", names)) >0 ){ 
-      all.id.names <- names[-grep( "X", names)]
-      toWide <- FALSE 
-    }else{ all.id.names <- names }
-    id.names <- all.id.names[ all.id.names %in% c('iso','sector','fuel','year')  ]
     
     if(all(is.na(iso)) & 
        'iso' %in% id.names &
@@ -95,16 +96,27 @@ expandAll <- function(input,
         input <- rbind(input, add)
         replace <- input[which(input[,name]=='all'),]  
       }}
-    
-    if ('year' %in% id.names){
+  }
+  
+  if ('year' %in% id.names){
       input$year <- sub("X","",input$year)
       input$year <- paste0('X',input$year)
       if( toWide == TRUE) {
-        input<- cast( input, 
+        val <- all.id.names[which(all.id.names %!in% c('iso','sector','fuel','year', 'units'))]
+        val <- val[sapply(inp[1,val], is.numeric)]
+        input <- cast( input, 
                       formula = paste(paste(id.names[id.names %in% c('iso','sector','fuel')], collapse=' + '), '~ year'), 
-                      value = all.id.names[all.id.names %!in% c('iso','sector','fuel','year')])}
-    }
+                      value = val)
+        if ( 'units' %in% names ){ 
+          input$units <- inp$units[1] 
+          col <- names(input)
+          col.order <- c('iso','sector','fuel','units', col[col %!in% c('iso','sector','fuel','units' )] )
+          input <- input[,col.order] }
+        other <- names[names %!in% c('iso','sector','fuel','year', 'units', val)]
+        if ( length(other>0) ) input[,other] <-  inp[1,other] 
+        }
   }
+  
   return(input)
 }
 
@@ -127,7 +139,10 @@ interpolateValues <- function(interp_data,interp_default = 'linear',
                               interp_method = NA){
   
   # Define parameters from data
+  unit.label <- FALSE
   names <- names( interp_data)
+  if ('units' %in% names){unit.label <- TRUE
+                          UNITS <- interp_data[1,'units'] }
   id.names <- names[-grep( "X", names)]
   id.names <- id.names[id.names %!in% 'units']
   X_years <- names[grep( "X", names)]
@@ -268,6 +283,12 @@ interpolateValues <- function(interp_data,interp_default = 'linear',
     
   } else interp_df <- interp_data
   
+  if (unit.label == TRUE){
+    other <- names(interp_df)[names(interp_df) %!in% c( 'iso','sector','fuel','units', X_years_full )]
+    interp_df$units <- UNITS
+    interp_df <- interp_df[,c( 'iso','sector','fuel','units', X_years_full,other)]
+  }
+
   return( interp_df )  
 }
 
@@ -295,6 +316,9 @@ extendValues <- function(ext_data,
   # column names - id variables (iso, sector, fuels) - pre_ext_method - post_ext_method
   # ext_year format
   # column names - id variables (iso, sector, fuels) - pre_ext_year - post_ext_year
+
+  # run through interpolation first
+  ext_data <- interpolateValues( ext_data )
   
   # Define inventory variables
   names <- names( ext_data)
@@ -583,3 +607,40 @@ extendValues <- function(ext_data,
         }}# end extension loop
     return(ext_data_extended)
    }# end function
+
+# ------------------------------------------------------------------------------
+# extendDefaultEF
+# Brief: extend forward or backward default emissions factors
+# Dependencies: 
+# Author: Rachel Hoesly
+# parameters: 
+# return:  
+# input files: 
+#     
+# TODO: meta functionality does not work right now. must be false
+
+
+extendDefaultEF <- function(exten_df,pre_ext_method_default){
+#   exten_df = ash_ret_list[[1]]
+#   pre_ext_method_default = "constant"
+  
+  
+  exten_df <- expandAll(exten_df, toWide = TRUE)
+  pre_exten_default <- pre_ext_method_default
+  
+  if( 'pre_ext_method' %in% names(exten_df) )   pre_exten_default <- exten_df$pre_ext_method[1]
+    
+  out <- extendValues(ext_data = exten_df,
+                      pre_ext_default = pre_exten_default,
+                      post_ext_default = 'constant',
+                      pre_ext_year = start_year,
+                      post_ext_year = end_year,
+                      meta = FALSE )
+  
+  return( out )
+  
+}
+
+
+
+
