@@ -66,7 +66,7 @@ NONconversion <- readData( "ENERGY_IN",  "IEA_NonOECDconversion" )
 
 s_content <- readData( "MED_OUT", 'B.SO2_S_Content_db')
 
-gains_ashret <- readData('DEFAULT_EF_PARAM', 'B.GAINS_SO2_ash_ret')
+gains_ashret <- readData('DEFAULT_EF_PARAM', 'B.SO2_GAINS_ash_ret')
 
 # ---------------------------------------------------------------------------
 # 2. GAINS multipliers (unit conversions from energy to mass)
