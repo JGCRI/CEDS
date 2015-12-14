@@ -49,6 +49,8 @@ MODULE_B <- "../code/module-B/"
 # emissions type.
 source_child <- function( file_name ){ source( paste( MODULE_B, file_name, sep = "" ) ) }
 
+# ------------------------------------------------------------------------------------
+
 scripts <- c('B1.1.base_comb_EF_control_percent.R')
 
 # Set scripts to generate base emission factors for SO2

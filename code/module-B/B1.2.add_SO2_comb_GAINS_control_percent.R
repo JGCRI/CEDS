@@ -43,8 +43,8 @@ initialize( script_name, log_msg, headers )
 
 loadPackage('zoo')
 
-# Define multipliers function
-multipliers <- function(conversion, IEAfuels) {
+# Define heat_contents function
+calc_heat_content <- function(conversion, IEAfuels) {
   conversion <- conversion[,IEAfuels]
   unit_multiplier <- sum(colSums(conversion, na.rm = T)) / 
     length(na.omit(unlist(conversion)))
@@ -66,7 +66,7 @@ NONconversion <- readData( "ENERGY_IN",  "IEA_NonOECDconversion" )
 
 s_content <- readData( "MED_OUT", 'B.SO2_S_Content_db')
 
-gains_ashret <- readData('DEFAULT_EF_PARAM', 'B.GAINS_SO2_ash_ret')
+gains_ashret <- readData('DEFAULT_EF_PARAM', 'B.SO2_GAINS_ash_ret')
 
 # ---------------------------------------------------------------------------
 # 2. GAINS multipliers (unit conversions from energy to mass)
@@ -74,9 +74,8 @@ gains_ashret <- readData('DEFAULT_EF_PARAM', 'B.GAINS_SO2_ash_ret')
 # The IEA data provides conversions (heat content) for a variety of flows and fuels
 # and for most countries. Take only EU countries and develop a conversion factor 
 # by taking a weighted average of fuels brought together into CEDS fuels.
-# Multiply the energy data from GAINS into kJ, then divide by the
-# conversion factor to retrieve data in kg which is then multiplied by 1*10^-6 to put
-# into kilotons.
+# units of heat_content - kJ/kg
+
 
 # just European Countries in Gains data.
 EU <- c("Czech Republic", "Denmark", "Estonia", "Finland", "France", 
@@ -105,20 +104,20 @@ writeData( conversion, domain = "DIAG_OUT",
 # the CEDS categories in the GAINS data. 
 
 browncoal <- c("Sub.bituminous.coal", "Lignite")
-mult_browncoal <- multipliers(conversion, browncoal)
+mult_browncoal <- calc_heat_content(conversion, browncoal)
 
 hardcoal <- c("Anthracite", "Other.bituminous.coal")
-mult_hardcoal <- multipliers(conversion, hardcoal)
+mult_hardcoal <- calc_heat_content(conversion, hardcoal)
 
 biomass <- c("Biogasoline", "Biodiesels", "Other.liquid.biofuels", "Charcoal")
-mult_biomass <- multipliers(conversion, biomass)
+mult_biomass <- calc_heat_content(conversion, biomass)
 
 lightoil <- c("Motor.gasoline", "Aviation.gasoline","Gasoline.type.jet.fuel", 
               "Kerosene.type.jet.fuel", "Other.kerosene")
-mult_lightoil <- multipliers(conversion, lightoil)
+mult_lightoil <- calc_heat_content(conversion, lightoil)
 
 heavy_oil <- c("Crude.oil", "Fuel.oil")
-mult_heavy_oil <- multipliers(conversion, heavy_oil)
+mult_heavy_oil <- calc_heat_content(conversion, heavy_oil)
 
 # These have a single column of data and therefore the function is not necessary
 NaturalGas <- c("Natural.gas.liquids")
@@ -129,19 +128,15 @@ Diesel <- c("Gas.diesel.oil")
 mult_Diesel <- sum(conversion[,Diesel] ,na.rm = T)/
   length(na.omit(conversion[,Diesel]))
 
-# make list of calculated multipliers
-GAINS_multipliers <- data.frame(fuel=c('brown_coal', 'hard_coal', 'biomass', 'light_oil', 
+# make list of calculated heat contents
+GAINS_heat_content <- data.frame(fuel=c('brown_coal', 'hard_coal', 'biomass', 'light_oil', 
                                        'natural_gas', 'diesel_oil', 'heavy_oil'),
-                                multiplier=c(mult_browncoal, mult_hardcoal, mult_biomass, mult_lightoil, 
+                                heat_content=c(mult_browncoal, mult_hardcoal, mult_biomass, mult_lightoil, 
                                              mult_NaturalGas, mult_Diesel, mult_heavy_oil))
 
 # ---------------------------------------------------------------------------
 # 2.0 Melting and combing same sectors and fuels in fuel consumption
 # 2.0.1 If the data has a header (how it is downloaded from GAINS)
-#colnames( EUfuel ) <- c( EUfuel[7,] )
-#EUfuel <- EUfuel[-c(1:7), ]
-#colnames( EUemiss ) <- c( EUemiss[7,] )
-#EUemiss <- EUemiss[-c(1:7), ]
 
 EUfuel <- EUfuel.import
 EUemiss <- EUemiss.import
@@ -168,7 +163,7 @@ EUemiss$fuel <- fuelmap[match(EUemiss$fuel,fuelmap$GAINS.fuel),1]
 EUemiss$iso <- tolower(gainstoiso$ISO.code[match(EUemiss$iso,gainstoiso$country)])
 EUfuel$iso <- tolower(gainstoiso$ISO.code[match(EUfuel$iso,gainstoiso$country)])  
 
-# 2.4 Aggregating and Creating Emissions Factors
+# 2.4 Aggregating and combine fuel and emissions data Emissions Factors
 EUfuel <- aggregate(EUfuel[c("Energy")], 
                     by = EUfuel[c("iso","sector", "fuel")], FUN=sum)
 EUemiss <- aggregate(EUemiss[c("Sulfur_emiss")], 
@@ -176,39 +171,38 @@ EUemiss <- aggregate(EUemiss[c("Sulfur_emiss")],
 EmissFactors <- merge(EUfuel,EUemiss, all.x = T, all.y = F)
 
 # 2.5 Converting units of energy from PJ into kt
-# Changing PetaJoules into kiloJoules
-EmissFactors[, "Energy" ] <- EmissFactors[, "Energy" ] * 1*10^12
+# Convert PetaJoules into kiloJoules
+EmissFactors[, "Energy" ] <- EmissFactors[, "Energy" ] * 10^12
 
-# Now we need to divide by our factor to get into kg. Then multiply into kt.
-# Note, the 1*10^-6 is simply the conversion factor between kt and kg. We derived
-# the previous conversion factor (from kJ into kg) from data from the IEA. 
-EmissFactors[EmissFactors$Fuel %in% "brown_coal", "Energy"] <- 
-  (EmissFactors[EmissFactors$Fuel %in% "brown_coal", "Energy"] / 
-     GAINS_multipliers[which(GAINS_multipliers$fuel=='brown_coal'),'multiplier']) * 1*10^-6
-EmissFactors[EmissFactors$Fuel %in% "hard_coal", "Energy"] <- 
-  (EmissFactors[EmissFactors$Fuel %in% "hard_coal", "Energy"] / 
-     GAINS_multipliers[which(GAINS_multipliers$fuel=='hard_coal'),'multiplier']) * 1*10^-6
-EmissFactors[EmissFactors$Fuel %in% "biomass", "Energy"] <- 
-  (EmissFactors[EmissFactors$Fuel %in% "biomass", "Energy"] / 
-     GAINS_multipliers[which(GAINS_multipliers$fuel=='biomass'),'multiplier']) * 1*10^-6
-EmissFactors[EmissFactors$Fuel %in% "light_oil", "Energy"] <- 
-  (EmissFactors[EmissFactors$Fuel %in% "light_oil", "Energy"] / 
-     GAINS_multipliers[which(GAINS_multipliers$fuel=='light_oil'),'multiplier']) * 1*10^-6
-EmissFactors[EmissFactors$Fuel %in% "natural_gas", "Energy"] <- 
-  (EmissFactors[EmissFactors$Fuel %in% "natural_gas", "Energy"] / 
-     GAINS_multipliers[which(GAINS_multipliers$fuel=='natural_gas'),'multiplier']) * 1*10^-6
-EmissFactors[EmissFactors$Fuel %in% "diesel_oil", "Energy"] <- 
-  (EmissFactors[EmissFactors$Fuel %in% "diesel_oil", "Energy"] / 
-     GAINS_multipliers[which(GAINS_multipliers$fuel=='diesel_oil'),'multiplier']) * 1*10^-6
-EmissFactors[EmissFactors$Fuel %in% "heavy_oil", "Energy"] <- 
-  (EmissFactors[EmissFactors$Fuel %in% "heavy_oil", "Energy"] / 
-     GAINS_multipliers[which(GAINS_multipliers$fuel=='heavy_oil'),'multiplier']) * 1*10^-6
+# Convert GAINS energy to kg by dividing by GAINS_heat_content
+# then multiply by 10^-6 to convert to kt
+EmissFactors[EmissFactors$fuel %in% "brown_coal", "Energy"] <- 
+  (EmissFactors[EmissFactors$fuel %in% "brown_coal", "Energy"] / 
+     GAINS_heat_content[which(GAINS_heat_content$fuel=='brown_coal'),'heat_content']) * 10^-6
+EmissFactors[EmissFactors$fuel %in% "hard_coal", "Energy"] <- 
+  (EmissFactors[EmissFactors$fuel %in% "hard_coal", "Energy"] / 
+     GAINS_heat_content[which(GAINS_heat_content$fuel=='hard_coal'),'heat_content']) * 10^-6
+EmissFactors[EmissFactors$fuel %in% "biomass", "Energy"] <- 
+  (EmissFactors[EmissFactors$fuel %in% "biomass", "Energy"] / 
+     GAINS_heat_content[which(GAINS_heat_content$fuel=='biomass'),'heat_content']) * 10^-6
+EmissFactors[EmissFactors$fuel %in% "light_oil", "Energy"] <- 
+  (EmissFactors[EmissFactors$fuel %in% "light_oil", "Energy"] / 
+     GAINS_heat_content[which(GAINS_heat_content$fuel=='light_oil'),'heat_content']) * 10^-6
+EmissFactors[EmissFactors$fuel %in% "natural_gas", "Energy"] <- 
+  (EmissFactors[EmissFactors$fuel %in% "natural_gas", "Energy"] / 
+     GAINS_heat_content[which(GAINS_heat_content$fuel=='natural_gas'),'heat_content']) * 10^-6
+EmissFactors[EmissFactors$fuel %in% "diesel_oil", "Energy"] <- 
+  (EmissFactors[EmissFactors$fuel %in% "diesel_oil", "Energy"] / 
+     GAINS_heat_content[which(GAINS_heat_content$fuel=='diesel_oil'),'heat_content']) * 10^-6
+EmissFactors[EmissFactors$fuel %in% "heavy_oil", "Energy"] <- 
+  (EmissFactors[EmissFactors$fuel %in% "heavy_oil", "Energy"] / 
+     GAINS_heat_content[which(GAINS_heat_content$fuel=='heavy_oil'),'heat_content']) * 10^-6
 
 # 2.6 Creating Emission Factor for 2005
 # The following sectors are not important to this information set, therefore remove
 out <- c("Heat", "Electricity", "Hydro", "Hydrogen", "Nuclear", "Renewables", "")
 EmissFactors <- EmissFactors[!EmissFactors$fuel %in% out,]
-EmissFactors$units <- c("NA")
+EmissFactors$units <- c("kt/kt")
 EmissFactors$EF_2005 <- EmissFactors$Sulfur_emiss/EmissFactors$Energy
 EmissFactors <- EmissFactors[,c("iso","sector", "fuel", "units", "EF_2005")]
 EmissFactors <- EmissFactors[complete.cases(EmissFactors),]
@@ -229,14 +223,15 @@ Gains_EF  <- EmissFactors
 names(Gains_EF) <- c('iso','sector','fuel','units','X2005')
 countries <- unique(Gains_EF$iso)
 
-# melt and combine default and gains data
-base <- s_content[which(s_content$iso %in% countries), c('iso','sector','fuel','X2005')]
+# Calculate Default emissions factors (pre control) with base EF and ash retention
+base <- s_content[, c('iso','sector','fuel','X2005')]
 base$X2005 <- base$X2005*2
+names(base) <- c('iso','sector','fuel','X2005base')
 
-default <- join(base, gains_ashret, by=c('iso','sector', 'fuel'))
-default$default_EF <- default$X2005*(1-default[,ncol(default)])
+default <- merge(gains_ashret, base, all.x = TRUE, all.y = FALSE)
+default$default_EF <- default$X2005base*(1-default$X2005)
 default <- default[!is.na(default$default_EF),]
-default$units <- NA
+default$units <- 'kt/kt'
 default <- default[,c('iso',"sector",'fuel', 'units', 'default_EF')]
 colnames(default)[which(names(default) == "default_EF")] <- 'X2005'
 
@@ -247,13 +242,13 @@ gains.long <- melt(Gains_EF, c('iso','sector','fuel','units'))
 names(gains.long)<-c('iso','sector','fuel','units','years','gains')
 
 combined<-merge(gains.long, default.long, by=c('iso','sector','fuel','units','years'),
-                all.x = TRUE, all.y=FALSE)
-
+                all.x = TRUE, all.y=TRUE)
 
 # Calculate Control Percent
 combined$control_percent <- 1-combined$gains/combined$default
 combined$control_percent[which(combined$control_percent<0)]<-0
 combined <- combined[which(is.finite(combined$control_percent)),]
+combined$units <- 'fraction' 
 
 # Cast and reformat
 control_percent <- cast(combined[,c('iso','sector','fuel','units','years','control_percent')],

@@ -57,6 +57,12 @@ gainsash_ret$iso <- tolower(gainstoiso[match(gainsash_ret$iso,gainstoiso$country
 # 2.1 Aggregating by taking the mean of the Sulfur Retention Values.
 gainsash_ret <- aggregate(gainsash_ret[c("X2005")], 
                      by = gainsash_ret[c("iso","sector", "fuel")], FUN=mean)
+
+# add units
+gainsash_ret$units <- 'fraction'
+gainsash_ret <- gainsash_ret[,c("iso","sector", "fuel","units","X2005")]
+
+# retain non zero values
 gainsash_ret <- gainsash_ret[which( gainsash_ret$X2005 > 0),]
 
 # -------------------------------------------------------------------------------

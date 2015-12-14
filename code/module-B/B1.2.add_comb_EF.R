@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
 # Program Name: B1.2.add_comb_EF.R
-# Author: Jon Seibert
+# Author: Jon Seibert, Rachel Hoesly
 # Date Last Updated: Sept 24, 2015
 # Program Purpose: To select and run the correct script(s) to fill out to the combustion
 #                   emissions database for the given emissions type.
@@ -54,7 +54,9 @@ scripts <- c()
 # Set scripts to add emissions data for SO2
 if( em == "SO2" ){
   #scripts that fill out parameters for SO2 EF (ash retention, control fraction)
-  scripts <- c( 'B1.2.add_SO2_comb_diesel_sulfur_content.R','B1.2.add_SO2_comb_GAINS_ash_ret.R','B1.2.add_SO2_comb_GAINS_control_percent.R' )
+  scripts <- c( 'B1.2.add_SO2_comb_GAINS_ash_ret.R',
+                'B1.2.add_SO2_comb_GAINS_control_percent.R',
+                'B1.2.add_SO2_comb_diesel_sulfur_content.R')
   # adds script that calculates emission factors from SO2 parameters
   scripts <- c(scripts, 'B1.3.proc_SO2_comb_EF_S_content_ash.R')
 }

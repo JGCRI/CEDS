@@ -120,7 +120,7 @@ loadPackage('zoo')
   
   diesel_EF$fuel<-'diesel_oil'
   diesel_EF$sector<-'transp_road'
-  diesel_EF$units <- 'kt/kt'
+  diesel_EF$units <- 'fraction'
   diesel_EF <- diesel_EF[,c('iso','sector','fuel','units', 
                             X_standard_years[X_standard_years %in% X_emissions_years])]
 
