@@ -59,11 +59,6 @@
 
 # ------------------------------------------------------------------------------
 # 1. Read in files and do preliminary setup
-  # define em
-    args_from_makefile <- commandArgs( TRUE )
-    em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "BC"
-    em_lc <- tolower( em ) 
 
     activity_data <- readData( "MED_OUT", "A.comb_activity" )
     energy_consumption_1990 <- readData( "EM_INV", "Bond_Fuel-Central_1990", meta = F )
@@ -384,10 +379,7 @@
 # ------------------------------------------------------------------------------
 # 7. Write output
     
-    writeData( results, "MED_OUT", paste0( "B.", em ,"_", "comb", "_EF_db" ) )
-#     writeData( diag_missingEF, "DIAG_OUT", "B.EF.diag_missingallEF" )
-#     writeData( diag_sd, "DIAG_OUT", "B.diag_sd" )
-#     writeData( diag, "DIAG_OUT", "B.missing_ef_mapped")
+  writeData( results, "MED_OUT", paste0( "B.BC_comb_EF_db" ) )
 
 # Every script should finish with this line
     logStop()

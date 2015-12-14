@@ -54,6 +54,8 @@ calc_heat_content <- function(conversion, IEAfuels) {
 # ---------------------------------------------------------------------------
 # 1. Reading data and mapppings into script
 
+MCL <- readData( "MAPPINGS",  "Master_Country_List" )
+
 EUemiss.import  <- readData( "EM_INV", "GAINS_emiss_act_sect-EU28-2005-SO2_nohead")
 EUfuel.import  <- readData( "EM_INV",  "GAINS_aen_act_sect-nohead-EU28" )
 
@@ -246,20 +248,35 @@ combined<-merge(gains.long, default.long, by=c('iso','sector','fuel','units','ye
 
 # Calculate Control Percent
 combined$control_percent <- 1-combined$gains/combined$default
-combined$control_percent[which(combined$control_percent<0)]<-0
-combined <- combined[which(is.finite(combined$control_percent)),]
-combined$units <- 'fraction' 
+combined <- combined[which(combined$control_percent > 0),]
+combined$units <- 'percent' 
 
 # Cast and reformat
 control_percent <- cast(combined[,c('iso','sector','fuel','units','years','control_percent')],
                         iso+sector+fuel+units~years,
                         value = 'control_percent')
+# -------------------------------------------------------------------------------
+# 4. Prepare for automated addition to ContFrac_db in other mod B scripts.
+#  Define extention options.
+
+# Split eastern and western europe
+
+west <- MCL[which(MCL$IEA_Fert_reg == 'Western Europe'),'iso']
+
+control_percent_EAST <- control_percent[control_percent$iso %!in% west, ]
+control_percent_WEST <- control_percent[control_percent$iso %in% west, ]
+
+control_percent_EAST$pre_ext_method <- 'linear_0'
+control_percent_EAST$pre_ext_year <- '1990'
+
+control_percent_WEST$pre_ext_method <- 'linear_0'
+control_percent_WEST$pre_ext_year <- '1980'
 
 # -------------------------------------------------------------------------------
-# 4. Output
+# 5. Output
 
-writeData( control_percent, domain = "DEFAULT_EF_PARAM", fn = "B.SO2_GAINS_control_percent")
-
+writeData( control_percent_WEST, domain = "DEFAULT_EF_PARAM", fn = "B.SO2_GAINS_west_control_percent")
+writeData( control_percent_EAST, domain = "DEFAULT_EF_PARAM", fn = "B.SO2_GAINS_east_control_percent")
 
 logStop()
 # END

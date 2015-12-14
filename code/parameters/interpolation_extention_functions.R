@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Program Name: interpolation_extension_functions.R
+# Program Name: interpolation_extention_functions.R
 # Author's Name: Rachel Hoesly
 # Date Last Modified: Nov 20, 2015
 # Program Purpose: Header file containing generalized functions designed to
@@ -39,7 +39,7 @@ expandAll <- function(input,
   #                       Ash = c(.2,.1,.23,.25),
   #                       stringsAsFactors = FALSE)
 
-#    input<-ash_ret_list[[1]]
+#    input<-ash_ret_list[[2]]
 #    start = start_year
 #    end = end_year
 #    iso=NA 
@@ -57,6 +57,7 @@ expandAll <- function(input,
   }else{ all.id.names <- names }
   id.names <- all.id.names[ all.id.names %in% c('iso','sector','fuel','year')  ]
   
+  # replace "all" variables
   if (any(input =='all')){
     
     if(all(is.na(iso)) & 
@@ -98,11 +99,14 @@ expandAll <- function(input,
       }}
   }
   
+  # fix year notation and long/wide format
+  
   if ('year' %in% id.names){
       input$year <- sub("X","",input$year)
       input$year <- paste0('X',input$year)
       if( toWide == TRUE) {
         val <- all.id.names[which(all.id.names %!in% c('iso','sector','fuel','year', 'units'))]
+        val <- val[val %!in% c("pre_ext_method", "pre_ext_year")]
         val <- val[sapply(inp[1,val], is.numeric)]
         input <- cast( input, 
                       formula = paste(paste(id.names[id.names %in% c('iso','sector','fuel')], collapse=' + '), '~ year'), 
@@ -111,7 +115,8 @@ expandAll <- function(input,
           input$units <- inp$units[1] 
           col <- names(input)
           col.order <- c('iso','sector','fuel','units', col[col %!in% c('iso','sector','fuel','units' )] )
-          input <- input[,col.order] }
+          input <- input[,col.order] 
+          }
         other <- names[names %!in% c('iso','sector','fuel','year', 'units', val)]
         if ( length(other>0) ) input[,other] <-  inp[1,other] 
         }
@@ -323,14 +328,14 @@ extendValues <- function(ext_data,
   # Define inventory variables
   names <- names( ext_data)
   id.names <- names[-grep( "X", names)]
-  id.names <- id.names[id.names %!in% 'units']
+  # id.names <- id.names[id.names %!in% 'units']
   X_years <- names[grep( "X", names)]
   years <- as.numeric(sub("X", "", X_years))
   years_full <- min(years):max(years)
   X_years_full <- paste0('X', years_full)
   
   # Check input
-  valid_pre_ext_methods  <- c('constant','linear_1', 'linear_0')
+  valid_pre_ext_methods  <- c('constant','linear_1', 'linear_0', 'linear_default')
   valid_post_ext_methods  <- c('linear','constant','linear_1')
   
   if( pre_ext_default %!in% valid_pre_ext_methods) {
@@ -380,9 +385,6 @@ extendValues <- function(ext_data,
       ext_method$post_ext_method[index] <- post_ext_default } }
     
   # Check Years map and replace with default if invalid 
-  ###########
-  ###########
-  ###########
     
     # Define Default Methods Data frame, update with mapping file
     # defaults
@@ -458,7 +460,7 @@ extendValues <- function(ext_data,
       names(meta_notes) <- names
     }
     
-    # Extend Scaling Factors through Scaling Years and fill remaing (with scaling factor = 1)
+    # Extend values through ext Years and fill remaing NA
     
     min_year <- as.numeric(min(years, pre_ext_year, ext_year_full$pre_ext_year))
     max_year <- as.numeric(max(years, post_ext_year, ext_year_full$post_ext_year))
@@ -469,7 +471,11 @@ extendValues <- function(ext_data,
     ext_data_extended <- as.data.frame(matrix(data=NA,nrow = nrow(ext_data), ncol = length(years_all)))
     names(ext_data_extended) <- X_years_all
     ext_data_extended <- cbind(ext_data[,c(id.names)], ext_data_extended)
+
+    # Load default data if any pre_ext methods are 'linear_default'    
     
+    
+    #Extention loop
     
     for (i in seq_along(ext_data_extended$iso)){
       # Interpolated inventory data
@@ -605,8 +611,10 @@ extendValues <- function(ext_data,
           ext_data_extended[i,X_post_ext_data_extended_years] <- post_ext_data_extended_line[1,X_post_ext_data_extended_years]
         } # End Post-Extrapolation
         }}# end extension loop
+    
     return(ext_data_extended)
-   }# end function
+  
+     }# end function
 
 # ------------------------------------------------------------------------------
 # extendDefaultEF
@@ -620,22 +628,32 @@ extendValues <- function(ext_data,
 # TODO: meta functionality does not work right now. must be false
 
 
-extendDefaultEF <- function(exten_df,pre_ext_method_default){
-#   exten_df = ash_ret_list[[1]]
-#   pre_ext_method_default = "constant"
+extendDefaultEF <- function(exten_df,
+                            pre_ext_method_default){
   
-  
+  # process 
   exten_df <- expandAll(exten_df, toWide = TRUE)
   pre_exten_default <- pre_ext_method_default
+  pre_exten_default_year <- start_year
   
+  #set up data options for extension
   if( 'pre_ext_method' %in% names(exten_df) )   pre_exten_default <- exten_df$pre_ext_method[1]
-    
+  if( 'pre_ext_year' %in% names(exten_df) )   pre_exten_default_year <- exten_df$pre_ext_year[1]
+  
+  #extend  
   out <- extendValues(ext_data = exten_df,
                       pre_ext_default = pre_exten_default,
                       post_ext_default = 'constant',
-                      pre_ext_year = start_year,
+                      pre_ext_year = pre_exten_default_year,
                       post_ext_year = end_year,
                       meta = FALSE )
+  
+  # get names and reorder for output
+  names <- names( out)
+  id.names <- names[-grep( "X", names)]
+  id.X_years <- names[grep( "X", names)]
+  
+  out <- out[,c('iso','sector','fuel','units',id.X_years)]
   
   return( out )
   

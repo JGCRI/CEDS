@@ -353,7 +353,6 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(INV_DATA)/Bond_Fuel-Central_1996.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
-	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 
 # cc1-1
 # BRANCH BLOCK

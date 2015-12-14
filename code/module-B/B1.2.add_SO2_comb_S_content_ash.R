@@ -28,7 +28,7 @@
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
   headers <- c( "data_functions.R", "analysis_functions.R",'process_db_functions.R',
-                'common_data.r') # Additional function files may be required.
+                'common_data.R', 'interpolation_extention_functions.R') # Additional function files may be required.
   log_msg <- "Adding data files of EF parameters (sulfur and ash ret) to SO2 EF parameter databases" # First message to be printed to the log
   script_name <- "B1.2.add_SO2_SouthAfricanCoal.R"
   
@@ -41,7 +41,7 @@
   loadPackage('tools')
   
 # ---------------------------------------------------------------------------
-# 1. Reading data and mapppings into script
+# 1. Select list of files, and read in data
 
   # Read in parameter files
   printLog('Loading EF parameter data files')
@@ -61,19 +61,22 @@
   s_content_file_list <-   s_content_file_list [-grep(pattern = "metadata",   s_content_file_list )]
   ash_ret_file_list  <-   ash_ret_file_list [-grep(pattern = "metadata",     ash_ret_file_list )]
   
-
+  #read in
+  ash_ret_list <- lapply ( X = ash_ret_file_list, FUN = readData, domain = "DEFAULT_EF_PARAM")
+  s_content_list <- lapply ( X = s_content_file_list, FUN = readData, domain = "DEFAULT_EF_PARAM")
+  
 # ---------------------------------------------------------------------------
 # 2. Expand all variable
   printLog('Expanding data and converting to wide form')
-  
-  ash_ret_list <- lapply ( X = ash_ret_file_list, FUN = readData, domain = "DEFAULT_EF_PARAM")
-  s_content_list <- lapply ( X = s_content_file_list, FUN = readData, domain = "DEFAULT_EF_PARAM")
  
-  ash_ret_list <- lapply ( X = ash_ret_list, FUN = expandAll, toWide=TRUE)
-  s_content_list <- lapply ( X = s_content_list, FUN = expandAll, toWide=TRUE)
-
-  s_content <- do.call("rbind.fill", s_content_list)  
-  ash_ret <- do.call("rbind.fill", ash_ret_list)
+  # Expand all, interpolate and Extend forward and back
+  ash_ret_extended <- lapply( X= ash_ret_list, FUN = extendDefaultEF, 
+                                      pre_ext_method_default = 'constant')
+  s_content_extended <- lapply( X= s_content_list, FUN = extendDefaultEF, 
+                              pre_ext_method_default = 'constant')
+  
+  s_content <- do.call("rbind.fill", s_content_extended)  
+  ash_ret <- do.call("rbind.fill", ash_ret_extended)
   
   s_content$units <- 'kt/kt'
   ash_ret$units <- 'kt/kt'

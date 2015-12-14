@@ -116,7 +116,7 @@ loadPackage('zoo')
   printLog("Calculating diesel sulfer EF")
   
   diesel_EF<-diesel_standards_ppm_complete
-  diesel_EF[,X_standard_years]<-diesel_EF[,X_standard_years]/10^6/2
+  diesel_EF[,X_standard_years]<-diesel_EF[,X_standard_years]/10^6*2
   
   diesel_EF$fuel<-'diesel_oil'
   diesel_EF$sector<-'transp_road'

@@ -43,11 +43,11 @@ em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "SO2"
 em_lc <- tolower( em )    
 
-MODULE_C <- "../code/module-B/"
+MODULE_B <- "../code/module-B/"
 
 # Create a function that can be applied to source all child scripts for the given
 # emissions type.
-source_child <- function( file_name ){ source( paste( MODULE_C, file_name, sep = "" ) ) }
+source_child <- function( file_name ){ source( paste( MODULE_B, file_name, sep = "" ) ) }
 
 scripts <- c()
 
