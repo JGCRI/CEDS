@@ -263,20 +263,14 @@ control_percent <- cast(combined[,c('iso','sector','fuel','units','years','contr
 
 west <- MCL[which(MCL$IEA_Fert_reg == 'Western Europe'),'iso']
 
-control_percent_EAST <- control_percent[control_percent$iso %!in% west, ]
-control_percent_WEST <- control_percent[control_percent$iso %in% west, ]
-
-control_percent_EAST$pre_ext_method <- 'linear_0'
-control_percent_EAST$pre_ext_year <- '1990'
-
-control_percent_WEST$pre_ext_method <- 'linear_0'
-control_percent_WEST$pre_ext_year <- '1980'
+control_percent$pre_ext_method <- 'linear_0'
+control_percent$pre_ext_year <- '1990'
+control_percent[control_percent$iso %in% west, 'pre_ext_year' ] <- '1980'
 
 # -------------------------------------------------------------------------------
 # 5. Output
 
-writeData( control_percent_WEST, domain = "DEFAULT_EF_PARAM", fn = "B.SO2_GAINS_west_control_percent")
-writeData( control_percent_EAST, domain = "DEFAULT_EF_PARAM", fn = "B.SO2_GAINS_east_control_percent")
+writeData( control_percent, domain = "DEFAULT_EF_PARAM", fn = "B.SO2_GAINS_control_percent")
 
 logStop()
 # END

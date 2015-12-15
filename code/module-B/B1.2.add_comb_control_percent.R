@@ -30,7 +30,7 @@
   headers <- c( 'process_db_functions.R','data_functions.R',
                 'interpolation_extention_functions.R','common_data.R') 
 #                 Additional function files may be required.
-  log_msg <- "Adding control percent" # First message to be printed to the log
+  log_msg <- "Adding control percent data to data base" # First message to be printed to the log
   script_name <- "B1.2.add_comb_control_percent.R"
   
   source( paste0( PARAM_DIR, "header.R" ) )
@@ -49,7 +49,8 @@
   
 # ---------------------------------------------------------------------------
 # 1. Reading data and mapppings into script
-
+  printLog("Reading in files")
+    
   # Read in parameter files
 
   files_list <- list.files(path =  './default_emissions_data/EF_parameters', pattern = '*.csv')
@@ -69,19 +70,19 @@
                                    domain = "DEFAULT_EF_PARAM")
 # ---------------------------------------------------------------------------
 # 2. Expand "all" variable and extend over time, convert list to one df
-
+  printLog('Expanding and Extending control percent data')
   # Expand all, interpolate and Extend forward and back
   control_percent_extended <- lapply( X= control_percent_list, FUN = extendDefaultEF, 
                                    pre_ext_method_default = 'linear_0')
   
   control_percent <- do.call("rbind.fill", control_percent_extended)
-  control_percent[is.na(control_percent)] <- 0
+  # control_percent[is.na(control_percent)] <- 0
   
   control_percent$units <- 'percent'
 
 # ---------------------------------------------------------------------------
 # 2. Add to existing parameter Dbs
-
+  printLog('Adding new data to existing control percent data base')
   if( length(control_percent_list)>0 ){
   addToDb_overwrite(new_data = control_percent, em = em, file_extention = 'ControlFrac_db') }
   

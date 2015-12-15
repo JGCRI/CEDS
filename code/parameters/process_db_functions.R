@@ -498,6 +498,9 @@ addToEmissionsDb_overwrite <- function( df, em, type ){
 addToDb_overwrite <- function( new_data, em, file_extention, addEntries = FALSE ){
   printLog ("Adding new data to database")
   
+  new_data = control_percent
+  file_extention = 'ControlFrac_db'
+  
   #   Read in necessary files and data: common_data.r required 
   #   to avoid variable overwrite carryover
   source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
@@ -534,6 +537,7 @@ addToDb_overwrite <- function( new_data, em, file_extention, addEntries = FALSE 
   # melt old and new dbs
   df_add<-melt(new_data,id=c("iso","sector","fuel","units"))
   names(df_add)[which(names(df_add)=='variable')]<-'year'
+  df_add <- df_add[!is.na(df_add$value),] #don't add the NAs from the new df
   
   df_old<-melt(original_db,id=c("iso","sector","fuel","units"))
   names(df_old)[which(names(df_old)=='variable')]<-'year'
@@ -543,7 +547,7 @@ addToDb_overwrite <- function( new_data, em, file_extention, addEntries = FALSE 
   df_new <- replaceValueColMatch(x=df_old, y=df_add,
                                  x.ColName = 'value',
                                  match.x = c('iso','sector','fuel','units','year'),
-                                 addEntries = addEntries)
+                                 addEntries = FALSE)
   
   df_new_wide<-as.data.frame(cast(df_new, iso+sector+fuel+units~year, value = "new_value"))
   

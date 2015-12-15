@@ -31,22 +31,6 @@ expandAll <- function(input,
   source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
   source( paste( PARAM_DIR, "data_functions.R", sep = "" ) )
   
-  #debug
-  #     input <- data.frame(iso= c("aus" , "aut" , "bel", "all"),
-  #                       sector= c('all','transp_road','industry_comb','unc_gas_production'),
-  #                       fuel=c('hard_coal','coal_coke','all','natural_gas'),
-  #                       year= c('X1990','all','1980','all'),
-  #                       Ash = c(.2,.1,.23,.25),
-  #                       stringsAsFactors = FALSE)
-
-#    input<-ash_ret_list[[2]]
-#    start = start_year
-#    end = end_year
-#    iso=NA 
-#    sector=NA 
-#    fuel=NA
-#    toWide = TRUE
-  
   # Define parameters from data
   inp <- input
   year <- start:end 
@@ -328,7 +312,7 @@ extendValues <- function(ext_data,
   # Define inventory variables
   names <- names( ext_data)
   id.names <- names[-grep( "X", names)]
-  # id.names <- id.names[id.names %!in% 'units']
+  id.names.NoUnits <- id.names[id.names %!in% 'units']
   X_years <- names[grep( "X", names)]
   years <- as.numeric(sub("X", "", X_years))
   years_full <- min(years):max(years)
@@ -395,10 +379,12 @@ extendValues <- function(ext_data,
     
     # Replace "all" notation in ext_methods with unique iso/sector/fuel names
     if( any(!is.na(ext_method)) && 
-        (any(ext_method$pre_ext_method %!in% pre_ext_default )  || any(ext_method$post_ext_method %!in% post_ext_default )) ){
-      for (n in seq_along(id.names) ){ 
-        name <- id.names[n]
-        other.name <- id.names[id.names %!in% name]
+        (any(ext_method$pre_ext_method %!in% pre_ext_default ) || 
+              any(ext_method$post_ext_method %!in% post_ext_default )) ){
+
+      for (n in seq_along(id.names.NoUnits) ){ 
+        name <- id.names.NoUnits[n]
+        other.name <- id.names.NoUnits[id.names.NoUnits %!in% name]
         unique <- unique(ext_method_full[,name]) 
         replace <- ext_method[which(ext_method[,name]=='all'),]
         while (nrow(replace)>0){
@@ -421,7 +407,7 @@ extendValues <- function(ext_data,
 
     # Define Default Years Data frame, update with mapping file
     # defaults
-    ext_year_full <- ext_data[,id.names]
+    ext_year_full <- ext_data[,id.names.NoUnits]
     ext_year_full[,'pre_ext_year'] <- pre_ext_year
     ext_year_full[,'post_ext_year'] <- post_ext_year
     # update with year file
@@ -429,9 +415,9 @@ extendValues <- function(ext_data,
     # Replace "all" notation in ext_years with unique iso/sector/fuel names
     if( any(!is.na(ext_year)) && 
         (any(ext_year$pre_ext_year %!in% pre_ext_year )  || any(ext_year$post_ext_year %!in% post_ext_year ) )){
-      for (n in seq_along(id.names) ){ 
-        name <- id.names[n]
-        other.name <- id.names[id.names %!in% name]
+      for (n in seq_along(id.names.NoUnits) ){ 
+        name <- id.names.NoUnits[n]
+        other.name <- id.names.NoUnits[id.names.NoUnits %!in% name]
         unique <- unique(ext_year_full[,name]) 
         replace <- ext_year[which(ext_year[,name]=='all'),]
         while (nrow(replace)>0){
@@ -461,7 +447,6 @@ extendValues <- function(ext_data,
     }
     
     # Extend values through ext Years and fill remaing NA
-    
     min_year <- as.numeric(min(years, pre_ext_year, ext_year_full$pre_ext_year))
     max_year <- as.numeric(max(years, post_ext_year, ext_year_full$post_ext_year))
     
@@ -470,7 +455,7 @@ extendValues <- function(ext_data,
     
     ext_data_extended <- as.data.frame(matrix(data=NA,nrow = nrow(ext_data), ncol = length(years_all)))
     names(ext_data_extended) <- X_years_all
-    ext_data_extended <- cbind(ext_data[,c(id.names)], ext_data_extended)
+    ext_data_extended <- cbind(ext_data[,c(id.names.NoUnits)], ext_data_extended)
 
     # Load default data if any pre_ext methods are 'linear_default'    
     
@@ -612,6 +597,14 @@ extendValues <- function(ext_data,
         } # End Post-Extrapolation
         }}# end extension loop
     
+    names <- names( ext_data_extended )
+    id.years <- names[grep( "X", names)]
+    
+    if( 'units' %in% id.names){
+      ext_data_extended$units <- ext_data$units
+      ext_data_extended <- ext_data_extended[,c('iso','sector','fuel','units',id.years)]}else{
+        ext_data_extended <- ext_data_extended[,c('iso','sector','fuel',id.years)]
+      }
     return(ext_data_extended)
   
      }# end function
@@ -633,20 +626,33 @@ extendDefaultEF <- function(exten_df,
   
   # process 
   exten_df <- expandAll(exten_df, toWide = TRUE)
-  pre_exten_default <- pre_ext_method_default
-  pre_exten_default_year <- start_year
   
   #set up data options for extension
-  if( 'pre_ext_method' %in% names(exten_df) )   pre_exten_default <- exten_df$pre_ext_method[1]
-  if( 'pre_ext_year' %in% names(exten_df) )   pre_exten_default_year <- exten_df$pre_ext_year[1]
+
+  #     ext_method format : column names - id variables (iso, sector, fuels) - pre_ext_method - post_ext_method
+  #     ext_year format : column names - id variables (iso, sector, fuels) - pre_ext_year - post_ext_year
+
+  e_method <- exten_df[,c('iso','sector','fuel')]
+  if( 'pre_ext_method' %in% names(exten_df) ){e_method$pre_ext_method <- exten_df$pre_ext_method}
+  if( 'pre_ext_method' %!in% names(exten_df) ){e_method$pre_ext_method <- pre_ext_method_default}
+  e_method$post_ext_method <- 'constant'
+  e_year <- exten_df[,c('iso','sector','fuel')]
+  if( 'pre_ext_year' %in% names(exten_df) ){e_year$pre_ext_year <- exten_df$pre_ext_year}
+  if( 'pre_ext_year' %!in% names(exten_df) ){e_year$pre_ext_year <- start_year}
+  e_year$post_ext_year <- end_year
+  
+  names <- names( exten_df)
+  id.X_years <- names[grep( "X", names)]
   
   #extend  
-  out <- extendValues(ext_data = exten_df,
-                      pre_ext_default = pre_exten_default,
+  out <- extendValues(ext_data = exten_df[,c('iso','sector','fuel','units',id.X_years)],
+                      pre_ext_default = pre_ext_method_default,
                       post_ext_default = 'constant',
-                      pre_ext_year = pre_exten_default_year,
+                      pre_ext_year = start_year,
                       post_ext_year = end_year,
-                      meta = FALSE )
+                      meta = FALSE,
+                      ext_method = e_method,
+                      ext_year = e_year)
   
   # get names and reorder for output
   names <- names( out)
