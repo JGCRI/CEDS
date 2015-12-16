@@ -132,6 +132,17 @@ interpolateValues <- function(interp_data,interp_default = 'linear',
   names <- names( interp_data)
   if ('units' %in% names){unit.label <- TRUE
                           UNITS <- interp_data[1,'units'] }
+  if ( 'year' %in% names){ 
+    interp_data$year <- as.numeric(sub("X", "", interp_data$year))
+    interp_data$year <- paste0('X', interp_data$year)
+    id.names <- names[ names %!in% c('year')]  
+    val <- id.names[ id.names %!in% c('iso','sector','fuel','units','pre_ext_method','pre_ext_year')]
+    id.names <- id.names[id.names %!in% val]
+    formula <- paste0(paste(id.names, collapse = '+'), '~year')
+    interp_data <- cast( interp_data, formula, value = val)
+      }
+  
+  names <- names( interp_data)
   id.names <- names[-grep( "X", names)]
   id.names <- id.names[id.names %!in% 'units']
   X_years <- names[grep( "X", names)]
@@ -300,23 +311,41 @@ extendValues <- function(ext_data,
                          post_ext_year = end_year,
                          meta = FALSE,
                          ext_method = NA,
-                         ext_year = NA) {
+                         ext_year = NA,
+                         defaultData = NA) {
   # ext_method format
   # column names - id variables (iso, sector, fuels) - pre_ext_method - post_ext_method
   # ext_year format
   # column names - id variables (iso, sector, fuels) - pre_ext_year - post_ext_year
 
+  ext_data = test
+  pre_ext_default = 'linear_1'
+  post_ext_default = 'constant'
+  pre_ext_year = start_year
+  post_ext_year = end_year
+  meta = FALSE
+  ext_method = test.m
+  ext_year = test.y
+  defaultData = 'B.SO2_ControlFrac_db'
+  
   # run through interpolation first
   ext_data <- interpolateValues( ext_data )
+  # expand extention data
+  ext_data <- expandAll( ext_data )
+
   
   # Define inventory variables
   names <- names( ext_data)
   id.names <- names[-grep( "X", names)]
+  id.names <- id.names[ id.names %in% c('iso','sector','fuel','units')]
   id.names.NoUnits <- id.names[id.names %!in% 'units']
   X_years <- names[grep( "X", names)]
   years <- as.numeric(sub("X", "", X_years))
   years_full <- min(years):max(years)
   X_years_full <- paste0('X', years_full)
+  
+  # keep only important columns
+  ext_data <- ext_data[,c(id.names,X_years)]
   
   # Check input
   valid_pre_ext_methods  <- c('constant','linear_1', 'linear_0', 'linear_default')
@@ -353,7 +382,6 @@ extendValues <- function(ext_data,
       warning( 'Invalid end year ("post_ext_year"). Using the last year of data.') 
     } 
   
-  
     # Check Methods map and replace with default if invalid  
     if ( !any(is.na(ext_method)) ){
     if ( ! all( ext_method$pre_ext_method %in% c(valid_pre_ext_methods,'NA') )) {
@@ -368,76 +396,66 @@ extendValues <- function(ext_data,
                         "'" ,post_ext_default,"'") )
       ext_method$post_ext_method[index] <- post_ext_default } }
     
-  # Check Years map and replace with default if invalid 
+    # Check linear_default option
+  
+    if( any(c( pre_ext_default,  post_ext_default , 
+                ext_method$post_ext_method , ext_method$pre_ext_method) %in% 'linear_default') ){
+        if(is.na(defaultData)) stop("Linear extrapolation to default chosen, but no default data specified. Please specify.")
+        defaults <- readData('MED_OUT', defaultData)  }
     
     # Define Default Methods Data frame, update with mapping file
+    #########
     # defaults
     ext_method_full <- ext_data[,id.names]
     ext_method_full[,'pre_ext_method'] <- pre_ext_default
     ext_method_full[,'post_ext_method'] <- post_ext_default
     # update with method file
     
-    # Replace "all" notation in ext_methods with unique iso/sector/fuel names
-    if( any(!is.na(ext_method)) && 
-        (any(ext_method$pre_ext_method %!in% pre_ext_default ) || 
-              any(ext_method$post_ext_method %!in% post_ext_default )) ){
-
-      for (n in seq_along(id.names.NoUnits) ){ 
-        name <- id.names.NoUnits[n]
-        other.name <- id.names.NoUnits[id.names.NoUnits %!in% name]
-        unique <- unique(ext_method_full[,name]) 
-        replace <- ext_method[which(ext_method[,name]=='all'),]
-        while (nrow(replace)>0){
-          replace.index <- min(which(ext_method[,name]=='all'))
-          replace.row <- ext_method[replace.index,]  
-          ext_method <- ext_method[-replace.index,]  
-          add <- data.frame(replace = unique)
-          names(add) <- name
-          add[, c(other.name,'pre_ext_method','post_ext_method') ] <- replace.row[, c(other.name,'pre_ext_method','post_ext_method') ]
-          ext_method <- rbind(ext_method, add)
-          replace <- ext_method[which(ext_method[,name]=='all'),]  
-        }     }
+    # Replace "all" notation in ext_methods with unique iso/sector/fuel names.
+    # Replace ext_methods with ext_methods full
+    
+    ext_method <- expandAll(ext_method)
       
-      # replace default ext_methods with ext_method
-      names(ext_method)[names(ext_method) %in% c('pre_ext_method','post_ext_method')] <- c('pre_ext_method_new','post_ext_method_new')
-      new_method <- merge(ext_method_full,ext_method, all.x=TRUE, all.y = FALSE)
-      ext_method_full[which(!is.na(new_method$pre_ext_method_new)) ,'pre_ext_method'] <-new_method[which(!is.na(new_method$pre_ext_method_new)) ,'pre_ext_method_new']
-      ext_method_full[which(!is.na(new_method$post_ext_method_new)) ,'post_ext_method'] <-new_method[which(!is.na(new_method$post_ext_method_new)) ,'post_ext_method_new']
-    }
-
+    # replace default ext_methods with ext_method
+    if( all(!is.na(ext_method)) ){
+    ext_method_full <- replaceValueColMatch(x = ext_method_full,
+                                            y = ext_method,
+                                            x.ColName = 'pre_ext_method',
+                                            match.x = id.names[ id.names %in% c('iso','sector','fuel') ],
+                                            addEntries = FALSE
+                                            )
+    ext_method_full <- replaceValueColMatch(x = ext_method_full,
+                                            y = ext_method,
+                                            x.ColName = 'post_ext_method',
+                                            match.x = id.names[ id.names %in% c('iso','sector','fuel') ],
+                                            addEntries = FALSE
+                                            )    }
+    
     # Define Default Years Data frame, update with mapping file
+    #########
     # defaults
     ext_year_full <- ext_data[,id.names.NoUnits]
     ext_year_full[,'pre_ext_year'] <- pre_ext_year
     ext_year_full[,'post_ext_year'] <- post_ext_year
     # update with year file
     
-    # Replace "all" notation in ext_years with unique iso/sector/fuel names
-    if( any(!is.na(ext_year)) && 
-        (any(ext_year$pre_ext_year %!in% pre_ext_year )  || any(ext_year$post_ext_year %!in% post_ext_year ) )){
-      for (n in seq_along(id.names.NoUnits) ){ 
-        name <- id.names.NoUnits[n]
-        other.name <- id.names.NoUnits[id.names.NoUnits %!in% name]
-        unique <- unique(ext_year_full[,name]) 
-        replace <- ext_year[which(ext_year[,name]=='all'),]
-        while (nrow(replace)>0){
-          replace.index <- min(which(ext_year[,name]=='all'))
-          replace.row <- ext_year[replace.index,]  
-          ext_year <- ext_year[-replace.index,]  
-          add <- data.frame(replace = unique)
-          names(add) <- name
-          add[, c(other.name,'pre_ext_year','post_ext_year') ] <- replace.row[, c(other.name,'pre_ext_year','post_ext_year') ]
-          ext_year <- rbind(ext_year, add)
-          replace <- ext_year[which(ext_year[,name]=='all'),]  
-        }     }
-      
-      # replace default ext_years with ext_year
-      names(ext_year)[names(ext_year) %in% c('pre_ext_year','post_ext_year')] <- c('pre_ext_year_new','post_ext_year_new')
-      new_year <- merge(ext_year_full,ext_year, all.x=TRUE, all.y = FALSE)
-      ext_year_full[which(!is.na(new_year$pre_ext_year_new)) ,'pre_ext_year'] <-new_year[which(!is.na(new_year$pre_ext_year_new)) ,'pre_ext_year_new']
-      ext_year_full[which(!is.na(new_year$post_ext_year_new)) ,'post_ext_year'] <-new_year[which(!is.na(new_year$post_ext_year_new)) ,'post_ext_year_new']
-    }
+    # Replace "all" notation in ext_years with unique iso/sector/fuel names.
+    # Replace ext_years with ext_years full
     
+    ext_year <- expandAll(ext_year)
+    
+    # replace default ext_years with ext_year
+    if( all(!is.na(ext_year)) ){
+    ext_year_full <- replaceValueColMatch(x = ext_year_full,
+                                            y = ext_year,
+                                            x.ColName = 'pre_ext_year',
+                                            match.x = id.names[ id.names %in% c('iso','sector','fuel') ],
+                                            addEntries = FALSE  )
+    ext_year_full <- replaceValueColMatch(x = ext_year_full,
+                                            y = ext_year,
+                                            x.ColName = 'post_ext_year',
+                                            match.x = id.names[ id.names %in% c('iso','sector','fuel') ],
+                                            addEntries = FALSE  )  }
     # Create Meta data notes
     
     if (meta == TRUE) {
@@ -456,9 +474,6 @@ extendValues <- function(ext_data,
     ext_data_extended <- as.data.frame(matrix(data=NA,nrow = nrow(ext_data), ncol = length(years_all)))
     names(ext_data_extended) <- X_years_all
     ext_data_extended <- cbind(ext_data[,c(id.names.NoUnits)], ext_data_extended)
-
-    # Load default data if any pre_ext methods are 'linear_default'    
-    
     
     #Extention loop
     
@@ -505,6 +520,31 @@ extendValues <- function(ext_data,
               if(method %in% c('sector','fuel')) add[,data_name] <- ext_data_extended[i,data_name]
               if(method %in% c('both')) add[,data_name] <- t(replicate(ext_data_extended[i,data_name],n=length(year)))
               add$comment <-  paste('Scaled to Inventory - Linearly extrapolated backward to 1 -', inv_name)
+              meta_notes <- rbind(meta_notes, add)
+            }
+          }
+          # Linear Extrapolation to Default, from most recent value
+          else if( ext_method_full[i,'pre_ext_method'] == 'linear_default'){
+            
+            defaultEF <- ext_year_full[i, id.names[id.names %in% c('iso','sector','fuel')]  ]
+            defaultEF$default_value <- NA
+            
+            defaultEF <- replaceValueColMatch(defaultEF, defaults,
+                                              x.ColName = 'default_value',
+                                              y.ColName = paste0('X',ext_year_full[i,'pre_ext_year']),
+                                              match.x = id.names[id.names %in% c('iso','sector','fuel')],
+                                              addEntries = FALSE)
+            
+            pre_ext_data_extended_line[1,1]<-defaultEF[1,'default_value']
+            pre_ext_data_extended_line[1,] <- na.approx(  t(pre_ext_data_extended_line[1,]) , maxgap = Inf)
+            # Add meta notes          
+            if(meta==TRUE){
+              year <- X_pre_ext_data_extended_years
+              add <- data.frame(year)
+              add$iso <- ext_data_extended[i,c('iso')]
+              if(method %in% c('sector','fuel')) add[,data_name] <- ext_data_extended[i,data_name]
+              if(method %in% c('both')) add[,data_name] <- t(replicate(ext_data_extended[i,data_name],n=length(year)))
+              add$comment <-  paste('Scaled to Inventory - Linearly extrapolated backward to default -', inv_name)
               meta_notes <- rbind(meta_notes, add)
             }
           }
