@@ -50,8 +50,8 @@
   files_list <- file_path_sans_ext( files_list )
   
   #select s content and ash ret files
-  s_content_file_list <- files_list[grep(pattern = "_content", files_list )]
-  ash_ret_file_list <-  files_list[grep(pattern = "_ash_ret", files_list )]
+  s_content_file_list <- files_list[grep(pattern = "s_content", files_list )]
+  ash_ret_file_list <-  files_list[grep(pattern = "_s_ash_ret", files_list )]
 
   #select SO2 files
   s_content_file_list <- s_content_file_list[grep(pattern = 'SO2', s_content_file_list )]

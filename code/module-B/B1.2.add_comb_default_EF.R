@@ -75,7 +75,7 @@ EF_extended <- lapply( X= EF_list, FUN = extendDefaultEF,
 
 EF <- do.call("rbind.fill", EF_extended)
 
-EF$units <- 'percent'
+EF$units <- 'kt/kt'
 # ---------------------------------------------------------------------------
 # 2. Add to existing parameter Dbs
 

@@ -130,7 +130,7 @@ loadPackage('zoo')
   
 printLog("Adding diesel sulfer standard SO2 EFs to B.SO2_comb_EF_db")
 
-writeData(diesel_EF, domain = "DEFAULT_EF_PARAM" , 'B.SO2_diesel_sulfur_content')
+writeData(diesel_EF, domain = "DEFAULT_EF_PARAM" , 'B.SO2_diesel_s_content')
 
 logStop()
 # END

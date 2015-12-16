@@ -318,15 +318,15 @@ extendValues <- function(ext_data,
   # ext_year format
   # column names - id variables (iso, sector, fuels) - pre_ext_year - post_ext_year
 
-  ext_data = test
-  pre_ext_default = 'linear_1'
-  post_ext_default = 'constant'
-  pre_ext_year = start_year
-  post_ext_year = end_year
-  meta = FALSE
-  ext_method = test.m
-  ext_year = test.y
-  defaultData = 'B.SO2_ControlFrac_db'
+#   ext_data = test
+#   pre_ext_default = 'linear_1'
+#   post_ext_default = 'constant'
+#   pre_ext_year = start_year
+#   post_ext_year = end_year
+#   meta = FALSE
+#   ext_method = test.m
+#   ext_year = test.y
+#   defaultData = 'B.SO2_ControlFrac_db'
   
   # run through interpolation first
   ext_data <- interpolateValues( ext_data )

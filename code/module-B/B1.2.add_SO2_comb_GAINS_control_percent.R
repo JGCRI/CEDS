@@ -1,4 +1,4 @@
-# Program Name: B1.2.add_SO2_GAINS_ControlFrac.R
+# Program Name: B1.2.add_SO2_GAINS_control_percent.R
 # Author: Ryan Bolt, Leyang
 # Date Last Updated: 9 Nov 2015 
 # Program Purpose: Process 2005 GAINS emissions and fuel to calculate GAINS EF, then calculate 
@@ -68,7 +68,7 @@ NONconversion <- readData( "ENERGY_IN",  "IEA_NonOECDconversion" )
 
 s_content <- readData( "MED_OUT", 'B.SO2_S_Content_db')
 
-gains_ashret <- readData('DEFAULT_EF_PARAM', 'B.SO2_GAINS_ash_ret')
+gains_ashret <- readData('DEFAULT_EF_PARAM', 'B.SO2_GAINS_s_ash_ret')
 
 # ---------------------------------------------------------------------------
 # 2. GAINS multipliers (unit conversions from energy to mass)

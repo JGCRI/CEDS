@@ -67,7 +67,7 @@ gainsash_ret <- gainsash_ret[which( gainsash_ret$X2005 > 0),]
 
 # -------------------------------------------------------------------------------
 # 3. Output
-writeData(gainsash_ret, domain = "DEFAULT_EF_PARAM", fn = "B.SO2_GAINS_ash_ret")
+writeData(gainsash_ret, domain = "DEFAULT_EF_PARAM", fn = "B.SO2_GAINS_s_ash_ret")
 
 
 
