@@ -498,9 +498,6 @@ addToEmissionsDb_overwrite <- function( df, em, type ){
 addToDb_overwrite <- function( new_data, em, file_extention, addEntries = FALSE ){
   printLog ("Adding new data to database")
   
-  new_data = control_percent
-  file_extention = 'ControlFrac_db'
-  
   #   Read in necessary files and data: common_data.r required 
   #   to avoid variable overwrite carryover
   source( paste( PARAM_DIR, "common_data.R", sep = "" ) )

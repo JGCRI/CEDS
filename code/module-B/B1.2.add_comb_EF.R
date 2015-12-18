@@ -58,7 +58,8 @@ if( em == "SO2" ){
                 'B1.2.add_SO2_comb_GAINS_control_percent.R',
                 'B1.2.add_SO2_comb_diesel_sulfur_content.R')
   # adds script that calculates emission factors from SO2 parameters
-  scripts <- c(scripts, 'B1.3.proc_SO2_comb_EF_S_content_ash.R')
+  scripts <- c(scripts, 'B1.2.add_SO2_comb_S_content_ash.R',
+               'B1.3.proc_SO2_comb_EF_S_content_ash.R')
 }
 
 # Set scripts to add emissions data for BC or OC
