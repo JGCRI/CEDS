@@ -1,10 +1,10 @@
-{\rtf1\ansi\ansicpg1252\cocoartf1348\cocoasubrtf170
+{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf210
 \cocoascreenfonts1{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\froman\fcharset0 TimesNewRomanPSMT;\f2\fnil\fcharset0 Calibri;
 \f3\froman\fcharset0 Times-Roman;\f4\fnil\fcharset0 LucidaGrande;}
 {\colortbl;\red255\green255\blue255;\red255\green0\blue0;\red217\green11\blue0;}
 {\info
 {\author test}
-{\*\company PNNL}}\margl1440\margr1440\vieww13940\viewh11040\viewkind1
+{\*\company PNNL}}\margl1440\margr1440\vieww12620\viewh11620\viewkind1
 \deftab720
 \pard\pardeftab720\ri0
 
@@ -17,28 +17,38 @@ PROJECT TASKS FOR CMIP6 DATA PRODUCT\
 The approach is to focus largely on building a system to generate a SO2 emission time series, then add the data necessary to extend this to the other emission species.\
  
 \i0\b \
-Complete SO2 Time Series
+Complete Initial SO2 Time Series
 \b0 \
-  -- Create default EF dataset for petroleum sulfur contents (all years), differentiated by country\
-  -- Create default EF dataset for coal sulfur content and ash retention, differentiated by country\
-  -- Amend default EF with more detailed data from GAINS and US NEI (also can also use for Canada).\
-    -- For the more detailed data (GAINS, NEI) these only apply to more recent years. \
-(This may require a new option in the relevant codes.)\
-  -- Bring in EDGAR process emissions where we don't have separate estimates (expect to have end of July)\
-  -- Scale to inventory data (USA, Canada, UNFCCC, EMEP, Australia, etc.)\
-  -- Examine assumptions for recent year extrapolations (constant EF or trends?)\
-\
+  -- Finish SO2 default EF dataset\
+  -- Implement CEDS working sectors ver 1 (process sectors @ EDGAR resolution)\
+  -- Import EDGAR process emissions from EDGAR\
+         \'97 Use 1970-2008 if we don\'92t have newer data yet\
+  -- Scale to inventory data (USA, Canada, UNFCCC, EMEP level 1, Australia, etc.)\
+ \
 \pard\pardeftab720\ri0
 
-\b \cf0 Generate Time Series For Rest of Emissions
+\b \cf0 Generate First-cut Time Series For Rest of Emissions
 \b0 \
-  -- Add additional process activity data\
-  -- Develop default EFs (First cut: use GAINS and US NEI)\
-      -- Need to research assumptions for default emission factors over time (particularly before inventory data is available)\
-      -- Focus on electric power and transport sectors\
-   -- Collect additional inventory data where needed\
-  -- EDGAR data will be emissions to scale to where lack other emission inventories\
- \
+  -- Develop default EFs (Use global GAINS-EMF30 data and, if have time, US NEI)\
+       -- Where GAINS-EMF30 year 2000 EFs are systematically different from OECD and nonOECD, think about how to extrapolate OECD EFs back in time.\
+   -- Scale to inventory data (USA, Canada, UNFCCC, EMEP level 1, Australia, etc.) and EDGAR where don\'92t have other data\
+\
+
+\b Improve First-cut Time Series
+\b0 \
+   -- Implement CEDS working sectors version 2\
+     \'97 Additional detail for metal and fossil process emissions\
+     \'97 Add additional process activity data\
+   -- Add additional inventory scaling as get them\
+   -- Add seasonality\
+     \'97 Focus on residential sector (Base on ECLIPSE)\
+     \'97 Use whatever EDGAR has otherwise by end of Jan\
+\
+   -- Add CO2 and CH4 emissions \
+     \'97 CO2 is probably higher priority than CH4\
+     \'97 CH4 will require adding more driver data\
+           \'97 Most, if not all, is FAO so can use API\
+\
 
 \b MERGE WITH RCP/HYDE Data/assumptions to get past trends	
 \b0 \
@@ -51,21 +61,218 @@ Complete SO2 Time Series
 \b GRIDDED EMISSIONS
 \b0 \
   -- Determine basic approach for gridding\
-  -- Create simple routine based on EDGAR + Population and other area proxies (no grid points)\
+  -- Create simple routine based on EDGAR + Population and other area proxies (no grid points)
+\b \
+\
+*********************************************************************\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
+\cf0 TASK LIST: SPECIFIC TASKS\
+\pard\pardeftab720\ri0
+\cf0 _______________________________________\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
+\cf0 Highest Priority 
+\b0 (
+\i path to first complete estimate by end of Dec
+\i0 )
+\b \
+\pard\pardeftab720\ri0
+\cf0 _______________________________________\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
+
+\b0 \cf0 \ul \ulc0 \
+Document input emissions format\ulnone  for system, including units\
+(All combustion emission factors should be kt/kt, energy data are in kt, all emissions will be in kt)\
+\
+\pard\pardeftab720\ri0
+\cf0 \ul \ulc0 Implement CEDS working sectors version 1\ulnone  (process sectors at EDGAR resolution)\
+\
+\ul I\ulc0 mport EDGAR process emissions from EDGAR\
+  \ulnone \'97 Use 1970-2008 if we don\'92t have newer data yet\
+\
+\pard\pardeftab720\ri0
+\cf0 \ul Other adjustments for default S emission factors\
+  \ulnone \'97 Add data for scaling years for GAINS S contents/controls where needed (e.g. petr)\
+\
+\pard\pardeftab720\ri0
+\cf0 \ul \ulc0 Develop default EFs for other pollutant emissions\
+ \ulnone  \'97  Global GAINS-EMF30 data as default\
+      \'97 Where GAINS-EMF30 year 2000 EFs are systematically different from OECD and nonOECD, think about how to extrapolate OECD EFs back in time. Compare with other uncontrolled EFs we have available.\
+\
+ \ul \ulc0 Add key default emissions data adjustments\
+  \ulnone \'97 Asia emission changes\
+\
+ \ul Scale to additional inventory data\
+\ulnone    \'97 EMEP level 1\
+ \
+\pard\pardeftab720\ri0
+
+\b \cf0 _______________________________________\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
+\cf0 High Priority 
+\b0 (
+\i important refinements to refine Jan estimates
+\i0 )
+\b \
+\pard\pardeftab720\ri0
+\cf0 _______________________________________\
+\pard\pardeftab720\ri0
+
+\b0 \cf0 \
+ \ul Scale to additional inventory data\
+   \ulnone \'97 Later Canada data\
+   \'97 EMEP level 2\
+   \'97 Australia, \
+   \'97 Others (China, Japan, S Korea, Taiwan, other from REAS)\
+ \
+ \ul Move to CEDS working sectors level 2\
+   \ulnone \'97 Need to add additional driver data\
+   \'97 Derive additional default emission factors (could use US and Europe implied EFs)\
+ \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
+\cf0 \ul \ulc0 Extend population datasets\ulnone  
+\b - Linh
+\b0 \
+  -- Extend to previous historical years using HYDE population time series
+\b \cf2  Not Done
+\b0 \cf0 \
+\
+\ul Extend dataset for activity GDP data\ulnone  
+\b \cf2 Not Done
+\b0 \cf0 \
+  -- Current dataset only goes back to 1969\
+  -- The USDA dataset might be a good start to this, since they have done the work of extrapolating back in time\
+  -- But only goes back to 1969. PWT might be a better source (need to confer with Stephanie)\
+  -- But if can update using APIs that would be ideal (perhaps using growth rates from world bank GDP figures)\
+  -- Later: extend farther back in time using Madison estimates\
+ \
+\ul Add consistent biomass consumption data to data system
+\b \ulnone  \'96 Linh
+\b0 \
+  -- Routine that generates this data will be part of data system, so that it will update when IEA data is updated\
+  -- Combine IEA and Fernandes data consistently to get time series\
+  -- Extend industrial biomass where needed (focus first on pulp and paper industry)\
+\
+\ul Diesel oil SO2 default emission factors for other sectors
+\b \ulnone  \'96 \cf2 Not Done \
+
+\b0 \cf0   -- W/ new CEDS sectors, figure out how diesel S% should be applied to other sectors \
+\
+\ul Add metal smelting default SO2\ulnone  \ul emissions estimate
+\b \ulnone  \'96 \cf2 Not Done
+\b0 \cf0 \
+ \
+\ul Re-examine how to scale UNFCCC emissions (once done with EMEP\ulnone ) 
+\b \cf2  - Partially Done
+\b0 \cf0 \
+  -- Need to identify which sectors/subsectors have data (this is inconsistent)\
+\
+\ul Finish US NEI data processing for CEDS\ulnone  - 
+\b Linh
+\b0 \
+  -- Done for 2011 (Check mapping w/ latest CEDS sectors)\
+  -- Do this for earliest NEI year available 
+\b \cf2 Mostly Done? - Linh
+\b0 \cf0 \
+  -- For mobile sources: create default combustion EFs for 2011 by dividing NEI emissions by NEI CO2 from NEI (check what Jeff has done) 
+\b \cf2  Not Done
+\b0 \cf0 \
+  -- For other sectors: create default combustion EFs for 2011 by dividing NEI emissions by fuel  consumption from IEA. (Problematic for some sectors. Need to be careful about industry process use, building biomass, etc.)
+\b \cf2  Not Done
+\b0 \cf0 \
+  -- See if possible to commit NEI  data to git as zip files (can read from there)\
+\
+\ul Analysis of pre-industrial and pre-control emission factors\ulnone  - 
+\b \cf3 Rachel - Not Done
+\b0 \cf0 \
+  -- Refine default set of emission factors. \
+  -- These might be the same from 1850-1970, or might vary - if we have enough info to determine this\
+  -- Some data sources: implied EF from earlier US EPA trends data, RETRO, HYDE\
+\
+\pard\pardeftab720\ri0
+\cf0 \ul \ulc0 Update metadata where it doesn't now exist\ulnone  
+\b \cf2 Partially Done
+\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
+\cf0   -- Make sure all input files have metadata files\
+\
+\ul Update scaling routine to provide more options\ulnone  
+\b \cf2 Partially Done
+\b0 \cf0 \
+  -- For some sectors (e.g. canada smelting industry), will want to subtract the smaller combustion component and just scale the larger component. \
+  -- This prevents unrealistic scaling of small emission sources\
+  -- Will want to do analysis of resulting EFs to make sure are reasonable (e.g., write out to diagnostic file as first step)\
+  -- Consider scaling back in time that is not constant but ramps to some trusted earlier (e.g. ~1970 value)\
+  \'97 Consider adding max EF for combustion emissions\
+\
+\ul Update to 2015 edition of IEA energy balances 
+\b \cf2 \ulnone In Process - Nazar
+\b0 \cf0 \
+\
+\ul More Robust API download routine\ulnone . 
+\b \cf2 Not Done - Rachel
+\b0 \cf0 \
+- Generally for downloads, provide backup file if API doesn\'92t respond\
+- Add overall system flag for downloading new data or not\
+\
+More detailed meta data system for large data frames. 
+\b \cf2 Not Done - Rachel
+\b0 \cf0 \
+- Meta data entry for every value, like diesel Sulfur standards xls doc\
+\
+\pard\pardeftab720\ri0
+
+\b \cf0 _______________________________________\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
+\cf0 Medium Priority 
+\b0 (
+\i want to have in system, but flexible when we do
+\i0 )
+\b \
+\pard\pardeftab720\ri0
+\cf0 _______________________________________\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
+
+\b0 \cf0 \
+Move to using numerical country codes so that historical changes are uniquely specified\
 \
 
-\b ******************************************************\
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
-\cf0 \
-TASK LIST: SPECIFIC TASKS\
+\b Overall Design Issues\
+
+\b0 Track number for scaling operations so metatdata will indicate data priority\
 \
-High Priority 
+
+\b Lower Priority 
 \b0 (
-\i critical path to complete system
+\i Want to have, but not critical path
 \i0 )
 \b \
 
-\b0 Re-Architect system to accommodate multiple emission species\
+\b0   \
+Add simple unit processing for emission calculations. Add units to all data.\
+\
+Metadata routines - print input file or code file that originated the meta-data item \
+\
+
+\b Future Tasks\
+
+\b0 Figure out how to deal with country mergers/splits over time\
+  -- Develop alternative split methodology to use population trends instead of fixed shares\
+ \
+\
+\pard\pardeftab720\ri0
+
+\b \cf0 *********************************************************************\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
+\cf0 Completed Tasks\
+\
+
+\b0 Complete first emissions scaling module (Tyler)\
+Generalize emissions scaling for other data sets (Tyler)\
+Metadata routines updated (Tyler)\
+Add process emissions to DB (Jon)\
+Generalized system so can easily add/update activity data and default EFs\
+\
+Re-Architect system to accommodate multiple emission species\
 \
 Change fuel mapping: 
 \b \cf2 Done
@@ -77,13 +284,15 @@ Update CEDS coding guide with CEDS specific guidelines
 \b \cf2  Done
 \b0 \cf0 \
 \
-Document input emissions format for system, including units 
-\b \cf2 Not Done
-\b0 \cf0 \
-\
 Rename A.IEA_BP_ext.csv to be something more general, that is the input for subsequent routines. 
 \b \cf2 Done
 \b0 \cf0 \
+\
+Get draft BC emissions estimation working in system
+\b  - Linh + Jon\cf2  Done\
+
+\b0 \cf0   -- This is our test case to figure out how to generalize the codes to work with different emission species\
+\
 \
 Add system for producing population datasets (ideally using world bank and UN APIs)
 \b  - Linh
@@ -104,25 +313,6 @@ Add system for producing population datasets (ideally using world bank and UN AP
 \b \cf2  Not Done
 \b0 \cf0 \
 \
-Update dataset for \cf2 activity (?) \cf0 GDP data 
-\b \cf2 Not Done
-\b0 \cf0 \
-  -- The USDA dataset might be a good start to this, since they have done the work of extrapolating back in time\
-  -- But only goes back to 1969. PWT might be a better source (need to confer with Stephanie)\
-  -- But if can update using APIs that would be ideal (perhaps using growth rates from world bank GDP figures)\
-  -- Later: extend farther back in time using Madison estimates\
- \
-Add consistent residential biomass consumption data to data system, replacing current data
-\b  \'96 Linh \cf2 Done
-\b0 \cf0 \
-  -- Routine that generates this data will be part of data system, so that it will update when IEA data is updated\
-  -- This can be done once population data is available\
-\
-Get draft BC emissions estimation working in system
-\b  - Linh + Jon\cf2  Done\
-
-\b0 \cf0   -- This is our test case to figure out how to generalize the codes to work with different emission species\
-\
 Update SO2 default emission factors for Coal to consist of three components 
 \b - ??? (Data for this on server) \cf2 Partially Done (Ryan/Steve)
 \b0 \cf0 \
@@ -132,6 +322,7 @@ Update SO2 default emission factors for Coal to consist of three components
   -- May want to distinguish between sub-bituminous coal and lignite for S content \
    -- May need to separate those in IEA data processing. \
        -- Someone do simple analysis of split by country to see which countries this changes over time.\
+\
 \
 Update SO2 default emission factors for petroleum products
 \b  \'96 Linh \cf2 Done \
@@ -162,46 +353,6 @@ Process GAINS sulfur info default EFs -
 \cf0   -- Petroleum S% will generally increase going back into time, so will be extrapolated to the default values. \
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
 \cf0 \
-Create code to consolidate and check consistency of downloaded UNFCCC emissions - ???
-\b \cf2  \cf0 Patrick\cf2  - Partially Done
-\b0 \cf0 \
-  -- A package of CSV files has been downloaded using a web browser macro program (on JGCRI server)\
-  -- Need to identify which sectors/subsectors have data (this is inconsistent)\
-    -- Perhaps have a dataframe that lists countries and sectors and flags (1/0 or true/false) which have data\
-  -- Need to create mapping between UN categories and new CEDS categories - 
-\b not done
-\b0 \
-\
-Process US NEI data into CEDS sector and fuel categories - 
-\b Cecilia
-\b0 \
-  -- First do this for 2011 
-\b \cf2 Done - but not in system
-\b0 \cf0 \
-  -- Eventually do this for earliest NEI year available (will require routine to update SSC->NFR) 
-\b \cf2 Not Done - Linh
-\b0 \cf0 \
-  -- For mobile sources: create default combustion EFs for 2011 by dividing NEI emissions by NEI CO2 from NEI 
-\b \cf2  Not Done
-\b0 \cf0 \
-  -- For other sectors: create default combustion EFs for 2011 by dividing NEI emissions by fuel  consumption from IEA. (Problematic for some sectors. Need to be careful about industry process use, building biomass, etc.)
-\b \cf2  Not Done
-\b0 \cf0 \
-\
-Start analysis of pre-industrial and pre-control emission factors - 
-\b \cf3 Rachel - Not Done
-\b0 \cf0 \
-  -- Goal: come up with a default set of emission factors. \
-  -- These might be the same from 1850-1970, or might vary - if we have enough info to determine this\
-  -- Some data sources: implied EF from earlier US EPA trends data, RETRO, HYDE\
-\
-\pard\pardeftab720\ri0
-\cf0 Update metadata where it doesn't now exist 
-\b \cf2 Partially Done
-\b0 \cf0 \
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
-\cf0   -- Make sure all input files have metadata files\
-\
 Transition to more detailed sector breakdown 
 \b \cf2 Not Done
 \b0 \cf0 \
@@ -209,84 +360,15 @@ Transition to more detailed sector breakdown
  -- Will wait a few weeks to do this. \
  -- Should use more detailed breakdown for any work with more detailed inventories (NEI, UNFCCC, etc.)\
 \
-Update scaling routine to provide more options 
-\b \cf2 Partially Done
-\b0 \cf0 \
-  -- For some sectors (e.g. canada smelting industry), will want to subtract the smaller combustion component and just scale the larger component. \
-  -- This prevents unrealistic scaling of small emission sources\
-  -- Will want to do analysis of resulting EFs to make sure are reasonable (e.g., write out to diagnostic file as first step)\
-  -- Consider scaling back in time that is not constant but ramps to some trusted earlier (e.g. ~1970 value)\
-\
-Update to 2015 edition of IEA energy balances 
-\b \cf2 Not Available - SJS to preorder
-\b0 \cf0 \
-  -- Should be available "any day now" (OECD released July 1, waiting for non-OECD, available in August)\
-\
-More Robust API download routine. 
-\b \cf2 Not Done - Rachel
-\b0 \cf0 \
-- provide backup file if API doesn\'92t respond\
-- system flag for downloading new data or not\
-\
-More detailed meta data system for large data frames. 
-\b \cf2 Not Done - Rachel
-\b0 \cf0 \
-- Meta data entry for every value, like Linh\'92s Sulfur standards xls doc\
-\
-
-\b Medium Priority 
-\b0 (
-\i want to have in system, but flexible when we do
-\i0 )
-\b \
-
-\b0 \
-Move to using numerical country codes so that historical changes are uniquely specified\
-\
 Add CEDS-specific guidelines to R style guide (documentation format, metadata use, etc.)\
  
 \b \cf2 Done
 \b0 \cf0 \
-
-\b Overall Design Issues\
-
-\b0 Track number for scaling operations so metatdata will indicate data priority\
 \
-
-\b Lower Priority 
-\b0 (
-\i Want to have, but not critical path
-\i0 )
-\b \
-
-\b0 Move to git instead of svn. - 
+Move to git instead of svn. - 
 \b \cf3 DONE
 \b0 \cf0 \
   -- When do that, save copy of svn log to the git repository to preserve history\
-  \
--- Will need to have a plan for large data files (such as US NEI) - 
-\b \cf3 \cb3 NOT DONE
-\b0 \cf0 \cb1 \
-\
-Add simple unit processing for emission calculations. Add units to all data.\
-\
-Metadata routines - print input file or code file that originated the meta-data item \
-\
-
-\b Future Tasks\
-
-\b0 Figure out how to deal with country mergers/splits over time\
-  -- Develop alternative split methodology to use population trends instead of fixed shares\
- \
-\
-
-\b Completed Tasks\
-
-\b0 Complete first emissions scaling module (Tyler)\
-Generalize emissions scaling for other data sets (Tyler)\
-Metadata routines updated (Tyler)\
-Add process emissions to DB (Jon)\
-Generalized system so can easily add/update activity data and default EFs\
 \
 \
 
