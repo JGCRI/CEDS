@@ -1,11 +1,11 @@
 # ------------------------------------------------------------------------------
 # Program Name: C.1.2.add_SO2_NC_emissions_FAO_pulp_paper.R
 # Authors: Ryan Bolt, Jon Seibert, Linh Vu
-# Date Last Modified: 13 November 2015
+# Date Last Modified: 19 December 2015
 # Program Purpose: Use the package FAOSTAT to retrieve data on pulp production
 #                  and with an emission factor to produce driver data.
-# Input Files: 
-# Output Files: 
+# Input Files: Master_Country_List.csv, FAO_SO2_emissions.csv
+# Output Files: C.SO2_NC_emissions_PulpPaper.csv
 # To Do: 
 # Notes: 
 # -----------------------------------------------------------------------------
@@ -39,8 +39,7 @@
 # 1. We need to start up the library and define a few things
  loadPackage('FAOSTAT')
 
- # iso.codes <- readData( "DEFAULT_EF_IN", "FAOMaster_Country_List", meta = F )
- iso.codes <- readData( "MAPPINGS", "FAOMaster_Country_List", meta = F )
+ iso.codes <- readData( "MAPPINGS", "Master_Country_List", meta = F )
  
  sulfateEmisFactor <- 4
  SulfiteEmisFactor <- 8
@@ -99,7 +98,7 @@ total_emiss$emission <- total_emiss$SulfiteEmission + total_emiss$sulfateEmissio
 
 # Adding a column containing the iso codes then removing the columns with the STAT
 # code and the four columns containing the nonaggregated data.
-total_emiss$iso <- iso.codes$iso[ match( total_emiss$FAOST_CODE, iso.codes$FAO ) ]
+total_emiss$iso <- iso.codes$iso[ match( total_emiss$FAOST_CODE, iso.codes$FAO_Country_Code ) ]
 keeps <- c("iso", "Year", "emission")
 total_emiss <- total_emiss[!total_emiss$FAOST_CODE >= 351,keeps]
 
@@ -202,8 +201,8 @@ country_splitting <- function(emission, info, sector = c("nosectors"), sec_loc =
 # in column 2. 
 
 cou_info <- list(czech.slovkia = c(1961, 1993, "csk","cze","svk"), 
-                 bel.lux = c(1961, 2000, "BLX","bel","lux"),
-                 yugo = c(1961, 1992, "YUG", "scg", "svn", "mkd","hrv","bih"),
+                 bel.lux = c(1961, 2000, "blx","bel","lux"),
+                 yugo = c(1961, 1992, "yug", "scg", "svn", "mkd","hrv","bih"),
                  ser.mont = c(1961, 2006, "scg","srb","mne"),
                  soviet = c(1961, 1992, "USSR","arm","aze","blr","est","geo","kaz",
                             "kgz","ltu","lva","mda","rus","tjk","tkm","ukr","uzb"))

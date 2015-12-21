@@ -220,7 +220,7 @@ $(MED_OUT)/A.UN_pop_master.csv : \
 	$(PARAMS)/IO_functions.R \
 	$(PARAMS)/data_functions.R \
 	$(PARAMS)/analysis_functions.R \
-	$(EN_MAPPINGS)/IEA_ctry.csv \
+	$(MAPPINGS)/Master_Country_List.csv \
 	$(SOCIO_DATA)/WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.XLS \
 	$(SOCIO_DATA)/WUP2014-F21-Proportion_Urban_Annual.xls \
 	$(SOCIO_DATA)/WB_SP.POP.TOTL.csv \
@@ -232,7 +232,6 @@ $(MED_OUT)/A.UN_pop_master.csv : \
 $(MED_OUT)/A.IEA_en_stat_ctry_hist.csv : \
 	$(MOD_A)/A1.2.IEA_downscale_ctry.R \
 	$(MED_OUT)/A.UN_pop_master.csv \
-	$(EN_MAPPINGS)/IEA_ctry.csv \
 	$(ENERGY_DATA)/OECD_E_stat.csv \
 	$(ENERGY_DATA)/NonOECD_E_stat.csv
 	Rscript $< $(EM) --nosave --no-restore
@@ -259,7 +258,6 @@ $(MED_OUT)/A.IEA_BP_energy_ext.csv : \
 	$(EN_MAPPINGS)/IEA_flow_sector.csv \
 	$(EN_MAPPINGS)/IEA_process_sectors.csv \
 	$(EN_MAPPINGS)/IEA_energy_activity_fuel_mapping.csv \
-	$(EN_MAPPINGS)/IEA_BP_mapping.csv \
 	$(MED_OUT)/A.en_stat_sector_fuel.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(ENERGY_DATA)/BP_energy_data.xlsx
@@ -272,8 +270,7 @@ $(MED_OUT)/A.IEA_BP_energy_ext.csv : \
 $(MED_OUT)/A.comb_activity.csv : \
 	$(MOD_A)/A4.1.complete_energy_data.R \
 	$(MED_OUT)/A.IEA_BP_energy_ext.csv \
-	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
-	$(MAPPINGS)/Master_Country_List.csv
+	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.NC_activity_energy.csv : \
@@ -334,7 +331,7 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(MOD_B)/B1.2.add_SO2_comb_diesel_sulfur_content.R \
 	$(MOD_B)/B1.2.add_SO2_comb_GAINS_ash_ret.R \
 	$(MOD_B)/B1.2.add_SO2_comb_GAINS_control_percent.R \
-	$(MOD_B)/B1.2.add_GAINS_EMF-30.R\
+	$(MOD_B)/B1.2.add_GAINS_EMF-30.R \
 	$(MOD_B)/B1.2.add_SO2_comb_S_content_ash.R \
 	$(MOD_B)/B1.3.proc_SO2_comb_EF_S_content_ash.R \
 	$(MOD_B)/B1.3.proc_comb_EF_control_percent.R \

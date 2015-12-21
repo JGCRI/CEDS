@@ -1,13 +1,14 @@
 #------------------------------------------------------------------------------
 # Program Name: A1.1.UN_pop_WB_extension.R
 # Author: Linh Vu, Rachel Hoesly
-# Date Last Updated: 13 November 2015
+# Date Last Updated: 18 December 2015
 # Program Purpose: Produce input population data for CEDS emissions system from
 #                  United Nations data, and World Bank (WB) data where UN data are
 #                  unavailable. Output are 1950-2100 population and urban population
 #                  share.
 # Input Files: WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.XLS;
-#              WUP2014-F21-Proportion_Urban_Annual.xls; IEA_ctry.csv
+#              WUP2014-F21-Proportion_Urban_Annual.xls; 
+#              WB_SP.POP.TOTL.csv; WB_SP.URB.TOTL; Master_Country_List.csv
 # Output Files: A.UN_pop_master.csv
 # Notes: 1. UN population data are downloaded from:
 #           -- Total population: http://esa.un.org/unpd/wpp/DVD/
@@ -80,7 +81,7 @@
     WB_urban_pop_raw <- readData( "GEN_IN", "WB_SP.URB.TOTL", meta = F )
 
 # Read CEDS country list
-    CEDS_ctry <- readData( "EN_MAPPINGS", "IEA_ctry", meta = F )
+    MCL <- readData( "MAPPINGS", "Master_Country_List", meta = F )
 
 # Define standardized UN scenario names (check against Excel input)
     UN_scenarios_std <- c( "Estimates", "Medium fertility", "High fertility", 
@@ -156,7 +157,7 @@
 # ------------------------------------------------------------------------------
 # 3. Produce population series from UN and WB data
 # Diagnostics: What countries in CEDS are missing from UN pop?
-    in_CEDS_not_in_UN <- setdiff( unique( CEDS_ctry$iso ), unique( UN_pop$iso) )
+    in_CEDS_not_in_UN <- setdiff( unique( MCL$iso ), unique( UN_pop$iso) )
     in_CEDS_not_in_UN <- in_CEDS_not_in_UN[ !is.na( in_CEDS_not_in_UN ) & 
                                               in_CEDS_not_in_UN != "iso" ]
     # scg (Serbia and Montenegro), srb (Kosovo),
@@ -164,8 +165,8 @@
     if ( length( in_CEDS_not_in_UN ) > 0 ) {
       warning( "The following CEDS countries do not have UN data: \n")
       for (i in 1:length( in_CEDS_not_in_UN ) ) {
-        warning( paste0( in_CEDS_not_in_UN[[i]], ": ", unique( 
-          CEDS_ctry$IEA_ctry[ CEDS_ctry$iso %in% in_CEDS_not_in_UN[[i]] ] ), "; " ) )
+        warning( paste0( in_CEDS_not_in_UN[[i]], ": ", 
+          MCL$Country_Name[ match( in_CEDS_not_in_UN[[ i ]], MCL$iso ) ] ) ) 
       }
     }
 
