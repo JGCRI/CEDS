@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: B1.2.add_SO2_comb_diesel_sulfur_content.R
 # Author: Rachel Hoesly, Linh Vu
-# Date Last Updated: 19 December 2015 
+# Date Last Updated: 21 December 2015 
 # Program Purpose: Add Sulfur Standards to default sulfur EF
 # values from 2005 back to 1975
 # 
@@ -46,8 +46,7 @@ loadPackage('zoo')
 
   diesel_standards <- readData( "DEFAULT_EF_IN",  "Diesel_transport_S_trend" , '.xlsx')
   MCL <- readData( "MAPPINGS", "Master_Country_List" )
-  # MCL <- readData( "MAPPINGS", "Master_Country_List_ref" )
-  
+
 # -------------------------------------------------------------------------------
 # 2. Format to CEDS format
 
@@ -110,7 +109,6 @@ loadPackage('zoo')
     rbind(diesel_standards_region_filled[,c('iso',X_standard_years)],diesel_standards_ppm_filled)
   
   # select only countries in Master Country List (excluding historical/extinct countries)
-  # diesel_standards_ppm_complete <- diesel_standards_ppm_complete[ diesel_standards_ppm_complete$iso %in% MCL$iso, ]
   diesel_standards_ppm_complete <- diesel_standards_ppm_complete[ diesel_standards_ppm_complete$iso 
                                                                   %in% MCL$iso[ !grepl( "historical", MCL$note ) ], ]
   

@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A4.1.complete_energy_data.R
-# Author(s): Jon Seibert
-# Date Last Modified: July 22, 2015
+# Author(s): Jon Seibert, Linh Vu
+# Date Last Modified: 21 December 2015
 # Program Purpose: To expand IEA_BP energy data to include entries for all possible
 #                  id combinations.
 # Input Files: A.IEA_BP_energy_ext.csv, Master_Fuel_Sector_List.xlsx,
@@ -65,7 +65,6 @@ names(energy_data_activity) <- c('iso','activity','units', X_emissions_years)
 
 # Whether these lists include biomass and/or process sectors is easily editable- 
 # left out for now via reasonable assumption.
-# iso_list <- sort( unique( MCL$iso ) )
 iso_list <- sort( unique( MCL$iso[ !grepl( "historical",  MCL$note ) ] ) )
 sector_list <- unique( c( MSL$sector[ MSL$activity == "Energy_Combustion" ], 
                           unique( energy_data_combustion$sector[ energy_data_combustion$sector != "NA" ] ) ) )
