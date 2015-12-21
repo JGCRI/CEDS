@@ -90,7 +90,7 @@ clean-all : \
 	clean-intermediate clean-diagnostic clean-final clean-logs clean-io clean-modB
 
 clean-intermediate :
-	rm -fv $(MED_OUT)/*.csv
+	rm -fv $(MED_OUT)/*.csv 
 
 clean-diagnostic :
 	rm -fv $(DIAG_OUT)/*.csv
@@ -111,7 +111,7 @@ clean-modA :
 clean-modB :
 	rm -fv $(MED_OUT)/B*.csv \
 	rm -fv $(EF_PARAMETERS)/B.*.csv
-
+	
 clean-modC :
 	rm -fv $(MED_OUT)/C*.csv
 
