@@ -1,12 +1,12 @@
 #------------------------------------------------------------------------------
 # Program Name: A3.1.IEA_BP_data_extension.R
-# Authors Names: Tyler Pitkanen, Rachel Hoesly
-# Date Last Modified: June 16, 2015
+# Authors Names: Tyler Pitkanen, Rachel Hoesly, Linh Vu
+# Date Last Modified: 19 December 2015
 # Program Purpose: Reads in BP data for years not yet covered by IEA data
 #                  Alters BP data to agree with IEA data labels
 #                  Adds recent BP-projected data to historical years data         
 # Input Files: IEA_flow_sector.csv, A.en_stat_sector_fuel.csv, BP_energy_data.xlsx, 
-#              IEA_BP_mapping.csv, Master_Fuel_Sector_List.xlsx, 
+#              Master_Country_List.csv, Master_Fuel_Sector_List.xlsx, 
 #              IEA_energy_activity_fuel_mapping.csv
 # Output Files: A.comb_activity.csv, A.IEA_BP_sum_comparison.csv, A.IEA_BP_trend_comparison.csv   
 # Notes: IEA_years, BP_years, end_year and X_ variants defined in common_data.r
@@ -50,7 +50,7 @@
     IEA_energy_activity_fuel_mapping <- readData( "EN_MAPPINGS", "IEA_energy_activity_fuel_mapping" )
     iea_data_full <- readData( "MED_OUT", "A.en_stat_sector_fuel" )
     bp_energy_data <- readData( "ENERGY_IN","BP_energy_data", ".xlsx")
-    ctry_mapping <- readData( "EN_MAPPINGS", "IEA_BP_mapping" )
+    ctry_mapping <- readData( "MAPPINGS", "Master_Country_List" )
     fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
     
     bp_oil_full  <- readData( "ENERGY_IN","BP_energy_data", ".xlsx", sheet_selection = 7 ) # Oil Consumption- Tonnes

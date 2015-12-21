@@ -3,12 +3,12 @@
 # Author's Name: Page Kyle, for GCAM; modified for use in CEDS project by
 #                Steve Smith, Emily Voelker, Tyler Pitkanen, Jon Seibert, and
 #                Linh Vu
-# Date Last Modified: August 4, 2015
+# Date Last Modified: 19 December 2015
 # Program Purpose: Reads in the initial IEA energy data.
 #				   Splits the composite data into individual countries.
 # 				   Maps the aggregate coal consumption in earlier years to 
 #                      specific coal types.
-# Input Files: A.UN_pop_master, OECD_E_stat.csv, NonOECD_E_stat.csv, IEA_ctry.csv
+# Input Files: A.UN_pop_master, OECD_E_stat.csv, NonOECD_E_stat.csv, Master_Country_List.csv
 # Output Files: A.IEA_en_stat_ctry_hist.csv
 # Notes: IEA_years and X_IEA_years are now defined in 
 #           common_data.R, and range from 1960-2010.
@@ -57,7 +57,7 @@
 	UN_pop_master <- readData( "MED_OUT", "A.UN_pop_master" )
 	OECD_E_Stat <- readData( "ENERGY_IN", "OECD_E_Stat", ".csv" )
 	NonOECD_E_Stat <- readData( "ENERGY_IN", "NonOECD_E_Stat", ".csv" )
-	IEA_ctry <- readData( "EN_MAPPINGS", "IEA_ctry" )
+	MCL <- readData( "MAPPINGS", "Master_Country_List" )
 
     options( warn=w )
 # ------------------------------------------------------------------------------
@@ -81,17 +81,17 @@
 #     (Former Soviet Union and Former Yugoslavia) that get broken
 
 # Split the country mapping table into composite regions and single-countries
-	IEA_composite <- subset( IEA_ctry, IEA_ctry %in% c( 
-        "Former Soviet Union (if no detail)", "Former Yugoslavia (if no detail)",
-		"Other Africa", "Other Non-OECD Americas", "Other Asia" ) )
-	IEA_single <- subset( IEA_ctry, IEA_ctry %!in% IEA_composite$IEA_ctry )
+	IEA_composite <- subset( MCL, IEAName %in% c( 
+	  "Former Soviet Union (if no detail)", "Former Yugoslavia (if no detail)",
+	  "Other Africa", "Other Non-OECD Americas", "Other Asia" ) )
+	IEA_single <- subset( MCL, IEAName %!in% IEA_composite$IEAName )
 
 # Split IEA energy statistics into table of single countries and composite 
 #   regions (keeping only desired composite regions)
-	A.IEAcomp <- subset( A.IEAfull, COUNTRY %in% IEA_composite$IEA_ctry )
-	A.IEAsingle <- subset( A.IEAfull, COUNTRY %in% IEA_single$IEA_ctry )
+	A.IEAcomp <- subset( A.IEAfull, COUNTRY %in% IEA_composite$IEAName )
+	A.IEAsingle <- subset( A.IEAfull, COUNTRY %in% IEA_single$IEAName )
 	A.IEAsingle$iso <- IEA_single$iso[ match( A.IEAsingle$COUNTRY, 
-        IEA_single$IEA_ctry ) ]
+	                                          IEA_single$IEAName ) ]
 
 # 2.2.1 First process FSU and former Yugoslavia --------------------------------
 
@@ -150,11 +150,11 @@
         X_no_detail_coal_years ] <- 0
 
 	A.USSR_Yug_ctry <- subset( A.IEAsingle, iso %in% 
-        IEA_composite$iso[ IEA_composite$IEA_ctry %in%
-            c( "Former Soviet Union (if no detail)", 
-               "Former Yugoslavia (if no detail)" ) ] )
-	A.USSR_Yug_ctry$IEAcomp <- IEA_composite$IEA_ctry[ 
-        match( A.USSR_Yug_ctry$iso, IEA_composite$iso ) ]
+	                             IEA_composite$iso[ IEA_composite$IEAName %in%
+	                                                  c( "Former Soviet Union (if no detail)", 
+	                                                     "Former Yugoslavia (if no detail)" ) ] )
+	A.USSR_Yug_ctry$IEAcomp <- IEA_composite$IEAName[ 
+	  match( A.USSR_Yug_ctry$iso, IEA_composite$iso ) ]
 
 # Use data from 1990 to estimate what fractions of overall FSU or Yug data 
 #   belong to their sub-countries
@@ -260,12 +260,12 @@
 
 # Repeat by number of countries in each
 	A.Afr_repCtry  <- repeatAndAddVector( A.Afr, "iso", 
-        IEA_composite$iso[ IEA_composite$IEA_ctry == "Other Africa" ] )
+	                                      IEA_composite$iso[ IEA_composite$IEAName == "Other Africa" ] )
 	A.LAM_repCtry  <- repeatAndAddVector( A.LAM, "iso", 
-        IEA_composite$iso[ IEA_composite$IEA_ctry == 
-        "Other Non-OECD Americas" ] )
+	                                      IEA_composite$iso[ IEA_composite$IEAName == 
+	                                                           "Other Non-OECD Americas" ] )
 	A.Asia_repCtry <- repeatAndAddVector( A.Asia, "iso", 
-        IEA_composite$iso[ IEA_composite$IEA_ctry == "Other Asia" ] )
+	                                      IEA_composite$iso[ IEA_composite$IEAName == "Other Asia" ] )
 
 # Combine these into a single data table
 	A.Others_repCtry <- rbind( A.Afr_repCtry, A.LAM_repCtry, 
@@ -275,8 +275,8 @@
 	A.UN_pop_master <- subset( UN_pop_master, year %in% IEA_years &
         scenario == "Estimates" )
 	A.Others_pop <- subset( A.UN_pop_master, iso %in% A.Others_repCtry$iso )
-	A.Others_pop$IEAcomp <- IEA_composite$IEA_ctry[ 
-        match( A.Others_pop$iso, IEA_composite$iso ) ]
+	A.Others_pop$IEAcomp <- IEA_composite$IEAName[ 
+	  match( A.Others_pop$iso, IEA_composite$iso ) ]
 
 # Aggregate by country-in-composite-region and year to find population shares
 	A.Composites_pop <- aggregate( A.Others_pop[ "pop" ], by = list( 
