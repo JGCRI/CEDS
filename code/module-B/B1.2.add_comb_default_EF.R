@@ -5,7 +5,7 @@
 #                  ControlFrac_db
 # Input Files:    files in the EF_parameters folder contailing default_EF and em
 #               
-# Output Files:   B.[em]_ControlFrac_db
+# Output Files:   
 # Notes: 
 # TODO: 
 # ---------------------------------------------------------------------------
@@ -31,7 +31,7 @@ headers <- c( 'process_db_functions.R','data_functions.R',
               'interpolation_extention_functions.R','common_data.R') 
 #                 Additional function files may be required.
 log_msg <- "Adding control percent" # First message to be printed to the log
-script_name <- "B1.2.add_comb_EF.R"
+script_name <- "B1.2.add_comb_default_EF.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -71,7 +71,7 @@ EF_list <- lapply ( X = EF_file_list, FUN = readData,
 
 # Expand all, interpolate and Extend forward and back
 EF_extended <- lapply( X= EF_list, FUN = extendDefaultEF, 
-                                    pre_ext_method_default = 'linear_0')
+                                    pre_ext_method_default = 'none')
 
 EF <- do.call("rbind.fill", EF_extended)
 
@@ -80,7 +80,7 @@ EF$units <- 'kt/kt'
 # 2. Add to existing parameter Dbs
 
 if( length(EF_list)>0 ){
-  addToDb_overwrite(new_data = EF, em = em, file_extention = 'ControlFrac_db') }
+  addToDb_overwrite(new_data = EF, em = em, file_extention = 'comb_EF_db') }
 
 logStop()
 # END

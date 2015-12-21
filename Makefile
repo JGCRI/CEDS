@@ -334,6 +334,7 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(MOD_B)/B1.2.add_SO2_comb_diesel_sulfur_content.R \
 	$(MOD_B)/B1.2.add_SO2_comb_GAINS_ash_ret.R \
 	$(MOD_B)/B1.2.add_SO2_comb_GAINS_control_percent.R \
+	$(MOD_B)/B1.2.add_GAINS_EMF-30.R\
 	$(MOD_B)/B1.2.add_SO2_comb_S_content_ash.R \
 	$(MOD_B)/B1.3.proc_SO2_comb_EF_S_content_ash.R \
 	$(MOD_B)/B1.3.proc_comb_EF_control_percent.R \

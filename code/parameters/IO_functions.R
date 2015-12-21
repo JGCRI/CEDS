@@ -392,7 +392,8 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
 	if( to_numeric == TRUE){
 	  names <- names( x )
 	  years <- names[grep( "X", names)]
-	  x[,years] <- suppressWarnings(sapply( X= x[,years] , FUN=as.numeric) )
+	  if (length(years)>0){
+	  x[,years] <- suppressWarnings(sapply( X= x[,years] , FUN=as.numeric) )}
 	}
 	  
 	return( x )

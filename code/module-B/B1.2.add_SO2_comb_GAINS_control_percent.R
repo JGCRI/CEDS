@@ -136,6 +136,10 @@ GAINS_heat_content <- data.frame(fuel=c('brown_coal', 'hard_coal', 'biomass', 'l
                                 heat_content=c(mult_browncoal, mult_hardcoal, mult_biomass, mult_lightoil, 
                                              mult_NaturalGas, mult_Diesel, mult_heavy_oil))
 
+# diagnostic-output
+writeData( GAINS_heat_content, domain = "MED_OUT", 
+           fn = "B1.2.heat_content") 
+
 # ---------------------------------------------------------------------------
 # 2.0 Melting and combing same sectors and fuels in fuel consumption
 # 2.0.1 If the data has a header (how it is downloaded from GAINS)
