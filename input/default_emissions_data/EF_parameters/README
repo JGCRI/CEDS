@@ -23,8 +23,13 @@ control percent
 	contains ”_control_percent"
 	example:
 
-
-Files added to the system by the users (unprocessed by scripts) begin with “U_”
+Files added to the system by the users (unprocessed by scripts) should begin with “U_”
 	example: U_S_Africa_coal_electricity_SO2_ash_ret.csv
+
 Files that are processed by scripts in the system begin with “B.[em]_”
 	example: “B.SO2_GAINS_control_percent.csv”
+
+Files that begin with "B." will be deleted on make clean-all or make clean-modB
+
+Files will be process in alphabetical order.
+(If there is a reason that user files need to be run before the system-generated files, then they could be named "AU_...").

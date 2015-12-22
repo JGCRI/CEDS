@@ -42,7 +42,7 @@ expandAll <- function(input,
   id.names <- all.id.names[ all.id.names %in% c('iso','sector','fuel','year')  ]
   
   # replace "all" variables
-  if (any(input =='all')){
+  if (any(input =='all', na.rm = TRUE)){
     
     if(all(is.na(iso)) & 
        'iso' %in% id.names &
@@ -159,7 +159,7 @@ interpolateValues <- function(interp_data,interp_default = 'linear',
     interp_default <- 'linear'}
   
   # Interp Method by id variable
-  if(any(!is.na(interp_method))) {
+  if(any(!is.na(interp_method), na.rm = TRUE)) {
     if ( ! all( interp_method$interp_method %in% c(valid_interp_methods,'NA') )) {
       index <- which( interp_method$interp_method %in% valid_interp_methods == FALSE )
       warning( paste0(  interp_method$interp_method[index] , ': invalid interpolation method. Using default option: ',
@@ -175,7 +175,7 @@ interpolateValues <- function(interp_data,interp_default = 'linear',
   # update with method file
   
   # Replace "all" notation in interp_methods with unique iso/sector/fuel names
-  if( any(!is.na(interp_method)) ){
+  if( any(!is.na(interp_method), na.rm = TRUE) ){
     for (n in seq_along(id.names) ){ 
       name <- id.names[n]
       other.name <- id.names[id.names %!in% name]
@@ -191,7 +191,7 @@ interpolateValues <- function(interp_data,interp_default = 'linear',
         interp_method <- rbind(interp_method, add)
         replace <- interp_method[which(interp_method[,name]=='all'),]  
       }     }
-    if( any(interp_method$interp_method %!in% interp_default) ){
+    if( any(interp_method$interp_method %!in% interp_default, na.rm = TRUE) ){
       interp_method <- interp_method[ which(interp_method$interp_method != interp_default) , ] }
     
     # replace default interp_methods with interp_method
@@ -383,7 +383,7 @@ extendValues <- function(ext_data,
     } 
   
     # Check Methods map and replace with default if invalid  
-    if ( !any(is.na(ext_method)) ){
+    if ( !any(is.na(ext_method), na.rm = TRUE) ){
     if ( ! all( ext_method$pre_ext_method %in% c(valid_pre_ext_methods,'NA') )) {
       index <- which( ext_method$pre_ext_method %in% valid_pre_ext_methods == FALSE )
       warning( paste0(  ext_method$pre_ext_method[index] , ': invalid pre-extrapolation method. Using default option: ',
@@ -399,7 +399,7 @@ extendValues <- function(ext_data,
     # Check linear_default option
   
     if( any(c( pre_ext_default,  post_ext_default , 
-                ext_method$post_ext_method , ext_method$pre_ext_method) %in% 'linear_default') ){
+                ext_method$post_ext_method , ext_method$pre_ext_method) %in% 'linear_default', na.rm = TRUE) ){
         if(is.na(defaultData)) stop("Linear extrapolation to default chosen, but no default data specified. Please specify.")
         defaults <- readData('MED_OUT', defaultData)  }
     
@@ -684,7 +684,9 @@ extendDefaultEF <- function(exten_df,
   names <- names( exten_df)
   id.X_years <- names[grep( "X", names)]
   
+  
   #extend  
+  if (pre_ext_method_default != 'none' ){
   out <- extendValues(ext_data = exten_df[,c('iso','sector','fuel','units',id.X_years)],
                       pre_ext_default = pre_ext_method_default,
                       post_ext_default = 'constant',
@@ -692,7 +694,9 @@ extendDefaultEF <- function(exten_df,
                       post_ext_year = end_year,
                       meta = FALSE,
                       ext_method = e_method,
-                      ext_year = e_year)
+                      ext_year = e_year) }else{ 
+  out <- exten_df[,c('iso','sector','fuel','units',id.X_years)]}
+  
   
   # get names and reorder for output
   names <- names( out)

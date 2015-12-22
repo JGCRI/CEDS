@@ -67,6 +67,12 @@ if( em == "BC" || em == "OC" ){
   scripts <- c(  )
 }
 
+
+# Add scripts For all emissions species - default EFs and control percent
+# Default EFs
+scripts <- c(scripts,'B1.2.add_GAINS_EMF-30.R', 
+             'B1.2.add_comb_default_EF.R')
+
 # Add control percent and processing script for all emission types
 scripts <- c(scripts,'B1.2.add_comb_control_percent.R', 'B1.2.add_comb_default_EF.R',
              'B1.3.proc_comb_EF_control_percent.R')

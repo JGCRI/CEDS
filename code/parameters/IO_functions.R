@@ -296,6 +296,8 @@ filePath <- function( domain, fn, extension=".csv", domain_extension = "" ) {
 #   meta_extension:     File extension for the file's metadata. [default: extension]
 #   mute:               Boolean indicating whether to output progress messages. TRUE silences
 #                           the function, while FALSE allows the messages. [default: FALSE]
+#   to_numeric:            Boolean indicating whether to automatically convert columns begining with "X"
+#                           to numeric values. [default = TRUE]
 # Return:           Data frame of the read-in file, or a list of data frames of 
 #                   multiple sheets from a .xlsx .xls file
 # Input Files:      Specified in file_name
@@ -313,22 +315,7 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
                       readin_selection = "none", readin_extension = ".csv",
                       sheet_selection = "ALL", domain_extension = "", column_names = TRUE, 
                       column_types = NULL, missing_value = "", skip_rows = 0, meta = TRUE, 
-                      meta_domain = domain, meta_extension = extension, mute = FALSE, ... ) {
-    
-    # # DEBUG
-    # domain <- "DOCUMENTATION"
-    # file_name <- "System_Documentation"
-    # extension = ".xlsx"
-    # sheet_selection = "Module Documentation"
-    # domain_extension = ""
-    # column_names = TRUE
-    # column_types = NULL
-    # missing_value = ""
-    # skip_rows = 0
-    # meta = FALSE
-    # meta_domain = domain 
-    # meta_extension = extension
-    # mute = FALSE
+                      meta_domain = domain, meta_extension = extension, mute = FALSE, to_numeric = TRUE ,... ) {
 
 	if( domain=="none" | file_name=="none" ) {
 		printLog( "ERROR in readData: no domain/file specified", file_name )
@@ -399,7 +386,16 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
     if( meta == T ) {
         metadata <- readMetaData( meta_domain, file_name )
     }
-    
+  
+	# Convert years columns to numeric values if to_numeric = TRUE
+	
+	if( to_numeric == TRUE){
+	  names <- names( x )
+	  years <- names[grep( "X", names)]
+	  if (length(years)>0){
+	  x[,years] <- suppressWarnings(sapply( X= x[,years] , FUN=as.numeric) )}
+	}
+	  
 	return( x )
 }
 

@@ -14,7 +14,8 @@
 #                  interpolate in between
 # Input Files: Bond_BC1-Central_1990.csv, Bond_BC1-Central_1996.csv,
 #              Bond_Fuel-Central_1990.csv, Bond_Fuel-Central_1996.csv,
-#              Bond_ctry_mapping.csv, Bond_fuel_mapping.csv, Bond_sector_mapping.csv
+#              Bond_ctry_mapping.csv, Bond_fuel_mapping.csv, Bond_sector_mapping.csv,
+#              A.comb_activity.csv 
 # Output Files: B.comb_EF_db.csv
 # Notes: 1. Emission factors (ef) are calculated as emissions divided by consumption.
 #           Missing (zero or NA) ef are replaced using the following rules, in order:
