@@ -74,7 +74,7 @@
 
   # Set scripts to scale emissions/ef data for SO2
   if( em == "SO2" ){
-    scripts <- c( 'F1.1.UNFCCC_scaling.R', 'F1.1.CAN_scaling.R' ,  "F1.1.US_scaling.R")
+    scripts <- c( 'F1.1.UNFCCC_scaling.R', 'F1.1.CAN_scaling_olderData.R' ,  "F1.1.US_scaling.R")
   }
   
   # Set scripts to scale emissions/ef data for BC or OC

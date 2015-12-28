@@ -427,7 +427,8 @@ $(MED_OUT)/E.SO2_UNFCCC_inventory.csv : \
 $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 	$(MOD_F)/F1.1.inventory_scaling.R \
 	$(MOD_F)/F1.1.US_scaling.R \
-	$(MOD_F)/F1.1.CAN_scaling.R \
+	$(MOD_F)/F1.1.CAN_scaling_olderData.R \
+	$(MOD_F)/F1.1.CAN_scaling_newerData.R \
 	$(MOD_F)/F1.1.UNFCCC_scaling.R \
 	$(PARAMS)/emissions_scaling_functions.R \
 	$(MED_OUT)/E.SO2_UNFCCC_inventory.csv \

@@ -4,7 +4,9 @@
 # Date Last Modified: Oct 29, 2015
 # Program Purpose: To create scaling factors and update emissions estimate for
 # the CAN region from latest emissions working copy by using aggregate 
-# CAN trends inventory data.
+# CAN trends inventory data. This file uses the older Canadian inventory
+# data used until 2011. This data extends back to 1985.
+#
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv, 
 #              F.[em]_scaled_emissions.csv, CAN_sector_mapping.csv, 
 #              national_tier1_caps.xlsx
@@ -55,13 +57,13 @@ initialize( script_name, log_msg, headers )
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-  inventory_data_file <- 'CAC_Trends_Feb2012_En'
+  inventory_data_file <- 'Canada/1985-2011_CAC_Trends_Feb2013_ENG'
   inv_data_folder <- "EM_INV"
   sector_fuel_mapping <- 'CAN_scaling_mapping'
   mapping_method <- 'sector'
-  inv_name <- 'CAN' #for naming diagnostic files
+  inv_name <- 'CAN_to2011' #for naming diagnostic files
   region <- c( "can" ) 
-  inv_years<-c(1985:2010)
+  inv_years<-c(1985:2011)
 
 # ------------------------------------------------------------------------------
 # 1.5 Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
