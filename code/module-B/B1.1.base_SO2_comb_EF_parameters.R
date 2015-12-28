@@ -71,7 +71,7 @@ default_S_Content <- activity_data
 for ( i in seq_along( all_fuels ) ) {
   default_S_Content[ default_S_Content$fuel == all_fuels[[ i ]], X_emissions_years ] <-
     fuel_S_Content[ fuel_S_Content$fuel == all_fuels[[ i ]], 
-              paste0( em_lc, "_percent" ) ]
+              paste0( "S", "_percent" ) ]
 }
 
 #unit for sulfur content persentage
