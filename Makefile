@@ -255,9 +255,6 @@ $(MED_OUT)/A.en_stat_sector_fuel.csv : \
 # Extends IEA data with BP data
 $(MED_OUT)/A.IEA_BP_energy_ext.csv : \
 	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
-	$(EN_MAPPINGS)/IEA_flow_sector.csv \
-	$(EN_MAPPINGS)/IEA_process_sectors.csv \
-	$(EN_MAPPINGS)/IEA_energy_activity_fuel_mapping.csv \
 	$(MED_OUT)/A.en_stat_sector_fuel.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(ENERGY_DATA)/BP_energy_data.xlsx

@@ -1,15 +1,14 @@
 #------------------------------------------------------------------------------
 # Program Name: A3.1.IEA_BP_data_extension.R
 # Authors Names: Tyler Pitkanen, Rachel Hoesly, Linh Vu
-# Date Last Modified: 19 December 2015
+# Date Last Modified: 26 December 2015
 # Program Purpose: Reads in BP data for years not yet covered by IEA data
 #                  Alters BP data to agree with IEA data labels
 #                  Adds recent BP-projected data to historical years data         
-# Input Files: IEA_flow_sector.csv, A.en_stat_sector_fuel.csv, BP_energy_data.xlsx, 
+# Input Files: A.en_stat_sector_fuel.csv, BP_energy_data.xlsx, 
 #              Master_Country_List.csv, Master_Fuel_Sector_List.xlsx, 
-#              IEA_energy_activity_fuel_mapping.csv
 # Output Files: A.comb_activity.csv, A.IEA_BP_sum_comparison.csv, A.IEA_BP_trend_comparison.csv   
-# Notes: IEA_years, BP_years, end_year and X_ variants defined in common_data.r
+# Notes: IEA_years, BP_years, end_year and X_ variants defined in common_data.R
 # TODO: Clean up formatting and section breaks, add subsections
 #       Maybe expand on comments
 #       Use removeBlanks() system function for data cleanup?
@@ -44,10 +43,6 @@
 # ------------------------------------------------------------------------------
 # 1. Read in files
 
-    # un_pop_tot_full <- readData( "GEN_IN", "UN_pop_master" )
-    IEA_flow_sector <- readData( "EN_MAPPINGS", "IEA_flow_sector" )
-    IEA_process_sectors <- readData( "EN_MAPPINGS", "IEA_process_sectors" )
-    IEA_energy_activity_fuel_mapping <- readData( "EN_MAPPINGS", "IEA_energy_activity_fuel_mapping" )
     iea_data_full <- readData( "MED_OUT", "A.en_stat_sector_fuel" )
     bp_energy_data <- readData( "ENERGY_IN","BP_energy_data", ".xlsx")
     ctry_mapping <- readData( "MAPPINGS", "Master_Country_List" )
