@@ -14,7 +14,7 @@
 #              national_tier1_caps.xlsx
 # Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
 # Notes: 
-# TODO:
+# TODO: Re-write read-in so that order of years is taken from input data instead of assumed.
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 
@@ -66,6 +66,8 @@ initialize( script_name, log_msg, headers )
   inv_name <- 'CAN' #for naming diagnostic files
   region <- c( "can" ) 
   inv_years<-c(1990:2013)
+  # Because this data comes read in as reversed.
+  inv_years_reversed<-c(2013:1990)
 
 # ------------------------------------------------------------------------------
 # 1.5 Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
@@ -76,10 +78,10 @@ initialize( script_name, log_msg, headers )
                               sheet_selection = sheet_name ) 
   # Clean rows and columns to standard format
   inv_data_sheet <- inv_data_sheet[-1:-7,]
-  names(inv_data_sheet) <- c('sector', paste0('X',inv_years))
+  names(inv_data_sheet) <- c('sector', paste0('X',inv_years_reversed))
   inv_data_sheet$iso <- 'can'
   inv_data_sheet <- inv_data_sheet[,c('iso','sector', paste0('X',inv_years))]
-  
+
   # Remove rows with all NAs  
   remove.na <- which(apply(inv_data_sheet[,paste0('X',inv_years)], 1, function(x) all(is.na(x))))
   inv_data_sheet <- inv_data_sheet[-remove.na,]
