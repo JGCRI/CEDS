@@ -14,80 +14,80 @@
 # 0. Read in global settings and headers
 # Before we can load headers we need some paths defined. They may be provided by
 #   a system environment variable or may have already been set in the workspace.
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-wd <- grep( 'CEDS/input', list.dirs(), value = T )
-if ( length( wd ) > 0 ) {
-setwd( wd[ 1 ] )
-break
-}
-}
-PARAM_DIR <- "../code/parameters/"
+  dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
+  for ( i in 1:length( dirs ) ) {
+  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
+  wd <- grep( 'CEDS/input', list.dirs(), value = T )
+  if ( length( wd ) > 0 ) {
+  setwd( wd[ 1 ] )
+  break
+  }
+  }
+  PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R", "analysis_functions.R" ) # Additional function files required.
-log_msg <- "Extrapolating default emissions factors to full dataset" # First message to be printed to the log
-script_name <- "B1.1.base_SO2_comb_EF_parameters.R"
-source( paste0( PARAM_DIR, "header.R" ) )
-initialize( script_name, log_msg, headers )
+  headers <- c( "data_functions.R", "analysis_functions.R" ) # Additional function files required.
+  log_msg <- "Extrapolating default emissions factors to full dataset" # First message to be printed to the log
+  script_name <- "B1.1.base_SO2_comb_EF_parameters.R"
+  source( paste0( PARAM_DIR, "header.R" ) )
+  initialize( script_name, log_msg, headers )
 # ------------------------------------------------------------------------------
 # 1. Read in files and pre processing
 # for running directly from R - defines emission species (normally from command line)
-args_from_makefile <- commandArgs( TRUE )
-em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+  args_from_makefile <- commandArgs( TRUE )
+  em <- args_from_makefile[ 1 ]
+  if ( is.na( em ) ) em <- "SO2"
 # "em" is defined from parent script
-em_lc <- tolower( em )
-activity_data <- readData( "MED_OUT", "A.comb_activity" )
-fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
-sector_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
-fuel_S_Content <- readData( "DEFAULT_EF_IN", paste0 ( em, "_base_EF" ) )
-fuel_AshRet <- readData( "MAPPINGS", "fuel_sector_ash_retention_mapping", ".xlsx", sheet_selection = "fuel" )
-sector_AshRet <- readData( "MAPPINGS", "fuel_sector_ash_retention_mapping", ".xlsx", sheet_selection = "sector" )
+  em_lc <- tolower( em )
+  activity_data <- readData( "MED_OUT", "A.comb_activity" )
+  fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
+  sector_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
+  fuel_S_Content <- readData( "DEFAULT_EF_IN", paste0 ( em, "_base_EF" ) )
+  fuel_AshRet <- readData( "MAPPINGS", "fuel_sector_ash_retention_mapping", ".xlsx", sheet_selection = "fuel" )
+  sector_AshRet <- readData( "MAPPINGS", "fuel_sector_ash_retention_mapping", ".xlsx", sheet_selection = "sector" )
 #filll out and combine ash_retention map
-fuel_sector_AshRet <- merge(fuel_AshRet,sector_AshRet,
-                      all = TRUE)
-fuel_sector_AshRet <- unique(fuel_sector_AshRet)
+  fuel_sector_AshRet <- merge(fuel_AshRet,sector_AshRet,
+                        all = TRUE)
+  fuel_sector_AshRet <- unique(fuel_sector_AshRet)
 # ------------------------------------------------------------------------------
 # 2. Create default sulfur content, ash retention, control percentage databases
 # List out all fuels and sectors
-all_fuels <- fuel_list[[ "fuel" ]]
-all_sectors <- sector_list[['sector']]
+  all_fuels <- fuel_list[[ "fuel" ]]
+  all_sectors <- sector_list[['sector']]
 # Remove "process" from the list, if present, to avoid errors,
 # as it is not in the fuel_efs list.
-all_fuels <- all_fuels[ all_fuels != "process"]
+  all_fuels <- all_fuels[ all_fuels != "process"]
 # Create the default sulfur content database (use to fill in iso/fuel/sector/year
 # combinations at end).
 # Set up the layout from activity_data
-default_S_Content <- activity_data
-default_S_Content[,X_emissions_years] <- 0
+  default_S_Content <- activity_data
+  default_S_Content[,X_emissions_years] <- 0
 # Fill in the default values
-for ( i in seq_along( all_fuels ) ) {
-default_S_Content[ default_S_Content$fuel == all_fuels[[ i ]], X_emissions_years ] <-
-fuel_S_Content[ fuel_S_Content$fuel == all_fuels[[ i ]],
-paste0( em_lc, "_percent" ) ]
-}
+  for ( i in seq_along( all_fuels ) ) {
+    default_S_Content[ default_S_Content$fuel == all_fuels[[ i ]], X_emissions_years ] <-
+    fuel_S_Content[ fuel_S_Content$fuel == all_fuels[[ i ]], 
+                    paste0( "S", "_percent" ) ]
+  }
 #unit for sulfur content persentage
-default_S_Content$units <- 'kt/kt'
+  default_S_Content$units <- 'kt/kt'
 # Create default ash retention database
-default_AshRet <- activity_data
-default_AshRet[,X_emissions_years] <- 0
-for ( fuel in all_fuels  ) {
-for (sector in unique(fuel_sector_AshRet$sector)) {
-default_AshRet[ default_AshRet$fuel == fuel & default_AshRet$sector == sector, X_emissions_years ] <-
-    fuel_sector_AshRet[ fuel_sector_AshRet$fuel == fuel & fuel_sector_AshRet$sector == sector,"AshRet"]
-}
-}
+  default_AshRet <- activity_data
+  default_AshRet[,X_emissions_years] <- 0
+  for ( fuel in all_fuels  ) {
+  for (sector in unique(fuel_sector_AshRet$sector)) {
+  default_AshRet[ default_AshRet$fuel == fuel & default_AshRet$sector == sector, X_emissions_years ] <-
+      fuel_sector_AshRet[ fuel_sector_AshRet$fuel == fuel & fuel_sector_AshRet$sector == sector,"AshRet"]
+  }
+  }
 #unit for sulfur content percentage
-default_AshRet$units <- 'kt/kt'
+  default_AshRet$units <- 'kt/kt'
 # ------------------------------------------------------------------------------
 # 4. Output
 # Write out all three default databases
-writeData( default_S_Content, "MED_OUT", paste0( "B.", em ,"_", "S_Content_db") )
-writeData( default_AshRet, "MED_OUT", paste0( "B.", em ,"_", "AshRet_db") )
+  writeData( default_S_Content, "MED_OUT", paste0( "B.", em ,"_", "S_Content_db") )
+  writeData( default_AshRet, "MED_OUT", paste0( "B.", em ,"_", "AshRet_db") )
 # NOTE: Users wishing to add more sulfur content data should create a new script
 # entitled B.add_?_S_Content.R in which to do so.
 # Every script should finish with this line
-logStop()
+  logStop()
 # END

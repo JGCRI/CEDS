@@ -1,7 +1,8 @@
 {\rtf1\ansi\ansicpg1252\cocoartf1348\cocoasubrtf170
 \cocoascreenfonts1{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\froman\fcharset0 TimesNewRomanPSMT;\f2\fnil\fcharset0 Calibri;
 \f3\froman\fcharset0 Times-Roman;\f4\fnil\fcharset0 LucidaGrande;}
-{\colortbl;\red255\green255\blue255;\red255\green0\blue0;\red217\green11\blue0;}
+{\colortbl;\red255\green255\blue255;\red255\green39\blue18;\red255\green0\blue0;\red217\green11\blue0;
+}
 {\info
 {\author test}
 {\*\company PNNL}}\margl1440\margr1440\vieww18000\viewh18940\viewkind1
@@ -85,11 +86,21 @@ Document input emissions format\ulnone  for system, including units\
 \
 \pard\pardeftab720\ri0
 \cf0 \ul Implement CEDS working sectors version 1\ulnone  (process sectors at EDGAR resolution)\
+\pard\pardeftab720\ri0
+
+\b \cf2 DONE
+\b0 \cf0 \
 \
-\ul Import EDGAR process emissions from EDGAR\
+\pard\pardeftab720\ri0
+\cf0 \ul Import EDGAR process emissions from EDGAR\
   \ulnone \'97 Use 1970-2008 if we don\'92t have newer data yet\
+\pard\pardeftab720\ri0
+
+\b \cf2 DONE
+\b0 \cf0 \
 \
-\ul Other adjustments for default S emission factors\
+\pard\pardeftab720\ri0
+\cf0 \ul Other adjustments for default S emission factors\
   \ulnone \'97 Add data for scaling years for GAINS S contents/controls where needed (e.g. petr)\
 \
  \ul Add key default emissions data adjustments\
@@ -104,7 +115,7 @@ Document input emissions format\ulnone  for system, including units\
    \'97 We have some more detailed data we can use to to back further\
  \
 \ul Develop default EFs for other pollutant emissions\
- \ulnone  \'97  Global GAINS-EMF30 data as default\
+ \ulnone  \'97  Global GAINS-EMF30 data as default \
       \'97 Where GAINS-EMF30 year 2000 EFs are systematically different from OECD and nonOECD, think about how to extrapolate OECD EFs back in time. Compare with other uncontrolled EFs we have available.\
 \ul  \ulnone  \'97  Start with NOx\
 \
@@ -143,11 +154,11 @@ Document input emissions format\ulnone  for system, including units\
 \b - Linh
 \b0 \
   -- Extend to previous historical years using HYDE population time series
-\b \cf2  Not Done
+\b \cf3  Not Done
 \b0 \cf0 \
 \
 \ul Extend dataset for activity GDP data\ulnone  
-\b \cf2 Not Done
+\b \cf3 Not Done
 \b0 \cf0 \
   -- Current dataset only goes back to 1969\
   -- The USDA dataset might be a good start to this, since they have done the work of extrapolating back in time\
@@ -163,16 +174,16 @@ Document input emissions format\ulnone  for system, including units\
   -- Extend industrial biomass where needed (focus first on pulp and paper industry)\
 \
 \ul Diesel oil SO2 default emission factors for other sectors
-\b \ulnone  \'96 \cf2 Not Done \
+\b \ulnone  \'96 \cf3 Not Done \
 
 \b0 \cf0   -- W/ new CEDS sectors, figure out how diesel S% should be applied to other sectors \
 \
 \ul Add metal smelting default SO2\ulnone  \ul emissions estimate
-\b \ulnone  \'96 \cf2 Not Done
+\b \ulnone  \'96 \cf3 Not Done
 \b0 \cf0 \
  \
 \ul Re-examine how to scale UNFCCC emissions (once done with EMEP\ulnone ) 
-\b \cf2  - Partially Done
+\b \cf3  - Partially Done
 \b0 \cf0 \
   -- Need to identify which sectors/subsectors have data (this is inconsistent)\
 \
@@ -181,18 +192,18 @@ Document input emissions format\ulnone  for system, including units\
 \b0 \
   -- Done for 2011 (Check mapping w/ latest CEDS sectors)\
   -- Do this for earliest NEI year available 
-\b \cf2 Mostly Done? - Linh
+\b \cf3 Mostly Done? - Linh
 \b0 \cf0 \
   -- For mobile sources: create default combustion EFs for 2011 by dividing NEI emissions by NEI CO2 from NEI (check what Jeff has done) 
-\b \cf2  Not Done
+\b \cf3  Not Done
 \b0 \cf0 \
   -- For other sectors: create default combustion EFs for 2011 by dividing NEI emissions by fuel  consumption from IEA. (Problematic for some sectors. Need to be careful about industry process use, building biomass, etc.)
-\b \cf2  Not Done
+\b \cf3  Not Done
 \b0 \cf0 \
   -- See if possible to commit NEI  data to git as zip files (can read from there)\
 \
 \ul Analysis of pre-industrial and pre-control emission factors\ulnone  - 
-\b \cf3 Rachel - Not Done
+\b \cf4 Rachel - Not Done
 \b0 \cf0 \
   -- Refine default set of emission factors. \
   -- These might be the same from 1850-1970, or might vary - if we have enough info to determine this\
@@ -200,13 +211,13 @@ Document input emissions format\ulnone  for system, including units\
 \
 \pard\pardeftab720\ri0
 \cf0 \ul Update metadata where it doesn't now exist\ulnone  
-\b \cf2 Partially Done
+\b \cf3 Partially Done
 \b0 \cf0 \
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
 \cf0   -- Make sure all input files have metadata files\
 \
 \ul Update scaling routine to provide more options\ulnone  
-\b \cf2 Partially Done
+\b \cf3 Partially Done
 \b0 \cf0 \
   -- For some sectors (e.g. canada smelting industry), will want to subtract the smaller combustion component and just scale the larger component. \
   -- This prevents unrealistic scaling of small emission sources\
@@ -215,19 +226,21 @@ Document input emissions format\ulnone  for system, including units\
   \'97 Consider adding max EF for combustion emissions\
 \
 \ul Update to 2015 edition of IEA energy balances 
-\b \cf2 \ulnone In Process - Nazar
+\b \cf3 \ulnone In Process - Nazar
 \b0 \cf0 \
 \
 \ul More Robust API download routine\ulnone . 
-\b \cf2 Not Done - Rachel
+\b \cf3 Not Done - Rachel
 \b0 \cf0 \
 - Generally for downloads, provide backup file if API doesn\'92t respond\
 - Add overall system flag for downloading new data or not\
 \
 More detailed meta data system for large data frames. 
-\b \cf2 Not Done - Rachel
+\b \cf3 Not Done - Rachel
 \b0 \cf0 \
 - Meta data entry for every value, like diesel Sulfur standards xls doc\
+- Scaling module - DONE\
+- Module B - not done\
 \
 \pard\pardeftab720\ri0
 
@@ -308,21 +321,21 @@ Generalized system so can easily add/update activity data and default EFs\
 Re-Architect system to accommodate multiple emission species\
 \
 Change fuel mapping: 
-\b \cf2 Done
+\b \cf3 Done
 \b0 \cf0 \
   -- Sub-bituminous coal (kt) should be brown_coal\
   -- Fuel oil (kt) should be heavy_oil\
 \
 Update CEDS coding guide with CEDS specific guidelines
-\b \cf2  Done
+\b \cf3  Done
 \b0 \cf0 \
 \
 Rename A.IEA_BP_ext.csv to be something more general, that is the input for subsequent routines. 
-\b \cf2 Done
+\b \cf3 Done
 \b0 \cf0 \
 \
 Get draft BC emissions estimation working in system
-\b  - Linh + Jon\cf2  Done\
+\b  - Linh + Jon\cf3  Done\
 
 \b0 \cf0   -- This is our test case to figure out how to generalize the codes to work with different emission species\
 \
@@ -331,23 +344,23 @@ Add system for producing population datasets (ideally using world bank and UN AP
 \b  - Linh
 \b0 \
   -- UN has data for more countries and goes back to 1950
-\b \cf2  Done
+\b \cf3  Done
 \b0 \cf0 \
   -- WB has some data not present in UN (e.g. Kosovo), but only goes back to 1960
-\b \cf2  Done
+\b \cf3  Done
 \b0 \cf0 \
   -- WB seems to update more often (although perhaps not of key importance for this project)
-\b \cf2  Done
+\b \cf3  Done
 \b0 \cf0 \
   -- Later: Add urban/rural split
-\b \cf2  Not Done - not high priority
+\b \cf3  Not Done - not high priority
 \b0 \cf0 \
   -- Later: extend to previous historical years using HYDE population time series
-\b \cf2  Not Done
+\b \cf3  Not Done
 \b0 \cf0 \
 \
 Update SO2 default emission factors for Coal to consist of three components 
-\b - ??? (Data for this on server) \cf2 Partially Done (Ryan/Steve)
+\b - ??? (Data for this on server) \cf3 Partially Done (Ryan/Steve)
 \b0 \cf0 \
   -- EF = S content * 2 * (1 - Ash_retention) * (1 - control_fraction)\
   -- Control fraction can be zero in some cases\
@@ -358,26 +371,26 @@ Update SO2 default emission factors for Coal to consist of three components
 \
 \
 Update SO2 default emission factors for petroleum products
-\b  \'96 Linh \cf2 Done \
+\b  \'96 Linh \cf3 Done \
 
 \b0 \cf0   -- For developing countries, use UNEP data that Grace collected\
   -- Will need to develop similar dataset for OECD and FSU countries\
   -- As a result, default emission factors (effectively S content) will vary over time, and differently for the different liquid fuels\
 \
 Update data for metal smelting SO2 emissions estimate
-\b  \'96 Ryan \cf2 Done
+\b  \'96 Ryan \cf3 Done
 \b0 \cf0 \
   -- Update metals production data from USGS\
   -- Update sulfur removal data from USGS\
 \
 Integrate routine to pull FAO driver data into system
-\b  - Ryan & Jon Linh \cf2 Done
+\b  - Ryan & Jon Linh \cf3 Done
 \b0 \cf0 \
   -- Including construction of pulp and paper emissions driver (perhaps ultimately as separate routine?)\
   -- Note there will be other FAO drivers for process emissions that will eventually be added, but not for SO2, so ok to keep it simple for now\
 \
 Process GAINS sulfur info default EFs -
-\b  \cf2 Done
+\b  \cf3 Done
 \b0 \cf0 \
   -- This will result in an EF and control % (for coal) for 2005\
   -- Assumptions for coal (aside from control%) will be constant. \
@@ -387,7 +400,7 @@ Process GAINS sulfur info default EFs -
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
 \cf0 \
 Transition to more detailed sector breakdown 
-\b \cf2 Not Done
+\b \cf3 Not Done
 \b0 \cf0 \
  -- Need to determine how to deal with missing driver data (e.g., LDV vs HDV vehicles)\
  -- Will wait a few weeks to do this. \
@@ -395,11 +408,11 @@ Transition to more detailed sector breakdown
 \
 Add CEDS-specific guidelines to R style guide (documentation format, metadata use, etc.)\
  
-\b \cf2 Done
+\b \cf3 Done
 \b0 \cf0 \
 \
 Move to git instead of svn. - 
-\b \cf3 DONE
+\b \cf4 DONE
 \b0 \cf0 \
   -- When do that, save copy of svn log to the git repository to preserve history\
 \
