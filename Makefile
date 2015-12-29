@@ -255,9 +255,6 @@ $(MED_OUT)/A.en_stat_sector_fuel.csv : \
 # Extends IEA data with BP data
 $(MED_OUT)/A.IEA_BP_energy_ext.csv : \
 	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
-	$(EN_MAPPINGS)/IEA_flow_sector.csv \
-	$(EN_MAPPINGS)/IEA_process_sectors.csv \
-	$(EN_MAPPINGS)/IEA_energy_activity_fuel_mapping.csv \
 	$(MED_OUT)/A.en_stat_sector_fuel.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(ENERGY_DATA)/BP_energy_data.xlsx
@@ -429,7 +426,8 @@ $(MED_OUT)/E.SO2_UNFCCC_inventory.csv : \
 $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 	$(MOD_F)/F1.1.inventory_scaling.R \
 	$(MOD_F)/F1.1.US_scaling.R \
-	$(MOD_F)/F1.1.CAN_scaling.R \
+	$(MOD_F)/F1.1.CAN_scaling_olderData.R \
+	$(MOD_F)/F1.1.CAN_scaling_newerData.R \
 	$(MOD_F)/F1.1.UNFCCC_scaling.R \
 	$(MOD_F)/F1.1.Edgar_scaling.R \
 	$(PARAMS)/emissions_scaling_functions.R \

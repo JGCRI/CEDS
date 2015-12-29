@@ -1,13 +1,15 @@
 # Program Name: B1.2.add_SO2_GAINS_control_percent.R
-# Author: Ryan Bolt, Leyang
-# Date Last Updated: 9 Nov 2015 
+# Author: Ryan Bolt, Leyang, Linh Vu
+# Date Last Updated: 26 December 2015 
 # Program Purpose: Process 2005 GAINS emissions and fuel to calculate GAINS EF, then calculate 
 # 2005 GAINS control percentage. Combine 2005 GAINS control percentage to SO2 control percentage
 # database in the end. 
 # 
-# Input Files: aen_act_sect-nohead-EU28.csv , emiss_act_sect-EU28-2005-SO2_nohead.csv,
-#               
-# Output Files: B.SO2_S_ControlFrac_db.csv
+# Input Files: Master_Country_List.csv, GAINS_emiss_act_sect-EU28-2005-SO2_nohead.csv, 
+#              GAINS_aen_act_sect-nohead-EU28.csv, GAINS_country_mapping.csv, GAINS_fuel_mapping.csv,
+#              GAINS_sector_mapping.csv, OECD_Conversion_Factors.csv, NonOECD_Conversion_Factors.csv,
+#              B.SO2_S_Content_db.csv, B.SO2_GAINS_s_ash_ret.csv
+# Output Files: B.SO2_GAINS_control_percent.csv, B1.2.heat_content.csv
 # Notes: 
 # TODO: 
 # ---------------------------------------------------------------------------
@@ -63,8 +65,8 @@ gainstoiso <- readData( "GAINS_MAPPINGS",  "GAINS_country_mapping" )
 fuelmap <- readData(  "GAINS_MAPPINGS", "GAINS_fuel_mapping" )
 sectormap <- readData( "GAINS_MAPPINGS",  "GAINS_sector_mapping" )
 
-OECDconversion <- readData( "ENERGY_IN",  "IEA_energyconversion" )
-NONconversion <- readData( "ENERGY_IN",  "IEA_NonOECDconversion" )
+OECDconversion <- readData( "ENERGY_IN",  "OECD_Conversion_Factors" )
+NONconversion <- readData( "ENERGY_IN",  "NonOECD_Conversion_Factors" )
 
 s_content <- readData( "DEFAULT_EF_PARAM", "B.SO2_GAINS_s_content")
 
@@ -136,9 +138,6 @@ GAINS_heat_content <- data.frame(fuel=c('brown_coal', 'hard_coal', 'biomass', 'l
                                 heat_content=c(mult_browncoal, mult_hardcoal, mult_biomass, mult_lightoil, 
                                              mult_NaturalGas, mult_Diesel, mult_heavy_oil))
 
-# diagnostic-output
-writeData( GAINS_heat_content, domain = "MED_OUT", 
-           fn = "B1.2.heat_content") 
 
 # ---------------------------------------------------------------------------
 # 2.0 Melting and combing same sectors and fuels in fuel consumption
@@ -301,6 +300,7 @@ control_percent[control_percent$iso %in% west, 'pre_ext_year' ] <- '1980'
 # 5. Output
 
 writeData( control_percent, domain = "DEFAULT_EF_PARAM", fn = "B.SO2_GAINS_control_percent")
+writeData( GAINS_heat_content, domain = "MED_OUT", fn = "B1.2.heat_content") 
 
 logStop()
 # END

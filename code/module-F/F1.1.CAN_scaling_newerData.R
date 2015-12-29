@@ -4,13 +4,17 @@
 # Date Last Modified: Oct 29, 2015
 # Program Purpose: To create scaling factors and update emissions estimate for
 # the CAN region from latest emissions working copy by using aggregate 
-# CAN trends inventory data.
+# CAN trends inventory data. This file uses the newer format used since 2012.
+# This data only extends back to 1990, so older data is still used back to 1985 in
+# a separate scaling operation. This newer data should be used last so that any 
+# descrepencies are resolved in favor of the newer data.
+#
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv, 
 #              F.[em]_scaled_emissions.csv, CAN_sector_mapping.csv, 
 #              national_tier1_caps.xlsx
 # Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
 # Notes: 
-# TODO:
+# TODO: Re-write read-in so that order of years is taken from input data instead of assumed.
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 
@@ -49,34 +53,35 @@ initialize( script_name, log_msg, headers )
                  list in F1.1.inventory_scaling.R'))
   }
   
-  
+    
+
 # For each Module E script, define the following parameters:
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-  inventory_data_file <- 'CAC_Trends_Feb2012_En'
+  inventory_data_file <- 'Canada/ape_results_e_SO2_2013'
   inv_data_folder <- "EM_INV"
   sector_fuel_mapping <- 'CAN_scaling_mapping'
   mapping_method <- 'sector'
   inv_name <- 'CAN' #for naming diagnostic files
   region <- c( "can" ) 
-  inv_years<-c(1985:2010)
+  inv_years<-c(1990:2013)
+  # Because this data comes read in as reversed.
+  inv_years_reversed<-c(2013:1990)
 
 # ------------------------------------------------------------------------------
 # 1.5 Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
   
   # Import Sheet
-  sheet_name <- em
-  if( sheet_name == 'SO2') sheet_name <- 'SOx'
-  if( sheet_name == 'NO2') sheet_name <- 'NOx'
+  sheet_name <- "Sheet1"
   inv_data_sheet <- readData( inv_data_folder, inventory_data_file , ".xlsx", 
                               sheet_selection = sheet_name ) 
   # Clean rows and columns to standard format
-  inv_data_sheet <- inv_data_sheet[-1:-3,]
-  names(inv_data_sheet) <- c('sector', paste0('X',inv_years))
+  inv_data_sheet <- inv_data_sheet[-1:-7,]
+  names(inv_data_sheet) <- c('sector', paste0('X',inv_years_reversed))
   inv_data_sheet$iso <- 'can'
   inv_data_sheet <- inv_data_sheet[,c('iso','sector', paste0('X',inv_years))]
-  
+
   # Remove rows with all NAs  
   remove.na <- which(apply(inv_data_sheet[,paste0('X',inv_years)], 1, function(x) all(is.na(x))))
   inv_data_sheet <- inv_data_sheet[-remove.na,]
