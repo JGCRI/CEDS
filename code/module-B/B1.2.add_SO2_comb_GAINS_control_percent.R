@@ -66,7 +66,7 @@ sectormap <- readData( "GAINS_MAPPINGS",  "GAINS_sector_mapping" )
 OECDconversion <- readData( "ENERGY_IN",  "IEA_energyconversion" )
 NONconversion <- readData( "ENERGY_IN",  "IEA_NonOECDconversion" )
 
-s_content <- readData( "MED_OUT", 'B.SO2_S_Content_db')
+s_content <- readData( "DEFAULT_EF_PARAM", "B.SO2_GAINS_s_content")
 
 gains_ashret <- readData('DEFAULT_EF_PARAM', 'B.SO2_GAINS_s_ash_ret')
 
@@ -159,11 +159,35 @@ EUemiss <- melt(EUemiss, id.vars = c( "cou_abb", "reg_abb", "Sector.Activity"))
 
 # 2.3 Changing column names along with puting sectors and fuels into CEDS names
 colnames(EUfuel) <- c("iso", "reg_abb", "sector", "fuel", "Energy")
-EUfuel$sector <- sectormap[match(EUfuel$sector,sectormap$GAINS.sectors),1]
 EUfuel$fuel <- fuelmap[match(EUfuel$fuel,fuelmap$GAINS.fuel),1]
+EUfuel <- mapCEDS_sector_fuel( mapping_data = EUfuel,
+                                     mapping_file = sectormap,
+                                     data_match_col = 'sector',
+                                     map_match_col = 'GAINS.sectors',
+                                     map_merge_col = c('detailed_sectors'),
+                                     new_col_names = c('sector'),
+                                     level_map_in = 'detailed_sectors',
+                                     level_out = 'working_sectors_v1',
+                                     aggregate = TRUE,
+                                     aggregate_col = c('Energy'),
+                                     oneToOne = FALSE,
+                                     agg.fun = sum)
+
+
 colnames(EUemiss) <- c("iso", "reg_abb", "sector", "fuel", "Sulfur_emiss")
-EUemiss$sector <- sectormap[match(EUemiss$sector,sectormap$GAINS.sectors),1]
 EUemiss$fuel <- fuelmap[match(EUemiss$fuel,fuelmap$GAINS.fuel),1]
+EUemiss <- mapCEDS_sector_fuel( mapping_data = EUemiss,
+                               mapping_file = sectormap,
+                               data_match_col = 'sector',
+                               map_match_col = 'GAINS.sectors',
+                               map_merge_col = c('detailed_sectors'),
+                               new_col_names = c('sector'),
+                               level_map_in = 'detailed_sectors',
+                               level_out = 'working_sectors_v1',
+                               aggregate = TRUE,
+                               aggregate_col = c('Sulfur_emiss'),
+                               oneToOne = FALSE,
+                               agg.fun = sum)
 
 #Convert to isocode
 EUemiss$iso <- tolower(gainstoiso$ISO.code[match(EUemiss$iso,gainstoiso$country)])
@@ -247,18 +271,20 @@ names(default.long)<-c('iso','sector','fuel','units','years','default')
 gains.long <- melt(Gains_EF, c('iso','sector','fuel','units'))
 names(gains.long)<-c('iso','sector','fuel','units','years','gains')
 
-combined<-merge(gains.long, default.long, by=c('iso','sector','fuel','units','years'),
+combined.all<-merge(gains.long, default.long, by=c('iso','sector','fuel','units','years'),
                 all.x = TRUE, all.y=TRUE)
 
 # Calculate Control Percent
-combined$control_percent <- 1-combined$gains/combined$default
-combined <- combined[which(combined$control_percent > 0),]
+combined.all$control_percent <- 1-combined.all$gains/combined.all$default
+combined <- combined.all[which(combined.all$control_percent > 0),]
+combined <- combined[which(combined$control_percent <= 1),]
 combined$units <- 'percent' 
 
 # Cast and reformat
 control_percent <- cast(combined[,c('iso','sector','fuel','units','years','control_percent')],
                         iso+sector+fuel+units~years,
                         value = 'control_percent')
+
 # -------------------------------------------------------------------------------
 # 4. Prepare for automated addition to ContFrac_db in other mod B scripts.
 #  Define extention options.

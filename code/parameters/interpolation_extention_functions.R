@@ -127,6 +127,8 @@ interpolateValues <- function(interp_data,interp_default = 'linear',
                               meta = FALSE,
                               interp_method = NA){
   
+  
+  
   # Define parameters from data
   unit.label <- FALSE
   names <- names( interp_data)
@@ -221,6 +223,8 @@ interpolateValues <- function(interp_data,interp_default = 'linear',
   # Interpolate
   if( length(interpolation_rows)>0){
     linear <- interp_df[which(interp_method_full$interp_method == 'linear'),]
+    cant_interpolate <- linear[which(rowSums(!is.na(linear[,X_years_full]))==1),]
+    if(nrow(cant_interpolate)>0) linear <- linear[which(rowSums(!is.na(linear[,X_years_full]))!=1),]
     if ( nrow(linear)>0){
       # Add Meta notes
       if (meta == TRUE) {
@@ -247,6 +251,9 @@ interpolateValues <- function(interp_data,interp_default = 'linear',
       
       linear_int <- t( na.approx( t(linear[,X_years_full])  ) )
       linear <- cbind( linear[,id.names] , linear_int)
+      if(nrow(cant_interpolate)>0) {
+        names(linear) <- names(cant_interpolate)
+        linear <- rbind(cant_interpolate, linear) }
       names(linear) <- c(id.names , X_years_full ) }
     
     constant <- interp_df[which(interp_method_full$interp_method == 'constant'),]

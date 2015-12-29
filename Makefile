@@ -90,7 +90,7 @@ clean-all : \
 	clean-intermediate clean-diagnostic clean-final clean-logs clean-io clean-modB
 
 clean-intermediate :
-	rm -fv $(MED_OUT)/*.csv 
+	rm -fv $(MED_OUT)/*.csv
 
 clean-diagnostic :
 	rm -fv $(DIAG_OUT)/*.csv
@@ -111,7 +111,7 @@ clean-modA :
 clean-modB :
 	rm -fv $(MED_OUT)/B*.csv \
 	rm -fv $(EF_PARAMETERS)/B.*.csv
-	
+
 clean-modC :
 	rm -fv $(MED_OUT)/C*.csv
 
@@ -331,12 +331,14 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(MOD_B)/B1.2.add_SO2_comb_diesel_sulfur_content.R \
 	$(MOD_B)/B1.2.add_SO2_comb_GAINS_ash_ret.R \
 	$(MOD_B)/B1.2.add_SO2_comb_GAINS_control_percent.R \
+	$(MOD_B)/B1.2.add_SO2_comb_GAINS_s_content.R \
 	$(MOD_B)/B1.2.add_GAINS_EMF-30.R \
 	$(MOD_B)/B1.2.add_SO2_comb_S_content_ash.R \
 	$(MOD_B)/B1.3.proc_SO2_comb_EF_S_content_ash.R \
 	$(MOD_B)/B1.3.proc_comb_EF_control_percent.R \
 	$(PARAMS)/timeframe_functions.R \
 	$(PARAMS)/process_db_functions.R \
+	$(PARAMS)/analysis_functions.R \
 	$(PARAMS)/interpolation_extention_functions.R \
 	$(EF_DATA)/SO2_base_EF.csv \
 	$(MED_OUT)/A.comb_activity.csv \
@@ -429,6 +431,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 	$(MOD_F)/F1.1.US_scaling.R \
 	$(MOD_F)/F1.1.CAN_scaling.R \
 	$(MOD_F)/F1.1.UNFCCC_scaling.R \
+	$(MOD_F)/F1.1.Edgar_scaling.R \
 	$(PARAMS)/emissions_scaling_functions.R \
 	$(MED_OUT)/E.SO2_UNFCCC_inventory.csv \
 	$(SC_MAPPINGS)/UNFCCC_scaling_mapping.xlsx \

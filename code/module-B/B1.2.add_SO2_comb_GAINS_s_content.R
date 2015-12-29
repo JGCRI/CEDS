@@ -1,0 +1,97 @@
+# Program Name: B1.2.add_SO2_GAINS_s_content.R
+# Author:  Rachel Hoesly
+# Date Last Updated: Dec 28 2015 
+# Program Purpose: Add 2005 GAINS ash retention data into defualt ash retention database
+# 
+# Input Files: GAINS_country_mapping.csv,GAINS_fuel_mapping.csv,
+#             GAINS_sector_mapping.csv, sinash@SO2-EU28_nohead.csv, B.SO2_S_AshRet_db.csv
+# Output Files: B.SO2_GAINS_s_content.csv
+# Notes:
+# TODO: 
+# ---------------------------------------------------------------------------
+
+# 0. Read in global settings and headers
+
+# Before we can load headers we need some paths defined. They may be provided by
+#   a system environment variable or may have already been set in the workspace.
+dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
+for ( i in 1:length( dirs ) ) {
+  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
+  wd <- grep( 'CEDS/input', list.dirs(), value = T )
+  if ( length( wd ) > 0 ) {
+    setwd( wd[ 1 ] )
+    break
+  }
+}
+PARAM_DIR <- "../code/parameters/"
+
+# Call standard script header function to read in universal header files - 
+# provide logging, file support, and system functions - and start the script log.
+headers <- c( 'timeframe_functions.R', "data_functions.R", "analysis_functions.R",
+              "process_db_functions.R", 'interpolation_extention_functions.R' ) # Additional function files may be required.
+log_msg <- "Processing GAINS ash_retention data" # First message to be printed to the log
+script_name <- "B1.2.add_SO2_GAINS_s_content.R"
+
+source( paste0( PARAM_DIR, "header.R" ) )
+initialize( script_name, log_msg, headers )
+
+# ---------------------------------------------------------------------------
+# 1. Reading data and mapppings into script
+
+gains_s_content  <- readData( "EM_INV",  "GAINS_scont@SO2-EU28")
+gainstoiso <- readData( "GAINS_MAPPINGS",  "GAINS_country_mapping" )
+fuelmap <- readData(  "GAINS_MAPPINGS", "GAINS_fuel_mapping" )
+sectormap <- readData( "GAINS_MAPPINGS",  "GAINS_sector_mapping" )
+
+# ---------------------------------------------------------------------------
+# 2. GAINS s content data processing
+names(gains_s_content) <- gains_s_content[6,]
+gains_s_content <- gains_s_content[-1:-7,]
+
+gains_s_content[,4:ncol(gains_s_content)] <- lapply(gains_s_content[,4:ncol(gains_s_content)], as.numeric)
+gains_s_content <- melt(gains_s_content, id.vars = c("cou_abb", "reg_abb", "fuel"))
+colnames(gains_s_content) <- c("iso", "reg_abb", "fuel", "sector", "X2005")
+# units given in %, divide by 100 to convert to fraction
+gains_s_content$X2005 <- gains_s_content$X2005/100
+
+# add fuels and iso
+gains_s_content$fuel <- fuelmap[match(gains_s_content$fuel,fuelmap$GAINS.fuel),'fuel']
+gains_s_content$iso <- tolower(gainstoiso[match(gains_s_content$iso,gainstoiso$country),'ISO.code'])
+
+# remove unmathed
+gains_s_content <- gains_s_content[complete.cases(gains_s_content[,c('iso','fuel','sector','X2005')]),]
+
+# add sectors
+gains_s_content <- mapCEDS_sector_fuel( mapping_data = gains_s_content,
+                                     mapping_file = sectormap,
+                                     data_match_col = 'sector',
+                                     map_match_col = 'GAINS.sectors',
+                                     map_merge_col = c('detailed_sectors'),
+                                     new_col_names = c('sector'),
+                                     level_map_in = 'detailed_sectors',
+                                     level_out = 'working_sectors_v1',
+                                     aggregate = TRUE,
+                                     aggregate_col = c('X2005'),
+                                     oneToOne = FALSE,
+                                     agg.fun = mean)
+
+# 2.1 Aggregating by taking the mean of the Sulfur Retention Values.
+gains_s_content <- aggregate(gains_s_content[c("X2005")], 
+                          by = gains_s_content[c("iso","sector", "fuel")], FUN=mean)
+
+# add units
+gains_s_content$units <- 'fraction'
+gains_s_content <- gains_s_content[,c("iso","sector", "fuel","units","X2005")]
+
+# retain non zero values
+gains_s_content <- gains_s_content[which( gains_s_content$X2005 > 0),]
+
+# -------------------------------------------------------------------------------
+# 3. Output
+writeData(gains_s_content, domain = "DEFAULT_EF_PARAM", fn = "B.SO2_GAINS_s_content")
+
+
+
+logStop()
+# END
+

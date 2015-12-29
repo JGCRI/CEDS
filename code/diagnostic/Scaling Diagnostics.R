@@ -21,6 +21,7 @@ for ( i in 1:length( dirs ) ) {
 } 
 
   setwd('../diagnostic-output')
+  MED_OUT <- '../intermediate-output/'
 
 # ------------------------------------------------------------------------------
 # 1. Load Files

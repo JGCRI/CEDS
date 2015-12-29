@@ -51,10 +51,13 @@
 # What UN population scenarios to use?        
     pop_scenarios <- c( "Estimates", "Medium fertility" )
 
+# Ceds sector of residential biomass
+    res_bio_sector <- '1A4b_Residential'
+    
 # ------------------------------------------------------------------------------
 # 2. Format residential biomass and calculate per capita consumption
 # Extract residential biomass
-    res_biomass <- filter( en_stat, sector == "rescom_buildings", fuel == "biomass" ) %>%
+    res_biomass <- filter( en_stat, sector == res_bio_sector, fuel == "biomass" ) %>%
       melt( id = c( "iso", "sector", "fuel", "units" ), variable_name = "year" )
     names( res_biomass )[ names( res_biomass ) == "value" ] <- "consumption"
 
@@ -129,7 +132,7 @@
     printLog( "Replace with corrected residential biomass series" )
     
     en_stat_fixed <- melt( en_stat, measure.vars = X_IEA_years, variable_name = "year" ) %>%
-      filter( sector != "rescom_buildings" | fuel != "biomass" )
+      filter( sector != res_bio_sector | fuel != "biomass" )
     names( en_stat_fixed )[ names( en_stat_fixed ) == "value" ] <- "consumption"
     en_stat_fixed <- bind_rows( en_stat_fixed, res_biomass_fixed ) %>%
       cast( iso + sector + fuel + units ~ year, value = "consumption" )

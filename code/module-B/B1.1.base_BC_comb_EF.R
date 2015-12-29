@@ -378,6 +378,12 @@
   results <- results[ with( results, order( iso, sector, fuel ) ), ]
   
 # ------------------------------------------------------------------------------
+# 8. Converts units to be consistent with other species
+  #divide by 1000 to convert from g/kg to kg/kg
+  results[,X_emissions_years] <- results[,X_emissions_years]/1000
+  results$units <- 'kt/kt'
+  
+# ------------------------------------------------------------------------------
 # 7. Write output
     
   writeData( results, "MED_OUT", paste0( "B.BC_comb_EF_db" ) )

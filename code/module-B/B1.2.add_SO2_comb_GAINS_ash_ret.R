@@ -5,7 +5,7 @@
 # 
 # Input Files: GAINS_country_mapping.csv,GAINS_fuel_mapping.csv,
 #             GAINS_sector_mapping.csv, sinash@SO2-EU28_nohead.csv, B.SO2_S_AshRet_db.csv
-# Output Files: B.SO2_S_AshRet_db.csv
+# Output Files: B.SO2_GAINS_s_ash_ret.csv
 # Notes:
 # TODO: 
 # ---------------------------------------------------------------------------
@@ -49,10 +49,26 @@ sectormap <- readData( "GAINS_MAPPINGS",  "GAINS_sector_mapping" )
 gainsash_ret[gainsash_ret == "n.a"] <- 0
 gainsash_ret[,4:ncol(gainsash_ret)] <- lapply(gainsash_ret[,4:ncol(gainsash_ret)], as.numeric)
 gainsash_ret <- melt(gainsash_ret, id.vars = c("cou_abb", "reg_abb", "fuel"))
+gainsash_ret <- gainsash_ret[-which(gainsash_ret$fuel == 'SUM'),]
 colnames(gainsash_ret) <- c("iso", "reg_abb", "fuel", "sector", "X2005")
+
+# add fuels and iso
 gainsash_ret$fuel <- fuelmap[match(gainsash_ret$fuel,fuelmap$GAINS.fuel),'fuel']
-gainsash_ret$sector <- sectormap[match(gainsash_ret$sector,sectormap$GAINS.sectors),'sector']
 gainsash_ret$iso <- tolower(gainstoiso[match(gainsash_ret$iso,gainstoiso$country),'ISO.code'])
+
+# add sectors
+gainsash_ret <- mapCEDS_sector_fuel( mapping_data = gainsash_ret,
+                      mapping_file = sectormap,
+                      data_match_col = 'sector',
+                      map_match_col = 'GAINS.sectors',
+                      map_merge_col = c('detailed_sectors'),
+                      new_col_names = c('sector'),
+                      level_map_in = 'detailed_sectors',
+                      level_out = 'working_sectors_v1',
+                      aggregate = TRUE,
+                      aggregate_col = c('X2005'),
+                      oneToOne = FALSE,
+                      agg.fun = mean)
 
 # 2.1 Aggregating by taking the mean of the Sulfur Retention Values.
 gainsash_ret <- aggregate(gainsash_ret[c("X2005")], 

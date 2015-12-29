@@ -49,8 +49,7 @@ initialize( script_name, log_msg, headers )
                  list in F1.1.inventory_scaling.R'))
   }
   
-    
-
+  
 # For each Module E script, define the following parameters:
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by

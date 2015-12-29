@@ -5,7 +5,7 @@
 
 # This file should be sourced by any R script running diagnostics on CEDS data.
 # Functions contained:
-#   activityCheck, sectorCheck, fuelCheck, CountryCheck
+#   activityCheck, sectorCheck, fuelCheck, CountryCheck, mapCEDS_sector_fuel
 
 # ----------------------------------------------------------------------------------
 # activityCheck 
@@ -298,3 +298,119 @@ countryCheck <- function( data, cols = 1, convention = "ISO" ) {
     
     return( valid )
 }
+# ---------------------------------------------------------------------------------
+
+# mapCEDS_sector_fuel
+# Brief:        map to CEDS sectors and/or fuels      
+# Details:      
+# Dependencies: None
+# Author(s):    Rachel Hoesly
+# Params:       
+#       mapping_data
+#       mapping_file
+#       method: map to ceds ex: 'sectors', 'fuels', or 'both'
+#       data_cols: name(s) of the data file columns (by.x) 
+#       map_cols: name(s) of the mapping file columns (by.y)
+#       level_map_in: aggregation level of the mapping file
+#       level_out: aggregation of output (mapped data)
+# 
+# Return:       mapped data to ceds sectors and fuels and designated level
+# Input Files:  
+# Output Files: 
+
+mapCEDS_sector_fuel <- function(mapping_data,
+                                mapping_file,
+                                data_match_col,
+                                map_match_col,
+                                map_merge_col,
+                                new_col_names = NA,
+                                level_map_in,
+                                level_out = 'working_sectors_v1',
+                                aggregate = TRUE,
+                                aggregate_col = NA,
+                                oneToOne,
+                                agg.fun=NA){
+  ceds_sector_map <- readData('MAPPINGS','Master_Sector_Level_map')
+  
+  #Check Input options
+  # match columns exist in input files
+  # valid method
+  # valid level
+  # valid data cols provided for aggregate==TRUE
+  if (aggregate){
+    if (any(is.na(aggregate_col))) stop('in mapCEDS_sector_fuel, for aggregate = TRUE, must provide
+                                        valid numeric data columns to aggreate over. Check argument "data_col" ')
+    }
+  # noted level matches map
+  # extra sectors in map
+  # unmapped sectors
+  # data_match_col in mapping_data
+  if ( all(data_match_col %!in% names(mapping_data))) stop('data_match_col not in in mapping_data')
+  # map_match_col
+  if ( all(map_match_col %!in% names(mapping_file))) stop('map_match_col not in in mapping_file')
+  # map_merge_col
+  if ( all(map_merge_col %!in% names(mapping_file))) stop('map_merge_col not in in mapping_file')
+  # levels
+  if ( level_map_in %!in% names(ceds_sector_map)) stop('level_map_in not in ceds_sector_map')
+  if ( level_out %!in% names(ceds_sector_map)) stop('level_out not in ceds_sector_map')
+  
+  
+  
+  if(oneToOne ){stop("mapCEDS_sector_fuel does not have oneToOne functionality yet")}
+  
+  out <- merge(x=mapping_data, y=mapping_file,
+               by.x = data_match_col,
+               by.y = map_match_col,
+               all = TRUE)
+  # remove unmatched rows
+  # here to write out unmapped values
+  out <- out[complete.cases(out[,map_merge_col]),]
+  
+  if( aggregate){
+    # Aggregate
+    mapping_data_names <- names(mapping_data)
+    new_mapping_data_names <- mapping_data_names[which(mapping_data_names %!in% c(aggregate_col,data_match_col))]
+    by_cols <- c(map_merge_col,new_mapping_data_names)
+    
+    by.list <- list()
+    for(i in seq_along(by_cols)) by.list[[i]] <- out[,by_cols[i]]
+    names(by.list) <- by_cols
+    out <- aggregate( out[,aggregate_col],
+                      by = by.list,
+                      FUN = agg.fun, na.rm=TRUE)
+    names(out)[which(names(out)=='x')] <- aggregate_col
+  }
+  
+  # rename columns
+  if(!any(is.na(new_col_names))){
+    names(out)[which(names(out) %in% map_merge_col)] <- new_col_names }
+  
+  # Aggregate to Working Level if noted 
+  if ( level_map_in != level_out){
+    out <- merge(x=out, y=ceds_sector_map[,c(level_map_in,level_out)],
+                 by.x = new_col_names,
+                 by.y = level_map_in,
+                 all = TRUE)
+    # remove unmatched rows
+    # here to write out unmapped values
+    out <- out[complete.cases(out[,level_out]),]
+    
+    if( aggregate){
+      # Aggregate
+      out_data_names <- names(out)
+      by_cols <- out_data_names[which(out_data_names %!in% c(aggregate_col,data_match_col))]
+      by.list <- list()
+      for(i in seq_along(by_cols)) by.list[[i]] <- out[,by_cols[i]]
+      names(by.list) <- by_cols
+      out <- aggregate( out[,aggregate_col],
+                        by = by.list,
+                        FUN = agg.fun, na.rm=TRUE)
+      names(out)[which(names(out)=='x')] <- aggregate_col
+    }
+    if(!is.na(new_col_names)){
+      names(out)[which(names(out) == level_out)] <- new_col_names }
+  }
+  
+  return(out)
+  }
+

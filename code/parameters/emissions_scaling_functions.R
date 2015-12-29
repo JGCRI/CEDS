@@ -17,6 +17,7 @@
 # Special Packages
 
 loadPackage('zoo')
+source('../code/parameters/interpolation_extention_functions.R')
 
 # ------------------------------------------------------------------------------
 # F.initializeMeta
@@ -300,16 +301,16 @@ F.scaling <- function( ceds_data, inv_data, region,
                        replacement_scaling_factor = max_scaling_factor,
                        meta = TRUE) {
   
-  ext_start_year = start_year 
-  ext_end_year = end_year
-  ext = TRUE
-  interp_default = 'linear'
-  pre_ext_default = 'constant' 
-  post_ext_default = 'constant' 
-  replacement_method = 'none' 
-  max_scaling_factor = 100 
-  replacement_scaling_factor = max_scaling_factor
-  meta = TRUE
+#   ext_start_year = start_year 
+#   ext_end_year = end_year
+#   ext = TRUE
+#   interp_default = 'linear'
+#   pre_ext_default = 'constant' 
+#   post_ext_default = 'constant' 
+#   replacement_method = 'none' 
+#   max_scaling_factor = 100 
+#   replacement_scaling_factor = max_scaling_factor
+#   meta = TRUE
   
 
   # Define simple function for use later. If TRUE, all values NA
@@ -494,7 +495,7 @@ F.scaling <- function( ceds_data, inv_data, region,
   printLog('Extending scaling factors over scaling years')
   # ------------------------------------
   # Interpolation   
-  
+  printLog('Scaling Factors - Interpolating...')
   # Fill missing years with NAs
   X_inv_years_full <- paste0( 'X' , min(inv_years):max(inv_years)  )
   scaling_interp <- as.data.frame(matrix(data=NA, nrow = nrow(scaling), ncol = length(X_inv_years_full)))
@@ -506,16 +507,21 @@ F.scaling <- function( ceds_data, inv_data, region,
   interpolation_rows<-c()
   for( i in seq_along(scaling_interp$iso)){
     row <- as.numeric(scaling_interp[i,X_inv_years_full])
-    if( length(rle(is.na(c(NA,row,NA)))$values)>3 ) interpolation_rows<- rbind(interpolation_rows,i)
+    if( length(rle(is.na(c(NA,row,NA)))$values)>3 & sum(!is.na(row)) != 1  ) {
+      interpolation_rows<- rbind(interpolation_rows,i)}
   }
   interpolation_rows <- as.vector(interpolation_rows)
   
   #############
   # Interpolate
+  
   if( length(interpolation_rows)>0){
+    linear_rows <- which(ext_method_default$interp_method == 'linear')
     linear <- scaling_interp[which(ext_method_default$interp_method == 'linear'),]
     #remove rows with all NA data
     linear <-  linear[!apply(linear[,X_inv_years_full], 1, all.na),]
+    cant_interp <- linear[  rowSums(!is.na(linear[,X_inv_years_full])) == 1 ,]
+    linear <- linear[  rowSums(!is.na(linear[,X_inv_years_full])) != 1 ,]
     if ( nrow(linear)>0){
       # Add Meta notes
       if (meta == TRUE) {
@@ -543,7 +549,7 @@ F.scaling <- function( ceds_data, inv_data, region,
       linear_int <- t( na.approx( t(linear[,X_inv_years_full])  ) )
       linear <- cbind( linear[,c('iso', scaling_name)] , linear_int)
       names(linear) <- c('iso', scaling_name , X_inv_years_full ) }
-    
+    if (nrow(cant_interp)>0) linear <- rbind(linear,cant_interp)
     constant <- scaling_interp[which(ext_method_default$interp_method == 'constant'),]
     constant <-  constant[apply(constant[,X_inv_years_full], 1, all.na),]
     if( nrow(constant)>0){
@@ -585,7 +591,8 @@ F.scaling <- function( ceds_data, inv_data, region,
   
   # ------------------------------------
   # Extend Scaling Factors through Scaling Years and fill remaing (with scaling factor = 1)
-  
+  printLog('Scaling Factors - Extending...')
+
   scaling_ext <- as.data.frame(matrix(data=NA,nrow = nrow(scaling_interp), ncol = length(X_emissions_years)))
   names(scaling_ext) <- X_emissions_years
   scaling_ext <- cbind(scaling_interp[,c('iso', scaling_name)], scaling_ext)
@@ -744,7 +751,8 @@ F.scaling <- function( ceds_data, inv_data, region,
       scaling_ext[,X_emissions_years] <- replace(scaling_ext[,X_emissions_years], 
                                                  scaling_ext[,X_emissions_years] < 0 , 1/max_scaling_factor )
       
-    }}# End for loop over all scaling countries and sector/fuels
+    }
+    }# End for loop over all scaling countries and sector/fuels
   
   # ------------------------------------
   # Check validity of and replace Scaling Factors
@@ -786,6 +794,7 @@ F.scaling <- function( ceds_data, inv_data, region,
                                                  scaling_ext[,X_emissions_years] < min , min )
     }  }
   
+  printLog('Scaling Factors - Final processing...')
   out <- melt(scaling_ext, id.vars= c('iso', scaling_name))
   out <- out[complete.cases(out),]
   names(out) <- c('iso',scaling_name, 'year','scaling_factor')
@@ -821,10 +830,11 @@ F.applyScale <- function(scaling_factors){
   # Disaggregate from scaling sectors to CEDS sectors and create CEDS scaling that
   #   is matched to the CEDS rows from the input
   
+  scaling_ceds_map_unique <- unique(scaling_map[complete.cases(scaling_map[,c(scaling_name,ceds_matchcol_name)]),
+                                                c(scaling_name,ceds_matchcol_name)])
   # scaling factors by ceds sectors in long format
   scaling_factors_by_ceds <- merge(scaling_factors,
-                  unique(scaling_map[complete.cases(scaling_map[,c(scaling_name,ceds_matchcol_name)]),
-                                     c(scaling_name,ceds_matchcol_name)]),
+                                   scaling_ceds_map_unique          ,
                                    all = TRUE)
   scaling_factors_by_ceds <- scaling_factors_by_ceds[ , c('iso',ceds_matchcol_name,'year','scaling_factor')]
   names(scaling_factors_by_ceds)[which(names(scaling_factors_by_ceds)==ceds_matchcol_name)] <- method_col
@@ -838,8 +848,8 @@ F.applyScale <- function(scaling_factors){
   names(ef_long) <- c('iso','sector','fuel','units', 'year', 'ef')
   
   # merge scaling factors and current emissions/ef
-  em_long_sf <- merge(em_long, scaling_factors_by_ceds, all.x = TRUE)
-  ef_long_sf <- merge(ef_long, scaling_factors_by_ceds, all.x = TRUE)
+  em_long_sf <- merge(em_long, scaling_factors_by_ceds, all = TRUE)
+  ef_long_sf <- merge(ef_long, scaling_factors_by_ceds, all = TRUE)
   em_scaled <- em_long_sf[complete.cases(em_long_sf),]
   ef_scaled <- ef_long_sf[complete.cases(ef_long_sf),]
   
@@ -850,10 +860,16 @@ F.applyScale <- function(scaling_factors){
   em_scaled <- em_scaled[,c('iso','sector','fuel','year','scaled')]
   ef_scaled <- ef_scaled[,c('iso','sector','fuel','year','scaled')]
   
-  # drop emissios that are zero, remained unchanged
+  # drop emissions that are zero, remained unchanged
   em_scaled <- em_scaled[-which(em_scaled$scaled == 0) , ]
   ef_scaled <- ef_scaled[-which(ef_scaled$scaled == 0) , ]
   
+  #check duplicate entries
+  em_scaled_unique <- unique(em_scaled[,c('iso','sector','fuel','year')])
+  ef_scaled_unique <- unique(ef_scaled[,c('iso','sector','fuel','year')])
+  
+  if(nrow(em_scaled_unique) != nrow(em_scaled)) stop('duplicates in scaling factors, please check scaling map')
+    
   out <-  list(ef_scaled,em_scaled)
   return(out)
 }
@@ -884,7 +900,7 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
   
   meta_combined <- merge(meta_new, meta_old_changed, all.y = TRUE)
   meta_combined[which(is.na(meta_combined$new_comment)),'new_comment'] <- 
-    meta_combined[which(is.na(meta_combined$new_comment)),'comment']
+  meta_combined[which(is.na(meta_combined$new_comment)),'comment']
   
   meta_combined <- meta_combined[,c('iso','sector','fuel','year','new_comment')]
   names(meta_combined) <- c('iso','sector','fuel','year','comment')

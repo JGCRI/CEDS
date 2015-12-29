@@ -28,7 +28,7 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'process_db_functions.R','data_functions.R',
-              'interpolation_extention_functions.R','common_data.R') 
+              'interpolation_extention_functions.R','common_data.R', 'analysis_functions.R') 
 #                 Additional function files may be required.
 log_msg <- "Adding control percent data to data base" # First message to be printed to the log
 script_name <- "B1.2.add_comb_control_percent.R"
@@ -65,28 +65,56 @@ printLog("Mapping and aggregating to ceds fuels and sectors")
 X_years <- c('X2000','X2005','X2010','X2020')
 years <- c('2000','2005','2010','2020')
 
+#select years
+emissions <- emissions[,c('Region','Sector',years)]
+activities <- activities[,c('Region','Sector','Unit',years)]
+
+#convert to fuel and sector
 emissions_ceds <- merge(emissions, ctry_map,
                         by.x = 'Region',
                         by.y = 'emf_name', all=TRUE)  
-emissions_ceds <- merge(emissions_ceds, fuel_sector_map,
-                        by.x = 'Sector',
-                        by.y = 'emf_sector', all=TRUE) 
+
+emissions_ceds <- mapCEDS_sector_fuel(mapping_data = emissions_ceds,
+                              mapping_file = fuel_sector_map,
+                              data_match_col = 'Sector',
+                              map_match_col = 'emf_sector',
+                              map_merge_col = c('ceds_sector', 'ceds_fuel'),
+                              new_col_names = c('sector', 'fuel'),
+                              level_map_in = 'working_sectors_v1',
+                              level_out = 'working_sectors_v1',
+                              aggregate = TRUE,
+                              aggregate_col = years,
+                              oneToOne = FALSE,
+                              agg.fun = sum )
+
+
 emissions_ceds <- emissions_ceds[complete.cases(emissions_ceds),]
 emissions_ceds$units <- 'kt'
 # only CO2 is reported in Tg rather than Gg, so multiply by 10^3 to convert Tg to Gg
 if(em == 'CO2') emissions_ceds[,years] <- emissions_ceds[,years]*10^3
 
-emissions_ceds <- emissions_ceds[,c('iso','ceds_sector','ceds_fuel','units',years)]
+emissions_ceds <- emissions_ceds[,c('iso','sector','fuel','units',years)]
 names(emissions_ceds) <- c('iso','sector','fuel','units',X_years)
 
 activities_ceds <- merge(activities, ctry_map,
                         by.x = 'Region',
                         by.y = 'emf_name', all=TRUE)  
-activities_ceds <- merge(activities_ceds, fuel_sector_map,
-                        by.x = 'Sector',
-                        by.y = 'emf_sector', all=TRUE) 
+activities_ceds <- mapCEDS_sector_fuel(mapping_data = activities_ceds,
+                                        mapping_file = fuel_sector_map,
+                                        data_match_col = 'Sector',
+                                        map_match_col = 'emf_sector',
+                                        map_merge_col = c('ceds_sector', 'ceds_fuel'),
+                                        new_col_names = c('sector', 'fuel'),
+                                        level_map_in = 'working_sectors_v1',
+                                        level_out = 'working_sectors_v1',
+                                        aggregate = TRUE,
+                                        aggregate_col = years,
+                                        oneToOne = FALSE,
+                                        agg.fun = sum )
+
 activities_ceds <- activities_ceds[complete.cases(activities_ceds),]
-activities_ceds <- activities_ceds[,c('iso','ceds_sector','ceds_fuel','Unit',years)]
+activities_ceds <- activities_ceds[,c('iso','sector','fuel','Unit',years)]
+
 names(activities_ceds) <- c('iso','sector','fuel','units',X_years)
 
 # Aggregate
