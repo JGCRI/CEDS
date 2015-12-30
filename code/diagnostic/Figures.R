@@ -103,10 +103,14 @@ plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
                   geom_area(size=1) +
                   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
                   scale_y_continuous(labels = comma)+
-                  ggtitle('Global Scaled SO2 Emissions')+
-                  labs(x='Year',y='SO2 Emissions [kt]')
+                  ggtitle( paste('Global Scaled',em,' Emissions') )+
+                  labs(x='Year',y= paste(em,'Emissions [kt]') )
 plot              
-ggsave('regions.scaled.pdf')
+ggsave( paste0('summary-plots/',em,'_regions.scaled.pdf') )
+#Convert to wide format for easier viewing
+data.long <- cast(df, Region ~ year, mean, value="SO2_Emissions")
+writeData( data.long, "DIAG_OUT", paste0('summary-plots/',em ,'scaled_regional_emissions') )
+
 #----
 # Default Emissions
 Regions<-ddply(DefaultEmissions.long, .(Region,year),summarize,
@@ -119,10 +123,10 @@ plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
   geom_area(size=1) +
   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
   scale_y_continuous(labels = comma)+
-  ggtitle('Global Default SO2 Emissions')+
-  labs(x='Year',y='SO2 Emissions [kt]')
+  ggtitle( paste('Global Default',em,' Emissions') )+
+  labs(x='Year',y= paste(em,'Emissions [kt]') )
 plot              
-ggsave('regions.default.pdf')
+ggsave( paste0('summary-plots/',em,'_regions.default.pdf') )
 
 ##line graphs by region
 #Scaled Emissions
@@ -136,10 +140,10 @@ plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
   geom_line(size=1) +
   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
   scale_y_continuous(labels = comma)+
-  ggtitle('Global Scaled SO2 Emissions')+
-  labs(x='Year',y='SO2 Emissions [kt]')
+  ggtitle( paste('Global Scaled',em,' Emissions') )+
+  labs(x='Year',y= paste(em,'Emissions [kt]') )
 plot              
-ggsave('regions.scaled.line.pdf')
+ggsave( paste0('summary-plots/',em,'_regions.scaled.line.pdf') )
 #----
 # Default Emissions
 Regions<-ddply(DefaultEmissions.long, .(Region,year),summarize,
@@ -152,14 +156,14 @@ plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
   geom_line(size=1) +
   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
   scale_y_continuous(labels = comma)+
-  ggtitle('Global SO2 Emissions')+
-  labs(x='Year',y='SO2 Emissions [kt]')
+  ggtitle( paste('Global Default',em,' Emissions') ) +
+  labs(x='Year',y= paste(em,'Emissions [kt]') )
 plot              
-ggsave('regions.default.line.pdf')
+ggsave( paste0('summary-plots/',em,'_regions.default.line.pdf') )
 
 
 # ---------------------------------------------------------------------------
-# 1. Plots - #Stacked Area Plot By Region
+# 1. Plots - #Stacked Area Plot By Sector
 
 #Scaled
 Sectors<-ddply(TotalEmissions.long, .(sector,year),summarize,
@@ -171,10 +175,13 @@ plot <- ggplot(df, aes(x=year,y=SO2_Emissions, fill=sector)) +
   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
   scale_y_continuous(labels = comma)+
   ggtitle('Global Scaled SO2 Emissions')+
-  labs(x='Year',y='SO2 Emissions [kt]')+
+  labs(x='Year',y= paste(em,'Emissions [kt]') )+
   guides(fill=guide_legend(ncol=2))
 plot              
-ggsave('sectors.scaled.pdf')
+ggsave( paste0('summary-plots/',em,'_sectors.scaled.pdf') )
+#Convert to wide format for easier viewing
+data.long <- cast(df, sector ~ year, mean, value="SO2_Emissions")
+writeData( data.long, "DIAG_OUT", paste0('summary-plots/',em ,'scaled_emissions_by_fuel') )
 
 
 #Default
@@ -188,11 +195,11 @@ plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
   scale_y_continuous(labels = comma)+
   ggtitle('Global Default SO2 Emissions')+
-  labs(x='Year',y='SO2 Emissions [kt]')+
+  labs(x='Year',y= paste(em,'Emissions [kt]') )+
   guides(fill=guide_legend(ncol=2))
   
 plot              
-ggsave('sectors.default.pdf')
+ggsave( paste0('summary-plots/',em,'_sectors.default.pdf') )
 
 
 
@@ -210,9 +217,12 @@ plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
   scale_y_continuous(labels = comma)+
   ggtitle('Global Scaled SO2 Emissions')+
-  labs(x='Year',y='SO2 Emissions [kt]')
+  labs(x='Year',y= paste(em,'Emissions [kt]') )
 plot              
-ggsave('fuel.scaled.pdf')
+ggsave( paste0('summary-plots/',em,'_fuel.scaled.pdf') )
+#Convert to wide format for easier viewing
+data.long <- cast(df, fuel ~ year, mean, value="SO2_Emissions")
+writeData( data.long, "DIAG_OUT", paste0('summary-plots/',em ,'scaled_emissions_by_fuel') )
 
 # Default
 Fuels<-ddply(DefaultEmissions.long, .(fuel,year),summarize,
@@ -225,9 +235,9 @@ plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
   scale_y_continuous(labels = comma)+
   ggtitle('Global Default SO2 Emissions')+
-  labs(x='Year',y='SO2 Emissions [kt]')
+  labs(x='Year',y= paste(em,'Emissions [kt]') )
 plot              
-ggsave('fuel.default.pdf')
+ggsave( paste0('summary-plots/',em,'_fuel.default.pdf') )
 
 
 
