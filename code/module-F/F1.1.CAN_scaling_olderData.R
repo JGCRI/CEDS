@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Program Name: F1.1.CAN_scaling.R
+# Program Name: F1.1.CAN_scaling_olderData.R
 # Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly
 # Date Last Modified: Oct 29, 2015
 # Program Purpose: To create scaling factors and update emissions estimate for
@@ -33,7 +33,7 @@ PARAM_DIR <- "../code/parameters/"
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R" ) # Additional function files required.
 log_msg <- "test inventory data" # First message to be printed to the log
-script_name <- "F1.1.CAN_scaling.R"
+script_name <- "F1.1.CAN_scaling_olderData.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
