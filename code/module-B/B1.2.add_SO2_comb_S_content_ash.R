@@ -29,7 +29,9 @@
 # provide logging, file support, and system functions - and start the script log.
   headers <- c( "data_functions.R", "analysis_functions.R",'process_db_functions.R',
                 'common_data.R', 'interpolation_extention_functions.R') # Additional function files may be required.
-  log_msg <- "Adding data files of EF parameters (sulfur and ash ret) to SO2 EF parameter databases" # First message to be printed to the log
+  log_msg <- "Adding data files of EF parameters (sulfur and ash ret) to SO2 EF parameter databases"
+  
+  # First message to be printed to the log
   script_name <- "B1.2.add_SO2_S_content_ash.R"
   
   source( paste0( PARAM_DIR, "header.R" ) )
