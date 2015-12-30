@@ -226,7 +226,7 @@ gainsEMF30 <- combined[,c('iso','sector','fuel','units',X_years)]
 # 6. Output
 
 # For SO2, BC, OC, CH4, CO2 don't use global GAINS data, but write out as diagnostic for comparison
-if ( em %!in% c(''NOx,'NMVOC','CO') ) {
+if ( em %!in% c('NOx','NMVOC','CO') ) {
    writeData(gainsEMF30, domain = "DEFAULT_EF_PARAM", fn = paste0('B.',em,'_GAINS_EMF30_EF'))
 } else {
    writeData(gainsEMF30, domain = "DIAG_OUT", fn = paste0('B.',em,'_GAINS_EMF30_EF'))
