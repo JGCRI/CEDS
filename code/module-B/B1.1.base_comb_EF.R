@@ -53,14 +53,19 @@ source_child <- function( file_name ){ source( paste( MODULE_B, file_name, sep =
 
 scripts <- c('B1.1.base_comb_EF_control_percent.R')
 
-# Set scripts to generate base emission factors for SO2
+# Set scripts to generate species-specific base emission factors
+
 if( em == "SO2" ){
     scripts <- c( scripts, "B1.1.base_SO2_comb_EF_parameters.R" )
-}
-
-# Set scripts to generate base emission factors for BC or OC
-if( em == "BC" || em == "OC" ){
+} else if( em == "BC" || em == "OC" ){
     scripts <- c( scripts, "B1.1.base_BC_comb_EF.R" )
+} else {
+  # Else create a blank default database
+  activity_data <- readData( "MED_OUT", "A.comb_activity" )
+  default_EM_db <- activity_data
+  default_EM_db[,X_emissions_years] <- 0
+  default_EM_db$units <- 'kt/kt'
+  writeData( default_EM_db, "MED_OUT", paste0( "B.", em ,"_", "comb_EF_db") )
 }
 
 # Run all child scripts for the given emissions type. The call to
