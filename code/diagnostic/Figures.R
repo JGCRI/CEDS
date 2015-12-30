@@ -109,7 +109,7 @@ plot
 ggsave( paste0('summary-plots/',em,'_regions.scaled.pdf') )
 #Convert to wide format for easier viewing
 data.long <- cast(df, Region ~ year, mean, value="SO2_Emissions")
-writeData( data.long, "DIAG_OUT", paste0('summary-plots/',em ,'scaled_regional_emissions') )
+writeData( data.long, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_region') )
 
 #----
 # Default Emissions
@@ -181,7 +181,7 @@ plot
 ggsave( paste0('summary-plots/',em,'_sectors.scaled.pdf') )
 #Convert to wide format for easier viewing
 data.long <- cast(df, sector ~ year, mean, value="SO2_Emissions")
-writeData( data.long, "DIAG_OUT", paste0('summary-plots/',em ,'scaled_emissions_by_fuel') )
+writeData( data.long, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_sector') )
 
 
 #Default
@@ -222,7 +222,7 @@ plot
 ggsave( paste0('summary-plots/',em,'_fuel.scaled.pdf') )
 #Convert to wide format for easier viewing
 data.long <- cast(df, fuel ~ year, mean, value="SO2_Emissions")
-writeData( data.long, "DIAG_OUT", paste0('summary-plots/',em ,'scaled_emissions_by_fuel') )
+writeData( data.long, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_fuel') )
 
 # Default
 Fuels<-ddply(DefaultEmissions.long, .(fuel,year),summarize,
