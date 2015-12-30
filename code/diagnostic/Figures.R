@@ -49,7 +49,7 @@ library('scales')
 # ---------------------------------------------------------------------------
 # 1. Load files
 
-MCL <- readData( "MAPPINGS", "Master_Country_List")
+Master_Country_List <- readData( "MAPPINGS", "Master_Country_List")
 TotalEmissions <- readData('MED_OUT', paste0('F.',em,'_scaled_emissions'))
 DefaultEmissions <- readData('MED_OUT', paste0('D.',em,'_default_total_emissions'))
 
@@ -67,7 +67,8 @@ names(TotalEmissions.long) <- c('iso','sector','fuel','units','year','SO2_Emissi
 TotalEmissions.long$iso<-tolower(TotalEmissions.long$iso)
 TotalEmissions.long$year<-substr(TotalEmissions.long$year,2,6)
 
-TotalEmissions.long$Region <- MCL[match(TotalEmissions.long$iso,MCL$iso),'Figure_Region']
+TotalEmissions.long$Region <- Master_Country_List[match(TotalEmissions.long$iso,Master_Country_List$iso),'Figure_Region']
+TotalEmissions.long$Country <- Master_Country_List[match(TotalEmissions.long$iso,Master_Country_List$iso),'Country_Name']
 
 TotalEmissions.long$Region <- as.factor(TotalEmissions.long$Region)
 TotalEmissions.long$year <- as.integer(TotalEmissions.long$year)
@@ -80,10 +81,31 @@ names(DefaultEmissions.long) <- c('iso','sector','fuel','units','year','SO2_Emis
 DefaultEmissions.long$iso<-tolower(DefaultEmissions.long$iso)
 DefaultEmissions.long$year<-substr(DefaultEmissions.long$year,2,6)
 
-DefaultEmissions.long$Region <- MCL[match(DefaultEmissions.long$iso,MCL$iso),'Figure_Region']
+DefaultEmissions.long$Region <- Master_Country_List[match(DefaultEmissions.long$iso,Master_Country_List$iso),'Figure_Region']
 
 DefaultEmissions.long$Region <- as.factor(DefaultEmissions.long$Region)
 DefaultEmissions.long$year <- as.integer(DefaultEmissions.long$year)
+
+# ---------------------------------------------------------------------------
+# 0. Tables - Total emissions by country
+
+#Scaled Emissions
+Em_by_Country<-ddply(TotalEmissions.long, .(Country,year,iso),summarize,
+               SO2_Emissions=sum(SO2_Emissions, na.rm=TRUE))
+
+#Convert to wide format for writeout
+data.long <- cast(Em_by_Country, Country+iso ~ year , mean, value="SO2_Emissions")
+writeData( data.long, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_country') )
+
+# 0. Tables - Total emissions by country and fuel
+
+#Scaled Emissions
+Em_by_Country<-ddply(TotalEmissions.long, .(Country, year, iso, fuel),summarize,
+                     SO2_Emissions=sum(SO2_Emissions, na.rm=TRUE))
+
+#Convert to wide format for writeout
+data.long <- cast(Em_by_Country, Country+iso+fuel ~ year , mean, value="SO2_Emissions")
+writeData( data.long, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_country_fuel') )
 
 # ---------------------------------------------------------------------------
 # 1. Plots - #Stacked Area Plot By Region
