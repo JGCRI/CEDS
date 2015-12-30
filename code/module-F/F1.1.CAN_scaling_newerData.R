@@ -1,13 +1,13 @@
 #------------------------------------------------------------------------------
-# Program Name: F1.1.CAN_scaling.R
-# Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly
-# Date Last Modified: Oct 29, 2015
+# Program Name: F1.1.CAN_scaling_newerData.R
+# Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly, Steve Smith
+# Date Last Modified: Dec 30, 2015
 # Program Purpose: To create scaling factors and update emissions estimate for
 # the CAN region from latest emissions working copy by using aggregate 
 # CAN trends inventory data. This file uses the newer format used since 2012.
 # This data only extends back to 1990, so older data is still used back to 1985 in
 # a separate scaling operation. This newer data should be used last so that any 
-# descrepencies are resolved in favor of the newer data.
+# discrepancies are resolved in favor of the newer data.
 #
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv, 
 #              F.[em]_scaled_emissions.csv, CAN_sector_mapping.csv, 
@@ -35,7 +35,7 @@ PARAM_DIR <- "../code/parameters/"
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R" ) # Additional function files required.
 log_msg <- "test inventory data" # First message to be printed to the log
-script_name <- "F1.1.CAN_scaling.R"
+script_name <- "F1.1.CAN_scaling_newerData.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
