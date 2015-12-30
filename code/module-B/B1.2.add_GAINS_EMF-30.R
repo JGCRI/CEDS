@@ -1,13 +1,16 @@
 # Program Name: B1.2.add_GAINS_EMF-30.R
 # Author: Rachel Hoesly
 # Date Last Updated: 16 Dec 2015 
-# Program Purpose: 
+# Program Purpose: Generate default emission factors from global GAINS EMF-30 data
+#                                For BC, OC, CO2, and CH4 are just used as diagnostics
+#
 # Input Files:    files in the EF_parameters folder contailing control_percent and em
 #               
 # Output Files:  
 # Notes: transportation_rail only hase a 2020 values, so interpolated values are constant
 #           extended back from 2020 to 2011
-# TODO: 
+# TODO:  For SO2, create post 2010 S control trends instead of EFs
+#               For CEDS working sectors v2, use GAINS to generate default process emission factors where available
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
@@ -222,7 +225,13 @@ gainsEMF30 <- combined[,c('iso','sector','fuel','units',X_years)]
 # ---------------------------------------------------------------------------
 # 6. Output
 
-writeData(gainsEMF30, domain = "DEFAULT_EF_PARAM", fn = paste0('B.',em,'_GAINS_EMF30_EF'))
+# For SO2, BC, OC, CH4, CO2 don't use global GAINS data, but write out as diagnostic for comparison
+if ( em %!in% c(''NOx,'NMVOC','CO') ) {
+   writeData(gainsEMF30, domain = "DEFAULT_EF_PARAM", fn = paste0('B.',em,'_GAINS_EMF30_EF'))
+} else {
+   writeData(gainsEMF30, domain = "DIAG_OUT", fn = paste0('B.',em,'_GAINS_EMF30_EF'))
+}
+
 writeData(process_gainsEMF30, domain = "MED_OUT", fn = paste0('B.',em,'_GAINS_EMF30_process'))
 
 logStop()
