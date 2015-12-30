@@ -72,19 +72,17 @@
 # ------------------------------------------------------------------------------------
 # 3. Call scaling scripts for various species
 
-  # Set scripts to scale emissions/ef data for SO2
-  if( em == "SO2" ){
-
-
+  #  scripts to use for most emissions/ef's
+  if ( em %in% c('SO2','NOx','NMVOC','CO','OC') {
     scripts <- c( 'F1.1.UNFCCC_scaling.R', 'F1.1.CAN_scaling_olderData.R' , 'F1.1.CAN_scaling_newerData.R',  
-				   'F1.1.US_scaling.R',	'F1.1.Edgar_scaling.R')    
+				   'F1.1.US_scaling.R')    
   }
-  
-  # Set scripts to scale emissions/ef data for BC or OC
-  if( em == "BC" || em == "OC" ){
-    scripts <- c(  )
-  }
-  
+
+  # Because EDGAR is our default data, scale first so that this will be overwritten with more detailed data
+  # TODO: strip out all but process emissions in EDGAR scaling for SO2, and add back if needed (although this probably will be taken care of in process emissions section)
+  if ( em %in% c('NOx','NMVOC','CO','OC') {
+     scripts <- c( 'F1.1.Edgar_scaling.R',scripts)    
+
   # Run all scripts for the given emissions type. 
   invisible( lapply( scripts, source_child ) )
   
