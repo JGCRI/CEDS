@@ -1,7 +1,7 @@
 # Program Name: B1.2.add_SO2_GAINS_s_content.R
 # Author:  Rachel Hoesly
 # Date Last Updated: Dec 28 2015 
-# Program Purpose: Add 2005 GAINS ash retention data into defualt ash retention database
+# Program Purpose: Add 2005 GAINS sulfur content data into defualt sulfur content database
 # 
 # Input Files: GAINS_country_mapping.csv,GAINS_fuel_mapping.csv,
 #             GAINS_sector_mapping.csv, sinash@SO2-EU28_nohead.csv, B.SO2_S_AshRet_db.csv
@@ -58,7 +58,7 @@ gains_s_content$X2005 <- gains_s_content$X2005/100
 gains_s_content$fuel <- fuelmap[match(gains_s_content$fuel,fuelmap$GAINS.fuel),'fuel']
 gains_s_content$iso <- tolower(gainstoiso[match(gains_s_content$iso,gainstoiso$country),'ISO.code'])
 
-# remove unmathed
+# remove unmatched
 gains_s_content <- gains_s_content[complete.cases(gains_s_content[,c('iso','fuel','sector','X2005')]),]
 
 # add sectors
