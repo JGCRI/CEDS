@@ -45,7 +45,7 @@ initialize( script_name, log_msg, headers )
   
   if( em == 'NO2') em <- 'NOx'
   # Stop script if running for unsupported species
-  if ( em %!in% c('SO2','NO2','NMVOC','CO','OC','CO2') ) {
+  if ( em %!in% c('SO2','NOx','NMVOC','CO','OC','CO2') ) {
     stop (paste( ' Edgar scaling is not supported for emission species', em, 'remove from script
                  list in F1.1.inventory_scaling.R'))
   }
