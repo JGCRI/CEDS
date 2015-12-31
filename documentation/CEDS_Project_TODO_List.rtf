@@ -5,7 +5,7 @@
 }
 {\info
 {\author test}
-{\*\company PNNL}}\margl1440\margr1440\vieww18000\viewh18940\viewkind1
+{\*\company PNNL}}\margl1440\margr1440\vieww18300\viewh19240\viewkind1
 \deftab720
 \pard\pardeftab720\ri0
 
@@ -37,10 +37,7 @@ Complete Initial SO2 Time Series
 
 \b Improve First-cut Time Series
 \b0 \
-   -- Implement CEDS working sectors version 2\
-     \'97 Additional detail for metal and fossil process emissions\
-     \'97 Add additional process activity data\
-   -- Add additional inventory scaling as get them\
+    -- Add additional inventory scaling as get them\
    -- Add seasonality\
      \'97 Focus on residential sector (Base on ECLIPSE)\
      \'97 Use whatever EDGAR has otherwise by end of Jan\
@@ -49,6 +46,10 @@ Complete Initial SO2 Time Series
      \'97 CO2 is probably higher priority than CH4\
      \'97 CH4 will require adding more driver data\
            \'97 Most, if not all, is FAO so can use API\
+\
+  -- Implement CEDS working sectors version 2\
+     \'97 Additional detail for metal and fossil process emissions\
+     \'97 Add additional process activity data\
 \
 
 \b MERGE WITH RCP/HYDE Data/assumptions to get past trends	
@@ -97,10 +98,13 @@ Document input emissions format\ulnone  for system, including units\
 \pard\pardeftab720\ri0
 
 \b \cf2 DONE
-\b0 \cf0 \
-\
+\b0 \cf0  (for scaling)\
 \pard\pardeftab720\ri0
-\cf0 \ul Other adjustments for default S emission factors\
+
+\i \cf0 Process emissions still to do
+\i0 \
+\
+\ul Other adjustments for default S emission factors\
   \ulnone \'97 Add data for scaling years for GAINS S contents/controls where needed (e.g. petr)\
 \
  \ul Add key default emissions data adjustments\
@@ -113,6 +117,7 @@ Document input emissions format\ulnone  for system, including units\
 \ulnone    \'97 Use BP energy data to do this\
    \'97 This gets us 1970 for all countries, which is the key issue\
    \'97 We have some more detailed data we can use to to back further\
+   \'97 Note need to do this also for Germany (since pre-1971 data looks to be just for west Germany)\
  \
 \ul Develop default EFs for other pollutant emissions\
  \ulnone  \'97  Global GAINS-EMF30 data as default \
@@ -134,7 +139,9 @@ Document input emissions format\ulnone  for system, including units\
 
 \b0 \cf0 \
  \ul Scale to additional inventory data\
-   \ulnone \'97 Later Canada data\
+   \ulnone \'97 Later Canada data- 
+\b \cf2 DONE
+\b0 \cf0 \
    \'97 EMEP level 2\
    \'97 Australia, \
    \'97 Others (China, Japan, S Korea, Taiwan, other from REAS)\
@@ -235,7 +242,7 @@ Document input emissions format\ulnone  for system, including units\
 - Generally for downloads, provide backup file if API doesn\'92t respond\
 - Add overall system flag for downloading new data or not\
 \
-More detailed meta data system for large data frames. 
+\ul More detailed meta data system\ulnone  for large data frames. 
 \b \cf3 Not Done - Rachel
 \b0 \cf0 \
 - Meta data entry for every value, like diesel Sulfur standards xls doc\
