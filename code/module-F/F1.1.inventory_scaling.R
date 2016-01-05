@@ -71,10 +71,11 @@
   
 # ------------------------------------------------------------------------------------
 # 3. Call scaling scripts for various species
-
+  scripts <- c()
+   
   #  scripts to use for most emissions/ef's
   if ( em %in% c('SO2','NOx','NMVOC','CO','OC') ) {
-    scripts <- c( 'F1.1.UNFCCC_scaling.R', 'F1.1.CAN_scaling_olderData.R' , 'F1.1.CAN_scaling_newerData.R',  
+    scripts <- c( 'F1.1.UNFCCC_scaling.R', 'F1.1.EMEP_scaling.R','F1.1.CAN_scaling_olderData.R' , 'F1.1.CAN_scaling_newerData.R',  
 				   'F1.1.US_scaling.R')    
   }
 
