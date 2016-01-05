@@ -43,9 +43,8 @@ initialize( script_name, log_msg, headers )
   em <- args_from_makefile[1]
   if ( is.na( em ) ) em <- "SO2"
   
-  if( em == 'NO2') em <- 'NOx'
   # Stop script if running for unsupported species
-  if ( em %!in% c('SO2','NOx','NMVOC','CO','OC','CO2') ) {
+  if ( em %!in% c('SO2','NOx','NMVOC','CO', 'CH4') ) {
     stop (paste( ' Edgar scaling is not supported for emission species', em, 'remove from script
                  list in F1.1.inventory_scaling.R'))
   }
@@ -56,7 +55,7 @@ initialize( script_name, log_msg, headers )
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
 
-  inventory_data_file <- paste0('grmnht_',em,'_1970_2012_v4.3_allsubst_sectorsofCO2report2015_grmnht')
+  inventory_data_file <- paste0('EDGAR42_',em)
   inv_data_folder <- "EM_INV"
   sector_fuel_mapping <- 'Edgar_scaling_mapping'
   mapping_method <- 'sector'
@@ -77,26 +76,19 @@ initialize( script_name, log_msg, headers )
                "png", "jpn", "aus", "cok", "fji", "kir", "ncl", "nzl", "plw", "pyf", "slb", "ton", "vut", "wsm", "sea",
                "air")
     
-  inv_years<-c(1970:2012)
+  inv_years<-c(1970:2008)
 
 # ------------------------------------------------------------------------------
 # 1.5 Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
   
-  # Import Sheet
-  sheet_name <- 'v4.3_allsubst_sector'
+  # Import file
   inv_data_sheet <- readData( inv_data_folder, domain_extension = "Edgar/",
-                              inventory_data_file , ".xls", 
-                              sheet_selection = sheet_name ) 
+                              inventory_data_file ) 
   
   # Clean rows and columns to standard format
-  inv_data_sheet <- inv_data_sheet[-1:-8,]
-  names(inv_data_sheet)[1:6] <- inv_data_sheet[1,1:6]
-  names(inv_data_sheet)[7:ncol(inv_data_sheet)] <- paste0('X',inv_years)
-  inv_data_sheet <- inv_data_sheet[-1,]
   inv_data_sheet$units <- 'kt'
-  inv_data_sheet <- inv_data_sheet[,c('ISO_A3','IPCC detailed','units', paste0('X',inv_years))]
+  inv_data_sheet <- inv_data_sheet[,c('ISO_A3','IPCC','units', paste0('X',inv_years))]
   names(inv_data_sheet) <- c('iso','sector', 'units', paste0('X',inv_years))
-  
   inv_data_sheet$iso <- tolower(inv_data_sheet$iso)
   
   # write standard form inventory
