@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: E1.UNFCCC_emissions.R
+# Program Name: E1.UNFCCC_SO2_emissions.R
 # Author(s): Patrick O'Rourke, Rachel Hoesly
 # Date Last Updated: October 30, 2015
 # Program Purpose: To read in and reformat UNFCCC emissions data.
@@ -29,7 +29,7 @@ PARAM_DIR <- "../code/parameters/"
 # provides logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R" ) # Any additional function files required
 log_msg <- "Initial reformatting of the UNFCCC S02 Emissions inventories" # First message to be printed to the log
-script_name <- "E.UNFCCC_emissions.R"
+script_name <- "E1.UNFCCC_SO2_emissions.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -52,6 +52,7 @@ if ( is.na( em ) ) em <- "SO2"
 
 # Create a List of the UNFCCC S02 Files
 file.list = list.files(path = "./emissions-inventories/UNFCCC", pattern = paste0('*',em) )
+file.list = file.list[grep('.csv',file.list)]
 
 # Removes Extension of File Name
 file.list2 <- file_path_sans_ext( file.list ) 
