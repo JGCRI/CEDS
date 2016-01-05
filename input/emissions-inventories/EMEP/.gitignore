@@ -1,0 +1,3 @@
+# Ignore csv files in this directory
+*.csv
+!meta-data.csv
