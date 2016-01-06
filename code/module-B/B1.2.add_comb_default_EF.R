@@ -80,7 +80,10 @@ EF$units <- 'kt/kt'
 # 2. Add to existing parameter Dbs
 
 if( length(EF_list)>0 ){
-  addToDb_overwrite(new_data = EF, em = em, file_extention = 'comb_EF_db') }
+  printLog(paste('Adding new data to existing control percent data base for', em))
+  addToDb_overwrite(new_data = EF, em = em, file_extention = 'comb_EF_db') 
+  }else{
+  printLog(paste('No data to be added to existing EF database for ', em))}
 
 logStop()
 # END

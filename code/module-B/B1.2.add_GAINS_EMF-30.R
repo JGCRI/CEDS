@@ -34,7 +34,7 @@ headers <- c( 'process_db_functions.R','data_functions.R',
               'interpolation_extention_functions.R','common_data.R', 'analysis_functions.R') 
 #                 Additional function files may be required.
 log_msg <- "Adding control percent data to data base" # First message to be printed to the log
-script_name <- "B1.2.add_comb_control_percent.R"
+script_name <- "B1.2.add_GAINS_EMF-30.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -42,7 +42,13 @@ initialize( script_name, log_msg, headers )
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "SO2"
-em_lc <- tolower( em )    
+em_lc <- tolower( em )   
+
+# Stop script if running for unsupported species
+if ( em %!in% c('SO2','NOx','NMVOC','BC','OC','CH4','CO2') ) {
+  stop (paste( 'GAINS EMF-30 is not supported for emission species', em, 'remove from script
+               list in B1.2.add_comb_EF.R'))
+}
 
 # ---------------------------------------------------------------------------
 # 1. Load Data
