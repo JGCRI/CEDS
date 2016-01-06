@@ -58,7 +58,7 @@ initialize( script_name, log_msg, headers )
   names(inv) <- c('ISO2',"year","sector", "emission_species", "units","emissions")
   
 # Writes each object as same format, but converted to a csv file
-  writeData( inv , 'EM_INV', domain_extension = "EMEP/" ,paste0('EMEP_NFR14_', level , '_', em.read ),
+  writeData( inv , 'EM_INV', domain_extension = "EMEP/" , fn = paste0('EMEP_NFR14_', level , '_', em.read ),
              meta = TRUE)
 # -----------------------------------------------------------------------------------------------------------
 # 1. Read in files
