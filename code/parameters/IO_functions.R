@@ -620,7 +620,7 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
 
     # Write out accumulated metadata and notes if applicable
     if( meta == T ) {
-        mymetafn <- filePath( domain, paste0(fn, "-metadata"))
+       mymetafn <- filePath( domain = domain, fn = paste0(fn, "-metadata"), domain_extension = domain_extension)
         w <- getOption( "warn" )
         options( warn = -1 )  # suppress the warning
         if( exists( "all_metadata" ) ) {
