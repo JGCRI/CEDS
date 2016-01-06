@@ -302,17 +302,53 @@ countryCheck <- function( data, cols = 1, convention = "ISO" ) {
 
 # mapCEDS_sector_fuel
 # Brief:        map to CEDS sectors and/or fuels      
-# Details:      
+# Details:      Map any data to CEDS sectors (sectors and fuels are seperate in original 
+#               data and thus map sererately in two steps) or to CEDS sectors and fuels
+#               (original data notes a sector and a fuel and must map in one step, such as IEA FLOWS)
 # Dependencies: None
 # Author(s):    Rachel Hoesly
 # Params:       
-#       mapping_data
-#       mapping_file
-#       method: map to ceds ex: 'sectors', 'fuels', or 'both'
-#       data_cols: name(s) of the data file columns (by.x) 
-#       map_cols: name(s) of the mapping file columns (by.y)
-#       level_map_in: aggregation level of the mapping file
-#       level_out: aggregation of output (mapped data)
+#       mapping_data: original data (not in CEDS format)
+#       mapping_file: mapping file specific to original data
+#       data_match_col: name(s) of the matching columns in the data file (by.x) ex: c('sector')
+#       map_match_col: name(s) of the matching data label column in the mapping file (by.y) ex: c('data_sector')
+#       map_merge_col: name of the column in the mapping file to merge with original data: ex: ('ceds_sector')
+#       new_col_names: name of the merged column (ceds sector or fuel) in the output c('sector')
+#       level_map_in: aggregation of the scaling map. Should always map to detailed when possible 
+#                     possible choices:'working_sectors_v1', 'working_sectors_v2', 'detailed_sectors'
+#       level_out: aggregation of the output file 
+#                     possible choices:'working_sectors_v1', 'working_sectors_v2', 'detailed_sectors'
+#       aggregate: boolean T/F, aggregate data by output sectors/fuels?
+#       aggregate_col: col or columns to aggregate data over, usually 'years' or vector of column names of data
+#       oneToOne: does the data map 1:1 with the mapping file. Now, The function only works for data used for emission factors, where
+#                 there is no danger of double counting emissions. 
+#       agg.fun = function used to aggergate (default is sum)
+# Examples: used in B1.2.add_GAINS_EMF-30.R
+#               mapCEDS_sector_fuel(mapping_data = emissions_ceds,
+#                                   mapping_file = fuel_sector_map,
+#                                   data_match_col = 'Sector',
+#                                   map_match_col = 'emf_sector',
+#                                   map_merge_col = c('ceds_sector', 'ceds_fuel'),
+#                                   new_col_names = c('sector', 'fuel'),
+#                                   level_map_in = 'working_sectors_v1',
+#                                   level_out = 'working_sectors_v1',
+#                                   aggregate = TRUE,
+#                                   aggregate_col = years,
+#                                   oneToOne = FALSE,
+#                                   agg.fun = sum )
+#           used in B1.2.add_SO2_GAINS_AshRet.R
+#                 mapCEDS_sector_fuel( mapping_data = gainsash_ret,
+#                                      mapping_file = sectormap,
+#                                      data_match_col = 'sector',
+#                                      map_match_col = 'GAINS.sectors',
+#                                      map_merge_col = c('detailed_sectors'),
+#                                      new_col_names = c('sector'),
+#                                      level_map_in = 'detailed_sectors',
+#                                      level_out = 'working_sectors_v1',
+#                                      aggregate = TRUE,
+#                                      aggregate_col = c('X2005'),
+#                                      oneToOne = FALSE,
+#                                      agg.fun = mean)
 # 
 # Return:       mapped data to ceds sectors and fuels and designated level
 # Input Files:  
