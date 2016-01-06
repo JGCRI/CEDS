@@ -66,9 +66,9 @@
 
 # Read UN population and urban population data
     UN_pop_raw <- readData( "GEN_IN", "WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES",
-                            ".xls", sheet_selection = "ALL", skip_rows = 16, meta = F )
+                            ".xlsx", sheet_selection = "ALL", skip_rows = 16, meta = F )
     UN_urban_share_raw <- readData( "GEN_IN", "WUP2014-F21-Proportion_Urban_Annual",
-                                    ".xls", sheet_selection = "ANNUAL DATA",
+                                    ".xlsx", sheet_selection = "ANNUAL DATA",
                                     skip_rows = 16, meta = F )
     
 # Read WB population and urban population data, either by pulling from the WDI API 

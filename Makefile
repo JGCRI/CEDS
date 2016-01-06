@@ -221,8 +221,8 @@ $(MED_OUT)/A.UN_pop_master.csv : \
 	$(PARAMS)/data_functions.R \
 	$(PARAMS)/analysis_functions.R \
 	$(MAPPINGS)/Master_Country_List.csv \
-	$(SOCIO_DATA)/WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.xls \
-	$(SOCIO_DATA)/WUP2014-F21-Proportion_Urban_Annual.xls \
+	$(SOCIO_DATA)/WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.xlsx \
+	$(SOCIO_DATA)/WUP2014-F21-Proportion_Urban_Annual.xlsx \
 	$(SOCIO_DATA)/WB_SP.POP.TOTL.csv \
 	$(SOCIO_DATA)/WB_SP.URB.TOTL.csv
 	Rscript $< $(EM) --nosave --no-restore
