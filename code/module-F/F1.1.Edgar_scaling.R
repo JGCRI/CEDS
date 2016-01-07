@@ -41,7 +41,7 @@ initialize( script_name, log_msg, headers )
 
   args_from_makefile <- commandArgs( TRUE )
   em <- args_from_makefile[1]
-  if ( is.na( em ) ) em <- "SO2"
+  if ( is.na( em ) ) em <- "NOx"
   
   # Stop script if running for unsupported species
   if ( em %!in% c('SO2','NOx','NMVOC','CO', 'CH4') ) {
@@ -90,6 +90,10 @@ initialize( script_name, log_msg, headers )
   inv_data_sheet <- inv_data_sheet[,c('ISO_A3','IPCC','units', paste0('X',inv_years))]
   names(inv_data_sheet) <- c('iso','sector', 'units', paste0('X',inv_years))
   inv_data_sheet$iso <- tolower(inv_data_sheet$iso)
+  
+  #remove rows with all NA's
+  inv_data_sheet <- inv_data_sheet[ apply( X=inv_data_sheet[,paste0("X",inv_years)], 
+                         MARGIN = 1, function(x) (!all(is.na(x))) ) ,]
   
   # write standard form inventory
   writeData( inv_data_sheet , domain = "MED_OUT", paste0('E.',em,'_',inv_name,'_inventory'))

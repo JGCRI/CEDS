@@ -46,7 +46,7 @@ initialize( script_name, log_msg, headers )
   if ( is.na( em ) ) em <- "SO2"
   
   # Stop script if running for unsupported species
-  if ( em %!in% c('SO2','NO2','VOC','CO','NH3') ) {
+  if ( em %!in% c('SO2','NOx','NMVOC','CO','CH4','PM10','PM25' ) ) {
     stop (paste( ' CAN scaling is not supported for emission species', em, 'remove from script
                  list in F1.1.inventory_scaling.R'))
   }
@@ -70,7 +70,9 @@ initialize( script_name, log_msg, headers )
   # Import Sheet
   sheet_name <- em
   if( sheet_name == 'SO2') sheet_name <- 'SOx'
-  if( sheet_name == 'NO2') sheet_name <- 'NOx'
+  if( sheet_name == 'NMVOC') sheet_name <- 'VOC'
+  
+  
   inv_data_sheet <- readData( inv_data_folder, inventory_data_file , ".xlsx", 
                               sheet_selection = sheet_name ) 
   # Clean rows and columns to standard format
