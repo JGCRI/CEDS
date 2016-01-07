@@ -73,19 +73,25 @@
 # 3. Call scaling scripts for various species
   scripts <- c()
    
-  #  scripts to use for most emissions/ef's
-  if ( em %in% c('SO2','NOx','NMVOC','CO','OC') ) {
-    scripts <- c( 'F1.1.UNFCCC_scaling.R', 'F1.1.EMEP_scaling.R','F1.1.CAN_scaling_olderData.R' , 'F1.1.CAN_scaling_newerData.R',  
-				   'F1.1.US_scaling.R')    
-  }
-
-  # Because EDGAR is our default data, scale first so that this will be overwritten with more detailed data
-  # TODO: strip out all but process emissions in EDGAR scaling for SO2, and add back if needed (although this probably will be taken care of in process emissions section)
-  if ( em %in% c('NOx','NMVOC','CO','OC') ) {
-     scripts <- c( 'F1.1.Edgar_scaling.R',scripts)    
-  }
+  # EDGAR
+  if ( em %in% c('SO2','NOx','NMVOC','CO','CH4') ) scripts <- c(scripts, 'F1.1.Edgar_scaling.R')
   
-  # Run all scripts for the given emissions type. 
+  # UNFCCC
+  if ( em %in% c('SO2') ) scripts <- c(scripts, 'F1.1.UNFCCC_scaling.R')
+  
+  # EMEP
+  if ( em %in% c('BC','CO','NH3','NMVOC','NOx','SO2') ) scripts <- c(scripts, 'F1.1.EMEP_scaling.R')
+  
+  # CAN
+  if ( em %in% c('SO2') ) scripts <- c(scripts, 'F1.1.CAN_scaling_newerData.R')
+  if ( em %in% c('SO2','NOx','NMVOC','CO','CH4','PM10','PM25' ) ) scripts <- c(scripts, 'F1.1.CAN_scaling_olderData.R')
+  
+  # USA
+  if ( em %in% c('SO2','NOx','NMVOC','CO','NH3','PM10','PM25') ) scripts <- c(scripts, 'F1.1.US_scaling.R')
+  
+# ------------------------------------------------------------------------------------
+# 4. Run all scripts for the given emissions type
+
   invisible( lapply( scripts, source_child ) )
   
   logStop()

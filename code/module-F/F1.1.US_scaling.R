@@ -44,7 +44,7 @@ em <- args_from_makefile[1]
 if ( is.na( em ) ) em <- "SO2"
 
 # Stop script if running for unsupported species
-if ( em %!in% c('SO2','VOC','CO','NH3') ) {
+if ( em %!in% c('SO2','NOx','NMVOC','CO','NH3','PM10','PM2.5') ) {
   stop (paste( ' US scaling is not supported for emission species', em, 'remove from script
                  list in F1.1.inventory_scaling.R'))
 }
@@ -66,6 +66,11 @@ inv_years<-c(1970,1975,1980,1985,1990:2013)
 
 # Import Sheet
 sheet_name <- em
+if (em == 'NOx') sheet_name <- 'NOX'
+if (em == 'NMVOC') sheet_name <- 'VOC'
+if (em == 'PN25') sheet_name <- 'PM25Primary'
+if (em == 'PM10') sheet_name <- 'PM10Primary'
+
 inv_data_sheet <- readData( inv_data_folder, inventory_data_file , ".xlsx", 
                             sheet_selection = sheet_name ) 
 # Clean rows and columns to standard format
