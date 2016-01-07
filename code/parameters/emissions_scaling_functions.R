@@ -69,12 +69,6 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
                                region, inv_name, inv_years) {
   ###add iso column for single country inventories
   
-  # Select the data sheet corresponding the emissions species of interest. Pass in
-  #   em via makefile, or use a default if running in R directly
-  args_from_makefile <- commandArgs( TRUE )
-  em <- args_from_makefile[1]
-  if ( is.na( em ) ) em <- "SO2"
-  
   # Determine scaling method and set params
   if( method == 'sector' ) {
     scaling_name  <- "scaling_sector"
@@ -300,18 +294,6 @@ F.scaling <- function( ceds_data, inv_data, region,
                        replacement_method = 'none', max_scaling_factor = 100, 
                        replacement_scaling_factor = max_scaling_factor,
                        meta = TRUE) {
-  
-#   ext_start_year = start_year 
-#   ext_end_year = end_year
-#   ext = TRUE
-#   interp_default = 'linear'
-#   pre_ext_default = 'constant' 
-#   post_ext_default = 'constant' 
-#   replacement_method = 'none' 
-#   max_scaling_factor = 100 
-#   replacement_scaling_factor = max_scaling_factor
-#   meta = TRUE
-  
 
   # Define simple function for use later. If TRUE, all values NA
   all.na <- function(x){
@@ -546,7 +528,7 @@ F.scaling <- function( ceds_data, inv_data, region,
           meta_notes <- rbind(meta_notes, meta_add)
         }}
       
-      linear_int <- t( na.approx( t(linear[,X_inv_years_full])  ) )
+      linear_int <- t( na.approx( t(linear[,X_inv_years_full])  , na.rm=FALSE) )
       linear <- cbind( linear[,c('iso', scaling_name)] , linear_int)
       names(linear) <- c('iso', scaling_name , X_inv_years_full ) }
     if (nrow(cant_interp)>0) linear <- rbind(linear,cant_interp)
