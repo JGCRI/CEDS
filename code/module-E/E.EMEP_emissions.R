@@ -43,6 +43,12 @@ initialize( script_name, log_msg, headers )
   args_from_makefile <- commandArgs( TRUE )
   em <<- args_from_makefile[1]
   if ( is.na( em ) ) em <- "SO2"
+  
+# Stop script if running for unsupported emissions species
+  if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2') ) {
+    stop (paste( 'EMEP script is not supported for emission species', em))
+  }
+  
   em.read <- em
   if(em == "SO2") em.read <- "SOx"
 

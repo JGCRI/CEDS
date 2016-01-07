@@ -48,7 +48,7 @@ em <- args_from_makefile[1]
 if ( is.na( em ) ) em <- "SO2"
 
 # Stop script if running for unsupported emissions species
-if ( em %!in% c('SO2') ) {
+if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2') ) {
   stop (paste( ' EMEP script is not supported for emission species', em, 'remove from script
                list in F1.1.inventory_scaling.R'))
 }

@@ -82,9 +82,12 @@
 
 # ---------------------------------------------------------------------------
 # 2. Add to existing parameter Dbs
-  printLog('Adding new data to existing control percent data base')
+  
   if( length(control_percent_list)>0 ){
-  addToDb_overwrite(new_data = control_percent, em = em, file_extention = 'ControlFrac_db') }
+    printLog(paste('Adding new data to existing control percent data base for', em))
+    addToDb_overwrite(new_data = control_percent, em = em, file_extention = 'ControlFrac_db') 
+    }else{
+    printLog(paste('No data to be added to existing control percent data base for ', em))}
   
   logStop()
   # END
