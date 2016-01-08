@@ -360,6 +360,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 	$(MOD_C)/C1.2.add_NC_emissions.R \
 	$(MOD_C)/C1.2.add_SO2_NC_emissions_all.R \
 	$(MOD_C)/C1.2.add_SO2_NC_emissions_FAO.R \
+	$(MOD_C)/C1.2.add_SO2_NC_emissions_EDGAR.R \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
 	$(PARAMS)/IO_functions.R \
