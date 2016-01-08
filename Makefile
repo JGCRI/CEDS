@@ -232,8 +232,8 @@ $(MED_OUT)/A.UN_pop_master.csv : \
 $(MED_OUT)/A.IEA_en_stat_ctry_hist.csv : \
 	$(MOD_A)/A1.2.IEA_downscale_ctry.R \
 	$(MED_OUT)/A.UN_pop_master.csv \
-	$(ENERGY_DATA)/OECD_E_stat.csv \
-	$(ENERGY_DATA)/NonOECD_E_stat.csv
+	$(ENERGY_DATA)/OECD_E_Stat.csv \
+	$(ENERGY_DATA)/NonOECD_E_Stat.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa2-1
