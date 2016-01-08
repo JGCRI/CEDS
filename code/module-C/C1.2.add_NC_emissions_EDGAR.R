@@ -7,6 +7,8 @@
 # Input Files: 
 # Output Files: 
 # To Do: 
+#      ext_backward = TRUE extended back only one year. (extend forward worked)
+#      Extend forward should extend forward with constant EFs, not linear trend
 # Notes: 
 # -----------------------------------------------------------------------------
 # 0. Read in global settings and headers
@@ -91,9 +93,9 @@ edgar <- edgar[ with( edgar, order( iso, sector, fuel ) ), ]
 
 # ------------------------------------------------------------------------------
 # 4. Output
-addToEmissionsDb( edgar, em = em, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
+addToEmissionsDb( edgar, em = em, type = 'NC', ext_backward = TRUE, ext_forward = TRUE )
   
-writeData( edgar, domain = "MED_OUT", fn = "C.EDGAR_test")
+writeData( edgar, domain = "DIAG_OUT", fn = "C.EDGAR_test")
  
 logStop()
 # END
