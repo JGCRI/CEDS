@@ -19,3 +19,6 @@ start_year = 1960
 X_start_year = paste0("X",start_year)
 end_year = 2014
 X_end_year = paste0("X",end_year)
+
+# This currently takes a long time - option to turn of writting this out if not needed
+Write_value_metadata = 0
