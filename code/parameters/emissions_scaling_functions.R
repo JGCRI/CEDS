@@ -850,8 +850,13 @@ F.applyScale <- function(scaling_factors){
   em_scaled_unique <- unique(em_scaled[,c('iso','sector','fuel','year')])
   ef_scaled_unique <- unique(ef_scaled[,c('iso','sector','fuel','year')])
   
-  if(nrow(em_scaled_unique) != nrow(em_scaled)) stop('duplicates in scaling factors, please check scaling map')
+  if(nrow(em_scaled_unique) != nrow(em_scaled)) {
+    writeData(em_scaled_unique, domain = "DIAG_OUT", fn = paste0( "F.", em, "_em_scaled_unique" ), meta = FALSE )
+    writeData(em_scaled, domain = "DIAG_OUT", fn = paste0( "F.", em, "em_scaled" ), meta = FALSE )
     
+    stop('duplicates in scaling factors, please check scaling map')
+  }
+  
   out <-  list(ef_scaled,em_scaled)
   return(out)
 }
@@ -888,10 +893,9 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
   names(meta_combined) <- c('iso','sector','fuel','year','comment')
  
   new_meta_out <- rbind(meta_combined, meta_old_unchanged)
-  
+ 
   writeData( new_meta_out, domain = 'MED_OUT', 
-             fn =paste0( "F.", em, "_", "scaled_",type,"-value_metadata") )
-  
+			 fn =paste0( "F.", em, "_", "scaled_",type,"-value_metadata") )  
 }
 
 # ---------------------------------------------------------------------------------
@@ -1006,8 +1010,10 @@ F.addScaledToDb <- function( ef_scaled, em_scaled,
   new_ef <- new_ef[,c("iso","sector","fuel",'units','year','scaled_ef')]
   
   # update value_metadata
-  F.update_value_metadata('EF', meta_notes)
-  F.update_value_metadata('emissions', meta_notes) 
+  if ( Write_value_metadata ) { 
+	  F.update_value_metadata('EF', meta_notes)
+	  F.update_value_metadata('emissions', meta_notes) 
+  }
   
   # cast to wide format 
   scaled_em_out <- cast ( new_em , iso + sector + fuel + units ~ year , value = 'scaled_em')
