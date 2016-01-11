@@ -298,6 +298,87 @@ countryCheck <- function( data, cols = 1, convention = "ISO" ) {
     
     return( valid )
 }
+
+
+
+# ----------------------------------------------------------------------------------
+# EDGARcheck
+# Brief:         Checks whether all the sectors in an EDGAR dataset are in the 
+# 		         master list, and whether all sectors in the master list are present 
+#		         in the data. 
+# Details:       Uses printlog functions to print out detailed results: must be called 
+#                while the log is running.
+# Dependencies:  IO_functions.R
+# Author(s):     Jon Seibert  
+# Params: 
+#   x:           data frame to check, containing edgar_sector column [required]
+#   colname:     name of the column containing sector designations [default: "edgar_sector"]
+#   check_valid: boolean to control whether the function checks that all present sectors
+#                are valid [default: TRUE]
+#   check_all:   boolean to control whether the function checks if all sectors are
+#                present [default: TRUE]
+# Return:        boolean indicating pass or failure on all checks run, collectively.
+# Input Files:   none
+# Output Files:  none
+
+EDGARcheck <- function( x, colname = "edgar_sector", check_valid = TRUE, check_all = TRUE ){
+
+	sector_list <- readData( "MAPPINGS", "Master_EDGAR_sector_mapping", mute = TRUE )
+
+    valid <- TRUE
+    
+    sec_col <- x[ , names( x ) == colname ]
+    
+    # Check that all sectors in set x exist in the master sector list. Ignore blank
+    #   spaces / NA values
+    if( check_valid ){
+        
+        printLog( "Checking EDGAR sector validity ", cr=F )
+    
+        invalid_sectors <- list()
+        n <- 1
+        for( i in 1:length( sec_col ) ) {
+            if( sec_col[[ i ]] %!in% sector_list$edgar_sector & !is.na( sec_col[[ i ]] ) ) {
+                invalid_sectors[[ n ]] <- sec_col[[ i ]]
+                n <- n + 1
+            }
+        }
+        invalid_sectors <- unique( invalid_sectors )
+        if( length( invalid_sectors ) > 0 ) {
+            printLog( "...Invalid sectors found:", paste( invalid_sectors, collapse=', ' ), ts=F )
+            valid <- FALSE
+        } else {
+            printLog( "...OK. All sectors valid.", ts=F )
+        }
+    }
+
+    # Check that all sectors in the master list are found in data set x.
+    if( check_all ){
+        printLog( "Checking for missing EDGAR sectors ", cr=F )
+
+        missing_sectors <- list()
+        n <- 1
+        for( i in 1:length( sector_list$edgar_sector ) ) {
+            target <- sector_list$edgar_sector[[ i ]]
+            found <- grep( target, sec_col, fixed=T, value=T )
+            if( length( found ) == 0 ) {
+                missing_sectors[[ n ]] <- target
+                n <- n + 1
+            }
+        }
+        missing_sectors <- unique( missing_sectors )
+        missing_sectors <- missing_sectors[ !is.na( missing_sectors ) ]
+        if( length( missing_sectors ) > 0 ) {
+            printLog( "...EDGAR ectors missing:", paste( missing_sectors, collapse=', ' ), ts=F )
+            valid <- FALSE
+        } else {
+            printLog( "...OK. All EDGAR sectors present.", ts=F )
+        }
+    }
+    
+    return( valid )
+}
+
 # ---------------------------------------------------------------------------------
 
 # mapCEDS_sector_fuel
