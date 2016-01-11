@@ -68,7 +68,7 @@ inv_years<-c(1970,1975,1980,1985,1990:2013)
 sheet_name <- em
 if (em == 'NOx') sheet_name <- 'NOX'
 if (em == 'NMVOC') sheet_name <- 'VOC'
-if (em == 'PN25') sheet_name <- 'PM25Primary'
+if (em == 'PM25') sheet_name <- 'PM25Primary'
 if (em == 'PM10') sheet_name <- 'PM10Primary'
 
 inv_data_sheet <- readData( inv_data_folder, inventory_data_file , ".xlsx", 
