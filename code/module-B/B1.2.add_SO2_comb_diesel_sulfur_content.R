@@ -115,19 +115,19 @@ loadPackage('zoo')
 # -------------------------------------------------------------------------------
 # 5. Calculate EF, fill in sectors and fuel
   
-  printLog("Calculating diesel sulfer EF")
+  printLog("Calculating diesel sulfer content")
   
-  diesel_EF<-diesel_standards_ppm_complete
-  diesel_EF[,X_standard_years]<-diesel_EF[,X_standard_years]/10^6*2
+  diesel_Standard_as_S_fraction<-diesel_standards_ppm_complete
+  diesel_Standard_as_S_fraction[,X_standard_years]<-diesel_Standard_as_S_fraction[,X_standard_years]/10^6
   
-  diesel_EF$fuel<-'diesel_oil'
-  diesel_EF$sector<-'1A3b_Road'
-  diesel_EF$units <- 'fraction'
+  diesel_Standard_as_S_fraction$fuel<-'diesel_oil'
+  diesel_Standard_as_S_fraction$sector<-'1A3b_Road'
+  diesel_Standard_as_S_fraction$units <- 'fraction'
   
-  diesel_EF <- diesel_EF[,c('iso','sector','fuel','units', 
+  diesel_Standard_as_S_fraction <- diesel_Standard_as_S_fraction[,c('iso','sector','fuel','units', 
                             X_standard_years[X_standard_years %in% X_emissions_years])]
   
-  diesel_EF <- diesel_EF[complete.cases((diesel_EF)),]
+  diesel_Standard_as_S_fraction <- diesel_Standard_as_S_fraction[complete.cases((diesel_Standard_as_S_fraction)),]
 
 
 # -------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ loadPackage('zoo')
   
 printLog("Adding diesel sulfer standard SO2 EFs to B.SO2_comb_EF_db")
 
-writeData(diesel_EF, domain = "DEFAULT_EF_PARAM" , 'B.SO2_diesel_s_content')
+writeData(diesel_Standard_as_S_fraction, domain = "DEFAULT_EF_PARAM" , 'B.SO2_diesel_s_content')
 
 logStop()
 # END
