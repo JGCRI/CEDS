@@ -1,11 +1,11 @@
-{\rtf1\ansi\ansicpg1252\cocoartf1348\cocoasubrtf170
+{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf210
 \cocoascreenfonts1{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\froman\fcharset0 TimesNewRomanPSMT;\f2\fnil\fcharset0 Calibri;
 \f3\froman\fcharset0 Times-Roman;\f4\fnil\fcharset0 LucidaGrande;}
 {\colortbl;\red255\green255\blue255;\red255\green39\blue18;\red255\green0\blue0;\red217\green11\blue0;
 }
 {\info
 {\author test}
-{\*\company PNNL}}\margl1440\margr1440\vieww12420\viewh13860\viewkind1
+{\*\company PNNL}}\margl1440\margr1440\vieww12720\viewh14160\viewkind1
 \deftab720
 \pard\pardeftab720\ri0
 
@@ -86,26 +86,16 @@ Document input emissions format\ulnone  for system, including units\
 (All combustion emission factors should be kt/kt, energy data are in kt, all emissions will be in kt)\
 \
 \pard\pardeftab720\ri0
-\cf0 \ul Import EDGAR process emissions from EDGAR\
-  \ulnone \'97 Use 1970-2008 if we don\'92t have newer data yet\
-\pard\pardeftab720\ri0
-
-\b \cf2 DONE
-\b0 \cf0  (for scaling)\
-\pard\pardeftab720\ri0
-
-\i \cf0 Process emissions in progress\
-\pard\pardeftab720\ri0
-
-\i0 \cf0 \
- \ul Add key default emissions data adjustments
+\cf0  \ul Add key default emissions data adjustments
 \b \ulnone  - Steve
-\b0 \ul \ulc0 \
+\b0 \ul \
   \ulnone \'97 Asia emission changes 
 \b \cf2 PARTIALLY DONE
 \b0 \cf0 \
 \
-\ul Extend energy data back to 1960 for countries where this detail is not in IEA\
+\ul Extend energy data back to 1960 for countries where this detail is not in IEA
+\b \ulnone  - Rachel
+\b0 \ul \ulc0 \
 \ulnone    \'97 Use BP energy data to do this\
    \'97 This gets us 1970 for all countries, which is the key issue\
    \'97 We have some more detailed data we can use to to back further\
@@ -117,18 +107,20 @@ Document input emissions format\ulnone  for system, including units\
 \b0 \cf0 \
       \'97 Where GAINS-EMF30 year 2000 EFs are systematically different from OECD and nonOECD, think about how to extrapolate OECD EFs back in time. Compare with other uncontrolled EFs we have available.\
 \
-\ul Emissions Gridding\ulnone - Leyang\ul \
+\ul Emissions Gridding \ulnone - 
+\b Leyang
+\b0 \ul \
  \ulnone  \'97  Develop basic routine - 
 \b \cf2 IN PROGRESS
 \b0 \cf0 \
-\pard\pardeftab720\ri0
-\cf0       \'97 Check global totals\
-\pard\pardeftab720\ri0
-\cf0 \ul \ulc0  \ulnone  \'97  Implement VOC speciation (propose to use HTAPv2)\
+      \'97 Check global totals\
+\ul  \ulnone  \'97  Implement VOC speciation (propose to use HTAPv2)\
 \ul  \ulnone  \'97  Implement 3D gridding for Aviation (using RCP templates\
 \ul  \ulnone  \'97  Implement residential sector seasonality (assuming we get needed data)\
  \
-\ul Merge With RCP/HYDE Data/assumptions\ulnone  to get past trends	\
+\ul Merge With RCP/HYDE Data/assumptions\ulnone  to get past trends\ul  \ulnone - 
+\b NEED TO ASSIGN
+\b0 	\
   -- Downscale to country level if possible (using CDIAC CO2?)\
      \'97 Extended GDP and population datasets could be used to extend process emissions data\
   -- Correct for differences at 1970 (or 1960 for OECD)\
@@ -140,18 +132,30 @@ Document input emissions format\ulnone  for system, including units\
 \b0 \
   -- Routine that generates this data will be part of data system, so that it will update when IEA data is updated\
   -- Combine IEA and Fernandes data consistently to get time series\
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
-\cf0   -- Extend industrial biomass where needed (focus first on pulp and paper industry)\
+  -- Extend industrial biomass where needed (focus first on pulp and paper industry)\
   -- UofI collaborators also need this, so high priority\
 \pard\pardeftab720\ri0
 \cf0 \
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
 \cf0 \ul Add special global sectors\ulnone  \
   -- International shipping \
-    \'97 Read-in fuel consumption data\
-    \'97 Calibrate to latest IMO estimates\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
+\cf0       \'97 Read-in fuel consumption data\
+      \'97 Read-in IMO S%s\
+      \'97 Figure out a reasonable assumption for diesel S%\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
+\cf0       \'97 Calibrate to latest IMO estimates\
   -- Aviation \
     \'97 Scale from RCP estimates\
+\pard\pardeftab720\ri0
+\cf0 \
+\ul Create summary results \ulnone - 
+\b NEED TO ASSIGN
+\b0 	\
+  -- After last scaling, take final emissions and copy to final emissions folder\
+\pard\pardeftab720\ri0
+\cf0      \'97 Create a summary sector format (that is comparable with gridding needs)\
+     \'97 Include detail on biomass (perhaps summary by fuel as well? Talk to IEA.)\
 \pard\pardeftab720\ri0
 \cf0 \
 \pard\pardeftab720\ri0
@@ -174,25 +178,18 @@ Document input emissions format\ulnone  for system, including units\
 \b0 \cf0 \
    \'97 Australia, \
    \'97 Others (China, Japan, S Korea, Taiwan, other from REAS)\
-\pard\pardeftab720\ri0
-\cf0    \'97 EMEP level 2\
-\pard\pardeftab720\ri0
-\cf0  \
-\pard\pardeftab720\ri0
-\cf0  \ul Add GAINS default S Efs for China and India\
-\pard\pardeftab720\ri0
-\cf0 \ulc0    \ulnone \'97 Have GAINS detailed data by provence, need to sum and then do same weighting as for Europe data\
-\pard\pardeftab720\ri0
-\cf0 \
+   \'97 EMEP level 2\
+ \
+ \ul Add GAINS default S Efs for China and India\
+   \ulnone \'97 Have GAINS detailed data by provence, need to sum and then do same weighting as for Europe data\
+\
  \ul Update EMEP Scaling by year\
    \ulnone \'97 Only scale for years where EMEP report and EMEP expert inventories agree to within threshold\
-\pard\pardeftab720\ri0
-\cf0 \ul \ulc0    \ulnone \'97 Consider adding some additional default emissions as indicated in ACP paper\
-\pard\pardeftab720\ri0
-\cf0 \
-\pard\pardeftab720\ri0
-\cf0 \ul \ulc0 Other adjustments for default S emission factors\
+\ul    \ulnone \'97 Consider adding some additional default emissions as indicated in ACP paper\
+\
+\ul Other adjustments for default S emission factors\
   \ulnone \'97 Add GAINS  EMF30 S data as control trends after 2010\
+\ul   \ulnone \'97 Consider making control trends are added together after converting to EFs\
 \
 \ul Check NOx units in all datasets\
    \ulnone \'97 Some are as NO2, but some might be NOx and will need to convert\
@@ -200,6 +197,7 @@ Document input emissions format\ulnone  for system, including units\
 \ul Add sector-specific end-years for US scaling\
    \ulnone \'97 Use trends data out to most recent year for Electric power and mobile sources\
 \ul    \ulnone \'97 For other sectors, only real trends data is out to 2011\
+\ul    \ulnone \'97 If these are just zeroed out, perhaps scaling routine could/would drop?\
 \ul    \ulnone \'97 ALSO - resolve trends discrepancy in mobile sources\
 \
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
@@ -221,32 +219,26 @@ Document input emissions format\ulnone  for system, including units\
  \
 \ul Diesel oil SO2 default emission factors for other sectors
 \b \ulnone  \'96 \cf3 Not Done \
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
 
 \b0 \cf0   -- W/ new CEDS sectors, figure out how diesel S% should be applied to other sectors \
   -- First examine scaled emission factors, and compare with global petr S balance\
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
-\cf0 \
+\
 \ul Re-examine how to scale UNFCCC emissions (once done with EMEP\ulnone ) 
 \b \cf3  - Partially Done
 \b0 \cf0 \
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
-\cf0  \'97Temove scaling for all countries superseded by better data (EMEP, US, Japan, Australia)\
+ \'97Temove scaling for all countries superseded by better data (EMEP, US, Japan, Australia)\
  \'97 So may not need rest of this item\
   -- Need to identify which sectors/subsectors have data (this is inconsistent)\
   \
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
-\cf0 \ul Update to 2015 edition of IEA energy balances 
+\ul Update to 2015 edition of IEA energy balances 
 \b \cf3 \ulnone In Process - Nazar
 \b0 \cf0 \
 \
 \ul Update to EDGAR V4.3\
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
-\cf0 \ulnone  \'97 Both for aggregate emissions and emission grids\
+\ulnone  \'97 Both for aggregate emissions and emission grids\
  \'97 Need to do some basic tests (including external folks) before final release\
  \'97 Timing of this is not in our control\
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
-\cf0 \
+\
 \pard\pardeftab720\ri0
 
 \b \cf0 _______________________________________\
@@ -279,10 +271,8 @@ Document input emissions format\ulnone  for system, including units\
 \pard\pardeftab720\ri0
 \cf0 \ul Move to CEDS working sectors V2\ulnone  (not absolutely necessary for CMIP6)\ul \
    \ulnone \'97 Is lower priority compared to getting complete estimates in for all emissions\
-\pard\pardeftab720\ri0
-\cf0    \'97 This is mostly for additional detail for metal and fossil process emissions\
-\pard\pardeftab720\ri0
-\cf0 \ul \ulc0    \ulnone \'97 Need to add additional process activity data\
+   \'97 This is mostly for additional detail for metal and fossil process emissions\
+\ul    \ulnone \'97 Need to add additional process activity data\
    \'97 Derive additional default emission factors (could use US and Europe implied EFs)\
    \'97 Will need to add \ul capability for default process emission factors\ulnone  \
        \'97 Similar to what we have now for combustion EFs\
@@ -304,8 +294,7 @@ Document input emissions format\ulnone  for system, including units\
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
 
 \b0 \cf0 \
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
-\cf0 \ul \ulc0 Update scaling routine to provide more options\ulnone  
+\ul Update scaling routine to provide more options\ulnone  
 \b \cf3 Partially Done
 \b0 \cf0 \
   -- For some sectors (e.g. canada smelting industry), will want to subtract the smaller combustion component and just scale the larger component. \
@@ -403,13 +392,24 @@ Metadata routines - print input file or code file that originated the meta-data 
 \
 \pard\pardeftab720\ri0
 
-\b0 \cf0  \ul Scale to additional inventory data\ulnone   
+\b0 \cf0 \ul Import EDGAR process emissions from EDGAR\
+  \ulnone \'97 Use 1970-2008 if we don\'92t have newer data yet\
+\pard\pardeftab720\ri0
+
 \b \cf2 DONE
-\b0 \cf0 \ul \ulc0 \
+\b0 \cf0  (for scaling)\
+\pard\pardeftab720\ri0
+
+\i \cf0 Process emissions in progress\
+\pard\pardeftab720\ri0
+
+\i0 \cf0 \
+\ul Scale to additional inventory data\ulnone   
+\b \cf2 DONE
+\b0 \cf0 \ul \
 \ulnone    \'97 EMEP level 1\
 \
-\pard\pardeftab720\ri0
-\cf0 \ul \ulc0 Implement CEDS working sectors version 1\ulnone  (process sectors at EDGAR resolution)\
+\ul Implement CEDS working sectors version 1\ulnone  (process sectors at EDGAR resolution)\
 \pard\pardeftab720\ri0
 
 \b \cf2 DONE
