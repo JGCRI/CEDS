@@ -77,3 +77,6 @@ MODULE_PROC_ROOT		<- PARAM_DIR
 # There should be no NA's in these files. NA's  are the result of faulty code
 #
 na_error <- 1
+
+# If true write value meta data in scaling module (FALSE to save time while test running)
+Write_value_metadata <- TRUE
