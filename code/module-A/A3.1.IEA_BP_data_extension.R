@@ -267,7 +267,7 @@
     iea_bp_trends <- list()
     iea_trends_bpname <- list()
     trend_error <- list()
-       
+
     for ( i in 1:length( bp_data_full ) ) {    
     # Find IEA global trends
         iea_trends[[i]] <- subset( IEA_BP_ext, IEA_BP_ext$fuel %in% 
@@ -302,7 +302,8 @@
                 iea_bp_trends[[i]][ iea_bp_trends[[i]][, X_IEA_end_year ] == 0 &
                 iea_bp_trends[[i]][, paste0( "BP", end_year ) ] != 0, 
                 paste0( "BP", ext_years ) ]
-        iea_bp_trends[[i]][ iea_bp_trends[[i]][, X_IEA_end_year ] != 0 & 
+        iea_bp_trends[[i]] <- filter( iea_bp_trends[[i]], !is.na( iea_bp_trends[[i]][, paste0( "BP", end_year ) ] ))  # TODO: is this what we wanted?
+        iea_bp_trends[[i]][ iea_bp_trends[[i]][, X_IEA_end_year ] != 0 &  # ERROR
             iea_bp_trends[[i]][, paste0( "BP", end_year ) ] == 0, 
             paste0( "BP", ext_years ) ] <- 
                 iea_bp_trends[[i]][ iea_bp_trends[[i]][, X_IEA_end_year ] != 0 &
