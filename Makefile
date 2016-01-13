@@ -81,7 +81,7 @@ endif
 # modules. You may also wish to create a new .bat file
 # specifically to run the system with the new emissions type.
 
-all: SO2-emissions BC-emissions
+all: SO2-emissions BC-emissions NOx-emissions NMVOC-emissions
 
 # --------------------------------------------------------------
 
@@ -316,20 +316,35 @@ $(MED_OUT)/A.NC_activity.csv : \
 	$(MED_OUT)/A.total_activity.csv
 
 # bb1-1
+#$(MED_OUT)/B.$(EM)_comb_EF_GAINS_EMF30.csv : \
+	$(MOD_B)/B1.1.add_comb_GAINS_EMF-30.R.R \
+	$(ENERGY_DATA)/OECD_Conversion_Factors.csv \
+	$(ENERGY_DATA)/NonOECD_Conversion_Factors.csv \
+	$(INV_DATA)/GAINS/GAINS_EMF30_EMISSIONS_extended_Ev5a_CLE_Nov2015.csv \
+	$(INV_DATA)/GAINS/GAINS_EMF30_ACTIVITIES_extended_Ev5a_Nov2015.csv \
+	$(MAPPINGS)/GAINS/emf-30_ctry_map.csv \
+	$(MAPPINGS)/GAINS/emf-30_fuel_sector_map.csv
+#	Rscript $< $(EM) --nosave --no-restore
+
+#$(MED_OUT)/B1.1.GAINS_heat_content.csv : \
+	$(MED_OUT)/B.$(EM)_comb_EF_GAINS_EMF30.csv
+
 # Generates the base file of combustion emissions factors
 # by calling a daughter script for the relevant emissions type
 $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(MOD_B)/B1.1.base_comb_EF.R \
 	$(MOD_B)/B1.2.add_comb_EF.R \
 	$(MOD_B)/B1.1.base_BC_comb_EF.R \
+	$(MOD_B)/B1.1.base_OTHER_comb_EF.R \
 	$(MOD_B)/B1.1.base_comb_EF_control_percent.R \
 	$(MOD_B)/B1.1.base_SO2_comb_EF_parameters.R \
+	$(MOD_B)/B1.1.base_comb_GAINS_EMF-30.R \
 	$(MOD_B)/B1.2.add_comb_control_percent.R \
+	$(MOD_B)/B1.2.add_comb_default_EF.R \
 	$(MOD_B)/B1.2.add_SO2_comb_diesel_sulfur_content.R \
 	$(MOD_B)/B1.2.add_SO2_comb_GAINS_ash_ret.R \
 	$(MOD_B)/B1.2.add_SO2_comb_GAINS_control_percent.R \
 	$(MOD_B)/B1.2.add_SO2_comb_GAINS_s_content.R \
-	$(MOD_B)/B1.2.add_GAINS_EMF-30.R \
 	$(MOD_B)/B1.2.add_SO2_comb_S_content_ash.R \
 	$(MOD_B)/B1.3.proc_SO2_comb_EF_S_content_ash.R \
 	$(MOD_B)/B1.3.proc_comb_EF_control_percent.R \
