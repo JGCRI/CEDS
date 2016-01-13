@@ -768,7 +768,7 @@ F.scaling <- function( ceds_data, inv_data, region,
         meta_notes <- add[,c('iso',scaling_name,'year','comment')]
       }
       
-      writeData( problem_scaling_factors , domain = "DIAG_OUT" , paste0('F.Problem_Scaling_Factors_',inv_name))
+      writeData( problem_scaling_factors , domain = "DIAG_OUT" , paste0('F.',em,'_Problem_Scaling_Factors_',inv_name))
       
       scaling_ext[,X_emissions_years] <- replace(scaling_ext[,X_emissions_years], 
                                                  scaling_ext[,X_emissions_years] > max , max )
@@ -782,9 +782,9 @@ F.scaling <- function( ceds_data, inv_data, region,
   names(out) <- c('iso',scaling_name, 'year','scaling_factor')
   
   scaling_ext_byCEDS <- F.scalingToCeds(scalingData=scaling_ext, dataFormat = 'wide')
-  writeData( scaling_ext_byCEDS , domain = "DIAG_OUT", paste0('F.Scaling_Factors_ceds_sectors_',inv_name))
+  writeData( scaling_ext_byCEDS , domain = "DIAG_OUT", paste0('F.',em,'_Scaling_Factors_ceds_sectors_',inv_name))
   
-  writeData( scaling_ext , domain = "DIAG_OUT", paste0('F.Scaling_Factors_scaling_sectors_',inv_name))
+  writeData( scaling_ext , domain = "DIAG_OUT", paste0('F.',em,'_Scaling_Factors_scaling_sectors_',inv_name))
   
   list.out <- list(out,meta_notes)
   names(list.out) <- c( 'scaling_factors', 'meta_notes')
