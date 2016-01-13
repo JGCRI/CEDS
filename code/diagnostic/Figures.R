@@ -37,7 +37,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "NOx"
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -47,11 +47,18 @@ library('plyr')
 library('scales')
 
 # ---------------------------------------------------------------------------
+# 0.5. Script Options
+
+print_defaults <- TRUE
+
+
+# ---------------------------------------------------------------------------
 # 1. Load files
 
 Master_Country_List <- readData( "MAPPINGS", "Master_Country_List")
 TotalEmissions <- readData('MED_OUT', paste0('F.',em,'_scaled_emissions'))
-DefaultEmissions <- readData('MED_OUT', paste0('D.',em,'_default_total_emissions'))
+
+if (print_defaults) DefaultEmissions <- readData('MED_OUT', paste0('D.',em,'_default_total_emissions'))
 
 setwd('../diagnostic-output')
 
@@ -62,7 +69,7 @@ setwd('../diagnostic-output')
 x_years<-paste('X',1960:2013,sep="")
 
 TotalEmissions.long <- melt(TotalEmissions,id.vars = c('iso','sector','fuel','units'))
-names(TotalEmissions.long) <- c('iso','sector','fuel','units','year','SO2_Emissions')
+names(TotalEmissions.long) <- c('iso','sector','fuel','units','year','Emissions')
 
 TotalEmissions.long$iso<-tolower(TotalEmissions.long$iso)
 TotalEmissions.long$year<-substr(TotalEmissions.long$year,2,6)
@@ -74,9 +81,9 @@ TotalEmissions.long$Region <- as.factor(TotalEmissions.long$Region)
 TotalEmissions.long$year <- as.integer(TotalEmissions.long$year)
 
 #-----
-
+if (print_defaults){
 DefaultEmissions.long <- melt(DefaultEmissions,id.vars = c('iso','sector','fuel','units'))
-names(DefaultEmissions.long) <- c('iso','sector','fuel','units','year','SO2_Emissions')
+names(DefaultEmissions.long) <- c('iso','sector','fuel','units','year','Emissions')
 
 DefaultEmissions.long$iso<-tolower(DefaultEmissions.long$iso)
 DefaultEmissions.long$year<-substr(DefaultEmissions.long$year,2,6)
@@ -85,26 +92,26 @@ DefaultEmissions.long$Region <- Master_Country_List[match(DefaultEmissions.long$
 
 DefaultEmissions.long$Region <- as.factor(DefaultEmissions.long$Region)
 DefaultEmissions.long$year <- as.integer(DefaultEmissions.long$year)
-
+}
 # ---------------------------------------------------------------------------
 # 0. Tables - Total emissions by country
 
 #Scaled Emissions
 Em_by_Country<-ddply(TotalEmissions.long, .(Country,year,iso),summarize,
-               SO2_Emissions=sum(SO2_Emissions, na.rm=TRUE))
+               Emissions=sum(Emissions, na.rm=TRUE))
 
 #Convert to wide format for writeout
-data.long <- cast(Em_by_Country, Country+iso ~ year , mean, value="SO2_Emissions")
+data.long <- cast(Em_by_Country, Country+iso ~ year , mean, value="Emissions")
 writeData( data.long, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_country') )
 
 # 0. Tables - Total emissions by country and fuel
 
 #Scaled Emissions
 Em_by_Country<-ddply(TotalEmissions.long, .(Country, year, iso, fuel),summarize,
-                     SO2_Emissions=sum(SO2_Emissions, na.rm=TRUE))
+                     Emissions=sum(Emissions, na.rm=FALSE))
 
 #Convert to wide format for writeout
-data.long <- cast(Em_by_Country, Country+iso+fuel ~ year , mean, value="SO2_Emissions")
+data.long <- cast(Em_by_Country, Country+iso+fuel ~ year , mean, value="Emissions")
 writeData( data.long, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_country_fuel') )
 
 # ---------------------------------------------------------------------------
@@ -112,7 +119,7 @@ writeData( data.long, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled
 
 #Scaled Emissions
 Regions<-ddply(TotalEmissions.long, .(Region,year),summarize,
-               SO2_Emissions=sum(SO2_Emissions, na.rm=TRUE))
+               Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Regions
 df$Region <- factor(df$Region,levels=c('North America','Western Europe',
@@ -120,7 +127,7 @@ df$Region <- factor(df$Region,levels=c('North America','Western Europe',
                                        'Africa','Asia','Central and South America',
                                        'South East Asia and Aust/NZ'))
 df <- df[order(-df$Region),]
-plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
+plot <- ggplot(df, aes(x=year,y=Emissions,
                        fill=Region)) + 
                   geom_area(size=1) +
                   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
@@ -128,19 +135,20 @@ plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
                   ggtitle( paste('Global Scaled',em,' Emissions') )+
                   labs(x='Year',y= paste(em,'Emissions [kt]') )
 plot              
-ggsave( paste0('summary-plots/',em,'_regions.scaled.pdf') )
+ggsave( paste0('summary-plots/',em,'_regions.scaled.pdf') , width = 11, height = 6 )
 #Convert to wide format for easier viewing
-data.long <- cast(df, Region ~ year, mean, value="SO2_Emissions")
+data.long <- cast(df, Region ~ year, mean, value="Emissions")
 writeData( data.long, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_region') )
 
 #----
 # Default Emissions
+if (print_defaults){
 Regions<-ddply(DefaultEmissions.long, .(Region,year),summarize,
-               SO2_Emissions=sum(SO2_Emissions, na.rm=TRUE))
+               Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Regions
 df <- df[-which(is.na(df$Region)),]
-plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
+plot <- ggplot(df, aes(x=year,y=Emissions,
                         fill=Region)) + 
   geom_area(size=1) +
   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
@@ -148,16 +156,16 @@ plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
   ggtitle( paste('Global Default',em,' Emissions') )+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
 plot              
-ggsave( paste0('summary-plots/',em,'_regions.default.pdf') )
-
+ggsave( paste0('summary-plots/',em,'_regions.default.pdf') , width = 11, height = 6)
+}
 ##line graphs by region
 #Scaled Emissions
 Regions<-ddply(TotalEmissions.long, .(Region,year),summarize,
-               SO2_Emissions=sum(SO2_Emissions, na.rm=TRUE))
+               Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Regions
 df <- df[-which(is.na(df$Region)),]
-plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
+plot <- ggplot(df, aes(x=year,y=Emissions,
                        color=Region)) + 
   geom_line(size=1) +
   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
@@ -165,15 +173,16 @@ plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
   ggtitle( paste('Global Scaled',em,' Emissions') )+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
 plot              
-ggsave( paste0('summary-plots/',em,'_regions.scaled.line.pdf') )
+ggsave( paste0('summary-plots/',em,'_regions.scaled.line.pdf') , width = 11, height = 6)
 #----
 # Default Emissions
+if (print_defaults){
 Regions<-ddply(DefaultEmissions.long, .(Region,year),summarize,
-               SO2_Emissions=sum(SO2_Emissions, na.rm=TRUE))
+               Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Regions
 df <- df[-which(is.na(df$Region)),]
-plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
+plot <- ggplot(df, aes(x=year,y=Emissions,
                         color=Region)) + 
   geom_line(size=1) +
   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
@@ -181,48 +190,49 @@ plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
   ggtitle( paste('Global Default',em,' Emissions') ) +
   labs(x='Year',y= paste(em,'Emissions [kt]') )
 plot              
-ggsave( paste0('summary-plots/',em,'_regions.default.line.pdf') )
-
+ggsave( paste0('summary-plots/',em,'_regions.default.line.pdf') , width = 11, height = 6)
+}
 
 # ---------------------------------------------------------------------------
 # 1. Plots - #Stacked Area Plot By Sector
 
 #Scaled
 Sectors<-ddply(TotalEmissions.long, .(sector,year),summarize,
-               SO2_Emissions=sum(SO2_Emissions, na.rm=TRUE))
+               Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Sectors
-plot <- ggplot(df, aes(x=year,y=SO2_Emissions, fill=sector)) + 
+plot <- ggplot(df, aes(x=year,y=Emissions, fill=sector)) + 
   geom_area(size=1) +
   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
   scale_y_continuous(labels = comma)+
-  ggtitle('Global Scaled SO2 Emissions')+
+  ggtitle(paste('Global Scaled', em ,'Emissions'))+
   labs(x='Year',y= paste(em,'Emissions [kt]') )+
   guides(fill=guide_legend(ncol=2))
 plot              
-ggsave( paste0('summary-plots/',em,'_sectors.scaled.pdf') )
+ggsave( paste0('summary-plots/',em,'_sectors.scaled.pdf'), width = 11, height = 6 )
 #Convert to wide format for easier viewing
-data.long <- cast(df, sector ~ year, mean, value="SO2_Emissions")
+data.long <- cast(df, sector ~ year, mean, value="Emissions")
 writeData( data.long, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_sector') )
 
 
 #Default
-Sectors<-ddply(DefaultEmissions.long, .(sector,year),summarize,
-               SO2_Emissions=sum(SO2_Emissions, na.rm=TRUE))
+if (print_defaults){
+  Sectors<-ddply(DefaultEmissions.long, .(sector,year),summarize,
+               Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Sectors
-plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
+plot <- ggplot(df, aes(x=year,y=Emissions,
                         fill=sector)) + 
   geom_area(size=1) +
   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
   scale_y_continuous(labels = comma)+
-  ggtitle('Global Default SO2 Emissions')+
+  ggtitle(paste('Global Default', em ,'Emissions'))+
   labs(x='Year',y= paste(em,'Emissions [kt]') )+
   guides(fill=guide_legend(ncol=2))
   
 plot              
-ggsave( paste0('summary-plots/',em,'_sectors.default.pdf') )
-
+ggsave( paste0('summary-plots/',em,'_sectors.default.pdf'), width = 11, height = 6 )
+}
 
 
 # ---------------------------------------------------------------------------
@@ -230,37 +240,38 @@ ggsave( paste0('summary-plots/',em,'_sectors.default.pdf') )
 
 # Scaled
 Fuels<-ddply(TotalEmissions.long, .(fuel,year),summarize,
-             SO2_Emissions=sum(SO2_Emissions, na.rm=TRUE))
+             Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Fuels
-plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
+plot <- ggplot(df, aes(x=year,y=Emissions,
                         fill=fuel)) + 
   geom_area(size=1) +
   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
   scale_y_continuous(labels = comma)+
-  ggtitle('Global Scaled SO2 Emissions')+
+  ggtitle(paste('Global Scaled', em ,'Emissions'))+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
 plot              
-ggsave( paste0('summary-plots/',em,'_fuel.scaled.pdf') )
+ggsave( paste0('summary-plots/',em,'_fuel.scaled.pdf'), width = 11, height = 6 )
 #Convert to wide format for easier viewing
-data.long <- cast(df, fuel ~ year, mean, value="SO2_Emissions")
+data.long <- cast(df, fuel ~ year, mean, value="Emissions")
 writeData( data.long, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_fuel') )
 
 # Default
+if (print_defaults){
 Fuels<-ddply(DefaultEmissions.long, .(fuel,year),summarize,
-             SO2_Emissions=sum(SO2_Emissions, na.rm=TRUE))
+             Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Fuels
-plot <- ggplot(df, aes(x=year,y=SO2_Emissions,
+plot <- ggplot(df, aes(x=year,y=Emissions,
                       fill=fuel)) + 
   geom_area(size=1) +
   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
   scale_y_continuous(labels = comma)+
-  ggtitle('Global Default SO2 Emissions')+
+  ggtitle(paste('Global Default', em ,'Emissions'))+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
 plot              
-ggsave( paste0('summary-plots/',em,'_fuel.default.pdf') )
-
+ggsave( paste0('summary-plots/',em,'_fuel.default.pdf'), width = 11, height = 6 )
+}
 
 
 
