@@ -93,7 +93,9 @@ clean-intermediate :
 	rm -fv $(MED_OUT)/*.csv
 
 clean-diagnostic :
-	rm -fv $(DIAG_OUT)/*.csv
+	rm -fv $(DIAG_OUT)/*.csv \
+	rm -fv $(DIAG_OUT)/summary-plots/*.csv \
+	rm -fv $(DIAG_OUT)/summary-plots/*.pdf
 
 clean-final :
 	rm -fv $(FINAL_OUT)/*.csv
