@@ -19,3 +19,12 @@ start_year = 1960
 X_start_year = paste0("X",start_year)
 end_year = 2014
 X_end_year = paste0("X",end_year)
+#---------------------------------
+# Conversion Factors
+conversionFactor_biomass_kt_TJ <- 16  # Biomass - For kt to TJ (multiply by kt to get TJ)    
+#conversionFactor_biomass_TJ_kt <- 0.0238846  # For kt to TJ (multiply by kt to get TJ)
+# conversionFactor_refinerygas_TJ_per_kt <- 48.5 #Refinery Gas TJ/kt. (Multiply by kt to get TJ)
+#49.5 TJ/Gg- 2006 IPCC guidelines for National GHG inventories Vol 2 - Energy, Ch 1 - Intro Table 1.2
+
+conversionFactor_naturalgas_TJ_per_kt <- 44.2 #Natural Gas TJ/kt. (Divide TJ by heating value to get kt)
+#44.2 TJ/Gg- 2006 IPCC guidelines for National GHmG inventories Vol 2 - Energy, Ch 1 - Intro Table 1.2
