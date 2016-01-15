@@ -81,7 +81,7 @@ endif
 # modules. You may also wish to create a new .bat file
 # specifically to run the system with the new emissions type.
 
-all: SO2-emissions BC-emissions NOx-emissions NMVOC-emissions
+all: SO2-emissions BC-emissions NOx-emissions CO-emissions NMVOC-emissions
 
 # --------------------------------------------------------------
 
