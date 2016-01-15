@@ -1,0 +1,9 @@
+IEA energy bal READ ME
+
+The balance correction deals with positive and negative values in the
+IEA energy balance data. These are calculated from the World EBalance 2005.xls.
+In the World EBalance 2005, negative values note an input to an energy
+transformation process while positive values note output.
+In IEA_energy_balance_factor.csv, the balance_correction column also has negative
+values for inputs to energy transformation (like electricity producers or petroleum refining)
+and positive values for outputs.
