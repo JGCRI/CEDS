@@ -82,6 +82,8 @@ endif
 # specifically to run the system with the new emissions type.
 
 all: SO2-emissions BC-emissions NOx-emissions CO-emissions NMVOC-emissions
+part1: SO2-emissions BC-emissions NOx-emissions 
+part2: CO-emissions NMVOC-emissions
 
 # --------------------------------------------------------------
 
@@ -294,6 +296,7 @@ $(MED_OUT)/A.NC_activity_db.csv : \
 	$(PARAMS)/timeframe_functions.R \
 	$(PARAMS)/process_db_functions.R \
 	$(MAPPINGS)/activity_input_mapping.csv \
+	$(MAPPINGS)/NC_EDGAR_sector_mapping.csv \
 	$(MAPPINGS)/2011_NC_SO2_ctry.csv \
 	$(ACTIV)/Smelter-Feedstock-Sulfur.xlsx \
 	$(ACTIV)/Wood_Pulp_Consumption.xlsx \
@@ -380,6 +383,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 	$(MOD_C)/C1.2.add_SO2_NC_emissions_all.R \
 	$(MOD_C)/C1.2.add_SO2_NC_emissions_FAO.R \
 	$(MOD_C)/C1.2.add_NC_emissions_EDGAR.R \
+	$(MAPPINGS)/NC_EDGAR_sector_mapping.csv \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
 	$(PARAMS)/IO_functions.R \
