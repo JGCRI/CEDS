@@ -62,9 +62,11 @@ if ( em %!in% c('CO','NH3','NMVOC','NOx','SO2') ) {
 sector_fuel_mapping <- 'EMEP_scaling_mapping'
 mapping_method <- 'sector'
 inv_name <- 'EMEP'
+# Do not include regions with problematic inventories ("mda", "aze")
+# Do not include "can" since have higher resolution data to use
 region <- c("aut", "bel", "bgr", "che", "cyp", "cze", "deu",
             "dnk", "esp", "est", "fin", "fra", "gbr", "geo", "hrv", "hun",
-            "irl", "isl", "ita", "ltu", "lux", "lva", "mda", "mkd", "mlt",
+            "irl", "isl", "ita", "ltu", "lux", "lva", "mkd", "mlt",
             "nld", "nor", "pol", "prt", "rou", "srb", "svk", "svn", "swe",
             "tur")
 inv_years<-c(1980:2013)
