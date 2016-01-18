@@ -5,7 +5,7 @@
 
 # This file should be sourced by any R script doing heavy-duty reformatting of CEDS data.
 # Functions contained:
-#   %!in%, gsub2, repeatAndAddVector, addCols, findDataStart, naReplace, addCols,
+#   %!in%, replaceValueColMatch ,gsub2, repeatAndAddVector, addCols, findDataStart, naReplace, addCols,
 #   buildCEDSTemplate, removeBlanks
 
 # Notes:
@@ -40,8 +40,14 @@
 # Details:      
 # Dependencies: None
 # Author(s):    
-# Params:       
-
+# Params:   x - data frame with data to be replaced (old data)
+#           y - data frame with replacement data (new data)  
+#           x.colName - column name of data in x to be replaced
+#           y.colName - column name of data in y to replace data in x$x.colName
+#           match.x - cols in x to match data by (like by.x in merge())
+#           match.y - cols in x to match data by (like by.x in merge())
+#           addEntries - boolean (T/F) if True, add rows to x, when data in y does 
+#                         not match with rows in x
 # Return: data frame similar to x with replaced values from y where applicable   
 # Input Files:  None
 # Output Files: None

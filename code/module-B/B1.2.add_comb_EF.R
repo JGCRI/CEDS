@@ -36,7 +36,6 @@ script_name <- "B1.2.add_comb_EF.R"
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
-# ------------------------------------------------------------------------------------
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
@@ -44,11 +43,16 @@ if ( is.na( em ) ) em <- "SO2"
 em_lc <- tolower( em )    
 
 MODULE_B <- "../code/module-B/"
+# ---------------------------------------------------------------------------
+# 0.5. Load Packages and Define functions
 
 # Create a function that can be applied to source all child scripts for the given
 # emissions type.
 source_child <- function( file_name ){ source( paste( MODULE_B, file_name, sep = "" ) ) }
 
+
+#-------------------------------------------------------------------------------------
+# 1. List scripts to call
 scripts <- c()
 
 # Set scripts to add emissions data for SO2
@@ -71,12 +75,13 @@ if( em == "BC" || em == "OC" ){
 
 # Add scripts For all emissions species - default EFs and control percent
 # Default EFs
-scripts <- c(scripts,'B1.2.add_GAINS_EMF-30.R', 
-             'B1.2.add_comb_default_EF.R')
+scripts <- c(scripts,'B1.2.add_comb_default_EF.R')
 
 # Add control percent and processing script for all emission types
 scripts <- c(scripts,'B1.2.add_comb_control_percent.R', 'B1.2.add_comb_default_EF.R',
              'B1.3.proc_comb_EF_control_percent.R')
+#-------------------------------------------------------------------------------------
+# 1. Call Scripts
 
 # Run all child scripts for the given emissions type. The call to
 # invisible() prevents extraneous output from appearing in the console.

@@ -81,7 +81,9 @@ endif
 # modules. You may also wish to create a new .bat file
 # specifically to run the system with the new emissions type.
 
-all: SO2-emissions BC-emissions
+all: SO2-emissions BC-emissions NOx-emissions CO-emissions NMVOC-emissions
+part1: SO2-emissions BC-emissions NOx-emissions 
+part2: CO-emissions NMVOC-emissions
 
 # --------------------------------------------------------------
 
@@ -93,7 +95,9 @@ clean-intermediate :
 	rm -fv $(MED_OUT)/*.csv
 
 clean-diagnostic :
-	rm -fv $(DIAG_OUT)/*.csv
+	rm -fv $(DIAG_OUT)/*.csv \
+	rm -fv $(DIAG_OUT)/summary-plots/*.csv \
+	rm -fv $(DIAG_OUT)/summary-plots/*.pdf
 
 clean-final :
 	rm -fv $(FINAL_OUT)/*.csv
@@ -255,10 +259,12 @@ $(MED_OUT)/A.en_stat_sector_fuel.csv : \
 # Extends IEA data with BP data
 $(MED_OUT)/A.IEA_BP_energy_ext.csv : \
 	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
+	$(MOD_A)/A3.1.IEA_BP_data_extension_PRE.R \
 	$(MED_OUT)/A.en_stat_sector_fuel.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(ENERGY_DATA)/BP_energy_data.xlsx
 	Rscript $< $(EM) --nosave --no-restore
+	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 
 # aa4-1
 # naming note: includes both module A3 and A4
@@ -290,6 +296,7 @@ $(MED_OUT)/A.NC_activity_db.csv : \
 	$(PARAMS)/timeframe_functions.R \
 	$(PARAMS)/process_db_functions.R \
 	$(MAPPINGS)/activity_input_mapping.csv \
+	$(MAPPINGS)/NC_EDGAR_sector_mapping.csv \
 	$(MAPPINGS)/2011_NC_SO2_ctry.csv \
 	$(ACTIV)/Smelter-Feedstock-Sulfur.xlsx \
 	$(ACTIV)/Wood_Pulp_Consumption.xlsx \
@@ -316,20 +323,35 @@ $(MED_OUT)/A.NC_activity.csv : \
 	$(MED_OUT)/A.total_activity.csv
 
 # bb1-1
+#$(MED_OUT)/B.$(EM)_comb_EF_GAINS_EMF30.csv : \
+	$(MOD_B)/B1.1.add_comb_GAINS_EMF-30.R.R \
+	$(ENERGY_DATA)/OECD_Conversion_Factors.csv \
+	$(ENERGY_DATA)/NonOECD_Conversion_Factors.csv \
+	$(INV_DATA)/GAINS/GAINS_EMF30_EMISSIONS_extended_Ev5a_CLE_Nov2015.csv \
+	$(INV_DATA)/GAINS/GAINS_EMF30_ACTIVITIES_extended_Ev5a_Nov2015.csv \
+	$(MAPPINGS)/GAINS/emf-30_ctry_map.csv \
+	$(MAPPINGS)/GAINS/emf-30_fuel_sector_map.csv
+#	Rscript $< $(EM) --nosave --no-restore
+
+#$(MED_OUT)/B1.1.GAINS_heat_content.csv : \
+	$(MED_OUT)/B.$(EM)_comb_EF_GAINS_EMF30.csv
+
 # Generates the base file of combustion emissions factors
 # by calling a daughter script for the relevant emissions type
 $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(MOD_B)/B1.1.base_comb_EF.R \
 	$(MOD_B)/B1.2.add_comb_EF.R \
 	$(MOD_B)/B1.1.base_BC_comb_EF.R \
+	$(MOD_B)/B1.1.base_OTHER_comb_EF.R \
 	$(MOD_B)/B1.1.base_comb_EF_control_percent.R \
 	$(MOD_B)/B1.1.base_SO2_comb_EF_parameters.R \
+	$(MOD_B)/B1.1.base_comb_GAINS_EMF-30.R \
 	$(MOD_B)/B1.2.add_comb_control_percent.R \
+	$(MOD_B)/B1.2.add_comb_default_EF.R \
 	$(MOD_B)/B1.2.add_SO2_comb_diesel_sulfur_content.R \
 	$(MOD_B)/B1.2.add_SO2_comb_GAINS_ash_ret.R \
 	$(MOD_B)/B1.2.add_SO2_comb_GAINS_control_percent.R \
 	$(MOD_B)/B1.2.add_SO2_comb_GAINS_s_content.R \
-	$(MOD_B)/B1.2.add_GAINS_EMF-30.R \
 	$(MOD_B)/B1.2.add_SO2_comb_S_content_ash.R \
 	$(MOD_B)/B1.3.proc_SO2_comb_EF_S_content_ash.R \
 	$(MOD_B)/B1.3.proc_comb_EF_control_percent.R \
@@ -361,6 +383,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 	$(MOD_C)/C1.2.add_SO2_NC_emissions_all.R \
 	$(MOD_C)/C1.2.add_SO2_NC_emissions_FAO.R \
 	$(MOD_C)/C1.2.add_NC_emissions_EDGAR.R \
+	$(MAPPINGS)/NC_EDGAR_sector_mapping.csv \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
 	$(PARAMS)/IO_functions.R \

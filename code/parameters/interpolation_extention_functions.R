@@ -214,7 +214,7 @@ interpolateValues <- function(interp_data,interp_default = 'linear',
   
   # identify any non-trailing/leading na's
   interpolation_rows<-c()
-  for( i in seq_along(interp_df$iso)){
+  for( i in seq_along(interp_df[,1])){
     row <- as.numeric(interp_df[i,X_years_full])
     if( length(rle(is.na(c(NA,row,NA)))$values)>3 ) interpolation_rows<- rbind(interpolation_rows,i)
   }
@@ -234,7 +234,7 @@ interpolateValues <- function(interp_data,interp_default = 'linear',
         meta_pre_add <- meta_pre_add[which(meta_pre_add$interp_method == 'linear'),c(id.names,X_years_full)]
         
         meta_add <- c()
-        for ( i in seq_along(meta_pre_add$iso)){
+        for ( i in seq_along(meta_pre_add[,1])){
           row <- meta_pre_add[i,c(id.names,X_years_full)]
           min <- min( match( as.numeric(row[1,X_years_full]), row[1,]), na.rm=TRUE)
           max <- max( match( as.numeric(row[1,X_years_full]), row[1,]), na.rm=TRUE)         
@@ -249,7 +249,7 @@ interpolateValues <- function(interp_data,interp_default = 'linear',
           meta_notes <- rbind(meta_notes, meta_add)
         }}
       
-      linear_int <- t( na.approx( t(linear[,X_years_full])  ) )
+      linear_int <- t( na.approx( t(linear[,X_years_full])  , na.rm = FALSE) )
       linear <- cbind( linear[,id.names] , linear_int)
       if(nrow(cant_interpolate)>0) {
         names(linear) <- names(cant_interpolate)
@@ -266,7 +266,7 @@ interpolateValues <- function(interp_data,interp_default = 'linear',
         meta_pre_add <- meta_pre_add[which(meta_pre_add$interp_method == 'constant'),c(id.names,X_years_full)]
         
         meta_add <- c()
-        for ( i in seq_along(meta_pre_add$iso)){
+        for ( i in seq_along(meta_pre_add[,1])){
           row <- meta_pre_add[i,c('iso',scaling_name,X_years_full)]
           min <- min( match( as.numeric(row[1,X_years_full]), row[1,]), na.rm=TRUE)
           max <- max( match( as.numeric(row[1,X_years_full]), row[1,]), na.rm=TRUE)         
@@ -280,7 +280,7 @@ interpolateValues <- function(interp_data,interp_default = 'linear',
           meta_add$comment <- paste('Constant interpolated from inventory -', inv_name)
           meta_notes <- rbind(meta_notes, meta_add)
         }}
-      constant_int <- t( na.locf( t(constant[,X_years_full])  ) )
+      constant_int <- t( na.locf( t(constant[,X_years_full])  , na.rm = FALSE) )
       constant <- cbind( constant[,id.names] , constant_int)
       names(constant) <- c(id.names , X_years_full ) }
     
@@ -325,15 +325,15 @@ extendValues <- function(ext_data,
   # ext_year format
   # column names - id variables (iso, sector, fuels) - pre_ext_year - post_ext_year
 
-#   ext_data = test
-#   pre_ext_default = 'linear_1'
+#   ext_data = aviation_EF_wide
+#   pre_ext_default = 'constant'
 #   post_ext_default = 'constant'
 #   pre_ext_year = start_year
 #   post_ext_year = end_year
 #   meta = FALSE
-#   ext_method = test.m
-#   ext_year = test.y
-#   defaultData = 'B.SO2_ControlFrac_db'
+#   ext_method = NA
+#   ext_year = NA
+#   defaultData = NA
   
   # run through interpolation first
   ext_data <- interpolateValues( ext_data )
@@ -401,14 +401,23 @@ extendValues <- function(ext_data,
       index <- which( ext_method$post_ext_method %in% valid_post_ext_methods == FALSE )
       warning( paste0(  ext_method$post_ext_method[index] , ': invalid post-extrapolation method. Using default option: ',
                         "'" ,post_ext_default,"'") )
-      ext_method$post_ext_method[index] <- post_ext_default } }
+      ext_method$post_ext_method[index] <- post_ext_default } 
+    
+    #check linear default option
+    if( any(c( pre_ext_default,  post_ext_default , 
+                 ext_method$post_ext_method , ext_method$pre_ext_method) %in% 'linear_default', na.rm = TRUE) ){
+        if(is.na(defaultData)) stop("Linear extrapolation to default chosen, but no default data specified. Please specify.")
+        defaults <- readData('MED_OUT', defaultData) 
+      }    
+      
+      }
     
     # Check linear_default option
   
-    if( any(c( pre_ext_default,  post_ext_default , 
-                ext_method$post_ext_method , ext_method$pre_ext_method) %in% 'linear_default', na.rm = TRUE) ){
+    if( any(c( pre_ext_default,  post_ext_default) %in% 'linear_default', na.rm = TRUE) ){
         if(is.na(defaultData)) stop("Linear extrapolation to default chosen, but no default data specified. Please specify.")
-        defaults <- readData('MED_OUT', defaultData)  }
+        defaults <- readData('MED_OUT', defaultData) 
+        }
     
     # Define Default Methods Data frame, update with mapping file
     #########
@@ -484,7 +493,7 @@ extendValues <- function(ext_data,
     
     #Extention loop
     
-    for (i in seq_along(ext_data_extended$iso)){
+    for (i in seq_along(ext_data_extended[,1])){
       # Interpolated inventory data
       ext_data_extended[i,X_years_full] <- ext_data[i,X_years_full]
       if( !all(is.na( ext_data_extended[i,X_years_full] )) ){
@@ -513,12 +522,12 @@ extendValues <- function(ext_data,
               add$comment <-  paste('Scaled to Inventory - constant extrapolated backward -', inv_name)
               meta_notes <- rbind(meta_notes, add)
             }
-            pre_ext_data_extended_line[1,] <-t(na.locf(t(pre_ext_data_extended_line[1,]), fromLast = TRUE))
+            pre_ext_data_extended_line[1,] <-t(na.locf(t(pre_ext_data_extended_line[1,]), fromLast = TRUE, na.rm = FALSE))
         } 
           # Linear Extrapolation to 1, from most recent value
           else if( ext_method_full[i,'pre_ext_method'] == 'linear_1'){
             pre_ext_data_extended_line[1,1]<-1
-            pre_ext_data_extended_line[1,] <- na.approx(  t(pre_ext_data_extended_line[1,]) , maxgap = Inf)
+            pre_ext_data_extended_line[1,] <- na.approx(  t(pre_ext_data_extended_line[1,]) , maxgap = Inf, na.rm = FALSE)
             # Add meta notes          
             if(meta==TRUE){
               year <- X_pre_ext_data_extended_years
@@ -543,7 +552,7 @@ extendValues <- function(ext_data,
                                               addEntries = FALSE)
             
             pre_ext_data_extended_line[1,1]<-defaultEF[1,'default_value']
-            pre_ext_data_extended_line[1,] <- na.approx(  t(pre_ext_data_extended_line[1,]) , maxgap = Inf)
+            pre_ext_data_extended_line[1,] <- na.approx(  t(pre_ext_data_extended_line[1,]) , maxgap = Inf, na.rm = FALSE)
             # Add meta notes          
             if(meta==TRUE){
               year <- X_pre_ext_data_extended_years
@@ -558,7 +567,7 @@ extendValues <- function(ext_data,
           # Linear Extrapolation to 0, from most recent value
           else if( ext_method_full[i,'pre_ext_method'] == 'linear_0'){
             pre_ext_data_extended_line[1,1]<-0
-            pre_ext_data_extended_line[1,] <- na.approx(  t(pre_ext_data_extended_line[1,]) , maxgap = Inf)
+            pre_ext_data_extended_line[1,] <- na.approx(  t(pre_ext_data_extended_line[1,]) , maxgap = Inf, na.rm = FALSE)
             # Add meta notes          
             if(meta==TRUE){
               year <- X_pre_ext_data_extended_years
@@ -628,7 +637,7 @@ extendValues <- function(ext_data,
           # Linear Extrapolation to Scaling Factor = 1, from most recent value
           else if( ext_method_full[i,'post_ext_method'] == 'linear_1'){
             post_ext_data_extended_line[1,ncol(post_ext_data_extended_line)]<-1
-            post_ext_data_extended_line[1,] <- na.approx(  t(post_ext_data_extended_line[1,]) , maxgap = Inf)
+            post_ext_data_extended_line[1,] <- na.approx(  t(post_ext_data_extended_line[1,]) , maxgap = Inf, na.rm = FALSE)
             # Add meta notes          
             if(meta==TRUE){
               year <- X_post_ext_data_years
@@ -649,8 +658,8 @@ extendValues <- function(ext_data,
     
     if( 'units' %in% id.names){
       ext_data_extended$units <- ext_data$units
-      ext_data_extended <- ext_data_extended[,c('iso','sector','fuel','units',id.years)]}else{
-        ext_data_extended <- ext_data_extended[,c('iso','sector','fuel',id.years)]
+      ext_data_extended <- ext_data_extended[,c(id.names,id.years)]}else{
+        ext_data_extended <- ext_data_extended[,c(id.names[id.names %!in% 'units'],id.years)]
       }
     return(ext_data_extended)
   

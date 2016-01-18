@@ -48,7 +48,8 @@ em <- args_from_makefile[1]
 if ( is.na( em ) ) em <- "SO2"
 
 # Stop script if running for unsupported emissions species
-if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2') ) {
+# Note, while EMEP has BC, there is no OC, so retain consistent BC, OC estimates
+if ( em %!in% c('CO','NH3','NMVOC','NOx','SO2') ) {
   stop (paste( ' EMEP script is not supported for emission species', em, 'remove from script
                list in F1.1.inventory_scaling.R'))
 }
@@ -61,9 +62,11 @@ if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2') ) {
 sector_fuel_mapping <- 'EMEP_scaling_mapping'
 mapping_method <- 'sector'
 inv_name <- 'EMEP'
-region <- c("aut", "aze", "bel", "bgr", "can", "che", "cyp", "cze", "deu",
+# Do not include regions with problematic inventories ("mda", "aze")
+# Do not include "can" since have higher resolution data to use
+region <- c("aut", "bel", "bgr", "che", "cyp", "cze", "deu",
             "dnk", "esp", "est", "fin", "fra", "gbr", "geo", "hrv", "hun",
-            "irl", "isl", "ita", "ltu", "lux", "lva", "mda", "mkd", "mlt",
+            "irl", "isl", "ita", "ltu", "lux", "lva", "mkd", "mlt",
             "nld", "nor", "pol", "prt", "rou", "srb", "svk", "svn", "swe",
             "tur")
 inv_years<-c(1980:2013)
