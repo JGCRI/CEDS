@@ -418,8 +418,8 @@ $(MED_OUT)/D.$(EM)_default_total_EF.csv : \
 
 # ee1-1
 # Creates scaled emissions and emissions factors for US data
-$(MED_OUT)/E.SO2_UNFCCC_inventory.csv : \
-	$(MOD_E)/E.UNFCCC_SO2_emissions.R
+$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv : \
+	$(MOD_E)/E.UNFCCC_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
@@ -439,7 +439,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 	$(MOD_F)/F1.1.Edgar_scaling.R \
 	$(PARAMS)/emissions_scaling_functions.R \
 	$(MED_OUT)/E.$(EM)_EMEP_inventory.csv \
-	$(MED_OUT)/E.SO2_UNFCCC_inventory.csv \
+	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
 	$(SC_MAPPINGS)/UNFCCC_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/US_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/CAN_scaling_mapping.xlsx \
