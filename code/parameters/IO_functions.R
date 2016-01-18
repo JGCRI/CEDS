@@ -258,11 +258,27 @@ filePath <- function( domain, fn, extension=".csv", domain_extension = "" ) {
 	}
 }
 
+# listZippedFiles
+# Brief: Retrieve full list of internal files
+listZippedFiles <- function( file_path, remove_extension = FALSE ){
+    contents <- unzip( file_path, list = TRUE )
+    file_list <- contents$Name[ contents$Length > 0 ]
+    if( length( file_list[ grep("MACOSX",file_list) ] ) > 0 ){
+        file_list <- file_list[ -grep("MACOSX",file_list) ] 
+    }
+    if( remove_extension ){ file_list <- file_path_sans_ext( file_list ) }
+    return( file_list )
+}
+
 # -----------------------------------------------------------------------------
 # readData
 # Brief:            Read an arbitrary data file.
-# Details:          Reads a specified .csv .xlsx .xls file, or a .csv inside a .zip file into R as a 
-#                   data frame.
+# Details:          Reads a specified .csv, .xlsx, or .xls file (or multiple .csv files inside 
+#                       a .zip file) into R as a data frame or list of data frames. Handles singular
+#                       .csv and .xlsx files (including multiple sheets within a single .xlsx file)
+#                       and multiple .csv files within a .zip file. To read multiple unzipped files
+#                       simultaneously, use the standard R function "lapply" in conjunction with 
+#                       readData.
 # Dependencies:     filePath, printLog, read.csv, readExcel, lapply, readMetaData
 # Author(s):        Page Kyle, Jon Seibert, Linh Vu
 # params:           
@@ -270,10 +286,18 @@ filePath <- function( domain, fn, extension=".csv", domain_extension = "" ) {
 #   file_name:          Name of the file to read in, minus the file extension. [required]
 #   extension:          File extension (type): readData only accepts .csv, .xlsx, .xls, .zip files.
 #                           [default: ".csv"]
-#   readin_selection:   Name of file to read in inside .zip file, minus the file extension. 
-#                           For .zip files only.
-#   readin_extension:   Extension of file to read in inside .zip file. Currently only accepts .csv.
+#   zipped_selection:   List of one or more names of files to read from within the specified .zip file.
+#                           It is not necessary to list all contained files- if one desires to read all
+#                           files from within a .zip, use the extract_all option instead. This option
+#                           is designed to read singlular or specific lists of files from within a .zip.
+#                           For .zip files only. [default: list()]
+#   zipped_extension:   Extension of file to read in inside .zip file. Currently only accepts .csv.
 #                           For .zip files only. [default: ".csv"]
+#   extract_all:        Boolean option indicating whether to read all files from within the specified 
+#                           .zip file. If FALSE (and attempting to read from a .zip file), a list of 
+#                           names must be supplied to the zipped_selection parameter. If TRUE, 
+#                           zipped_selection need not be used, and all contained files will be read. 
+#                           For .zip files only. [default: FALSE]
 #   sheet_selection:    Either "ALL" (to read all sheets), a list of sheet names or numbers 
 #                           (to read a set of sheets), or single sheet name/number. 
 #                           For .xlsx .xls files only. [default: "ALL"]
@@ -296,23 +320,24 @@ filePath <- function( domain, fn, extension=".csv", domain_extension = "" ) {
 #   meta_extension:     File extension for the file's metadata. [default: extension]
 #   mute:               Boolean indicating whether to output progress messages. TRUE silences
 #                           the function, while FALSE allows the messages. [default: FALSE]
-#   to_numeric:            Boolean indicating whether to automatically convert columns begining with "X"
+#   to_numeric:         Boolean indicating whether to automatically convert columns begining with "X"
 #                           to numeric values. [default = TRUE]
 # Return:           Data frame of the read-in file, or a list of data frames of 
 #                   multiple sheets from a .xlsx .xls file
-# Input Files:      Specified in file_name
+# Input Files:      Specified in parameters
 # Output Files:     None
 # 
 # Usage examples: readData( "MED_OUT", "A.energy_data" )
 #                 readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
 #                 readData( "EM_INV", domain_extension = "US_EPA/", "SCCactiveJul2015_NFRmap", ".xlsx", sheet_selection = "SCCsActiveJul2015_NFRmap" )
-#                 readData( "MAPPINGS", "Archive", ".zip", readin_selection = "Master_Fuel_Sector_List" )
+#                 readData( "MAPPINGS", "Archive", ".zip", zipped_selection = "Master_Fuel_Sector_List" )
+#                 readData( "UNFCCC_IN", em, ".zip", extract_all = TRUE, header = FALSE )
 #
 # TODO: error handling (probably using try/catch)
 #       switch to read_csv from readr package
 #       read Excel from inside .zip (?not possible: http://stackoverflow.com/questions/26763377/)
 readData <- function( domain = "none", file_name = "none", extension = ".csv", 
-                      readin_selection = "none", readin_extension = ".csv",
+                      zipped_selection = list(), zipped_extension = ".csv", extract_all = FALSE,
                       sheet_selection = "ALL", domain_extension = "", column_names = TRUE, 
                       column_types = NULL, missing_value = "", skip_rows = 0, meta = TRUE, 
                       meta_domain = domain, meta_extension = extension, mute = FALSE, to_numeric = TRUE ,... ) {
@@ -351,25 +376,53 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
         multi_sheet <- results[[ 2 ]]
         
     } else if( extension == ".zip" ){
+    
+        if( zipped_extension == ".csv" ){ # .zip segment only accepts zipped .csv files at this time
         
-        if( readin_selection == "none" ) {
-            printLog( "ERROR in readData: no read-in file specified", file_name )
-            stop( "ERROR in readData: you need to specify a read-in filename" )
-        }
-      
-        readin_fn = paste0( readin_selection, readin_extension )  # read-in file name with extension
+            if( extract_all ){ # Read all .csv files within the zip
+                zipped_files <- listZippedFiles ( full_file_path )
+                unz_files <- lapply( zipped_files, unz, description = full_file_path )
+                x <- lapply ( unz_files, read.csv, na.strings = missing_value,
+                              stringsAsFactors = F, comment.char = GCAM_DATA_COMMENT, # Our comment signal
+                              ...)
+                              
+            }else{
+                if( length ( zipped_selection ) == 0 ) { # If no file specified within zip
+                    printLog( "ERROR in readData: no zipped files specified for ", file_name )
+                    stop( "ERROR in readData: specify a zipped file name" )
+                }
+            
+                if( length ( zipped_selection ) == 1 ){ # If only one file to read from zip
+                
+                    zipped_fn <- paste0( zipped_selection, zipped_extension )  # zipped file name with extension
+                    x <- ( read.csv( unz( full_file_path, zipped_fn ), na.strings = missing_value, 
+                            stringsAsFactors = F, comment.char = GCAM_DATA_COMMENT,	
+                            ... ) )
+                            # x <- ( read.csv( unz( full_file_path, zipped_fn ), na.strings = missing_value, 
+                            # stringsAsFactors = F, comment.char = GCAM_DATA_COMMENT ) )
+                } 
+                
+                if( length ( zipped_selection ) > 1 ){ # If multiple zipped files to read 
+                    zipped_files <- paste0( zipped_selection, zipped_extension )
+                    unz_files <- lapply( zipped_files, unz, description = full_file_path )
+                    # unz_files <- list()
+                    # for( fn in zipped_files ){
+                        # unz_files <- c( unz_files, unz( full_file_path, fn ) )
+                    # }
+                    x <- lapply ( unz_files, read.csv, na.strings = missing_value,
+                                  stringsAsFactors = F, comment.char = GCAM_DATA_COMMENT,	
+                                  ...)
+                }
+            }
         
-        if( readin_extension == ".csv" ){
-            x <- ( read.csv( unz( full_file_path, readin_fn ), na.strings = missing_value, 
-                             stringsAsFactors = F, comment.char = GCAM_DATA_COMMENT,	# Our comment signal
-                             ... ) )
-        } else { # If read-in file extension not recognized
-            stop( "ERROR in readData(): Invalid file type. readData() only accepts .csv file inside .zip file." )
+        } else { # If zipped file extension not recognized
+            stop( "ERROR in readData(): Invalid inner file type. readData() only accepts 
+                  .csv file inside .zip file." )
         }
-      
+        
     } else { # If extension not recognized
-        stop( "ERROR in readData(): Invalid file type. readData() accepts .csv, .xlsx, .xls files, or .csv files
-              inside a .zip file." )
+        stop( "ERROR in readData(): Invalid file type. readData() accepts .csv, .xlsx, .xls files, 
+              or .csv files inside a .zip file." )
     }
     
 	if( mute == F ) { # Print stats
@@ -379,16 +432,17 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
                 stats <- c( stats, paste0( "    Done reading ", sheet, ": ", nrow( x[[ sheet ]] ), " rows, ", ncol( x[[ sheet ]] ), " cols" ) )
             }
             lapply( stats, printLog, ts=F )
-        } else{ printLog( "    Done: ", nrow( x ), " rows, ", ncol( x ), " cols", ts = F ) }
+        } else if( extension == ".zip" ){ 
+            printLog( "    Done reading contents." ) 
+        } else { printLog( "    Done: ", nrow( x ), " rows, ", ncol( x ), " cols", ts = F ) }  
     }
     
     # Get metadata and add to list of all metadata in the script
     if( meta == T ) {
-        metadata <- readMetaData( meta_domain, file_name )
+        metadata <- readMetaData( meta_domain, file_name, meta_domain_ext = domain_extension )
     }
   
 	# Convert years columns to numeric values if to_numeric = TRUE
-	
 	if( to_numeric == TRUE){
 	  names <- names( x )
 	  years <- names[names %in% X_emissions_years]
@@ -634,27 +688,27 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
 
 # ------------------------------------------------------------------------------
 # readMetaData
-# Brief: Creates and accumulates metadata in a script
-# Details: When first called, the function creates an object to store all the
-#          metadata of a script. On subsequent calls, the function adds metadata
-#          to this object. The function is automatically called by readdata, and
-#          can also be used as a standalone function. If metadata is not created
-#          for a file, a default template will be used. Additional categories
-#          can be added by adding them directly to the metadata file. 
+# Brief:        Creates and accumulates metadata in a script
+# Details:      When first called, the function creates an object to store all the
+#                   metadata of a script. On subsequent calls, the function adds metadata
+#                   to this object. The function is automatically called by readdata, and
+#                   can also be used as a standalone function. If metadata is not created
+#                   for a file, a default template will be used. Additional categories
+#                   can be added by adding them directly to the metadata file. 
 # Dependencies: printLog(), filePath()
-# Author: Tyler Pitkanen
+# Author(s):       Tyler Pitkanen, Jon Seibert
 # parameters:
-#   meta_domain: The domain of the metadata [default: 'none']
-#   file_name: The file name of the data set that corresponds to the metadata. In
-#       standard naming format, the file name of the metadata is the same
-#       as the file name of the regular data, but appended with '-metadata'.
-#       file_name can be used to find the metadata of a specified file. [default: 'none']
-#   meta_name: The file name of the metadata. This can be specified instead of file_name
-#           if preferred. One must be specified. [default: 'none']
-# return: all_metadata
-# input files: metadata file, e.g. 'example-metadata.csv'
+#   meta_domain:    The domain of the metadata [default: 'none']
+#   file_name:      The file name of the data set that corresponds to the metadata. In
+#                       standard naming format, the file name of the metadata is the same
+#                       as the file name of the regular data, but appended with '-metadata'.
+#                       file_name can be used to find the metadata of a specified file. [default: 'none']
+#   meta_name:      The file name of the metadata. This can be specified instead of file_name
+#                       if preferred. One must be specified. [default: 'none']
+# return:       all_metadata
+# input files:  metadata file, e.g. 'example-metadata.csv'
 # output files: null
-readMetaData <- function( meta_domain="none", file_name="none", meta_name = 'none' ) {
+readMetaData <- function( meta_domain="none", file_name="none", meta_name = 'none', meta_domain_ext = "" ) {
 
     # # DEBUG
     # meta_domain <- "MED_OUT"
@@ -667,7 +721,7 @@ readMetaData <- function( meta_domain="none", file_name="none", meta_name = 'non
     
     # Determine new metadata file name and location
     if( meta_name == 'none' ) meta_name <- paste0( file_name, "-metadata" )
-    mymeta_name <- filePath( meta_domain, meta_name, '.csv' )
+    mymeta_name <- filePath( meta_domain, meta_name, '.csv', meta_domain_ext )
     
     # Check if the file exists and set 'new_metadata' object. If the file isn't
     #   found, make a note

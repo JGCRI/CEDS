@@ -43,7 +43,7 @@
   if ( is.na( em ) ) em <- "SO2"
 
 # Stop script if running for unsupported species
-  if ( em %!in% c('SO2') ) {
+  if ( em %!in% c('SO2','CO','NMVOC','NOx') ) {
     stop (paste( ' UNFCCC script is not supported for emission species', em, 'remove from script
                  list in F1.1.inventory_scaling.R'))
   }
