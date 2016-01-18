@@ -48,7 +48,7 @@ initialize( script_name, log_msg, headers )
   if ( is.na( em ) ) em <- "SO2"
   
   # Stop script if running for unsupported species
-  if ( em %!in% c('SO2') ) {
+  if ( em %!in% c('SO2', 'NOx','NMVOC','CO') ) {
     stop (paste( ' CAN scaling is not supported for emission species', em, 'remove from script
                  list in F1.1.inventory_scaling.R'))
   }

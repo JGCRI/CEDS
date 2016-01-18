@@ -192,7 +192,7 @@ extendBackward <- function( df, st_year, range ){
 # CURRENTLY BROKEN. WILL FIX TOMORROW.
 interpolate <- function( df, early_edge, late_edge, method = "linear" ){ 
     range <- getInterpolationRange( early_edge, late_edge )
-    if( isXYear( early_edge ) ){ range <- paste0( "X", range ) }
+    #if( isXYear( early_edge ) ){ range <- paste0( "X", range ) }
     
     early <- getIndex( df, early_edge )
     late <- getIndex( df, late_edge )

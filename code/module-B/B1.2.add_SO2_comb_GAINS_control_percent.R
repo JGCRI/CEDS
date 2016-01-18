@@ -45,14 +45,6 @@ initialize( script_name, log_msg, headers )
 
 loadPackage('zoo')
 
-# Define heat_contents function
-calc_heat_content <- function(conversion, IEAfuels) {
-  conversion <- conversion[,IEAfuels]
-  unit_multiplier <- sum(colSums(conversion, na.rm = T)) / 
-    length(na.omit(unlist(conversion)))
-  return(unit_multiplier)
-}
-
 # ---------------------------------------------------------------------------
 # 1. Reading data and mapppings into script
 
@@ -65,79 +57,11 @@ gainstoiso <- readData( "GAINS_MAPPINGS",  "GAINS_country_mapping" )
 fuelmap <- readData(  "GAINS_MAPPINGS", "GAINS_fuel_mapping" )
 sectormap <- readData( "GAINS_MAPPINGS",  "GAINS_sector_mapping" )
 
-OECDconversion <- readData( "ENERGY_IN",  "OECD_Conversion_Factors" )
-NONconversion <- readData( "ENERGY_IN",  "NonOECD_Conversion_Factors" )
-
 s_content <- readData( "DEFAULT_EF_PARAM", "B.SO2_GAINS_s_content")
 
 gains_ashret <- readData('DEFAULT_EF_PARAM', 'B.SO2_GAINS_s_ash_ret')
 
-# ---------------------------------------------------------------------------
-# 2. GAINS multipliers (unit conversions from energy to mass)
-
-# The IEA data provides conversions (heat content) for a variety of flows and fuels
-# and for most countries. Take only EU countries and develop a conversion factor 
-# by taking a weighted average of fuels brought together into CEDS fuels.
-# units of heat_content - kJ/kg
-
-
-# just European Countries in Gains data.
-EU <- c("Czech Republic", "Denmark", "Estonia", "Finland", "France", 
-        "Germany", "Greece", "Hungary", "Ireland", "Italy", "Luxembourg",
-        "Netherlands", "Poland", "Portugal", "Slovak Republic", "Slovenia",
-        "Spain", "Sweden", "United Kingdom", "Belgium", "Latvia",
-        "Lithuania", "Austria", "Romania", "Croatia", "Bulgaria",
-        "Malta", "Cyprus")
-Flows <- c("NCV of imports", "Average net calorific value")
-
-colnames(OECDconversion) <- colnames(NONconversion)
-OECD <- OECDconversion[OECDconversion$COUNTRY %in% EU & 
-                         OECDconversion$FLOW %in% Flows,]
-NONOECD <- NONconversion[NONconversion$COUNTRY %in% EU & 
-                           NONconversion$FLOW %in% Flows,]
-conversion <- rbind(NONOECD, OECD) 
-
-conversion[,3:ncol(conversion)] <- 
-  suppressWarnings(lapply(conversion[,3:ncol(conversion)], as.numeric))
-
-# diagnostic-output
-writeData( conversion, domain = "DIAG_OUT", 
-           fn = "B1.2.energy_conversion_factors") 
-
-# Using the function and IEA fuels to create a unit conversion multiplier for
-# the CEDS categories in the GAINS data. 
-
-browncoal <- c("Sub.bituminous.coal", "Lignite")
-mult_browncoal <- calc_heat_content(conversion, browncoal)
-
-hardcoal <- c("Anthracite", "Other.bituminous.coal")
-mult_hardcoal <- calc_heat_content(conversion, hardcoal)
-
-biomass <- c("Biogasoline", "Biodiesels", "Other.liquid.biofuels", "Charcoal")
-mult_biomass <- calc_heat_content(conversion, biomass)
-
-lightoil <- c("Motor.gasoline", "Aviation.gasoline","Gasoline.type.jet.fuel", 
-              "Kerosene.type.jet.fuel", "Other.kerosene")
-mult_lightoil <- calc_heat_content(conversion, lightoil)
-
-heavy_oil <- c("Crude.oil", "Fuel.oil")
-mult_heavy_oil <- calc_heat_content(conversion, heavy_oil)
-
-# These have a single column of data and therefore the function is not necessary
-NaturalGas <- c("Natural.gas.liquids")
-mult_NaturalGas <- sum(conversion[,NaturalGas] ,na.rm = T)/
-  length(na.omit(conversion[,NaturalGas]))
-
-Diesel <- c("Gas.diesel.oil")
-mult_Diesel <- sum(conversion[,Diesel] ,na.rm = T)/
-  length(na.omit(conversion[,Diesel]))
-
-# make list of calculated heat contents
-GAINS_heat_content <- data.frame(fuel=c('brown_coal', 'hard_coal', 'biomass', 'light_oil', 
-                                       'natural_gas', 'diesel_oil', 'heavy_oil'),
-                                heat_content=c(mult_browncoal, mult_hardcoal, mult_biomass, mult_lightoil, 
-                                             mult_NaturalGas, mult_Diesel, mult_heavy_oil))
-
+GAINS_heat_content <- readData( "MED_OUT", "B1.1.GAINS_heat_content") 
 
 # ---------------------------------------------------------------------------
 # 2.0 Melting and combing same sectors and fuels in fuel consumption
@@ -300,7 +224,6 @@ control_percent[control_percent$iso %in% west, 'pre_ext_year' ] <- '1980'
 # 5. Output
 
 writeData( control_percent, domain = "DEFAULT_EF_PARAM", fn = "B.SO2_GAINS_control_percent")
-writeData( GAINS_heat_content, domain = "MED_OUT", fn = "B1.2.heat_content") 
 
 logStop()
 # END

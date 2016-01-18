@@ -54,11 +54,15 @@
     fuelCheck( IEA_product_fuel )
 
 # Define conversion factors for use later
-    conversionFactor_biomass_kt_TJ <- 16  # Biomass - For kt to TJ (multiply by kt to get TJ)    
+    # conversion factors defined in common_data.R
+    # conversionFactor_biomass_kt_TJ <- 16  # Biomass - For kt to TJ (multiply by kt to get TJ)    
     #conversionFactor_biomass_TJ_kt <- 0.0238846  # For kt to TJ (multiply by kt to get TJ)
-    conversionFactor_refinerygas_kt_TJ <- 48.5 #Refinery Gas TJ/kt. (Multiply by kt to get TJ)
+    # conversionFactor_refinerygas_TJ_per_kt <- 48.5 #Refinery Gas TJ/kt. (Multiply by kt to get TJ)
     #49.5 TJ/Gg- 2006 IPCC guidelines for National GHG inventories Vol 2 - Energy, Ch 1 - Intro Table 1.2
     #IEA
+    # conversionFactor_naturalgas_TJ_per_kt <- 54 #Natural Gas TJ/kt. (Divide TJ by heating value to get kt)
+    
+
     
 # ------------------------------------------------------------------------------
 # 2. Map IEA to CEDS sectors.
@@ -89,18 +93,16 @@
             A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% 
             TJ_to_kt_biomass$product, X_IEA_years ] /  conversionFactor_biomass_kt_TJ
 
-# Refinery Gas - given in kt, mapped to natural gas, so convert to TJ
+# Natural Gas
+    TJ_to_kt_natural_gas <- TJ_products[ TJ_products$fuel == "natural_gas", ]
+    
     A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% 
-                               "Refinery gas (kt)", X_IEA_years ] <- 
-                A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% 
-                                 "Refinery gas (kt)", X_IEA_years ] * conversionFactor_refinerygas_kt_TJ
+                               TJ_to_kt_natural_gas$product, X_IEA_years ] <- 
+      A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% 
+                                 TJ_to_kt_natural_gas$product, X_IEA_years ] /  conversionFactor_naturalgas_TJ_per_kt
     
 # Add units to dataframe
-  TJ_fuels <- c( "natural_gas" )
-  A.IEA_en_stat_ctry_hist$units[ A.IEA_en_stat_ctry_hist$fuel %in% 
-                                   TJ_fuels ] <- "TJ"
-  A.IEA_en_stat_ctry_hist$units[ A.IEA_en_stat_ctry_hist$fuel %!in%
-                                   TJ_fuels ] <- "kt"
+  A.IEA_en_stat_ctry_hist$units <- "kt"
 # ------------------------------------------------------------------------------
 # 3. Fix Energy Balance
 

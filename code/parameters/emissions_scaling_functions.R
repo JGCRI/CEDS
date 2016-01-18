@@ -31,15 +31,13 @@ source('../code/parameters/interpolation_extention_functions.R')
 # return: list of variables to be used in subsequent scaling functions
 
 F.initializeMeta <- function(input) {
-
-  # Create default meta data for scaling
-  meta <- melt( input, id.vars = c('iso','sector','fuel','units'))
-  meta <- meta[,c('iso','sector','fuel','variable')]
-  names(meta) <- c('iso','sector','fuel','year')
-  meta$comment <- 'default'
   
-  writeData( meta, 'MED_OUT', paste0( 'F.', em, '_scaled_emissions-value_metadata' ) )
-  writeData( meta, 'MED_OUT', paste0( 'F.', em, '_scaled_EF-value_metadata' ) ) 
+  # Create default meta data for scaling
+  meta <- input[,c('iso','sector','fuel',X_emissions_years)]
+  meta[X_emissions_years] <- 'default'
+  
+  # writeData( meta, 'MED_OUT', paste0( 'F.', em, '_scaled_emissions-value_metadata' ) )
+  writeData( meta, 'MED_OUT', paste0( "F.", em, "_", "scaled_EF-value_metadata" ) ) 
   
 }
 
@@ -90,6 +88,11 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
   # Read in data    
   inv_data_full <- readData( inv_data_folder , inventory)
   scaling_map <- readData( "SCALE_MAPPINGS", mapping , ".xlsx", sheet_selection = 'map' )  
+  scaling_map_names <- names(scaling_map)
+  scaling_map_names <- scaling_map_names[which(scaling_map_names %!in% c("",NA,'NA'))]
+  scaling_map <- scaling_map[,scaling_map_names]
+  scaling_map <- unique(scaling_map)
+  
   ext_method <- readData( "SCALE_MAPPINGS", mapping , ".xlsx", sheet_selection = 'method' ) 
   ext_year <- readData( "SCALE_MAPPINGS", mapping , ".xlsx", sheet_selection = "year" ) 
   
@@ -185,6 +188,7 @@ F.invAggregate <- function( std_form_inv, region , mapping_method,
 
 F.cedsAggregate <- function( input_em, region, method = mapping_method ) {
 
+  printLog('Aggregating CEDS data')
   #Select data in inventory region and inventory years
   region_input_em <- input_em[ input_em$iso %in% region , c('iso','sector','fuel','units',X_inv_years) ] 
   
@@ -447,28 +451,85 @@ F.scaling <- function( ceds_data, inv_data, region,
   scaling <- merge(inv_long, ceds_long , all.x = TRUE)
   scaling$scaling_factor <- scaling$inv_value/scaling$ceds_value 
   
-  # Add Meta notes
-  if (meta == TRUE) {
-    meta_add <- scaling[,c('iso',scaling_name,'variable','scaling_factor')]
-    names(meta_add) <-  c('iso',scaling_name,'year','scaling_factor') 
-    meta_add <- meta_add[which(meta_add$scaling_factor != 0),]
-    meta_add <- meta_add[which(meta_add$scaling_factor != Inf),]
-    meta_add <- meta_add[,c('iso',scaling_name,'year')]
-    meta_add$comment <- paste('Scaled to Inventory -', inv_name )
-    meta_notes <- rbind(meta_notes, meta_add) }
   
   # Make adjustments to the preliminary scaling factor data set:
   # Inf values - divide by zero - ceds value = 0
   scaling[which(scaling$scaling_factor==Inf),'scaling_factor'] <- NA
   scaling[which(scaling$scaling_factor==0),'scaling_factor'] <- NA
-  scaling[which( is.na(scaling$scaling_factor) ),'scaling_factor'] <- NA
   
+  scaling <- scaling[which( !is.na(scaling$scaling_factor)),]
+ 
+  # Add Meta notes
+  if (meta == TRUE) {
+    meta_add <- scaling[,c('iso',scaling_name,'variable')]
+    names(meta_add) <-  c('iso',scaling_name,'year') 
+    meta_add$comment <- paste('Scaled to Inventory -', inv_name )
+    meta_notes <- rbind(meta_notes, meta_add) }
+  
+   
   # Cast melted data    
   if ( method %in% c("sector","fuel") ) cast.formula <- paste('iso +', scaling_name , '~ variable')
   if ( method == "both" ) cast.formula <- 'iso + scaling_sector + scaling_fuel ~ variable'
-  scaling <- cast(scaling, cast.formula, value='scaling_factor')
+  scaling <- as.data.frame(cast(scaling, cast.formula, value='scaling_factor'))
   
   # ------------------------------------
+  # Check validity of and replace Scaling Factors
+  
+  if ( replacement_method == 'replace'){
+    printLog( "Checking scaling factors... " )
+    
+    if (is.na(replacement_scaling_factor)) replacement_scaling_factor <- max_scaling_factor
+    
+    max <- max_scaling_factor
+    min <- 1/max_scaling_factor
+    index <- rbind( which( scaling[,X_inv_years] >= max , arr.ind=T ) ,
+                    which( scaling[,X_inv_years] <= min , arr.ind=T) )
+    
+    if(nrow(index)>0){
+      printLog( "Replacing very large/small scaling factors." )
+      problem_scaling_factors <- melt(scaling, id.vars = c('iso', scaling_name))
+      problem_scaling_factors <- problem_scaling_factors[!is.na(problem_scaling_factors$value),]
+      problem_scaling_factors <- problem_scaling_factors[  problem_scaling_factors$value >= max |  
+                                                             problem_scaling_factors$value <= min , ]
+      names(problem_scaling_factors) <- c('iso',scaling_name,'year', 'calculated_scaling_factor')
+      problem_scaling_factors <- merge(problem_scaling_factors,inv_long,
+                                        all.x=TRUE,all.y=FALSE,
+                                        by.x = c('iso',scaling_name,'year'),
+                                        by.y = c('iso',scaling_name,'variable'))
+      problem_scaling_factors <- merge(problem_scaling_factors,ceds_long,
+                                        all.x=TRUE,all.y=FALSE,
+                                        by.x = c('iso',scaling_name,'year'),
+                                        by.y = c('iso',scaling_name,'variable'))
+      
+      if(meta == TRUE) {
+        add.max <- problem_scaling_factors[  problem_scaling_factors$calculated_scaling_factor >= max,
+                                             c('iso',scaling_name,'year')]
+        add.max[,c('comment')] <- paste('- truncated at max scaling factor (','=', max_scaling_factor,')')
+        
+        add.min <- problem_scaling_factors[  problem_scaling_factors$calculated_scaling_factor <= min,
+                                             c('iso',scaling_name,'year')]
+        add.min[,c('comment')] <- paste0('- truncated at min scaling factor ( ','= 1/', max_scaling_factor,')')
+        
+        add <- rbind(add.min,add.max)
+        
+        meta_notes <- replaceValueColMatch(meta_notes, add,
+                                     x.ColName="comment",
+                                     y.ColName = "comment",
+                                     match.x=c('iso',scaling_name,'year'),
+                                     match.y=c('iso',scaling_name,'year'),
+                                     addEntries = TRUE)
+      }
+      
+      writeData( problem_scaling_factors , domain = "DIAG_OUT" , paste0('F.',em,'_Problem_Scaling_Factors_',inv_name))
+      
+      scaling[,X_inv_years] <- replace(scaling[,X_inv_years], 
+                                                 scaling[,X_inv_years] > max , max )
+      scaling[,X_inv_years] <- replace(scaling[,X_inv_years], 
+                                                 scaling[,X_inv_years] < min , min )
+    }  }
+  
+  
+   # ------------------------------------
   # Extend Scaling Factors 
   # with sector specific methods for X_scaling_years to all X_emissions_years,
   #   i.e. fill in the gaps where inv data isn't present. needed_years represents 
@@ -524,8 +585,13 @@ F.scaling <- function( ceds_data, inv_data, region,
         }
         if(nrow(meta_add)>0){
           names(meta_add) <- c('iso',scaling_name,'year')
-          meta_add$comment <- paste('Linearly interpolated from inventory -', inv_name)
-          meta_notes <- rbind(meta_notes, meta_add)
+          meta_add$comment <- paste('Scaled by linearly interpolated scaling factor from inventory -', inv_name)
+          meta_notes <- replaceValueColMatch(meta_notes, meta_add,
+                                             x.ColName="comment",
+                                             y.ColName = "comment",
+                                             match.x=c('iso',scaling_name,'year'),
+                                             match.y=c('iso',scaling_name,'year'),
+                                             addEntries = TRUE)
         }}
       
       linear_int <- t( na.approx( t(linear[,X_inv_years_full])  , na.rm=FALSE) )
@@ -552,10 +618,18 @@ F.scaling <- function( ceds_data, inv_data, region,
           add <- add[which(is.na(add$value)),c('iso',scaling_name,'variable')]
           meta_add <- rbind(meta_add, add)
         }
+        
         if(nrow(meta_add)>0){
           names(meta_add) <- c('iso',scaling_name,'year')
-          meta_add$comment <- paste('Constant interpolated from inventory -', inv_name)
-          meta_notes <- rbind(meta_notes, meta_add)
+          meta_add$comment <- paste('Scaled by constantly interpolated scaling factor from inventory -', inv_name)
+          meta_notes <- replaceValueColMatch(meta_notes, meta_add,
+                                             x.ColName="comment",
+                                             y.ColName = "comment",
+                                             match.x=c('iso',scaling_name,'year'),
+                                             match.y=c('iso',scaling_name,'year'),
+                                             addEntries = TRUE)
+          if( nrow(meta_notes) != nrow(unique(meta_notes[,c('iso',scaling_name,'year')])) ) stop('Error in value-meta_data. 
+                                                                        Duplicate entries in Interpolation Section')
         }}
       constant_int <- t( na.locf( t(constant[,X_inv_years_full]) , na.rm = FALSE ) )
       constant <- cbind( constant[,c('iso', scaling_name)] , constant_int)
@@ -620,8 +694,20 @@ F.scaling <- function( ceds_data, inv_data, region,
               add$iso <- scaling_ext[i,c('iso')]
               if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
               if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
-              add$comment <-  paste('Scaled to Inventory - Linearly extrapolated backward -', inv_name)
-              meta_notes <- rbind(meta_notes, add)
+              
+              add$comment <- paste('Scaled by linearly pre-extended scaling factor from inventory -', inv_name)
+              meta_notes <- replaceValueColMatch(meta_notes, add,
+                                                 x.ColName="comment",
+                                                 y.ColName = "comment",
+                                                 match.x=c('iso',scaling_name,'year'),
+                                                 match.y=c('iso',scaling_name,'year'),
+                                                 addEntries = TRUE)
+              
+              if( nrow(meta_notes) != nrow(unique(meta_notes[,c('iso',scaling_name,'year')])) ) stop('Error in value-meta_data. 
+                                                                        Duplicate entries in Pre extrapolation Section')
+              
+#               add$comment <-  paste('Scaled to Inventory - Linearly extrapolated backward -', inv_name)
+#               meta_notes <- rbind(meta_notes, add)
             } }
           # if linear interpolation, but only 1 inventory year
         } else if( ext_method_default[i,'pre_ext_method'] == 'linear' && length(X_inv_years_full)>1 ){
@@ -637,8 +723,18 @@ F.scaling <- function( ceds_data, inv_data, region,
             if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
             if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
             
-            add$comment <-  paste('Scaled to Inventory - constant extrapolated backward -', inv_name)
-            meta_notes <- rbind(meta_notes, add)
+            add$comment <- paste('Scaled by constantly pre-extended scaling factor from inventory -', inv_name)
+            meta_notes <- replaceValueColMatch(meta_notes, add,
+                                               x.ColName="comment",
+                                               y.ColName = "comment",
+                                               match.x=c('iso',scaling_name,'year'),
+                                               match.y=c('iso',scaling_name,'year'),
+                                               addEntries = TRUE)
+            if( nrow(meta_notes) != nrow(unique(meta_notes[,c('iso',scaling_name,'year')])) ) stop('Error in value-meta_data. 
+                                                                        Duplicate entries in pre-extrapolation Section')
+            
+#             add$comment <-  paste('Scaled to Inventory - constant extrapolated backward -', inv_name)
+#             meta_notes <- rbind(meta_notes, add)
           }
           pre_scaling_ext_line[1,] <-t(na.locf(t(pre_scaling_ext_line[1,]), fromLast = TRUE, na.rm = FALSE))
           # Linear Extrapolation to Scaling Factor = 1, from most recent value
@@ -652,8 +748,19 @@ F.scaling <- function( ceds_data, inv_data, region,
             add$iso <- scaling_ext[i,c('iso')]
             if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
             if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
-            add$comment <-  paste('Scaled to Inventory - Linearly extrapolated backward to 1 -', inv_name)
-            meta_notes <- rbind(meta_notes, add)
+            
+            add$comment <- paste('Scaled by linear pre-extended to 1 scaling factor from inventory -', inv_name)
+            meta_notes <- replaceValueColMatch(meta_notes, add,
+                                               x.ColName="comment",
+                                               y.ColName = "comment",
+                                               match.x=c('iso',scaling_name,'year'),
+                                               match.y=c('iso',scaling_name,'year'),
+                                               addEntries = TRUE)
+            if( nrow(meta_notes) != nrow(unique(meta_notes[,c('iso',scaling_name,'year')])) ) stop('Error in value-meta_data. 
+                                                                        Duplicate entries in pre extrapolation Section')
+            
+#             add$comment <-  paste('Scaled to Inventory - Linearly extrapolated backward to 1 -', inv_name)
+#             meta_notes <- rbind(meta_notes, add)
           }
         }
         scaling_ext[i,X_pre_scaling_ext_years] <- pre_scaling_ext_line[1,X_pre_scaling_ext_years]
@@ -694,8 +801,19 @@ F.scaling <- function( ceds_data, inv_data, region,
               add$iso <- scaling_ext[i,c('iso')]
               if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
               if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
-              add$comment <-  paste('Scaled to Inventory - Linearly extrapolated forward -', inv_name)
-              meta_notes <- rbind(meta_notes, add)
+              
+              add$comment <- paste('Scaled by linearly post-extended scaling factor from inventory -', inv_name)
+              meta_notes <- replaceValueColMatch(meta_notes, add,
+                                                 x.ColName="comment",
+                                                 y.ColName = "comment",
+                                                 match.x=c('iso',scaling_name,'year'),
+                                                 match.y=c('iso',scaling_name,'year'),
+                                                 addEntries = TRUE)
+              if( nrow(meta_notes) != nrow(unique(meta_notes[,c('iso',scaling_name,'year')])) ) stop('Error in value-meta_data. 
+                                                                        Duplicate entries in post-extrapolation Section')
+              
+#               add$comment <-  paste('Scaled to Inventory - Linearly extrapolated forward -', inv_name)
+#               meta_notes <- rbind(meta_notes, add)
             }
           }}
         # Constant Extrapolation
@@ -708,8 +826,19 @@ F.scaling <- function( ceds_data, inv_data, region,
             add$iso <- scaling_ext[i,c('iso')]
             if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
             if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
-            add$comment <-  paste('Scaled to Inventory - Linearly extrapolated forward -', inv_name)
-            meta_notes <- rbind(meta_notes, add)
+            
+            add$comment <- paste('Scaled by constantly post-extended scaling factor from inventory -', inv_name)
+            meta_notes <- replaceValueColMatch(meta_notes, add,
+                                               x.ColName="comment",
+                                               y.ColName = "comment",
+                                               match.x=c('iso',scaling_name,'year'),
+                                               match.y=c('iso',scaling_name,'year'),
+                                               addEntries = TRUE)
+            if( nrow(meta_notes) != nrow(unique(meta_notes[,c('iso',scaling_name,'year')])) ) stop('Error in value-meta_data. 
+                                                                        Duplicate entries in post extrapolation Section')
+            
+#             add$comment <-  paste('Scaled to Inventory - Linearly extrapolated forward -', inv_name)
+#             meta_notes <- rbind(meta_notes, add)
           }
         }
         # Linear Extrapolation to Scaling Factor = 1, from most recent value
@@ -723,8 +852,19 @@ F.scaling <- function( ceds_data, inv_data, region,
             add$iso <- scaling_ext[i,c('iso')]
             if(method %in% c('sector','fuel')) add[,scaling_name] <- scaling_ext[i,scaling_name]
             if(method %in% c('both')) add[,scaling_name] <- t(replicate(scaling_ext[i,scaling_name],n=length(year)))
-            add$comment <-  paste('Scaled to Inventory - Linearly extrapolated forward -', inv_name)
-            meta_notes <- rbind(meta_notes, add)
+
+            add$comment <- paste('Scaled by linearly post-extended to 1 scaling factor from inventory -', inv_name)
+            meta_notes <- replaceValueColMatch(meta_notes, add,
+                                               x.ColName="comment",
+                                               y.ColName = "comment",
+                                               match.x=c('iso',scaling_name,'year'),
+                                               match.y=c('iso',scaling_name,'year'),
+                                               addEntries = TRUE)
+            if( nrow(meta_notes) != nrow(unique(meta_notes[,c('iso',scaling_name,'year')])) ) stop('Error in value-meta_data. 
+                                                                        Duplicate entries in post-extrapolation Section')
+            
+#             add$comment <-  paste('Scaled to Inventory - Linearly extrapolated forward -', inv_name)
+#             meta_notes <- rbind(meta_notes, add)
           }
         }
         scaling_ext[i,X_post_scaling_ext_years] <- post_scaling_ext_line[1,X_post_scaling_ext_years]
@@ -736,45 +876,9 @@ F.scaling <- function( ceds_data, inv_data, region,
     }
     }# End for loop over all scaling countries and sector/fuels
   
+
   # ------------------------------------
-  # Check validity of and replace Scaling Factors
-  
-  if ( replacement_method == 'replace'){
-    printLog( "Checking scaling factors... " )
-    
-    if (is.na(replacement_scaling_factor)) replacement_scaling_factor <- max_scaling_factor
-    
-    max <- max_scaling_factor
-    min <- 1/max_scaling_factor
-    index <- rbind( which( scaling_ext[,X_emissions_years] >= max , arr.ind=T ) ,
-                    which( scaling_ext[,X_emissions_years] <= min , arr.ind=T) )
-    
-    if(nrow(index)>0){
-      printLog( "Replacing very large/small scaling factors." )
-      problem_scaling_factors <- melt(scaling_ext, id.vars = c('iso', scaling_name))
-      
-      problem_scaling_factors <- problem_scaling_factors[  problem_scaling_factors$value >= max |  
-                                                             problem_scaling_factors$value <= min , ]
-      names(problem_scaling_factors) <- c('iso',scaling_name, 'year', 'calculated_scaling_factor')
-      
-      if(meta == TRUE) {
-        add <- problem_scaling_factors
-        add[,c('new_note')] <- paste('- truncated at max scaling factor (','=', max_scaling_factor,')')
-        add <- merge(meta_notes, add[,c('iso',scaling_name,'year','new_note')],
-                     all=TRUE)
-        
-        add[which(!is.na(add$new_note)),'comment'] <- paste( add[which(!is.na(add$new_note)),'comment'],
-                                                             add[which(!is.na(add$new_note)),'new_note'])
-        meta_notes <- add[,c('iso',scaling_name,'year','comment')]
-      }
-      
-      writeData( problem_scaling_factors , domain = "DIAG_OUT" , paste0('F.Problem_Scaling_Factors_',inv_name))
-      
-      scaling_ext[,X_emissions_years] <- replace(scaling_ext[,X_emissions_years], 
-                                                 scaling_ext[,X_emissions_years] > max , max )
-      scaling_ext[,X_emissions_years] <- replace(scaling_ext[,X_emissions_years], 
-                                                 scaling_ext[,X_emissions_years] < min , min )
-    }  }
+  # Final processing
   
   printLog('Scaling Factors - Final processing...')
   out <- melt(scaling_ext, id.vars= c('iso', scaling_name))
@@ -782,9 +886,9 @@ F.scaling <- function( ceds_data, inv_data, region,
   names(out) <- c('iso',scaling_name, 'year','scaling_factor')
   
   scaling_ext_byCEDS <- F.scalingToCeds(scalingData=scaling_ext, dataFormat = 'wide')
-  writeData( scaling_ext_byCEDS , domain = "DIAG_OUT", paste0('F.Scaling_Factors_ceds_sectors_',inv_name))
+  writeData( scaling_ext_byCEDS , domain = "DIAG_OUT", paste0('F.',em,'_Scaling_Factors_ceds_sectors_',inv_name))
   
-  writeData( scaling_ext , domain = "DIAG_OUT", paste0('F.Scaling_Factors_scaling_sectors_',inv_name))
+  writeData( scaling_ext , domain = "DIAG_OUT", paste0('F.',em,'_Scaling_Factors_scaling_sectors_',inv_name))
   
   list.out <- list(out,meta_notes)
   names(list.out) <- c( 'scaling_factors', 'meta_notes')
@@ -878,22 +982,37 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
   if( type %!in% c('EF','emissions')) stop('Invalid emission type. Cannot update scaled value metadata')
   
   # read in previsou value-meta data
-  meta <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE )
+  meta <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
+  meta <- melt(meta, id.vars = c('iso','sector','fuel'))
+  names(meta) <- c("iso","sector","fuel","year","comment" )
+  
   # aggregate scaling factor meta data to ceds 
+  printLog ("Aggregating meta notes")
   meta_new <- F.scalingToCeds(meta_notes, dataFormat = 'long','comment','new_comment')
+  meta_new <- meta_new[complete.cases(meta_new),]
   
   meta_old_unchanged <- meta[ meta$iso %!in% unique(meta_notes$iso),]
   meta_old_changed <- meta[ meta$iso %in% unique(meta_notes$iso),]
   
-  meta_combined <- merge(meta_new, meta_old_changed, all.y = TRUE)
-  meta_combined[which(is.na(meta_combined$new_comment)),'new_comment'] <- 
-  meta_combined[which(is.na(meta_combined$new_comment)),'comment']
+  printLog ("Merging meta notes")
+ 
+  meta_combined <- replaceValueColMatch(x=meta_old_changed,
+                       y=meta_new,
+                       x.ColName = 'comment', y.ColName = 'new_comment',
+                       match.x = c('iso', 'sector','year'),
+                       addEntries=FALSE)
   
-  meta_combined <- meta_combined[,c('iso','sector','fuel','year','new_comment')]
-  names(meta_combined) <- c('iso','sector','fuel','year','comment')
+#   meta_combined <- merge(meta_new, meta_old_changed, all.y = TRUE)
+#   meta_combined[which(is.na(meta_combined$new_comment)),'new_comment'] <- 
+#   meta_combined[which(is.na(meta_combined$new_comment)),'comment']
+#   
+#   meta_combined <- meta_combined[,c('iso','sector','fuel','year','new_comment')]
+#   names(meta_combined) <- c('iso','sector','fuel','year','comment')
  
   new_meta_out <- rbind(meta_combined, meta_old_unchanged)
- 
+  printLog('Casting meta to wide format')
+  new_meta_out <- cast(new_meta_out, iso+sector+fuel~year, value = 'comment') 
+  
   writeData( new_meta_out, domain = 'MED_OUT', 
 			 fn =paste0( "F.", em, "_", "scaled_",type,"-value_metadata") )  
 }
@@ -967,13 +1086,14 @@ F.write <- function( scaled_ef = scaled_ef, scaled_em = scaled_em, domain = "MED
 # output files: 
 
 F.addScaledToDb <- function( ef_scaled, em_scaled,
-                             meta_notes ){
+                             meta_notes,
+                             EM_old = input_em_read,
+                             EF_old = input_ef_read){
   printLog( "Updating database with scaled emissions/emission factors." )
   
   # pre-scaled emissions and new emissions
-  old_emissions <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_emissions" ), 
-                             meta = FALSE )
-  old_efs <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_EF" ), meta = FALSE )
+  old_emissions <- EM_old
+  old_efs <- EF_old
   
   #---------
   
@@ -1012,7 +1132,7 @@ F.addScaledToDb <- function( ef_scaled, em_scaled,
   # update value_metadata
   if ( Write_value_metadata ) { 
 	  F.update_value_metadata('EF', meta_notes)
-	  F.update_value_metadata('emissions', meta_notes) 
+	  # F.update_value_metadata('emissions', meta_notes) 
   }
   
   # cast to wide format 

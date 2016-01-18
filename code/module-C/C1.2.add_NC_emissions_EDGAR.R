@@ -29,7 +29,7 @@
 # Universal header file - provides logging, file support, etc.
 
     headers <- c( "common_data.R","data_functions.R", "analysis_functions.R", 
-                  "process_db_functions.R") # Additional function files required.
+                  "process_db_functions.R", 'timeframe_functions.R') # Additional function files required.
     log_msg <- paste0( "Processing EDGAR non-combustion default emissions data." ) # First message to be printed to the log
     script_name <- "C.1.2.add_NC_emissions_EDGAR.R" 
     source( paste0( PARAM_DIR, "header.R" ) )

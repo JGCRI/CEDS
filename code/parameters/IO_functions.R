@@ -142,11 +142,11 @@ logStop <- function() {
                                         output_files = "", output_description = "" )
         IO_doc <- IO_doc[ IO_doc$file == "No such file", ]
 	} else {
-        IO_doc <- readData( "DOCUMENTATION", "IO_documentation", meta = FALSE, mute = TRUE )
+        IO_doc <- readData( "DOCUMENTATION", "IO_documentation", meta = FALSE, mute = TRUE, to_numeric=FALSE )
     }
     
     sys_doc <- readData( "DOCUMENTATION", "System_Documentation", ".xlsx", meta = FALSE, 
-                         mute = TRUE, sheet_selection = "Module Documentation" )
+                         mute = TRUE, sheet_selection = "Module Documentation" , to_numeric=FALSE)
     
     # If there is no entry for the current script, make one.
     if( !( fn %in% IO_doc$file ) ){
