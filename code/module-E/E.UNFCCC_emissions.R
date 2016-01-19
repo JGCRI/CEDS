@@ -36,9 +36,6 @@ initialize( script_name, log_msg, headers )
 # -----------------------------------------------------------------------------------------------------------
 # 0.5 Settings/Load Files
 
-### Temporary assignment for PIC testing
-em <- "SO2"
-
 MCL <- readData( "MAPPINGS", "Master_Country_List" )
 loadPackage('tools')
 
