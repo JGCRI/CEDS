@@ -28,8 +28,6 @@ expandAll <- function(input,
                       iso=NA , sector=NA, fuel=NA,
                       toWide = FALSE
 ){
-  source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
-  source( paste( PARAM_DIR, "data_functions.R", sep = "" ) )
   
   # Define parameters from data
   inp <- input
