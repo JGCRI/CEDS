@@ -33,6 +33,10 @@ script_name <- "E.UNFCCC_emissions.R"
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
+args_from_makefile <- commandArgs( TRUE )
+em <- args_from_makefile[ 1 ]
+if ( is.na( em ) ) em <- "NOx"
+
 # -----------------------------------------------------------------------------------------------------------
 # 0.5 Settings/Load Files
 
