@@ -60,6 +60,9 @@
                "est" , "fin" , "fra" , "gbr" , "grc" , "hrv" , "hun" , "irl" , "isl" , "ita" , "jpn",  
                "ltu" , "lva" , "mlt" , "nld" , "nor" , "nzl" , "prt" , "rou" , "svk" , "svn" , "swe" ,
                "tur" , "ukr" )
+# include only regions that aren't scaled elsewhere
+# TODO: blr and ukr should only be used for specific years where is close to expert estimates
+  region <- c(  "aut" , "blr" , "grc" , "jpn", "nzl" , "ukr" )
   inv_years<-c(1990:2012)
   
 
