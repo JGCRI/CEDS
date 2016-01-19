@@ -504,11 +504,11 @@ F.scaling <- function( ceds_data, inv_data, region,
       if(meta == TRUE) {
         add.max <- problem_scaling_factors[  problem_scaling_factors$calculated_scaling_factor >= max,
                                              c('iso',scaling_name,'year')]
-        add.max[,c('comment')] <- paste('- truncated at max scaling factor (','=', max_scaling_factor,')')
+        add.max[,c('comment')] <- paste('Scaled to inventory ',inv_name,' - truncated at max scaling factor (','=', max_scaling_factor,')')
         
         add.min <- problem_scaling_factors[  problem_scaling_factors$calculated_scaling_factor <= min,
                                              c('iso',scaling_name,'year')]
-        add.min[,c('comment')] <- paste0('- truncated at min scaling factor ( ','= 1/', max_scaling_factor,')')
+        add.min[,c('comment')] <- paste0('Scaled to inventory ',inv_name,' - truncated at min scaling factor ( ','= 1/', max_scaling_factor,')')
         
         add <- rbind(add.min,add.max)
         
@@ -985,6 +985,7 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
   meta <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
   meta <- melt(meta, id.vars = c('iso','sector','fuel'))
   names(meta) <- c("iso","sector","fuel","year","comment" )
+  meta$comment <- as.character(meta$comment)
   
   # aggregate scaling factor meta data to ceds 
   printLog ("Aggregating meta notes")
