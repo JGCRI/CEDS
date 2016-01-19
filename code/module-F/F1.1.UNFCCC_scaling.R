@@ -28,7 +28,8 @@
 
   # Call standard script header function to read in universal header files - 
   # provide logging, file support, and system functions - and start the script log.
-  headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R" ) # Additional function files required.
+  headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R",
+                "interpolation_extention_functions.R") # Additional function files required.
   log_msg <- "Modifying emissions factors from UNFCCC inventory data" # First message to be printed to the log
   script_name <- "F1.1.UNFCCC_scaling.R"
   
