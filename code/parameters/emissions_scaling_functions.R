@@ -504,11 +504,11 @@ F.scaling <- function( ceds_data, inv_data, region,
       if(meta == TRUE) {
         add.max <- problem_scaling_factors[  problem_scaling_factors$calculated_scaling_factor >= max,
                                              c('iso',scaling_name,'year')]
-        add.max[,c('comment')] <- paste('Scaled to inventory ',inv_name,' - truncated at max scaling factor (','=', max_scaling_factor,')')
+        if(nrow(add.max)>0)  add.max[,c('comment')] <- paste0('Scaled to inventory ',inv_name,' - truncated at max scaling factor (','=', max_scaling_factor,')')
         
         add.min <- problem_scaling_factors[  problem_scaling_factors$calculated_scaling_factor <= min,
                                              c('iso',scaling_name,'year')]
-        add.min[,c('comment')] <- paste0('Scaled to inventory ',inv_name,' - truncated at min scaling factor ( ','= 1/', max_scaling_factor,')')
+        if(nrow(add.min)>0)  add.min[,c('comment')] <- paste0('Scaled to inventory ',inv_name,' - truncated at min scaling factor ( ','= 1/', max_scaling_factor,')')
         
         add <- rbind(add.min,add.max)
         
