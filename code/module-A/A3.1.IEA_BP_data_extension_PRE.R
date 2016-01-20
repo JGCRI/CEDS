@@ -252,6 +252,8 @@
     IEA_BP_ext <- rbind(IEA_BP_ext[,c("iso", "sector", "fuel","units",X_emissions_years)],
                         iea_data_full_not_extended)
 
+# Replace NAs with 0
+    IEA_BP_ext[is.na(IEA_BP_ext)] <- 0
     
 # ------------------------------------------------------------------------------
 # 5. Aggregate Data by fuel
