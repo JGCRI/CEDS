@@ -39,7 +39,7 @@ initialize( script_name, log_msg, headers )
 # for running directly from R - defines emission species (normally from command line)
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "NOx"
 
 # "em" is defined from parent script
 em_lc <- tolower( em )
@@ -53,10 +53,16 @@ EF_db <- readData("MED_OUT", paste0( "B.", em ,"_", "comb", "_EF_db" ))
 
 # sort
 control_frac <- control_frac[ with( control_frac, order( iso, sector, fuel ) ), ]
+EF_db <- EF_db[ with( EF_db, order( iso, sector, fuel ) ), ]
 
 # make sure values are numeric
 control_frac[,X_emissions_years] <- lapply(control_frac[,X_emissions_years], as.numeric)
+EF_db[,X_emissions_years] <- lapply(EF_db[,X_emissions_years], as.numeric)
 
+if(any(is.na(EF_db))) stop(paste('NAs in EF data base for',em,'please check.'))
+if(any(is.na(control_frac))) stop(paste('NAs in EF data base for',em,'please check.'))
+                           
+                           
 # Set output EF_db
 
 # Do EF_db check for each database
