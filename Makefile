@@ -218,7 +218,7 @@ clean-modF :
 # aa1-1
 # Produce population data as system input
 $(MED_OUT)/A.UN_pop_master.csv : \
-	$(MOD_A)/A1.1.UN_pop_WB_extension.R \
+	$(MOD_A)/A1.1.UN_pop_WB_HYDE_extension.R \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
 	$(PARAMS)/IO_functions.R \
@@ -228,7 +228,8 @@ $(MED_OUT)/A.UN_pop_master.csv : \
 	$(SOCIO_DATA)/WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.xlsx \
 	$(SOCIO_DATA)/WUP2014-F21-Proportion_Urban_Annual.xlsx \
 	$(SOCIO_DATA)/WB_SP.POP.TOTL.csv \
-	$(SOCIO_DATA)/WB_SP.URB.TOTL.csv
+	$(SOCIO_DATA)/WB_SP.URB.TOTL.csv \
+	$(SOCIO_DATA)/urbanpop_2004Rev_tcm61-36007.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa1-2
