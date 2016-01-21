@@ -42,16 +42,18 @@ initialize( script_name, log_msg, headers )
 # Describes which emission species is being analyzed 
   args_from_makefile <- commandArgs( TRUE )
   em <<- args_from_makefile[1]
-  if ( is.na( em ) ) em <- "SO2"
+  if ( is.na( em ) ) em <- "CH4"
   
 # Stop script if running for unsupported emissions species
-  if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2') ) {
+  if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2','CH4') ) {
     stop (paste( 'EMEP script is not supported for emission species', em))
   }
   
   em.read <- em
   if(em == "SO2") em.read <- "SOx"
 
+if ( em %in% c('BC','CO','NH3','NMVOC','NOx','SO2') ){
+  
 # SELECT EMEP LEVEL - 'LEVEL1' OR 'LEVEL2'
   level <- 'LEVEL1'
   
@@ -116,6 +118,16 @@ initialize( script_name, log_msg, headers )
   EMEP_emRUS <- subset(EMEP_emdf, iso == "rus")
   remove_ISO <- c('rus')
   EMEP_emdf<-EMEP_emdf[-which(EMEP_emdf$iso %in% remove_ISO), ]
+  
+}
+  
+if ( em %in% c('CH4') ){
+  
+    EMEP_emdf <- c('iso','sector','year')
+    EMEP_emRUS <- c('iso','sector','year')
+    
+}  
+  
 # -----------------------------------------------------------------------------------------------------------
 # 3.Meta-
 #   meta_names <- c( "Data.Type", "Emission", "Region", "sector", "Start.Year", "End.Year","Source.Comment" )
