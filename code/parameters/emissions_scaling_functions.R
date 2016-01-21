@@ -394,8 +394,12 @@ F.scaling <- function( ceds_data, inv_data, region,
   ext_method_default[,'interp_method'] <- interp_default
   ext_method_default[,'pre_ext_method'] <- pre_ext_default
   ext_method_default[,'post_ext_method'] <- post_ext_default
+  
+  if( 'other' %in% names(ext_method)) ext_method_default[,'other'] <- NA
+  
   # update with mapping file
   methods <- c('interp_method','pre_ext_method','post_ext_method')
+  if( 'other' %in% names(ext_method)) methods <- c(methods, 'other')
   for( n in seq_along(methods)){
     all <- ext_method[ext_method$iso %in% 'all', c(scaling_name,methods[n])]
     for ( i in seq_along(all$scaling)){
@@ -631,6 +635,8 @@ F.scaling <- function( ceds_data, inv_data, region,
           if( nrow(meta_notes) != nrow(unique(meta_notes[,c('iso',scaling_name,'year')])) ) stop('Error in value-meta_data. 
                                                                         Duplicate entries in Interpolation Section')
         }}
+      
+      
       constant_int <- t( na.locf( t(constant[,X_inv_years_full]) , na.rm = FALSE ) )
       constant <- cbind( constant[,c('iso', scaling_name)] , constant_int)
       names(constant) <- c('iso', scaling_name , X_inv_years_full ) }
@@ -739,8 +745,15 @@ F.scaling <- function( ceds_data, inv_data, region,
           pre_scaling_ext_line[1,] <-t(na.locf(t(pre_scaling_ext_line[1,]), fromLast = TRUE, na.rm = FALSE))
           # Linear Extrapolation to Scaling Factor = 1, from most recent value
         } else if( ext_method_default[i,'pre_ext_method'] == 'linear_1'){
+          if( ext_method_default[i,'other'] ==  ext_year_default[i,'pre_ext_year'] ){
           pre_scaling_ext_line[1,1]<-1
           pre_scaling_ext_line[1,] <- na.approx(  t(pre_scaling_ext_line[1,]) , maxgap = Inf)
+          } else if(ext_method_default[i,'other'] >  ext_year_default[i,'pre_ext_year']){
+          pre_scaling_ext_line[1,paste0('X',ext_method_default[i,'other'])] <- 1
+          pre_scaling_ext_line[1,] <- na.approx(  t(pre_scaling_ext_line[1,]) , na.rm=FALSE, maxgap = Inf)  
+          pre_scaling_ext_line[1,] <- na.locf(  t(pre_scaling_ext_line[1,]) , fromLast=TRUE ,na.rm=FALSE ,maxgap = Inf)  
+          }
+          
           # Add meta notes          
           if(meta==TRUE){
             year <- X_pre_scaling_ext_years
@@ -1148,9 +1161,9 @@ F.addScaledToDb <- function( ef_scaled, em_scaled,
   if( na_error == 1){
     
     if( all(is.na(scaled_em_out[,X_emissions_years]) %in% FALSE) ){
-      printLog("Checking NAs... No NA's in EF_db")} else  Stop("Checking NAs... NA's in EF_db. Check Code.")
+      printLog("Checking NAs... No NA's in EF_db")} else  stop("Checking NAs... NA's in EF_db. Check Code.")
     if( all(is.na(scaled_ef_out[,X_emissions_years]) %in% FALSE) ){
-      printLog("Checking NAs... No NA's in EF_db")} else  Stop("Checking NAs... NA's in EF_db. Check Code.")
+      printLog("Checking NAs... No NA's in EF_db")} else  stop("Checking NAs... NA's in EF_db. Check Code.")
     
   }
   
