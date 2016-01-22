@@ -66,7 +66,7 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
                                method = mapping_method,
                                region, inv_name, inv_years) {
   ###add iso column for single country inventories
-  
+
   # Determine scaling method and set params
   if( method == 'sector' ) {
     scaling_name  <- "scaling_sector"
@@ -299,6 +299,17 @@ F.scaling <- function( ceds_data, inv_data, region,
                        replacement_scaling_factor = max_scaling_factor,
                        meta = TRUE) {
 
+  ext_start_year = start_year 
+  ext_end_year = end_year
+  ext = TRUE 
+  interp_default = 'linear' 
+  pre_ext_default = 'constant' 
+  post_ext_default = 'constant' 
+  replacement_method = 'none' 
+  max_scaling_factor = 100
+  replacement_scaling_factor = max_scaling_factor
+  
+  
   # Define simple function for use later. If TRUE, all values NA
   all.na <- function(x){
     return(all(is.na(x)))}
@@ -531,9 +542,48 @@ F.scaling <- function( ceds_data, inv_data, region,
       scaling[,X_inv_years] <- replace(scaling[,X_inv_years], 
                                                  scaling[,X_inv_years] < min , min )
     }  }
+
+  # ------------------------------------
+  # Check Scaling Factors against default method/year
   
+  if( nrow(ext_method_default)  != nrow(scaling) |
+      !identical(scaling$iso,ext_method_default$iso) |
+      !identical(scaling$iso,ext_year_default$iso)){
+    
+    old_method <- ext_method_default
+    old_yr <- ext_year_default
+    new_method <- scaling[,c('iso',scaling_name)]
+    new_yr <- scaling[,c('iso',scaling_name)]
+    new_method[,c('interp_method','pre_ext_method','post_ext_method')] <- NA
+    new_yr[,c("pre_ext_year","post_ext_year")] <- NA
+    
+    new_method <- replaceValueColMatch(new_method, old_method,
+                        x.ColName = c('interp_method','pre_ext_method','post_ext_method'),
+                        match.x = c('iso',scaling_name),
+                        addEntries = FALSE)
+  if( 'other' %in% names(old_method)) {
+    new_method$other <- NA
+    new_method <- replaceValueColMatch(new_method, old_method,
+                         x.ColName = c('other'),
+                         match.x = c('iso',scaling_name),
+                         addEntries = FALSE)
+  }
+    new_year <- replaceValueColMatch(new_yr, old_yr,
+                         x.ColName = c("pre_ext_year","post_ext_year"),
+                         match.x = c('iso',scaling_name),
+                         addEntries = FALSE)
   
-   # ------------------------------------
+    ext_method_default <- new_method
+    ext_year_default <- new_year
+     
+  if( nrow(ext_method_default)  != nrow(scaling) |
+     !identical(scaling$iso,ext_method_default$iso) |
+     !identical(scaling$iso,ext_year_default$iso) ){stop('In F.scaling, scaling factor
+           data frame and default extention methods do not match.')}  
+    
+  }
+  
+  # ------------------------------------
   # Extend Scaling Factors 
   # with sector specific methods for X_scaling_years to all X_emissions_years,
   #   i.e. fill in the gaps where inv data isn't present. needed_years represents 
