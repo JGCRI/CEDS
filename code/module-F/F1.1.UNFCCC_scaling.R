@@ -28,7 +28,8 @@
 
   # Call standard script header function to read in universal header files - 
   # provide logging, file support, and system functions - and start the script log.
-  headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R" ) # Additional function files required.
+  headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R",
+                "interpolation_extention_functions.R") # Additional function files required.
   log_msg <- "Modifying emissions factors from UNFCCC inventory data" # First message to be printed to the log
   script_name <- "F1.1.UNFCCC_scaling.R"
   
@@ -43,7 +44,7 @@
   if ( is.na( em ) ) em <- "SO2"
 
 # Stop script if running for unsupported species
-  if ( em %!in% c('SO2') ) {
+  if ( em %!in% c('SO2','CO','NMVOC','NOx') ) {
     stop (paste( ' UNFCCC script is not supported for emission species', em, 'remove from script
                  list in F1.1.inventory_scaling.R'))
   }
@@ -60,6 +61,9 @@
                "est" , "fin" , "fra" , "gbr" , "grc" , "hrv" , "hun" , "irl" , "isl" , "ita" , "jpn",  
                "ltu" , "lva" , "mlt" , "nld" , "nor" , "nzl" , "prt" , "rou" , "svk" , "svn" , "swe" ,
                "tur" , "ukr" )
+# include only regions that aren't scaled elsewhere
+# TODO: blr and ukr should only be used for specific years where is close to expert estimates
+  region <- c(  "aut" , "blr" , "grc" , "jpn", "nzl" , "ukr" )
   inv_years<-c(1990:2012)
   
 

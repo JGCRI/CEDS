@@ -218,7 +218,7 @@ clean-modF :
 # aa1-1
 # Produce population data as system input
 $(MED_OUT)/A.UN_pop_master.csv : \
-	$(MOD_A)/A1.1.UN_pop_WB_extension.R \
+	$(MOD_A)/A1.1.UN_pop_WB_HYDE_extension.R \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
 	$(PARAMS)/IO_functions.R \
@@ -228,7 +228,8 @@ $(MED_OUT)/A.UN_pop_master.csv : \
 	$(SOCIO_DATA)/WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.xlsx \
 	$(SOCIO_DATA)/WUP2014-F21-Proportion_Urban_Annual.xlsx \
 	$(SOCIO_DATA)/WB_SP.POP.TOTL.csv \
-	$(SOCIO_DATA)/WB_SP.URB.TOTL.csv
+	$(SOCIO_DATA)/WB_SP.URB.TOTL.csv \
+	$(SOCIO_DATA)/urbanpop_2004Rev_tcm61-36007.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa1-2
@@ -441,8 +442,8 @@ $(MED_OUT)/D.$(EM)_default_total_EF.csv : \
 
 # ee1-1
 # Creates scaled emissions and emissions factors for US data
-$(MED_OUT)/E.SO2_UNFCCC_inventory.csv : \
-	$(MOD_E)/E.UNFCCC_SO2_emissions.R
+$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv : \
+	$(MOD_E)/E.UNFCCC_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
@@ -462,7 +463,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 	$(MOD_F)/F1.1.Edgar_scaling.R \
 	$(PARAMS)/emissions_scaling_functions.R \
 	$(MED_OUT)/E.$(EM)_EMEP_inventory.csv \
-	$(MED_OUT)/E.SO2_UNFCCC_inventory.csv \
+	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
 	$(SC_MAPPINGS)/UNFCCC_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/US_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/CAN_scaling_mapping.xlsx \
