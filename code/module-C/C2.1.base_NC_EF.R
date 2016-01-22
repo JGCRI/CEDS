@@ -89,6 +89,9 @@ for( i in 1:length( em_nums ) ){
 
 new_efs$units <- paste0( emissions_data$units, "/", activity_data$units )
 
+if(em=='NH4') new_efs<-replace(new_efs, new_efs==0,0.01)
+
+
 # --------------------------------------------------------------------------------------------
 # 3. Output
 
