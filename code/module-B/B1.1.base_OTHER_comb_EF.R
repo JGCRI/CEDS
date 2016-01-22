@@ -45,11 +45,11 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NOx"
+if ( is.na( em ) ) em <- "CH4"
 em_lc <- tolower( em )   
 
 # Stop script if running for unsupported species
-if ( em %!in% c('NOx','NMVOC','CH4', 'CO') ) {
+if ( em %!in% c('NOx','NMVOC','CH4', 'CO','CH4') ) {
   stop (paste( 'GAINS EMF-30 is not supported for emission species', em, 'remove from script
                list in B1.2.add_comb_EF.R and/or makefile'))
 }

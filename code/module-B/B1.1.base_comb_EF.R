@@ -51,10 +51,14 @@ source_child <- function( file_name ){ source( paste( MODULE_B, file_name, sep =
 
 # ------------------------------------------------------------------------------------
 
-scripts <- c('B1.1.base_comb_GAINS_EMF-30.R','B1.1.base_comb_EF_control_percent.R')
+scripts <- c()
+if (em %in% c('SO2','NOx','NMVOC','BC','OC','CO','CH4','CO2')) 
+  scripts <- c(scripts,'B1.1.base_comb_GAINS_EMF-30.R')
+
+scripts <- c(scripts,'B1.1.base_comb_EF_control_percent.R')
 
 # Set scripts to generate species-specific base emission factors
-if (em %in% c('SO2','NOx','NMVOC','BC','OC','CO','CH4','CO2')) {
+if (em %in% c('SO2','NOx','NMVOC','BC','OC','CO','CH4','CO2','NH3')) {
   
   if( em == "SO2" ){
     scripts <- c( scripts, "B1.1.base_SO2_comb_EF_parameters.R" )
@@ -63,6 +67,8 @@ if (em %in% c('SO2','NOx','NMVOC','BC','OC','CO','CH4','CO2')) {
   } else if( em == "OC" ){
     stop('"B1.1.base_BC_comb_EF.R" does not support OC yet. Data is uploaded, 
          and code should be similar, but has not been checked yet.')
+  } else if( em == "NH3" ){
+    scripts <- c( scripts, "B1.1.base_NH3_comb_EF.R" )
   } else{
   # B1.1.base_other_comb_EF.R processes GAINS EMF-30 efs for base emissions
   # other than SO2 and BC/OC, if emission species is SO2, BC, or OC, CO2, CH4
