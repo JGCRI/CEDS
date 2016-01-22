@@ -29,7 +29,8 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R" ) # Additional function files required.
+headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R",
+              "interpolation_extention_functions.R" ) # Additional function files required.
 log_msg <- "test inventory data" # First message to be printed to the log
 script_name <- "F1.1.US_scaling.R"
 
@@ -87,6 +88,18 @@ inv_data_sheet <- inv_data_sheet[-remove.na,]
 # Make numeric, convert "NA" to NA
 inv_data_sheet[,paste0('X',inv_years)] <- suppressWarnings(
                       sapply( inv_data_sheet[,paste0('X',inv_years)] , as.numeric) )
+
+#remove values that are the are constant carried forward
+X_inv_years <- paste0('X',inv_years)
+check_years <- length(X_inv_years):2
+check_against <- (length(X_inv_years)-1):1
+for (i in seq_along( check_years )) {
+
+  for (n in seq_along (inv_data_sheet[,1])){
+      if(  any(inv_data_sheet[n,X_inv_years[check_years[i]]] == inv_data_sheet[n,X_inv_years[check_against[i]]] , na.rm=TRUE )) 
+        inv_data_sheet[n,X_inv_years[check_years[i]]] <- NA
+  }
+}
 
 
 # write standard form inventory
