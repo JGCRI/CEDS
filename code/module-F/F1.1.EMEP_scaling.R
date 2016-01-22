@@ -61,6 +61,12 @@ if ( em %!in% c('CO','NH3','NMVOC','NOx','SO2') ) {
 #   the inventory (as a vector of iso codes)
 
 sector_fuel_mapping <- 'EMEP_scaling_mapping'
+
+# Use different mapping function if SO2 - scale back to default EFs
+if ( em == 'SO2' ) {
+  sector_fuel_mapping <- 'EMEP_scaling_mapping_SO2'
+}
+
 mapping_method <- 'sector'
 inv_name <- 'EMEP'
 # Do not include regions with problematic inventories ("mda", "aze")
