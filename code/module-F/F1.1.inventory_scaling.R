@@ -84,12 +84,24 @@
   if ( em %in% c('CO','NH3','NMVOC','NOx','SO2') ) scripts <- c(scripts, 'F1.1.EMEP_scaling.R')
   
   # CAN
-  if ( em %in% c('SO2','NOx','NMVOC','CO','CH4','PM10','PM25' ) ) scripts <- c(scripts, 'F1.1.CAN_scaling_olderData.R')
+  if ( em %in% c('SO2','NOx','NMVOC','CO','PM10','PM25' ) ) scripts <- c(scripts, 'F1.1.CAN_scaling_olderData.R')
   # Newer data must run latter
   if ( em %in% c('SO2','NOx','NMVOC','CO') ) scripts <- c(scripts, 'F1.1.CAN_scaling_newerData.R')
   
   # USA
   if ( em %in% c('SO2','NOx','NMVOC','CO','NH3','PM10','PM25') ) scripts <- c(scripts, 'F1.1.US_scaling.R')
+
+  # China
+  if ( em %in% c('SO2', 'NOx', 'NH3', 'NMVOC', 'CO' ) ) scripts <- c(scripts, 'F1.1.china_scaling.R')
+  
+  # Argentina
+  if ( em %in% c('SO2', 'NOx', 'CO', 'NMVOC' ) ) scripts <- c(scripts, 'F1.1.argentina_scaling.R')
+
+  # Japan
+  if ( em %in% c('SO2', 'NOx', 'CO', 'NMVOC', 'NH3' ) ) scripts <- c(scripts, 'F1.1.Japan_scaling.R')
+  
+  # South Korea
+  if ( em %in% c('SO2', 'NOx', 'CO', 'NMVOC' ) ) scripts <- c(scripts, 'F1.1.south_korea_scaling.R')
   
 # ------------------------------------------------------------------------------------
 # 4. Run all scripts for the given emissions type
