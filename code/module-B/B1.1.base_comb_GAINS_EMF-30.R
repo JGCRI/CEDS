@@ -42,7 +42,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NMVOC"
+if ( is.na( em ) ) em <- "CH4"
 em_lc <- tolower( em )   
 
 # Stop script if running for unsupported species
@@ -333,7 +333,7 @@ writeData(process_gainsEMF30, domain = "MED_OUT", fn = paste0('B.',em,'_NC_EF_GA
 
 # For SO2, BC, OC, CH4, CO2 don't use global GAINS data, but write to diagnostic
 # for other species, write to intermediate-output to be used for base emission factors
-if ( em %in% c('SO2','BC','OC','CH4','CO2') ) {
+if ( em %in% c('SO2','BC','OC','CO2') ) {
   writeData(gainsEMF30_comb, domain = "DIAG_OUT", fn = paste0('B.',em,'_comb_EF_GAINS_EMF30'))
 } else{
   writeData(gainsEMF30_comb, domain = "MED_OUT", fn = paste0('B.',em,'_comb_EF_GAINS_EMF30'))
