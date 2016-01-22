@@ -84,7 +84,7 @@
   if ( em %in% c('CO','NH3','NMVOC','NOx','SO2') ) scripts <- c(scripts, 'F1.1.EMEP_scaling.R')
   
   # CAN
-  if ( em %in% c('SO2','NOx','NMVOC','CO','CH4','PM10','PM25' ) ) scripts <- c(scripts, 'F1.1.CAN_scaling_olderData.R')
+  if ( em %in% c('SO2','NOx','NMVOC','CO','PM10','PM25' ) ) scripts <- c(scripts, 'F1.1.CAN_scaling_olderData.R')
   # Newer data must run latter
   if ( em %in% c('SO2','NOx','NMVOC','CO') ) scripts <- c(scripts, 'F1.1.CAN_scaling_newerData.R')
   
