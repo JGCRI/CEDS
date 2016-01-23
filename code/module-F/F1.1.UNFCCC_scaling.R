@@ -63,7 +63,8 @@
                "tur" , "ukr" )
 # include only regions that aren't scaled elsewhere
 # TODO: blr and ukr should only be used for specific years where is close to expert estimates
-  region <- c(  "aut" , "blr" , "grc" , "jpn", "nzl" , "ukr" )
+# Ukraine (ukr) energy reporting is inconsistent, instead have calibrated coal S% by hand
+  region <- c(  "aut" , "blr" , "grc" , "jpn", "nzl" )
   inv_years<-c(1990:2012)
   
 
