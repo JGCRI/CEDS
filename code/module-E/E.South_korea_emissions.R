@@ -66,14 +66,17 @@ if ( em %!in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ) {
 #translation <- readData( inv_data_folder, translation_file , ".xlsx", 
 #                            sheet_selection = sheet_name )
 # -----
-attempt_file <- 'Korea/Air pollutants_South Korea_1999_2012_Korean font'
+inv_data_folder <- "EM_INV"
+inv_years<-c(1999:2012)
+
+inventory_filename <- 'Korea/Air pollutants_South Korea_1999_2012_Korean font'
 sheet_name2 <- "1999"
-Inventory_data <- readData( inv_data_folder, attempt_file , ".xlsx", 
+Inventory_data <- readData( inv_data_folder, inventory_filename , ".xlsx", 
                             sheet_selection = sheet_name2,  skip_rows = 3)
 
 
-colnames(attempt) <- c(paste0("X",1:10), colnames(attempt[11:ncol(attempt)]))
-inv_data_sheet <- attempt[,c(paste0("X", 1:10), em_temp)]
+colnames(Inventory_data) <- c(paste0("X",1:10), colnames(Inventory_data[11:ncol(Inventory_data)]))
+inv_data_sheet <- Inventory_data[,c(paste0("X", 1:10), em_temp)]
 specie_years <- c(paste0("X",1:10),"X1999")
 colnames(inv_data_sheet) <- specie_years
 
@@ -81,25 +84,24 @@ colnames(inv_data_sheet) <- specie_years
 
 for(year in 2000:2012){
 	old_names <- colnames(inv_data_sheet)
-	attempt_file <- 'Korea/Air pollutants_South Korea_1999_2012_Korean font'
 	sheet_name2 <- as.character(year)
-	Inventory_data <- readData( inv_data_folder, attempt_file , ".xlsx", 
+	Inventory_data <- readData( inv_data_folder, inventory_filename , ".xlsx", 
 						 sheet_selection = sheet_name2, skip_rows = 3 )
 
-	colnames(attempt) <- c(paste0("X",1:10), colnames(attempt[11:ncol(attempt)]))
-	Inventory_data <- attempt[, c(paste0("X", 1:10), em_temp)]
+	colnames(Inventory_data) <- c(paste0("X",1:10), colnames(Inventory_data[11:ncol(Inventory_data)]))
+	Inventory_data <- Inventory_data[, c(paste0("X", 1:10), em_temp)]
 
-	inv_data_sheet <- merge(inv_data_sheet, attempt, by = c(paste0("X",1:10)), all.x = T, all.y = F)
+	inv_data_sheet <- merge(inv_data_sheet, Inventory_data, by = c(paste0("X",1:10)), all.x = T, all.y = F)
 	colnames(inv_data_sheet) <- c(old_names, paste0("X",year))
 }
 
 # Changing NA's to 0
 inv_data_sheet[is.na(inv_data_sheet)] <- 0
 
-# Make numeric and convert from tonnes to kt
+# Make numeric and convert from kg to kt
 inv_data_sheet[,paste0('X',inv_years)] <- sapply(inv_data_sheet[,paste0('X',inv_years)],as.numeric)
 inv_data_sheet[,paste0('X',inv_years)] <- 
-  as.matrix(inv_data_sheet[,paste0('X',inv_years)])/1000
+  as.matrix(inv_data_sheet[,paste0('X',inv_years)])/1000/1000
 
 # We need to get an iso column in and also decide which columns are most important for scaling.
 # I believe column 6 is the only one we really need.All the categories will go to the scaling sector
