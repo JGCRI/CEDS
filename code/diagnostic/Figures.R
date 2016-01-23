@@ -49,8 +49,8 @@ library('scales')
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
 
-print_defaults <- TRUE
-
+PRINT_DEFAULTS <- TRUE
+PRINT_BIG_TABLES <- TRUE
 
 # ---------------------------------------------------------------------------
 # 1. Load files
@@ -58,14 +58,14 @@ print_defaults <- TRUE
 Master_Country_List <- readData( "MAPPINGS", "Master_Country_List")
 TotalEmissions <- readData('MED_OUT', paste0('F.',em,'_scaled_emissions'))
 
-if (print_defaults) DefaultEmissions <- readData('MED_OUT', paste0('D.',em,'_default_total_emissions'))
+if ( PRINT_DEFAULTS ) DefaultEmissions <- readData('MED_OUT', paste0('D.',em,'_default_total_emissions'))
 
 setwd('../diagnostic-output')
 
 # ---------------------------------------------------------------------------
 # Data Problems
 
-# 1. Prepare Data for GGplot
+# 1. Prepare Data 
 x_years<-paste('X',1960:2013,sep="")
 
 TotalEmissions.long <- melt(TotalEmissions,id.vars = c('iso','sector','fuel','units'))
@@ -81,22 +81,23 @@ TotalEmissions.long$Region <- as.factor(TotalEmissions.long$Region)
 TotalEmissions.long$year <- as.integer(TotalEmissions.long$year)
 
 #-----
-if (print_defaults){
-DefaultEmissions.long <- melt(DefaultEmissions,id.vars = c('iso','sector','fuel','units'))
-names(DefaultEmissions.long) <- c('iso','sector','fuel','units','year','Emissions')
+if ( PRINT_DEFAULTS ){
+	DefaultEmissions.long <- melt(DefaultEmissions,id.vars = c('iso','sector','fuel','units'))
+	names(DefaultEmissions.long) <- c('iso','sector','fuel','units','year','Emissions')
 
-DefaultEmissions.long$iso<-tolower(DefaultEmissions.long$iso)
-DefaultEmissions.long$year<-substr(DefaultEmissions.long$year,2,6)
+	DefaultEmissions.long$iso<-tolower(DefaultEmissions.long$iso)
+	DefaultEmissions.long$year<-substr(DefaultEmissions.long$year,2,6)
 
-DefaultEmissions.long$Region <- Master_Country_List[match(DefaultEmissions.long$iso,Master_Country_List$iso),'Figure_Region']
+	DefaultEmissions.long$Region <- Master_Country_List[match(DefaultEmissions.long$iso,Master_Country_List$iso),'Figure_Region']
+	DefaultEmissions.long$Country <- Master_Country_List[match(DefaultEmissions.long$iso,Master_Country_List$iso),'Country_Name']
 
-DefaultEmissions.long$Region <- as.factor(DefaultEmissions.long$Region)
-DefaultEmissions.long$year <- as.integer(DefaultEmissions.long$year)
+	DefaultEmissions.long$Region <- as.factor(DefaultEmissions.long$Region)
+	DefaultEmissions.long$year <- as.integer(DefaultEmissions.long$year)
 }
 # ---------------------------------------------------------------------------
-# 0. Tables - Total emissions by country
+# 0. Tables - Total scaled emissions by country
 
-#Scaled Emissions
+
 Em_by_Country<-ddply(TotalEmissions.long, .(Region,Country,year,iso),summarize,
                Emissions=sum(Emissions, na.rm=TRUE))
 
@@ -104,9 +105,17 @@ Em_by_Country<-ddply(TotalEmissions.long, .(Region,Country,year,iso),summarize,
 data.wide <- cast(Em_by_Country, Region+Country+iso ~ year , mean, value="Emissions")
 writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_country') )
 
-# 0. Tables - Total emissions by country and fuel
+if ( PRINT_DEFAULTS ){
+	Em_by_Country<-ddply(DefaultEmissions.long, .(Region,Country,year,iso),summarize,
+				   Emissions=sum(Emissions, na.rm=TRUE))
 
-#Scaled Emissions
+	#Convert to wide format for writeout
+	data.wide <- cast(Em_by_Country, Region+Country+iso ~ year , mean, value="Emissions")
+	writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_default_by_country') )
+}
+
+# Total emissions by country and fuel
+
 Em_by_Country<-ddply(TotalEmissions.long, .(Region,Country, year, iso, fuel),summarize,
                      Emissions=sum(Emissions, na.rm=FALSE))
 
@@ -114,15 +123,52 @@ Em_by_Country<-ddply(TotalEmissions.long, .(Region,Country, year, iso, fuel),sum
 data.wide <- cast(Em_by_Country, Region+Country+iso+fuel ~ year , mean, value="Emissions")
 writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_country_fuel') )
 
-# 0. Tables - Total emissions by region and fuel
+if ( PRINT_DEFAULTS ){
+	Em_by_Country<-ddply(DefaultEmissions.long, .(Region,Country, year, iso, fuel),summarize,
+						 Emissions=sum(Emissions, na.rm=FALSE))
 
-#Scaled Emissions
+	#Convert to wide format for writeout
+	data.wide <- cast(Em_by_Country, Region+Country+iso+fuel ~ year , mean, value="Emissions")
+	writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_default_by_country_fuel') )
+}
+
+# Total emissions by region and fuel
+
 Em_by_Region<-ddply(TotalEmissions.long, .(Region, year, fuel),summarize,
                      Emissions=sum(Emissions, na.rm=FALSE))
 
 #Convert to wide format for writeout
 data.wide <- cast(Em_by_Region, Region+fuel ~ year , mean, value="Emissions")
 writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_region_fuel') )
+
+if ( PRINT_BIG_TABLES ) {
+	# Total emissions by region and CEDS sector
+
+	Em_by_Region<-ddply(TotalEmissions.long, .(Region, year, sector),summarize,
+						 Emissions=sum(Emissions, na.rm=FALSE))
+
+	#Convert to wide format for writeout
+	data.wide <- cast(Em_by_Region, Region+sector ~ year , mean, value="Emissions")
+	writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_region_sector') )
+
+	# Total emissions by region, CEDS sector, and fuel
+
+	Em_by_Region<-ddply(TotalEmissions.long, .(Region, year, sector,fuel),summarize,
+						 Emissions=sum(Emissions, na.rm=FALSE))
+
+	#Convert to wide format for writeout
+	data.wide <- cast(Em_by_Region, Region+sector+fuel ~ year , mean, value="Emissions")
+	writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_region_sector_fuel') )
+
+	# Total emissions by country, CEDS sector
+
+	Em_by_Country<-ddply(TotalEmissions.long, .(Country, year, sector,fuel),summarize,
+						 Emissions=sum(Emissions, na.rm=FALSE))
+
+	#Convert to wide format for writeout
+	data.wide <- cast(Em_by_Country, Country+sector+fuel ~ year , mean, value="Emissions")
+	writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_region_sector_fuel') )
+}
 
 # ---------------------------------------------------------------------------
 # 1. Plots - #Stacked Area Plot By Region
@@ -152,7 +198,7 @@ writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled
 
 #----
 # Default Emissions
-if (print_defaults){
+if ( PRINT_DEFAULTS ){
 Regions<-ddply(DefaultEmissions.long, .(Region,year),summarize,
                Emissions=sum(Emissions, na.rm=TRUE))
 
@@ -186,7 +232,7 @@ plot
 ggsave( paste0('summary-plots/',em,'_regions.scaled.line.pdf') , width = 11, height = 6)
 #----
 # Default Emissions
-if (print_defaults){
+if ( PRINT_DEFAULTS ){
 Regions<-ddply(DefaultEmissions.long, .(Region,year),summarize,
                Emissions=sum(Emissions, na.rm=TRUE))
 
@@ -225,7 +271,7 @@ data.wide <- cast(df, sector ~ year, mean, value="Emissions")
 writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_sector') )
 
 #Default
-if (print_defaults){
+if ( PRINT_DEFAULTS ){
   Sectors<-ddply(DefaultEmissions.long, .(sector,year),summarize,
                Emissions=sum(Emissions, na.rm=TRUE))
 
@@ -266,7 +312,7 @@ data.wide <- cast(df, fuel ~ year, mean, value="Emissions")
 writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_fuel') )
 
 # Default
-if (print_defaults){
+if ( PRINT_DEFAULTS ){
 Fuels<-ddply(DefaultEmissions.long, .(fuel,year),summarize,
              Emissions=sum(Emissions, na.rm=TRUE))
 
