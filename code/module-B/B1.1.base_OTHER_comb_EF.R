@@ -45,7 +45,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CH4"
+if ( is.na( em ) ) em <- "NMVOC"
 em_lc <- tolower( em )   
 
 # Stop script if running for unsupported species
@@ -65,6 +65,17 @@ gainsEMF30_comb <- readData(domain = "MED_OUT", file_name = paste0('B.',em,'_com
 
 if (em == 'NOx') aviation_EF_load <- readData(domain = 'DEFAULT_EF_IN', file_name = 'Aviation_base_EF', '.xlsx',
                                               sheet_selection = 'EF')
+
+# ---------------------------------------------------------------------------
+# 1.5 Check master country list
+
+check.country.list <- Master_Country_List[!is.na(Master_Country_List$iso),]
+
+if(any(is.na(check.country.list$OECD_flag)) | any(is.na(check.country.list$Region)))
+{
+  stop('NAs in OECD flag and Region columns in Master Country List. Cannot estimate base
+       emission factors. Please Check Master Country List.')
+}
 
 # ---------------------------------------------------------------------------
 # 2. Extend EMF30 data
