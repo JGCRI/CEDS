@@ -91,6 +91,9 @@ edgar <- cbind( edgar[ id_cols ], edgar[ 1:( len - 5 ) ] )
 # Sort the data
 edgar <- edgar[ with( edgar, order( iso, sector, fuel ) ), ]
 
+# get rid of 2008 and 2009. Strange Values
+edgar <- edgar[,c('iso','sector','fuel','units', paste0('X',EDGAR_start_year:EDGAR_end_year))]
+
 # ------------------------------------------------------------------------------
 # 4. Output
 addToEmissionsDb( edgar, em = em, type = 'NC', ext_backward = TRUE, ext_forward = TRUE )

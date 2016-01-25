@@ -11,6 +11,10 @@ X_IEA_end_year  <- paste0( "X", IEA_end_year  )
 BP_years <- 2014 #The years for which there is only BP data
 X_BP_years <- paste0("X", BP_years)
 
+#Edgar year
+EDGAR_start_year <- 1970
+EDGAR_end_year <- 2008
+
 #The combined overall yearset.
 emissions_years <- c(IEA_years,BP_years)
 X_emissions_years <- paste0( "X", emissions_years)

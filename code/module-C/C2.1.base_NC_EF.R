@@ -89,13 +89,18 @@ for( i in 1:length( em_nums ) ){
 
 new_efs$units <- paste0( emissions_data$units, "/", activity_data$units )
 
+#Edgar process data stops at 2008, so efs drastically decreas in 2009. Carry 2008 EF forward
+new_efs_corrected <- new_efs[,c('iso','sector','fuel','units',paste0('X',start_year:EDGAR_end_year))]
+new_efs_corrected[,paste0('X',(EDGAR_end_year+1):end_year)] <- new_efs$X2008
+
+
 if(em=='NH4') new_efs<-replace(new_efs, new_efs==0,0.01)
 
 
 # --------------------------------------------------------------------------------------------
 # 3. Output
 
-writeData( new_efs, domain = "MED_OUT", fn = paste0( "C.", em, "_", "NC", "_EF_db" ) )
+writeData( new_efs_corrected, domain = "MED_OUT", fn = paste0( "C.", em, "_", "NC", "_EF_db" ) )
 
 logStop()
 # END
