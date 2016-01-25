@@ -5,7 +5,7 @@
 # Program Purpose: Produce input population data for CEDS emissions system from
 #                  United Nations data, World Bank (WB) data, and the History 
 #                  Database of the Global Environment (HYDE) data. 
-#                  Output are 1950-2100 population and urban population
+#                  Output are 1700-2100 population and urban population
 #                  share.
 # Input Files: WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.XLS;
 #              WUP2014-F21-Proportion_Urban_Annual.xls; 
