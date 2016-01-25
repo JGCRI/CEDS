@@ -53,28 +53,46 @@ print_defaults <- "True"
 
 # --------------- 1. Load Country List --------------------------------------
 Master_Country_List <- readData( "MAPPINGS", "Master_Country_List")
+Master_Sector_Level_map <- readData(domain = 'MAPPINGS', file_name = 'Master_Sector_Level_map')
+
 setwd('../diagnostic-output')
 
 # ---------------------------------------------------------------------------
-# Emissions
+# Emissions and countries for which to produce plots
 emissions <- c("SO2", "NOx")
+country_list <- c("arg","kor","jpn","chn")
+
+# Emissions Loop
 for(emiss in seq_along(emissions)){
   em <- emissions[emiss]
-# Reading in the Emissions. This is different for all species
+
+# Read in the Emissions. 
   TotalEmissions <- readData('MED_OUT', paste0('F.',em,'_scaled_emissions'))
-  if (print_defaults) DefaultEmissions <- readData('MED_OUT', paste0('D.',em,'_default_total_emissions'))
+  if (print_defaults) {
+    DefaultEmissions <- readData('MED_OUT', paste0('D.',em,'_default_total_emissions'))
+  }
+  Scaled_Emission_Factors <- readData('MED_OUT', paste0('F.',em,'_scaled_EF'))
+
 # ----------------------------------------------------------------------------
-# Finding Scalled Emissions for specific country
-  isos <- c("arg","kor","jpn","chn")
+# Extract Scaled Emissions for specific country
 
-  for(iso in seq_along(isos)){
-    CountryEmissions <- TotalEmissions[TotalEmissions$iso == isos[iso],]
+  # Country Loop
+  for(iso in seq_along(country_list)){
 
-    country <- Master_Country_List[(Master_Country_List$iso == isos[iso]),]
+    # Extract emissions for the specified country
+    CountryEmissions <- TotalEmissions[TotalEmissions$iso == country_list[iso],]
+    if (print_defaults) {
+      DefaultCountryEmissions <- DefaultEmissions[DefaultEmissions$iso == country_list[iso],]
+    }
+    
+    # Also emission factors (for diagnosis)
+    Country_Emission_Factors <- Scaled_Emission_Factors[Scaled_Emission_Factors$iso == country_list[iso],]
+
+    country <- Master_Country_List[(Master_Country_List$iso == country_list[iso]),]
     Full_Name <- country$IEAName
 
 # ---------------------------------------------------------------------------
-# Data Problems
+# Data Processing
 
 # 2. Prepare Data for GGplot
     x_years<-paste('X',1960:2013,sep="")
@@ -87,6 +105,7 @@ for(emiss in seq_along(emissions)){
 
     CountryEmissions.long$Region <- Master_Country_List[match(CountryEmissions.long$iso,Master_Country_List$iso),'Figure_Region']
     CountryEmissions.long$Country <- Master_Country_List[match(CountryEmissions.long$iso,Master_Country_List$iso),'Country_Name']
+    CountryEmissions.long$Summary_Sector <- Master_Sector_Level_map[match(CountryEmissions.long$sector,Master_Sector_Level_map$working_sectors_v1),'aggregate_sectors']
 
     CountryEmissions.long$Region <- as.factor(CountryEmissions.long$Region)
     CountryEmissions.long$year <- as.integer(CountryEmissions.long$year)
@@ -105,16 +124,18 @@ for(emiss in seq_along(emissions)){
 
 #-----
     if (print_defaults){
-      DefaultEmissions.long <- melt(DefaultEmissions,id.vars = c('iso','sector','fuel','units'))
-      names(DefaultEmissions.long) <- c('iso','sector','fuel','units','year','Emissions')
+      DefaultCountryEmissions.long <- melt(DefaultCountryEmissions,id.vars = c('iso','sector','fuel','units'))
+      names(DefaultCountryEmissions.long) <- c('iso','sector','fuel','units','year','Emissions')
   
-      DefaultEmissions.long$iso<-tolower(DefaultEmissions.long$iso)
-      DefaultEmissions.long$year<-substr(DefaultEmissions.long$year,2,6)
+      DefaultCountryEmissions.long$iso<-tolower(DefaultCountryEmissions.long$iso)
+      DefaultCountryEmissions.long$year<-substr(DefaultCountryEmissions.long$year,2,6)
   
-      DefaultEmissions.long$Region <- Master_Country_List[match(DefaultEmissions.long$iso,Master_Country_List$iso),'Figure_Region']
+      DefaultCountryEmissions.long$Region <- Master_Country_List[match(DefaultCountryEmissions.long$iso,Master_Country_List$iso),'Figure_Region']
+      DefaultCountryEmissions.long$Country <- Master_Country_List[match(DefaultCountryEmissions.long$iso,Master_Country_List$iso),'Country_Name']
+      DefaultCountryEmissions.long$Summary_Sector <- Master_Sector_Level_map[match(DefaultCountryEmissions.long$sector,Master_Sector_Level_map$working_sectors_v1),'aggregate_sectors']
   
-      DefaultEmissions.long$Region <- as.factor(DefaultEmissions.long$Region)
-      DefaultEmissions.long$year <- as.integer(DefaultEmissions.long$year)
+      DefaultCountryEmissions.long$Region <- as.factor(DefaultCountryEmissions.long$Region)
+      DefaultCountryEmissions.long$year <- as.integer(DefaultCountryEmissions.long$year)
     }
 # ---------------------------------------------------------------------------
 # 3. Tables - Total emissions by country
@@ -122,30 +143,47 @@ for(emiss in seq_along(emissions)){
 #Scaled Emissions
     Em_by_Country<-ddply(CountryEmissions.long, .(Country,year,iso),summarize,
                      Emissions=sum(Emissions, na.rm=TRUE))
-
 #Convert to wide format for writeout
-    data.long <- cast(Em_by_Country, Country+iso ~ year , mean, value="Emissions")
-    writeData( data.long, "DIAG_OUT", paste0('country-plots/',em ,isos[iso],'_emissions_scaled_by_country') )
+    data.wide <- cast(Em_by_Country, Country+iso ~ year , mean, value="Emissions")
+    writeData( data.wide, "DIAG_OUT", paste0('country-plots/',em,"_",country_list[iso],'_emissions_scaled_by_country'), meta = FALSE )
 
-# 3. Tables - Total emissions by country and fuel
+
+#Total emissions by country and fuel
 
 #Scaled Emissions
     Em_by_Country<-ddply(CountryEmissions.long, .(Country, year, iso, fuel),summarize,
                      Emissions=sum(Emissions, na.rm=FALSE))
-
 #Convert to wide format for writeout
-    data.long <- cast(Em_by_Country, Country+iso+fuel ~ year , mean, value="Emissions")
-    writeData( data.long, "DIAG_OUT", paste0('country-plots/',em ,isos[iso],'_emissions_scaled_by_country_fuel') )
+    data.wide <- cast(Em_by_Country, Country+iso+fuel ~ year , mean, value="Emissions")
+    writeData( data.wide, "DIAG_OUT", paste0('country-plots/',em,"_",country_list[iso],'_emissions_scaled_by_fuel'), meta = FALSE )
+
+#Scaled Emissions by fuel and sector
+    Em_by_Country<-ddply(CountryEmissions.long, .(Country, year, iso, fuel, Summary_Sector),summarize,
+                     Emissions=sum(Emissions, na.rm=FALSE))
+#Convert to wide format for writeout
+    data.wide <- cast(Em_by_Country, Country+iso+fuel+Summary_Sector ~ year , mean, value="Emissions")
+    writeData( data.wide, "DIAG_OUT", paste0('country-plots/',em,"_",country_list[iso],'_emissions_scaled_by_fuel_sector'), meta = FALSE )
+
+#Scaled Emission Factors
+    writeData( Country_Emission_Factors, "DIAG_OUT", paste0('country-plots/',em,"_",country_list[iso],'_emission-factors_scaled'), meta = FALSE )
+
+#Detailed Emissions
+    data.wide <- cast(CountryEmissions.long, Country+iso+fuel+sector+Summary_Sector ~ year , mean, value="Emissions")
+    writeData( data.wide, "DIAG_OUT", paste0('country-plots/',em,"_",country_list[iso],'_emissions_scaled_full_detail'), meta = FALSE )
+    if (print_defaults){
+		data.wide <- cast(DefaultCountryEmissions.long, Country+iso+fuel+sector+Summary_Sector ~ year , mean, value="Emissions")
+		writeData( data.wide, "DIAG_OUT", paste0('country-plots/',em,"_",country_list[iso],'_emissions_default_full_detail'), meta = FALSE )
+	}
 
 # ---------------------------------------------------------------------------
 # 4. Plots - #Line Plot By Sector
 
 #Scaled
-    Sectors<-ddply(CountryEmissions.long, .(sector,year),summarize,
+    Sectors<-ddply(CountryEmissions.long, .(Summary_Sector,year),summarize,
                Emissions=sum(Emissions, na.rm=TRUE))
 
     df <- Sectors
-    plot <- ggplot(df, aes(x=year,y=Emissions, color=sector)) + 
+    plot <- ggplot(df, aes(x=year,y=Emissions, color=Summary_Sector)) + 
       geom_line(size=1) +
       scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
       scale_y_continuous(labels = comma)+
@@ -153,20 +191,20 @@ for(emiss in seq_along(emissions)){
       labs(x='Year',y= paste(em,'Emissions [kt]') )+
       guides(fill=guide_legend(ncol=2))
     plot              
-    ggsave( paste0('country-plots/',em,'_',isos[iso],'_sectors.scaled.pdf'), width = 11, height = 6 )
-#Convert to wide format for easier viewing
-    data.long <- cast(df, sector ~ year, mean, value="Emissions")
-    writeData( data.long, "DIAG_OUT", paste0('country-plots/',em,'_',isos[iso],'_emissions_scaled_by_sector') )
+    ggsave( paste0('country-plots/',em,'_',country_list[iso],'_sectors.scaled.pdf'), width = 11, height = 6 )
 
+    #Convert to wide format for easier viewing
+    data.wide <- cast(df, Summary_Sector ~ year, mean, value="Emissions")
+    writeData( data.wide, "DIAG_OUT", paste0('country-plots/',em,'_',country_list[iso],'_emissions_scaled_by_sector'), meta = FALSE )
 
 #Default
     if (print_defaults){
-      Sectors<-ddply(DefaultEmissions.long, .(sector,year),summarize,
+      Sectors<-ddply(DefaultCountryEmissions.long, .(Summary_Sector,year),summarize,
                  Emissions=sum(Emissions, na.rm=TRUE))
   
       df <- Sectors
       plot <- ggplot(df, aes(x=year,y=Emissions,
-                         color=sector)) + 
+                         color=Summary_Sector)) + 
         geom_line(size=1) +
         scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
         scale_y_continuous(labels = comma)+
@@ -175,7 +213,12 @@ for(emiss in seq_along(emissions)){
         guides(fill=guide_legend(ncol=2))
   
       plot              
-      ggsave( paste0('country-plots/',em,'_',isos[iso],'_sectors.default.pdf'), width = 11, height = 6 )
+      ggsave( paste0('country-plots/',em,'_',country_list[iso],'_sectors.default.pdf'), width = 11, height = 6 )
+
+    #Convert to wide format for easier viewing
+    data.wide <- cast(df, Summary_Sector ~ year, mean, value="Emissions")
+    writeData( data.wide, "DIAG_OUT", paste0('country-plots/',em,'_',country_list[iso],'_emissions_default_by_sector'), meta = FALSE )
+
     }
 
 
@@ -196,14 +239,14 @@ for(emiss in seq_along(emissions)){
       labs(x='Year',y= paste(em,'Emissions [kt]') )+
      guides(fill=guide_legend(ncol=2))
     plot              
-    ggsave( paste0('country-plots/',em,'_',isos[iso],'_fuel.scaled.pdf'), width = 11, height = 6 )
+    ggsave( paste0('country-plots/',em,'_',country_list[iso],'_fuel.scaled.pdf'), width = 11, height = 6 )
 #Convert to wide format for easier viewing
-    data.long <- cast(df, fuel ~ year, mean, value="Emissions")
-    writeData( data.long, "DIAG_OUT", paste0('country-plots/',em ,'_',isos[iso],'_emissions_scaled_by_fuel') )
+    data.wide <- cast(df, fuel ~ year, mean, value="Emissions")
+    writeData( data.wide, "DIAG_OUT", paste0('country-plots/',em ,'_',country_list[iso],'_emissions_scaled_by_fuel'), meta = FALSE )
 
 # Default
     if (print_defaults){
-      Fuels<-ddply(DefaultEmissions.long, .(fuel,year),summarize,
+      Fuels<-ddply(DefaultCountryEmissions.long, .(fuel,year),summarize,
                    Emissions=sum(Emissions, na.rm=TRUE))
   
       df <- Fuels
@@ -215,7 +258,7 @@ for(emiss in seq_along(emissions)){
         ggtitle(paste(Full_Name,'_', em ,'Emissions'))+
         labs(x='Year',y= paste(em,'Emissions [kt]') )
         plot              
-        ggsave( paste0('country-plots/',em,'_',isos[iso],'_fuel.default.pdf'), width = 11, height = 6 )
+        ggsave( paste0('country-plots/',em,'_',country_list[iso],'_fuel.default.pdf'), width = 11, height = 6 )
     }
 
   } # Country Loop
