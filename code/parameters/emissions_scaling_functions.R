@@ -299,15 +299,15 @@ F.scaling <- function( ceds_data, inv_data, region,
                        replacement_scaling_factor = max_scaling_factor,
                        meta = TRUE) {
 
-  ext_start_year = start_year 
-  ext_end_year = end_year
-  ext = TRUE 
-  interp_default = 'linear' 
-  pre_ext_default = 'constant' 
-  post_ext_default = 'constant' 
-  replacement_method = 'none' 
-  max_scaling_factor = 100
-  replacement_scaling_factor = max_scaling_factor
+#   ext_start_year = start_year 
+#   ext_end_year = end_year
+#   ext = TRUE 
+#   interp_default = 'linear' 
+#   pre_ext_default = 'constant' 
+#   post_ext_default = 'constant' 
+#   replacement_method = 'replace' 
+#   max_scaling_factor = 100
+#   replacement_scaling_factor = max_scaling_factor
   
   
   # Define simple function for use later. If TRUE, all values NA
