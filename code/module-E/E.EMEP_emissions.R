@@ -26,7 +26,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R", "analysis_functions.R" ) # Any additional function files required
+headers <- c( "data_functions.R", "analysis_functions.R", 'interpolation_extention_functions.R') # Any additional function files required
 log_msg <- "Initial reformatting of the EMEP level 2 Emissions" # First message to be printed to the log
 script_name <- "E2.EMEP_emissions.R"
 
@@ -42,7 +42,7 @@ initialize( script_name, log_msg, headers )
 # Describes which emission species is being analyzed 
   args_from_makefile <- commandArgs( TRUE )
   em <<- args_from_makefile[1]
-  if ( is.na( em ) ) em <- "CH4"
+  if ( is.na( em ) ) em <- "NMVOC"
   
 # Stop script if running for unsupported emissions species
   if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2','CH4') ) {
@@ -119,6 +119,15 @@ if ( em %in% c('BC','CO','NH3','NMVOC','NOx','SO2') ){
   remove_ISO <- c('rus')
   EMEP_emdf<-EMEP_emdf[-which(EMEP_emdf$iso %in% remove_ISO), ]
   
+
+  # interpolate EMEP over problem years, NMVOC for bel
+  
+  if (em == 'NMVOC'){
+    EMEP_emdf[which(EMEP_emdf$iso == 'bel' &
+              EMEP_emdf$sector == 'D_Fugitive'), paste0('X',2005:2010)] <- extendValues(EMEP_emdf[which(EMEP_emdf$iso == 'bel' &
+                                      EMEP_emdf$sector == 'D_Fugitive'), paste0('X',2005:2010)], pre_ext_year = 2005,
+                                      post_ext_year = 2010)
+  }
 }
   
 if ( em %in% c('CH4') ){
