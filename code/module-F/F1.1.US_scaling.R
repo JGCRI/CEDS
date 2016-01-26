@@ -42,7 +42,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[1]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "NH3"
 
 # Stop script if running for unsupported species
 if ( em %!in% c('SO2','NOx','NMVOC','CO','NH3','PM10','PM2.5') ) {
@@ -75,7 +75,14 @@ if (em == 'PM10') sheet_name <- 'PM10Primary'
 inv_data_sheet <- readData( inv_data_folder, inventory_data_file , ".xlsx", 
                             sheet_selection = sheet_name ) 
 # Clean rows and columns to standard format
-inv_data_sheet <- inv_data_sheet[-1:-4, 1:29]
+if ( em == 'NH3' ) {
+  inv_years<-c( 1990:2013 )
+  inv_data_sheet <- inv_data_sheet[-1:-3, 1:25]
+} else if ( em == 'NMVOC' ) {
+  inv_data_sheet <- inv_data_sheet[-1:-3, 1:29]
+} else {
+  inv_data_sheet <- inv_data_sheet[-1:-4, 1:29]
+}
 
 names(inv_data_sheet) <- c('sector', paste0('X',inv_years))
 inv_data_sheet$iso <- 'usa'
@@ -93,16 +100,19 @@ inv_data_sheet[,paste0('X',inv_years)] <- suppressWarnings(
 inv_data_sheet[ , paste0( 'X' , inv_years ) ] <- 
   as.matrix( inv_data_sheet[ , paste0( 'X' , inv_years ) ] ) * 0.9072
 
-#remove values that are the are constant carried forward
-X_inv_years <- paste0('X',inv_years)
-check_years <- length(X_inv_years):2
-check_against <- (length(X_inv_years)-1):1
-for (i in seq_along( check_years )) {
+# Seems this introduces too many NAs for NH3
+if ( em != 'NH3' ) {
+	#remove values that are the are constant carried forward
+	X_inv_years <- paste0('X',inv_years)
+	check_years <- length(X_inv_years):2
+	check_against <- (length(X_inv_years)-1):1
+	for (i in seq_along( check_years )) {
 
-  for (n in seq_along (inv_data_sheet[,1])){
-      if(  any(inv_data_sheet[n,X_inv_years[check_years[i]]] == inv_data_sheet[n,X_inv_years[check_against[i]]] , na.rm=TRUE )) 
-        inv_data_sheet[n,X_inv_years[check_years[i]]] <- NA
-  }
+	  for (n in seq_along (inv_data_sheet[,1])){
+		  if(  any(inv_data_sheet[n,X_inv_years[check_years[i]]] == inv_data_sheet[n,X_inv_years[check_against[i]]] , na.rm=TRUE )) 
+			inv_data_sheet[n,X_inv_years[check_years[i]]] <- NA
+	  }
+	}
 }
 
 # write standard form inventory
