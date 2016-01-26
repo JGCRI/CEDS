@@ -74,37 +74,40 @@ TotalEmissions.long$Summary_Sector <- Master_Sector_Level_map[match(TotalEmissio
 TotalEmissions.long$year <- as.integer(TotalEmissions.long$year)
 
 TotalEmissions.long$em <- em
+TotalEmissions.long$units <- "kt"
 
 # ---------------------------------------------------------------------------
 # 1. Write Tables
+
+FILENAME_POSTSCRIPT = "_FOR-REVIEW-ONLY"
 
 #TODO: Remove 1960-1969 emissions
 #TODO: Remove NA sector
 #TODO: Remove international shipping and all aircraft emissions from totals (If remove NA summary sector this will do that)
 
 #Total emissions by Country
-Em_by_Country<-ddply(TotalEmissions.long, .(iso, Country,year,em),summarize,
+Em_by_Country<-ddply(TotalEmissions.long, .(iso, Country,year,em,units),summarize,
                Emissions=sum(Emissions, na.rm=TRUE))
 
 #Convert to wide format for writeout
-data.wide <- cast(Em_by_Country, Country+iso+em ~ year , mean, value="Emissions")
-writeData( data.wide, "FIN_OUT", paste0(em ,'_emissions_by_country') )
+data.wide <- cast(Em_by_Country, Country+iso+em+units ~ year , mean, value="Emissions")
+writeData( data.wide, "FIN_OUT", paste0(em ,'_emissions_by_country',FILENAME_POSTSCRIPT), meta=FALSE )
 
 #Total emissions by fuel
-Summary_Emissions<-ddply(TotalEmissions.long, .(year,em, iso, fuel),summarize,
+Summary_Emissions<-ddply(TotalEmissions.long, .(year,em, iso, fuel,units),summarize,
                      Emissions=sum(Emissions, na.rm=FALSE))
 
 #Convert to wide format for writeout
-data.wide <- cast(Summary_Emissions, fuel+em ~ year , mean, value="Emissions")
-writeData( data.wide, "FIN_OUT", paste0(em ,'_global_emissions_by_fuel') )
+data.wide <- cast(Summary_Emissions, fuel+em+units ~ year , mean, value="Emissions")
+writeData( data.wide, "FIN_OUT", paste0(em ,'_global_emissions_by_fuel',FILENAME_POSTSCRIPT), meta=FALSE )
 
 # Total Emissions by Sector and Country
-Em_by_Country_Sector<-ddply(TotalEmissions.long, .(Country, iso, year,em, Summary_Sector),summarize,
+Em_by_Country_Sector<-ddply(TotalEmissions.long, .(Country, iso, year,em, Summary_Sector,units),summarize,
                      Emissions=sum(Emissions, na.rm=FALSE))
 
 #Convert to wide format for writeout
-data.wide <- cast(Em_by_Country_Sector, Country+iso+Summary_Sector+em ~ year , mean, value="Emissions")
-writeData( data.wide, "FIN_OUT", paste0(em ,'_emissions_by_country_sector') )
+data.wide <- cast(Em_by_Country_Sector, Country+iso+Summary_Sector+em+units ~ year , mean, value="Emissions")
+writeData( data.wide, "FIN_OUT", paste0(em ,'_emissions_by_country_sector',FILENAME_POSTSCRIPT), meta=FALSE )
 
 
 logStop()
