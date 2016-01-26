@@ -5,6 +5,7 @@ MOD_C = code/module-C
 MOD_D = code/module-D
 MOD_E = code/module-E
 MOD_F = code/module-F
+MOD_S = code/module-S
 PARAMS = code/parameters
 SOCIO_DATA = input/general
 ENERGY_DATA = input/energy
@@ -58,8 +59,7 @@ else
 # recursive call, once EM has been specified, and triggers the
 # build of the entire system. This target must be the final
 # outputs of the system.
-emissions : $(MED_OUT)/F.$(EM)_scaled_emissions.csv  \
-	$(MED_OUT)/F.$(EM)_scaled_EF.csv
+emissions : $(FINAL_OUT)/$(EM)_emissions_by_country_FOR-REVIEW-ONLY.csv
 
 endif
 
@@ -82,7 +82,7 @@ endif
 # specifically to run the system with the new emissions type.
 
 all: SO2-emissions BC-emissions NOx-emissions CO-emissions NMVOC-emissions
-part1: SO2-emissions BC-emissions NOx-emissions 
+part1: SO2-emissions BC-emissions NOx-emissions
 part2: CO-emissions NMVOC-emissions
 
 # --------------------------------------------------------------
@@ -474,3 +474,8 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 # ff1-1b
 $(MED_OUT)/F.$(EM)_scaled_EF.csv : \
 	$(MED_OUT)/F.$(EM)_scaled_emissions.csv
+
+$(FINAL_OUT)/$(EM)_emissions_by_country_FOR-REVIEW-ONLY.csv : \
+	$(MOD_S)/S1.1.write_summary_data.R \
+	$(MED_OUT)/F.$(EM)_scaled_emissions.csv
+	Rscript $< $(EM) --nosave --no-restore

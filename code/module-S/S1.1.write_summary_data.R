@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: Figures.R
+# Program Name: S1.1.write_summary_data.R
 # Author: Rachel Hoesly, Steve Smith
 # Program Purpose: Produces summary output
 #               
@@ -26,8 +26,8 @@ PARAM_DIR <- "../code/parameters/"
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R",'process_db_functions.R',
               'common_data.r', 'IO_functions.R', 'data_functions.R', 'timeframe_functions.R') # Additional function files may be required.
-log_msg <- "Figures" # First message to be printed to the log
-script_name <- "Figures.R"
+log_msg <- "Writes Final summary data" # First message to be printed to the log
+script_name <- "S1.1.write_summary_data.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -39,42 +39,28 @@ if ( is.na( em ) ) em <- "SO2"
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
 
-library('ggplot2')
-library('plyr')
-library('scales')
 
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
 
-
+write_years <- 1970:end_year
 
 # ---------------------------------------------------------------------------
 # 1. Load files
 
 Master_Country_List <- readData( "MAPPINGS", "Master_Country_List")
-TotalEmissions <- readData('MED_OUT', paste0('F.',em,'_scaled_emissions'))
+final_emissions_read <- readData('MED_OUT', paste0('F.',em,'_scaled_emissions'))
 Master_Sector_Level_map <- readData(domain = 'MAPPINGS', file_name = 'Master_Sector_Level_map')
 
 # ---------------------------------------------------------------------------
 # Data processing
 
-#TODO: only write out data for these years
-x_years<-paste('X',1970:2014,sep="")
+X_write_years <- paste0('X',write_years)
+final_emissions <- final_emissions_read[,c('iso','sector','fuel','units',X_write_years)]
 
-TotalEmissions.long <- melt(TotalEmissions,id.vars = c('iso','sector','fuel','units'))
-names(TotalEmissions.long) <- c('iso','sector','fuel','units','year','Emissions')
-
-TotalEmissions.long$iso<-tolower(TotalEmissions.long$iso)
-TotalEmissions.long$year<-substr(TotalEmissions.long$year,2,6)
-
-TotalEmissions.long$Country <- Master_Country_List[match(TotalEmissions.long$iso,Master_Country_List$iso),'Country_Name']
-
-TotalEmissions.long$Summary_Sector <- Master_Sector_Level_map[match(TotalEmissions.long$sector,Master_Sector_Level_map$working_sectors_v1),'aggregate_sectors']
-
-TotalEmissions.long$year <- as.integer(TotalEmissions.long$year)
-
-TotalEmissions.long$em <- em
-TotalEmissions.long$units <- "kt"
+final_emissions$em <- em
+# reorder columns
+final_emissions <- final_emissions[,c("iso","sector","fuel","em","units",X_write_years)]
 
 # ---------------------------------------------------------------------------
 # 1. Write Tables
@@ -86,29 +72,31 @@ FILENAME_POSTSCRIPT = "_FOR-REVIEW-ONLY"
 #TODO: Remove international shipping and all aircraft emissions from totals (If remove NA summary sector this will do that)
 
 #Total emissions by Country
-Em_by_Country<-ddply(TotalEmissions.long, .(iso, Country,year,em,units),summarize,
-               Emissions=sum(Emissions, na.rm=TRUE))
+Em_by_Country<-aggregate(final_emissions[X_write_years],
+                         by=list(iso=final_emissions$iso,
+                                 em= final_emissions$em,
+                                 units=final_emissions$units),sum )
 
 #Convert to wide format for writeout
-data.wide <- cast(Em_by_Country, Country+iso+em+units ~ year , mean, value="Emissions")
-writeData( data.wide, "FIN_OUT", paste0(em ,'_emissions_by_country',FILENAME_POSTSCRIPT), meta=FALSE )
+writeData( Em_by_Country, "FIN_OUT", paste0(em ,'_emissions_by_country',FILENAME_POSTSCRIPT), meta=FALSE )
 
 #Total emissions by fuel
-Summary_Emissions<-ddply(TotalEmissions.long, .(year,em, iso, fuel,units),summarize,
-                     Emissions=sum(Emissions, na.rm=FALSE))
+Summary_Emissions <- aggregate(final_emissions[X_write_years],
+                               by=list(fuel=final_emissions$fuel,
+                                       em= final_emissions$em,
+                                       units=final_emissions$units),sum )
 
 #Convert to wide format for writeout
-data.wide <- cast(Summary_Emissions, fuel+em+units ~ year , mean, value="Emissions")
-writeData( data.wide, "FIN_OUT", paste0(em ,'_global_emissions_by_fuel',FILENAME_POSTSCRIPT), meta=FALSE )
+writeData( Summary_Emissions, "FIN_OUT", paste0(em ,'_global_emissions_by_fuel',FILENAME_POSTSCRIPT), meta=FALSE )
 
 # Total Emissions by Sector and Country
-Em_by_Country_Sector<-ddply(TotalEmissions.long, .(Country, iso, year,em, Summary_Sector,units),summarize,
-                     Emissions=sum(Emissions, na.rm=FALSE))
-
+Em_by_Country_Sector <- aggregate(final_emissions[X_write_years],
+                               by=list(iso=final_emissions$iso,
+                                       sector=final_emissions$sector,
+                                       em= final_emissions$em,
+                                       units=final_emissions$units),sum )
 #Convert to wide format for writeout
-data.wide <- cast(Em_by_Country_Sector, Country+iso+Summary_Sector+em+units ~ year , mean, value="Emissions")
-writeData( data.wide, "FIN_OUT", paste0(em ,'_emissions_by_country_sector',FILENAME_POSTSCRIPT), meta=FALSE )
-
+writeData( Em_by_Country_Sector, "FIN_OUT", paste0(em ,'_emissions_by_country_sector',FILENAME_POSTSCRIPT), meta=FALSE )
 
 logStop()
 
