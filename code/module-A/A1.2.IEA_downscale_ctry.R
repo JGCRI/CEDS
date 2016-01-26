@@ -99,6 +99,15 @@
 #   energy data in a specified year
 # Former Soviet Union and Yugoslavia: use specified flows for each product
 
+# The downscaling, except for FSU exception below, is as follows:
+# E(country, year, sector, fuel) = 
+#        (E(country, 1990, sector, fuel) / E(FSU, 1990, sector, fuel) ) *
+#        E(FSU, year, sector, fuel)
+#
+# This method depends on the reporting categories being consistent between the FSU and 
+# the reporting after 1990 for the constituent countries. This is not the case for FSU
+# energy transformation sectors, so those are transformed as a block, as noted below
+
 # The IEA data has many inter-sectoral inconsistencies between the USSR and 
 #   separated countries thereafter. Results in unrealistic fuel shares.
 
@@ -247,7 +256,87 @@
 # Replace NAs with 0.
 # Make sure that rows with NAs are not needed.
 	A.USSR_Yug_ctry_stat[ is.na( A.USSR_Yug_ctry_stat ) ] <- 0
+    
+# -----------------------------------------------------------------------------
+# 2.2.1.5 Fix scaling of Former Soviet Union (FSU) transformation sector 
 
+# Here the reporting is not consistent between the FSU years and afterward. So instead of 
+# by sector, the scaling is performed using the sum of the main transformation sectors
+# (ELEC, HEAT, CHP) as follows:
+# E(country, year, sector, fuel) = 
+#        ( E(country, 1990, sector, fuel) / E(country, 1990, STransF, fuel) ) *
+#        ( E(country, 1990, STransF, fuel) /  E(FSU, 1990, STransF, fuel) ) *
+#        E(FSU, year, STransF, fuel)
+#
+# Where STransF = the sum of ELEC, HEAT, + CHP (MAIN only, not Autoproducer) 
+# variable transf_flows below
+#
+# The first ratio is the 1990 fraction of transformation consumption in a specific
+# transformation sub-sector, the section ratio is that country's fraction of transformation
+# consumption for the whole FSU, and the final term is the FSU tranformation consumption 
+# for the given year.
+#
+# Note that the country 1990 transformation sum cancels, so the calculation can be 
+# simplified to:
+# E(country, year, sector, fuel) = 
+#        ( E(country, 1990, sector, fuel) / E(FSU, 1990, STransF, fuel) ) *
+#        E(FSU, year, STransF, fuel)
+
+# Note that it appears that autoproduction before 1990 was included in the industrial 
+# sector, whereas this is split out afterward. This is not directly accounted for, however 
+# all industrialenergy consumption should be put somewhere in the downscaling.
+
+# Define temporary new name for data frame 
+fsu_data <- A.USSR_Yug_ctry_stat
+fsu_years <- 1960:1990
+fsu_X_years <- paste0('X',fsu_years)
+fsu_replace_years <- 1960:1989
+fsu_X_replace_years <- paste0('X',fsu_replace_years)
+	
+	
+# # Define list of FSU countries from Master Country List
+# FSU_MCL <- MCL[ MCL$Region == "FSU", ]
+# FSU_MCL$na <- is.na( FSU_MCL$iso )
+# fsu_iso <- unique( FSU_MCL$iso[ FSU_MCL$na == FALSE ] )
+# fsu_prod <- unique( A.IEAfull$PRODUCT )
+
+# These are the only flows that require re-scaling, for the moment
+transf_flows <- c( "MAINELEC", "MAINHEAT", "MAINCHP" )
+# fsu_prod <- "Fuel oil (kt)"
+
+
+# Calculate/sum FSU tranformation sector by year and fuel
+# E(FSU, year, STransF, fuel)
+fsu_transf_data<- fsu_data[which(fsu_data$FLOW %in% transf_flows & fsu_data$IEAcomp %in% "Former Soviet Union (if no detail)"),]
+A.FSU_trasf_shares <- aggregate( fsu_transf_data[ fsu_X_years ],
+                                   by=list( PRODUCT = fsu_transf_data$PRODUCT ), sum )
+
+
+
+# Calculate the share of each country within the FSU aggregate tranformation sector in 1990
+# ( E(country, 1990, sector, fuel) / E(FSU, 1990, STransF, fuel) )
+fsu_transf_data$X1990_share <- 
+  fsu_transf_data$X1990/ A.FSU_trasf_shares[
+    match(paste(fsu_transf_data$PRODUCT) ,
+          paste(A.FSU_trasf_shares$PRODUCT) ), 'X1990' ]
+
+fsu_transf_data[is.na(fsu_transf_data$X1990_share),'X1990_share'] <- 0
+
+# Calculate Scaled Value
+# ( E(country, 1990, sector, fuel) / E(FSU, 1990, STransF, fuel) ) * E(FSU, year, STransF, fuel)
+
+fsu_transf_data_corrected <- fsu_transf_data
+fsu_transf_data_corrected [ fsu_X_replace_years ] <- fsu_transf_data_corrected$X1990_share * A.FSU_trasf_shares[
+                      match(fsu_transf_data_corrected$PRODUCT, A.FSU_trasf_shares$PRODUCT), fsu_X_replace_years]
+
+# replace with new data
+fsu_data <- replaceValueColMatch(fsu_data,fsu_transf_data_corrected,
+                                 x.ColName = fsu_X_replace_years,
+                                 match.x = c('iso','FLOW','PRODUCT'),
+                                 addEntries = FALSE)
+ 
+# Put it back
+A.USSR_Yug_ctry_stat <- fsu_data
 
 # 2.2.2 Now process composite regions ------------------------------------------
 
