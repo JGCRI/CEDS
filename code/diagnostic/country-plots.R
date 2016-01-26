@@ -59,7 +59,7 @@ setwd('../diagnostic-output')
 
 # ---------------------------------------------------------------------------
 # Emissions and countries for which to produce plots
-emissions <- c("SO2", "NOx")
+emissions <- c("NMVOC", "SO2", "NOx", "CO")
 country_list <- c("arg","kor","jpn","chn")
 
 # Emissions Loop
@@ -109,8 +109,8 @@ for(emiss in seq_along(emissions)){
 
     CountryEmissions.long$Region <- as.factor(CountryEmissions.long$Region)
     CountryEmissions.long$year <- as.integer(CountryEmissions.long$year)
-# -----------------------------------------------------------
-# Removing Sectors that are zeros
+
+# Remove Sectors that are zeros
     sectors <- unique(CountryEmissions.long$sector)
 
     for(secs in seq_along(sectors)) {
@@ -122,7 +122,7 @@ for(emiss in seq_along(emissions)){
       }
     }
 
-#-----
+# -----------------------------------------------------------
     if (print_defaults){
       DefaultCountryEmissions.long <- melt(DefaultCountryEmissions,id.vars = c('iso','sector','fuel','units'))
       names(DefaultCountryEmissions.long) <- c('iso','sector','fuel','units','year','Emissions')
@@ -136,6 +136,19 @@ for(emiss in seq_along(emissions)){
   
       DefaultCountryEmissions.long$Region <- as.factor(DefaultCountryEmissions.long$Region)
       DefaultCountryEmissions.long$year <- as.integer(DefaultCountryEmissions.long$year)
+
+	# Remove Sectors that are zeros
+		sectors <- unique(DefaultCountryEmissions.long$sector)
+
+		for(secs in seq_along(sectors)) {
+		  is.emis <- 0
+		  CE.LL <- DefaultCountryEmissions.long[DefaultCountryEmissions.long$sector == sectors[secs],]
+		  is.emis <- sum(CE.LL$Emissions)
+		  if(is.emis == 0){
+			DefaultCountryEmissions.long <- DefaultCountryEmissions.long[!(DefaultCountryEmissions.long$sector == sectors[secs]),]
+		  }
+		}
+		
     }
 # ---------------------------------------------------------------------------
 # 3. Tables - Total emissions by country
