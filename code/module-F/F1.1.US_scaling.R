@@ -89,6 +89,10 @@ inv_data_sheet <- inv_data_sheet[-remove.na,]
 inv_data_sheet[,paste0('X',inv_years)] <- suppressWarnings(
                       sapply( inv_data_sheet[,paste0('X',inv_years)] , as.numeric) )
 
+# Convert to metric tonnes
+inv_data_sheet[ , paste0( 'X' , inv_years ) ] <- 
+  as.matrix( inv_data_sheet[ , paste0( 'X' , inv_years ) ] ) * 0.9072
+
 #remove values that are the are constant carried forward
 X_inv_years <- paste0('X',inv_years)
 check_years <- length(X_inv_years):2
@@ -100,7 +104,6 @@ for (i in seq_along( check_years )) {
         inv_data_sheet[n,X_inv_years[check_years[i]]] <- NA
   }
 }
-
 
 # write standard form inventory
 writeData( inv_data_sheet , domain = "MED_OUT", paste0('E.',em,'_',inv_name,'_inventory'))
