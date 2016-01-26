@@ -177,10 +177,10 @@ Regions<-ddply(TotalEmissions.long, .(Region,year),summarize,
                Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Regions
-df$Region <- factor(df$Region,levels=c('North America','Western Europe',
-                                        'Eastern Europe and FSU','Middle East',
-                                       'Africa','Asia','Central and South America',
-                                       'South East Asia and Aust/NZ'))
+	df$Region <- factor(df$Region,levels=c('North America','Western Europe',
+											'Eastern Europe', 'FSU','Middle East',
+										   'Africa','Other Asia','China','Central and South America',
+										   'South East Asia and Aust/NZ'))
 df <- df[order(-df$Region),]
 plot <- ggplot(df, aes(x=year,y=Emissions,
                        fill=Region)) + 
@@ -198,20 +198,24 @@ writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled
 #----
 # Default Emissions
 if ( PRINT_DEFAULTS ){
-Regions<-ddply(DefaultEmissions.long, .(Region,year),summarize,
-               Emissions=sum(Emissions, na.rm=TRUE))
+	Regions<-ddply(DefaultEmissions.long, .(Region,year),summarize,
+				   Emissions=sum(Emissions, na.rm=TRUE))
 
-df <- Regions
-df <- df[-which(is.na(df$Region)),]
-plot <- ggplot(df, aes(x=year,y=Emissions,
-                        fill=Region)) + 
-  geom_area(size=1) +
-  scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
-  scale_y_continuous(labels = comma)+
-  ggtitle( paste('Global Default',em,' Emissions') )+
-  labs(x='Year',y= paste(em,'Emissions [kt]') )
-plot              
-ggsave( paste0('summary-plots/',em,'_regions.default.pdf') , width = 11, height = 6)
+	df <- Regions
+	df$Region <- factor(df$Region,levels=c('North America','Western Europe',
+											'Eastern Europe', 'FSU','Middle East',
+										   'Africa','Other Asia','China','Central and South America',
+										   'South East Asia and Aust/NZ'))
+	df <- df[-which(is.na(df$Region)),]
+	plot <- ggplot(df, aes(x=year,y=Emissions,
+							fill=Region)) + 
+	  geom_area(size=1) +
+	  scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
+	  scale_y_continuous(labels = comma)+
+	  ggtitle( paste('Global Default',em,' Emissions') )+
+	  labs(x='Year',y= paste(em,'Emissions [kt]') )
+	plot              
+	ggsave( paste0('summary-plots/',em,'_regions.default.pdf') , width = 11, height = 6)
 }
 ##line graphs by region
 #Scaled Emissions
@@ -219,6 +223,10 @@ Regions<-ddply(TotalEmissions.long, .(Region,year),summarize,
                Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Regions
+	df$Region <- factor(df$Region,levels=c('North America','Western Europe',
+											'Eastern Europe', 'FSU','Middle East',
+										   'Africa','Other Asia','China','Central and South America',
+										   'South East Asia and Aust/NZ'))
 df <- df[-which(is.na(df$Region)),]
 plot <- ggplot(df, aes(x=year,y=Emissions,
                        color=Region)) + 
@@ -232,20 +240,24 @@ ggsave( paste0('summary-plots/',em,'_regions.scaled.line.pdf') , width = 11, hei
 #----
 # Default Emissions
 if ( PRINT_DEFAULTS ){
-Regions<-ddply(DefaultEmissions.long, .(Region,year),summarize,
-               Emissions=sum(Emissions, na.rm=TRUE))
+	Regions<-ddply(DefaultEmissions.long, .(Region,year),summarize,
+				   Emissions=sum(Emissions, na.rm=TRUE))
 
-df <- Regions
-df <- df[-which(is.na(df$Region)),]
-plot <- ggplot(df, aes(x=year,y=Emissions,
-                        color=Region)) + 
-  geom_line(size=1) +
-  scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
-  scale_y_continuous(labels = comma)+
-  ggtitle( paste('Global Default',em,' Emissions') ) +
-  labs(x='Year',y= paste(em,'Emissions [kt]') )
-plot              
-ggsave( paste0('summary-plots/',em,'_regions.default.line.pdf') , width = 11, height = 6)
+	df <- Regions
+	df$Region <- factor(df$Region,levels=c('North America','Western Europe',
+											'Eastern Europe', 'FSU','Middle East',
+										   'Africa','Other Asia','China','Central and South America',
+										   'South East Asia and Aust/NZ'))
+	df <- df[-which(is.na(df$Region)),]
+	plot <- ggplot(df, aes(x=year,y=Emissions,
+							color=Region)) + 
+	  geom_line(size=1) +
+	  scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
+	  scale_y_continuous(labels = comma)+
+	  ggtitle( paste('Global Default',em,' Emissions') ) +
+	  labs(x='Year',y= paste(em,'Emissions [kt]') )
+	plot              
+	ggsave( paste0('summary-plots/',em,'_regions.default.line.pdf') , width = 11, height = 6)
 }
 
 # ---------------------------------------------------------------------------
