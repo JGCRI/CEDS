@@ -55,11 +55,15 @@ Master_Sector_Level_map <- readData(domain = 'MAPPINGS', file_name = 'Master_Sec
 # ---------------------------------------------------------------------------
 # Data processing
 
-
-
 X_write_years <- paste0('X',write_years)
 final_emissions <- final_emissions_read[,c('iso','sector','fuel','units',X_write_years)]
 final_emissions$em <- em
+
+# remove international shipping and aviation emissions
+final_emissions <- final_emissions[-which(final_emissions$sector == "1A3di_International-shipping" ),]
+final_emissions <- final_emissions[-which(final_emissions$sector == "1A3ai_International-aviation" ),]
+final_emissions <- final_emissions[-which(final_emissions$sector == "1A3aii_Domestic-aviation" ),]
+
 # add summary sectors
 final_emissions$summary_sector <- Master_Sector_Level_map[match(final_emissions$sector,
                                   Master_Sector_Level_map$working_sectors_v1),'aggregate_sectors']
@@ -69,14 +73,11 @@ final_emissions[which(final_emissions$units == "kt*kt/kt"), 'units'] <- 'kt'
 # reorder columns
 final_emissions <- final_emissions[,c("iso","summary_sector","fuel","em","units",X_write_years)]
 
+
 # ---------------------------------------------------------------------------
 # 1. Write Tables
 
 FILENAME_POSTSCRIPT = "_FOR-REVIEW-ONLY"
-
-#TODO: Remove 1960-1969 emissions
-#TODO: Remove NA sector
-#TODO: Remove international shipping and all aircraft emissions from totals (If remove NA summary sector this will do that)
 
 #Total emissions by Country
 Em_by_Country<-aggregate(final_emissions[X_write_years],
