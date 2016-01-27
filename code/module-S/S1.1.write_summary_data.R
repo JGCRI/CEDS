@@ -55,12 +55,19 @@ Master_Sector_Level_map <- readData(domain = 'MAPPINGS', file_name = 'Master_Sec
 # ---------------------------------------------------------------------------
 # Data processing
 
+
+
 X_write_years <- paste0('X',write_years)
 final_emissions <- final_emissions_read[,c('iso','sector','fuel','units',X_write_years)]
-
 final_emissions$em <- em
+# add summary sectors
+final_emissions$summary_sector <- Master_Sector_Level_map[match(final_emissions$sector,
+                                  Master_Sector_Level_map$working_sectors_v1),'aggregate_sectors']
+#simplify units
+final_emissions[which(final_emissions$units == "kt*kt/kt"), 'units'] <- 'kt'
+
 # reorder columns
-final_emissions <- final_emissions[,c("iso","sector","fuel","em","units",X_write_years)]
+final_emissions <- final_emissions[,c("iso","summary_sector","fuel","em","units",X_write_years)]
 
 # ---------------------------------------------------------------------------
 # 1. Write Tables
@@ -77,7 +84,8 @@ Em_by_Country<-aggregate(final_emissions[X_write_years],
                                  em= final_emissions$em,
                                  units=final_emissions$units),sum )
 
-#Convert to wide format for writeout
+#Sort and writeout
+Em_by_Country <- Em_by_Country[ with( Em_by_Country, order( iso ) ), ]
 writeData( Em_by_Country, "FIN_OUT", paste0(em ,'_emissions_by_country',FILENAME_POSTSCRIPT), meta=FALSE )
 
 #Total emissions by fuel
@@ -86,16 +94,18 @@ Summary_Emissions <- aggregate(final_emissions[X_write_years],
                                        em= final_emissions$em,
                                        units=final_emissions$units),sum )
 
-#Convert to wide format for writeout
+#Sort and writeout
+Summary_Emissions <- Summary_Emissions[ with( Summary_Emissions, order( fuel ) ), ]
 writeData( Summary_Emissions, "FIN_OUT", paste0(em ,'_global_emissions_by_fuel',FILENAME_POSTSCRIPT), meta=FALSE )
 
 # Total Emissions by Sector and Country
 Em_by_Country_Sector <- aggregate(final_emissions[X_write_years],
                                by=list(iso=final_emissions$iso,
-                                       sector=final_emissions$sector,
+                                       sector=final_emissions$summary_sector,
                                        em= final_emissions$em,
                                        units=final_emissions$units),sum )
-#Convert to wide format for writeout
+#Sort and writeout
+Em_by_Country_Sector <- Em_by_Country_Sector[ with( Em_by_Country_Sector, order( iso , sector ) ), ]
 writeData( Em_by_Country_Sector, "FIN_OUT", paste0(em ,'_emissions_by_country_sector',FILENAME_POSTSCRIPT), meta=FALSE )
 
 logStop()
