@@ -54,8 +54,7 @@ scripts <- c()
 # Set scripts to add emissions data for SO2
 if( em == "SO2" ){
 # Remove outdated scrips -- revise when move to working sectors v2
-#    scripts <- c( "C1.2.add_SO2_NC_emissions_all.R" , "C1.2.add_SO2_NC_emissions_FAO.R" )
-   scripts <- c( "C1.2.add_SO2_NC_emissions_FAO.R" )
+#   scripts <- c( "C1.2.add_SO2_NC_emissions_all.R" , "C1.2.add_SO2_NC_emissions_FAO.R" )
 }
 
 # Set scripts to add emissions data for BC or OC (currently no data to add)
