@@ -62,9 +62,10 @@
                "ltu" , "lva" , "mlt" , "nld" , "nor" , "nzl" , "prt" , "rou" , "svk" , "svn" , "swe" ,
                "tur" , "ukr" )
 # include only regions that aren't scaled elsewhere
-# TODO: blr and ukr should only be used for specific years where is close to expert estimates
-# Ukraine (ukr) energy reporting is inconsistent, instead have calibrated coal S% by hand
-  region <- c(  "aut" , "blr" , "grc" , "jpn", "nzl" )
+# TODO: blr and ukr should only be used for specific years where is close to expert estimates, or to calibrate parameters off-line
+# TODO: why is grc not in EMEP?
+# Ukraine (ukr) energy reporting is inconsistent, instead have calibrated coal S% by hand. Check other emissions
+  region <- c(  "aut" , "blr" , "grc" , "nzl" )
   inv_years<-c(1990:2012)
   
 
