@@ -5,7 +5,7 @@
 }
 {\info
 {\author test}
-{\*\company PNNL}}\margl1440\margr1440\vieww16540\viewh17220\viewkind1
+{\*\company PNNL}}\margl1440\margr1440\vieww16840\viewh13860\viewkind1
 \deftab720
 \pard\pardeftab720\ri0
 
@@ -20,18 +20,17 @@ The approach is to focus largely on building a system to generate a SO2 emission
 \i0\b \
 Complete Initial SO2 Time Series
 \b0 \
-  -- Finish SO2 default EF dataset\
-  -- Implement CEDS working sectors ver 1 (process sectors @ EDGAR resolution)\
-  -- Import EDGAR process emissions\
-         \'97 Use 1970-2008 if we don\'92t have newer data yet\
-  -- Scale to inventory data (USA, Canada, UNFCCC, EMEP level 1, Australia, etc.)\
+  -- 
+\b \cf2 DONE
+\b0 \cf0 \
  \
 \pard\pardeftab720\ri0
 
 \b \cf0 Generate First-cut Time Series For Rest of Emissions
 \b0 \
-  -- Develop default EFs (Use global GAINS-EMF30 data and, if have time, US NEI)\
-     -- Scale to inventory (USA, Canada, EMEP level 1, etc.) and EDGAR otherwise\
+  -- 
+\b \cf2 DONE
+\b0 \cf0 \
 \
 
 \b Improve First-cut Time Series
@@ -41,7 +40,7 @@ Complete Initial SO2 Time Series
      \'97 Focus on residential sector (Base on ECLIPSE)\
      \'97 Use whatever EDGAR has otherwise by end of Jan\
 \
-   -- Add CO2 and CH4 emissions \
+   -- Add CO2 and CH4 emissions  (DO once CMIP6 primary data is out)\
      \'97 CO2 is probably higher priority than CH4\
      \'97 CH4 will require adding more driver data\
            \'97 Most, if not all, is FAO so can use API\
@@ -62,6 +61,11 @@ Complete Initial SO2 Time Series
   -- Determine basic approach for gridding\
   -- Create simple routine based on EDGAR + Population and other area proxies (no grid points)
 \b \
+\
+\
+\
+\
+\
 \
 \
 \
@@ -104,7 +108,7 @@ Document input emissions format\ulnone  for system, including units\
  \
 \ul Develop default EFs for other pollutant emissions\
  \ulnone  \'97  Global GAINS-EMF30 data as default  - 
-\b \cf2 IN PROGRESS
+\b \cf2 DONE
 \b0 \cf0 \
       \'97 Where GAINS-EMF30 year 2000 EFs are systematically different from OECD and nonOECD, think about how to extrapolate OECD EFs back in time. Compare with other uncontrolled EFs we have available.\
 \
@@ -112,15 +116,15 @@ Document input emissions format\ulnone  for system, including units\
 \b Leyang
 \b0 \ul \
  \ulnone  \'97  Develop basic routine - 
-\b \cf2 IN PROGRESS
+\b \cf2 DONE
 \b0 \cf0 \
       \'97 Check global totals\
 \ul  \ulnone  \'97  Implement VOC speciation (propose to use HTAPv2)\
 \ul  \ulnone  \'97  Implement 3D gridding for Aviation (using RCP templates\
-\ul  \ulnone  \'97  Implement residential sector seasonality (assuming we get needed data)\
+\ul  \ulnone  \'97  Implement residential sector seasonality\
  \
 \ul Merge With RCP/HYDE Data/assumptions\ulnone  to get past trends\ul  \ulnone - 
-\b NEED TO ASSIGN
+\b Rachel
 \b0 	\
   -- Downscale to country level if possible (using CDIAC CO2?)\
      \'97 Extended GDP and population datasets could be used to extend process emissions data\
@@ -148,9 +152,7 @@ Document input emissions format\ulnone  for system, including units\
     \'97 Scale from RCP estimates\
 \pard\pardeftab720\ri0
 \cf0 \
-\ul Create summary results \ulnone - 
-\b NEED TO ASSIGN
-\b0 	\
+\ul Create summary results \ulnone -	\
   -- After last scaling, take final emissions and copy to final emissions folder\
      \'97 Create a summary sector format (that is comparable with gridding needs)\
      \'97 Include detail on biomass (perhaps summary by fuel as well? Talk to IEA.)\
@@ -171,15 +173,10 @@ Document input emissions format\ulnone  for system, including units\
 
 \b0 \
  \ul Scale to additional inventory data\
-   \ulnone \'97 Later Canada data- 
-\b \cf2 DONE
-\b0 \cf0 \
-   \'97 Australia, \
-   \'97 Others (China, Japan, S Korea, Taiwan, other from REAS)\
+\ulnone    \'97 Australia, \
+   \'97 Others (Taiwan, others if we get them)\
    \'97 EMEP level 2\
-   \'97 Add to UNEP (and others?) ability to read inventory data from zip file\
-   \'97 Remove from UNEP scaling emissions and countries that are superseded elsewhere\
-      \'97 (Will need UNEP for CH4 for most annex I countries, but not for pollutants for most)\
+    \'97 Add UNEP for CH4 for most annex I countries, but not for pollutants for most)\
  \
  \ul Add GAINS default S Efs for China and India\
    \ulnone \'97 Have GAINS detailed data by provence, need to sum and then do same weighting as for Europe data\
@@ -196,20 +193,8 @@ Document input emissions format\ulnone  for system, including units\
 \ul Check NOx units in all datasets\
    \ulnone \'97 Some are as NO2, but some might be NOx and will need to convert\
 \
-\ul Add sector-specific end-years for US scaling\
-   \ulnone \'97 Use trends data out to most recent year for Electric power and mobile sources\
-\ul    \ulnone \'97 For other sectors, only real trends data is out to 2011 by setting to NA\
-\ul    \ulnone \'97 ALSO - resolve trends discrepancy in mobile sources\
-\
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
-\cf0 \ul Extend population datasets\ulnone  
-\b - Linh
-\b0 \
-  -- Extend to previous historical years using HYDE population time series
-\b \cf3  Not Done
-\b0 \cf0 \
-\
-\ul Extend dataset for activity GDP data\ulnone  
+\cf0 \ul Extend dataset for activity GDP data\ulnone  
 \b \cf3 Not Done
 \b0 \cf0 \
   -- Current dataset only goes back to 1969\
@@ -231,10 +216,6 @@ Document input emissions format\ulnone  for system, including units\
  \'97 So may not need rest of this item\
   -- Need to identify which sectors/subsectors have data (this is inconsistent)\
   \
-\ul Update to 2015 edition of IEA energy balances 
-\b \cf3 \ulnone In Process - Nazar
-\b0 \cf0 \
-\
 \ul Update to EDGAR V4.3\
 \ulnone  \'97 Both for aggregate emissions and emission grids\
  \'97 Need to do some basic tests (including external folks) before final release\
@@ -396,7 +377,25 @@ Metadata routines - print input file or code file that originated the meta-data 
 \
 \pard\pardeftab720\ri0
 
-\b0 \cf0 \ul Import EDGAR process emissions from EDGAR\
+\b0 \cf0 \ul Add sector-specific end-years for US scaling\
+   \ulnone \'97 Use trends data out to most recent year for Electric power and mobile sources\
+\ul    \ulnone \'97 For other sectors, only real trends data is out to 2011 by setting to NA\
+\ul    \ulnone \'97 ALSO - resolve trends discrepancy in mobile sources\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\ri0
+\cf0 \ul Extend population datasets\ulnone  
+\b - Linh
+\b0 \
+  -- Extend to previous historical years using HYDE population time series
+\b \cf3  Not Done
+\b0 \cf0 \
+\
+\ul Update to 2015 edition of IEA energy balances 
+\b \cf3 \ulnone In Process - Nazar
+\b0 \cf0 \
+\
+\pard\pardeftab720\ri0
+\cf0 \ul Import EDGAR process emissions from EDGAR\
   \ulnone \'97 Use 1970-2008 if we don\'92t have newer data yet\
 
 \b \cf2 DONE
@@ -411,6 +410,10 @@ Metadata routines - print input file or code file that originated the meta-data 
 \b \cf2 DONE
 \b0 \cf0 \ul \
 \ulnone    \'97 EMEP level 1\
+\ul    \ulnone \'97 Later Canada data\
+   \'97 Others (China, Japan, S Korea)\
+   \'97 Add to UNEP (and others?) ability to read inventory data from zip file\
+   \'97 Remove from UNEP scaling emissions and countries that are superseded elsewhere\
 \
 \ul Implement CEDS working sectors version 1\ulnone  (process sectors at EDGAR resolution)\
 
