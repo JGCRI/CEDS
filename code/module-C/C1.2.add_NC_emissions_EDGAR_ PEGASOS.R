@@ -89,9 +89,12 @@ edgar$sector <- NC_sector_map$ceds_sector[ match( edgar$edgar_sector, NC_sector_
 # edgar <- na.omit( edgar )
 # sjs; Don't want to do this. Hopefully will still work.
 
+# Turn NAs to zeros
+edgar[ is.na( edgar ) ] <- 0
+
 # Rearrange columns to proper order (iso-sector-fuel-units-data)
-#len <- ncol( edgar )
-edgar <- cbind( edgar[ id_cols ], edgar[ 1:( len - 5 ) ] )
+len <- ncol( edgar )
+edgar <- cbind( edgar[ id_cols ], edgar[ paste0("X",inv_years) ] )
 # duplicates instead of re-orders
 
 # Sort the data
