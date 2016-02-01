@@ -461,12 +461,19 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 	$(MOD_F)/F1.1.UNFCCC_scaling.R \
 	$(MOD_F)/F1.1.EMEP_scaling.R \
 	$(MOD_F)/F1.1.Edgar_scaling.R \
+	$(MOD_F)/F1.1.south_korea_scaling.R \
+	$(MOD_F)/F1.1.Japan_scaling.R \
+	$(MOD_F)/F1.1.argentina_scaling.R \
 	$(PARAMS)/emissions_scaling_functions.R \
 	$(MED_OUT)/E.$(EM)_EMEP_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
 	$(SC_MAPPINGS)/UNFCCC_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/US_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/CAN_scaling_mapping.xlsx \
+	$(SC_MAPPINGS)/Argentina_scaling_mapping.xlsx \
+	$(SC_MAPPINGS)/Edgar_scaling_mapping.xlsx \
+	$(SC_MAPPINGS)/EMEP_scaling_mapping.xlsx \
+	$(SC_MAPPINGS)/jpn_scaling_mapping.xlsx \
 	$(MED_OUT)/D.$(EM)_default_total_EF.csv \
 	$(MED_OUT)/D.$(EM)_default_total_emissions.csv
 	Rscript $< $(EM) --nosave --no-restore
