@@ -82,7 +82,7 @@ initialize( script_name, log_msg, headers )
 # ------------------------------------------------------------------------------
 # 1.5 Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
   
-  sheet_name = paste0( 'NEW_v4.3_EM_', em, '_hind' )
+  sheet_name = paste0( 'NEW_v4.3_EM_', em, '_ref' )
   
   # Import file
   inv_data_sheet <- readData( inv_data_folder, domain_extension = "Edgar/",
