@@ -31,7 +31,7 @@
     headers <- c( "common_data.R","data_functions.R", "analysis_functions.R", 
                   "process_db_functions.R", 'timeframe_functions.R') # Additional function files required.
     log_msg <- paste0( "Processing EDGAR non-combustion default emissions data." ) # First message to be printed to the log
-    script_name <- "C.1.2.add_NC_emissions_EDGAR.R" 
+    script_name <- "C1.2.add_NC_emissions_EDGAR_ PEGASOS.R" 
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )    
   
@@ -55,7 +55,7 @@ id_cols <- c( "iso", "sector", "fuel", "units" )
 # 2. Input
 
 inventory_data_file <- paste0('JRC_PEGASOS_',em,'_TS_REF')
-sheet_name = paste0( 'NEW_v4.3_EM_', em, '_hind' )
+sheet_name = paste0( 'NEW_v4.3_EM_', em, '_ref' )
 
 edgar <-  readData( domain, domain_extension = "Edgar/",
 				    inventory_data_file,  ".xlsx", 
@@ -65,6 +65,8 @@ NC_sector_map <- readData( "MAPPINGS", "NC_EDGAR_sector_mapping" )
 
 # ------------------------------------------------------------------------------
 # 3. Reformatting
+
+inv_years<-c(EDGAR_start_year:EDGAR_end_year)
 
 # Clean rows and columns to standard format
 edgar$units <- 'kt'
@@ -81,13 +83,15 @@ edgar <- edgar[ apply( X=edgar[,paste0("X",inv_years)],
 edgar$fuel <- fuel
 
 # Add ceds_sector column  and units from sector mapping file
-edgar$sector <- NC_sector_map$ceds_sector[ match( edgar$edgar_sector, NC_sector_map$edgar_sector ) ]
-# TAKE FROM MASTER SECTOR LIST INSTEAD
-#edgar$units <- NC_sector_map$units[ match( edgar$sector, NC_sector_map$ceds_sector ) ]
+edgar$sector <- NC_sector_map$ceds_sector[ match( edgar$sector, NC_sector_map$edgar_sector ) ]
 
-# Remove rows with NA values- interferes with database functions
-# edgar <- na.omit( edgar )
-# sjs; Don't want to do this. Hopefully will still work.
+#Aggregate to CEDS sectors
+# Total Emissions by Sector and Country
+edgar <- aggregate( edgar[ paste0("X",inv_years) ],
+                               by=list(iso = edgar$iso,
+                                       sector = edgar$sector,
+                                       units = edgar$units, 
+                                       fuel = edgar$fuel ), sum )
 
 # Turn NAs to zeros
 edgar[ is.na( edgar ) ] <- 0
