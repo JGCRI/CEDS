@@ -37,7 +37,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO"
+if ( is.na( em ) ) em <- "NH3"
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -261,9 +261,10 @@ for(i in 1:6){
   plot_df$region <- as.factor(plot_df$region)
   max <- 1.2*(max(plot_df$total_emissions))
   
+  if(em == 'SO2'){
   if ( i %in% c(1)) max = 200000
   if ( i %in% c(2,3,4)) max = 20000
-  if ( i %in% c(5,6)) max = 10000
+  if ( i %in% c(5,6)) max = 10000 }
   
   plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region, shape=inv)) + 
     geom_point(data = subset(plot_df, inv =='RCP'),size=2,aes(x=year,y=total_emissions, color = region)) +
