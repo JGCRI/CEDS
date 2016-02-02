@@ -685,7 +685,7 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   
   lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
   lats <- seq( -90 + grid_resolution / 2, 90 - grid_resolution / 2, grid_resolution )
-  time <- 1:12
+  time <- c( 16, 47, 77, 108, 137, 168, 198, 229, 260, 290, 321, 351 )
   londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
   latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
   timedim <- ncdim_def( "time", "days since 1750-01-01 0:0:0", as.double( time ), 
