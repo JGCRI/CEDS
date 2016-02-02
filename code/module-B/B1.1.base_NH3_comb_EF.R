@@ -4,7 +4,7 @@
 # Program Purpose: Generate base emission factors
 #                  for NH3
 #
-# Input Files:    files in the EF_parameters folder contailing control_percent and em
+# Input Files:  NH3_Default_EF_US-NEI2011.xlsx - base efs estimated from US NEI
 #               
 # Output Files:  
 # Notes: 
@@ -28,7 +28,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( ) 
+headers <- c( 'data_functions.R' ) 
 #                 Additional function files may be required.
 log_msg <- "Processing GAINS EMF-30 data. Using as base comb EF where appropriate" 
 # First message to be printed to the log
@@ -51,23 +51,66 @@ if ( em %!in% c('NH3') ) {
 # 1. Load Data
 
 activity_data <- readData( "MED_OUT", "A.comb_activity" )
+nei_ef <- readData ( "DEFAULT_EF_IN", 'NH3_Default_EF_US-NEI2011', '.xlsx', sheet = 'EF' )
+sector_map <- readData( "MAPPINGS", "NH3_EF_USNEI_mapping" )
+
+# ---------------------------------------------------------------------------
+# 2. Process NEI data
+
+units <- 't/kt'
+names(nei_ef) <- nei_ef[ 14 , ]
+fuels <- unlist(nei_ef[ 14 , 5:11 ])
+nei_ef$units <- units
+nei_ef <- nei_ef[ 1:6 , c( 'CEDS_Sector' , 'units' , fuels ) ]
+
+# make numeric
+nei_ef[fuels] <- apply( nei_ef[fuels] , 2, as.numeric)
+
+# convert to long form and rename columns
+nei_ef_long <- melt(nei_ef, id.vars = c( 'CEDS_Sector' , 'units' ) )
+names(nei_ef_long)[which(names(nei_ef_long) == 'value')] <- 'ef'
+names(nei_ef_long)[which(names(nei_ef_long) == 'variable')] <- 'fuel'
+names(nei_ef_long)[which(names(nei_ef_long) == 'CEDS_Sector')] <- 'scaling_sector'
+
+# convert units to kt/kt
+nei_ef_long$ef <- nei_ef_long$ef / 1000
+nei_ef_long$units <- 'kt/kt'
+
+nei_ef_extended <- nei_ef_long[ , c( 'scaling_sector' , 'units', 'fuel' )]
+nei_ef_extended[, X_emissions_years ] <-  replicate ( nei_ef_long$ef , 
+                                                      n= length( X_emissions_years ))
+# add CEDS sectors
+sector_version <- 'v1'
+nei_ef_extended <- merge( unique( sector_map[,c(paste0('working_sectors_',sector_version), 'EF_summary_sector' ) ]) ,
+                         nei_ef_extended, 
+                         by.x = 'EF_summary_sector',
+                         by.y = 'scaling_sector', 
+                         all.x = TRUE)
+names(nei_ef_extended)[which(names(nei_ef_extended) == paste0('working_sectors_',sector_version) ) ] <- 'sector'
+nei_ef_extended <- nei_ef_extended[ , c( 'sector' , 'fuel' , 'units' , X_emissions_years ) ]
 
 
 # ---------------------------------------------------------------------------
-# 2. 
+# 3. Create default efs
 
 default_efs <- activity_data
 default_efs[,X_emissions_years] <- 0
 
+# default_efs 
+default_efs <- replaceValueColMatch(default_efs , nei_ef_extended ,
+                             x.ColName = X_emissions_years,
+                             match.x = c('sector','fuel'),
+                             addEntries = FALSE)
+
 # Sort
 printLog('Sorting')
-base_efs <-  default_efs[ with( default_efs, order( iso, sector, fuel ) ), ]
+default_efs <-  default_efs[ with( default_efs, order( iso, sector, fuel ) ), ]
 
 
 # ---------------------------------------------------------------------------
 # 6. Output
 
-writeData(base_efs, domain = "MED_OUT", fn = paste0('B.',em,'_comb_EF_db'))
+writeData(default_efs, domain = "MED_OUT", fn = paste0('B.',em,'_comb_EF_db'))
 
 
 logStop()
