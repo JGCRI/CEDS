@@ -59,95 +59,40 @@ MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection
 MCL <- readData( "MAPPINGS", "Master_Country_List" ) # Master Country List
 
 # ------------------------------------------------------------------------------
-# 2. Reformatting
-
-# Add sector and fuel columns
-activity_data$sector <- ""
-activity_data$fuel <- fuel
+# 2. Reformatting - fill out activity database with zeros if no data
 
 # Prepare a blank template row for use in filling in missing activities
-range <- 1:length( activity_data )
 
-iso_list <- unique( activity_data$iso )
+iso <- unique( MCL[which(MCL$final_data_flag == '1') ,'iso'] )
+sector <- unique( MSL[which(MSL$type == 'NC') ,'sector'] )
 
-blank <- activity_data[1,]
-blank$iso <- "NA"
-blank$activity <- "NA"
-blank$units <- "NA"
-blank$sector <- "NA"
-blank$fuel <- "process"
+# build blank NC template
+nc_blank <- buildCEDSTemplate(iso_list = iso, sector_list = sector, fuel_list = c('process'))
 
-data_start <- findDataStart( activity_data )
-data_end <- length( activity_data ) - 2
+nc_blank$activity <- MSL[  match(nc_blank$sector, MSL$sector) , 'activity' ]
 
-for( i in data_start:data_end ){
-    blank[1,i] <- 0
-}
+nc_activity <- replaceValueColMatch(nc_blank,activity_data,
+                             x.ColName = X_emissions_years,
+                             match.x = c('iso','activity','units'),
+                             addEntries = FALSE)
 
-# Populate sector column from Master Sector List.
-# This will necessarily duplicate rows of activity_data.
-# NOTE: This assumes that all process activities 
-# appear in the activity database at least once.
-for( activity_name in unique( activity_data$activity ) ){
-    # List each sector that the current activity maps to.
-    sector_list <- MSL$sector[ MSL$activity == activity_name ]
-    
-    # Retrieve the unit type for the current activity
-    act_unit <- activity_data$units[ activity_data$activity == activity_name ][ 1 ]
-    
-    blank$activity <- activity_name
-    blank$units <- act_unit
-    
-    # For any country with missing activity activity_data, fill in with values of 0 
-    # to ensure cross-script compatibility.
-    for( country in iso_list ){
-        if( !( activity_name %in% activity_data$activity[ activity_data$iso == country ] ) ){
-            blank$iso <- country
-            activity_data <- rbind( activity_data,blank )
-        }
-    }
-    
-    # Set the original activity_data's sector entries to the first entry in
-    # the sector list (and removes that entry from the list), to avoid 
-    # leaving a piece of relic activity_data with no sector or activity designation,
-    # which would normally be a side effect of binding activity_data on in this
-    # manner.
-    activity_data$sector[ activity_data$activity == activity_name ] <- sector_list[[ 1 ]]
-    sector_list <- sector_list[ -1 ]
-    
-    # Copy the sections of the activity database with the current activity.
-    slice <- subset( activity_data, activity == activity_name )
-    
-    # Append a copy of the slice with each entry in the sector list.
-    for( sector_name in sector_list ){
-        slice$sector <- sector_name
-        activity_data <- rbind( activity_data, slice )
-    }
-}
+# Drop unneccessary columns
+nc_activity <- nc_activity[,c('iso','sector','fuel','units',X_emissions_years)]
 
-# Remove activity column, shift sector and fuel column to front
-activity_data$activity <- NULL
+# Sort nc_activity by iso, sector, and then fuel
+nc_activity <- nc_activity[ with( nc_activity, order( iso, sector, fuel ) ), ]
 
-names <- names( activity_data )
-data_end <- length( activity_data ) - 2
-
-activity_data <- cbind( activity_data$iso ,activity_data$sector, activity_data$fuel, activity_data[ 2:data_end ] )
-names( activity_data ) <- c( "iso","sector","fuel", names[ 2:data_end ] )
-
-# Sort results by iso, sector, and then fuel
-results <- activity_data[ with( activity_data, order( iso, sector, fuel ) ), ]
-
-# Combine results with A.comb_activity
-final <- rbind( energy_data,results )
+# Combine nc_activity with A.comb_activity
+total_activity <- rbind( energy_data,nc_activity )
 
 # Sort final by iso, sector, and then fuel
-final <- final[ with( final, order( iso, sector, fuel ) ), ]
+total_activity <- total_activity[ with( total_activity, order( iso, sector, fuel ) ), ]
 
 # ------------------------------------------------------------------------------
 # 4. Output
 
-writeData( results, domain = "MED_OUT", fn = "A.NC_activity", meta = TRUE )
-writeData( final, domain = "MED_OUT", fn = "A.total_activity", meta = TRUE )
+writeData( nc_activity, domain = "MED_OUT", fn = "A.NC_activity", meta = TRUE )
+writeData( total_activity, domain = "MED_OUT", fn = "A.total_activity", meta = TRUE )
 
 # ------------------------------------------------------------------------------
 # 5. Diagnostic
@@ -158,11 +103,11 @@ writeData( final, domain = "MED_OUT", fn = "A.total_activity", meta = TRUE )
 # 
 # This diagnostic may return false positives, as some countries may have reported no activity 
 # for said sectors, which would have resulted in a row of all 0s just as if no report was made.
-iso_list <- unique( results$iso )
-sector_list <- unique( results$sector )
+iso_list <- unique( nc_activity$iso )
+sector_list <- unique( nc_activity$sector )
 
 # Reset the blank row for adding to the no-activity_data diagnostic file.
-blank <- results[ 1, ]
+blank <- nc_activity[ 1, ]
 blank$iso <- "NA"
 blank$units <- "NA"
 blank$sector <- "NA"
@@ -171,12 +116,12 @@ blank$sector <- "NA"
 no_data <- blank[ 1:3 ]
 dropoff_data <- blank
 
-data_start <- findDataStart( results )
+data_start <- findDataStart( nc_activity )
 
 # Check whether ALL activity_data entries for each row are 0. 
 # A row is only added to the list if it has no nonzero activity_data.
-for( country in iso_list ){
-    super <- subset( results, results$iso == country )
+for( country in iso ){
+    super <- subset( nc_activity, nc_activity$iso == country )
     for( sector_name in sector_list ){
         set <- subset( super, super$sector == sector_name )
         num_set <- set
