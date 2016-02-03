@@ -47,48 +47,58 @@ em_lc <- tolower( em )
 
 activity_data <- readData( "MED_OUT", "A.NC_activity" )
 
-emissions_data <- readData( "MED_OUT", paste0( "C.", em, "_NC_emissions" ) )
+emissions_data_read <- readData( "MED_OUT", paste0( "C.", em, "_NC_emissions" ) )
 
 # ------------------------------------------------------------------------------
 # 2. Generate emissions factors and extendForward (constant) as necessary
 
-# Set up data frame for new emissions factors
-new_efs <- emissions_data[ 1:3 ]
-new_efs <- cbind( new_efs, units = NA )
-for( i in 5:length( emissions_data ) ){
-    new_efs <- cbind( new_efs, x = NA )
+# Check if emissions data and activity data are similar. There may be countries 
+# in emissions data, not in activity data - that's ok (like ant) It means that the
+# country is in Edgar emissions data - or other process data, but not in IEA energy
+# balances
+
+check <- rbind(setdiff(emissions_data_read$sector,activity_data$sector),
+               setdiff(emissions_data_read$sector,activity_data$sector))
+if( length ( check ) > 0 ) {
+  stop(paste("Missing sectors in NC activity and emissions data. Please check",
+             "C2.1base_NC_EF.R which uses A.NC_activity.csv and",
+             paste0( "C.", em, "_NC_emissions.csv" ) ))
 }
-names( new_efs ) <- names( emissions_data )
 
 # Ef * Activity = Emissions
 # Divide emissions data by activity data to generate emissions factors:
 
 # 0/0 must be set to 0.
 
-# # Unused function, may still have utility later
-# find_row_averages <- function(df){
-    # data <- as.data.frame( lapply( df[ range ], as.numeric ) )
-    # avg <- rowSums( avg, na.rm = FALSE, dims = 1) / num_cols
-    # return( avg )
-# }
+# Fill out a blank template, identical to activity data, with emissions data
+ ef_template <- activity_data
+ ef_template[X_emissions_years] <- 0
+ ef_template$units <- NA
 
-data_start <- findDataStart( emissions_data )
-num_cols <- length( names( emissions_data ) )
-range <- data_start:num_cols
-
-em_nums <- emissions_data[ range ]
-act_nums <- activity_data[ range ]
-
-for( i in 1:length( em_nums ) ){
-    ef_col <- i + data_start - 1
-    em_nums[[ i ]] <- as.numeric( em_nums[[ i ]] )
-    act_nums[[ i ]] <- as.numeric( act_nums[[ i ]] )
-    new_efs[[ ef_col ]] <- em_nums[[ i ]] / act_nums[[ i ]]
-    new_efs[[ ef_col ]][ !is.finite( new_efs[[ ef_col ]] ) ] <- 0
-}
-
-new_efs$units <- paste0( emissions_data$units, "/", activity_data$units )
-
+# populate template with emissions data
+ emissions_data <- replaceValueColMatch( ef_template, emissions_data_read,
+                                     x.ColName = X_emissions_years,
+                                     match.x = c('iso','sector','fuel'),
+                                     addEntries = FALSE)
+ emissions_data <- replaceValueColMatch( emissions_data, emissions_data_read,
+                                              x.ColName = 'units',
+                                              match.x = c('iso','sector','fuel'),
+                                              addEntries = FALSE)
+  
+# sort activity and emissions and check
+ activity_data <- activity_data[ with ( activity_data, order( iso, sector, fuel ) ), ]
+ emissions_data <- emissions_data[ with ( emissions_data, order( iso, sector, fuel ) ), ]
+ 
+ if ( ! identical(activity_data[ , c( 'iso' , 'sector' , 'fuel' ) ],
+                emissions_data[ , c('iso' , 'sector' , 'fuel' ) ] ) ) { 
+          stop( paste('activity and emissions data do not match. Please check',
+                      "C2.1base_NC_EF.R"  ) ) }
+ 
+# calculate EFs
+ new_efs <- ef_template
+ new_efs$units <- paste0( emissions_data$units, "/", activity_data$units )
+ new_efs[ X_emissions_years ] <- activity_data[ X_emissions_years ] * emissions_data[ X_emissions_years ]
+ 
 #Edgar process data stops at 2008, so efs drastically decreas in 2009. Carry 2008 EF forward
 new_efs_corrected <- new_efs[,c('iso','sector','fuel','units',paste0('X',start_year:EDGAR_end_year))]
 new_efs_corrected[,paste0('X',(EDGAR_end_year+1):end_year)] <- new_efs$X2008
