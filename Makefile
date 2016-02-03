@@ -414,31 +414,26 @@ $(MED_OUT)/C.$(EM)_NC_EF_db.csv : \
 	Rscript $< $(EM) --nosave --no-restore
 
 # dd1-1
-# Calculates combustion emissions from activity data and
-# emissions factors
-$(MED_OUT)/D.$(EM)_default_comb_emissions.csv : \
-	$(MOD_D)/D1.1.default_comb_emissions.R \
-	$(MED_OUT)/A.comb_activity.csv \
-	$(MED_OUT)/B.$(EM)_comb_EF_db.csv
-	Rscript $< $(EM) --nosave --no-restore
+# Calculates  NC and combustion emissions from activity data and
+# emissions factors then combines to total EF and total emissions
 
-# dd2-1
-# Generates process emissions factors and combines them with
-# combustion emissions and emissions factors
 $(MED_OUT)/D.$(EM)_default_total_emissions.csv : \
-	$(MOD_D)/D2.1.default_total_emissions.R \
-	$(MED_OUT)/C.$(EM)_NC_emissions.csv \
-	$(MED_OUT)/D.$(EM)_default_comb_emissions.csv
-	Rscript $< $(EM) --nosave --no-restore
-
-
-# dd3-1
-$(MED_OUT)/D.$(EM)_default_total_EF.csv : \
-	$(MOD_D)/D3.1.default_total_EF.R \
+	$(MOD_D)/D1.1.default_emissions.R \
+	$(MED_OUT)/A.comb_activity.csv \
+	$(MED_OUT)/A.NC_activity.csv \
 	$(MED_OUT)/B.$(EM)_comb_EF_db.csv \
 	$(MED_OUT)/C.$(EM)_NC_EF_db.csv
 	Rscript $< $(EM) --nosave --no-restore
 
+# dd1-2
+$(MED_OUT)/D.$(EM)_default_total_EF.csv : \
+	$(MED_OUT)/D.$(EM)_default_total_emissions.csv
+# dd1-3
+$(MED_OUT)/D.$(EM)_default_comb_emissions.csv : \
+	$(MED_OUT)/D.$(EM)_default_total_emissions.csv
+# dd1-4
+$(MED_OUT)/D.$(EM)_default_nc_emissions.csv : \
+	$(MED_OUT)/D.$(EM)_default_total_emissions.csv
 
 # ee1-1
 # Creates scaled emissions and emissions factors for US data
