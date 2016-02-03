@@ -685,11 +685,11 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   
   lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
   lats <- seq( -90 + grid_resolution / 2, 90 - grid_resolution / 2, grid_resolution )
-  time <- c( 16, 47, 77, 108, 137, 168, 198, 229, 260, 290, 321, 351 )
+  time <- c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 )
   londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
   latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
   timedim <- ncdim_def( "time", "days since 1750-01-01 0:0:0", as.double( time ), 
-                        calendar = '365_days', longname = 'time' )
+                        calendar = '365_day', longname = 'time' )
   dim_list <- list( londim, latdim, timedim )
   lon_bnds_data <- cbind( seq( -180, ( 180 - grid_resolution ), grid_resolution ), 
                           seq( ( -180 + grid_resolution ), 180, grid_resolution ) )
@@ -697,8 +697,8 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
                           seq( ( -90 + grid_resolution ), 90, grid_resolution ) )
   bnds <- 1 : 2
   bndsdim <- ncdim_def( "bnds", '', as.integer( bnds ), longname = 'bounds', create_dimvar = F )
-  time_bnds_data <- cbind( c( 1, 32, 62, 93, 122, 153, 183, 214, 245, 275, 306, 336 ),
-                      c( 31, 61, 92, 121, 152, 182, 213, 244, 274, 305, 335, 366 ) )
+  time_bnds_data <- cbind( c( 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 ),
+                      c( 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 ) )
   
   if ( mass == T ){
     data_unit <- 'kt'
@@ -775,8 +775,7 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
              paste0( as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%d-%m-%Y %H:%M:%S %p %Z' ) ),
                      '; College Park, MD, USA') )
   ncatt_put( nc_new, 0, 'comment', 'Test Dataset for CMIP6' )
-  ncatt_put( nc_new, 0, 'data_usage_tips', 
-             'These monthly average fluxes can be linearly interpolated to join fluxes of adjacent months. (This should be done in a manner that the monthly average given here is preserved.)' )
+  ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes.' )
   ncatt_put( nc_new, 0, 'host', 'TBD' )
   ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
   ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
