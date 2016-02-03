@@ -308,7 +308,7 @@ F.scaling <- function( ceds_data, inv_data, region,
 #   replacement_method = 'replace' 
 #   max_scaling_factor = 100
 #   replacement_scaling_factor = max_scaling_factor
-  
+#   meta = FALSE
   
   # Define simple function for use later. If TRUE, all values NA
   all.na <- function(x){
@@ -830,9 +830,10 @@ F.scaling <- function( ceds_data, inv_data, region,
       } # end Pre-Extrapolation
       
       # Post-Extrapolation
-      if( max(inv_years)<ext_year_default[i,'post_ext_year']){  
+      max_inv_year <- emissions_years[ max( which(!is.na(scaling_ext[i,X_emissions_years]))) ]
+      if( max_inv_year < ext_year_default[i,'post_ext_year']){  
         # Define post-Extrapolation Years 
-        post_scaling_ext_years <- c( max(inv_years):ext_year_default[i,'post_ext_year'] )
+        post_scaling_ext_years <- c( max_inv_year:ext_year_default[i,'post_ext_year'] )
         post_scaling_ext_years <- post_scaling_ext_years[-1]
         X_post_scaling_ext_years <- paste0( 'X', post_scaling_ext_years )
         # Fill Years with scaling factor = 1, NA, or interpolated Scaling factor
@@ -843,7 +844,7 @@ F.scaling <- function( ceds_data, inv_data, region,
         
         # Linear Extrapolation
         if( ext_method_default[i,'post_ext_method'] == 'linear'){
-          x = min(inv_years):max(inv_years)
+          x = min(inv_years):max_inv_year
           y = t(scaling_ext[i,X_inv_years_full])
           xout = post_scaling_ext_years
           
@@ -953,8 +954,8 @@ F.scaling <- function( ceds_data, inv_data, region,
   
   writeData( scaling_ext , domain = "DIAG_OUT", paste0('F.',em,'_Scaling_Factors_scaling_sectors_',inv_name))
   
-  list.out <- list(out,meta_notes)
-  names(list.out) <- c( 'scaling_factors', 'meta_notes')
+  list.out <- list(out, scaling_ext ,meta_notes)
+  names(list.out) <- c( 'scaling_factors', 'scaling_factors_wide' ,'meta_notes')
   
   return(list.out)
     }
@@ -981,9 +982,10 @@ F.applyScale <- function(scaling_factors){
   
   scaling_ceds_map_unique <- unique(scaling_map[complete.cases(scaling_map[,c(scaling_name,ceds_matchcol_name)]),
                                                 c(scaling_name,ceds_matchcol_name)])
+  
   # scaling factors by ceds sectors in long format
   scaling_factors_by_ceds <- merge(scaling_factors,
-                                   scaling_ceds_map_unique          ,
+                                   scaling_ceds_map_unique,
                                    all = TRUE)
   scaling_factors_by_ceds <- scaling_factors_by_ceds[ , c('iso',ceds_matchcol_name,'year','scaling_factor')]
   names(scaling_factors_by_ceds)[which(names(scaling_factors_by_ceds)==ceds_matchcol_name)] <- method_col
@@ -997,21 +999,26 @@ F.applyScale <- function(scaling_factors){
   names(ef_long) <- c('iso','sector','fuel','units', 'year', 'ef')
   
   # merge scaling factors and current emissions/ef
-  em_long_sf <- merge(em_long, scaling_factors_by_ceds, all = TRUE)
-  ef_long_sf <- merge(ef_long, scaling_factors_by_ceds, all = TRUE)
-  em_scaled <- em_long_sf[complete.cases(em_long_sf),]
-  ef_scaled <- ef_long_sf[complete.cases(ef_long_sf),]
+  em_long$scaling_factor <- NA
+  em_scaled <- replaceValueColMatch(em_long, scaling_factors_by_ceds, 
+                                    x.ColName = 'scaling_factor',
+                                    match.x = c('iso',method_col, 'year'),
+                                    addEntries = FALSE)
+  em_scaled <- em_scaled[complete.cases(em_scaled),]
+  ef_long$scaling_factor <- NA
+  ef_scaled <- replaceValueColMatch(ef_long, scaling_factors_by_ceds, 
+                                    x.ColName = 'scaling_factor',
+                                    match.x = c('iso',method_col, 'year'),
+                                    addEntries = FALSE)                                 
+  ef_scaled <- ef_scaled[complete.cases(ef_scaled),]
   
   # calculate new emissions/ef
   em_scaled$scaled <- em_scaled$emissions * em_scaled$scaling_factor
   ef_scaled$scaled <- ef_scaled$ef * ef_scaled$scaling_factor
   
-  em_scaled <- em_scaled[,c('iso','sector','fuel','year','scaled')]
-  ef_scaled <- ef_scaled[,c('iso','sector','fuel','year','scaled')]
-  
-  # drop emissions that are zero, remained unchanged
-  em_scaled <- em_scaled[-which(em_scaled$scaled == 0) , ]
-  ef_scaled <- ef_scaled[-which(ef_scaled$scaled == 0) , ]
+  # drop emissions that are zero, remained unchanged, unneeded columns
+  em_scaled <- em_scaled[which(em_scaled$scaled > 0) , c('iso','sector','fuel','year','scaled') ]
+  ef_scaled <- ef_scaled[which(ef_scaled$scaled > 0) , c('iso','sector','fuel','year','scaled') ] 
   
   #check duplicate entries
   em_scaled_unique <- unique(em_scaled[,c('iso','sector','fuel','year')])
