@@ -88,23 +88,31 @@ if( length ( check ) > 0 ) {
 # sort activity and emissions and check
  activity_data <- activity_data[ with ( activity_data, order( iso, sector, fuel ) ), ]
  emissions_data <- emissions_data[ with ( emissions_data, order( iso, sector, fuel ) ), ]
- 
- if ( ! identical(activity_data[ , c( 'iso' , 'sector' , 'fuel' ) ],
-                emissions_data[ , c('iso' , 'sector' , 'fuel' ) ] ) ) { 
+ ef_template <- ef_template[ with ( ef_template, order( iso, sector, fuel ) ), ]
+  
+ if( ! identical(activity_data[ , c( 'iso' , 'sector' , 'fuel' ) ],
+                emissions_data[ , c('iso' , 'sector' , 'fuel' ) ] )){ 
           stop( paste('activity and emissions data do not match. Please check',
-                      "C2.1base_NC_EF.R"  ) ) }
+                      "C2.1base_NC_EF.R") ) }
  
 # calculate EFs
  new_efs <- ef_template
+ 
+ if( ! identical(activity_data[ , c( 'iso' , 'sector' , 'fuel' ) ],
+                  new_efs[ , c('iso' , 'sector' , 'fuel' ) ] ) ){ 
+   stop( paste('activity and new_efs data do not match. Please check',
+               "C2.1base_NC_EF.R" ) ) }
+   
  new_efs$units <- paste0( emissions_data$units, "/", activity_data$units )
- new_efs[ X_emissions_years ] <- activity_data[ X_emissions_years ] * emissions_data[ X_emissions_years ]
+ new_efs[ X_emissions_years ] <- as.matrix(emissions_data[ X_emissions_years ]) / as.matrix(activity_data[ X_emissions_years ])
+ 
+ # replace NA, Inf with zero
+ new_efs[ X_emissions_years ] <- replace( new_efs[ X_emissions_years ] , is.na(new_efs[ X_emissions_years ]), 0)
+ new_efs[ X_emissions_years ] <- replace( new_efs[ X_emissions_years ] , new_efs[ X_emissions_years ] == 'Inf', 0)
  
 #Edgar process data stops at 2008, so efs drastically decreas in 2009. Carry 2008 EF forward
 new_efs_corrected <- new_efs[,c('iso','sector','fuel','units',paste0('X',start_year:EDGAR_end_year))]
 new_efs_corrected[,paste0('X',(EDGAR_end_year+1):end_year)] <- new_efs$X2008
-
-
-if(em=='NH4') new_efs<-replace(new_efs, new_efs==0,0.01)
 
 
 # --------------------------------------------------------------------------------------------
