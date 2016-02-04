@@ -63,8 +63,12 @@ if( em == "BC" || em == "OC" ){
 }
 
 # Add EDGAR data script for all relevant emissions species
-if( em == "SO2" || em == "CO" || em == "CH4" || em == "NOx" || em == "NMVOC"  || em == "NH3" ){
-    scripts <- c( scripts, "C1.2.add_NC_emissions_EDGAR_ PEGASOS.R" )
+if( em == "SO2" || em == "CO" || em == "NOx" || em == "NMVOC"  || em == "NH3" ){
+    scripts <- c( scripts, "C1.2.add_NC_emissions_EDGAR_PEGASOS.R" )
+}
+
+if( em == "CH4"  ){
+    scripts <- c( scripts, "C1.2.add_NC_emissions_EDGAR.R" )
 }
 
 # Run all child scripts for the given emissions type. The call to
