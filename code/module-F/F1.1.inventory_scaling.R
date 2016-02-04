@@ -75,8 +75,11 @@ if ( is.na( em ) ) em <- "NH3"
 # 3. Call scaling scripts for various species
   scripts <- c()
    
-  # EDGAR
-  if ( em %in% c('NOx','NMVOC','CO','CH4', "NH3") ) scripts <- c(scripts, 'F1.1.Edgar_PEGASOS_scaling.R')
+  # EDGAR 4.3 PEGASOS
+  if ( em %in% c('NOx','NMVOC','CO', "NH3") ) scripts <- c(scripts, 'F1.1.Edgar_PEGASOS_scaling.R')
+  
+  # EDGAR 4.2
+  if ( em %in% c('CH4') ) scripts <- c(scripts, 'F1.1.Edgar_scaling.R')
   
   # UNFCCC
   if ( em %in% c('SO2','CO','NMVOC','NOx') ) scripts <- c(scripts, 'F1.1.UNFCCC_scaling.R')

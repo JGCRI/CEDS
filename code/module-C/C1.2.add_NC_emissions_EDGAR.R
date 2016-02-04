@@ -51,6 +51,8 @@ id_cols <- c( "iso", "sector", "fuel", "units" )
 # Temporary assignment for script development
 # em <- "SO2"
 
+EDGAR42_end_year = 2008
+
 # ------------------------------------------------------------------------------
 # 2. Input
 
@@ -92,7 +94,7 @@ edgar <- cbind( edgar[ id_cols ], edgar[ 1:( len - 5 ) ] )
 edgar <- edgar[ with( edgar, order( iso, sector, fuel ) ), ]
 
 # get rid of 2008 and 2009. Strange Values
-edgar <- edgar[,c('iso','sector','fuel','units', paste0('X',EDGAR_start_year:EDGAR_end_year))]
+edgar <- edgar[,c('iso','sector','fuel','units', paste0('X',EDGAR_start_year:EDGAR42_end_year))]
 
 # ------------------------------------------------------------------------------
 # 4. Output
