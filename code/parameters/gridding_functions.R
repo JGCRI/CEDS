@@ -718,9 +718,9 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   time_bnds <- ncvar_def( 'time_bnds', '', list( timedim, bndsdim ), prec = 'double' )
   
   # generate nc file name
-  version <- 'v1'
+  ceds_version <- 'v'
   date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
-  ver_date <- paste( version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
+  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
   nc_file_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.nc' ) 
   
   # generate the var_list 
@@ -767,8 +767,10 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   ncatt_put( nc_new, 0, 'data_structure', 'grid' )
   ncatt_put( nc_new, 0, 'frequency', 'mon' )
   ncatt_put( nc_new, 0, 'realm', 'atmos' )
-  ncatt_put( nc_new, 0, 'source', 'CEDS 12-27-16: Community Emissions Data System (CEDS) for Historical Emissions' )
-  ncatt_put( nc_new, 0, 'source_id', 'CEDS-12-27-16' )
+  ncatt_put( nc_new, 0, 'source', paste0( 'CEDS ', 
+                                          as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%m-%d-%Y' ) ),
+                                          ': Community Emissions Data System (CEDS) for Historical Emissions' ) )
+  ncatt_put( nc_new, 0, 'source_id', paste0( 'CEDS-', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%m-%d-%Y' ) ) ) )
   ncatt_put( nc_new, 0, 'further_info_url', 'http://www.globalchange.umd.edu/ceds/' )
   ncatt_put( nc_new, 0, 'license', 'FOR TESTING AND REVIEW ONLY' )
   ncatt_put( nc_new, 0, 'history', 
