@@ -26,12 +26,17 @@
   
   PARAM_DIR <- "../code/parameters/"
   
+# Get emission species first so can name log appropriately
+args_from_makefile <- commandArgs( TRUE )
+em <- args_from_makefile[1]
+if ( is.na( em ) ) em <- "NH3"
+  
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-  headers <- c( "data_functions.R" ,"emissions_scaling_functions.R" ,
+  headers <- c( "data_functions.R" ,"emissions_scaling_functions.R" , "analysis_functions.R", 
                 "interpolation_extention_functions.R") # Additional function files required.
   log_msg <- paste0( "Calling inventory emission scaling stripts" ) # First message to be printed to the log
-  script_name <- "F1.1.inventory_scaling.R"
+  script_name <- paste0(em,"-F1.1.inventory_scaling.R")
   
   source( paste0( PARAM_DIR, "header.R" ) )
   initialize( script_name, log_msg, headers )
@@ -45,10 +50,6 @@
 # ------------------------------------------------------------------------------------
 # 1. Define emission species and read in files
   
-  # Define emissions species variable
-  args_from_makefile <- commandArgs( TRUE )
-  em <- args_from_makefile[ 1 ]
-  if ( is.na( em ) ) em <- "SO2"
   em_lc <- tolower( em ) 
   
   MODULE_F <- "../code/module-F/"
@@ -75,7 +76,7 @@
   scripts <- c()
    
   # EDGAR
-  if ( em %in% c('NOx','NMVOC','CO','CH4') ) scripts <- c(scripts, 'F1.1.Edgar_scaling.R')
+  if ( em %in% c('NOx','NMVOC','CO','CH4', "NH3") ) scripts <- c(scripts, 'F1.1.Edgar_PEGASOS_scaling.R')
   
   # UNFCCC
   if ( em %in% c('SO2','CO','NMVOC','NOx') ) scripts <- c(scripts, 'F1.1.UNFCCC_scaling.R')
@@ -107,6 +108,10 @@
 # 4. Run all scripts for the given emissions type
 
   invisible( lapply( scripts, source_child ) )
+ 
+  # Run diagnostics
+  source( "../code/diagnostic/Figures.R" )
+  source( "../code/diagnostic/Compare_to_RCP.R" )
   
   logStop()
 # END

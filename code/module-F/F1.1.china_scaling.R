@@ -29,21 +29,22 @@ for ( i in 1:length( dirs ) ) {
 } 
 PARAM_DIR <- "../code/parameters/"
 
+# Get emission species first so can name log appropriately
+args_from_makefile <- commandArgs( TRUE )
+em <- args_from_makefile[1]
+if ( is.na( em ) ) em <- "NOx"
+  
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R" ) # Additional function files required.
+headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R",  "analysis_functions.R") # Additional function files required.
 log_msg <- "test inventory data" # First message to be printed to the log
-script_name <- "F1.1.china_scaling.R"
+script_name <- paste0(em,"-F1.1.china_scaling.R")
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
 # ------------------------------------------------------------------------------
 # 1. Define parameters for inventory specific script
-
-args_from_makefile <- commandArgs( TRUE )
-em <- args_from_makefile[1]
-if ( is.na( em ) ) em <- "SO2"
 
 # Stop script if running for unsupported species
 if ( em %!in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO', 'BC', 'OC' ) ) {
@@ -55,7 +56,7 @@ if ( em %!in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO', 'BC', 'OC' ) ) {
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-inventory_data_file <- 'China/CEDS_MEIC_Emissions_2rdLevel_20160111'
+inventory_data_file <- 'China/CEDS_MEIC_Emissions_2rdLevel_20160113'
 inv_data_folder <- "EM_INV"
 sector_fuel_mapping <- 'MEIC_scaling_mapping'
 mapping_method <- 'sector'
