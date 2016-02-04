@@ -27,12 +27,17 @@ for ( i in 1:length( dirs ) ) {
 } 
 PARAM_DIR <- "../code/parameters/"
 
+# Get emission species first so can name log appropriately
+args_from_makefile <- commandArgs( TRUE )
+em <- args_from_makefile[1]
+if ( is.na( em ) ) em <- "NH3"
+  
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R",
+headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R", "analysis_functions.R",
               "interpolation_extention_functions.R" ) # Additional function files required.
 log_msg <- "Edgar inventory scaling" # First message to be printed to the log
-script_name <- "F1.1.Edgar_scaling.R"
+script_name <- paste0(em,"-F1.1.Edgar_scaling.R")
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -40,12 +45,8 @@ initialize( script_name, log_msg, headers )
 # ------------------------------------------------------------------------------
 # 1. Define parameters for inventory specific script
 
-  args_from_makefile <- commandArgs( TRUE )
-  em <- args_from_makefile[1]
-  if ( is.na( em ) ) em <- "NOx"
-  
   # Stop script if running for unsupported species
-  if ( em %!in% c('SO2','NOx','NMVOC','CO', 'CH4') ) {
+  if ( em %!in% c('SO2','NOx','NMVOC','CO', 'CH4', 'NH3' ) ) {
     stop (paste( ' Edgar scaling is not supported for emission species', em, 'remove from script
                  list in F1.1.inventory_scaling.R'))
   }
@@ -118,13 +119,16 @@ initialize( script_name, log_msg, headers )
   
   # ------------------------------------------------------------------------------
   # 3. Arrange the CEDS emissions data to match the inventory data
-  
+ DEBUG = TRUE
+
   # Aggregate inventory data to scaling sectors/fuels 
   inv_data <- F.invAggregate( std_form_inv , region )
+if (DEBUG) writeData( inv_data , domain = "DIAG_OUT" , paste0('F.',em,'_Aggregated_inventory_data_',inv_name), meta=FALSE )
   
   # Aggregate ceds data to scaling sectors/fuels
   ceds_data <- F.cedsAggregate( input_em, region, mapping_method )
-  
+if (DEBUG) writeData( ceds_data , domain = "DIAG_OUT" , paste0('F.',em,'_Aggregated_CEDS_data_',inv_name), meta=FALSE )
+ 
   # ------------------------------------------------------------------------------
   # 4. Calculate Scaling Factors, reaggregate to CEDS sectors  
   

@@ -31,22 +31,23 @@ for ( i in 1:length( dirs ) ) {
 } 
 PARAM_DIR <- "../code/parameters/"
 
+# Get emission species first so can name log appropriately
+args_from_makefile <- commandArgs( TRUE )
+em <- args_from_makefile[1]
+if ( is.na( em ) ) em <- "NOx"
+  
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R",
+headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R", "analysis_functions.R",
               "interpolation_extention_functions.R" ) # Additional function files required.
 log_msg <- "Modifying emissions factors from EMEP Level 1 inventory data" # First message to be printed to the log
-script_name <- "F1.1.EMEP_scaling.R"
+script_name <- paste0(em,"-F1.1.EMEP_scaling.R")
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
 # ------------------------------------------------------------------------------
 # 1. Define parameters read in files
-
-args_from_makefile <- commandArgs( TRUE )
-em <- args_from_makefile[1]
-if ( is.na( em ) ) em <- "SO2"
 
 # Stop script if running for unsupported emissions species
 # Note, while EMEP has BC, there is no OC, so retain consistent BC, OC estimates

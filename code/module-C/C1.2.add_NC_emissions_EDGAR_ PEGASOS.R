@@ -49,7 +49,7 @@ fuel <- "process"
 id_cols <- c( "iso", "sector", "fuel", "units" )
 
 # Temporary assignment for script development
-# em <- "SO2"
+# em <- "NH3"
 
 # ------------------------------------------------------------------------------
 # 2. Input
