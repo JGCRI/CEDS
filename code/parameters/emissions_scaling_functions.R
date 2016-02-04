@@ -93,6 +93,9 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
   scaling_map <- scaling_map[,scaling_map_names]
   scaling_map <- unique(scaling_map)
   
+  # Check that ceds sectors are valid
+  sectorCheck( scaling_map, colname = "ceds_sector" )
+  
   ext_method <- readData( "SCALE_MAPPINGS", mapping , ".xlsx", sheet_selection = 'method' ) 
   ext_year <- readData( "SCALE_MAPPINGS", mapping , ".xlsx", sheet_selection = "year" ) 
   
@@ -198,7 +201,7 @@ F.cedsAggregate <- function( input_em, region, method = mapping_method ) {
   if (length(X_inv_years) == 1) region_input_em[,X_inv_years] <- as.numeric(region_input_em[,X_inv_years])
   
   # Add scaling names, 
-  ceds_data <- merge(region_input_em, scaling_map[,c(ceds_matchcol_name,scaling_name)],
+  ceds_data <- merge(region_input_em, unique( scaling_map[,c(ceds_matchcol_name,scaling_name)] ),
                     by.x = method_col,
                     by.y = ceds_matchcol_name)
   ceds_data <- ceds_data[ complete.cases (ceds_data[,c(scaling_name)]),]
@@ -535,7 +538,7 @@ F.scaling <- function( ceds_data, inv_data, region,
                                      addEntries = TRUE)
       }
       
-      writeData( problem_scaling_factors , domain = "DIAG_OUT" , paste0('F.',em,'_Problem_Scaling_Factors_',inv_name))
+      writeData( problem_scaling_factors , domain = "DIAG_OUT" , paste0('F.',em,'_Problem_Scaling_Factors_',inv_name), meta = FALSE )
       
       scaling[,X_inv_years] <- replace(scaling[,X_inv_years], 
                                                  scaling[,X_inv_years] > max , max )
@@ -950,9 +953,9 @@ F.scaling <- function( ceds_data, inv_data, region,
   names(out) <- c('iso',scaling_name, 'year','scaling_factor')
   
   scaling_ext_byCEDS <- F.scalingToCeds(scalingData=scaling_ext, dataFormat = 'wide')
-  writeData( scaling_ext_byCEDS , domain = "DIAG_OUT", paste0('F.',em,'_Scaling_Factors_ceds_sectors_',inv_name))
+  writeData( scaling_ext_byCEDS , domain = "DIAG_OUT", paste0('F.',em,'_Scaling_Factors_ceds_sectors_',inv_name), meta = FALSE )
   
-  writeData( scaling_ext , domain = "DIAG_OUT", paste0('F.',em,'_Scaling_Factors_scaling_sectors_',inv_name))
+  writeData( scaling_ext , domain = "DIAG_OUT", paste0('F.',em,'_Scaling_Factors_scaling_sectors_',inv_name), meta = FALSE )
   
   list.out <- list(out, scaling_ext ,meta_notes)
   names(list.out) <- c( 'scaling_factors', 'scaling_factors_wide' ,'meta_notes')
