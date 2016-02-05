@@ -18,11 +18,11 @@ CEDS_working_sector,CEDS_Intermediate_Grids_longname,CEDS_Intermediate_Grids_sho
 1A2g_Ind-Comb-other,Industrial combustion,INDC,Industrial Sector,IND
 1A3ai_International-aviation,,,,
 1A3aii_Domestic-aviation,,,,
-1A3b_Road,Road transportation,ROAD,Transportation Sector,TRN
-1A3c_Rail,Non-road Transportation,NRTR,Transportation Sector,TRN
+1A3b_Road,Road transportation,ROAD,Transportation Sector,TRA
+1A3c_Rail,Non-road Transportation,NRTR,Transportation Sector,TRA
 1A3di_International-shipping,,,,
-1A3dii_Domestic-naviation,Non-road Transportation,NRTR,Transportation Sector,TRN
-1A3eii_Other-transp,Non-road Transportation,NRTR,Transportation Sector,TRN
+1A3dii_Domestic-naviation,Non-road Transportation,NRTR,Transportation Sector,TRA
+1A3eii_Other-transp,Non-road Transportation,NRTR,Transportation Sector,TRA
 1A4a_Commercial-institutional,"Residential, Commercial, Other",RCO,"Residential, Commercial, Other",RCO
 1A4b_Residential,"Residential, Commercial, Other",RCO,"Residential, Commercial, Other",RCO
 1A4c_Agriculture-forestry-fishing,"Residential, Commercial, Other",RCO,"Residential, Commercial, Other",RCO
@@ -35,10 +35,10 @@ CEDS_working_sector,CEDS_Intermediate_Grids_longname,CEDS_Intermediate_Grids_sho
 2A6_Other-minerals,Industrial process and product use,INPU,Energy Sector,ENE
 2B_Chemical-industry,Industrial process and product use,INPU,Energy Sector,ENE
 2C_Metal-production,Industrial process and product use,INPU,Energy Sector,ENE
-2D_Degreasing-Cleaning,Solvents production and application,SOL,Solvents production and application,SOL
-2D3_Other-product-use,Solvents production and application,SOL,Solvents production and application,SOL
-2D_Paint-application,Solvents production and application,SOL,Solvents production and application,SOL
-2D3_Chemical-products-manufacture-processing,Solvents production and application,SOL,Solvents production and application,SOL
+2D_Degreasing-Cleaning,Solvents production and application,SLV,Solvents production and application,SLV
+2D3_Other-product-use,Solvents production and application,SLV,Solvents production and application,SLV
+2D_Paint-application,Solvents production and application,SLV,Solvents production and application,SLV
+2D3_Chemical-products-manufacture-processing,Solvents production and application,SLV,Solvents production and application,SLV
 2H_Pulp-and-paper-food-beverage-wood,Industrial process and product use,INPU,Energy Sector,ENE
 2L_Other-process-emissions,Industrial process and product use,INPU,Energy Sector,ENE
 3B_Manure-management,Agriculture,AGR,Agriculture,AGR
