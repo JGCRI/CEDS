@@ -1,0 +1,9 @@
+CEDS_Final_Grids_longname,CEDS_Final_Grids_shortname,,retro_sector
+Agriculture,AGR,agriculture, agr 
+Energy Sector,ENE,power,pow
+Industrial Sector,IND,industrial combustion and processes, inc
+Transportation Sector,TRA,transport, tra
+"Residential, Commercial, Other",RCO,residentia, res
+Solvents production and application,SLV,solvents, sol
+Waste,WST,waste disposal, was
+Shipping,SHP,,
