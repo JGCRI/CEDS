@@ -108,7 +108,7 @@ aggregate_all_countries <- function( sector, country_list, location_index, grid_
   }
   
   # convert the unit from mass to flux if desired
-  if ( mass != T ) {
+  if ( mass == F ) {
     # generate the global_grid_area matrix for later calculation 
     global_grid_area <- grid_area( grid_resolution, all_lon = T )
     flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
@@ -751,6 +751,11 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   ncatt_put( nc_new, "time", "standard_name", "time" )
   ncatt_put( nc_new, "time", "axis", "T" )
   ncatt_put( nc_new, "time", "bounds", "time_bnds" )
+  # attributes for variables
+  for ( each_var in sector_list ) {
+    ncatt_put( nc_new, each_var, 'cell_methods', 'time:mean' )
+    ncatt_put( nc_new, each_var, 'missing_value', 1e+20, prec = 'float' )
+  }
   # nc global attributes
   ncatt_put( nc_new, 0, 'IMPORTANT', 'FOR TEST ONLY, DO NOT USE' )
   ncatt_put( nc_new, 0, 'title', paste0('Annual Emissions of ', em_species ) )
@@ -776,12 +781,16 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   ncatt_put( nc_new, 0, 'host', 'TBD' )
   ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
   ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
-  # attributes for variables
-  for ( each_var in sector_list ) {
-    ncatt_put( nc_new, each_var, 'cell_methods', 'time:mean' )
-    ncatt_put( nc_new, each_var, 'missing_value', 1e+20, prec = 'float' )
-  }
+  # another global attribute needs a little bit computation: global_total_emission 
+  global_grid_area <- grid_area( grid_resolution, all_lon = T )
+  flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
+  # use flux_factor to convert flux matrix back to annual mass matrix (in kt ), 
+  # then sum for each sector then sum all sectors to get global_total_emission for that year then convert to Tg
+  global_total_emission <- sum( unlist( lapply( data_list, function( each_data ) { mass_sum <- sum( get( each_data ) / flux_factor ) } ) ) )
+  global_total_emission <- global_total_emission * 0.001
+  ncatt_put( nc_new, 0, 'global_total_emission', paste0( global_total_emission, ' Tg/year' ) )
   
+    
   # close nc_new
   nc_close( nc_new)
   
