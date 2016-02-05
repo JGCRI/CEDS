@@ -15,7 +15,7 @@ X_BP_years <- paste0("X", BP_years)
 EDGAR_start_year <- 1970
 EDGAR_end_year <- 2010
 
-#The combined overall yearset.
+#The combined overall yearset for the ceds system
 emissions_years <- c(IEA_years,BP_years)
 X_emissions_years <- paste0( "X", emissions_years)
 
@@ -23,6 +23,10 @@ start_year = 1960
 X_start_year = paste0("X",start_year)
 end_year = 2014
 X_end_year = paste0("X",end_year)
+
+# historical extension using CDIAC and RCP
+historical_pre_extension_year <- 1750
+
 #---------------------------------
 # Conversion Factors
 conversionFactor_biomass_kt_TJ <- 16  # Biomass - For kt to TJ (multiply by kt to get TJ)    
