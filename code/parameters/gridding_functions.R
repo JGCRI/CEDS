@@ -84,7 +84,7 @@ grid_one_country <- function( country, location_index, em_data, proxy, year, sec
 # input files: [iso]_emis_spatial
 # output : [sector]_emis_global
 
-aggregate_all_countries <- function( sector, country_list, location_index, grid_resolution, mass = T ) {
+aggregate_all_countries <- function( sector, country_list, location_index, grid_resolution, mass ) {
   # create a empty template grid for later aggregating
   grid_template <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution ) 
   
@@ -326,16 +326,8 @@ get_proxy <- function( em_species, year, sector ) {
 # input files: 
 # output: 
 grid_one_sector <- function( sector, em_species, year, location_index, grid_resolution, em_data, mass ) {
-  ###########Place holder for SHP #####################
-  if ( sector == 'SHP' ) { 
-    proxy <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
-  } else {
-      proxy <- get_proxy( em_species, year, sector )
-    }
-  ############################################
   
-  #########uncomment the following one line after the SHP got resolved
-  #proxy <- get_proxy( em_species, year, sector )
+  proxy <- get_proxy( em_species, year, sector )
   # extract emission for specific year and gas
   emission_year_sector <- subset( em_data, em_data$CEDS_grd_sector == sector,
                               c( 'iso', paste0( 'X', year ) ) )
@@ -362,7 +354,7 @@ grid_one_sector <- function( sector, em_species, year, location_index, grid_reso
   #eval( parse( text = expressions ) )
 }
 # ------------------------------------------------------------------------------
-# grid_one_sector
+# grid_one_year
 # Brief: generate a fliped matrix by a given matrix
 # Dependencies: 
 # Author: Leyang Feng
@@ -402,7 +394,7 @@ gridding_initialize <- function( grid_resolution = 0.5,
   mask_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "mask/")
   mask_list <- list.files( mask_dir )
   invisible( lapply( mask_list, function( mask_list ) { load( paste0( mask_dir, mask_list), .GlobalEnv ) } ) )
-  country_mask_initialized = T
+  country_mask_initialized <<- T
   message( 'country_mask_initialized: ', country_mask_initialized )
   
   }
@@ -675,9 +667,11 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   AGR_em_global_final <- AGR_em_global
   ENE_em_global_final <- ELEC_em_global + FFFI_em_global + ETRN_em_global
   IND_em_global_final <- INDC_em_global + INPU_em_global
-  TRN_em_global_final <- NRTR_em_global + ROAD_em_global
+  TRA_em_global_final <- NRTR_em_global + ROAD_em_global
+  #TRN_em_global_final <- NRTR_em_global + ROAD_em_global
   RCO_em_global_final <- RCO_em_global
-  SOL_em_global_final <- SOL_em_global
+  SLV_em_global_final <- SLV_em_global
+  #SOL_em_global_final <- SOL_em_global
   WST_em_global_final <- WST_em_global
   SHP_em_global_final <- SHP_em_global
   
@@ -738,7 +732,8 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   # put nc variables into the nc file
   for ( i in seq_along(time) ) {
   expressions <- paste0( 'ncvar_put( nc_new, ', left_part, ' ,t( flip_a_matrix( ', data_list,
-                         ' / 12 ) ) , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )' )
+                         ' ) ) , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )' )
+                         #' / 12 ) ) , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )' )
   eval( parse( text = expressions ) )
   }
   ncvar_put( nc_new, lon_bnds, lon_bnds_data )
