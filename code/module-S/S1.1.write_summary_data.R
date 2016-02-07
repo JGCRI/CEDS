@@ -34,7 +34,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "NH3"
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -68,7 +68,8 @@ final_emissions <- final_emissions[-which(final_emissions$sector == "1A3aii_Dome
 final_emissions$summary_sector <- Master_Sector_Level_map[match(final_emissions$sector,
                                   Master_Sector_Level_map$working_sectors_v1),'aggregate_sectors']
 #simplify units
-final_emissions[which(final_emissions$units == "kt*kt/kt"), 'units'] <- 'kt'
+# This assumes units are correct. Need to add a more comprehensive unit conversion function (since drivers will come in various units)
+final_emissions$units <- 'kt'
 
 # reorder columns
 final_emissions <- final_emissions[,c("iso","summary_sector","fuel","em","units",X_write_years)]

@@ -111,7 +111,7 @@ edgar <- edgar[,c('iso','sector','fuel','units', paste0('X',EDGAR_start_year:EDG
 # 4. Output
 addToEmissionsDb( edgar, em = em, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
   
-writeData( edgar, domain = "DIAG_OUT", fn = "C.EDGAR_test")
+writeData( edgar, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em ) )
  
 logStop()
 # END
