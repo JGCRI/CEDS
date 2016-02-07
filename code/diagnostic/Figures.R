@@ -255,7 +255,7 @@ plot <- ggplot(df, aes(x=year,y=Emissions,
   geom_line(size=1) +
   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
   scale_y_continuous(labels = comma)+
-  ggtitle( paste('Global Scaled',em,' Emissions') )+
+  ggtitle( paste('Total Scaled',em,' Emissions') )+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
 plot              
 ggsave( paste0('summary-plots/',em,'_regions.scaled.line.pdf') , width = 11, height = 6)
@@ -276,7 +276,7 @@ if ( PRINT_DEFAULTS ){
 	  geom_line(size=1) +
 	  scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
 	  scale_y_continuous(labels = comma)+
-	  ggtitle( paste('Global Default',em,' Emissions') ) +
+	  ggtitle( paste('Total Default',em,' Emissions') ) +
 	  labs(x='Year',y= paste(em,'Emissions [kt]') )
 	plot              
 	ggsave( paste0('summary-plots/',em,'_regions.default.line.pdf') , width = 11, height = 6)

@@ -240,7 +240,7 @@ plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region, shape=inv)
   geom_line(data = subset(plot_df, inv =='CEDS'),size=1,aes(x=year,y=total_emissions, color = region)) +
   scale_x_continuous(breaks=c(1970,1980,1990,2000,2010))+
   # guides(color=guide_legend(ncol=3))+
-  ggtitle( paste('Glabal',em,'Emissions by Region') )+
+  ggtitle( paste('Total',em,'Emissions by Region') )+
   labs(x='Year',y= paste(em,'Emissions [kt]'))+
   scale_y_continuous(limits = c(0,max ),labels = comma)
 plot              
