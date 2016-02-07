@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
 # Program Name: C2.1.base_NC_EF.R
-# Author: Jon Seibert
+# Author: Jon Seibert, Steve Smith
 # Date Last Modified: July 7, 2015
 # Program Purpose: To calculate default emissions factors from the process emissions
 #                  and activity databases, and use them to generate the base process
@@ -42,7 +42,7 @@
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "CH4"
 em_lc <- tolower( em )
 
 activity_data <- readData( "MED_OUT", "A.NC_activity" )
@@ -110,10 +110,14 @@ if( length ( check ) > 0 ) {
  new_efs[ X_emissions_years ] <- replace( new_efs[ X_emissions_years ] , is.na(new_efs[ X_emissions_years ]), 0)
  new_efs[ X_emissions_years ] <- replace( new_efs[ X_emissions_years ] , new_efs[ X_emissions_years ] == 'Inf', 0)
  
- new_efs_corrected <- new_efs[,c('iso','sector','fuel','units',paste0('X',start_year:EDGAR_end_year))]
+ temp_EDGAR_end_year = EDGAR_end_year
+ # Re-set EDGAR end-year if are still using EDGAR 4.2
+ if( em == "CH4" ) temp_EDGAR_end_year = 2008
+ 
+ new_efs_corrected <- new_efs[,c('iso','sector','fuel','units',paste0('X',start_year:temp_EDGAR_end_year))]
  
 #Extend EFs as constant after EDGAR end date
-new_efs_corrected[,paste0('X',(EDGAR_end_year+1):end_year)] <- new_efs[ , paste0( 'X', EDGAR_end_year )  ]
+new_efs_corrected[,paste0('X',(temp_EDGAR_end_year+1):end_year)] <- new_efs[ , paste0( 'X', temp_EDGAR_end_year )  ]
 
 #Extend EFs as constant before EDGAR start date
 new_efs_corrected[ , paste0( 'X', start_year:( EDGAR_start_year - 1 ) ) ] <- new_efs[ , paste0( 'X', EDGAR_start_year )  ]
