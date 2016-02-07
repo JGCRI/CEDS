@@ -1,10 +1,10 @@
 # ------------------------------------------------------------------------------
-# Program Name: A5.2.add_NC_activity_gdp.R
+# Program Name: A5.2.add_NC_activity_population.R
 # Author: Jon Seibert
 # Date Last Modified: June 19, 2015
-# Program Purpose: To process and reformat non-combustion (process) GDP activity_data,
+# Program Purpose: To process and reformat population activity_data,
 #                  and add it to the activity database.
-# Input Files: A.NC_activty_db.csv, 2011_NC_SO2_ctry.csv, GDP.xlsx, activity_input_mapping.csv
+# Input Files: A.NC_activty_db.csv, UN_pop_master.csv, activity_input_mapping.csv
 # Output Files: A.NC_activty_db.csv
 # Notes: 
 # TODO: 
@@ -33,7 +33,7 @@
     headers <- c( "data_functions.R", "timeframe_functions.R", "process_db_functions.R", 
                   "analysis_functions.R" ) # Additional function files required.
     log_msg <- "Initial reformatting of gdp process activity activity_data" # First message to be printed to the log
-    script_name <- "A5.2.add_NC_activity_gdp.R"
+    script_name <- "A5.2.add_NC_activity_population.R"
     
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )    
@@ -42,12 +42,13 @@
 # 0.5. Settings
 
 # Input file
-input_name <- "GDP"
-input_ext <- ".xlsx"
-input <- paste0( input_name, input_ext )
+input_name <- "population"
 
 # Location of input files relative to wd (input)
 input_domain <- "ACTIVITY_IN"
+
+# Name to refer to this activity
+activity_name <- "pop"
 
 # ------------------------------------------------------------------------------
 # 1. Read in files
@@ -56,20 +57,19 @@ input_domain <- "ACTIVITY_IN"
 act_input <- readData( "MAPPINGS", "activity_input_mapping")
 MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
 
-activity_data <- readData( input_domain, input_name, input_ext )
+population_data <- readData( "MED_OUT", "A.UN_pop_master" )
+population_data <- subset( population_data, scenario == "Estimates" )
 
-activity_data <- activity_data[[ 6 ]]
-
-# Set variables with the activity of the input file and the associated units
-activity_name <- act_input$activity[ act_input$file == input ]
-
-unit <- 'B2005USD'
+unit <- '1000'
 
 # ------------------------------------------------------------------------------
 # 2. Reformatting
 
-# Apply reformatting header function
-activity_data <- cleanData( activity_data )
+# Transform to wide format
+activity_data <-  cast( population_data, iso ~ year, mean, value="pop")
+
+# TODO: Add "X" to all year names
+names( activity_data ) <- c( "iso", paste0("X",names( activity_data )[ -1 ] ) )
 
 # Applies activity and unit assignments, and reorders columns to standard form
 activity_data$activity <- activity_name

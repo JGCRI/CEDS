@@ -82,7 +82,7 @@ endif
 # specifically to run the system with the new emissions type.
 
 all: SO2-emissions BC-emissions NOx-emissions CO-emissions NMVOC-emissions
-part1: SO2-emissions BC-emissions NOx-emissions
+part1: SO2-emissions NOx-emissions NH3-emissions
 part2: CO-emissions NMVOC-emissions
 
 # --------------------------------------------------------------
@@ -288,6 +288,7 @@ $(MED_OUT)/A.NC_activity_db.csv : \
 	$(MOD_A)/A5.2.add_NC_activity_smelting.R \
 	$(MOD_A)/A5.2.add_NC_activity_pulp_paper.R \
 	$(MOD_A)/A5.2.add_NC_activity_gdp.R \
+	$(MOD_A)/A5.2.add_NC_activity_population.R \
 	$(MOD_A)/A5.2.add_NC_activity_energy.R \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
