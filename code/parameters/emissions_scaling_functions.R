@@ -96,9 +96,11 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
   # Check that ceds sectors are valid
   sectorCheck( scaling_map, colname = "ceds_sector" )
   
+  # import scaling instruction sheets from scaling map
   ext_method <- readData( "SCALE_MAPPINGS", mapping , ".xlsx", sheet_selection = 'method' ) 
   ext_year <- readData( "SCALE_MAPPINGS", mapping , ".xlsx", sheet_selection = "year" ) 
   
+  # other imports
   ef_file <- paste0( "F.", em, "_scaled_EF" )
   em_file <- paste0( "F.", em, "_scaled_emissions" )
   input_ef_read <- readData( "MED_OUT", ef_file )
@@ -401,8 +403,24 @@ F.scaling <- function( ceds_data, inv_data, region,
   # Create Methods and Year Data frame
   
   # Define Default Methods Data frame, update with mapping file
-  if ( 'all' %in% ext_method$scaling) 
-    warning(' "all" is not a valid scaling sector/fuel option. Using default options.')
+  # replace "all" in iso and scaling sector variable
+  replacement_variable <- c('iso','scaling_sector')  
+  for (i in seq_along(replacement_variable)){
+    all <- ext_method[ext_method[,replacement_variable[i]] == 'all', ]
+    while(nrow(all) > 0 ){
+      line <- all[1,]
+      if ( replacement_variable[i] == 'scaling_sector'){
+        replace_col <- unique(scaling_map[,replacement_variable[i]])
+        replace_col <- replace_col[!is.na(replace_col)]}
+      if ( replacement_variable[i] == 'iso') replace_col <- region
+      replace_rows <- do.call(rbind, replicate(length(replace_col), line, simplify=FALSE)) 
+      replace_rows[,replacement_variable[i]] <- replace_col
+      ext_method <- rbind(replace_rows, ext_method)
+      all <- all[-1,]
+    }
+    ext_method <- ext_method[which(ext_method[,replacement_variable[i]] != 'all'),]
+  }
+  
   # defaults
   ext_method_default <- inv_data[,c('iso',scaling_name)]
   ext_method_default[,'interp_method'] <- interp_default
@@ -425,19 +443,39 @@ F.scaling <- function( ceds_data, inv_data, region,
   }
   
   # Define Default Years, update with mapping file
-  if ( 'all' %in% ext_method$scaling ) 
-    warning(' "all" is not a valid scaling sector/fuel option. Using default options.')
+  # expand all option for iso and scaling_sector
+    replacement_variable <- c('iso','scaling_sector')  
+    for (i in seq_along(replacement_variable)){
+    all <- ext_year[ext_year[,replacement_variable[i]] == 'all', ]
+    while(nrow(all) > 0 ){
+      line <- all[1,]
+      if ( replacement_variable[i] == 'scaling_sector'){
+      replace_col <- unique(scaling_map[,replacement_variable[i]])
+      replace_col <- replace_col[!is.na(replace_col)]}
+      if ( replacement_variable[i] == 'iso') replace_col <- region
+      replace_rows <- do.call(rbind, replicate(length(replace_col), line, simplify=FALSE)) 
+      replace_rows[,replacement_variable[i]] <- replace_col
+      ext_year <- rbind(replace_rows, ext_year)
+      all <- all[-1,]
+    }
+    ext_year <- ext_year[which(ext_year[,replacement_variable[i]] != 'all'),]
+    }
+ 
   # defaults
   ext_year_default <- inv_data[,c('iso',scaling_name)]
   ext_year_default[,'pre_ext_year'] <- ext_start_year
   ext_year_default[,'post_ext_year'] <- ext_end_year
-  # update with mapping file
+  
+  # update with mapping 
   years <- c('pre_ext_year','post_ext_year')
+  ext_year <- replace(ext_year, ext_year=='NA', NA)
+  ext_year$pre_ext_year[is.na(ext_year$pre_ext_year)] <- ext_start_year
+  ext_year$post_ext_year[is.na(ext_year$post_ext_year)] <- ext_end_year
   for( n in seq_along(years)){
+    
     all <- ext_year[ext_year$iso %in% 'all', c(scaling_name,years[n])]
     for ( i in seq_along(all$scaling)){
       ext_year_default[ ext_year_default$scaling %in% all$scaling[i],years[n]] <- all[i,years[n]]}
-    
     other <- ext_year[ext_year$iso %!in% 'all', c(scaling_name,years[n])]
     for ( i in seq_along(other$scaling)){
       ext_year_default[ ext_year_default$scaling %in% other$scaling[i],years[n]] <- other[i,years[n]]}
@@ -451,6 +489,45 @@ F.scaling <- function( ceds_data, inv_data, region,
     meta_notes <- data.frame(matrix(ncol = length(names), nrow = 0))
     names(meta_notes) <- names
   }
+  
+  # ------------------------------------
+  # Select Inventory Years
+  
+  inv_data_original <- inv_data
+  scaling_instructions_all <- ext_year
+  
+  if ( length(scaling_instructions_all$start_scaling_year) > 0 |
+       length(scaling_instructions_all$end_scaling_year) > 0 |
+       length(scaling_instructions_all$select_scaling_year) > 0 ) {
+  
+    scaling_iso_sectors <- unique(scaling_instructions_all[,c('iso',scaling_name)])
+    
+    for ( i in seq_along(scaling_iso_sectors[1,])){
+  ###### need to change for method = sector and fuel
+    instructions <- scaling_instructions_all[which( scaling_instructions_all$iso == scaling_iso_sectors$iso[i] &
+                                    scaling_instructions_all$scaling_sector == scaling_iso_sectors$scaling_sector[i]  ), ]  
+    # find scaling years to keep for iso-sector combination
+    scaling_years <- c()
+    for (n in seq_along(instructions[1,])){
+      #range years
+      if( all(!is.na(instructions[n, c('start_scaling_year','end_scaling_year')])) )
+        scaling_years <- c(scaling_years, instructions[n, c('start_scaling_year')]:instructions[n, c('end_scaling_year')] )
+      # individual years
+      if( !is.na(instructions[n, c('select_scaling_year')]) )
+        scaling_years <- c(scaling_years, instructions[n, c('select_scaling_year')] )
+      }
+     # years in inventory but not scaling
+      not_scaling_years <- inv_years[inv_years %!in% scaling_years]
+     # make not scaled years, NA
+      inv_data[which( inv_data$iso == scaling_iso_sectors$iso[i] &
+                      inv_data$scaling_sector == scaling_iso_sectors$scaling_sector[i]  ), 
+               paste0('X',not_scaling_years)] <- NA 
+  }
+
+  }
+  
+  writeData(inv_data_original, 'DIAG_OUT', paste0('F.',em,'_',inv_name,'_orginal_inventory_data'), meta = FALSE)
+  writeData(inv_data, 'DIAG_OUT', paste0('F.',em,'_',inv_name,'_scaling_years_inventory_data'),meta = FALSE)
   
   # ------------------------------------
   # Calculate the scaling factor
