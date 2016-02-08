@@ -223,7 +223,7 @@
     
 # Diagnostics: What countries in Master_Country_List are missing from UN pop?
     in_MCL_not_in_UN <- setdiff( Master_Country_List$iso, UN_pop$iso )
-    # srb (Kosovo): generate later by proxying srb
+    # srb (kosovo): generate later by proxying srb
     # ant, csk, scg, blx: historical dissolved countries -- generate later
     # pse, USSR, yug: ok to omit
     if ( length( in_MCL_not_in_UN ) > 0 ) {
@@ -349,7 +349,7 @@
     # later binding.
     kosovo_new <- extendPop( serbia_kosovo, pop1 = "kosovo_pop", pop2 = "serbia_pop", 
                              first_data_yr = min( WB_pop_years ), last_data_yr = max( WB_pop_years ),
-                             country = "Kosovo", iso = "srb (Kosovo)" )
+                             country = "Kosovo", iso = "srb (kosovo)" )
 
 # Population for historical dissolved countries (ant, csk, scg, blx) will be generated after
 # adding HYDE data (step 4d)
@@ -409,7 +409,7 @@
 # -- For countries without HYDE, scale back 1950 UN/WB using HYDE trends of a proxy 
 #    country, as follows:
 #         Curacao (cuw), Sint Maarten (sxm): use Netherlands Antilles (ant) as proxy
-#         Montenegro (mne), Serbia (srb), Kosovo (srb (Kosovo)): use Serbia and Montenegro
+#         Montenegro (mne), Serbia (srb), Kosovo (srb (kosovo)): use Serbia and Montenegro
 #                                                              (scg) as proxy
 #         South Sudan (ssd): use Sudan (sdn) as proxy
 #         Caribbean Netherlands (bes): use Netherlands Antilles (ant) as proxy
@@ -506,7 +506,7 @@
 
 # Diagnostics: What pop_master/Master_Country_List countries do not have HYDE?
     iso_no_HYDE <- setdiff( union( pop_master$iso, Master_Country_List$iso ), HYDE_pop$iso )
-    # bes, cuw, mne, myt, srb, ssd, sxm, srb (Kosovo): generate later by proxying a similar country
+    # bes, cuw, mne, myt, srb, ssd, sxm, srb (kosovo): generate later by proxying a similar country
     # csk, blx: historical dissolved countries -- generate later
     # pse, USSR, yug: ok to omit
     if ( length( iso_no_HYDE ) > 0 ) {
@@ -520,7 +520,7 @@
     
 # Make a mapping of countries without HYDE and their proxy countries
     map_proxy <- data.frame( iso_no_HYDE = c( "bes", "cuw", "mne", "myt", "srb", 
-                                              "ssd", "sxm", "srb (Kosovo)" ), 
+                                              "ssd", "sxm", "srb (kosovo)" ), 
                              iso_proxy = c( "ant", "ant", "scg", "com", "scg", 
                                             "sdn", "ant", "scg" ) )
     
