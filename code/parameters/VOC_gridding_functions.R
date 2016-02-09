@@ -13,25 +13,25 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
   for ( VOC in VOC_list ) {
     # aggregate from intermediate grd level to final grd level 
     exp <- paste0( 'AGR_', VOC, '_em_global_final <- AGR_', VOC, '_em_global' )
-	eval( parse( text = exp ) )
-	exp <- paste0( 'ENE_', VOC, '_em_global_final <- ELEC_', VOC, '_em_global + FFFI_', VOC, '_em_global + ETRN_', VOC, '_em_global' )
-	eval( parse( text = exp ) )
+	  eval( parse( text = exp ) )
+	  exp <- paste0( 'ENE_', VOC, '_em_global_final <- ELEC_', VOC, '_em_global + FFFI_', VOC, '_em_global + ETRN_', VOC, '_em_global' )
+	  eval( parse( text = exp ) )
     exp <- paste0( 'IND_', VOC, '_em_global_final <- INDC_', VOC, '_em_global + INPU_', VOC, '_em_global' )
-	eval( parse( text = exp ) )     
-	exp <- paste0( 'TRA_', VOC, '_em_global_final <- NRTR_', VOC, '_em_global + ROAD_', VOC, '_em_global' )
-	eval( parse( text = exp ) ) 
-	exp <- paste0( 'RCO_', VOC, '_em_global_final <- RCO_', VOC, '_em_global' )
-	eval( parse( text = exp ) )
-	exp <- paste0( 'SLV_', VOC, '_em_global_final <- SLV_', VOC, '_em_global' )
-	eval( parse( text = exp ) )
-	exp <- paste0( 'WST_', VOC, '_em_global_final <- WST_', VOC, '_em_global' )
-	eval( parse( text = exp ) )
-	exp <- paste0( 'SHP_', VOC, '_em_global_final <- SHP_', VOC, '_em_global' )
-	eval( parse( text = exp ) )
+	  eval( parse( text = exp ) )     
+	  exp <- paste0( 'TRA_', VOC, '_em_global_final <- NRTR_', VOC, '_em_global + ROAD_', VOC, '_em_global' )
+	  eval( parse( text = exp ) ) 
+	  exp <- paste0( 'RCO_', VOC, '_em_global_final <- RCO_', VOC, '_em_global' )
+	  eval( parse( text = exp ) )
+	  exp <- paste0( 'SLV_', VOC, '_em_global_final <- SLV_', VOC, '_em_global' )
+	  eval( parse( text = exp ) )
+	  exp <- paste0( 'WST_', VOC, '_em_global_final <- WST_', VOC, '_em_global' )
+	  eval( parse( text = exp ) )
+	  exp <- paste0( 'SHP_', VOC, '_em_global_final <- SHP_', VOC, '_em_global' )
+	  eval( parse( text = exp ) )
 	
-	data_list <- paste0( sector_list, '_', VOC, '_em_global_final')
+  	data_list <- paste0( sector_list, '_', VOC, '_em_global_final')
 	
-	lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
+	  lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
     lats <- seq( -90 + grid_resolution / 2, 90 - grid_resolution / 2, grid_resolution )
     time <- c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 )
     londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
@@ -85,7 +85,8 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
   # put nc variables into the nc file
   for ( i in seq_along(time) ) {
   expressions <- paste0( 'ncvar_put( nc_new, ', left_part, ' ,t( flip_a_matrix( ', data_list,
-                         ' / 12 ) ) , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )' )
+                         ' ) ) , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )' )
+                         #' / 12 ) ) , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )' )
   eval( parse( text = expressions ) )
   }
   ncvar_put( nc_new, lon_bnds, lon_bnds_data )
@@ -137,27 +138,32 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
   # close nc_new
   nc_close( nc_new)
   
+  #additional section: write a summary and check text
+  global_grid_area <- grid_area( grid_resolution, all_lon = T )
+  global_total <- c()
+  em_global_sectors <- c()
+  for ( em_global_data in data_list ) {
+    em_global_sector <- unlist( strsplit( em_global_data, split = '_' ) ) [ 1 ]
+    eval( parse( text = paste0( 'temp_data <- ', em_global_data ) ) )
+    temp_data <- temp_data * global_grid_area
+    total <- sum( temp_data )
+    global_total <- c( global_total, total )
+    em_global_sectors <- c( em_global_sectors, em_global_sector)
+    }
+  summary_table <- data.frame( year = year, species = VOC, 
+                               sector = em_global_sectors, 
+                               global_total = global_total,
+                               unit = 'kg s-1' )
+  summary_table[ is.na( summary_table ) ] <- 0
+  summary_name <- paste0( output_dir, 'CEDS_', VOC, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
+  write.csv( summary_table, file = summary_name, row.names = F )
+  
+  
+  
   }
 
   
-  # additional section: write a summary and check text
-  # global_grid_area <- grid_area( grid_resolution, all_lon = T )
-  # global_total <- c()
-  # em_global_sectors <- c()
-  # for ( em_global_data in data_list ) {
-    # em_global_sector <- unlist( strsplit( em_global_data, split = '_' ) ) [ 1 ]
-    # eval( parse( text = paste0( 'temp_data <- ', em_global_data ) ) )
-    # temp_data <- temp_data * global_grid_area
-    # total <- sum( temp_data )
-    # global_total <- c( global_total, total )
-    # em_global_sectors <- c( em_global_sectors, em_global_sector)
-    # }
-  # summary_table <- data.frame( year = year, species = em_species, 
-                               # sector = em_global_sectors, 
-                               # global_total = global_total,
-                               # unit = 'kg s-1' )
-  # summary_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
-  # write.csv( summary_table, file = summary_name, row.names = F )
+
 }
 # ------------------------------------------------------------------------------
 # grid_one_year
