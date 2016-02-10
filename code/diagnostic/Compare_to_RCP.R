@@ -37,7 +37,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NH3"
+if ( is.na( em ) ) em <- "OC"
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -98,6 +98,7 @@ RCP$Region_Name_2 <- gsub("(Rest","",RCP$Region_Name_2,fixed=TRUE)
 RCP$Region_Name <- paste(RCP$Region_Name_1,RCP$Region_Name_2)
 
 RCP <- RCP[,c('Region','Subregion',"Region_Name","ENE","IND","TRA","DOM","SLV","AGR","AWB","WST","Tot_Ant",'year')]
+
 RCP <- RCP[which(complete.cases(RCP)),]
 
 RCP$ENE <- as.numeric(RCP$ENE)
@@ -161,6 +162,12 @@ global_ceds$inv <- 'CEDS'
 global_ceds_long <- melt(global_ceds, id.vars = c('total','inv'))
 
 rcp <- RCP[which(RCP$Sector == 'Tot_Ant'),]
+if(em == 'OC'){
+rcp_awb <- RCP[which(RCP$Sector == 'AWB'),]
+rcp[,x_rcp_years] <- rcp[,x_rcp_years] - rcp_awb[,x_rcp_years]
+rcp[,x_rcp_years] <- rcp[,x_rcp_years]/1.4
+}
+
 global_rcp <- aggregate(rcp[,x_rcp_years], 
                          by = list(total= rcp$em ),FUN=sum )
 global_rcp$inv <- 'RCP'
