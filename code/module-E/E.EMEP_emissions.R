@@ -45,7 +45,7 @@ initialize( script_name, log_msg, headers )
   if ( is.na( em ) ) em <- "NMVOC"
   
 # Stop script if running for unsupported emissions species
-  if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2','CH4') ) {
+  if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2','CH4','OC') ) {
     stop (paste( 'EMEP script is not supported for emission species', em))
   }
   
@@ -136,6 +136,11 @@ if ( em %in% c('CH4') ){
     EMEP_emRUS <- c('iso','sector','year')
     
 }  
+if ( em %in% c('OC') ){
+
+    EMEP_emdf<- c('place_holder')
+    EMEP_emRUS <- c('place_holder')
+  }  
   
 # -----------------------------------------------------------------------------------------------------------
 # 3.Meta-

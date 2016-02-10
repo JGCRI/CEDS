@@ -65,8 +65,7 @@ if (em %in% c('SO2','NOx','NMVOC','BC','OC','CO','CH4','CO2','NH3')) {
   } else if( em == "BC" ){
     scripts <- c( scripts, "B1.1.base_BC_comb_EF.R" )
   } else if( em == "OC" ){
-    stop('"B1.1.base_BC_comb_EF.R" does not support OC yet. Data is uploaded, 
-         and code should be similar, but has not been checked yet.')
+    scripts <- c( scripts, "B1.1.base_OC_comb_EF.R" )
   } else if( em == "NH3" ){
     scripts <- c( scripts, "B1.1.base_NH3_comb_EF.R" )
   } else{
