@@ -73,6 +73,13 @@ if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2') ) {
   stop (paste( 'EMEP script is not supported for emission species', em))
 }
 
+# Add option to pick which dataset to compare to.
+CEDS_Data = "Scaled"
+CEDS_Data = "Default"
+
+File_postscript = ""
+if ( CEDS_Data == "Default" ) File_postscript = "_Default" 
+
 # ------------------------------------------------------------------------------
 # 1. Read in files
 
@@ -91,8 +98,12 @@ if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2') ) {
 #   B. Read in CEDS data
         
 #       Create a list of CEDS files
+if ( CEDS_Data ==  "Scaled" ) {
         inv2_file_name <- paste0('F.', em, '_', 'scaled_emissions' )
-        
+} else {
+        inv2_file_name <- paste0('D.', em, '_', 'default_total_emissions' )
+}
+    
 #       Read in the CEDS files
         CEDS <- readData( "MED_OUT", inv2_file_name)   
 
@@ -331,7 +342,7 @@ g1 <- plot(nt_group1)
 
 #     Save group 1 plot to "/diagnostic-output/EMEP" in pdf form
 print( g1 )
-ggsave( paste0( em, "_group1.pdf" ), width=10.0, height=5.5)
+ggsave( paste0( em, "_group1", File_postscript, ".pdf" ), width=10.0, height=5.5)
 
 # Group 2 nations by emission species:
 if(em == "SO2") group2 <- c( "Latvia", "Austria", "Macedonia", "Croatia", "Ireland",  "Slovenia" )
@@ -349,7 +360,7 @@ g2 <- plot(nt_group2)
 
 #   Save group 2 plot to "/diagnostic-output/EMEP" in pdf form
 print( g2 )
-ggsave( paste0( em, "_group2.pdf" ), width=10.0, height=5.5)
+ggsave( paste0( em, "_group2", File_postscript, ".pdf" ), width=10.0, height=5.5)
 
 # Group 3 nations by emission species:
 if(em == "SO2") group3 <- c("Lithuania", "Denmark","Estonia", "Georgia", "Portugal",
@@ -370,7 +381,7 @@ g3 <- plot(nt_group3)
 
 #   Save group 3 plot to "/diagnostic-output/EMEP" in pdf form
 print( g3 )
-ggsave( paste0( em, "_group3.pdf" ), width=10.0, height=5.5)
+ggsave( paste0( em, "_group3", File_postscript, ".pdf" ), width=10.0, height=5.5)
 
 # Group 4 nations by emission species:
 if(em == "SO2") group4 <- c("Belgium", "Serbia", "Finland", "Sweden", "Netherlands",
@@ -391,7 +402,7 @@ g4 <- plot(nt_group4)
 
 #   Save group 4 plot to "/diagnostic-output/EMEP" in pdf form
 print( g4 )
-ggsave( paste0( em, "_group4.pdf" ), width=10.0, height=5.5)    
+ggsave( paste0( em, "_group4", File_postscript, ".pdf" ), width=10.0, height=5.5)    
 
 # Group 5 nations by emission species:
 if(em == "SO2") group5 <- c("Belarus" ,"Hungary", "Slovakia",  "Bulgaria", "Czech Republic",
@@ -410,7 +421,7 @@ g5 <- plot(nt_group5)
 
 #   Save group 5 plot to "/diagnostic-output/EMEP" in pdf form
 print( g5 )
-ggsave( paste0( em, "_group5.pdf" ), width=10.0, height=5.5)   
+ggsave( paste0( em, "_group5", File_postscript, ".pdf" ), width=10.0, height=5.5)   
 
 # Group 6 nations by emission species:
 if(em == "SO2") group6 <- c("France", "Turkey", "Italy", "Spain", "Poland", "United Kingdom",
@@ -428,7 +439,7 @@ g6 <- plot(nt_group6)
 
 #   Save group 6 plot to "/diagnostic-output/EMEP" in pdf form
 print( g6 )
-ggsave( paste0( em, "_group6.pdf" ), width=10.0, height=5.5)    
+ggsave( paste0( em, "_group6", File_postscript, ".pdf" ), width=10.0, height=5.5)    
     
 # ------------------------------------------------------------------------------
 # 4. Making Table of differences  Between CEDS Scaled Emissions & SNAP Emissions
@@ -536,7 +547,7 @@ Diff <- nt_df2
       
 # A. Write Difference Table
     writeData(Diff,  domain = "DIAG_OUT", domain_extension = "EMEP/",
-              fn = paste0( em, "_CEDS_SNAP_NT_Differences"), meta = FALSE)
+              fn = paste0( em, "_CEDS_SNAP_NT_Differences", File_postscript ), meta = FALSE)
       
 # B. Write tables of the wide & long formatted National Totals
   # Changing working directory to "intermediate-output"
@@ -544,11 +555,11 @@ Diff <- nt_df2
   setwd( "./intermediate-output")
   
 # Write CEDS long data as a csv file of CEDS national totals)
-  writeData(CEDSlong, domain = "MED_OUT", fn = paste0( "F.", em, "_CEDS_national_totals" ),
+  writeData(CEDSlong, domain = "MED_OUT", fn = paste0( "F.", em, "_CEDS_national_totals, File_postscript" ),
             meta = FALSE )
              
 # Write CEDS wide data (a csv file of CEDS national totals)  
-  writeData(CEDS_NT, domain = "MED_OUT", fn = paste0( "F.", em, "_CEDS_wide_nat.tot" ),
+  writeData(CEDS_NT, domain = "MED_OUT", fn = paste0( "F.", em, "_CEDS_wide_nat",File_postscript,".tot" ),
             meta = FALSE )
                 
 # Write EMEP 'as in models' long data (a csv file of SNAP national totals)
