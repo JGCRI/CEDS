@@ -344,6 +344,7 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(MOD_B)/B1.1.base_comb_EF.R \
 	$(MOD_B)/B1.2.add_comb_EF.R \
 	$(MOD_B)/B1.1.base_BC_comb_EF.R \
+	$(MOD_B)/B1.1.base_OC_comb_EF.R \
 	$(MOD_B)/B1.1.base_OTHER_comb_EF.R \
 	$(MOD_B)/B1.1.base_comb_EF_control_percent.R \
 	$(MOD_B)/B1.1.base_SO2_comb_EF_parameters.R \
@@ -447,6 +448,11 @@ $(MED_OUT)/E.$(EM)_EMEP_inventory.csv : \
 	$(MOD_E)/E.EMEP_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
 
+# ee1-2
+$(MED_OUT)/E.$(EM)_REAS_inventory.csv : \
+	$(MOD_E)/E.REAS_emissions.R
+	Rscript $< $(EM) --nosave --no-restore
+
 # ff1-1a
 # Creates scaled emissions and emissions factors for US data
 $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
@@ -463,6 +469,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 	$(PARAMS)/emissions_scaling_functions.R \
 	$(MED_OUT)/E.$(EM)_EMEP_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
+	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(SC_MAPPINGS)/UNFCCC_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/US_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/CAN_scaling_mapping.xlsx \
