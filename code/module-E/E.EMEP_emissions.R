@@ -45,17 +45,20 @@ initialize( script_name, log_msg, headers )
   if ( is.na( em ) ) em <- "NMVOC"
   
 # Stop script if running for unsupported emissions species
-  if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2','CH4') ) {
+  if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2','CH4','OC') ) {
     stop (paste( 'EMEP script is not supported for emission species', em))
   }
   
   em.read <- em
-  if(em == "SO2") em.read <- "NOx"
+  if(em == "SO2") em.read <- "SOx"
 
-if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2') ){
-     stop (paste( ' Emission species ', em, ' not supported for EMEP. Check script: ', script_name))
-}
   
+# -----------------------------------------------------------------------------------------------------------
+  
+# run EMEP script for EMEP species
+  
+if ( em %in% c('BC','CO','NH3','NMVOC','NOx','SO2') ){
+    
 # SELECT EMEP LEVEL - 'LEVEL1' OR 'LEVEL2'
   level <- 'LEVEL1'
   
@@ -127,6 +130,7 @@ if ( Em_Format == 'NFR14' ) {
   EMEP_emRUS <- subset(EMEP_emdf, iso == "rus")
   remove_ISO <- c('rus')
   EMEP_emdf<-EMEP_emdf[-which(EMEP_emdf$iso %in% remove_ISO), ]
+
   
 
   # interpolate EMEP over problem years, NMVOC for bel
@@ -138,21 +142,19 @@ if ( Em_Format == 'NFR14' ) {
                                       post_ext_year = 2010)
   }
   
-if ( em %in% c('CH4') ){
+} # end processing for EMEP species
+  
+  # -----------------------------------------------------------------------------------------------------------
+  
+  # 4. create dummy files for non EMEP species
+  if ( em %in% c('CH4', 'OC') ){
   
     EMEP_emdf <- c('iso','sector','year')
     EMEP_emRUS <- c('iso','sector','year')
     
-}  
+    }  
   
-# -----------------------------------------------------------------------------------------------------------
-# 3.Meta-
-#   meta_names <- c( "Data.Type", "Emission", "Region", "sector", "Start.Year", "End.Year","Source.Comment" )
-#   
-#   meta_note <- c( "EMEP Emisions", "NA", "Russian Federation", "All", "1980", 
-#                   "2013", paste0( "The Russian Federation's emissions will be evaluated seperately."))
-#   
-#   addMetaData( meta_note, meta_names)
+
 # ------------------------------------------------------------------------------
   # 5. Output
   # Write Data: 

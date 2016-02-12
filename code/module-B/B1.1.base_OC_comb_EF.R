@@ -1,11 +1,10 @@
 #------------------------------------------------------------------------------
-# Program Name: B1.1.base_BC_comb_EF.R
-# Author: Linh Vu
-# Date Last Updated: August 24, 2015
-# Program Purpose: 1. Produce BC emissions factors from Bond et al data.
-#              Data priority - newest to oldes, 2010, 1996, 1990
-# Input Files: Bond_BC1-Central_1990.csv, Bond_BC1-Central_1996.csv,
-#              Bond_Fuel-Central_1990.csv, Bond_Fuel-Central_1996.csv,
+# Program Name: B1.1.base_BCOC_comb_EF.R
+# Author: Rachel Hoesly
+# Date Last Updated: Feb 11, 2016
+# Program Purpose: 1. Produce OC emissions factors from Bond et al data.
+#              
+# Input Files: 
 #              Bond_ctry_mapping.csv, Bond_fuel_mapping.csv, Bond_sector_mapping.csv,
 #              A.comb_activity.csv 
 # Output Files: B.comb_EF_db.csv
@@ -13,11 +12,11 @@
 #           Missing (zero or NA) ef are replaced using the following rules, in order:
 #           a. replace with ef of the same sector_fuel and region for the same year,
 #              if available;
-#           b. 
-#           c. 
-#           d. 
+#           b. then replace with region fuel average
+#           c. then global sector fuel average
+#           d. then global fuel average
 #        2. Variables with modifiable values: threshold_var.
-# TODO: Add OC ef
+# TODO: correct biomass
 #       Consolidate ef correction
 #       iso codes do not uniquely identify countries
 # ------------------------------------------------------------------------------
@@ -41,16 +40,16 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R", "process_db_functions.R", 
-             "interpolation_extention_functions.R" ) # Additional function files required.
+              "interpolation_extention_functions.R" ) # Additional function files required.
 log_msg <- "Produce BC emissions factors from Bond et al data" # First message to be printed to the log
-script_name <- "B1.1.base_BC_comb_EF.R"
+script_name <- "B1.1.base_BCOC_comb_EF.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "OC"
+if ( is.na( em ) ) em <- "BC"
 
 # ------------------------------------------------------------------------------
 # 0.5 Define functions for later use
@@ -60,7 +59,7 @@ all.na <- function(x){
   return(all(is.na(x)))}
 
 interpolate_extend <- function (df){
-
+  
   years <- names(df)[grep('X',names(df))] 
   interpolate <-  apply(X= df[years] , MARGIN= 1,FUN= function(x) any(is.na(na.trim(x))) )
   row.all.na <- apply(X= df[years], MARGIN = 1 ,FUN = all.na)
@@ -81,198 +80,157 @@ activity_data <- readData( "MED_OUT", "A.comb_activity" )
 MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" , meta = F)
 sector_level_map <- readData( "MAPPINGS", "Master_Sector_Level_map", meta = F )
 MCL <- readData( "MAPPINGS", "Master_Country_List" )
-  
+
 
 bcoc_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/"  ,"Bond_BCOC_1925-2010", meta = F )
-sector_map <- readData( "EM_INV", domain_extension = "Bond-BCOC/" , "Bond_BCOC_fuel_sector_map", meta = F )
-iso_map <- readData( "EM_INV", domain_extension = "Bond-BCOC/" , "Bond_country_map", meta = F )
+sector_map <- readData( "EM_INV", domain_extension = "Bond-BCOC/" , "Bond_sector_map_oc", meta = F )
+iso_map <- readData( "EM_INV", domain_extension = "Bond-BCOC/" , "Bond_country_map_oc", meta = F )
+fuel_map <- readData( "EM_INV", domain_extension = "Bond-BCOC/" , "Bond_fuel_map_oc", meta = F )
 
 # ------------------------------------------------------------------------------
-# 2. Calculate EFs
+# 2. Bond EFs
 
-names(bcoc_historical) <- c("Region","Country", "Fuel" ,"Tech","Sector" ,"Year" ,
+X_bond_years <- paste0('X',seq(1960,2000,5))
+
+bond <- bcoc_historical
+names(bond) <- c("Region","Country", "Fuel" ,"Tech","Sector" ,"Year" ,
                             "Fuel_kt" ,"BC_kt", "OC_kt" )
 
-bcoc_historical <- bcoc_historical[which( bcoc_historical$Fuel_kt >= 0 &
-                                          bcoc_historical$BC_kt >= 0 &
-                                          bcoc_historical$OC_kt >= 0     )  , ]
+# map to ceds_fuel
+bond$ceds_fuel <- fuel_map[ match(bond$Fuel,fuel_map$Fuel),'fuel']
 
-bcoc_historical_regions <- aggregate( bcoc_historical[,c("Fuel_kt" ,"BC_kt", "OC_kt")] , 
-                               by = list( Region =  bcoc_historical$Region,
-                                          Fuel =  bcoc_historical$Fuel,
-                                          Tech =  bcoc_historical$Tech,
-                                          Sector =  bcoc_historical$Sector,
-                                          Year =  bcoc_historical$Year) ,
-                               FUN = sum )
+# remove wierd data and data we don't use
+bond <- bond[which( bond$Fuel_kt > 0 &
+                      bond$BC_kt > 0 &
+                      bond$OC_kt > 0     )  , ]
+bond <- bond[which(bond$ceds_fuel %!in% c( 'process','natural_gas')),]
+bond <- bond[which(bond$Year >1959),]
 
-region_country_map <- unique(bcoc_historical[,c("Region","Country")])
-iso_region_country_map <- iso_map
-iso_region_country_map$Region  <- region_country_map[ match(iso_region_country_map$Country, region_country_map$Country ) , 
-                                                      'Region']
+# aggregate by Region
 
-bcoc_historical_efs <- bcoc_historical_regions[which(bcoc_historical_regions$Year >= 1960),]
-bcoc_historical_efs$BC_ef <- bcoc_historical_efs$BC_kt/bcoc_historical_efs$Fuel_kt
-bcoc_historical_efs$OC_ef <- bcoc_historical_efs$OC_kt/bcoc_historical_efs$Fuel_kt
-bcoc_historical_efs <- bcoc_historical_efs[, c( "Region","Fuel" ,"Tech",
-                                                "Sector" ,"Year", "BC_ef", "OC_ef") ]
+bond_region <- aggregate( bond[ , c( "Fuel_kt" ,"BC_kt", "OC_kt" )],
+                          by = list( Region = bond$Region ,
+                                      Fuel = bond$Fuel ,
+                                      Tech = bond$Tech ,
+                                      Sector =  bond$Sector,
+                                      Year = bond$Year) ,
+                          FUN = sum)
+  
+# remove small values rows (they make bad efs because the values are so small)
+bond_region <- bond_region[which(bond_region$Fuel_kt >7), ]
 
-bcoc_historical_efs$Year <- paste0('X',bcoc_historical_efs$Year)
-
-X_bond_years <- sort(unique(bcoc_historical_efs$Year))
-
-# ------------------------------------------------------------------------------
-# 3. Map to Sectors/Fuels
-
-bcoc_efs_sectors <- merge( bcoc_historical_efs , sector_map , all = TRUE )
-
-bcoc_efs_sectors <- aggregate( bcoc_efs_sectors[,c("BC_ef", "OC_ef")] , 
-                               by = list( Region = bcoc_efs_sectors$Region,
-                                          Year = bcoc_efs_sectors$Year,
-                                          sector = bcoc_efs_sectors$sector,
-                                          fuel = bcoc_efs_sectors$fuel) ,
-                               FUN = mean )
-
-oc_sectors <- cast( bcoc_efs_sectors , Region + sector + fuel ~ Year, value = 'OC_ef')
-oc_sectors <- interpolate_extend(oc_sectors)
-oc_sectors <- oc_sectors[complete.cases(oc_sectors[, X_bond_years]),]
-
-oc_sectors$aggregate_sector <- sector_level_map[  match(oc_sectors$sector , sector_level_map$working_sectors_v1 )
-                                                        ,'aggregate_sectors']
-
-oc_agg_sectors_fuel <- aggregate( oc_sectors[,X_bond_years] , 
-                               by = list( agg_sector = oc_sectors$aggregate_sector,
-                                          fuel = oc_sectors$fuel) ,
-                               FUN = mean )
-
-oc_agg_sectors <- aggregate( oc_sectors[,X_bond_years] , 
-                                  by = list( Region = oc_sectors$Region,
-                                             agg_sector = oc_sectors$aggregate_sector,
-                                             fuel = oc_sectors$fuel) ,
-                                  FUN = mean )
+# calculate EFs
+if( em == 'BC') em_col <- 'BC_kt'
+if( em == 'OC') em_col <-  'OC_kt'
+bond_region$EF <- bond_region[ , em_col ] / bond_region[ , 'Fuel_kt' ]
+bond_region$Year <- paste0('X', bond_region$Year)
 
 # ------------------------------------------------------------------------------
-# 4. Map to iso and region
+# 2. Reformat and create average EFs
 
-# Map from Bond Region to Bond Country
+# cast to wide and interpolate/extend
+bond_EFs <- cast( bond_region , Region + Fuel + Tech + Sector ~ Year , value = 'EF')
+bond_EFs [ X_emissions_years[X_emissions_years %!in% X_bond_years] ] <- NA
 
-# Country and OECD
-oc_iso <- merge(merge(oc_sectors, region_country_map, all = TRUE), 
-                      iso_map, all = TRUE)
-oc_iso$OECD <- MCL[ match(oc_iso$iso, MCL$iso) ,'OECD_flag'] 
+bond_EFs <- bond_EFs[, c( "Region", "Fuel" , "Tech" , "Sector", X_emissions_years)]
+bond_EFs <- interpolate_extend(bond_EFs)
+bond_EFs <- bond_EFs[complete.cases(bond_EFs[X_emissions_years]) , ]
 
-oc_OECD <- aggregate( oc_iso[, X_bond_years ] , 
-                            by = list( OECD = oc_iso$OECD,
-                                       sector = oc_iso$sector,
-                                       fuel = oc_iso$fuel) ,
-                            FUN = mean )
+# map ceds fuels
+bond_EFs$fuel <- fuel_map[ match(bond_EFs$Fuel, fuel_map$Fuel), 'fuel']
+bond_EFs <- bond_EFs[which(!is.na(bond_EFs$fuel)),]
+bond_EFs <- bond_EFs[which((bond_EFs$fuel != 'NA')),]
 
-oc_OECD_agg_sector <- aggregate( oc_iso[, X_bond_years ] , 
-                      by = list( OECD = oc_iso$OECD,
-                                 agg_sector = oc_iso$aggregate_sector,
-                                 fuel = oc_iso$fuel) ,
-                      FUN = mean )
+EF_Region_fuel_Sector_average <- aggregate( bond_EFs[X_emissions_years],
+                                     by = list( Region = bond_EFs$Region,
+                                                fuel = bond_EFs$fuel,
+                                                Sector = bond_EFs$Sector),
+                                     FUN = mean)
 
-oc_OECD_fuel <- aggregate( oc_iso[, X_bond_years ] , 
-                           by = list( OECD = oc_iso$OECD,
-                                      fuel = oc_iso$fuel) ,
-                           FUN = mean )
+EF_fuel_Sector_average <- aggregate( bond_EFs[X_emissions_years],
+                                            by = list( fuel = bond_EFs$fuel,
+                                                       Sector = bond_EFs$Sector),
+                                            FUN = mean)
 
-oc_fuel <- aggregate( oc_iso[, X_bond_years ] , 
-                           by = list( fuel = oc_iso$fuel) ,
-                           FUN = mean )
-
-oc_iso <- aggregate( oc_iso[, X_bond_years ] , 
-                     by = list( iso = oc_iso$iso,
-                                sector = oc_iso$sector,
-                                fuel = oc_iso$fuel) ,
-                     FUN = mean )
+EF_Region_fuel_average <- aggregate( bond_EFs[X_emissions_years],
+                                            by = list( Region = bond_EFs$Region,
+                                                       fuel = bond_EFs$fuel),
+                                            FUN = mean)
+EF_fuel_average <- aggregate( bond_EFs[X_emissions_years],
+                                     by = list( fuel = bond_EFs$fuel),
+                                     FUN = mean)
+EF_fuel_average <- aggregate( bond_EFs[X_emissions_years],
+                              by = bond_EFs[ "fuel" ],
+                              FUN = mean, na.rm= TRUE)
 
 # ------------------------------------------------------------------------------
-# 4. Make emission template from activity df
+# 2. Map to CEDS sectors and countries
 
-oc_ef_template <- activity_data[ , c('iso','sector','fuel')]
-oc_ef_template[ X_bond_years ] <- NA
+# map ceds sectors
+bond_EFs_iso_sector <- merge( bond_EFs, sector_map, all=TRUE)
+bond_EFs_iso_sector <- bond_EFs_iso_sector[complete.cases(bond_EFs_iso_sector$sector),]
 
-# Add by aggregate flags
-oc_ef_template$Region <- iso_region_country_map[ match(oc_ef_template$iso , iso_region_country_map$Region)   ,'Region']
-oc_ef_template$OECD <- MCL[ match(oc_ef_template$iso, MCL$iso)    ,'OECD_flag'] 
-oc_ef_template$agg_sector <- sector_level_map[  match(oc_ef_template$sector , sector_level_map$working_sectors_v1 ) ,'aggregate_sectors']
+# map to iso
+bond_EFs_iso_sector <- merge( bond_EFs_iso_sector, iso_map[,c('iso','Country')], all=TRUE)
+bond_EFs_iso_sector <- bond_EFs_iso_sector[complete.cases(bond_EFs_iso_sector$iso),]
 
-# fill template with Bond efs
-oc_ef <- replaceValueColMatch(oc_ef_template , oc_iso ,
-                              x.ColName = X_bond_years ,
+# make ef template from activity data
+ef_template <- activity_data[ , c('iso','sector','fuel')]
+ef_template$units <- 'kt/kt'
+ef_template[ X_emissions_years ] <- NA
+
+# add aggregate flags
+ef_template$Region <- iso_map[ match( ef_template$iso, iso_map$iso)  ,'Region']
+ef_template$Sector <- sector_map[ match( ef_template$sector, sector_map$sector)  ,'Sector']
+
+# make natural gas ef = 0
+ef_template[which( ef_template$fuel == 'natural_gas'), X_emissions_years] <- 0
+
+# add EFs by iso,sector,fuel
+EF <- replaceValueColMatch(ef_template , bond_EFs_iso_sector ,
+                              x.ColName = X_emissions_years ,
                               match.x = c('iso','sector','fuel'), 
                               addEntries = FALSE)
 
-oc_ef_nas <- oc_ef[is.na(oc_ef$X1960),]
-oc_ef <- oc_ef[!is.na(oc_ef$X1960),]
+EF_nas <- EF[is.na(EF$X1960),]
+EF_final <- EF[!is.na(EF$X1960),]
 
-# ------------------------------------------------------------------------------
-# 5. Fill missing EFs
 
-# fill with region agg sector fuel
-oc_ef_nas <- replaceValueColMatch( oc_ef_nas , oc_agg_sectors ,
-                              x.ColName = X_bond_years ,
-                              match.x = c('Region','agg_sector','fuel'), 
-                              addEntries = FALSE)
+# add EFs by region fuel 
+EF <- replaceValueColMatch(EF_nas , EF_Region_fuel_average ,
+                           x.ColName = X_emissions_years ,
+                           match.x = c('Region','fuel'), 
+                           addEntries = FALSE)
 
-oc_ef <- rbind( oc_ef , oc_ef_nas[!is.na(oc_ef_nas$X1960),] )
-oc_ef_nas <- oc_ef_nas[is.na(oc_ef_nas$X1960),]
+EF_nas <- EF[is.na(EF$X1960),]
+EF_final <- rbind( EF_final , EF[!is.na(EF$X1960),] )
 
-# fill with average OECD, and sector ,fuel 
-oc_ef_nas <- replaceValueColMatch( oc_ef_nas , oc_OECD ,
-                                   x.ColName = X_bond_years ,
-                                   match.x = c('OECD','sector','fuel'), 
-                                   addEntries = FALSE)
 
-oc_ef <- rbind( oc_ef , oc_ef_nas[!is.na(oc_ef_nas$X1960),] )
-oc_ef_nas <- oc_ef_nas[is.na(oc_ef_nas$X1960),]
+# add EFs by region fuel 
+EF <- replaceValueColMatch(EF_nas , EF_fuel_Sector_average ,
+                           x.ColName = X_emissions_years ,
+                           match.x = c('Sector','fuel'), 
+                           addEntries = FALSE)
 
-# fill with average OECD, and agg_sector ,fuel 
-oc_ef_nas <- replaceValueColMatch( oc_ef_nas , oc_OECD_agg_sector ,
-                                   x.ColName = X_bond_years ,
-                                   match.x = c('OECD','agg_sector','fuel'), 
-                                   addEntries = FALSE)
+EF_nas <- EF[is.na(EF$X1960),]
+EF_final <- rbind( EF_final , EF[!is.na(EF$X1960),] )
 
-oc_ef <- rbind( oc_ef , oc_ef_nas[!is.na(oc_ef_nas$X1960),] )
-oc_ef_nas <- oc_ef_nas[is.na(oc_ef_nas$X1960),]
+# add EFs by region 
+EF <-EF_nas
+EF[X_emissions_years] <- EF_fuel_average[ match(EF$fuel,EF_fuel_average$fuel), X_emissions_years]
 
-# fill with global, agg_sector ,fuel 
-oc_ef_nas <- replaceValueColMatch( oc_ef_nas , oc_agg_sectors_fuel ,
-                                   x.ColName = X_bond_years ,
-                                   match.x = c('agg_sector','fuel'), 
-                                   addEntries = FALSE)
-
-oc_ef <- rbind( oc_ef , oc_ef_nas[!is.na(oc_ef_nas$X1960),] )
-oc_ef_nas <- oc_ef_nas[is.na(oc_ef_nas$X1960),]
-
-# fill with OECD ,fuel 
-oc_ef_nas <- replaceValueColMatch( oc_ef_nas , oc_OECD_fuel ,
-                                   x.ColName = X_bond_years ,
-                                   match.x = c('OECD','fuel'), 
-                                   addEntries = FALSE)
-
-oc_ef <- rbind( oc_ef , oc_ef_nas[!is.na(oc_ef_nas$X1960),] )
-oc_ef_nas <- oc_ef_nas[is.na(oc_ef_nas$X1960),]
-
-# fill with fuel 
-oc_ef_nas[ X_bond_years ] <- oc_fuel[ match( oc_ef_nas$fuel,oc_fuel$fuel ) , X_bond_years ] 
-oc_ef <- rbind( oc_ef , oc_ef_nas[!is.na(oc_ef_nas$X1960),] )
-oc_ef_nas <- oc_ef_nas[is.na(oc_ef_nas$X1960),]
+EF_nas <- EF[is.na(EF$X1960),]
+EF_final <- rbind( EF_final , EF[!is.na(EF$X1960),] )
 
 # ------------------------------------------------------------------------------
 # 7. Final Processing
 
-oc_ef <- oc_ef[ with( oc_ef, order( iso, sector, fuel ) ), ]
+EF_final <- EF_final[ with( EF_final, order( iso, sector, fuel ) ), ]
 
-final <- oc_ef
-final[X_emissions_years] <- NA
+final <- EF_final
 final$units <- 'kt/kt'
-final[X_bond_years] <- oc_ef[ X_bond_years ]
 
 final <- final[,c('iso','sector','fuel', 'units' , X_emissions_years)]
-
-final <- interpolate_extend(final)
 
 # ------------------------------------------------------------------------------
 # 7. Write output
@@ -283,3 +241,8 @@ writeData( final , "MED_OUT", paste0( "B.",em,"_comb_EF_db" ) )
 logStop()
 
 # END
+
+
+
+
+

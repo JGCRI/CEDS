@@ -43,7 +43,7 @@
 
     gridding_initialize( grid_resolution = 0.5,
                          start_year = 1970,
-                         end_year = 2014, load_masks = T)
+                         end_year = 2014, load_masks = T, load_seasonality_profile = T )
     
 # ------------------------------------------------------------------------------
 # 1. Define emission species and read in files
@@ -67,45 +67,45 @@
     ceds_gridding_sector_list<- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'CEDS_gridding_sectors' )
 # read in VOC ratios
     VOC_ratios <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'VOC_ratio_AllSectors' )
-    
+# read in VOC name weight list
+    VOC_names <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'VOC_id_name_mapping' )
 # ------------------------------------------------------------------------------
 # 2. Pre-processing
 # 2.1. Extract CEDS intermediate gridding sector list
-    ceds_gridding_sector_list <- ceds_gridding_sector_list[ order( ceds_gridding_sector_list$CEDS_Intermediate_Grids_shortname ) , ]
-    med_sector_list <- ceds_gridding_sector_list$CEDS_Intermediate_Grids_shortname
-    med_sector_longname_list <- ceds_gridding_sector_list$CEDS_Intermediate_Grids_longname
+    ceds_gridding_sector_list <- ceds_gridding_sector_list[ order( ceds_gridding_sector_list$CEDS_level_1_grids_abr ) , ]
+    level1_sector_list <- ceds_gridding_sector_list$CEDS_level_1_grids_abr
 # 2.2. Extract CEDS final gridding sector list 
-    ceds_gridding_sector_list <- ceds_gridding_sector_list[ order( ceds_gridding_sector_list$CEDS_Final_Grids_shortname ) , ]
-    final_sector_list <- unique( ceds_gridding_sector_list$CEDS_Final_Grids_shortname )
-    final_sector_longname_list <- unique( ceds_gridding_sector_list$CEDS_Final_Grids_longname )
+    ceds_gridding_sector_list <- ceds_gridding_sector_list[ order( ceds_gridding_sector_list$CEDS_level_3_grids_abr ) , ]
+    level3_sector_list <- unique( ceds_gridding_sector_list$CEDS_level_3_grids_abr )
+    level3_sector_longname_list <- unique( ceds_gridding_sector_list$CEDS_level_3_grids )
 # 2.3.  Convert the emission data from CEDS working sectors to CEDS intermediate gridding sector 
-    ceds_gridding_mapping_med <- ceds_gridding_mapping[ , c( 'CEDS_working_sector', 'CEDS_Intermediate_Grids_shortname' ) ]
-    emissions_med_sector <- merge( emissions, ceds_gridding_mapping_med, 
+    ceds_gridding_mapping_level1 <- ceds_gridding_mapping[ , c( 'CEDS_working_sector', 'CEDS_level_1_grids_abr' ) ]
+    emissions_level1_sector <- merge( emissions, ceds_gridding_mapping_level1, 
                                            by.x = 'sector', by.y = 'CEDS_working_sector' )
     # drop non-matched sectors
-    emissions_med_sector <- emissions_med_sector[ !is.na( emissions_med_sector$CEDS_Intermediate_Grids_shortname ), ]
-    # aggregate the emissions by CEDS intermediate gridding sectors 
-    emissions_med_sector <- aggregate( emissions_med_sector[ , paste0( 'X', year_list ) ], 
-                                               by = list( emissions_med_sector$CEDS_Intermediate_Grids_shortname, 
-                                                          emissions_med_sector$iso ), 
+    emissions_level1_sector <- emissions_level1_sector[ !is.na( emissions_level1_sector$CEDS_level_1_grids_abr ), ]
+    # aggregate the emissions by CEDS level1 gridding sectors 
+    emissions_level1_sector <- aggregate( emissions_level1_sector[ , paste0( 'X', year_list ) ], 
+                                               by = list( emissions_level1_sector$CEDS_level_1_grids_abr, 
+                                                          emissions_level1_sector$iso ), 
                                                FUN = sum )
     # change column names
-    colnames( emissions_med_sector )[ 1 : 2 ] <- c( 'CEDS_grd_sector', 'iso' ) 
+    colnames( emissions_level1_sector )[ 1 : 2 ] <- c( 'CEDS_grd_sector', 'iso' ) 
 # 2.4. Extract VOC list
-    VOC_list <- colnames( VOC_ratios )[ 3 : ncol( VOC_ratios ) ]
+    VOC_list <- VOC_names$VOC_id
 # ------------------------------------------------------------------------------
 # 3. Scalling and writing output data 
     # For now, the scaling routine uses nested for loops to go through every years
     # gases and sectors. May consider to take away for loop for sectors and keep year loops 
     # for future parallelization 
-    for ( year in year_list ) {
+    #for ( year in year_list ) {
     #for ( year in year_list[ ( length( year_list ) - 5 ): length( year_list) ] ) {  
-      
-      grid_one_year_subVOCs( em, year, emissions_med_sector, country_location_index, med_sector_list, grid_resolution, VOC_ratios, VOC_list, mass = F )
+    for ( year in '2000' ) { 
+      grid_one_year_subVOCs( em, year, emissions_level1_sector, country_location_index, level1_sector_list, grid_resolution, VOC_ratios, VOC_list, mass = F )
     
       # write netCDF to disk, each netCDF contains one year's all sectors' data for one gas 
       output_dir <- filePath( 'MED_OUT', '', extension="")
-      final_monthly_nc_output_subVOCs( output_dir, grid_resolution, year, em, final_sector_list, VOC_list, mass = F )
+      final_monthly_nc_output_subVOCs( output_dir, grid_resolution, year, em, level3_sector_list, level3_sector_longname_list, VOC_list, VOC_names, mass = F )
 
     }
 
