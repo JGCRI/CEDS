@@ -502,13 +502,13 @@ F.scaling <- function( ceds_data, inv_data, region,
   
     scaling_iso_sectors <- unique(scaling_instructions_all[,c('iso',scaling_name)])
     
-    for ( i in seq_along(scaling_iso_sectors[1,])){
+    for ( i in seq_along(scaling_iso_sectors[,1])){
   ###### need to change for method = sector and fuel
     instructions <- scaling_instructions_all[which( scaling_instructions_all$iso == scaling_iso_sectors$iso[i] &
                                     scaling_instructions_all$scaling_sector == scaling_iso_sectors$scaling_sector[i]  ), ]  
     # find scaling years to keep for iso-sector combination
     scaling_years <- c()
-    for (n in seq_along(instructions[1,])){
+    for (n in seq_along(instructions[,1])){
       #range years
       if( all(!is.na(instructions[n, c('start_scaling_year','end_scaling_year')])) )
         scaling_years <- c(scaling_years, instructions[n, c('start_scaling_year')]:instructions[n, c('end_scaling_year')] )
