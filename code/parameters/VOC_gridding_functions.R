@@ -7,11 +7,13 @@
 # return: a fliped matrix 
 # input files: 
 # output: 
-final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, em_species, sector_list, VOC_list, mass = F ) {
+final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, em_species, sector_list, sector_list_longname, VOC_list, VOC_name_list, mass = F ) {
   
   # each VOC generates a netcdf file so loop on VOCs
   for ( VOC in VOC_list ) {
-    # aggregate from intermediate grd level to final grd level 
+    # process emission grids from low level sectors to high level sectors 
+    # and adding seasonality ( except RCO )
+    # first, aggregate to higher level
     exp <- paste0( 'AGR_', VOC, '_em_global_final <- AGR_', VOC, '_em_global' )
 	  eval( parse( text = exp ) )
 	  exp <- paste0( 'ENE_', VOC, '_em_global_final <- ELEC_', VOC, '_em_global + FFFI_', VOC, '_em_global + ETRN_', VOC, '_em_global' )
@@ -20,23 +22,50 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
 	  eval( parse( text = exp ) )     
 	  exp <- paste0( 'TRA_', VOC, '_em_global_final <- NRTR_', VOC, '_em_global + ROAD_', VOC, '_em_global' )
 	  eval( parse( text = exp ) ) 
-	  exp <- paste0( 'RCO_', VOC, '_em_global_final <- RCO_', VOC, '_em_global' )
-	  eval( parse( text = exp ) )
 	  exp <- paste0( 'SLV_', VOC, '_em_global_final <- SLV_', VOC, '_em_global' )
 	  eval( parse( text = exp ) )
 	  exp <- paste0( 'WST_', VOC, '_em_global_final <- WST_', VOC, '_em_global' )
 	  eval( parse( text = exp ) )
 	  exp <- paste0( 'SHP_', VOC, '_em_global_final <- SHP_', VOC, '_em_global' )
 	  eval( parse( text = exp ) )
-	
+	  # second, add seasonality
+    temp_sector_list <- sector_list[ !sector_list == 'RCO' ]
+    for ( sector in temp_sector_list ) {
+    seasonality <- get_seasonalityFrac( em_species, sector )
+    temp_annual_data_name <- paste0( sector, '_', VOC, '_em_global_final' )
+    annual_data <- get( temp_annual_data_name )
+    temp_array_data <- c()
+    for ( i in 1 : dim( seasonality )[ 3 ] ) {
+      temp_array_data <- cbind( temp_array_data, annual_data * seasonality[, , i ] )
+    }
+    temp_array <- array( temp_array_data, dim = c( 180/grid_resolution, 360/grid_resolution, dim( seasonality )[ 3 ]) )
+    rm( temp_array_data )
+    assign( temp_annual_data_name, temp_array )
+    }
+	  
+	  # special treatment for RCO 
+    seasonality <- get_seasonalityFrac( em_species, 'RCO' )
+    temp_array_data <- c( )
+    RCORC_VOC_varname <- paste0( 'RCORC_', VOC, '_em_global' )
+    RCOO_VOC_varname <- paste0( 'RCOO_', VOC, '_em_global' )
+    for ( i in 1 : dim( seasonality )[ 3 ] ) {
+      temp_array_data <- cbind( temp_array_data, get( RCORC_VOC_varname ) * seasonality[, , i ] 
+                                + get( RCOO_VOC_varname ) * RCOO_seasonality[ , , i ] )
+    }
+    RCO_VOC_varname <- paste0( 'RCO_', VOC, '_em_global_final')
+    temp_array <- array( temp_array_data, dim = c( 180/grid_resolution, 360/grid_resolution, dim( seasonality )[ 3 ] ) )
+    assign( RCO_VOC_varname, temp_array )
+
+	  # start nc write routine
   	data_list <- paste0( sector_list, '_', VOC, '_em_global_final')
-	
+	  
+  	
 	  lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
     lats <- seq( -90 + grid_resolution / 2, 90 - grid_resolution / 2, grid_resolution )
     time <- c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 )
     londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
     latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
-    timedim <- ncdim_def( "time", "days since 1750-01-01 0:0:0", as.double( time ), 
+    timedim <- ncdim_def( "time", paste0( "days since ", year, "-01-01 0:0:0" ), as.double( time ),
                           calendar = '365_day', longname = 'time' )
     dim_list <- list( londim, latdim, timedim )
     lon_bnds_data <- cbind( seq( -180, ( 180 - grid_resolution ), grid_resolution ), 
@@ -57,7 +86,7 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
   # define nc variables
   left_part <- sector_list 
   mid_part <- ' <- '
-  right_part <- paste0( 'ncvar_def( \'', left_part, '\', \'', data_unit, '\', dim_list, missval = missing_value, longname= \'' ,final_sector_longname_list, '\' , prec = \'float\', compression = 5 )' )
+  right_part <- paste0( 'ncvar_def( \'', left_part, '\', \'', data_unit, '\', dim_list, missval = missing_value, longname= \'' ,sector_list_longname, '\' , prec = \'float\', compression = 5 )' )
   expressions <- paste0( left_part, mid_part, right_part )
   missing_value <- 1.e20
   eval( parse( text = expressions ) )
@@ -69,7 +98,10 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
   ceds_version <- 'v'
   date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
   ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
-  nc_file_name <- paste0( output_dir, 'CEDS_', VOC, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.nc' ) 
+  VOC_species_name <- VOC_names$VOC_name[ which( VOC_names$VOC_id %in% VOC ) ] # retrieve the VOC real name 
+  VOC_species_name <- substring( VOC_species_name, 1, 10 ) # cutoff at 10 characters
+  nc_file_name <- paste0( output_dir, 'CEDS_', VOC, '-', VOC_species_name, 
+                          '_anthro_', year, '_', grid_resolution, '_', ver_date, '.nc' ) 
   
   # generate the var_list 
   var_list_expression <- c()
@@ -83,10 +115,9 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
   nc_new <- nc_create( nc_file_name, variable_list, force_v4 = T )
   
   # put nc variables into the nc file
-  for ( i in seq_along(time) ) {
-  expressions <- paste0( 'ncvar_put( nc_new, ', left_part, ' ,t( flip_a_matrix( ', data_list,
+  for ( i in seq_along( time ) ) {
+  expressions <- paste0( 'ncvar_put( nc_new, ', left_part, ' ,t( flip_a_matrix( ', data_list, '[ , , i ]',
                          ' ) ) , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )' )
-                         #' / 12 ) ) , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )' )
   eval( parse( text = expressions ) )
   }
   ncvar_put( nc_new, lon_bnds, lon_bnds_data )
@@ -104,9 +135,15 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
   ncatt_put( nc_new, "time", "standard_name", "time" )
   ncatt_put( nc_new, "time", "axis", "T" )
   ncatt_put( nc_new, "time", "bounds", "time_bnds" )
+  # attributes for variables
+  for ( each_var in sector_list ) {
+    ncatt_put( nc_new, each_var, 'cell_methods', 'time:mean' )
+    ncatt_put( nc_new, each_var, 'missing_value', 1e+20, prec = 'float' )
+  }
   # nc global attributes
   ncatt_put( nc_new, 0, 'IMPORTANT', 'FOR TEST ONLY, DO NOT USE' )
-  ncatt_put( nc_new, 0, 'title', paste0('Annual Emissions of ', VOC ) )
+  ncatt_put( nc_new, 0, 'title', paste0('Annual Emissions of ', VOC, ' - ', 
+                                        VOC_names$VOC_name[ which( VOC_names$VOC_id %in% VOC ) ] ) )
   ncatt_put( nc_new, 0, 'institution_id', 'PNNL-JGCRI' )
   ncatt_put( nc_new, 0, 'institution', 'Pacific Northwest National Laboratory - JGCRI' )
   ncatt_put( nc_new, 0, 'activity_id', 'input4MIPs' )
@@ -129,37 +166,45 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
   ncatt_put( nc_new, 0, 'host', 'TBD' )
   ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
   ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
-  # attributes for variables
-  for ( each_var in sector_list ) {
-    ncatt_put( nc_new, each_var, 'cell_methods', 'time:mean' )
-    ncatt_put( nc_new, each_var, 'missing_value', 1e+20, prec = 'float' )
-  }
+  ncatt_put( nc_new, 0, 'molecular weight', VOC_names$molecular.weight[ which( VOC_names$VOC_id %in% VOC ) ], prec = 'float' )
+  ncatt_put( nc_new, 0, 'molecular weight unit', 'g mole-1' )
+  # another global attribute needs a little bit computation: global_total_emission 
+  global_grid_area <- grid_area( grid_resolution, all_lon = T )
+  flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
+  # use flux_factor to convert flux matrix back to annual mass matrix (in kt ), 
+  # then sum for each sector then sum all sectors to get global_total_emission for that year then convert to Tg
+  global_total_emission <- sum( unlist( lapply( data_list, function( data_in_list ) { 
+    each_data <- get( data_in_list )
+    each_data <- apply( each_data, MARGIN = c( 1, 2 ), sum ) 
+    mass_sum <- sum( each_data  / flux_factor )  
+    } ) ) )
+  global_total_emission <- global_total_emission * 0.001
+  ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2), ' Tg/year' ) )
   
   # close nc_new
   nc_close( nc_new)
   
-  #additional section: write a summary and check text
-  global_grid_area <- grid_area( grid_resolution, all_lon = T )
+  # additional section: write a summary and check text
   global_total <- c()
   em_global_sectors <- c()
   for ( em_global_data in data_list ) {
     em_global_sector <- unlist( strsplit( em_global_data, split = '_' ) ) [ 1 ]
     eval( parse( text = paste0( 'temp_data <- ', em_global_data ) ) )
-    temp_data <- temp_data * global_grid_area
-    total <- sum( temp_data )
+    for ( i in 1: dim( temp_data )[ 3 ]  ) {
+      temp_data[ , , i ] <- temp_data[ , , i ] / flux_factor
+      }
+    total <- apply( temp_data, MARGIN = 3, sum ) 
     global_total <- c( global_total, total )
-    em_global_sectors <- c( em_global_sectors, em_global_sector)
-    }
+    em_global_sectors <- c( em_global_sectors, rep( em_global_sector, dim( temp_data )[ 3 ] ) )
+  }
   summary_table <- data.frame( year = year, species = VOC, 
-                               sector = em_global_sectors, 
+                               sector = em_global_sectors,
+                               month = rep( 1 : 12, length( sector_list ) ),
                                global_total = global_total,
-                               unit = 'kg s-1' )
-  summary_table[ is.na( summary_table ) ] <- 0
-  summary_name <- paste0( output_dir, 'CEDS_', VOC, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
+                               unit = 'kt' )
+  summary_name <- paste0( output_dir, 'CEDS_', VOC, '-', VOC_species_name, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
   write.csv( summary_table, file = summary_name, row.names = F )
-  
-  
-  
+
   }
 
   
@@ -175,8 +220,8 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
 # input files: 
 # output: 
 grid_one_year_subVOCs <- function( em_species, year, em_data, location_index, sector_list, grid_resolution, VOC_ratio_table, VOC_list, mass = F ) { 
-  X_year <<- paste0( 'X', year )
-  emission_year <<- em_data[ c( 'iso', 'CEDS_grd_sector', X_year ) ]
+  X_year <- paste0( 'X', year )
+  emission_year <- em_data[ c( 'iso', 'CEDS_grd_sector', X_year ) ]
   
   invisible( lapply( sector_list, grid_one_sector_subVOCs, em_species, year, location_index, grid_resolution, emission_year, VOC_ratio_table, VOC_list, mass ) )
   }
@@ -192,14 +237,13 @@ grid_one_year_subVOCs <- function( em_species, year, em_data, location_index, se
 grid_one_sector_subVOCs <- function( sector, em_species, year, location_index, grid_resolution, em_data, VOC_ratio_table, VOC_list, mass ) {
   
   # extract VOC ratios for current sector
-  ## VOC ratio sectors are not at itermediate level, so do some aggregation   
-  if ( sector == 'ELEC' | sector == 'FFFI' ) { 
-  sector_final = 'ENE' 
-  } else if ( sector == 'INDC' | sector == 'INPU' ) { 
-  sector_final = 'IND' 
-  } else if ( sector == 'ROAD' | sector == 'NRTR' ) { 
-  sector_final = 'TRA' 
-  } else { sector_final = sector }
+  ## VOC ratio sectors are not at itermediate level, so do some aggregation
+  sector_final <- sector
+  if ( sector == 'ELEC' | sector == 'FFFI' ) { sector_final = 'ENE' }
+  if ( sector == 'INDC' | sector == 'INPU' ) { sector_final = 'IND' } 
+  if ( sector == 'ROAD' | sector == 'NRTR' ) { sector_final = 'TRA' } 
+  if ( sector == 'RCORC' | sector == 'RCOO') { sector_final = 'RCO' }
+  
   
   VOC_ratio_country <- subset( VOC_ratio_table, VOC_ratio_table$CEDS_grd_sector == sector_final, c( 'iso', VOC_list ) )
   # retrieve proxy
@@ -220,6 +264,14 @@ grid_one_sector_subVOCs <- function( sector, em_species, year, location_index, g
 
   # aggregating
   invisible( lapply( VOC_list, aggregate_all_countries_subVOCs, sector, country_list, location_index, grid_resolution, mass ) )
+  
+  # remove country specific em_spatial variables from global environment
+  for ( VOC in VOC_list ) {
+    for( country in country_list ) {
+      var_to_remove <- paste0( country, '_', VOC, '_em_spatial' )
+      rm( list = var_to_remove, envir = as.environment( '.GlobalEnv' ) )
+      }
+    }
   }
 # ------------------------------------------------------------------------------
 # grid_one_country
@@ -272,8 +324,8 @@ grid_one_country_subVOCs <- function( country, location_index, em_data, proxy, y
   # distribute emissions using each VOC ratio
   for ( VOC in VOC_list ) {
     em_spatial <- emission_value * norm_weighted_proxy * as.numeric( ratio_all[ which( VOC_list == VOC ) ] )
-	temp_em_name <- paste0( country, '_', VOC, '_em_spatial' )
-	assign( temp_em_name, em_spatial, .GlobalEnv )
+	  temp_em_name <- paste0( country, '_', VOC, '_em_spatial' )
+	  assign( temp_em_name, em_spatial, .GlobalEnv )
   }
 }
 
