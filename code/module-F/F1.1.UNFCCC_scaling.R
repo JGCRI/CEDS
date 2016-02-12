@@ -66,7 +66,7 @@
 # TODO: blr and ukr should only be used for specific years where is close to expert estimates, or to calibrate parameters off-line
 # TODO: why is grc not in EMEP?
 # Ukraine (ukr) energy reporting is inconsistent, instead have calibrated coal S% by hand. Check other emissions
-  region <- c(  "aut" , "blr" , "grc" , "nzl" )
+  region <- c(  "aus" , "blr" , "grc" , "nzl" )
   inv_years<-c(1990:2012)
   
 
