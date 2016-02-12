@@ -45,20 +45,26 @@ initialize( script_name, log_msg, headers )
   if ( is.na( em ) ) em <- "NMVOC"
   
 # Stop script if running for unsupported emissions species
-  if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2','CH4','OC') ) {
+  if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2','CH4') ) {
     stop (paste( 'EMEP script is not supported for emission species', em))
   }
   
   em.read <- em
-  if(em == "SO2") em.read <- "SOx"
+  if(em == "SO2") em.read <- "NOx"
 
-if ( em %in% c('BC','CO','NH3','NMVOC','NOx','SO2') ){
+if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2') ){
+     stop (paste( ' Emission species ', em, ' not supported for EMEP. Check script: ', script_name))
+}
   
 # SELECT EMEP LEVEL - 'LEVEL1' OR 'LEVEL2'
   level <- 'LEVEL1'
   
-# Create a LIst of EMEP Files
-  inv_file_name <- paste0('EMEP_NFR14_', level , '_', em.read , ".txt" )
+# SELECT Data Format
+  Em_Format <- "NFR09"
+  Em_Format <- "NFR14"
+
+# Create a List of EMEP Files
+  inv_file_name <- paste0('EMEP_',Em_Format,'_', level , '_', em.read , ".txt" )
   
 # Function used to read in list of txt files
   inv <- read.table(paste0('./emissions-inventories/EMEP/',inv_file_name), skip=0, header = FALSE, sep = ";" ,  
@@ -66,11 +72,11 @@ if ( em %in% c('BC','CO','NH3','NMVOC','NOx','SO2') ){
   names(inv) <- c('ISO2',"year","sector", "emission_species", "units","emissions")
   
 # Writes each object as same format, but converted to a csv file
-  writeData( inv , 'EM_INV', domain_extension = "EMEP/" , fn = paste0('EMEP_NFR14_', level , '_', em.read ),
+  writeData( inv , 'EM_INV', domain_extension = "EMEP/" , fn = paste0('EMEP_',Em_Format,'_', level , '_', em.read ),
              meta = TRUE)
 # -----------------------------------------------------------------------------------------------------------
 # 1. Read in files
-  EMEP <- readData('EM_INV', domain_extension = "EMEP/",  paste0('EMEP_NFR14_', level , '_', em.read )  ) 
+  EMEP <- readData('EM_INV', domain_extension = "EMEP/",  paste0('EMEP_',Em_Format,'_', level , '_', em.read )  ) 
   
 # -----------------------------------------------------------------------------------------------------------
 # 2. Formatting Data
@@ -80,10 +86,13 @@ if ( em %in% c('BC','CO','NH3','NMVOC','NOx','SO2') ){
   EMEP_em <- EMEP_em[,c("ISO2", "sector", "units", "year", "emissions" )]
 
 # Remove All Information from sectors Before "[space]"
+# Only for NFR14 format. NFR09 format does not have any spaces
+if ( Em_Format == 'NFR14' ) {
   EMEP_em <-mutate( EMEP_em, sector = as.character( sector ) )
   EMEP_em <-mutate(EMEP_em, sector = sapply( strsplit( EMEP_em$sector,
             split = ' ', fixed = TRUE ), function( x ) ( x [ 2 ] ) ) )
-
+}
+  
 # Order By ISO2 & sector
   EMEP_em <-mutate( EMEP_em, ISO2 = as.character( ISO2 ) )
   EMEP_em <-EMEP_em[ order(EMEP_em$ISO2,EMEP_em$sector), ]
@@ -122,13 +131,12 @@ if ( em %in% c('BC','CO','NH3','NMVOC','NOx','SO2') ){
 
   # interpolate EMEP over problem years, NMVOC for bel
   
-  if (em == 'NMVOC'){
+  if (em == 'NMVOCxx'){ # Now deal with issues such as this in scaling mapping
     EMEP_emdf[which(EMEP_emdf$iso == 'bel' &
               EMEP_emdf$sector == 'D_Fugitive'), paste0('X',2005:2010)] <- extendValues(EMEP_emdf[which(EMEP_emdf$iso == 'bel' &
                                       EMEP_emdf$sector == 'D_Fugitive'), paste0('X',2005:2010)], pre_ext_year = 2005,
                                       post_ext_year = 2010)
   }
-}
   
 if ( em %in% c('CH4') ){
   
@@ -136,11 +144,6 @@ if ( em %in% c('CH4') ){
     EMEP_emRUS <- c('iso','sector','year')
     
 }  
-if ( em %in% c('OC') ){
-
-    EMEP_emdf<- c('place_holder')
-    EMEP_emRUS <- c('place_holder')
-  }  
   
 # -----------------------------------------------------------------------------------------------------------
 # 3.Meta-
