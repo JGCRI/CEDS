@@ -248,6 +248,7 @@ grid_one_sector_subVOCs <- function( sector, em_species, year, location_index, g
   VOC_ratio_country <- subset( VOC_ratio_table, VOC_ratio_table$CEDS_grd_sector == sector_final, c( 'iso', VOC_list ) )
   # retrieve proxy
   proxy <- get_proxy( em_species, year, sector )
+  proxy_backup <- get_backup_proxy( year, type = 'population' )
   # extract emission for specific year and gas
   emission_year_sector <- subset( em_data, em_data$CEDS_grd_sector == sector,
                               c( 'iso', paste0( 'X', year ) ) )
@@ -259,8 +260,11 @@ grid_one_sector_subVOCs <- function( sector, em_species, year, location_index, g
 	}
   # extract current country_list from emission_year_sector
   country_list <- emission_year_sector$iso 
-  # calling the G.emiDistribute function to do the scalling
-  invisible( lapply( country_list, grid_one_country_subVOCs, location_index, emission_year_sector, proxy, year, sector, em_species, VOC_ratio_country, VOC_list ) )
+  # perform proxy_substitution_check. If for one perticular country, the flag is TRUE,
+  # then use proxy_backup
+  proxy_replace_flag <- proxy_substitution_check( country_list, location_index, emission_year_sector, proxy )
+  # calling the grid_one_country function to do the scalling
+  invisible( lapply( country_list, grid_one_country_subVOCs, location_index, emission_year_sector, proxy, proxy_backup, year, sector, em_species, VOC_ratio_country, VOC_list, proxy_replace_flag ) )
 
   # aggregating
   invisible( lapply( VOC_list, aggregate_all_countries_subVOCs, sector, country_list, location_index, grid_resolution, mass ) )
@@ -284,7 +288,7 @@ grid_one_sector_subVOCs <- function( sector, em_species, year, location_index, g
 # input files: country_location_index, emission, [iso]_mask
 # output: [iso]_emis_spatial 
 
-grid_one_country_subVOCs <- function( country, location_index, em_data, proxy, year, sector, em_species, VOC_ratio_country, VOC_list ) {
+grid_one_country_subVOCs <- function( country, location_index, em_data, proxy, proxy_backup, year, sector, em_species, VOC_ratio_country, VOC_list, proxy_replace_flag ) {
   
   # retrieve matrix indexes for iso for later proxy cropping
   row_col_index <- location_index[ location_index$iso == country, ]
@@ -299,23 +303,38 @@ grid_one_country_subVOCs <- function( country, location_index, em_data, proxy, y
   # retrieve the iso_mask from memory 
   mask_name <- paste0( country, '_mask')
   mask <- get( mask_name )
-      
-  # extract the proxy as the extent of the iso_mask
-  proxy_masked <- proxy[ start_row : end_row, start_col : end_col ]
   
+  # retreive the proxy_replace_flag for current country 
+  flag_line <- proxy_replace_flag[ proxy_replace_flag$iso == country, ]
+  country_flag <- flag_line$replace_flag
+  
+  # decide use proxy_backup or not 
+  if ( country_flag == T ) {
+    # extract the proxy as the extent of the iso_mask
+    proxy_cropped <-proxy_backup[ start_row : end_row, start_col : end_col ]
+    
+    # write out replacement message 
+    summary_dir <- filePath( "MED_OUT", "", extension="")
+    
+    
+    # what if the backup proxy have all zero pattern 
+    if ( sum(proxy_cropped * mask ) == 0 ) {
+      message_line <- paste0( 'Backup proxy used but all zero pattern: ', country, ' ,', year, ' ,', sector, ' ,', em_species )
+    } else {
+      message_line <- paste0( 'Backup proxy used: ', country, ' ,', year, ' ,', sector, ' ,', em_species )  
+      }
+    cat( message_line, file = paste0( summary_dir, 'proxy_replacement_list .txt' ), append = TRUE, sep="\n" )
+  } else {
+    # extract the proxy as the extent of the iso_mask
+    proxy_cropped <- proxy[ start_row : end_row, start_col : end_col ] 
+    }  
+      
   # retrieve the iso's emission for later distributing 
   emission_value <- em_data[ em_data$iso == country, 2 ]
   
   # get boundary weighted proxy 
-  weighted_proxy <- proxy_masked * mask
+  weighted_proxy <- proxy_cropped * mask
   
-  #### Make this section into a function
-  if ( sum( weighted_proxy ) == 0 & emission_value != 0 ) {
-    message_line <- paste0( 'All zero proxy pattern with non-zero emission: ', country, ' ,', year, ' ,', sector, ' ,', em_species )
-    summary_dir <- filePath( "MED_OUT", "", extension="")
-    cat( message_line, file = paste0( summary_dir, 'Proxy_Emission_check.txt' ), append = TRUE, sep="\n" )
-    }
-  ####
   
   # normalize the weighted_proxy 
   norm_weighted_proxy <- weighted_proxy / sum( weighted_proxy )
