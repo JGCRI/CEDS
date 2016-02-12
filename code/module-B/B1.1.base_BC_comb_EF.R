@@ -1,11 +1,10 @@
 #------------------------------------------------------------------------------
 # Program Name: B1.1.base_BC_comb_EF.R
-# Author: Linh Vu
-# Date Last Updated: August 24, 2015
+# Author: Rachel Hoesly
+# Date Last Updated: Feb 2016
 # Program Purpose: 1. Produce BC emissions factors from Bond et al data.
 #              Data priority - newest to oldes, 2010, 1996, 1990
-# Input Files: Bond_BC1-Central_1990.csv, Bond_BC1-Central_1996.csv,
-#              Bond_Fuel-Central_1990.csv, Bond_Fuel-Central_1996.csv,
+# Input Files: 
 #              Bond_ctry_mapping.csv, Bond_fuel_mapping.csv, Bond_sector_mapping.csv,
 #              A.comb_activity.csv 
 # Output Files: B.comb_EF_db.csv
