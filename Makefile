@@ -448,6 +448,11 @@ $(MED_OUT)/E.$(EM)_EMEP_inventory.csv : \
 	$(MOD_E)/E.EMEP_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
 
+# ee1-2
+$(MED_OUT)/E.$(EM)_REAS_inventory.csv : \
+	$(MOD_E)/E.REAS_emissions.R
+	Rscript $< $(EM) --nosave --no-restore
+
 # ff1-1a
 # Creates scaled emissions and emissions factors for US data
 $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
@@ -464,6 +469,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 	$(PARAMS)/emissions_scaling_functions.R \
 	$(MED_OUT)/E.$(EM)_EMEP_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
+	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(SC_MAPPINGS)/UNFCCC_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/US_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/CAN_scaling_mapping.xlsx \
