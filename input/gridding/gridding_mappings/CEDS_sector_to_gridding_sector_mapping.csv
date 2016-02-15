@@ -15,7 +15,7 @@ CEDS_working_sector,CEDS_level_1_grids,CEDS_level_1_grids_abr,CEDS_level_2_grids
 1A2g_Ind-Comb-mining-quarying,Industrial combustion,INDC,Industrial combustion,INDC,Industrial Sector,IND
 1A2g_Ind-Comb-wood-products,Industrial combustion,INDC,Industrial combustion,INDC,Industrial Sector,IND
 1A2g_Ind-Comb-textile-leather,Industrial combustion,INDC,Industrial combustion,INDC,Industrial Sector,IND
-1A2g_Ind-Comb-other,,,,,Industrial Sector,IND
+1A2g_Ind-Comb-other,Industrial combustion,INDC,Industrial combustion,INDC,Industrial Sector,IND
 1A3ai_International-aviation,,,,,,
 1A3aii_Domestic-aviation,,,,,,
 1A3b_Road,Road transportation,ROAD,Road transportation,ROAD,Transportation Sector,TRA
