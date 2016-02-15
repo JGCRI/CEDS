@@ -30,7 +30,7 @@ PARAM_DIR <- "../code/parameters/"
 headers <- c( 'process_db_functions.R','data_functions.R',
               'interpolation_extention_functions.R','common_data.R') 
 #                 Additional function files may be required.
-log_msg <- "Adding control percent" # First message to be printed to the log
+log_msg <- "Adding additional emission factors" # First message to be printed to the log
 script_name <- "B1.2.add_comb_default_EF.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
@@ -80,7 +80,7 @@ EF$units <- 'kt/kt'
 # 2. Add to existing parameter Dbs
 
 if( length(EF_list)>0 ){
-  printLog(paste('Adding new data to existing control percent data base for', em))
+  printLog(paste('Adding new data to existing emission factor data base for', em))
   addToDb_overwrite(new_data = EF, em = em, file_extention = 'comb_EF_db') 
   }else{
   printLog(paste('No data to be added to existing EF database for ', em))}
