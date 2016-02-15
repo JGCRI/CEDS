@@ -55,7 +55,7 @@ initialize( script_name, log_msg, headers )
   # 1. Read in Data
     
   # set wd to REAS folder  
-    setwd( './emissions-inventories/REAS')
+    setwd( './emissions-inventories/REAS_2.1')
   
   # create temporary folder to extract zipped files
     zipfile_path <- paste0('./',em.read,'.zip')
