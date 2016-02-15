@@ -37,7 +37,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "OC"
+if ( is.na( em ) ) em <- "BC"
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -69,23 +69,42 @@ Map_sector <- readData( "EM_INV", domain_extension = 'RCP/',"RCP_CEDS_sector_map
 Master_Country_List <- readData('MAPPINGS', 'Master_Country_List')
 Scaled_Emissions <- readData('MED_OUT', paste0('F.',em,'_scaled_emissions'))
 
-#wrangle files in the zip
-#read in RCP files
-# RCP_zip_path <- paste0('./emissions-inventories/RCP/RCP_all_files.zip')
-RCP_list <- paste0('regional_average_',em,'_',rcp_years,'.dat')
-RCP_list_filepaths <- paste0('./emissions-inventories/RCP/RCP_all_files/',RCP_list)
+# ---------------------------------------------------------------------------
+# 1. Load and process RCP files
 
-# RCP <- lapply(RCP_list, FUN = unz, paste0('./emissions-inventories/RCP/RCP_all_files.zip'))
-# RCP <- read.table(unz('./emissions-inventories/RCP/RCP_all_files.zip', 'regional_average_SO2_1960.dat'))
+# set wd to REAS folder  
+setwd( './emissions-inventories/RCP')
 
-RCP_df_list <- lapply(X=RCP_list_filepaths,FUN=read.table,strip.white = TRUE,header=TRUE,skip = 4,fill=TRUE)
+# create temporary folder to extract zipped files
+zipfile_path <- paste0('./',em,'.zip')
+dir.name <- './temp_folder'
+dir.create(dir.name)
+# unzip files to temp folder  
+unzip(zipfile_path, exdir = dir.name)
+
+# list files in the folder
+files <- list.files(paste0('./temp_folder/',em)  ,pattern = '.dat')
+files <- paste0('./temp_folder/',em,'/',files)
+
+rcp_files <- list()
+for (i in seq_along(rcp_years)){
+  rcp_files[i] <- files[grep(rcp_years[i], files)] 
+}
+rcp_files <- unlist(rcp_files)
+
+RCP_df_list <- lapply(X=rcp_files,FUN=read.table,strip.white = TRUE,header=TRUE,skip = 4,fill=TRUE)
+
 for (i in seq_along(rcp_years)){
   RCP_df_list[[i]]$year <- rcp_years[i]
 }
 RCP_df <- do.call("rbind", RCP_df_list)
 
-setwd('../diagnostic-output')
+# delete temp folder
+unlink(dir.name,recursive = TRUE)
 
+setwd('../')
+setwd('../')
+setwd('../diagnostic-output')
 # ---------------------------------------------------------------------------
 # 2. Process RCP Emissions Data
 
