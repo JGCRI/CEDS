@@ -26,7 +26,7 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R", 'interpolation_extention_functions.R') # Any additional function files required
-log_msg <- "Initial reformatting of the EMEP level 2 Emissions" # First message to be printed to the log
+log_msg <- "Initial reformatting of REAS Emissions" # First message to be printed to the log
 script_name <- "E.REAS_emissions.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
@@ -139,13 +139,18 @@ initialize( script_name, log_msg, headers )
    
    # bind all data together and cast to wide format 
    reas_data <- do.call("rbind", reas_data_list)
+   reas_data$iso <- tolower( reas_data$country )  # lowercase ISO
    
-   reas_data_wide <- cast(reas_data, sub_region + country + sector + fuel_type + units  ~ year,  value = 'emissions')
+   reas_data_wide <- cast(reas_data, sub_region + iso + sector + fuel_type + units  ~ year,  value = 'emissions')
  
   # ------------------------------------------------------------------------------
   # 5. Output
   # Write Data: 
     writeData(reas_data_wide, domain = "MED_OUT", fn = paste0( "E.", em, "_REAS_inventory" ), meta = TRUE )
+  
+  # Diagnostic files: 
+    writeData( unique( reas_data$iso ) , domain = "DIAG_OUT", fn = paste0( "E.", em, "_REAS_countries" ), meta = FALSE )
+    writeData( unique( reas_data$sector ) , domain = "DIAG_OUT", fn = paste0( "E.", em, "_REAS_sectors" ), meta = FALSE )
   
   # Every script should finish with this line-
     logStop()
