@@ -444,9 +444,14 @@ $(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv : \
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
-$(MED_OUT)/E.$(EM)_EMEP_inventory.csv : \
+$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv : \
 	$(MOD_E)/E.EMEP_emissions.R
-	Rscript $< $(EM) --nosave --no-restore
+	Rscript $< $(EM) NFR09 --nosave --no-restore
+
+# ee1-2
+$(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv : \
+	$(MOD_E)/E.EMEP_emissions.R
+	Rscript $< $(EM) NFR14 --nosave --no-restore
 
 # ee1-2
 $(MED_OUT)/E.$(EM)_REAS_inventory.csv : \
@@ -461,13 +466,15 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 	$(MOD_F)/F1.1.CAN_scaling_olderData.R \
 	$(MOD_F)/F1.1.CAN_scaling_newerData.R \
 	$(MOD_F)/F1.1.UNFCCC_scaling.R \
-	$(MOD_F)/F1.1.EMEP_scaling.R \
+	$(MOD_F)/F1.1.EMEP_NFR09_scaling.R \
+	$(MOD_F)/F1.1.EMEP_NFR14_scaling.R \
 	$(MOD_F)/F1.1.Edgar_scaling.R \
 	$(MOD_F)/F1.1.south_korea_scaling.R \
 	$(MOD_F)/F1.1.Japan_scaling.R \
 	$(MOD_F)/F1.1.argentina_scaling.R \
 	$(PARAMS)/emissions_scaling_functions.R \
-	$(MED_OUT)/E.$(EM)_EMEP_inventory.csv \
+	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \
+	$(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(SC_MAPPINGS)/UNFCCC_scaling_mapping.xlsx \
