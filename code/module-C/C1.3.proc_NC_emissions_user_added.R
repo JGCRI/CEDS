@@ -32,14 +32,14 @@ PARAM_DIR <- "../code/parameters/"
 headers <- c( "data_functions.R", "process_db_functions.R", 
               'interpolation_extention_functions.R' ) # Additional function files required.
 log_msg <- "Integration of process emissions data" # First message to be printed to the log
-script_name <- "C1.3.replace_NC_emissions_user_added.R"
+script_name <- "C1.3.proc_NC_emissions_user_added.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NOx"
+if ( is.na( em ) ) em <- "SO2"
 em_lc <- tolower( em )
 
 # ------------------------------------------------------------------------------
@@ -73,12 +73,19 @@ emissions_extended <- lapply( X= emissions_list, FUN = interpolateValues)
 
 emissions <- do.call("rbind.fill", emissions_extended)
 
+if ( is.null( emissions ) ) emissions <- data.frame( iso = character(0),
+                                                     sector = character(0),
+                                                     fuel = character(0),
+                                                     units = character(0),
+                                                     X1960 = numeric(0))
+
+
 # write out to diagnostic
 writeData(emissions, 'MED_OUT', paste0('C.',em,'_NC_emissions_user_added'))
 # ---------------------------------------------------------------------------
 # 2. Add to existing parameter Dbs
 
-if( length(emissions)>0 ){
+if( nrow(emissions)>0 ){
   printLog(paste('Adding new data to process emissions for', em))
   addToDb_overwrite(new_data = emissions, em = em, module = 'C',file_extention = 'NC_emissions') 
 }else{
