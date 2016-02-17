@@ -96,6 +96,10 @@ bond <- bcoc_historical
 names(bond) <- c("Region","Country", "Fuel" ,"Tech","Sector" ,"Year" ,
                             "Fuel_kt" ,"BC_kt", "OC_kt" )
 
+# convert natural gas from TJ to kt
+bond[ which( bond$Fuel == " Natural Gas    "), 'Fuel_kt'] <- bond[ 
+  which( bond$Fuel == " Natural Gas    "), 'Fuel_kt']/conversionFactor_naturalgas_TJ_per_kt
+
 # map to ceds_fuel
 bond$ceds_fuel <- fuel_map[ match(bond$Fuel,fuel_map$Fuel),'fuel']
 

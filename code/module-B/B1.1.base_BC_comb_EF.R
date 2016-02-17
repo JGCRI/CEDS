@@ -108,8 +108,13 @@ region_country_map <- unique(bcoc_historical[,c("Region","Country")])
 iso_region_country_map <- iso_map
 iso_region_country_map$Region  <- region_country_map[ match(iso_region_country_map$Country, region_country_map$Country ) , 
                                                       'Region']
-
 bcoc_historical_efs <- bcoc_historical_regions[which(bcoc_historical_regions$Year >= 1960),]
+
+# convert natural gas from TJ to kt
+bcoc_historical_efs[ which( bcoc_historical_efs$Fuel == " Natural Gas    "), 'Fuel_kt'] <- bcoc_historical_efs[ 
+                          which( bcoc_historical_efs$Fuel == " Natural Gas    "), 'Fuel_kt']/conversionFactor_naturalgas_TJ_per_kt
+
+# calculate ef
 bcoc_historical_efs$BC_ef <- bcoc_historical_efs$BC_kt/bcoc_historical_efs$Fuel_kt
 bcoc_historical_efs$OC_ef <- bcoc_historical_efs$OC_kt/bcoc_historical_efs$Fuel_kt
 bcoc_historical_efs <- bcoc_historical_efs[, c( "Region","Fuel" ,"Tech",
@@ -135,6 +140,8 @@ bc_sectors <- cast( bcoc_efs_sectors , Region + sector + fuel ~ Year, value = 'B
 bc_sectors <- interpolate_extend(bc_sectors)
 bc_sectors <- bc_sectors[complete.cases(bc_sectors[, X_bond_years]),]
 
+# aggregate
+
 bc_sectors$aggregate_sector <- sector_level_map[  match(bc_sectors$sector , sector_level_map$working_sectors_v1 )
                                                         ,'aggregate_sectors']
 
@@ -148,6 +155,9 @@ bc_agg_sectors <- aggregate( bc_sectors[,X_bond_years] ,
                                              agg_sector = bc_sectors$aggregate_sector,
                                              fuel = bc_sectors$fuel) ,
                                   FUN = mean )
+
+
+
 
 # ------------------------------------------------------------------------------
 # 4. Map to iso and region
