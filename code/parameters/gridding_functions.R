@@ -602,6 +602,11 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
 # output: 
 final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_species, sector_list, sector_list_long, mass = F ) {
   
+  # 0 set up some basics for later use
+  global_grid_area <- grid_area( grid_resolution, all_lon = T )
+  flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
+  Days_in_Month <- c( 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 )
+  
   # process emission grids from low level sectors to high level sectors 
   # and adding seasonality ( except RCO )
   # first, aggregate to higher level
@@ -614,25 +619,55 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   TRA_em_global_final <- NRTR_em_global + ROAD_em_global
   # second, add seasonality
   temp_sector_list <- sector_list[ !sector_list == 'RCO' ]
+  
+  checksum_sector_list <- c( )
+  checksum_total_emission_list <- c( )
   for ( sector in temp_sector_list ) {
     seasonality <- get_seasonalityFrac( em_species, sector )
+    seasonality_adjustment <- array( dim = dim( seasonality) )
+    for ( i in 1: dim( seasonality )[ 3 ]  ) {
+      seasonality_adjustment[ , , i ] <- seasonality[ , , i ] * Days_in_Month[ i ]
+      seasonality_adjustment[ , , i ] <- seasonality_adjustment[ , , i ] * 12
+      }
+    seasonality_adjustment <- apply( seasonality_adjustment, c( 1, 2 ), sum )
+    seasonality_adjustment <- 365 / seasonality_adjustment
+    seasonality_adjustment[ is.infinite( seasonality_adjustment ) ] <- 0
     temp_annual_data_name <- paste0( sector, '_em_global_final' )
     annual_data <- get( temp_annual_data_name )
-    temp_array_data <- c()
-    for ( i in 1 : dim( seasonality )[ 3 ] ) {
-      temp_array_data <- cbind( temp_array_data, annual_data * seasonality[, , i ] )
+    temp_array <- array( dim = dim( seasonality ) )
+    checksum_total_emission_each_month_list <- c( )
+    for ( i in 1 : dim( temp_array )[ 3 ] ) {
+      temp_array[ , , i ] <- annual_data * seasonality[, , i ] * seasonality_adjustment * 12
+      checksum_total_emission <- sum( temp_array[ , , i ] / flux_factor / 12 / seasonality_adjustment, na.rm = T )
+      checksum_total_emission_each_month_list <- c( checksum_total_emission_each_month_list, checksum_total_emission )
     }
-    temp_array <- array( temp_array_data, dim = c( 180/grid_resolution, 360/grid_resolution, dim( seasonality )[ 3 ]) )
     assign( temp_annual_data_name, temp_array )
+    checksum_total_emission_list <- c( checksum_total_emission_list, checksum_total_emission_each_month_list )
+    checksum_sector_list <- c( checksum_sector_list, rep( sector, 12 ) )
     }
   # special treatment for RCO 
   seasonality <- get_seasonalityFrac( em_species, 'RCO' )
-  temp_array_data <- c( )
-  for ( i in 1 : dim( seasonality )[ 3 ] ) {
-    temp_array_data <- cbind( temp_array_data, RCORC_em_global * seasonality[, , i ] + RCOO_em_global * RCOO_seasonality[ , , i ] )
+  seasonality_adjustment <- array( dim = dim( seasonality) )
+    
+  for ( i in 1: dim( seasonality )[ 3 ]  ) {
+    seasonality_adjustment[ , , i ] <- seasonality[ , , i ] * Days_in_Month[ i ]
+    seasonality_adjustment[ , , i ] <- seasonality_adjustment[ , , i ] * 12
+    }
+  seasonality_adjustment <- apply( seasonality_adjustment, c( 1, 2 ), sum )
+  seasonality_adjustment <- 365 / seasonality_adjustment
+  seasonality_adjustment[ is.infinite( seasonality_adjustment ) ] <- 0
+  
+  temp_array <- array( dim = dim( seasonality ) )
+  checksum_total_emission_each_month_list <- c( )
+  for ( i in 1 : dim( temp_array )[ 3 ] ) {
+    temp_array[ , , i ] <- RCORC_em_global * seasonality[, , i ] * seasonality_adjustment * 12 + RCOO_em_global * RCOO_seasonality[ , , i ] * 12 * 1
+    checksum_total_emission <- sum( temp_array[ , , i ] / flux_factor / 12 / seasonality_adjustment, na.rm = T )
+    checksum_total_emission_each_month_list <- c( checksum_total_emission_each_month_list, checksum_total_emission )
+    
   }
-  RCO_em_global_final <- array( temp_array_data, dim = c( 180/grid_resolution, 360/grid_resolution, dim( seasonality )[ 3 ] ) )
-
+  RCO_em_global_final <- temp_array
+  checksum_total_emission_list <- c( checksum_total_emission_list, checksum_total_emission_each_month_list )
+  checksum_sector_list <- c( checksum_sector_list, rep( 'RCO', 12 ) )
   
   data_list <- paste0( sector_list, '_em_global_final')
   
@@ -739,17 +774,8 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   ncatt_put( nc_new, 0, 'host', 'TBD' )
   ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
   ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
-  # another global attribute needs a little bit computation: global_total_emission 
-  global_grid_area <- grid_area( grid_resolution, all_lon = T )
-  flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
-  # use flux_factor to convert flux matrix back to annual mass matrix (in kt ), 
-  # then sum for each sector then sum all sectors to get global_total_emission for that year then convert to Tg
-  global_total_emission <- sum( unlist( lapply( data_list, function( data_in_list ) { 
-    each_data <- get( data_in_list )
-    each_data <- apply( each_data, MARGIN = c( 1, 2 ), sum ) 
-    mass_sum <- sum( each_data  / flux_factor )  
-    } ) ) )
-  global_total_emission <- global_total_emission * 0.001
+
+  global_total_emission <- sum( checksum_total_emission_list ) * 0.001
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2), ' Tg/year' ) )
   
     
@@ -757,22 +783,11 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   nc_close( nc_new)
   
   # additional section: write a summary and check text
-  global_total <- c()
-  em_global_sectors <- c()
-  for ( em_global_data in data_list ) {
-    em_global_sector <- unlist( strsplit( em_global_data, split = '_' ) ) [ 1 ]
-    eval( parse( text = paste0( 'temp_data <- ', em_global_data ) ) )
-    for ( i in 1: dim( temp_data )[ 3 ]  ) {
-      temp_data[ , , i ] <- temp_data[ , , i ] / flux_factor
-      }
-    total <- apply( temp_data, MARGIN = 3, sum ) 
-    global_total <- c( global_total, total )
-    em_global_sectors <- c( em_global_sectors, rep( em_global_sector, dim( temp_data )[ 3 ] ) )
-  }
+
   summary_table <- data.frame( year = year, species = em_species, 
-                               sector = em_global_sectors,
+                               sector = checksum_sector_list,
                                month = rep( 1 : 12, length( sector_list ) ),
-                               global_total = global_total,
+                               global_total = checksum_total_emission_list,
                                unit = 'kt' )
   summary_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
   write.csv( summary_table, file = summary_name, row.names = F )
