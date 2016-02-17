@@ -6,7 +6,7 @@
 #                  and activity databases, and use them to generate the base process
 #                  emissions factors database.
 # Input Files: A.NC_activity.csv, C.[em]_NC_emissions.csv
-# Output Files: C.[em]_NC_EF_db.csv
+# Output Files: C.[em]_NC_EF.csv
 # Notes: 
 # TODO:
 #-------------------------------------------------------------------------------
@@ -30,7 +30,7 @@
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( "data_functions.R" ) # Additional function files required.
+    headers <- c( "data_functions.R") # Additional function files required.
     log_msg <- "Generation of process emissions factors" # First message to be printed to the log
     script_name <- "C2.1.base_NC_EF.R"
     
@@ -42,13 +42,14 @@
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CH4"
+if ( is.na( em ) ) em <- "NOx"
 em_lc <- tolower( em )
 
 activity_data <- readData( "MED_OUT", "A.NC_activity" )
 
 emissions_data_read <- readData( "MED_OUT", paste0( "C.", em, "_NC_emissions" ) )
 
+emissions_replaced <- readData( "MED_OUT", paste0('C.',em,'_NC_emissions_user_added') )
 # ------------------------------------------------------------------------------
 # 2. Generate emissions factors and extendForward (constant) as necessary
 
@@ -110,23 +111,53 @@ if( length ( check ) > 0 ) {
  new_efs[ X_emissions_years ] <- replace( new_efs[ X_emissions_years ] , is.na(new_efs[ X_emissions_years ]), 0)
  new_efs[ X_emissions_years ] <- replace( new_efs[ X_emissions_years ] , new_efs[ X_emissions_years ] == 'Inf', 0)
  
+ # ------------------------------------------------------------------------------
+ # 3. Correct Edgar Emissions Factors
+ 
+ # Fix Edgar EFs
  temp_EDGAR_end_year = EDGAR_end_year
+ EDGAR_replace_years <- paste0('X',(temp_EDGAR_end_year+1):end_year)
+ 
  # Re-set EDGAR end-year if are still using EDGAR 4.2
  if( em == "CH4" ) temp_EDGAR_end_year = 2008
  
  new_efs_corrected <- new_efs[,c('iso','sector','fuel','units',paste0('X',start_year:temp_EDGAR_end_year))]
- 
-#Extend EFs as constant after EDGAR end date
-new_efs_corrected[,paste0('X',(temp_EDGAR_end_year+1):end_year)] <- new_efs[ , paste0( 'X', temp_EDGAR_end_year )  ]
 
-#Extend EFs as constant before EDGAR start date
-new_efs_corrected[ , paste0( 'X', start_year:( EDGAR_start_year - 1 ) ) ] <- new_efs[ , paste0( 'X', EDGAR_start_year )  ]
+  #Extend EFs as constant after EDGAR end date
+  new_efs_corrected[,EDGAR_replace_years] <- new_efs[ , paste0( 'X', temp_EDGAR_end_year )  ]
+  
+  #Extend EFs as constant before EDGAR start date
+  new_efs_corrected[ , paste0( 'X', start_year:( EDGAR_start_year - 1 ) ) ] <- new_efs[ , paste0( 'X', EDGAR_start_year )  ]
+  
+  # replace EF that remained unchaned (replaced in C1.3.proc_NC_emissions_user_added.R)
+  new_efs_corrected_user_added <-  new_efs_corrected
+  replaced_years <- melt( emissions_replaced , id.vars = c('iso', 'sector', 'fuel', 'units'))
+  replaced_years$variable <- as.character(replaced_years$variable)
+  replaced_years <- replaced_years[which( replaced_years$variable %in% EDGAR_replace_years),c('iso','sector','variable')]
+  
+  if( nrow(replaced_years)>0 ){  
+  extend_replaced_emissions <- emissions_replaced
+  extend_replaced_emissions[ X_emissions_years[X_emissions_years %!in% names(extend_replaced_emissions)] ] <- NA
+  extend_replaced_emissions <- extend_replaced_emissions[, c( 'iso','sector','fuel','units', X_emissions_years ) ]
+  
+  extend_replaced_efs <- extend_replaced_emissions
+  extend_replaced_efs <- replaceValueColMatch(extend_replaced_efs  , new_efs,
+                                              match.x = c('iso','sector'),
+                                              x.ColName = X_emissions_years,
+                                              addEntries = FALSE)
+  extend_replaced_efs <- replace( extend_replaced_efs, is.na(extend_replaced_emissions), NA)
+  
+  new_efs_corrected_user_added <- replaceValueColMatch(new_efs_corrected_user_added,extend_replaced_efs,
+                                               match.x = c('iso','sector','fuel','units'),
+                                               x.ColName = X_emissions_years[X_emissions_years %!in% EDGAR_replace_years],
+                                               addEntries = FALSE )
+}
 
 
 # --------------------------------------------------------------------------------------------
 # 3. Output
 
-writeData( new_efs_corrected, domain = "MED_OUT", fn = paste0( "C.", em, "_", "NC", "_EF_db" ) )
+writeData( new_efs_corrected_user_added, domain = "MED_OUT", fn = paste0( "C.", em, "_", "NC", "_EF" ) )
 
 logStop()
 # END
