@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A1.1.UN_pop_WB_HYDE_extension.R
 # Author: Linh Vu, Rachel Hoesly
-# Date Last Updated: 21 January 2016
+# Date Last Updated: 17 February 2016
 # Program Purpose: Produce input population data for CEDS emissions system from
 #                  United Nations data, World Bank (WB) data, and the History 
 #                  Database of the Global Environment (HYDE) data. 
@@ -44,7 +44,7 @@
 #           -- Currently use this routine to generate population for Serbia
 #           and Montenegro, Czechoslovakia, Netherlands Antilles, and
 #           Belgium-Luxembourg.
-# TODO: Fix 1950-1900 interpolation. Update extendProxy() function.
+# TODO: Update extendProxy() function.
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -466,9 +466,8 @@
       pop_master_HYDE_a$urban_share_HYDE[ pop_master_HYDE$year <= CONVERGENCE_YEAR ]
 
     
-# 4b. For 1901-1949, linearly interpolate 1950 UN/WB so that it matches HYDE in 1900. 
-#   TODO: Change 1950 to 1900 interpolation to linearly interpolate only the delta
-#   e.g. POP(yr) = POP(hyde) + 1950Delta * (yr - 1900)/(1950-1900)
+# 4b. For 1901-1949, linearly interpolate 1950 UN/WB so that it matches HYDE in 1900 
+#   Formula: POP(yr) = POP(hyde) + 1950Delta * (yr - 1900)/(1950-1900)
     pop_master_HYDE_b <- pop_master_HYDE_a
     
     # Interpolate population
@@ -476,10 +475,10 @@
     scaled <- ddply( scaled, .(iso), function( df ){
       within( df, { 
         pop[ year >= CONVERGENCE_YEAR & year < HYDE_comp_year ] <- 
-          pop[ year == CONVERGENCE_YEAR ] + 
-          ( pop[ year == HYDE_comp_year ] - pop[ year == CONVERGENCE_YEAR ] ) / 
-          ( HYDE_comp_year - CONVERGENCE_YEAR ) * 
-          ( year[ year >= CONVERGENCE_YEAR & year < HYDE_comp_year ] - CONVERGENCE_YEAR )
+          pop_HYDE[ year >= CONVERGENCE_YEAR & year < HYDE_comp_year ] + 
+          ( pop[ year == HYDE_comp_year ] - pop_HYDE[ year == HYDE_comp_year ] ) * 
+          ( year[ year >= CONVERGENCE_YEAR & year < HYDE_comp_year ] - CONVERGENCE_YEAR ) / 
+          ( HYDE_comp_year - CONVERGENCE_YEAR )
         } )
     } )
     pop_master_HYDE_b <- bind_rows( filter( pop_master_HYDE_b, year > HYDE_comp_year ), 
@@ -490,10 +489,10 @@
     scaled <- ddply( scaled, .(iso), function( df ){
       within( df, { 
         urban_share[ year >= CONVERGENCE_YEAR & year < HYDE_comp_year ] <- 
-          urban_share[ year == CONVERGENCE_YEAR ] + 
-          ( urban_share[ year == HYDE_comp_year ] - urban_share[ year == CONVERGENCE_YEAR ] ) / 
-          ( HYDE_comp_year - CONVERGENCE_YEAR ) * 
-          ( year[ year >= CONVERGENCE_YEAR & year < HYDE_comp_year ] - CONVERGENCE_YEAR )
+          urban_share_HYDE[ year >= CONVERGENCE_YEAR & year < HYDE_comp_year ] + 
+          ( urban_share[ year == HYDE_comp_year ] - urban_share_HYDE[ year == HYDE_comp_year ] ) * 
+          ( year[ year >= CONVERGENCE_YEAR & year < HYDE_comp_year ] - CONVERGENCE_YEAR ) / 
+          ( HYDE_comp_year - CONVERGENCE_YEAR )
       } )
     } )
     pop_master_HYDE_b <- bind_rows( filter( pop_master_HYDE_b, year > HYDE_comp_year ), 

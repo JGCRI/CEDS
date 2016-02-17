@@ -81,11 +81,14 @@ if ( is.na( em ) ) em <- "NH3"
   # EDGAR 4.2
   if ( em %in% c('CH4') ) scripts <- c(scripts, 'F1.1.Edgar_scaling.R')
   
+  # EMEP NFR09 (older data - use because has more sectors and goes back further)
+  if ( em %in% c('CO','NH3','NMVOC','NOx','SO2') ) scripts <- c(scripts,'F1.1.EMEP_NFR09_scaling.R' )
+  
+  # EMEP NFR14
+  if ( em %in% c('CO','NH3','NMVOC','NOx','SO2') ) scripts <- c(scripts, 'F1.1.EMEP_NFR14_scaling.R')
+  
   # UNFCCC
   if ( em %in% c('SO2','CO','NMVOC','NOx') ) scripts <- c(scripts, 'F1.1.UNFCCC_scaling.R')
-  
-  # EMEP
-  if ( em %in% c('CO','NH3','NMVOC','NOx','SO2') ) scripts <- c(scripts, 'F1.1.EMEP_scaling.R')
   
   # CAN
   if ( em %in% c('SO2','NOx','NMVOC','CO','PM10','PM25' ) ) scripts <- c(scripts, 'F1.1.CAN_scaling_olderData.R')
