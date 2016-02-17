@@ -403,13 +403,15 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 # cc1-2
 $(MED_OUT)/C.$(EM)_NC_emissions.csv : \
 	$(MOD_C)/C1.3.proc_NC_emissions.R \
+	$(MOD_C)/C1.3.proc_NC_emissions_user_added.R \
 	$(MED_OUT)/C.$(EM)_NC_emissions_db.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(MED_OUT)/A.NC_activity.csv
 	Rscript $< $(EM) --nosave --no-restore
+	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 
 # cc2-1
-$(MED_OUT)/C.$(EM)_NC_EF_db.csv : \
+$(MED_OUT)/C.$(EM)_NC_EF.csv : \
 	$(MOD_C)/C2.1.base_NC_EF.R \
 	$(MED_OUT)/A.NC_activity.csv \
 	$(MED_OUT)/C.$(EM)_NC_emissions.csv
@@ -424,7 +426,7 @@ $(MED_OUT)/D.$(EM)_default_total_emissions.csv : \
 	$(MED_OUT)/A.comb_activity.csv \
 	$(MED_OUT)/A.NC_activity.csv \
 	$(MED_OUT)/B.$(EM)_comb_EF_db.csv \
-	$(MED_OUT)/C.$(EM)_NC_EF_db.csv
+	$(MED_OUT)/C.$(EM)_NC_EF.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 # dd1-2

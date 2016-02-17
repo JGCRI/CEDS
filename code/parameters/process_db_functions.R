@@ -495,7 +495,8 @@ addToEmissionsDb_overwrite <- function( df, em, type ){
 # Return:           none
 # Input files:      B.[em]_xxxxx_db.csv, common_data.R
 # Output files:     B.[em]_xxxxx_db.csv
-addToDb_overwrite <- function( new_data, em, file_extention, addEntries = FALSE ){
+addToDb_overwrite <- function( new_data, em, file_extention, module = 'B',
+                               addEntries = FALSE ){
   printLog ("Adding new data to database")
   
   #   Read in necessary files and data: common_data.r required 
@@ -505,7 +506,7 @@ addToDb_overwrite <- function( new_data, em, file_extention, addEntries = FALSE 
   source( paste( PARAM_DIR, "timeframe_functions.R", sep = "" ) )
   source( paste( PARAM_DIR, "data_functions.R", sep = "" ) )
   
-  original_db <- readData( "MED_OUT", paste0( "B.", em, "_", file_extention ) )
+  original_db <- readData( "MED_OUT", paste0( module,".", em, "_", file_extention ) )
   n.observations <- nrow(original_db)
   
   # Check units
@@ -562,6 +563,6 @@ addToDb_overwrite <- function( new_data, em, file_extention, addEntries = FALSE 
   if ( n.observations != nrow(results)) stop("Outbut Database is not the same length as original DB. Duplicates in addToDb_overwrite.")
   
   # Output
-  writeData( results, domain = "MED_OUT", fn = paste0( "B.", em, "_", file_extention))
+  writeData( results, domain = "MED_OUT", fn = paste0( module,".", em, "_", file_extention))
   }
 

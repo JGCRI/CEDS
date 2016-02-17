@@ -51,7 +51,7 @@ comb_energy_data <- readData( "MED_OUT", "A.comb_activity" )
 comb_ef_data  <- readData( "MED_OUT", paste0("B.", em, "_comb_EF_db" ) )
 
 nc_energy_data <- readData( "MED_OUT", "A.NC_activity" )
-nc_ef_data  <- readData( "MED_OUT", paste0("C.", em, "_NC_EF_db" ) )
+nc_ef_data  <- readData( "MED_OUT", paste0("C.", em, "_NC_EF" ) )
 
 
 # Check input files for correct naming
