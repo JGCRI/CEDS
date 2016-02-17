@@ -139,6 +139,11 @@ initialize( script_name, log_msg, headers )
    
    # bind all data together and cast to wide format 
    reas_data <- do.call("rbind", reas_data_list)
+   
+   # Remove province/state level data and only keep country totals
+   reas_data <- reas_data[ which( reas_data$sub_region == "WHOL" ), ]
+
+   
    reas_data$iso <- tolower( reas_data$country )  # lowercase ISO
    
    reas_data_wide <- cast(reas_data, sub_region + iso + sector + fuel_type + units  ~ year,  value = 'emissions')
