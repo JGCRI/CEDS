@@ -41,7 +41,7 @@ if ( is.na( em ) ) em <- "NOx"
 headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R", "analysis_functions.R",
               "interpolation_extention_functions.R" ) # Additional function files required.
 log_msg <- "Modifying emissions factors from EMEP Level 1 inventory data" # First message to be printed to the log
-script_name <- paste0(em,"-F1.1.EMEP_scaling.R")
+script_name <- paste0(em,"-F1.1.EMEP_NFR14_scaling.R")
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -61,15 +61,15 @@ if ( em %!in% c('CO','NH3','NMVOC','NOx','SO2') ) {
 #   mapping method (by sector, fuel, or both), & the regions covered by
 #   the inventory (as a vector of iso codes)
 
-sector_fuel_mapping <- 'EMEP_scaling_mapping'
+sector_fuel_mapping <- 'EMEP_NFR14_scaling_mapping'
 
 # Use different mapping function if SO2 - scale back to default EFs
 if ( em == 'SO2' ) {
-  sector_fuel_mapping <- 'EMEP_scaling_mapping_SO2'
+  sector_fuel_mapping <- 'EMEP_NFR14_scaling_mapping_SO2'
 }
 
 mapping_method <- 'sector'
-inv_name <- 'EMEP'
+inv_name <- 'EMEP_NFR14'
 # Do not include regions with problematic inventories ("mda", "aze")
 # Do not include "can" since have higher resolution data to use
 region <- c("aut", "bel", "bgr", "che", "cyp", "cze", "deu",
@@ -83,7 +83,7 @@ inv_years<-c(1980:2013)
 # 1.5 Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
 
 # EMEP level 1 inventory is reformatted by the E2.EMEP_em_emissions_lvl1.R script
-inventory_data_file <- paste0("E.", em, "_EMEP_inventory")
+inventory_data_file <- paste0("E.", em, "_EMEP_NFR14_inventory")
 inv_data_folder <- "MED_OUT"
 
 # ------------------------------------------------------------------------------

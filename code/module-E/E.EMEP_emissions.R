@@ -27,8 +27,8 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R", 'interpolation_extention_functions.R') # Any additional function files required
-log_msg <- "Initial reformatting of the EMEP level 2 Emissions" # First message to be printed to the log
-script_name <- "E2.EMEP_emissions.R"
+log_msg <- "Initial reformatting of the EMEP Emissions" # First message to be printed to the log
+script_name <- "E.EMEP_emissions.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -63,9 +63,10 @@ if ( em %in% c('BC','CO','NH3','NMVOC','NOx','SO2') ){
   level <- 'LEVEL1'
   
 # SELECT Data Format
-  Em_Format <- "NFR09"
-  Em_Format <- "NFR14"
-
+  Em_Format <<- args_from_makefile[2]
+# if ( is.na( Em_Format ) ) Em_Format <- "NFR14"
+  if ( is.na( Em_Format ) ) Em_Format <- "NFR09"
+  
 # Create a List of EMEP Files
   inv_file_name <- paste0('EMEP_',Em_Format,'_', level , '_', em.read , ".txt" )
   
@@ -158,7 +159,7 @@ if ( Em_Format == 'NFR14' ) {
 # ------------------------------------------------------------------------------
   # 5. Output
   # Write Data: 
-    writeData(EMEP_emdf, domain = "MED_OUT", fn = paste0( "E.", em, "_EMEP_inventory" ), meta = TRUE )
+    writeData(EMEP_emdf, domain = "MED_OUT", fn = paste0( "E.", em, "_EMEP_",Em_Format,"_inventory" ), meta = TRUE )
   
   # Write Russian Data:
     writeData(EMEP_emRUS, domain = "MED_OUT", fn = paste0( "E.", em, "_EMEP_inventory_Russia" ),
