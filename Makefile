@@ -440,7 +440,7 @@ $(MED_OUT)/D.$(EM)_default_nc_emissions.csv : \
 	$(MED_OUT)/D.$(EM)_default_total_emissions.csv
 
 # ee1-1
-# Creates scaled emissions and emissions factors 
+# Creates formatted emissions inventory
 $(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv : \
 	$(MOD_E)/E.UNFCCC_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
@@ -463,7 +463,7 @@ $(MED_OUT)/E.$(EM)_REAS_inventory.csv : \
 # ff1-1a
 # Creates scaled emissions and emissions factors
 $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
-	$(MOD_F)/F1.1.inventory_scaling.R \
+	$(MOD_F)/F1.inventory_scaling.R \
 	$(MOD_F)/F1.1.US_scaling.R \
 	$(MOD_F)/F1.1.CAN_scaling_olderData.R \
 	$(MOD_F)/F1.1.CAN_scaling_newerData.R \

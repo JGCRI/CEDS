@@ -76,71 +76,72 @@ if( file.exists( file_path ) ){
 # UNFCCC is now a list of data frames. If there was no data, there will be 0 entries in the list.
 if( length( UNFCCC ) > 0 ){ # If there is data to process for this emissions species: 
 
-UNFCCC_clean <- UNFCCC
+	UNFCCC_clean <- UNFCCC
 
-for ( i in seq_along( UNFCCC_clean ) ){
-  df <- UNFCCC_clean[[ i ]]
+	for ( i in seq_along( UNFCCC_clean ) ){
+	  df <- UNFCCC_clean[[ i ]]
   
-  # Make a Variable called Sector
-  df$sector <- file_list[ i ]
+	  # Make a Variable called Sector
+	  df$sector <- file_list[ i ]
   
-  # Removes First Row
-  df <- df[ -1, ]
+	  # Removes First Row
+	  df <- df[ -1, ]
   
-  # Reformat Col Names
-  names <- as.character( unlist ( df[ 1, ] ) )
-  years<-paste( "X", names[ 3:( length( names ) - 1 ) ], sep = "" )
-  names[ 3:( length( names ) - 1 ) ] <- years
-  names[ length( names ) ] <- 'sector'
-  names[ 1 ] <- 'country'
-  names( df ) <- names
+	  # Reformat Col Names
+	  names <- as.character( unlist ( df[ 1, ] ) )
+	  years<-paste( "X", names[ 3:( length( names ) - 1 ) ], sep = "" )
+	  names[ 3:( length( names ) - 1 ) ] <- years
+	  names[ length( names ) ] <- 'sector'
+	  names[ 1 ] <- 'country'
+	  names( df ) <- names
   
-  # Remove First Row
-  df <- df[ -1, ]
+	  # Remove First Row
+	  df <- df[ -1, ]
   
-  # Creates Column for Units (Gg for SO2)
-  df$units <- "kt"
-  # Reoorder Columns of Interest
-  df<-df[ , c( 'country', 'sector', 'units', years ) ]
+	  # Creates Column for Units (Gg for SO2)
+	  df$units <- "kt"
+	  # Reoorder Columns of Interest
+	  df<-df[ , c( 'country', 'sector', 'units', years ) ]
   
-  # Remove All Information from Sectors Before "_" From File Name
-  df <- mutate( df, sector = as.character( sector ) )
-  df <- mutate( df, sector = sapply( strsplit( df$sector, split = '_', fixed = TRUE ), function( x ) ( x [ 2 ] ) ) )
+	  # Remove All Information from Sectors Before "_" From File Name
+	  df <- mutate( df, sector = as.character( sector ) )
+	  df <- mutate( df, sector = sapply( strsplit( df$sector, split = '_', fixed = TRUE ), function( x ) ( x [ 2 ] ) ) )
   
-  UNFCCC_clean[[i]]<-df
-  }
+	  UNFCCC_clean[[i]]<-df
+	  }
 
-# Make the List of Files 1 Data Frame
-UNFCCCdf <- do.call( rbind, UNFCCC_clean)
+	# Make the List of Files 1 Data Frame
+	UNFCCCdf <- do.call( rbind, UNFCCC_clean)
 
-# Convert Values to Numeric: Remove Commas in Formatting, then Convert to Numeric
-UNFCCCdf[ years ] <- apply( X=UNFCCCdf[ years ], MARGIN = 2, FUN = sub, pattern = ',', replacement = "" )
-UNFCCCdf[ years ] <- as.numeric( as.matrix( UNFCCCdf [ years ] ) )
+	# Convert Values to Numeric: Remove Commas in Formatting, then Convert to Numeric
+	UNFCCCdf[ years ] <- apply( X=UNFCCCdf[ years ], MARGIN = 2, FUN = sub, pattern = ',', replacement = "" )
+	UNFCCCdf[ years ] <- as.numeric( as.matrix( UNFCCCdf [ years ] ) )
 
-# Mapping Country Names to ISO Codes
-UNFCCCdf$iso <- MCL[ match( UNFCCCdf$country, MCL$UNFCCC ), 'iso' ]
+	# Mapping Country Names to ISO Codes
+	UNFCCCdf$iso <- MCL[ match( UNFCCCdf$country, MCL$UNFCCC ), 'iso' ]
 
-# Remove Unmapped Lines and Reorder
-UNFCCCdf <- UNFCCCdf[ complete.cases( UNFCCCdf$iso ), ]
+	# Remove Unmapped Lines and Reorder
+	UNFCCCdf <- UNFCCCdf[ complete.cases( UNFCCCdf$iso ), ]
 
-UNFCCCdf <- UNFCCCdf[ , c( 'iso','sector','units',years ) ]
-UNFCCCdf <- UNFCCCdf[ order( UNFCCCdf$iso, UNFCCCdf$sector ), ]
+	UNFCCCdf <- UNFCCCdf[ , c( 'iso','sector','units',years ) ]
+	UNFCCCdf <- UNFCCCdf[ order( UNFCCCdf$iso, UNFCCCdf$sector ), ]
 
-# ------------------------------------------------------------------------------
-# 3. Removed "Bad" Data
+	# ------------------------------------------------------------------------------
+	# 3. Removed "Bad" Data
 
-# Remove Canada, Russian Fed, Luxembourg, and Poland
-remove_iso <- c( 'can','rus','pol','lux' )
-UNFCCC <- UNFCCCdf[ -which( UNFCCCdf$iso %in% remove_iso ), ]
+	# Remove Canada, Russian Fed, Luxembourg, and Poland
+	remove_iso <- c( 'can','rus','pol','lux' )
+	UNFCCC <- UNFCCCdf[ -which( UNFCCCdf$iso %in% remove_iso ), ]
 
-# Drop Lines With Only NA Values
-drop <- which( apply( X = is.na( UNFCCC[ years ] ), MARGIN = 1, FUN = all ) == TRUE )
-UNFCCC <- UNFCCC[ -drop, ]
+	# Drop Lines With Only NA Values
+	drop <- which( apply( X = is.na( UNFCCC[ years ] ), MARGIN = 1, FUN = all ) == TRUE )
+	UNFCCC <- UNFCCC[ -drop, ]
 
 # ------------------------------------------------------------------------------
 # 4. Dummy files
 
-} else { # If length( UNFCCC) == 0 (if no data to process for this emissions species), create dummy file.
+} else { 
+# If length( UNFCCC) == 0 (if no data to process for this emissions species), create dummy file.
     UNFCCC <- data.frame()
 }
 
