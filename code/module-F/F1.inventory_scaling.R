@@ -90,6 +90,11 @@ if ( is.na( em ) ) em <- "NH3"
   # UNFCCC
   if ( em %in% c('SO2','CO','NMVOC','NOx') ) scripts <- c(scripts, 'F1.1.UNFCCC_scaling.R')
   
+  # REAS
+#  if ( em %in% c('SO2','CO','NMVOC','NOx', 'NH3', 'CH4') ) scripts <- c(scripts, 'F1.1.REAS_scaling.R')
+   # For now, until fix to check for zero data gets in, just scale with NH3 since its the only one with data
+   if ( em %in% c( 'NH3' ) ) scripts <- c(scripts, 'F1.1.REAS_scaling.R')
+
   # CAN
   if ( em %in% c('SO2','NOx','NMVOC','CO','PM10','PM25' ) ) scripts <- c(scripts, 'F1.1.CAN_scaling_olderData.R')
   # Newer data must run latter
@@ -115,9 +120,5 @@ if ( is.na( em ) ) em <- "NH3"
 
   invisible( lapply( scripts, source_child ) )
  
-  # Run diagnostics
-  source( "../code/diagnostic/Figures.R" )
-  source( "../code/diagnostic/Compare_to_RCP.R" )
-  
   logStop()
 # END

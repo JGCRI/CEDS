@@ -41,7 +41,7 @@ if ( is.na( em ) ) em <- "NOx"
 headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R", "analysis_functions.R",
               "interpolation_extention_functions.R" ) # Additional function files required.
 log_msg <- "Modifying emissions factors from EMEP Level 1 inventory data" # First message to be printed to the log
-script_name <- paste0(em,"-F1.1.EMEP_NFR14_scaling.R")
+script_name <- paste0(em,"-F1.1.EMEP_NFR09_scaling.R")
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
