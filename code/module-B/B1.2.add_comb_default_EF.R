@@ -62,7 +62,7 @@ EF_file_list <- files_list[grep(pattern = "_EF", files_list )]
 EF_file_list <- EF_file_list[-grep(pattern = "metadata", EF_file_list )]
 
 # select emission
-EF_file_list <- EF_file_list[grep(pattern = em, EF_file_list )]
+EF_file_list <- EF_file_list[grep(pattern = paste0( '\\.', em ), EF_file_list )]
 
 EF_list <- lapply ( X = EF_file_list, FUN = readData, 
                                  domain = "DEFAULT_EF_PARAM")
