@@ -48,7 +48,7 @@
   # Read in parameter files
   printLog('Loading EF parameter data files')
   
-  files_list <- list.files(path = './default_emissions_data/EF_parameters', pattern = '*.csv')
+  files_list <- list.files(path = './default-emissions-data/EF_parameters', pattern = '*.csv')
   files_list <- file_path_sans_ext( files_list )
   
   #select s content and ash ret files
