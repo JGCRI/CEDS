@@ -556,7 +556,7 @@ addToDb_overwrite <- function( new_data, em, file_extention, module = 'B',
   # Check for NAs
   if( na_error == 1){
     if( all(is.na(results[,X_emissions_years]) %in% FALSE) ){
-      printLog("Checking NAs... No NA's in original_db")} else  stop("Checking NAs... NA's in original_db. Check Code.")
+      printLog("Checking NAs... No NA's in new data")} else  stop("Checking NAs... NA's in new data. Check Code.")
   }
   
   # Check length
