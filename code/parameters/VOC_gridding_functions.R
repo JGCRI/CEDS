@@ -32,8 +32,12 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
 	  eval( parse( text = exp ) )
 	  exp <- paste0( 'WST_', VOC, '_em_global_final <- WST_', VOC, '_em_global' )
 	  eval( parse( text = exp ) )
+	  #####################################################
 	  exp <- paste0( 'SHP_', VOC, '_em_global_final <- SHP_', VOC, '_em_global' )
 	  eval( parse( text = exp ) )
+	  exp <- pasteo( 'SHP_', VOC, '_em_global_final <- matrix( 0, 360, 720 )' )
+	  #####################################################
+	  
 	  # second, add seasonality
     temp_sector_list <- sector_list[ !sector_list == 'RCO' ]
 
@@ -233,8 +237,10 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
 grid_one_year_subVOCs <- function( em_species, year, em_data, location_index, sector_list, grid_resolution, VOC_ratio_table, VOC_list, mass = F ) { 
   X_year <- paste0( 'X', year )
   emission_year <- em_data[ c( 'iso', 'CEDS_grd_sector', X_year ) ]
-  
+
   invisible( lapply( sector_list, grid_one_sector_subVOCs, em_species, year, location_index, grid_resolution, emission_year, VOC_ratio_table, VOC_list, mass ) )
+  
+  
   }
 # ------------------------------------------------------------------------------
 # grid_one_sector

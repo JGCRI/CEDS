@@ -278,11 +278,7 @@ grid_one_sector <- function( sector, em_species, year, location_index, grid_reso
   expressions <- paste0( 'temp_emission <<- aggregate_all_countries( ',sector, ', country_list, location_index, grid_resolution, mass = ', mass, ' )' )
   eval( parse( text = expressions ) )
   assign( output_name, temp_emission, .GlobalEnv )
-  #left_part <- paste0( sector, 'em_global' )
-  #mid_part <- ' <<- '
-  #right_part <- paste0( 'aggregate_all_countries( ',sector, ', country_list, location_index, grid_resolution, mass = ', mass, ' )' )
-  #expressions <- paste0( left_part, mid_part, right_part )
-  #eval( parse( text = expressions ) )
+
 }
 # ------------------------------------------------------------------------------
 # grid_one_year
@@ -297,8 +293,24 @@ grid_one_year <- function( em_species, year, em_data, location_index, sector_lis
   X_year <<- paste0( 'X', year )
   emission_year <<- em_data[ c( 'iso', 'CEDS_grd_sector', X_year ) ]
   
+  sector_list <- sector_list[ !sector_list == 'SHP' ]
   invisible( lapply( sector_list, grid_one_sector, em_species, year, location_index, grid_resolution, emission_year, mass ) )
-
+  
+  # SHP gridding
+  proxy <- get_proxy( em_species, year, 'SHP' )
+  emission_year_SHP <- subset( emission_year, emission_year$CEDS_grd_sector == 'SHP',
+                              c( 'iso', paste0( 'X', year ) ) )
+  emission_value <- sum( emission_year_SHP[, 2 ] )
+  proxy_weighted <- proxy * global_mask 
+  proxy_normlized <- proxy_weighted / sum( proxy_weighted )
+  SHP_em_global <- proxy_normlized * emission_value
+  if ( mass == F ) {
+    # generate the global_grid_area matrix for later calculation 
+    global_grid_area <- grid_area( grid_resolution, all_lon = T )
+    flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
+    SHP_em_global <<- SHP_em_global * flux_factor
+  }
+  
 }
 # ------------------------------------------------------------------------------
 # gridding_initialize
