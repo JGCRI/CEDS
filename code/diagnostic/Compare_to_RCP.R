@@ -77,14 +77,14 @@ setwd( './emissions-inventories/RCP')
 
 # create temporary folder to extract zipped files
 zipfile_path <- paste0('./',em,'.zip')
-dir.name <- './temp_folder'
+dir.name <- paste0('./',em,'_RCP_temp_folder')
 dir.create(dir.name)
 # unzip files to temp folder  
 unzip(zipfile_path, exdir = dir.name)
 
 # list files in the folder
-files <- list.files(paste0('./temp_folder/',em)  ,pattern = '.dat')
-files <- paste0('./temp_folder/',em,'/',files)
+files <- list.files(paste0(dir.name,'/',em)  ,pattern = '.dat')
+files <- paste0(dir.name,'/',em,'/',files)
 
 rcp_files <- list()
 for (i in seq_along(rcp_years)){
