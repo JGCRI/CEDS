@@ -163,6 +163,12 @@ F.invAggregate <- function( std_form_inv, region , mapping_method,
                     by.y = inv_matchcol_name)
   inv_data <- inv_data[ complete.cases (inv_data[,c(scaling_name)]),]
   
+  # create empty data frame is no data from scaling mapping
+  if( nrow( inv_data ) == 0 ) {
+    agg_inv_data <- data.frame( matrix ( ncol = length ( c ( 'iso' , scaling_name , X_inv_years ) ) , nrow=0 ) )
+    names( agg_inv_data ) <- c ( 'iso' , scaling_name , X_inv_years )    
+  } else {
+  
   # Perform aggregation    
   inv_data_long <- melt(inv_data[,c('iso',scaling_name,X_inv_years)], id = c('iso', scaling_name) )
   inv_data_long <- inv_data_long[complete.cases(inv_data_long[,c(scaling_name,'value')]),]
@@ -170,7 +176,7 @@ F.invAggregate <- function( std_form_inv, region , mapping_method,
   if ( method %in% c("sector","fuel") ) cast.formula <- paste('iso +', scaling_name , '~ variable')
   if ( method == "both" ) cast.formula <- 'iso + scaling_sector + scaling_fuel ~ variable'
   agg_inv_data <- cast(inv_data_long, cast.formula , sum)
- 
+  }
   return( agg_inv_data )
 }
 
@@ -304,6 +310,24 @@ F.scaling <- function( ceds_data, inv_data, region,
                        replacement_scaling_factor = max_scaling_factor,
                        meta = TRUE) {
 
+# by pass entire function if there is no inventory data
+  if ( nrow (inv_data) == 0 ){
+    printLog ( paste('There is no inventory for', em, 'emission species') )
+    
+    out <- data.frame( matrix ( ncol = length ( c('iso',scaling_name, 'year','scaling_factor')  ) , nrow=0 ) )
+    names(out) <- c('iso',scaling_name, 'year','scaling_factor')   
+    
+    scaling_ext <- data.frame( matrix ( ncol = length ( c('iso',scaling_name, X_inv_years )  ) , nrow=0 ) )
+    names(scaling_ext) <- c('iso',scaling_name, X_inv_years )   
+    
+    meta_notes <- data.frame( matrix ( ncol = length ( c('iso',scaling_name,'year','comment')  ) , nrow=0 ) )
+    meta_notes <- c('iso',scaling_name,'year','comment')
+    
+    list.out <- list(out, scaling_ext ,meta_notes)
+    names(list.out) <- c( 'scaling_factors', 'scaling_factors_wide' ,'meta_notes')
+               
+  } else{
+  
 #   ext_start_year = start_year 
 #   ext_end_year = end_year
 #   ext = TRUE 
@@ -1036,6 +1060,7 @@ F.scaling <- function( ceds_data, inv_data, region,
   
   list.out <- list(out, scaling_ext ,meta_notes)
   names(list.out) <- c( 'scaling_factors', 'scaling_factors_wide' ,'meta_notes')
+  }
   
   return(list.out)
     }
@@ -1054,6 +1079,18 @@ F.scaling <- function( ceds_data, inv_data, region,
 # output files: list of data frames containing scaled_em and scaled_ef
 
 F.applyScale <- function(scaling_factors){  
+  
+  if ( nrow (scaling_factors) == 0 ){
+  printLog ( paste('There is no inventory or scaling factors for', em, 'emission species.') )
+  
+  ef_scaled <- data.frame( matrix ( ncol = length ( c('iso','sector','fuel','year','scaled')  ) , nrow=0 ) )
+  names(ef_scaled) <- c('iso','sector','fuel','year','scaled')   
+  
+  em_scaled <- data.frame( matrix ( ncol = length ( c('iso','sector','fuel','year','scaled')  ) , nrow=0 ) )
+  names(em_scaled) <- c('iso','sector','fuel','year','scaled')   
+  
+  out <-  list(ef_scaled,em_scaled)
+  } else{
   
   printLog( "Applying scaling factors to CEDS EFs and emissions" )
   
@@ -1112,6 +1149,7 @@ F.applyScale <- function(scaling_factors){
   }
   
   out <-  list(ef_scaled,em_scaled)
+  }
   return(out)
 }
 
@@ -1240,6 +1278,13 @@ F.addScaledToDb <- function( ef_scaled, em_scaled,
                              meta_notes,
                              EM_old = input_em_read,
                              EF_old = input_ef_read){
+  
+  if ( nrow( ef_scaled ) == 0 ){
+    
+    printLog ( paste('There are no inventory data, scaling factors, or scaled emissions, for', em, 'emission species') )
+  
+  } else {
+  
   printLog( "Updating database with scaled emissions/emission factors." )
   
   # pre-scaled emissions and new emissions
@@ -1307,4 +1352,4 @@ F.addScaledToDb <- function( ef_scaled, em_scaled,
   # write
   F.write( scaled_ef = scaled_ef_out, scaled_em = scaled_em_out, domain = "MED_OUT")
   
-}
+}}

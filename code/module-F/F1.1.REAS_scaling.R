@@ -34,7 +34,7 @@ PARAM_DIR <- "../code/parameters/"
 # Get emission species first so can name log appropriately
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[1]
-if ( is.na( em ) ) em <- "NH3"
+if ( is.na( em ) ) em <- "CO"
   
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
@@ -61,7 +61,8 @@ if ( em %!in% c('CO','NH3','NMVOC','NOx','SO2', 'CH4') ) {
 #   mapping method (by sector, fuel, or both), & the regions covered by
 #   the inventory (as a vector of iso codes)
 
-sector_fuel_mapping <- 'REAS_scaling_mapping'
+# For the moment, scale just ag and wastewater sources
+sector_fuel_mapping <- 'REAS_scaling_mapping_AgrWaste'
 
 mapping_method <- 'sector'
 inv_name <- 'REAS'
