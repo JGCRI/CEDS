@@ -56,22 +56,22 @@ initialize( script_name, log_msg, headers )
     
   # set wd to REAS folder  
     setwd( './emissions-inventories/REAS_2.1')
-  
+    inv_name <- "REAS"
   # create temporary folder to extract zipped files
     zipfile_path <- paste0('./',em.read,'.zip')
-    dir.name <- './temp_folder'
+    dir.name <- paste0('./',em,'_',inv_name,'_temp_folder')
     dir.create(dir.name)
   # unzip files to temp folder  
     unzip(zipfile_path, exdir = dir.name)
     
   # list files in the folder
-    files <- list.files(paste0('./temp_folder/',em.read)  ,pattern = '.txt')
+    files <- list.files(paste0(dir.name,'/',em.read)  ,pattern = '.txt')
 
   # define function to read in and process single file
 
     read_process_reas <- function ( file_name ){
     # read files 
-    read_in_data <- read.table( paste0('./temp_folder/',em.read,'/',file_name) , stringsAsFactors = FALSE,
+    read_in_data <- read.table( paste0('./',em,'_',inv_name,'_temp_folder/',em.read,'/',file_name) , stringsAsFactors = FALSE,
                         col.names = paste('temp_col',1:22),
                         strip.white = T,
                         fill = T)
