@@ -50,26 +50,53 @@ loadPackage('tools')
 # ---------------------------------------------------------------------------
 # 1. Reading data and mapppings into script
 
+MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
+
 # Read in parameter files
 
-files_list <- list.files(path =  './default_emissions_data/Non_Combustion_emissions', pattern = '*.csv')
+files_list <- list.files(path =  './default-emissions-data/non-combustion-emissions', 
+                         pattern = '*.csv')
 files_list <- file_path_sans_ext( files_list )
 
 #de select meta-data
 if (length(grep(pattern = "metadata", files_list )) > 0)
-      files_list <- files_list[!grep(pattern = "metadata", files_list )]
+      files_list <- files_list[-grep(pattern = "metadata", files_list )]
 
 # select emission
-files_list <- files_list[grep(pattern = em, files_list )]
+files_list <- files_list[grep(pattern = paste0( '\\.', em ), files_list )]
 
 emissions_list <- lapply ( X = files_list, FUN = readData, 
                     domain = "DEFAULT_EF_IN" , 
-                    domain_extension = "Non_Combustion_emissions/")
+                    domain_extension = "non-combustion-emissions/")
 # ---------------------------------------------------------------------------
-# 2. Interpolate, convert list to one df
+# 2. Interpolate, select process-fuel, convert list to one df
+process_sectors <- MSL[which(MSL$type == 'NC'),'sector']
+
+process_emissions <- function( e_data ){
+  combustion_sectors <- c()
+  # sort the years
+  names <- names( e_data )
+  id <- names[-grep('X',names)]
+  years <- names[grep('X',names)]
+  years <- years[order(years)]
+  e_data <- e_data[,c( id, years )]
+  
+  e_data <- interpolateValues(e_data)
+  
+  combustion_sectors <- e_data[ which( e_data$sector %!in% process_sectors ) , ]
+  if (nrow(combustion_sectors) > 0 ) {
+    printLog(paste('Combustion sectors added inventory data to process emissions.',
+                   'Combustion data printed to diagnostic-output'))
+    
+    writeData(combustion_sectors, domain = 'DIAG_OUT', 
+              paste0('C.',em,'combustion_data_added_to_process_emissions')) }
+  
+  e_data <- e_data[ which( e_data$sector %in% process_sectors ) , ]
+  return(e_data)
+}
 
 # Expand all, interpolate and Extend forward and back
-emissions_extended <- lapply( X= emissions_list, FUN = interpolateValues)
+emissions_extended <- lapply( X= emissions_list, FUN = process_emissions)
 
 emissions <- do.call("rbind.fill", emissions_extended)
 
@@ -78,10 +105,8 @@ if ( is.null( emissions ) ) emissions <- data.frame( iso = character(0),
                                                      fuel = character(0),
                                                      units = character(0),
                                                      X1960 = numeric(0))
-
-
 # write out to diagnostic
-writeData(emissions, 'MED_OUT', paste0('C.',em,'_NC_emissions_user_added'))
+if (nrow ( emissions ) ) writeData(emissions, 'MED_OUT', paste0('C.',em,'_NC_emissions_user_added'))
 # ---------------------------------------------------------------------------
 # 2. Add to existing parameter Dbs
 
