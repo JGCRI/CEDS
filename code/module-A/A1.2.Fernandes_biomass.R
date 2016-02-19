@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A1.2.Fernandes_biomass.R
 # Author: Linh Vu
-# Date Last Updated: 18 February 2016
+# Date Last Updated: 19 February 2016
 # Program Purpose:  This program produces 1850-2013 time series of residential biomass 
 #                   consumption by country and fuel type from Fernandes biofuels data.
 #                   The program also produces fuel-weighted biomass conversion factors
@@ -128,6 +128,7 @@ initialize( script_name, log_msg, headers )
     raw[, X_Fernandes_years ] <- sapply( raw[, X_Fernandes_years ], 
                                          function( x ){ as.numeric( as.character( x ) ) } )
     raw$fuel <- str_trim( raw$fuel )
+    raw$units <- "kt"
     
 # Reshape from wide to long format; drop rows with NA and 0 biomass
     raw <- melt( raw, measure.vars = X_Fernandes_years )

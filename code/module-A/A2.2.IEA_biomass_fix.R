@@ -74,13 +74,11 @@ initialize( script_name, log_msg, headers )
     pop_master <- select( pop_master, iso, year, rural_pop ) %>% unique()
     names( pop_master ) <- c( "iso", "year", "pop2" )
 
-# Aggregate IEA residential biomass by country
+# Slice out IEA residential biomass
     IEA_biomass <- filter( IEA_en, sector == "1A4b_Residential", fuel == "biomass" ) %>%
       melt( measure = X_IEA_years )
     names( IEA_biomass )[ names( IEA_biomass ) %in% c( "variable", "value" ) ] <- c( "year", "IEA" )
     IEA_biomass$year <- xYearToNum( IEA_biomass$year )
-    IEA_biomass <- group_by( IEA_biomass, iso, units, year ) %>%
-      summarise( IEA = sum( IEA ) ) 
 
 # Aggregate Fernandes biomass by country
     Fern_biomass <- group_by( Fern_biomass, iso, units, year ) %>%
