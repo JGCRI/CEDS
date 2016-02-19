@@ -49,7 +49,7 @@ library('scales')
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
 
-PRINT_DEFAULTS <- TRUE
+PRINT_DEFAULTS <- FALSE
 PRINT_BIG_TABLES <- FALSE
 
 # ---------------------------------------------------------------------------
@@ -125,9 +125,9 @@ if ( PRINT_DEFAULTS ){
 # Total emissions by country and fuel
 
 Em_by_Country<-aggregate( TotalEmissions[ X_emissions_years ],
-                           by=list( Region =  DefaultEmissions$Region,
-                                    Country =  DefaultEmissions$Country,
-                                    iso = DefaultEmissions$iso,
+                           by=list( Region =  TotalEmissions$Region,
+                                    Country =  TotalEmissions$Country,
+                                    iso = TotalEmissions$iso,
                                     fuel =  TotalEmissions$fuel),sum )
 
 writeData( Em_by_Country, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_country_fuel'), meta = FALSE )
