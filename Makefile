@@ -9,8 +9,8 @@ MOD_S = code/module-S
 PARAMS = code/parameters
 SOCIO_DATA = input/general
 ENERGY_DATA = input/energy
-EF_DATA = input/default-emissions-data
-EF_PARAMETERS = input/default-emissions-data/EF_parameters
+EF_DATA = input/default_emissions_data
+EF_PARAMETERS = input/default_emissions_data/EF_parameters
 MAPPINGS = input/mappings
 EN_MAPPINGS = input/mappings/energy
 SC_MAPPINGS = input/mappings/scaling
@@ -110,7 +110,7 @@ clean-io :
 	rm -fv $(DOCS)/IO_documentation.csv
 
 clean-modA :
-	rm -fv $(MED_OUT)/A*.csv
+	rm -fv $(MED_OUT)/A*.csv \
 
 clean-modB :
 	rm -fv $(MED_OUT)/B*.csv \
@@ -127,24 +127,6 @@ clean-modE :
 
 clean-modF :
 	rm -fv $(MED_OUT)/F*.csv
-
-clean-SO2 :
-	rm -fv $(MED_OUT)/*SO2*.csv
-
-clean-NOx :
-	rm -fv $(MED_OUT)/*NOx*.csv
-
-clean-CH4 :
-	rm -fv $(MED_OUT)/*CH4*.csv
-
-clean-CO :
-	rm -fv $(MED_OUT)/*CO*.csv
-
-clean-NH3 :
-	rm -fv $(MED_OUT)/*NH3*.csv
-
-clean-OC :
-	rm -fv $(MED_OUT)/*OC*.csv
 
 # --------------------------------------------------------------
 
@@ -251,9 +233,22 @@ $(MED_OUT)/A.UN_pop_master.csv : \
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa1-2
+# Process Fernandes biomass data
+$(MED_OUT)/A.Fernandes_residential_biomass.csv : \
+	$(MOD_A)/A1.2.Fernandes_biomass.R \
+	$(MED_OUT)/A.UN_pop_master.csv \
+	$(ENERGY_DATA)/Fernandes_Biofuels_9.xlsx \
+	$(SOCIO_DATA)/biomass_heat_content.xlsx \
+	$(MAPPINGS)/Fernandes_proxy_country_mapping.csv
+	Rscript $< $(EM) --nosave --no-restore
+
+$(MED_OUT)/A.Fernandes_biomass_conversion.csv : \
+	$(MED_OUT)/A.Fernandes_residential_biomass.csv
+
+# aa1-3
 # Initial processing of IEA energy data
 $(MED_OUT)/A.IEA_en_stat_ctry_hist.csv : \
-	$(MOD_A)/A1.2.IEA_downscale_ctry.R \
+	$(MOD_A)/A1.3.IEA_downscale_ctry.R \
 	$(MED_OUT)/A.UN_pop_master.csv \
 	$(ENERGY_DATA)/OECD_E_Stat.csv \
 	$(ENERGY_DATA)/NonOECD_E_Stat.csv
@@ -264,15 +259,22 @@ $(MED_OUT)/A.IEA_en_stat_ctry_hist.csv : \
 # Corrects inconsistencies in residential biomass consumption
 $(MED_OUT)/A.en_stat_sector_fuel.csv : \
 	$(MOD_A)/A2.1.IEA_en_bal.R \
-	$(MOD_A)/A2.2.fix_IEA_biomass.R \
-	$(EN_MAPPINGS)/IEA_product_fuel.csv \
-	$(EN_MAPPINGS)/IEA_process_sectors.csv \
-	$(MED_OUT)/A.UN_pop_master.csv \
-	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
+	$(MOD_A)/A2.2.IEA_biomass_fix.R \
 	$(MED_OUT)/A.IEA_en_stat_ctry_hist.csv \
-	$(EN_MAPPINGS)/IEA_flow_sector.csv
+	$(EN_MAPPINGS)/IEA_flow_sector.csv \
+	$(EN_MAPPINGS)/IEA_product_fuel.csv \
+	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
+	$(ENERGY_DATA)/IEA_energy_balance_factor.csv \
+	$(MED_OUT)/A.Fernandes_biomass_conversion.csv \
+	$(MED_OUT)/A.Fernandes_residential_biomass.csv \
+	$(ENERGY_DATA)/Visschedijk_wooduse Europe TNO 4 Steve.xlsx \
+	$(ENERGY_DATA)/EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors.xlsx \
+	$(MED_OUT)/A.UN_pop_master.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
+
+$(MED_OUT)/A.residential_biomass_full.csv : \
+	$(MED_OUT)/A.en_stat_sector_fuel.csv
 
 # aa3-1
 # Extends IEA data with BP data
@@ -421,14 +423,12 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 # cc1-2
 $(MED_OUT)/C.$(EM)_NC_emissions.csv : \
 	$(MOD_C)/C1.3.proc_NC_emissions.R \
-	$(MOD_C)/C1.3.proc_NC_emissions_user_added_inventories.R \
 	$(MOD_C)/C1.3.proc_NC_emissions_user_added.R \
 	$(MED_OUT)/C.$(EM)_NC_emissions_db.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(MED_OUT)/A.NC_activity.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
-	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 
 # cc2-1
 $(MED_OUT)/C.$(EM)_NC_EF.csv : \

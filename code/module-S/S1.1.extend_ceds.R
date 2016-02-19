@@ -54,7 +54,7 @@ cdiac_fuel_map <- readData('EM_INV', domain_extension = "CDIAC/",  'CDIAC_fuel_m
 
 cdiac <- readData( "MED_OUT" , 'E.CO2_CDIAC_inventory' )
 un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' )
-biomass_fernandez <- readData('EM_INV','Fernandes_residential_biomass_full')
+biomass_fernandes <- readData('MED_OUT','A.Fernandes_residential_biomass')
   
 # ---------------------------------------------------------------------------
 # 2. Check driver lookups for valid driver options
@@ -82,7 +82,7 @@ population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_yea
                     iso ~ X_year, value = 'pop')
 
 # biomass
-biomass <- biomass_fernandez[,c('iso','year','consumption')]
+biomass <- biomass_fernandes[,c('iso','year','consumption')]
 biomass$X_year <- paste0('X',biomass$year)
 biomass <- cast(biomass, iso ~ X_year, value = 'consumption',
                 fun.aggregate = sum)
@@ -94,7 +94,7 @@ CEDS_total_extended <- ceds_emissions
 CEDS_total_extended[paste0('X',historical_pre_extension_year:(start_year-1))] <- NA
 
 # ---------------------------------------------------------------------------
-# 2. Extend biomass with fernandez biomass
+# 2. Extend biomass with fernandes biomass
 # Driver = Biomass
 
 drivers <- driver_lookup[which(driver_lookup$driver_data_source == 'Biomass' &

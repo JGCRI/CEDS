@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Program Name: A1.2.IEA_downscale_ctry.R
+# Program Name: A1.3.IEA_downscale_ctry.R
 # Author's Name: Page Kyle, for GCAM; modified for use in CEDS project by
 #                Steve Smith, Emily Voelker, Tyler Pitkanen, Jon Seibert, and
 #                Linh Vu
@@ -40,7 +40,7 @@
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "data_functions.R" ) # Additional function files required.
     log_msg <- "IEA energy balances by all countries and historical years" # First message to be printed to the log
-    script_name <- "A1.2.IEA_downscale_ctry.R"
+    script_name <- "A1.3.IEA_downscale_ctry.R"
     
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
