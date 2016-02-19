@@ -2,17 +2,19 @@
 # Program Name: A2.1.IEA_en_bal.R
 # Author's Name: Page Kyle, for GCAM; modified for use in CEDS Project by 
 #               Steve Smith, Emily Voelker, Tyler Pitkanen, Jon Seibert, 
-#               and Rachel Hoesly
-# Date Last Modified: Dec 8, 2015
+#               Rachel Hoesly, Linh Vu
+# Date Last Modified: 19 February 2016
 # Program Purpose: 
 # Input Files: A.IEA_en_stat_ctry_hist.csv, IEA_flow_sector.csv, 
 #              IEA_product_fuel.csv, Master_Fuel_Sector_List.xlsx, 
-#              IEA_energy_balance_factor.csv
+#              IEA_energy_balance_factor.csv, A.Fernandes_biomass_conversion.csv
 # Output Files: A.en_stat_sector_fuel.csv
 # Notes: 
 # To Do: 
-#   Make sure all input files feature fuel units, and that flow, sectors,
+#   -- Make sure all input files feature fuel units, and that flow, sectors,
 #   and units match up across the board. 
+#   -- Adjust biomass TJ/kt conversion factors for regions that use industrial 
+#   biomass fuels other than wood
 # ------------------------------------------------------------------------------
 
 # Before we can load headers we need some paths defined. They may be provided 
@@ -62,7 +64,8 @@
     #IEA
     # conversionFactor_naturalgas_TJ_per_kt <- 54 #Natural Gas TJ/kt. (Divide TJ by heating value to get kt)
     
-
+# Read biomass conversion factors
+    biomass_conversion <- readData( "MED_OUT", "A.Fernandes_biomass_conversion", meta = F )
     
 # ------------------------------------------------------------------------------
 # 2. Map IEA to CEDS sectors.
@@ -86,12 +89,25 @@
     TJ_products <- na.omit( IEA_product_fuel[ grep( "TJ", 
                                                     IEA_product_fuel[, 1 ] ), 1:2 ] )
 # Biomass
+# Use Fernandes conversion factors for residential biomass and wood default (16 TJ/kt)
+# for non-residential biomass
+# TODO: Adjust conversion factors for regions that use industrial biomass fuels other than wood
     TJ_to_kt_biomass <- TJ_products[ TJ_products$fuel == "biomass", ]
     
-    A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% 
-            TJ_to_kt_biomass$product, X_IEA_years ] <- 
-            A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% 
-            TJ_to_kt_biomass$product, X_IEA_years ] /  conversionFactor_biomass_kt_TJ
+    A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% TJ_to_kt_biomass$product & 
+                               grepl( "1A4b_Residential", A.IEA_en_stat_ctry_hist$sector ), X_IEA_years ] <- 
+      A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% TJ_to_kt_biomass$product & 
+                                 grepl( "1A4b_Residential", A.IEA_en_stat_ctry_hist$sector ), X_IEA_years ] /  
+      biomass_conversion[ match( 
+        A.IEA_en_stat_ctry_hist$iso[ A.IEA_en_stat_ctry_hist$PRODUCT %in% TJ_to_kt_biomass$product & 
+                                       grepl( "1A4b_Residential", A.IEA_en_stat_ctry_hist$sector ) ], 
+        biomass_conversion$iso ), X_IEA_years ]
+    
+    A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% TJ_to_kt_biomass$product & 
+                               !grepl( "1A4b_Residential", A.IEA_en_stat_ctry_hist$sector ), X_IEA_years ] <- 
+      A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% TJ_to_kt_biomass$product & 
+                                 !grepl( "1A4b_Residential", A.IEA_en_stat_ctry_hist$sector ), X_IEA_years ] /  
+      conversionFactor_biomass_kt_TJ
 
 # Natural Gas
     TJ_to_kt_natural_gas <- TJ_products[ TJ_products$fuel == "natural_gas", ]
