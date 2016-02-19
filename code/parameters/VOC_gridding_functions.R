@@ -35,7 +35,7 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
 	  #####################################################
 	  exp <- paste0( 'SHP_', VOC, '_em_global_final <- SHP_', VOC, '_em_global' )
 	  eval( parse( text = exp ) )
-	  exp <- pasteo( 'SHP_', VOC, '_em_global_final <- matrix( 0, 360, 720 )' )
+	  exp <- paste0( 'SHP_', VOC, '_em_global_final <- matrix( 0, 360, 720 )' )
 	  #####################################################
 	  
 	  # second, add seasonality
