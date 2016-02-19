@@ -284,10 +284,8 @@ $(MED_OUT)/A.en_stat_sector_fuel.csv : \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(ENERGY_DATA)/IEA_energy_balance_factor.csv \
 	$(MED_OUT)/A.Fernandes_biomass_conversion.csv \
-	$(MED_OUT)/A.Fernandes_residential_biomass.csv \
 	$(ENERGY_DATA)/Visschedijk_wooduse_Europe_TNO_4_Steve.xlsx \
-	$(ENERGY_DATA)/EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors.xlsx \
-	$(MED_OUT)/A.UN_pop_master.csv
+	$(ENERGY_DATA)/EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 
