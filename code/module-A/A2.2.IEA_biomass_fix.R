@@ -5,7 +5,7 @@
 # Program Purpose:  This program corrects system (IEA) residential biomass using 
 #                   EIA, Fernandes, and Visschedijk (European) biomass data
 # Input Files:     A.en_stat_sector_fuel.csv, A.Fernandes_residential_biomass, 
-#                  Visschedijk_wooduse Europe TNO 4 Steve.xlsx, A.UN_pop_master.csv, 
+#                  Visschedijk_wooduse_Europe_TNO_4_Steve.xlsx, A.UN_pop_master.csv, 
 #                  EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors.xlsx
 # Output Files:    A.en_stat_sector_fuel.csv, A.residential_biomass_full.csv
 # Notes:
@@ -46,7 +46,7 @@ initialize( script_name, log_msg, headers )
 # Read energy data
     IEA_en <- readData( "MED_OUT", "A.en_stat_sector_fuel", meta = F )
     Fern_biomass <- readData( "MED_OUT", "A.Fernandes_residential_biomass", meta = F )
-    Viss_biomass <- readData( "ENERGY_IN", "Visschedijk_wooduse Europe TNO 4 Steve", ".xlsx", 
+    Viss_biomass <- readData( "ENERGY_IN", "Visschedijk_wooduse_Europe_TNO_4_Steve", ".xlsx", 
                               sheet_selection = "Data", skip_rows = 2, meta = F )[ c( 1, 5 ) ]
     EIA_biomass <- readData( "ENERGY_IN", "EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors", 
                              ".xlsx", sheet_selection = "Annual Data", skip_rows = 10, meta = F )[ c( 1, 4 ) ]
