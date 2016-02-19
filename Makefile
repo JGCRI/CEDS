@@ -9,8 +9,8 @@ MOD_S = code/module-S
 PARAMS = code/parameters
 SOCIO_DATA = input/general
 ENERGY_DATA = input/energy
-EF_DATA = input/default_emissions_data
-EF_PARAMETERS = input/default_emissions_data/EF_parameters
+EF_DATA = input/default-emissions-data
+EF_PARAMETERS = input/default-emissions-data/EF_parameters
 MAPPINGS = input/mappings
 EN_MAPPINGS = input/mappings/energy
 SC_MAPPINGS = input/mappings/scaling
@@ -110,7 +110,7 @@ clean-io :
 	rm -fv $(DOCS)/IO_documentation.csv
 
 clean-modA :
-	rm -fv $(MED_OUT)/A*.csv \
+	rm -fv $(MED_OUT)/A*.csv
 
 clean-modB :
 	rm -fv $(MED_OUT)/B*.csv \
@@ -127,6 +127,24 @@ clean-modE :
 
 clean-modF :
 	rm -fv $(MED_OUT)/F*.csv
+
+clean-SO2 :
+	rm -fv $(MED_OUT)/*SO2*.csv
+
+clean-NOx :
+	rm -fv $(MED_OUT)/*NOx*.csv
+
+clean-CH4 :
+	rm -fv $(MED_OUT)/*CH4*.csv
+
+clean-CO :
+	rm -fv $(MED_OUT)/*CO*.csv
+
+clean-NH3 :
+	rm -fv $(MED_OUT)/*NH3*.csv
+
+clean-OC :
+	rm -fv $(MED_OUT)/*OC*.csv
 
 # --------------------------------------------------------------
 
@@ -423,12 +441,14 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 # cc1-2
 $(MED_OUT)/C.$(EM)_NC_emissions.csv : \
 	$(MOD_C)/C1.3.proc_NC_emissions.R \
+	$(MOD_C)/C1.3.proc_NC_emissions_user_added_inventories.R \
 	$(MOD_C)/C1.3.proc_NC_emissions_user_added.R \
 	$(MED_OUT)/C.$(EM)_NC_emissions_db.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(MED_OUT)/A.NC_activity.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
+	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 
 # cc2-1
 $(MED_OUT)/C.$(EM)_NC_EF.csv : \
