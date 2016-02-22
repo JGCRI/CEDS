@@ -39,7 +39,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "NOx"
 em_lc <- tolower( em )
 
 # ------------------------------------------------------------------------------
@@ -106,7 +106,19 @@ if ( is.null( emissions ) ) emissions <- data.frame( iso = character(0),
                                                      units = character(0),
                                                      X1960 = numeric(0))
 # write out to diagnostic
-if (nrow ( emissions ) ) writeData(emissions, 'MED_OUT', paste0('C.',em,'_NC_emissions_user_added'))
+if (nrow ( emissions ) > 0 ) {writeData(emissions, 'DEFAULT_EF_IN', domain_extension = 'non-combustion-emissions/', 
+                                    paste0('C.',em,'_NC_emissions_user_added'),
+                                    meta= F)
+}  else if (nrow ( emissions ) == 0 ){
+  # write out place hodler data folder
+  emissions <- data.frame(iso = character(0),
+                                 sector = character(0),
+                                 fuel = character(0))
+  
+  writeData(emissions, 'DEFAULT_EF_IN', domain_extension = 'non-combustion-emissions/', 
+            paste0('C.',em,'_NC_emissions_user_added'),
+            meta= F) }
+
 # ---------------------------------------------------------------------------
 # 2. Add to existing parameter Dbs
 

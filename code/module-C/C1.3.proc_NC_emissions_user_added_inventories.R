@@ -105,7 +105,6 @@ em_lc <- tolower( em )
                    'Please check file. Combustion data selected printed to diagnostic-output'))
     writeData(combustion_sectors, 'DIAG_OUT',paste0('C.',em,'combustion_data_added_to_process_emissions_inventories'),
               meta=F)
-    
   }
   
   
@@ -113,7 +112,7 @@ em_lc <- tolower( em )
   writeData(replacement_data, 'DEFAULT_EF_IN', domain_extension = 'non-combustion-emissions/', 
             paste0('C.',em,'_NC_inventory_emissions_user_added'),
             meta= F)
-
+    
   } # end logic if no user added inventory instructions
 
   logStop()

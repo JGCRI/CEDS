@@ -43,13 +43,13 @@ if ( is.na( em ) ) em <- "NH3"
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
 
-write_years <- 1970:end_year
+write_years <- 1750:end_year
 
 # ---------------------------------------------------------------------------
 # 1. Load files
 
 Master_Country_List <- readData( "MAPPINGS", "Master_Country_List")
-final_emissions_read <- readData('MED_OUT', paste0('F.',em,'_scaled_emissions'))
+final_emissions_read <- readData ( 'FIN_OUT', paste0( "S.",em,"_Extended_CEDS_Emissions") )
 Master_Sector_Level_map <- readData(domain = 'MAPPINGS', file_name = 'Master_Sector_Level_map')
 
 # ---------------------------------------------------------------------------
