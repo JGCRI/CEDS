@@ -49,7 +49,10 @@ activity_data <- readData( "MED_OUT", "A.NC_activity" )
 
 emissions_data_read <- readData( "MED_OUT", paste0( "C.", em, "_NC_emissions" ) )
 
-emissions_replaced <- readData( "MED_OUT", paste0('C.',em,'_NC_emissions_user_added') )
+emissions_replaced <- readData( domain = "DEFAULT_EF_IN" , 
+                                domain_extension = "non-combustion-emissions/", 
+                                paste0('C.',em,'_NC_emissions_user_added') )
+
 # ------------------------------------------------------------------------------
 # 2. Generate emissions factors and extendForward (constant) as necessary
 

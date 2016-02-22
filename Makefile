@@ -494,9 +494,15 @@ $(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv : \
 	Rscript $< $(EM) NFR14 --nosave --no-restore
 
 # ee1-2
+$(MED_OUT)/E.CO2_CDIAC_inventory.csv : \
+	$(MOD_E)/E.CDIAC_emissions.R
+	Rscript $< $(EM) --nosave --no-restore
+
+	# ee1-2
 $(MED_OUT)/E.$(EM)_REAS_inventory.csv : \
 	$(MOD_E)/E.REAS_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
+
 
 # ff1-1a
 # Creates scaled emissions and emissions factors
@@ -533,7 +539,13 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 $(MED_OUT)/F.$(EM)_scaled_EF.csv : \
 	$(MED_OUT)/F.$(EM)_scaled_emissions.csv
 
+$(FINAL_OUT)/S.$(EM)_Extended_CEDS_Emissions.csv : \
+	$(MOD_S)/S1.1.extend_ceds.R \
+	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
+	$(MED_OUT)/F.$(EM)_scaled_emissions.csv
+	Rscript $< $(EM) --nosave --no-restore
+
 $(FINAL_OUT)/$(EM)_emissions_by_country_FOR-REVIEW-ONLY.csv : \
 	$(MOD_S)/S1.1.write_summary_data.R \
-	$(MED_OUT)/F.$(EM)_scaled_emissions.csv
+	$(FINAL_OUT)/S.$(EM)_Extended_CEDS_Emissions.csv
 	Rscript $< $(EM) --nosave --no-restore
