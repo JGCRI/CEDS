@@ -30,7 +30,7 @@
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( "data_functions.R") # Additional function files required.
+    headers <- c( "data_functions.R",'interpolation_extention_functions.R') # Additional function files required.
     log_msg <- "Generation of process emissions factors" # First message to be printed to the log
     script_name <- "C2.1.base_NC_EF.R"
     
@@ -42,7 +42,7 @@
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NOx"
+if ( is.na( em ) ) em <- "NH3"
 em_lc <- tolower( em )
 
 activity_data <- readData( "MED_OUT", "A.NC_activity" )
@@ -131,25 +131,29 @@ if( length ( check ) > 0 ) {
   
   #Extend EFs as constant before EDGAR start date
   new_efs_corrected[ , paste0( 'X', start_year:( EDGAR_start_year - 1 ) ) ] <- new_efs[ , paste0( 'X', EDGAR_start_year )  ]
+ 
+  # ------------------------------------------------------------------------------
+  # 3. Re-Correct Non Edgar Emissions Factors (replaced in C1.3.proc_NC_emissions_user_added.R)
+  #    Extend Non Edgar Emission Factors  (replaced in C1.3.proc_NC_emissions_user_added.R)
   
-  # replace EF that remained unchaned (replaced in C1.3.proc_NC_emissions_user_added.R)
+  # replace EF that we want to remain unchaned
   new_efs_corrected_user_added <-  new_efs_corrected
-  replaced_years <- melt( emissions_replaced , id.vars = c('iso', 'sector', 'fuel', 'units'))
-  replaced_years$variable <- as.character(replaced_years$variable)
-  replaced_years <- replaced_years[which( replaced_years$variable %in% EDGAR_replace_years),c('iso','sector','variable')]
+  replaced_years <- emissions_replaced
   
   if( nrow(replaced_years)>0 ){  
-  extend_replaced_emissions <- emissions_replaced
-  extend_replaced_emissions[ X_emissions_years[X_emissions_years %!in% names(extend_replaced_emissions)] ] <- NA
-  extend_replaced_emissions <- extend_replaced_emissions[, c( 'iso','sector','fuel','units', X_emissions_years ) ]
-  
-  extend_replaced_efs <- extend_replaced_emissions
-  extend_replaced_efs <- replaceValueColMatch(extend_replaced_efs  , new_efs,
-                                              match.x = c('iso','sector'),
-                                              x.ColName = X_emissions_years,
-                                              addEntries = FALSE)
-  extend_replaced_efs <- replace( extend_replaced_efs, is.na(extend_replaced_emissions), NA)
-  
+  # use emissions_replaced for a template to grab EFs before edgar correct
+  extend_replaced_efs <- emissions_replaced
+  years_emissions_replaced <- names(emissions_replaced)[grep('X', names(emissions_replaced))]
+  extend_replaced_efs[ X_emissions_years ] <- NA
+  extend_replaced_efs <- extend_replaced_efs[, c( 'iso','sector','fuel','units', X_emissions_years ) ]
+
+  extend_replaced_efs <- replaceValueColMatch( extend_replaced_efs  , new_efs[c('iso','sector','fuel','units', years_emissions_replaced)],
+                                              match.x = c('iso','sector','fuel'),
+                                              x.ColName = c( 'units', years_emissions_replaced ),
+                                              addEntries = FALSE )
+  #extend
+  extend_replaced_efs <- extendValues(extend_replaced_efs)
+  # replace in larger data frame
   new_efs_corrected_user_added <- replaceValueColMatch(new_efs_corrected_user_added,extend_replaced_efs,
                                                match.x = c('iso','sector','fuel','units'),
                                                x.ColName = X_emissions_years[X_emissions_years %!in% EDGAR_replace_years],
