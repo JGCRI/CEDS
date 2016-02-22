@@ -1,11 +1,12 @@
 #------------------------------------------------------------------------------
 # Program Name: A2.2.IEA_biomass_fix.R
 # Author: Linh Vu
-# Date Last Updated: 18 February 2016
+# Date Last Updated: 22 February 2016
 # Program Purpose:  This program corrects system (IEA) residential biomass using 
-#                   EIA, Fernandes, and Visschedijk (European) biomass data
+#                   EIA, Fernandes et al. 2007, and Denier van der Gon et al. 2015
+#                   (European) biomass data
 # Input Files:     A.en_stat_sector_fuel.csv, A.Fernandes_residential_biomass, 
-#                  Visschedijk_wooduse_Europe_TNO_4_Steve.xlsx, A.UN_pop_master.csv, 
+#                  Europe_wooduse_Europe_TNO_4_Steve.xlsx, A.UN_pop_master.csv, 
 #                  EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors.xlsx
 # Output Files:    A.en_stat_sector_fuel.csv, A.residential_biomass_full.csv
 # Notes:
@@ -32,7 +33,7 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provides logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R", "timeframe_functions.R" ) # Any additional function files required
-log_msg <- "Combine system's IEA residential biomass with EIA, Fernandes and Visschedijk (European) data"
+log_msg <- "Combine system's IEA residential biomass with EIA, Fernandes and European data"
 script_name <- "A2.2.IEA_biomass_fix.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
@@ -46,7 +47,7 @@ initialize( script_name, log_msg, headers )
 # Read energy data
     IEA_en <- readData( "MED_OUT", "A.en_stat_sector_fuel", meta = F )
     Fern_biomass <- readData( "MED_OUT", "A.Fernandes_residential_biomass", meta = F )
-    Viss_biomass <- readData( "ENERGY_IN", "Visschedijk_wooduse_Europe_TNO_4_Steve", ".xlsx", 
+    Eur_biomass <- readData( "ENERGY_IN", "Europe_wooduse_Europe_TNO_4_Steve", ".xlsx", 
                               sheet_selection = "Data", skip_rows = 2, meta = F )[ c( 1, 5 ) ]
     EIA_biomass <- readData( "ENERGY_IN", "EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors", 
                              ".xlsx", sheet_selection = "Annual Data", skip_rows = 10, meta = F )[ c( 1, 4 ) ]
@@ -57,7 +58,7 @@ initialize( script_name, log_msg, headers )
 
     
 # ------------------------------------------------------------------------------
-# 2. Combine IEA, EIA, Fernandes, and Viss biomass into one df
+# 2. Combine IEA, EIA, Fernandes, and Europe biomass into one df
 # Prepare population data
     pop_master <- filter( pop_master, scenario == "Estimates" ) %>%
       mutate( rural_pop = pop * ( 1 - urban_share ) )  # compute rural pop
@@ -84,14 +85,14 @@ initialize( script_name, log_msg, headers )
     Fern_biomass <- group_by( Fern_biomass, iso, units, year ) %>%
       summarise( Fern = sum( consumption ) )
 
-# Convert Viss biomass to standard format
-    names( Viss_biomass ) <- c( "iso", "Viss" )
-    Viss_biomass <- filter( Viss_biomass, !is.na( iso ) )
-    Viss_biomass$iso[ Viss_biomass$iso == "yug" ] <- "scg"  # Serbia and Montenegro
-    Viss_biomass$iso <- tolower( Viss_biomass$iso )
-    Viss_biomass$Viss <- Viss_biomass$Viss / kt_to_TJ  # convert from TJ to kt
-    Viss_biomass$units <- "kt"
-    Viss_biomass$year <- 2005
+# Convert Europe biomass to standard format
+    names( Eur_biomass ) <- c( "iso", "Eur" )
+    Eur_biomass <- filter( Eur_biomass, !is.na( iso ) )
+    Eur_biomass$iso[ Eur_biomass$iso == "yug" ] <- "scg"  # Serbia and Montenegro
+    Eur_biomass$iso <- tolower( Eur_biomass$iso )
+    Eur_biomass$Eur <- Eur_biomass$Eur / kt_to_TJ  # convert from TJ to kt
+    Eur_biomass$units <- "kt"
+    Eur_biomass$year <- 2005
     
 # Convert EIA data (US only) to standard format
     names( EIA_biomass ) <- c( "year", "EIA" )
@@ -104,7 +105,7 @@ initialize( script_name, log_msg, headers )
 
 # Merge all 4 datasets and keep only emissions years
     biomass_0 <- merge( IEA_biomass, Fern_biomass, all = T ) %>%
-      merge( Viss_biomass, all.x = T ) %>%
+      merge( Eur_biomass, all.x = T ) %>%
       merge( EIA_biomass, all.x = T ) %>%
       filter( year %in% emissions_years )
 
@@ -112,15 +113,15 @@ initialize( script_name, log_msg, headers )
     biomass_0$IEA[ biomass_0$IEA == 0 ] <- NA
     biomass_0$Fern[ biomass_0$Fern == 0 ] <- NA
     biomass_0$EIA[ biomass_0$EIA == 0 ] <- NA
-    biomass_0$Viss[ biomass_0$Viss == 0 ] <- NA
+    biomass_0$Eur[ biomass_0$Eur == 0 ] <- NA
 
 
 # ------------------------------------------------------------------------------
 # 3. Decide which source to use for each country
 # General rules:
 # -- Use EIA data for USA.
-# -- Where Viss is available and differs from IEA by more than 30% (note Viss is 
-#    only available 2005), print out diagnostics to decide whether to use IEA or
+# -- Where Europe is available and differs from IEA by more than 30% (note Europe data 
+#    is only available 2005), print out diagnostics to decide whether to use IEA or
 #    Fernandes.
 # -- For remaining countries, use Fernandes if IEA is smaller than Fernandes by more  
 #    than 75%, for N = 5 years in a row centered at 2000.
@@ -130,24 +131,24 @@ initialize( script_name, log_msg, headers )
     N <- 5
     N_CENTER_YEAR <- 2000
     MIN_IEA_OVER_FERN <- .25
-    MIN_IEA_OVER_VISS <- .7
-    MAX_IEA_OVER_VISS <- 10/7
+    MIN_IEA_OVER_EUR <- .7
+    MAX_IEA_OVER_EUR <- 10/7
     
 # First decide what database to use for each country
     # Substitute EIA for IEA for USA
     biomass_1 <- biomass_0
     biomass_1$IEA[ biomass_1$iso == "usa" ] <- biomass_1$EIA[ biomass_1$iso == "usa" ]
     
-    # Calculate IEA/Fern and IEA/Viss ratio
+    # Calculate IEA/Fern and IEA/Eur ratio
     biomass_1 <- mutate( biomass_1, IEA_over_Fern = IEA / Fern, 
-                         IEA_over_Viss = IEA / Viss )
+                         IEA_over_Eur = IEA / Eur )
     
-    # If IEA differs from Viss by over 30%, take notes to decide later whether to use
+    # If IEA differs from Eur by over 30%, take notes to decide later whether to use
     # IEA or Fernandes
-    iso_Viss <- filter( biomass_1, IEA_over_Viss < MIN_IEA_OVER_VISS | 
-                          IEA_over_Viss > MAX_IEA_OVER_VISS )
-    iso_Viss <- unique( iso_Viss$iso )
-    iso_rest <- setdiff( unique( biomass_1$iso ), iso_Viss )
+    iso_Eur <- filter( biomass_1, IEA_over_Eur < MIN_IEA_OVER_EUR | 
+                          IEA_over_Eur > MAX_IEA_OVER_EUR )
+    iso_Eur <- unique( iso_Eur$iso )
+    iso_rest <- setdiff( unique( biomass_1$iso ), iso_Eur )
 
     # For remaining countries, use Fernandes if IEA is > 75% smaller than Fernandes
     # (evaluated for N years, centered at N_CENTER_YEAR)
@@ -169,15 +170,15 @@ initialize( script_name, log_msg, headers )
     
 # Compute pc biomass (using pop2)
     biomass_1 <- merge( biomass_1, pop_master, all.x = T ) %>%
-      mutate( IEA_pc = IEA / pop2, Fern_pc = Fern / pop2, Viss_pc = Viss / pop2 )
+      mutate( IEA_pc = IEA / pop2, Fern_pc = Fern / pop2, Eur_pc = Eur / pop2 )
     
-# Diagnostics: Decide whether to use IEA or Fernandes for countries in iso_Viss
-    diag_Viss <- filter( biomass_1, iso %in% iso_Viss ) %>%
-      select( iso, year, pop2, IEA, Viss, Fern, IEA_pc, Viss_pc, Fern_pc )
+# Diagnostics: Decide whether to use IEA or Fernandes for countries in iso_Eur
+    diag_Eur <- filter( biomass_1, iso %in% iso_Eur ) %>%
+      select( iso, year, pop2, IEA, Eur, Fern, IEA_pc, Eur_pc, Fern_pc )
     # Resolution: Use Fern for aze, rus, svk, ukr; use IEA for geo, irl, mda, swe
     iso_Fern <- c( iso_Fern, "aze", "rus", "svk", "ukr" )
     iso_IEA <- c( iso_IEA, "geo", "irl", "mda", "swe" )
-    rm( iso_Viss, iso_rest )
+    rm( iso_Eur, iso_rest )
 
 # Take note of which source is used for which country
     biomass_1$src <- NA
@@ -186,8 +187,8 @@ initialize( script_name, log_msg, headers )
     biomass_1$src[ biomass_1$iso == "usa" ] <- "EIA"
     
 # Keep relevant columns
-    biomass_1 <- select( biomass_1, iso, units, year, pop2, IEA, Fern, Viss, 
-                         IEA_pc, Fern_pc, Viss_pc, src ) 
+    biomass_1 <- select( biomass_1, iso, units, year, pop2, IEA, Fern, Eur, 
+                         IEA_pc, Fern_pc, Eur_pc, src ) 
     
 # ------------------------------------------------------------------------------
 # 4. Correct gaps in IEA_pc
