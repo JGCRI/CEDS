@@ -117,7 +117,9 @@ clean-modB :
 	rm -fv $(EF_PARAMETERS)/B.*.csv
 
 clean-modC :
-	rm -fv $(MED_OUT)/C*.csv
+	rm -fv $(MED_OUT)/C*.csv \
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC_emissions_user_added.csv \
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC_inventory_emissions_user_added.csv
 
 clean-modD :
 	rm -fv $(MED_OUT)/D*.csv
@@ -129,22 +131,34 @@ clean-modF :
 	rm -fv $(MED_OUT)/F*.csv
 
 clean-SO2 :
-	rm -fv $(MED_OUT)/*SO2*.csv
+	rm -fv $(MED_OUT)/*SO2*.csv \
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC_emissions_user_added.csv \
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC_inventory_emissions_user_added.csv
 
 clean-NOx :
-	rm -fv $(MED_OUT)/*NOx*.csv
+	rm -fv $(MED_OUT)/*NOx*.csv \
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC_emissions_user_added.csv \
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC_inventory_emissions_user_added.csv
 
 clean-CH4 :
-	rm -fv $(MED_OUT)/*CH4*.csv
+	rm -fv $(MED_OUT)/*CH4*.csv \
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC_emissions_user_added.csv \
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC_inventory_emissions_user_added.csv
 
 clean-CO :
-	rm -fv $(MED_OUT)/*CO*.csv
+	rm -fv $(MED_OUT)/*CO*.csv \
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC_emissions_user_added.csv \
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC_inventory_emissions_user_added.csv
 
 clean-NH3 :
-	rm -fv $(MED_OUT)/*NH3*.csv
+	rm -fv $(MED_OUT)/*NH3*.csv \
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC_emissions_user_added.csv \
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC_inventory_emissions_user_added.csv
 
 clean-OC :
-	rm -fv $(MED_OUT)/*OC*.csv
+	rm -fv $(MED_OUT)/*OC*.csv \
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC_emissions_user_added.csv \
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC_inventory_emissions_user_added.csv
 
 # --------------------------------------------------------------
 
@@ -495,7 +509,8 @@ $(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv : \
 
 # ee1-2
 $(MED_OUT)/E.CO2_CDIAC_inventory.csv : \
-	$(MOD_E)/E.CDIAC_emissions.R
+	$(MOD_E)/E.CDIAC_emissions.R \
+	$(MED_OUT)/A.UN_pop_master.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 	# ee1-2
