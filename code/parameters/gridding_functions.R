@@ -475,136 +475,9 @@ monthly_nc_output <- function( output_dir, grid_resolution, year, em_species, se
   summary_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
   write.csv( summary_table, file = summary_name, row.names = F )
 }
-# -------------------------------------------------
-# monthly_nc_output
-# Brief: generate a fliped matrix by a given matrix
-# Dependencies: 
-# Author: Leyang Feng
-# parameters: x - the matrix to be fliped  
-# return: a fliped matrix 
-# input files: 
-# output: 
-final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_species, sector_list, mass = F ) {
-  
-  data_list <- paste0( sector_list, '_em_global')
-  
-      
-  lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
-  lats <- seq( -90 + grid_resolution / 2, 90 - grid_resolution / 2, grid_resolution )
-  time <- 1:12
-  #lon_bounds <- cbind( seq( -180, 180 - grid_resolution, grid_resolution ), seq( -180 + grid_resolution, 180, grid_resolution ) )
-  #lat_bounds <- cbind( seq( -90, 90 - grid_resolution, grid_resolution ), seq( -90 + grid_resolution, 90, grid_resolution ) )
-  londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
-  latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
-  timedim <- ncdim_def( "time", "days since 1750-01-01 0:0:0", as.double( time ), 
-                        calendar = '365_days', longname = 'time' )
-  #lon_bnds <- ncdim_def( "lon_bnds", " ", as.double( lon_bounds ), longname = 'bounds_longitude', create_dimvar = TRUE )
-  #lat_bnds <- ncdim_def( "lat_bnds", " ", as.double( lat_bounds ), longname = 'bounds_latitude', create_dimvar = TRUE )
-  dim_list <- list( londim, latdim, timedim )
-  
-  if ( mass == T ){
-    data_unit <- 'kt'
-  } else {
-    data_unit <- 'kg m-2 s-1'  
-  }
-  
-  # define nc variables
-  left_part <- sector_list 
-  mid_part <- ' <- '
-  right_part <- paste0( 'ncvar_def( \'', left_part, '\', \'', data_unit, '\', dim_list, missval = missing_value, longname= \'' ,sector_longname_list, '\' , prec = \'float\', compression = 5, chunksizes = NA )' )
-  expressions <- paste0( left_part, mid_part, right_part )
-  missing_value <- 1.e20
-  eval( parse( text = expressions ) )
-  
-  # generate nc file name
-  version <- 'v1'
-  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
-  ver_date <- paste( version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
-  nc_file_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.nc' ) 
-  
-  # generate the var_list 
-  var_list_expression <- c()
-  for ( part in left_part ) {
-    var_list_expression <- paste0( var_list_expression, ', ', part )
-    }
-  var_list_expression <- paste0( 'variable_list <- list( ', substr( var_list_expression, 3, nchar( var_list_expression) ), ' )' )
-  eval( parse( text = var_list_expression ) ) 
 
-  # create new nc file
-  nc_new <- nc_create( nc_file_name, variable_list, force_v4 = T )
-  
-  # put nc variables into the nc file
-  for ( i in seq_along(time) ) {
-  expressions <- paste0( 'ncvar_put( nc_new, ', left_part, ' ,t( flip_a_matrix( ', data_list,
-                         ' / 12 ) ) , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )' )
-  eval( parse( text = expressions ) )
-  }
-  
-  # nc variable attributes
-  # attributes for dimensions
-  ncatt_put( nc_new, "lon", "axis", "X" )
-  ncatt_put( nc_new, "lon", "standard_name", "longitude" )
-  ncatt_put( nc_new, "lon", "bounds", "lon_bnds" )
-  ncatt_put( nc_new, "lat", "axis", "Y" )
-  ncatt_put( nc_new, "lat", "standard_name", "latitude" )
-  ncatt_put( nc_new, "lat", "bounds", "lat_bnds" )
-  ncatt_put( nc_new, "time", "standard_name", "time" )
-  ncatt_put( nc_new, "time", "axis", "T" )
-  ncatt_put( nc_new, "time", "bounds", "time_bnds" )
-  # nc global attributes
-  ncatt_put( nc_new, 0, 'IMPORTANT', 'FOR TEST ONLY, DO NOT USE' )
-  ncatt_put( nc_new, 0, 'title', paste0('Annual Emissions of ', em_species ) )
-  ncatt_put( nc_new, 0, 'institution_id', 'PNNL-JGCRI' )
-  ncatt_put( nc_new, 0, 'institution', 'Pacific Northwest National Laboratory - JGCRI' )
-  ncatt_put( nc_new, 0, 'activity_id', 'input4MIPs' )
-  ncatt_put( nc_new, 0, 'Conventions', 'CF-1.6' )
-  ncatt_put( nc_new, 0, 'creation_date', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%Y-%m-%dT%H:%M:%SZ' ) ) )
-  ncatt_put( nc_new, 0, 'data_structure', 'grid' )
-  ncatt_put( nc_new, 0, 'frequency', 'mon' )
-  ncatt_put( nc_new, 0, 'realm', 'atmos' )
-  ncatt_put( nc_new, 0, 'source', 'CEDS 12-27-16: Community Emissions Data System (CEDS) for Historical Emissions' )
-  ncatt_put( nc_new, 0, 'source_id', 'CEDS-12-27-16' )
-  ncatt_put( nc_new, 0, 'further_info_url', 'http://www.globalchange.umd.edu/ceds/' )
-  ncatt_put( nc_new, 0, 'license', 'FOR TESTING AND REVIEW ONLY' )
-  ncatt_put( nc_new, 0, 'history', 
-             paste0( as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%d-%m-%Y %H:%M:%S %p %Z' ) ),
-                     '; College Park, MD, USA') )
-  ncatt_put( nc_new, 0, 'comment', 'Test Dataset for CMIP6' )
-  ncatt_put( nc_new, 0, 'data_usage_tips', 
-             'These monthly average fluxes can be linearly interpolated to join fluxes of adjacent months. (This should be done in a manner that the monthly average given here is preserved.)' )
-  ncatt_put( nc_new, 0, 'host', 'TBD' )
-  ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
-  ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
-  # attributes for variables
-  for ( each_var in sector_list ) {
-    ncatt_put( nc_new, each_var, 'cell_methods', 'time:mean' )
-    ncatt_put( nc_new, each_var, 'missing_value', 1e+20, prec = 'float' )
-  }
-  
-  # close nc_new
-  nc_close( nc_new)
-  
-  # additional section: write a summary and check text
-  global_grid_area <- grid_area( grid_resolution, all_lon = T )
-  global_total <- c()
-  em_global_sectors <- c()
-  for ( em_global_data in data_list ) {
-    em_global_sector <- unlist( strsplit( em_global_data, split = '_' ) ) [ 1 ]
-    eval( parse( text = paste0( 'temp_data <- ', em_global_data ) ) )
-    temp_data <- temp_data * global_grid_area
-    total <- sum( temp_data )
-    global_total <- c( global_total, total )
-    em_global_sectors <- c( em_global_sectors, em_global_sector)
-    }
-  summary_table <- data.frame( year = year, species = em_species, 
-                               sector = em_global_sectors, 
-                               global_total = global_total,
-                               unit = 'kg s-1' )
-  summary_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
-  write.csv( summary_table, file = summary_name, row.names = F )
-}
 # -------------------------------------------------
-# monthly_nc_output
+# final_monthly_nc_output
 # Brief: generate a fliped matrix by a given matrix
 # Dependencies: 
 # Author: Leyang Feng
@@ -888,7 +761,8 @@ proxy_substitution_check <- function( country_list, location_index, em_data, pro
   
     em_proxy_frac_list <- c( em_proxy_frac_list, em_proxy_frac )
     }
-  em_proxy_frac_list[ is.infinite( em_proxy_frac_list ) ] <- NA
+  em_proxy_frac_list_inf_removed <- em_proxy_frac_list
+  em_proxy_frac_list_inf_removed[ is.infinite( em_proxy_frac_list_inf_removed ) ] <- NA
   
   median_frac <- median( em_proxy_frac_list, na.rm = T )
   max_frac <- max( em_proxy_frac_list, na.rm = T ) 
