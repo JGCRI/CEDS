@@ -142,17 +142,32 @@ if( length ( check ) > 0 ) {
   
   if( nrow(replaced_years)>0 ){  
   # use emissions_replaced for a template to grab EFs before edgar correct
-  extend_replaced_efs <- emissions_replaced
+  extend_replaced_emissions <- emissions_replaced
   years_emissions_replaced <- names(emissions_replaced)[grep('X', names(emissions_replaced))]
+  extend_replaced_emissions[X_emissions_years[ X_emissions_years %!in% years_emissions_replaced ]] <- NA
+  extend_replaced_emissions <- extend_replaced_emissions[, c( 'iso','sector','fuel','units', X_emissions_years ) ]
+  
+  # save position for efs we want to extend (must be NA)
+  emissions_NAs <- is.na(extend_replaced_emissions)
+  
+  extend_replaced_efs <- extend_replaced_emissions 
   extend_replaced_efs[ X_emissions_years ] <- NA
   extend_replaced_efs <- extend_replaced_efs[, c( 'iso','sector','fuel','units', X_emissions_years ) ]
-
-  extend_replaced_efs <- replaceValueColMatch( extend_replaced_efs  , new_efs[c('iso','sector','fuel','units', years_emissions_replaced)],
+  
+  # get orignal EF
+  extend_replaced_efs <- replaceValueColMatch( extend_replaced_efs  , new_efs,
                                               match.x = c('iso','sector','fuel'),
-                                              x.ColName = c( 'units', years_emissions_replaced ),
+                                              x.ColName = c( 'units', X_emissions_years ),
                                               addEntries = FALSE )
+  # write NAs over EFs we want to extend over
+  extend_replaced_efs[ emissions_NAs ] <- NA
+  
   #extend
   extend_replaced_efs <- extendValues(extend_replaced_efs)
+  
+  writeData(extend_replaced_efs, domain = 'DIAG_OUT', fn = paste0( 'C.',em,'_replacement_process_EFs'),
+            meta = F)
+  
   # replace in larger data frame
   new_efs_corrected_user_added <- replaceValueColMatch(new_efs_corrected_user_added,extend_replaced_efs,
                                                match.x = c('iso','sector','fuel','units'),
