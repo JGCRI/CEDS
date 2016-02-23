@@ -159,7 +159,7 @@
  A.IEA_en_stat_ctry_hist_units<-A.IEA_en_stat_ctry_hist_units[!drop.row,] 
   
   # ------------------------------------------------------------------------------
-  # 4. Energy Production Sectors - energy production as activity/process data
+  # 4. Energy Process Drivers and Diagnostics - energy data needed for activity/process driver
   printLog( paste0( "Correcting energy production sectors used for activity/driver data." ) )
   A.IEA_en_stat_process <- A.IEA_en_stat_ctry_hist_units
   

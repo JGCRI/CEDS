@@ -256,22 +256,22 @@ grid_one_sector <- function( sector, em_species, year, location_index, grid_reso
   proxy_backup <- get_backup_proxy( year, type = 'population' )
   
   # extract emission for specific year and gas
-  emission_year_sector <- subset( em_data, em_data$CEDS_grd_sector == sector,
+  emissions_year_sector <- subset( em_data, em_data$CEDS_grd_sector == sector,
                               c( 'iso', paste0( 'X', year ) ) )
   # if no mask available for certain country, generate a country drop list 
-  country_drop_list <- mask_avail_check( emission_year_sector$iso, location_index$iso )
+  country_drop_list <- mask_avail_check( emissions_year_sector$iso, location_index$iso )
   # drop country if necessary 
   for ( country in country_drop_list ) {
-	emission_year_sector <- emission_year_sector[ emission_year_sector$iso != country, ]
+	emissions_year_sector <- emissions_year_sector[ emissions_year_sector$iso != country, ]
 	}
-  # extract current country_list from emission_year_sector
-  country_list <- emission_year_sector$iso 
+  # extract current country_list from emissions_year_sector
+  country_list <- emissions_year_sector$iso 
   # perform proxy_substitution_check. If for one perticular country, the flag is TRUE,
   # then use proxy_backup
-  proxy_replace_flag <- proxy_substitution_check( country_list, location_index, emission_year_sector, proxy )
+  proxy_replace_flag <- proxy_substitution_check( country_list, location_index, emissions_year_sector, proxy )
   
   # calling the G.emiDistribute function to do the scalling
-  invisible( lapply( country_list, grid_one_country, location_index, emission_year_sector, proxy, proxy_backup, year, sector, em_species, proxy_replace_flag ) )
+  invisible( lapply( country_list, grid_one_country, location_index, emissions_year_sector, proxy, proxy_backup, year, sector, em_species, proxy_replace_flag ) )
 
   # aggregating
   output_name <- paste0( sector, '_em_global' )
@@ -291,16 +291,16 @@ grid_one_sector <- function( sector, em_species, year, location_index, grid_reso
 # output: 
 grid_one_year <- function( em_species, year, em_data, location_index, sector_list, grid_resolution, mass = F ) { 
   X_year <<- paste0( 'X', year )
-  emission_year <<- em_data[ c( 'iso', 'CEDS_grd_sector', X_year ) ]
+  emissions_year <<- em_data[ c( 'iso', 'CEDS_grd_sector', X_year ) ]
   
   sector_list <- sector_list[ !sector_list == 'SHP' ]
-  invisible( lapply( sector_list, grid_one_sector, em_species, year, location_index, grid_resolution, emission_year, mass ) )
+  invisible( lapply( sector_list, grid_one_sector, em_species, year, location_index, grid_resolution, emissions_year, mass ) )
   
   # SHP gridding
   proxy <- get_proxy( em_species, year, 'SHP' )
-  emission_year_SHP <- subset( emission_year, emission_year$CEDS_grd_sector == 'SHP',
+  emissions_year_SHP <- subset( emissions_year, emissions_year$CEDS_grd_sector == 'SHP',
                               c( 'iso', paste0( 'X', year ) ) )
-  emission_value <- sum( emission_year_SHP[, 2 ] )
+  emission_value <- sum( emissions_year_SHP[, 2 ] )
   proxy_weighted <- proxy * global_mask 
   proxy_normlized <- proxy_weighted / sum( proxy_weighted )
   SHP_em_global <- proxy_normlized * emission_value
@@ -509,21 +509,21 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   checksum_total_emission_list <- c( )
   for ( sector in temp_sector_list ) {
     seasonality <- get_seasonalityFrac( em_species, sector )
-    seasonality_adjustment <- array( dim = dim( seasonality) )
-    for ( i in 1: dim( seasonality )[ 3 ]  ) {
-      seasonality_adjustment[ , , i ] <- seasonality[ , , i ] * Days_in_Month[ i ]
-      seasonality_adjustment[ , , i ] <- seasonality_adjustment[ , , i ] * 12
-      }
-    seasonality_adjustment <- apply( seasonality_adjustment, c( 1, 2 ), sum )
-    seasonality_adjustment <- 365 / seasonality_adjustment
-    seasonality_adjustment[ is.infinite( seasonality_adjustment ) ] <- 0
+    #seasonality_adjustment <- array( dim = dim( seasonality) )
+    #for ( i in 1: dim( seasonality )[ 3 ]  ) {
+    #  seasonality_adjustment[ , , i ] <- seasonality[ , , i ] * Days_in_Month[ i ]
+    #  seasonality_adjustment[ , , i ] <- seasonality_adjustment[ , , i ] * 12
+    #  }
+    #seasonality_adjustment <- apply( seasonality_adjustment, c( 1, 2 ), sum )
+    #seasonality_adjustment <- 365 / seasonality_adjustment
+    #seasonality_adjustment[ is.infinite( seasonality_adjustment ) ] <- 0
     temp_annual_data_name <- paste0( sector, '_em_global_final' )
     annual_data <- get( temp_annual_data_name )
     temp_array <- array( dim = dim( seasonality ) )
     checksum_total_emission_each_month_list <- c( )
     for ( i in 1 : dim( temp_array )[ 3 ] ) {
-      temp_array[ , , i ] <- annual_data * seasonality[, , i ] * seasonality_adjustment * 12
-      checksum_total_emission <- sum( temp_array[ , , i ] / flux_factor / 12 / seasonality_adjustment, na.rm = T )
+      temp_array[ , , i ] <- annual_data * seasonality[, , i ] * ( 365 / Days_in_Month[ i ] )
+      checksum_total_emission <- sum( temp_array[ , , i ] / flux_factor / ( 365 / Days_in_Month[ i ] ), na.rm = T )
       checksum_total_emission_each_month_list <- c( checksum_total_emission_each_month_list, checksum_total_emission )
     }
     assign( temp_annual_data_name, temp_array )
@@ -532,21 +532,21 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
     }
   # special treatment for RCO 
   seasonality <- get_seasonalityFrac( em_species, 'RCO' )
-  seasonality_adjustment <- array( dim = dim( seasonality) )
-    
-  for ( i in 1: dim( seasonality )[ 3 ]  ) {
-    seasonality_adjustment[ , , i ] <- seasonality[ , , i ] * Days_in_Month[ i ]
-    seasonality_adjustment[ , , i ] <- seasonality_adjustment[ , , i ] * 12
-    }
-  seasonality_adjustment <- apply( seasonality_adjustment, c( 1, 2 ), sum )
-  seasonality_adjustment <- 365 / seasonality_adjustment
-  seasonality_adjustment[ is.infinite( seasonality_adjustment ) ] <- 0
+  
+  #seasonality_adjustment <- array( dim = dim( seasonality) )
+  #for ( i in 1: dim( seasonality )[ 3 ]  ) {
+  #  seasonality_adjustment[ , , i ] <- seasonality[ , , i ] * Days_in_Month[ i ]
+  #  seasonality_adjustment[ , , i ] <- seasonality_adjustment[ , , i ] * 12
+  #  }
+  #seasonality_adjustment <- apply( seasonality_adjustment, c( 1, 2 ), sum )
+  #seasonality_adjustment <- 365 / seasonality_adjustment
+  #seasonality_adjustment[ is.infinite( seasonality_adjustment ) ] <- 0
   
   temp_array <- array( dim = dim( seasonality ) )
   checksum_total_emission_each_month_list <- c( )
   for ( i in 1 : dim( temp_array )[ 3 ] ) {
-    temp_array[ , , i ] <- RCORC_em_global * seasonality[, , i ] * seasonality_adjustment * 12 + RCOO_em_global * RCOO_seasonality[ , , i ] * 12 * 1
-    checksum_total_emission <- sum( temp_array[ , , i ] / flux_factor / 12 / seasonality_adjustment, na.rm = T )
+    temp_array[ , , i ] <- RCORC_em_global * seasonality[, , i ] * ( 365 / Days_in_Month[ i ] ) + RCOO_em_global * RCOO_seasonality[ , , i ] * ( 365 / Days_in_Month[ i ] )
+    checksum_total_emission <- sum( temp_array[ , , i ] / flux_factor / ( 365 / Days_in_Month[ i ] ), na.rm = T )
     checksum_total_emission_each_month_list <- c( checksum_total_emission_each_month_list, checksum_total_emission )
     
   }
@@ -710,9 +710,7 @@ get_seasonalityFrac <- function( em_species, sector ) {
 # input files: 
 # output: 
 get_backup_proxy <- function( year, type = 'population' ) {
-  ########for now#####
-  year <- '2000'
-  ####################
+
   if ( type == 'population' ) { type_name <- 'population' }
   proxy_name <- paste0( type_name, '_', year )
   
@@ -726,58 +724,95 @@ get_backup_proxy <- function( year, type = 'population' ) {
 # -------------------------------------------------
 # proxy_substitution_check
 # Brief: generate a fliped matrix by a given matrix
-# Dependencies: 
+# Dependencies: em_proxy_ratio, flag_or_not
 # Author: Leyang Feng
 # parameters: x - the matrix to be fliped  
 # return: a fliped matrix 
 # input files: 
 # output: 
-proxy_substitution_check <- function( country_list, location_index, em_data, proxy ) {
-
-  em_proxy_frac_list <- c()
-  for ( country in country_list ) {
+proxy_substitution_check <- function( region_list, location_index, em_data, proxy ) {
   
-    row_col_index <- location_index[ location_index$iso == country, ]
-    start_row <- row_col_index$start_row
-    end_row <- row_col_index$end_row
-    start_col <- row_col_index$start_col
-    end_col <- row_col_index$end_col
-      
-    # retrieve the iso_mask from memory 
-    mask_name <- paste0( country, '_mask')
-    mask <- get( mask_name )
-      
-    # extract the proxy as the extent of the iso_mask
-    proxy_cropped <- proxy[ start_row : end_row, start_col : end_col ]
+  # generate a list of ratios for all regions 
+  ratio_list <- unlist( lapply( region_list, em_proxy_ratio, em_data, location_index, proxy ) )
   
-    # compute the weighted_proxy 
-    weighted_proxy <- proxy_cropped * mask
+  # remove Inf in the list 
+  ratio_list_noInf <- ifelse( is.infinite( ratio_list ), NA, ratio_list )
   
-    # retrieve the iso's emission 
-    emission_value <- em_data[ em_data$iso == country, 2 ]
+  # compute the median and max using INF removed ratio list 
+  median_ratio <- median( ratio_list_noInf, na.rm = T )
+  max_ratio <- max( ratio_list_noInf, na.rm = T )
   
-    # compute em/sum( proxy ) fraction
-    em_proxy_frac <- emission_value / sum( weighted_proxy )
+  # generate a list of flag based on region_list, proxy substitution is needed if T
+  flag_list <- unlist( lapply( ratio_list, substitue_or_not, max_ratio ) )
   
-    em_proxy_frac_list <- c( em_proxy_frac_list, em_proxy_frac )
+  # make the flag_list into a data frame 
+  flag_df <- data.frame( iso = region_list, replace_flag  = flag_list )
+  
+  return( flag_df )
+  }
+# -------------------------------------------------
+# em_proxy_ratio
+# Brief: compute the ratio between a region's emission and its proxy. Note the input 
+#        proxy is not normalized. 
+# Dependencies: none
+# Author: Leyang Feng
+# parameters: region - the region whose ratio wants to be calculated
+#             em_data - year-sector specified a list of emissions for all regions. Only 
+#                       contains two columns: iso and emission
+#             location_index - a data frame contains matix indexes for all regions 
+#             proxy - the proxy wanted to be examined. Should be in global extent.   
+# return: a ratio
+# input files: none
+# output: none
+em_proxy_ratio <- function( region, em_data, location_index, proxy ) {
+  
+  # retrieve matrix index infromation from loction_index table
+  region_index <- location_index[ location_index$iso == region, ]
+  start_row <- region_index$start_row
+  end_row <- region_index$end_row
+  start_col <- region_index$start_col
+  end_col <- region_index$end_col
+  
+  # retrieve the region_mask from memory 
+  mask_name <- paste0( region, '_mask' )
+  if ( exists( mask_name ) == T ) { 
+    mask <- get( mask_name ) 
+  } else {
+	message( paste0( mask_name, ' is not loaded into memory ' ) ) 
     }
-  em_proxy_frac_list_inf_removed <- em_proxy_frac_list
-  em_proxy_frac_list_inf_removed[ is.infinite( em_proxy_frac_list_inf_removed ) ] <- NA
   
-  median_frac <- median( em_proxy_frac_list, na.rm = T )
-  max_frac <- max( em_proxy_frac_list, na.rm = T ) 
+  # extract the proxy as the extent of the region_mask 
+  proxy_cropped <- proxy[ start_row : end_row, start_col : end_col ]
   
-  flag_list <- c()
-  for ( item in em_proxy_frac_list ) {
-    if ( is.infinite( item ) == TRUE ) { flag <- TRUE }
-	  else if ( is.nan( item ) == TRUE ) { flag <- FALSE }
-    else if ( is.na( item ) == TRUE ) { flag <- FALSE }
-	  else if ( item == 0  ){ flag <- FALSE } else {
-	  if ( ( item > (max_frac/1000) ) == TRUE) { flag <- TRUE} else { flag <- FALSE } }
-    flag_list <- c( flag_list, flag )
-	}
-   
-  flag_df <- data.frame( iso = country_list, 
-                        replace_flag  = flag_list )
-  return( flag_df)
+  # make the proxy weighted 
+  proxy_weighted <- proxy_cropped * mask
+  
+  # retrieve the region's emission
+  emission_value <- em_data[ em_data$iso == region, 2 ]
+  
+  # compute em/proxy ratio
+  em_proxy_ratio <- emission_value / sum( proxy_weighted )
+  
+  return( em_proxy_ratio )
+}
+# -------------------------------------------------
+# flag_or_not
+# Brief: decide whether region needs proxy substitution or not
+# Dependencies: none
+# Author: Leyang Feng
+# parameters: ratio - emission/proxy ratio computed by previous step
+#             max_ratio - max ratio computed by previous step 
+# return: a flag which is TRUE of FALSE
+# input files: none 
+# output: none
+substitue_or_not <- function( ratio, max_ratio ) {
+  if ( is.infinite( ratio ) == T ) { flag <- T } # ratio=number/0, all zero proxy pattern for existing emission => substitution needed 
+  else if ( is.nan( ratio) == T ) { flag <- F } # ratio = 0/0, all zero proxy pattern for non-existing emission => no substitution needed
+  else if ( is.na( ratio ) == T ) { flag <- F } # similar to nan
+  else if ( ratio == 0 ) { flag <- F } # ratio=0/number, zero emission => no substitution needed
+  else { 
+    if ( ratio > ( max_ratio / 1000 ) ) { flag <- T } # for outlier needs substitution
+	else { flag <- F } # non-outlier doesn't need substitution 
+  }
+  return( flag )
 }
