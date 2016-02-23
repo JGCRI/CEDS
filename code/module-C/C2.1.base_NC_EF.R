@@ -156,7 +156,7 @@ if( length ( check ) > 0 ) {
   # replace in larger data frame
   new_efs_corrected_user_added <- replaceValueColMatch(new_efs_corrected_user_added,extend_replaced_efs,
                                                match.x = c('iso','sector','fuel','units'),
-                                               x.ColName = X_emissions_years[X_emissions_years %!in% EDGAR_replace_years],
+                                               x.ColName = X_emissions_years,
                                                addEntries = FALSE )
 }
 
