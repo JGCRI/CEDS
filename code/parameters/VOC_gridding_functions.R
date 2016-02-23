@@ -46,21 +46,21 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
     
     for ( sector in temp_sector_list ) {
     seasonality <- get_seasonalityFrac( em_species, sector )
-    seasonality_adjustment <- array( dim = dim( seasonality) )
-    for ( i in 1: dim( seasonality )[ 3 ]  ) {
-      seasonality_adjustment[ , , i ] <- seasonality[ , , i ] * Days_in_Month[ i ]
-      seasonality_adjustment[ , , i ] <- seasonality_adjustment[ , , i ] * 12
-      }
-    seasonality_adjustment <- apply( seasonality_adjustment, c( 1, 2 ), sum )
-    seasonality_adjustment <- 365 / seasonality_adjustment
-    seasonality_adjustment[ is.infinite( seasonality_adjustment ) ] <- 0
+#     seasonality_adjustment <- array( dim = dim( seasonality) )
+#     for ( i in 1: dim( seasonality )[ 3 ]  ) {
+#       seasonality_adjustment[ , , i ] <- seasonality[ , , i ] * Days_in_Month[ i ]
+#       seasonality_adjustment[ , , i ] <- seasonality_adjustment[ , , i ] * 12
+#       }
+#     seasonality_adjustment <- apply( seasonality_adjustment, c( 1, 2 ), sum )
+#     seasonality_adjustment <- 365 / seasonality_adjustment
+#     seasonality_adjustment[ is.infinite( seasonality_adjustment ) ] <- 0
     temp_annual_data_name <- paste0( sector, '_', VOC, '_em_global_final' )
     annual_data <- get( temp_annual_data_name )
     temp_array <- array( dim = dim( seasonality ) )
     checksum_total_emission_each_month_list <- c( )
     for ( i in 1 : dim( temp_array )[ 3 ] ) {
-      temp_array[ , , i ] <- annual_data * seasonality[, , i ] * seasonality_adjustment * 12
-      checksum_total_emission <- sum( temp_array[ , , i ] / flux_factor / 12 / seasonality_adjustment, na.rm = T )
+      temp_array[ , , i ] <- annual_data * seasonality[, , i ] * ( 365 / Days_in_Month[ i ] )
+      checksum_total_emission <- sum( temp_array[ , , i ] / flux_factor / ( 365 / Days_in_Month[ i ] ), na.rm = T )
       checksum_total_emission_each_month_list <- c( checksum_total_emission_each_month_list, checksum_total_emission )
     }
     assign( temp_annual_data_name, temp_array )
@@ -70,14 +70,14 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
 	  
 	  # special treatment for RCO 
     seasonality <- get_seasonalityFrac( em_species, 'RCO' )
-    seasonality_adjustment <- array( dim = dim( seasonality) )
-    for ( i in 1: dim( seasonality )[ 3 ]  ) {
-      seasonality_adjustment[ , , i ] <- seasonality[ , , i ] * Days_in_Month[ i ]
-      seasonality_adjustment[ , , i ] <- seasonality_adjustment[ , , i ] * 12
-      }
-    seasonality_adjustment <- apply( seasonality_adjustment, c( 1, 2 ), sum )
-    seasonality_adjustment <- 365 / seasonality_adjustment
-    seasonality_adjustment[ is.infinite( seasonality_adjustment ) ] <- 0
+#     seasonality_adjustment <- array( dim = dim( seasonality) )
+#     for ( i in 1: dim( seasonality )[ 3 ]  ) {
+#       seasonality_adjustment[ , , i ] <- seasonality[ , , i ] * Days_in_Month[ i ]
+#       seasonality_adjustment[ , , i ] <- seasonality_adjustment[ , , i ] * 12
+#       }
+#     seasonality_adjustment <- apply( seasonality_adjustment, c( 1, 2 ), sum )
+#     seasonality_adjustment <- 365 / seasonality_adjustment
+#     seasonality_adjustment[ is.infinite( seasonality_adjustment ) ] <- 0
     
     temp_array <- array( dim = dim( seasonality ) )
     checksum_total_emission_each_month_list <- c( )
@@ -85,9 +85,9 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
     RCORC_VOC_varname <- paste0( 'RCORC_', VOC, '_em_global' )
     RCOO_VOC_varname <- paste0( 'RCOO_', VOC, '_em_global' )
     for ( i in 1 : dim( seasonality )[ 3 ] ) {
-      temp_array[ , , i] <- get( RCORC_VOC_varname ) * seasonality[, , i ] * seasonality_adjustment * 12
-                            + get( RCOO_VOC_varname ) * RCOO_seasonality[ , , i ] * 12 * 1 
-      checksum_total_emission <- sum( temp_array[ , , i ] / flux_factor / 12 / seasonality_adjustment, na.rm = T )
+      temp_array[ , , i] <- get( RCORC_VOC_varname ) * seasonality[, , i ] * ( 365 / Days_in_Month[ i ] )
+                            + get( RCOO_VOC_varname ) * RCOO_seasonality[ , , i ] * ( 365 / Days_in_Month[ i ] )
+      checksum_total_emission <- sum( temp_array[ , , i ] / flux_factor / ( 365 / Days_in_Month[ i ] ), na.rm = T )
       checksum_total_emission_each_month_list <- c( checksum_total_emission_each_month_list, checksum_total_emission )
       }
     RCO_VOC_varname <- paste0( 'RCO_', VOC, '_em_global_final')
