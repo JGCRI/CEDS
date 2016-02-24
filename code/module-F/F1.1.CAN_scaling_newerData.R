@@ -61,7 +61,7 @@ initialize( script_name, log_msg, headers )
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-  inventory_data_file <- 'Canada/ape_results_e_SO2_2013'
+  inventory_data_file <- paste0('Canada/ape_results_e_',em,'_2013')
   inv_data_folder <- "EM_INV"
   sector_fuel_mapping <- 'CAN_scaling_mapping'
   mapping_method <- 'sector'
