@@ -32,7 +32,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "NOx"
 
 # ---------------------------------------------------------------------------
 # 0.1 Load Packages
@@ -48,6 +48,7 @@ library('gridExtra')
 start_year <- 1970
 USE_DEFAULTS <- FALSE
 PRINT_EMISSIONS <- FALSE
+INVENTORY_YEARS_ONLY <- FALSE
 
 # Set sectors that want to report
 anaylsis_sectors <- c( "1A3b_Road" )
@@ -116,13 +117,24 @@ setwd('../diagnostic-output')
 # Set countries to report
 anaylsis_isos <- unique(Diagnostic_Country_List$iso)
 
+File_Prefix = ""
+
+# Set-up for inventory only years
+if ( INVENTORY_YEARS_ONLY ) {
+  USE_DEFAULTS = FALSE # Since this is not compatable with this option
+  File_Prefix = "_inv-years"
+
+  Earliest_Inventory_Year <- readData( "SCALE_MAPPINGS", "Earliest_Inventory_Year")
+  inventory_isos <- unique(Earliest_Inventory_Year$iso)
+  EFs_to_Plot <- Scaled_EFs[which( Scaled_EFs$iso %in% inventory_isos ),]
+}
+
 # Now limit to only countries we are interested in
 if ( USE_DEFAULTS ){
   EFs_to_Plot <- Default_EFs[which( Default_EFs$iso %in% anaylsis_isos ),]
   File_Prefix = "_default"
 } else {
   EFs_to_Plot <- Scaled_EFs[which( Scaled_EFs$iso %in% anaylsis_isos ),]
-  File_Prefix = ""
 }
 
 # Regions to graph
@@ -148,10 +160,16 @@ for( Sector in 1:length( anaylsis_sectors ) ){
       Emission_Factors <- EFs_to_Plot[which( EFs_to_Plot$sector %in% anaylsis_sectors[ Sector ] & 
                                             EFs_to_Plot$fuel %in% anaylsis_fuels[ Fuel ] & 
                                             EFs_to_Plot$Region %in% anaylsis_regions[ Region ] ),  ]
-      Emission_Factors <- Emission_Factors[ c( 'Country', x_years ) ]
+      Emission_Factors <- Emission_Factors[ c( 'iso', 'Country', x_years ) ]
       
-      EFs_long <- melt(Emission_Factors, id.vars = c('Country' ))
+      EFs_long <- melt(Emission_Factors, id.vars = c('Country', 'iso' ))
       EFs_long$year <- as.numeric( gsub( "X","",EFs_long$variable) )
+      
+      # If plotting inventory years, filter to include only those years
+      if ( INVENTORY_YEARS_ONLY ) {
+        EFs_long$Earliest_Year <- Earliest_Inventory_Year[match(EFs_long$iso,Earliest_Inventory_Year$iso),'Earliest_Year']
+        EFs_long <- filter( EFs_long, EFs_long$year >= Earliest_Year) 
+      }
       
       # Now plot graph
       plot <- ggplot(EFs_long, aes(x=year,y=value, color = Country )) +
