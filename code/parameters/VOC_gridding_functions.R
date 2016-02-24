@@ -45,15 +45,7 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
     checksum_total_emission_list <- c( )
     
     for ( sector in temp_sector_list ) {
-    seasonality <- get_seasonalityFrac( em_species, sector )
-#     seasonality_adjustment <- array( dim = dim( seasonality) )
-#     for ( i in 1: dim( seasonality )[ 3 ]  ) {
-#       seasonality_adjustment[ , , i ] <- seasonality[ , , i ] * Days_in_Month[ i ]
-#       seasonality_adjustment[ , , i ] <- seasonality_adjustment[ , , i ] * 12
-#       }
-#     seasonality_adjustment <- apply( seasonality_adjustment, c( 1, 2 ), sum )
-#     seasonality_adjustment <- 365 / seasonality_adjustment
-#     seasonality_adjustment[ is.infinite( seasonality_adjustment ) ] <- 0
+    seasonality <- get_seasonalityFrac( em_species, sector, year )
     temp_annual_data_name <- paste0( sector, '_', VOC, '_em_global_final' )
     annual_data <- get( temp_annual_data_name )
     temp_array <- array( dim = dim( seasonality ) )
@@ -69,16 +61,7 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
     }
 	  
 	  # special treatment for RCO 
-    seasonality <- get_seasonalityFrac( em_species, 'RCO' )
-#     seasonality_adjustment <- array( dim = dim( seasonality) )
-#     for ( i in 1: dim( seasonality )[ 3 ]  ) {
-#       seasonality_adjustment[ , , i ] <- seasonality[ , , i ] * Days_in_Month[ i ]
-#       seasonality_adjustment[ , , i ] <- seasonality_adjustment[ , , i ] * 12
-#       }
-#     seasonality_adjustment <- apply( seasonality_adjustment, c( 1, 2 ), sum )
-#     seasonality_adjustment <- 365 / seasonality_adjustment
-#     seasonality_adjustment[ is.infinite( seasonality_adjustment ) ] <- 0
-    
+    seasonality <- get_seasonalityFrac( em_species, 'RCO', year )
     temp_array <- array( dim = dim( seasonality ) )
     checksum_total_emission_each_month_list <- c( )
     
