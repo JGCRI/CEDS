@@ -74,8 +74,8 @@ if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2') ) {
 }
 
 # Add option to pick which dataset to compare to.
-CEDS_Data = "Scaled"
 CEDS_Data = "Default"
+CEDS_Data = "Scaled"
 
 File_postscript = ""
 if ( CEDS_Data == "Default" ) File_postscript = "_Default" 
@@ -110,7 +110,7 @@ if ( CEDS_Data ==  "Scaled" ) {
 #   C. Read in EMEP level 1 data
         
 #       Create a list of EMEP level 1 files
-        inv3_file_name <- paste0("E.", em, "_EMEP_inventory")
+        inv3_file_name <- paste0("E.", em, "_EMEP_NFR14_inventory")
         
 #       Read in the EMEP level 1 files
         EMEPlvl1 <- readData( "MED_OUT", inv3_file_name)   
