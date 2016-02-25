@@ -46,14 +46,18 @@ library('gridExtra')
 # 1.0 Script Options
 
 start_year <- 1970
-USE_DEFAULTS <- FALSE
+USE_DEFAULTS <- TRUE
 PRINT_EMISSIONS <- FALSE
 INVENTORY_YEARS_ONLY <- FALSE
 
 # Set sectors that want to report
+anaylsis_sectors <- c( "1A3c_Rail" )
+anaylsis_sectors <- c( "1A4b_Residential" )
 anaylsis_sectors <- c( "1A3b_Road" )
 
 # Set fuels that want to report
+anaylsis_fuels <- c( "diesel_oil")
+anaylsis_fuels <- c( "biomass", "diesel_oil")
 anaylsis_fuels <- c( "diesel_oil", "light_oil" )
 
 # Directory for graphs
