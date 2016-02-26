@@ -61,7 +61,7 @@ grid_one_country <- function( country, location_index, em_data, proxy, proxy_bac
     } else {
       message_line <- paste0( 'Backup proxy used: ', country, ' ,', year, ' ,', sector, ' ,', em_species )  
       }
-    cat( message_line, file = paste0( summary_dir, 'proxy_replacement_list .txt' ), append = TRUE, sep="\n" )
+    cat( message_line, file = paste0( summary_dir, 'proxy_replacement_list.txt' ), append = TRUE, sep="\n" )
   } else {
     # extract the proxy as the extent of the iso_mask
     proxy_cropped <- proxy[ start_row : end_row, start_col : end_col ] 
@@ -209,9 +209,11 @@ mask_avail_check <- function( emission_country_list, mask_country_list ){
   emission_country_list <- unique( emission_country_list)
   if ( FALSE %in% ( emission_country_list %in% mask_country_list ) == TRUE ) {
     country_drop_list <- emission_country_list[ which( !emission_country_list %in% mask_country_list )]
-    return( country_drop_list )
-	message( paste0( 'masks not available for: ', country_drop_list ) )
   } 
+  return( country_drop_list )
+	#message( paste0( 'masks not available for: ', country_drop_list ) )
+  #summary_dir <- filePath( "MED_OUT", "", extension = "" )
+  #cat( country_drop_list, file = paste0( summary_dir, 'dropped_countries.txt' ), append = TRUE, sep = "\n" )
 }
 # ------------------------------------------------------------------------------
 # get_proxy
@@ -260,6 +262,8 @@ grid_one_sector <- function( sector, em_species, year, location_index, grid_reso
                               c( 'iso', paste0( 'X', year ) ) )
   # if no mask available for certain country, generate a country drop list 
   country_drop_list <- mask_avail_check( emissions_year_sector$iso, location_index$iso )
+  summary_dir <- filePath( "MED_OUT", "", extension = "" )
+  cat( country_drop_list, file = paste0( summary_dir, 'dropped_countries.txt' ), append = TRUE, sep = "\n" )
   # drop country if necessary 
   for ( country in country_drop_list ) {
 	emissions_year_sector <- emissions_year_sector[ emissions_year_sector$iso != country, ]
