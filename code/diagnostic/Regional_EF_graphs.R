@@ -46,9 +46,9 @@ library('gridExtra')
 # 1.0 Script Options
 
 start_year <- 1970
-USE_DEFAULTS <- TRUE
+USE_DEFAULTS <- FALSE
 PRINT_EMISSIONS <- FALSE
-INVENTORY_YEARS_ONLY <- FALSE
+INVENTORY_YEARS_ONLY <- TRUE
 
 # Set sectors that want to report
 anaylsis_sectors <- c( "1A3c_Rail" )
@@ -56,7 +56,7 @@ anaylsis_sectors <- c( "1A4b_Residential" )
 anaylsis_sectors <- c( "1A3b_Road" )
 
 # Set fuels that want to report
-anaylsis_fuels <- c( "diesel_oil")
+anaylsis_fuels <- c( "diesel_oil", "hard_coal" )
 anaylsis_fuels <- c( "biomass", "diesel_oil")
 anaylsis_fuels <- c( "diesel_oil", "light_oil" )
 
@@ -67,6 +67,7 @@ EF_directory <- "EF-diagnostics/"
 # 1. Load files
 
 Diagnostic_Country_List <- readData( "SCALE_MAPPINGS", "Diagnostic_Country_Mapping")
+Diagnostic_Country_List$Notes <- NULL  # remove since gets in the way later
 Scaled_EFs  <- readData('MED_OUT', paste0('F.',em,'_scaled_EF'))
 
 if ( USE_DEFAULTS ) Default_EFs <- readData('MED_OUT', paste0('D.',em,'_default_total_EF'))
@@ -128,9 +129,11 @@ if ( INVENTORY_YEARS_ONLY ) {
   USE_DEFAULTS = FALSE # Since this is not compatable with this option
   File_Prefix = "_inv-years"
 
-  Earliest_Inventory_Year <- readData( "SCALE_MAPPINGS", "Earliest_Inventory_Year")
-  inventory_isos <- unique(Earliest_Inventory_Year$iso)
-  EFs_to_Plot <- Scaled_EFs[which( Scaled_EFs$iso %in% inventory_isos ),]
+  # Get list of countries with inventory data
+  Inventory_countries <- Diagnostic_Country_List[!(is.na( Diagnostic_Country_List$Earliest_Inventory_Year) ),]
+  
+  Inventory_isos <- unique( Inventory_countries$iso )
+  EFs_to_Plot <- Scaled_EFs[which( Scaled_EFs$iso %in% Inventory_isos ),]
 }
 
 # Now limit to only countries we are interested in
@@ -171,7 +174,7 @@ for( Sector in 1:length( anaylsis_sectors ) ){
       
       # If plotting inventory years, filter to include only those years
       if ( INVENTORY_YEARS_ONLY ) {
-        EFs_long$Earliest_Year <- Earliest_Inventory_Year[match(EFs_long$iso,Earliest_Inventory_Year$iso),'Earliest_Year']
+        EFs_long$Earliest_Year <- Inventory_countries[match(EFs_long$iso,Inventory_countries$iso),'Earliest_Inventory_Year']
         EFs_long <- filter( EFs_long, EFs_long$year >= Earliest_Year) 
       }
       
@@ -186,7 +189,7 @@ for( Sector in 1:length( anaylsis_sectors ) ){
       plot
       plot_list[[ Region ]]<-plot
       
-    }
+    } # End Region Loop
     
     # Save the group of plots for this Fuel and Sector
     File_name <- paste0( em, "_", anaylsis_sectors[ Sector ], "_", anaylsis_fuels[ Fuel ], File_Prefix )
@@ -198,7 +201,40 @@ for( Sector in 1:length( anaylsis_sectors ) ){
                  plot_list[[3]],plot_list[[4]], ncol=2,
                  top = paste0(em, ' Scaled Emission Factors - ', anaylsis_sectors[ Sector ],", ", anaylsis_fuels[ Fuel ]) )
     dev.off()
-  }
+    
+    # Now plot just the Marker Countries 
+    # TODO: Add lower bound pathway
+    if ( INVENTORY_YEARS_ONLY & 1==1 ) {
+      
+    Marker_Countries <- unique( Inventory_countries$Marker_Country )
+    Emission_Factors <- EFs_to_Plot[which( EFs_to_Plot$sector %in% anaylsis_sectors[ Sector ] & 
+                                             EFs_to_Plot$fuel %in% anaylsis_fuels[ Fuel ] ),  ]
+    Emission_Factors <- Emission_Factors[ c( 'iso', 'Country', x_years ) ]
+    
+    Emission_Factors <- Emission_Factors[ which( Emission_Factors$iso %in% Marker_Countries ), ]
+    EFs_long <- melt( Emission_Factors, id.vars = c('Country', 'iso' ) )
+    EFs_long$year <- as.numeric( gsub( "X","",EFs_long$variable ) )
+    
+    EFs_long$Earliest_Year <- Inventory_countries[match(EFs_long$iso,Inventory_countries$iso),'Earliest_Inventory_Year']
+    EFs_long <- filter( EFs_long, EFs_long$year >= Earliest_Year) 
+    
+    writeData( EFs_long, "DIAG_OUT", paste0(EF_directory, em ,'_marker_country_EFs'), meta = FALSE )
+    
+    plot <- ggplot(EFs_long, aes(x=year,y=value, color = Country )) +
+      geom_line( size=1, aes(x=year,y=value, color = Country)) +
+      scale_x_continuous(breaks=c( 1970,1980,1990,2000,2010, 2015 ))+
+      scale_y_continuous(limits = c( 0, Y_Axis_Max ), labels = comma )+
+      scale_shape_discrete(guide=FALSE)+
+      labs(x='Year',y= paste(em,' Emission Factor [g/g]'))+
+      theme(legend.title=element_blank())
+    plot
+ 
+    File_name <- paste0( EF_directory, em, "_", anaylsis_sectors[ Sector ], "_", anaylsis_fuels[ Fuel ], "-Bounding_EFs.pdf" )
+    ggsave( File_name , width = 5, height = 3 )
+     
+    }
+    
+  } # End of fuel block
 }
 
 
