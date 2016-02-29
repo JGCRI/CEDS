@@ -43,53 +43,13 @@ library('scales')
 library('gridExtra')
 
 # ---------------------------------------------------------------------------
-# 1.0 Script Options
-
-start_year <- 1970
-GRAPH_DEFAULTS <- FALSE
-PRINT_EMISSIONS <- FALSE
-INVENTORY_YEARS_ONLY <- FALSE
-
-# Set sectors and fuels that we want to report
-# Put last the set that is to be used
-
-analysis_sectors <- c( "1A1a_Electricity-public", "1A2g_Ind-Comb-other" )
-analysis_fuels <- c(  "diesel_oil", "heavy_oil", "hard_coal", "natural_gas" )
-
-analysis_sectors <- c( "1A4b_Residential" )
-analysis_fuels <- c( "biomass", "diesel_oil", "natural_gas" )
-
-analysis_sectors <- c( "1A3c_Rail" )
-analysis_fuels <- c( "diesel_oil", "hard_coal" )
-
-analysis_sectors <- c( "1A3b_Road" )
-analysis_fuels <- c( "diesel_oil", "light_oil" )
-
-# Directory for graphs
-EF_directory <- "EF-diagnostics/"
-
 # ---------------------------------------------------------------------------
-# 1. Load files
+# 0. Define core function that process data, writes tables and graphs
+# Note: Function is not "clean" as it uses many common variables
 
-Diagnostic_Country_List <- readData( "SCALE_MAPPINGS", "Diagnostic_Country_Mapping")
-Diagnostic_Country_List$Notes <- NULL  # remove since gets in the way later
+emission_factor_function <- function( analysis_sectors, analysis_fuels ) {
 
-# Get list of countries with inventory data
-Inventory_countries <- Diagnostic_Country_List[!(is.na( Diagnostic_Country_List$Earliest_Inventory_Year) ),]
-  
-# Read in scaled and default EFs
-All_Scaled_EFs  <- readData('MED_OUT', paste0('F.',em,'_scaled_EF'))
-All_Default_EFs <- readData('MED_OUT', paste0('D.',em,'_default_total_EF'))
-
-if ( PRINT_EMISSIONS ) Scaled_Emissions <- readData('MED_OUT', paste0( 'F.', em, '_scaled_emissions' ) )
-
-setwd('../diagnostic-output')
-
-# ---------------------------------------------------------------------------
-
-# 1. Prepare Data 
-Scaled_EFs <- All_Scaled_EFs
-Default_EFs <- All_Default_EFs
+# 0.1. Prepare Data 
 
 Scaled_EFs <- Scaled_EFs[which( Scaled_EFs$sector %in% analysis_sectors & 
                                 Scaled_EFs$fuel %in% analysis_fuels ),]
@@ -111,18 +71,19 @@ Default_EFs$Region <- Diagnostic_Country_List[match(Default_EFs$iso,Diagnostic_C
 Default_EFs$Country <- Diagnostic_Country_List[match(Default_EFs$iso,Diagnostic_Country_List$iso),'Country_Name']
 
 # ---------------------------------------------------------------------------
-# 2. Write Tables
+# 0.2. Write Tables
+if ( PRINT_GENERAL_TABLES ) {
+	writeData( Scaled_EFs, "DIAG_OUT", paste0(EF_directory, em ,'_selected_scaled_EFs'), meta = FALSE )
 
-writeData( Scaled_EFs, "DIAG_OUT", paste0(EF_directory, em ,'_selected_scaled_EFs'), meta = FALSE )
+	writeData( Default_EFs, "DIAG_OUT", paste0(EF_directory, em ,'_selected_default_EFs'), meta = FALSE )
 
-writeData( Default_EFs, "DIAG_OUT", paste0(EF_directory, em ,'_selected_default_EFs'), meta = FALSE )
-
-if ( PRINT_EMISSIONS ){
-  writeData( Scaled_Emissions, "DIAG_OUT", paste0(EF_directory, em ,'_selected_scaled_emissions'), meta = FALSE )
+	if ( PRINT_EMISSIONS ){
+	  writeData( Scaled_Emissions, "DIAG_OUT", paste0(EF_directory, em ,'_selected_scaled_emissions'), meta = FALSE )
+	}
 }
 
 # ---------------------------------------------------------------------------
-# 3. Draw Graphs
+# 0.3. Draw Graphs
 
 # Set to correct directory
 setwd('../diagnostic-output')
@@ -160,9 +121,11 @@ for( Sector in 1:length( analysis_sectors ) ){
     # Get graph maximum
     All_Data <- EFs_to_Plot[which( EFs_to_Plot$sector %in% analysis_sectors[ Sector ] & 
                                    EFs_to_Plot$fuel %in% analysis_fuels[ Fuel ] ),]
-    # Write out table for this sector and fuel
-    writeData( All_Data, "DIAG_OUT", paste0( EF_directory, em, '_', analysis_sectors[ Sector ], "_", 
-                                                     analysis_fuels[ Fuel ], File_Prefix, '_EFs'), meta = FALSE )
+    if ( PRINT_GENERAL_TABLES ) {
+		# Write out table for this sector and fuel
+		writeData( All_Data, "DIAG_OUT", paste0( EF_directory, em, '_', analysis_sectors[ Sector ], "_", 
+														 analysis_fuels[ Fuel ], File_Prefix, '_EFs'), meta = FALSE )
+    }
     
     All_Data_vector <- as.vector( as.matrix( All_Data[ x_years ] ) )
     Y_Axis_Max <- quantile( All_Data_vector, 0.97 )
@@ -209,6 +172,7 @@ for( Sector in 1:length( analysis_sectors ) ){
     
     # Now plot just the Marker Countries 
     # TODO: Add lower bound pathway
+    # TODO: Add median, min, and max pathways
     if ( !( GRAPH_DEFAULTS ) ) {
 		Marker_Countries <- unique( Inventory_countries$Marker_Country )
 		Emission_Factors <- EFs_to_Plot[which( EFs_to_Plot$sector %in% analysis_sectors[ Sector ] & 
@@ -223,7 +187,23 @@ for( Sector in 1:length( analysis_sectors ) ){
 		EFs_long <- filter( EFs_long, EFs_long$year >= Earliest_Year) 
 		EFs_long$type <- "Scaled"
 	
-		writeData( EFs_long, "DIAG_OUT", paste0(EF_directory, em ,'_marker_country_EFs'), meta = FALSE )
+		Min_Values = 3
+		Filtered_EFs <- group_by( EFs_long, year ) %>%  filter( length( iso ) >= 3)
+		min_EF <- group_by( Filtered_EFs, year) %>% filter( value == min( value, na.rm = TRUE ) )
+		min_EF$iso <- "minimum"
+		min_EF$Country <- "na"
+		max_EFs <- group_by( Filtered_EFs, year) %>% filter( value == max( value, na.rm = TRUE ) )
+		max_EFs$iso <- "maximum"
+		max_EFs$Country <- "na"
+		median_EFs <- group_by( Filtered_EFs, year) %>% filter( value == median( value, na.rm = TRUE ) )
+		median_EFs$iso <- "median"
+		median_EFs$Country <- "na"
+		
+		Marker_Country_EFs <- rbind( EFs_long, min_EF, max_EFs, median_EFs )
+		Marker_Country_EFs <- cast( Marker_Country_EFs, iso+Country ~ year, mean, value="mean")
+		
+		File_name <- paste0( EF_directory, em, "_", analysis_sectors[ Sector ], "_", analysis_fuels[ Fuel ], "_marker_country_EFs" )
+		writeData( Marker_Country_EFs, "DIAG_OUT", File_name, meta = FALSE )
  
 		# Process Default EFs and add to the plot
 		Marker_Default_EFs <- Default_EFs[  which( Default_EFs$sector %in% analysis_sectors[ Sector ] & 
@@ -253,12 +233,71 @@ for( Sector in 1:length( analysis_sectors ) ){
 	 
     }
     
-  } # End of fuel block
+  } # End of fuel loop
+} # End of sector loop
+
+} # End of graphing function
+# ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+# 1.0 Script Options
+
+start_year <- 1970
+GRAPH_DEFAULTS <- FALSE
+PRINT_EMISSIONS <- FALSE
+INVENTORY_YEARS_ONLY <- FALSE
+PRINT_GENERAL_TABLES <- FALSE
+
+# Set sectors and fuels that we want to report
+# Put last the set that is to be used
+
+# Directory for graphs
+EF_directory <- "EF-diagnostics/"
+
+# ---------------------------------------------------------------------------
+# 1. Load files
+
+Diagnostic_Country_List <- readData( "SCALE_MAPPINGS", "Diagnostic_Country_Mapping")
+Diagnostic_Country_List$Notes <- NULL  # remove since gets in the way later
+
+# Get list of countries with inventory data
+Inventory_countries <- Diagnostic_Country_List[!(is.na( Diagnostic_Country_List$Earliest_Inventory_Year) ),]
+  
+# Read in scaled and default EFs
+All_Scaled_EFs  <- readData('MED_OUT', paste0('F.',em,'_scaled_EF'))
+All_Default_EFs <- readData('MED_OUT', paste0('D.',em,'_default_total_EF'))
+
+if ( PRINT_EMISSIONS ) Scaled_Emissions <- readData('MED_OUT', paste0( 'F.', em, '_scaled_emissions' ) )
+
+setwd('../diagnostic-output')
+
+# MAIN PROGRM LOOP
+
+# Loop through all the cases
+for ( DataSet in 1:4 ) {
+
+	Scaled_EFs <- All_Scaled_EFs
+	Default_EFs <- All_Default_EFs
+	
+	if ( DataSet == 1 ) {
+		analysis_sectors <- c( "1A4b_Residential" )
+		analysis_fuels <- c( "biomass", "diesel_oil", "natural_gas" )
+	} else if ( DataSet == 2 ) {
+		analysis_sectors <- c( "1A3b_Road" )
+		analysis_fuels <- c( "diesel_oil", "light_oil" )
+	} else if ( DataSet == 3 ) {
+		analysis_sectors <- c( "1A3c_Rail" )
+		analysis_fuels <- c( "diesel_oil", "hard_coal" )
+	} else if ( DataSet == 4 ) {
+		analysis_sectors <- c( "1A1a_Electricity-public", "1A2g_Ind-Comb-other" )
+		analysis_fuels <- c(  "diesel_oil", "heavy_oil", "hard_coal", "natural_gas" )
+	}
+	
+	emission_factor_function ( analysis_sectors, analysis_fuels )
 }
-
-
 
 logStop()
 
 # END
-
