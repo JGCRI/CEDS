@@ -38,7 +38,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "NOx"
 em_lc <- tolower( em )    
 
 # ---------------------------------------------------------------------------
@@ -52,7 +52,7 @@ loadPackage('tools')
 
 # Read in parameter files
 
-files_list <- list.files(path =  './default_emissions_data/EF_parameters', pattern = '*.csv')
+files_list <- list.files(path =  './default-emissions-data/EF_parameters', pattern = '*.csv')
 files_list <- file_path_sans_ext( files_list )
 
 #select "default_EF"
@@ -81,6 +81,7 @@ EF$units <- 'kt/kt'
 
 if( length(EF_list)>0 ){
   printLog(paste('Adding new data to existing emission factor data base for', em))
+  writeData( EF, 'DIAG_OUT', paste0('B.',em,'_comb_User_Added_EF'))
   addToDb_overwrite(new_data = EF, em = em, file_extention = 'comb_EF_db') 
   }else{
   printLog(paste('No data to be added to existing EF database for ', em))}
