@@ -685,7 +685,9 @@ extendDefaultEF <- function(exten_df,
 
   #     ext_method format : column names - id variables (iso, sector, fuels) - pre_ext_method - post_ext_method
   #     ext_year format : column names - id variables (iso, sector, fuels) - pre_ext_year - post_ext_year
-
+  
+  if( pre_ext_method_default == 'none') pre_ext_method_default <- 'constant'
+  
   e_method <- exten_df[,c('iso','sector','fuel')]
   if( 'pre_ext_method' %in% names(exten_df) ){e_method$pre_ext_method <- exten_df$pre_ext_method}
   if( 'pre_ext_method' %!in% names(exten_df) ){e_method$pre_ext_method <- pre_ext_method_default}
@@ -700,7 +702,6 @@ extendDefaultEF <- function(exten_df,
   
   
   #extend  
-  if (pre_ext_method_default != 'none' ){
   out <- extendValues(ext_data = exten_df[,c('iso','sector','fuel','units',id.X_years)],
                       pre_ext_default = pre_ext_method_default,
                       post_ext_default = 'constant',
@@ -708,8 +709,7 @@ extendDefaultEF <- function(exten_df,
                       post_ext_year = end_year,
                       meta = FALSE,
                       ext_method = e_method,
-                      ext_year = e_year) }else{ 
-  out <- exten_df[,c('iso','sector','fuel','units',id.X_years)]}
+                      ext_year = e_year) 
   
   
   # get names and reorder for output
