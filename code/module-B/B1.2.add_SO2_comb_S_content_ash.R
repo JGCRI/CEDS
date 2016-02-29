@@ -3,7 +3,7 @@
 # Date Last Updated: 23 Nov 2015 
 # Program Purpose: generates list of sulfur content and ash retention datafiles
 #        and adds them to EF_parameter database
-# Input Files: variable files in input/default_emissions_data/EF_parameters
+# Input Files: variable files in input/default-emissions-data/EF_parameters
 #               
 # Output Files: B.SO2_S_ControlFrac_db.csv
 # Notes: 
