@@ -35,7 +35,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NH3"
+if ( is.na( em ) ) em <- "BC"
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -217,11 +217,12 @@ if ( !file.exists( paste0("../final-emissions/", summary_fn, ".csv" ) ) ) {
       x_var <- id_cols[ "year" %!in% id_cols ] %>%
         lapply( function(x) paste0( x, "+" ) ) %>% paste( collapse = '' )
       x_var <- substr( x_var, 0, nchar( x_var ) - 1 )
-      abs_diff <- cast( em_comp_out, as.formula( 
-        paste( x_var, "year", sep = "~" ) ), value = "diff" )
+      abs_diff <- filter( em_comp, diff != 0 ) %>% 
+        cast( as.formula( paste( x_var, "year", sep = "~" ) ), value = "diff" )
       
     # make df of absolute difference as percentage of country total 
-      abs_diff_percent <- mutate( em_comp_out, diff_percent = round( diff*100/current ) ) %>%
+      abs_diff_percent <- filter( em_comp, diff != 0 ) %>%
+        mutate( diff_percent = round( diff*100 / current ) ) %>%
         cast( as.formula( paste( x_var, "year", sep = "~" ) ), value = "diff_percent" )
 
     # write out diagnostics
