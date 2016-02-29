@@ -148,8 +148,9 @@ GAINS_heat_content <- data.frame(fuel=c('brown_coal', 'hard_coal', 'biomass', 'l
                                         'natural_gas', 'diesel_oil', 'heavy_oil'),
                                  heat_content=c(mult_browncoal, mult_hardcoal, mult_biomass, mult_lightoil, 
                                                 mult_NaturalGas, mult_Diesel, mult_heavy_oil))
+GAINS_heat_content$units <- "kJ/kg"
 
-writeData( GAINS_heat_content, domain = "MED_OUT", fn = "B1.1.GAINS_heat_content") 
+writeData( GAINS_heat_content, domain = "MED_OUT", fn = "B1.1.Europe_heat_content_IEA") 
 
 # ---------------------------------------------------------------------------
 # 2. Change to CEDS sectors and fuels
