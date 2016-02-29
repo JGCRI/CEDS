@@ -216,6 +216,9 @@ bc_ef <- replaceValueColMatch(bc_ef_template , bc_iso ,
 bc_ef_nas <- bc_ef[is.na(bc_ef$X1960),]
 bc_ef <- bc_ef[!is.na(bc_ef$X1960),]
 
+# Write as diagnostic 
+writeData( bc_ef_nas, "DIAG_OUT", paste0( "B.",em,"_missing_ef" ) )
+
 # ------------------------------------------------------------------------------
 # 5. Fill missing EFs
 
