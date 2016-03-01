@@ -61,7 +61,7 @@ s_content <- readData( "DEFAULT_EF_PARAM", "B.SO2_GAINS_s_content")
 
 gains_ashret <- readData('DEFAULT_EF_PARAM', 'B.SO2_GAINS_s_ash_ret')
 
-GAINS_heat_content <- readData( "MED_OUT", "B1.1.GAINS_heat_content") 
+GAINS_heat_content <- readData( "MED_OUT", "B1.1.Europe_heat_content_IEA") 
 
 # ---------------------------------------------------------------------------
 # 2.0 Melting and combing same sectors and fuels in fuel consumption
