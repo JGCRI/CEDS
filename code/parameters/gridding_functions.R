@@ -225,22 +225,33 @@ mask_avail_check <- function( emission_country_list, mask_country_list ){
 # input files: 
 # output: 
 get_proxy <- function( em_species, year, sector ) {
-  if ( as.numeric( year ) > 2008 ) {
-    year <- as.character( 2008 )
-  }
-  if ( sector == 'RCORC' ) { sector <- 'RCO' }
-  if ( sector == 'RCOO' ) { sector <- 'RCO' }
-  #######################remove below at some point
-  if ( em_species == 'BC' ) { em_species <- 'CO' }
-  if ( em_species == 'OC' ) { em_species <- 'CO' }
-  #######################
-  sector <- tolower( sector )
-  proxy_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy/")
-  proxy_filename <- paste( em_species, year, sector, sep = '_')
-  load( paste0( proxy_dir,proxy_filename ) )
-  proxy <- get( proxy_filename )
-  rm( list = proxy_filename )
-  return( proxy )
+    
+    # use RCO proxy for sector RCOO and RCORC
+    if ( sector == 'RCORC' ) { sector <- 'RCO' }
+    if ( sector == 'RCOO' ) { sector <- 'RCO' }
+    
+    # specify the proxy_dir
+    proxy_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy/")
+    # list out all availiable proxies in proxy_dir
+    proxy_list <- list.files( proxy_dir ) 
+    
+    # generate the proxy name want to load 
+    proxy_filename <- paste( em_species, year, sector, sep = '_')
+    
+    # if the proxy desired is not in proxy_list, load population as proxy 
+    if( ( proxy_filename %in% proxy_list ) == T ) {
+      load( paste0( proxy_dir,proxy_filename ) )
+      proxy <- get( proxy_filename )
+      rm( list = proxy_filename )
+    } else { 
+      proxy_filename <- paste0( 'population_', year )
+      proxy_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy_backup/")
+      load( paste0( proxy_dir, proxy_filename ) )
+      proxy <- get( proxy_filename )
+      rm( list = proxy_filename )
+    }
+    
+    return( proxy )
 }
 # ------------------------------------------------------------------------------
 # grid_one_sector
@@ -263,7 +274,7 @@ grid_one_sector <- function( sector, em_species, year, location_index, grid_reso
   # if no mask available for certain country, generate a country drop list 
   country_drop_list <- mask_avail_check( emissions_year_sector$iso, location_index$iso )
   summary_dir <- filePath( "MED_OUT", "", extension = "" )
-  cat( country_drop_list, file = paste0( summary_dir, 'dropped_countries.txt' ), append = TRUE, sep = "\n" )
+  #cat( country_drop_list, file = paste0( summary_dir, 'dropped_countries.txt' ), append = TRUE, sep = "\n" )
   # drop country if necessary 
   for ( country in country_drop_list ) {
 	emissions_year_sector <- emissions_year_sector[ emissions_year_sector$iso != country, ]
@@ -274,6 +285,10 @@ grid_one_sector <- function( sector, em_species, year, location_index, grid_reso
   # then use proxy_backup
   proxy_replace_flag <- proxy_substitution_check( country_list, location_index, emissions_year_sector, proxy )
   
+  # if using population as proxy, no need to do proxy substitution 
+  if ( as.numeric( year ) < 1970 ) {
+    proxy_replace_flag[ proxy_replace_flag == T ] <- F
+  }
   # calling the G.emiDistribute function to do the scalling
   invisible( lapply( country_list, grid_one_country, location_index, emissions_year_sector, proxy, proxy_backup, year, sector, em_species, proxy_replace_flag ) )
 
@@ -331,19 +346,21 @@ gridding_initialize <- function( grid_resolution = 0.5,
                                  load_masks = T, load_seasonality_profile = T
                                  ){
   # set up basics
-  grid_resolution <<- 0.5
+  grid_resolution <<- grid_resolution 
   message( paste0( 'Processing resolution: ', grid_resolution ) )
-  start_year <<- 1970
-  end_year <<- 2014
+  start_year <- start_year
+  end_year <- end_year
   year_list <<- as.character( seq( start_year, end_year ) )
-  message( paste0( 'Gridding from year ', start_year, ' to year ', end_year ))
+  message( paste0( 'Gridding from year ', start_year, ' to year ', end_year ) )
   
   # load country masks 
   mask_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "mask/")
   mask_list <- list.files( mask_dir )
-  invisible( lapply( mask_list, function( mask_list ) { load( paste0( mask_dir, mask_list), .GlobalEnv ) } ) )
-  country_mask_initialized <- T
-  message( 'Country mask initialized: ', country_mask_initialized )
+  if ( load_masks == T ) {
+    invisible( lapply( mask_list, function( mask_list ) { load( paste0( mask_dir, mask_list), .GlobalEnv ) } ) )
+    country_mask_initialized <- T
+    message( 'Country mask initialized: ', country_mask_initialized )
+  }
   
   # load seasonality profile
   seasonality_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "seasonality/" )
@@ -994,4 +1011,28 @@ final_monthly_nc_output_air <- function( output_dir, grid_resolution, year, em_s
                                unit = 'kt' )
   summary_name <- paste0( output_dir, 'CEDS_', em_species, '_', sector, '_', '_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
   write.csv( summary_table, file = summary_name, row.names = F )
+}
+# -------------------------------------------------
+# region_emCombine
+# Brief: generate a fliped matrix by a given matrix
+# Dependencies: 
+# Author: Leyang Feng
+# parameters: x - the matrix to be fliped  
+# return: a fliped matrix 
+# input files: 
+# output: 
+region_emCombine <- function( em_data, region_list_for_combination ) {
+  dim_check <- dim( region_list_for_combination )
+  if ( dim_check[ 1 ] == 0 ) {
+    message( 'No region\'s emission needs to be combined to another region. ' )
+    return( em_data )  
+  } else {
+    for ( i in 1 : dim_check[ 1 ] ) { # lopping through each row of the combine_list 
+	  region_merge_to <- region_list_for_combination[ i, 1 ]
+	  region_merge <- region_list_for_combination[ i, 2 ]
+	  em_data[ em_data$iso == region_merge_to , ] [ paste0( 'X', year_list ) ] <- em_data[ em_data$iso == region_merge_to, ][ paste0( 'X', year_list ) ] + em_data[ em_data$iso == region_merge, ][ paste0( 'X', year_list ) ]
+	  em_data <- em_data[ !em_data$iso == region_merge, ]  
+    }
+    return( em_data )
+  }
 }
