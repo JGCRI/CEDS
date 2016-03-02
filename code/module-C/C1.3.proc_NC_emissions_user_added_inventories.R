@@ -72,12 +72,19 @@ em_lc <- tolower( em )
     inv_data <- inv_list[[ i ]]
     inv_instructions <- instructions[which(instructions$inv == inv_name) , ]
     
+    # Get rid of any blank columns
+    inv_data$X <- NULL
+
     years <- names(inv_data)[grep('X',names(inv_data))]
     
     replace_inv_data <- merge( inv_instructions[,c('iso', 'inv_sector' , 'ceds_sector' ) ],
                                inv_data, by.x = c( 'iso', 'inv_sector' ),
                                by.y = c( 'iso','sector' ),
                                all.x = TRUE, all.y = FALSE)
+    
+   # Deal with case where units column not present
+    if ( !( "units" %in% names( replace_inv_data ) ) ) replace_inv_data$units <- 'kt' 
+    
     replace_inv_data <- replace_inv_data[ !is.na( replace_inv_data$units ) , ]
     replace_inv_data$inv_sector <- NULL
     
@@ -89,14 +96,17 @@ em_lc <- tolower( em )
     
     replace_inv_data <- replace_inv_data[ which( replace_inv_data$sector %in% process_sectors ) , ]
     
-    # add fuel - process
-    replace_inv_data$fuel <- 'process'
-    replace_inv_data <- replace_inv_data[ , c('iso','sector','fuel','units', years )]
-    
-    # interpolate
-    replace_inv_data[ years ] <- interpolateValues( replace_inv_data[ years ]  )
-    
-    replacement_data <- rbind.fill( replacement_data, replace_inv_data )
+    # Check that still have valid data
+    if ( nrow( replace_inv_data ) > 0 ) {
+      # add fuel - process
+      replace_inv_data$fuel <- 'process'
+      replace_inv_data <- replace_inv_data[ , c('iso','sector','fuel','units', years )]
+      
+      # interpolate
+      replace_inv_data[ years ] <- interpolateValues( replace_inv_data[ years ]  )
+      
+      replacement_data <- rbind.fill( replacement_data, replace_inv_data )
+    }
   }
 
   if( nrow (combustion_sectors) > 0 ){
