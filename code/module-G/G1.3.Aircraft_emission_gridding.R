@@ -38,8 +38,9 @@
 # 0.5 Initialize gridding setups
 
     gridding_initialize( grid_resolution = 0.5,
-                         start_year = 1970,
+                         start_year = 1750,
                          end_year = 2014, load_masks = T, load_seasonality_profile = T )
+    output_dir <- filePath( 'FIN_out', 'gridded_emissions/', extension="")
     
 # ------------------------------------------------------------------------------
 # 1. Define emission species and read in files
@@ -54,19 +55,26 @@
     
 # read in the emission data
     emissions <- readData( "MED_OUT", paste0( "F.", em, "_scaled_emissions" ) )
+# read in the CEDS gridding sector mapping
+    ceds_gridding_mapping<- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'CEDS_sector_to_gridding_sector_mapping' )
 
 # ------------------------------------------------------------------------------
 # 2. Pre-processing
-    aircraft_sectors <- c( '1A3ai_International-aviation', '1A3aii_Domestic-aviation' )
-    
+    # extract aircraft related CEDS working sectors for ceds gridding sector mapping
+    air_mapping <- ceds_gridding_mapping[ ceds_gridding_mapping$CEDS_level_1_grids_abr == 'AIR', ] 
+    aircraft_sectors <- unique( air_mapping$CEDS_working_sector )
+    aircraft_sectors <- aircraft_sectors[ ! is.na( aircraft_sectors ) ]
+    # extract aircraft emissions only
     air_emissions <- subset( emissions, 
                              sector == '1A3ai_International-aviation' | sector == '1A3aii_Domestic-aviation', 
                              c( 'iso', 'sector', 'fuel', paste0( 'X', emissions_years ) ) )    
+    # sum up all aircraft emissions 
     air_emissions <- cbind( CEDS_gridding_sector = 'AIR', air_emissions )
     air_emissions <- aggregate( air_emissions[ , paste0( 'X', emissions_years ) ],
                                 by = list( air_emissions$CEDS_gridding_sector ),
                                 FUN = sum ) 
-    colnames( air_emissions) [ 1 ] <- 'sector' 
+    colnames( air_emissions) [ 1 ] <- 'sector'
+    
 # ------------------------------------------------------------------------------
 # 3. Scalling and writing output data 
     # For now, the scaling routine uses nested for loops to go through every years
@@ -79,7 +87,7 @@
       grid_one_year_air( em, year, air_emissions, grid_resolution, sector = 'AIR', mass = F )
       
       # write netCDF to disk, each netCDF contains one year's all sectors' data for one gas 
-      output_dir <- filePath( 'MED_OUT', '', extension="")
+
       final_monthly_nc_output_air( output_dir, grid_resolution, year, em, sector = 'AIR', sector_long = 'Aircraft', mass = F )
 
     }
