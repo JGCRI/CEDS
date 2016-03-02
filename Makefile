@@ -359,6 +359,7 @@ $(MED_OUT)/A.NC_activity_db.csv : \
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 	Rscript $(word 4,$^) $(EM) --nosave --no-restore
 	Rscript $(word 5,$^) $(EM) --nosave --no-restore
+	Rscript $(word 6,$^) $(EM) --nosave --no-restore
 
 # aa5-2a
 # Converts activity database into CEDS Standard and combines
