@@ -42,8 +42,9 @@
 # 0.5 Initialize gridding setups
 
     gridding_initialize( grid_resolution = 0.5,
-                         start_year = 1970,
+                         start_year = 1750,
                          end_year = 2014, load_masks = T, load_seasonality_profile = T )
+    output_dir <- filePath( 'FIN_OUT', 'gridded_emissions/', extension = "" )
     
 # ------------------------------------------------------------------------------
 # 1. Define emission species and read in files
@@ -57,7 +58,7 @@
     MODULE_G <- "../code/module-G/"
     
 # read in the emission data
-    emissions <- readData( "MED_OUT", paste0( "F.", em, "_scaled_emissions" ) )
+    emissions <- readData( "FIN_OUT", paste0( "S.", em, "_Extended_CEDS_Emissions" ) )
 # read in the country_location_index, which indicates the location of each country mask in the 'world' matrix 
     country_location_index <- 
       readData( "GRIDDING", domain_extension = "gridding_mappings/", file_name =  paste0( "country_location_index_", as.character( grid_resolution ) ) ) 
@@ -65,7 +66,8 @@
     ceds_gridding_mapping<- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'CEDS_sector_to_gridding_sector_mapping' )
 # read in the CEDS griding sector list 
     ceds_gridding_sector_list<- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'CEDS_gridding_sectors' )
-    
+# read in the country emission combine mapping ( could be empty if no combination is needed )
+    country_combine_list <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'country_emission_combine_mapping' )
 # ------------------------------------------------------------------------------
 # 2. Pre-processing
 # 2.1. Extract CEDS level 1 gridding sector list
@@ -75,7 +77,7 @@
     ceds_gridding_sector_list <- ceds_gridding_sector_list[ order( ceds_gridding_sector_list$CEDS_level_3_grids_abr ) , ]
     level3_sector_list <- unique( ceds_gridding_sector_list$CEDS_level_3_grids_abr )
     level3_sector_longname_list <- unique( ceds_gridding_sector_list$CEDS_level_3_grids )
-# 2.3.  Convert the emission data from CEDS working sectors to CEDS level 1 gridding sector 
+# 2.3. Convert the emission data from CEDS working sectors to CEDS level 1 gridding sector 
     ceds_gridding_mapping_level1 <- ceds_gridding_mapping[ , c( 'CEDS_working_sector', 'CEDS_level_1_grids_abr' ) ]
     emissions_level1_sector <- merge( emissions, ceds_gridding_mapping_level1, 
                                            by.x = 'sector', by.y = 'CEDS_working_sector' )
@@ -88,20 +90,19 @@
                                                FUN = sum )
     # change column names
     colnames( emissions_level1_sector )[ 1 : 2 ] <- c( 'CEDS_grd_sector', 'iso' ) 
- 
+# 2.4. Combine two or more country's emission into one country ( if necessary )
+    emissions_level1_sector <- region_emCombine( emissions_level1_sector, country_combine_list )
+    
 # ------------------------------------------------------------------------------
 # 3. Scalling and writing output data 
     # For now, the scaling routine uses nested for loops to go through every years
     # gases and sectors. May consider to take away for loop for sectors and keep year loops 
     # for future parallelization 
-    #for ( year in year_list ) {
+    for ( year in year_list ) {
     #for ( year in year_list[ ( length( year_list ) - 5 ): length( year_list) ] ) {  
-    for ( year in '2000' ) {  
+    #for ( year in '2000' ) {  
       grid_one_year( em, year, emissions_level1_sector, country_location_index, level1_sector_list, grid_resolution, mass = F )
       # write netCDF to disk, each netCDF contains one year's all sectors' data for one gas 
-      output_dir <- filePath( 'MED_OUT', '', extension="")
-      
-      #writeNC_globalExt( output_dir, grid_resolution, year, em, mass = F )
       final_monthly_nc_output( output_dir, grid_resolution, year, em, level3_sector_list, level3_sector_longname_list, mass = F )
     }
 

@@ -44,7 +44,7 @@
     gridding_initialize( grid_resolution = 0.5,
                          start_year = 1970,
                          end_year = 2014, load_masks = T, load_seasonality_profile = T )
-    
+    output_dir <- filePath( 'FIN_out', 'gridded_emissions/', extension = "" )
 # ------------------------------------------------------------------------------
 # 1. Define emission species and read in files
   
@@ -104,7 +104,7 @@
       grid_one_year_subVOCs( em, year, emissions_level1_sector, country_location_index, level1_sector_list, grid_resolution, VOC_ratios, VOC_list, mass = F )
     
       # write netCDF to disk, each netCDF contains one year's all sectors' data for one gas 
-      output_dir <- filePath( 'MED_OUT', '', extension="")
+
       final_monthly_nc_output_subVOCs( output_dir, grid_resolution, year, em, level3_sector_list, level3_sector_longname_list, VOC_list, VOC_names, mass = F )
 
     }
