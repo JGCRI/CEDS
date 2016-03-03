@@ -56,7 +56,7 @@ if ( em %!in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO', 'BC', 'OC' ) ) {
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-inventory_data_file <- 'China/CEDS_MEIC_Emissions_2rdLevel_20160113'
+inventory_data_file <- 'China/CEDS_MEIC_Emissions_2rdLevel_20160226'
 inv_data_folder <- "EM_INV"
 sector_fuel_mapping <- 'MEIC_scaling_mapping'
 mapping_method <- 'sector'

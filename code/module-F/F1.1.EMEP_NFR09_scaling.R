@@ -70,13 +70,13 @@ if ( em == 'SO2' ) {
 
 mapping_method <- 'sector'
 inv_name <- 'EMEP_NFR09'
-# Do not include regions with problematic inventories ("mda", "aze")
+# Do not include regions with problematic inventories ("mda", "aze", "srb", "tur")
 # Do not include "can" since have higher resolution data to use
 region <- c("aut", "bel", "bgr", "che", "cyp", "cze", "deu",
             "dnk", "esp", "est", "fin", "fra", "gbr", "geo", "hrv", "hun",
-            "irl", "isl", "ita", "ltu", "lux", "lva", "mkd", "mlt",
-            "nld", "nor", "pol", "prt", "rou", "srb", "svk", "svn", "swe",
-            "tur")
+            "irl", "isl", "ita", "ltu", "lux", "lva", "mkd",
+            "nld", "nor", "pol", "prt", "rou", "svk", "svn", "swe"
+            )
 inv_years<-c(1980:2012)
 
 # ------------------------------------------------------------------------------
