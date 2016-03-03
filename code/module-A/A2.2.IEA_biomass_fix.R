@@ -478,7 +478,7 @@ initialize( script_name, log_msg, headers )
     IEA_adj <- select( biomass_IEA_final, iso, units, year, IEA, IEA_ext_total )
     IEA_adj$year <- paste0( "X", IEA_adj$year )
     
-    # IEA for USA in biomass_final is actually IEA, so replace with IEA first
+    # IEA for USA in biomass_final is actually EIA, so replace with IEA first
     IEA_usa <- filter( IEA_en, sector == "1A4b_Residential", fuel == "biomass", iso == "usa" ) %>%
       melt( measure = X_IEA_years )
     IEA_adj$IEA[ IEA_adj$iso == "usa" ] <- IEA_usa$value[ match( 
