@@ -61,6 +61,7 @@ initialize( script_name, log_msg, headers )
   inv_data_folder <- "EM_INV"
   sector_fuel_mapping <- 'Edgar_scaling_mapping'
   mapping_method <- 'sector'
+  # regions with poor or inconsistent data not included ('srb', "mlt","tur" )
   inv_name <- 'EDGAR_PG' #for naming diagnostic files
   region <-  c("can", "spm", "usa", "mex", "abw", "aia", "ant", "atg", "bhs", "blz", "bmu", "brb", "cri", "cub", "cym",
                "dma", "dom", "glp", "grd", "gtm", "hnd", "hti", "jam", "kna", "lca", "msr", "mtq", "nic", "pan", "pri",
@@ -71,7 +72,7 @@ initialize( script_name, log_msg, headers )
                "sdn", "som", "syc", "uga", "ago", "bwa", "lso", "moz", "mwi", "nam", "swz", "tza", "zaf", "zmb", "zwe",
                "aut", "bel", "che", "deu", "dnk", "esp", "fin", "fra", "fro", "gbr", "gib", "grc", "grl", "irl", "isl",
                "ita", "lux", "nld", "nor", "prt", "swe", "alb", "bgr", "bih", "cyp", "cze", "est", "hrv", "hun", "ltu",
-               "lva", "mkd", "mlt", "pol", "rou", "scg", "svk", "svn", "tur", "blr", "mda", "ukr", "kaz", "kgz", "tjk",
+               "lva", "mkd", "pol", "rou", "scg", "svk", "svn", "blr", "mda", "ukr", "kaz", "kgz", "tjk",
                "tkm", "uzb", "arm", "aze", "geo", "rus", "are", "bhr", "irn", "irq", "isr", "jor", "kwt", "lbn", "omn",
                "qat", "sau", "syr", "yem", "afg", "bgd", "btn", "ind", "lka", "mdv", "npl", "pak", "kor", "prk", "chn",
                "hkg", "mac", "mng", "twn", "brn", "khm", "lao", "mmr", "mys", "phl", "sgp", "tha", "tls", "vnm", "idn",
