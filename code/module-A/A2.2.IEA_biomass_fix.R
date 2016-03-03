@@ -1,16 +1,17 @@
 #------------------------------------------------------------------------------
 # Program Name: A2.2.IEA_biomass_fix.R
 # Author: Linh Vu
-# Date Last Updated: 22 February 2016
+# Date Last Updated: 3 Mar 2016
 # Program Purpose:  This program corrects system (IEA) residential biomass using 
 #                   EIA, Fernandes et al. 2007, and Denier van der Gon et al. 2015
 #                   (European) biomass data
 # Input Files:     A.en_stat_sector_fuel.csv, A.Fernandes_residential_biomass, 
 #                  Europe_wooduse_Europe_TNO_4_Steve.xlsx, A.UN_pop_master.csv, 
-#                  EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors.xlsx
+#                  EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors.xlsx, 
+#                  IEA_biomass_double_counting.xlsx
 # Output Files:    A.en_stat_sector_fuel.csv, A.residential_biomass_full.csv
 # Notes:
-# TODO: Fix any possible double counting due to adjustments in biomass consumption
+# TODO: Extend biomass series to 1750
 #   
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -33,7 +34,7 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provides logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R", "timeframe_functions.R" ) # Any additional function files required
-log_msg <- "Combine system's IEA residential biomass with EIA, Fernandes and European data"
+log_msg <- "Refine CEDS residential biomass"
 script_name <- "A2.2.IEA_biomass_fix.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
@@ -52,6 +53,9 @@ initialize( script_name, log_msg, headers )
     EIA_biomass <- readData( "ENERGY_IN", "EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors", 
                              ".xlsx", sheet_selection = "Annual Data", skip_rows = 10, meta = F )[ c( 1, 4 ) ]
 
+# Read biomass double-counting correction
+    IEA_correction <- readData( "ENERGY_IN", "IEA_biomass_double_counting", ".xlsx", meta = F )
+    
 # Define conversion factors
     kt_to_TJ <- 13.79960448  # 2005 for European countries and USA (TJ/kt)
     tBtu_to_TJ <- 0.94782 * 10^3 # source: eia.gov/cfapps/ipdbproject/docs/unitswithpetro.cfm
@@ -126,6 +130,7 @@ initialize( script_name, log_msg, headers )
 # -- For remaining countries, use Fernandes if IEA is smaller than Fernandes by more  
 #    than 75%, for N = 5 years in a row centered at 2000.
 # -- For remaining countries, use IEA.
+    printLog( "Combine IEA, EIA, Fernandes, and European biomass")
 
 # Define values for routine
     N <- 5
@@ -192,36 +197,18 @@ initialize( script_name, log_msg, headers )
     
 # ------------------------------------------------------------------------------
 # 4. Correct gaps in IEA_pc
-# General rules:
 # -- Use rural per capita biomass for detecting/correcting gaps, and compute back
 #   total biomass after done correcting.
 # -- If IEA is missing or breaks, use Fernandes growth trend to go back in time.
-# -- Try 2 IEA break criteria: 50% year to year; or 50% over 2 year (count 
-#   discontinuity as in the first year). [TODO]
+#   IEA should eventually converge to Fernandes.
 # -- Note there are two types of gaps: missing (NA) biomass, or breaks (year-to-year
 #   ratio exceeding a specified threshold). Missing biomass could be for edge years
 #   (most countries), or inner years (for che and deu).
 # -- Note that Fernandes has been corrected for discontinuities, now has full series.
-#    
-# General procedures for correcting IEA_pc:
-# -- To fix NA: Starting from most recent year and going backwards in time, if IEA
-#   is missing, extrapolate using IEA/Fernandes ratio of the average of the 3 years
-#   immediately following (after) the break. Cascade IEA if needed. Result is full 
-#   IEA series.
-# -- To fix breaks: Going backwards in time, find the last (most recent) year where 
-#   IEA year-to-year ratio exceeds the specified threshold. Extend this year and all
-#   all earlier years backwards using 3-year-average IEA/Fernandes ratio (using the 
-#   extrapolated IEA series from the previous step).
-# -- To keep extrapolated IEA under control: If extrapolated IEA exceeds a maximum 
-#   limit (taken to be max of IEA and Fernandes 3-year average for 1969-1971 and for 
-#   3 years after the last (most recent) gap (missing or break, whichever is later), 
-#   replace extrapolated IEA with this maximum limit.
-# -- To make IEA converge to Fernandes eventually: Go backwards in time and find the 
-#   last (most recent) year where extrapolated IEA drops below Fernandes, replace 
-#   this year and all earlier years with Fernandes.
+    printLog( "Correct gaps in IEA residential biomass" )
     
 # Define values used in routine
-    MIN_IEA_YR_TO_YR <- .5
+    MIN_IEA_YR_TO_YR <- .5  # for residential biomass
     MAX_IEA_YR_TO_YR <- 2
     YEAR_SEQUENCE <- seq( 1969, 1971 )  # for computing maximum limit in 4c
     
@@ -419,9 +406,100 @@ initialize( script_name, log_msg, headers )
     
 # Compute back total biomass
     biomass_IEA_final$IEA_ext_total <- biomass_IEA_final$IEA_pc_ext_final * biomass_IEA_final$pop2
-    
+
 # ------------------------------------------------------------------------------
-# 5. Make final biomass dataset
+# 5. Correct for potential biomass double counting
+# IEA residential and unspecified biomass might be correlated (i.e. one drops as the 
+# other rises). If so, unspecified biomass needs to be adjusted if residential biomass
+# is increased. 
+#    
+# The input file IEA_biomass_double_counting.xlsx shows where residential and
+# unspecified biomass are correlated. The decision column identifies countries/
+# years where unspecified biomass needs to be adjusted. The .xlsx is created from
+# A.IEA_biomass_double_counting.csv which is generated by the following diagnostic 
+# block. A warning will print if IEA_biomass_double_counting.xlsx needs to be updated.
+#    
+# The actual adjustment calculations are performed after the diagnostic block.
+
+# Diagnostics: Where are residential and unspecified biomass correlated?
+    printLog( "Detect potential biomass double counting")
+    
+    # Define threshold values
+    MIN_IEA_YR_TO_YR_UNSPEC <- .8 # for unspecified biomas
+    MAX_IEA_YR_TO_YR_UNSPEC <- 1.25
+    
+    # Slice out IEA countries that have both residential and unspecified biomass
+    IEA_res_unspec <- filter( IEA_en, fuel == "biomass", iso %in% iso_IEA, 
+                              sector %in% c( "1A4b_Residential", "1A5_Other-unspecified" ) )
+    IEA_res_unspec <- group_by( IEA_res_unspec, iso ) %>%
+      filter( length( sector ) == 2 ) %>%
+      select( -fuel, -units ) %>%
+      data.frame()
+    
+    # Compute res and unspec year-to-year change (ratio and absolute difference)
+    IEA_res_unspec <- melt( IEA_res_unspec, id = c( "iso", "sector" ) )
+    IEA_res_unspec <- cast( IEA_res_unspec, iso + variable ~ sector )
+    names( IEA_res_unspec ) <- c( "iso", "year", "res", "unspec" )
+    IEA_res_unspec <- arrange( IEA_res_unspec, iso, year ) %>% 
+      group_by( iso ) %>% 
+      mutate( res_ratio = res / lag( res ), 
+              unspec_ratio = unspec / lag( unspec ),
+              res_diff = res - lag( res ),
+              unspec_diff = unspec - lag( unspec ),
+              res_flag = res_ratio <= MIN_IEA_YR_TO_YR | res_ratio >= MAX_IEA_YR_TO_YR, 
+              unspec_flag = unspec_ratio <= MIN_IEA_YR_TO_YR_UNSPEC | 
+                unspec_ratio >= MAX_IEA_YR_TO_YR_UNSPEC ) 
+
+    # Keep rows where res and unspec change abnormally in opposite direction
+    IEA_res_unspec_flag <- filter( IEA_res_unspec, res_flag, unspec_flag, 
+                                   res_diff * unspec_diff < 0 ) 
+
+    # Write out countries with correlated res and unspec 
+    # flag == T where res and unspec changes abnormally in opposite direction 
+    IEA_res_unspec_out <- select( IEA_res_unspec, -res_flag, -unspec_flag ) %>%
+      filter( iso %in% IEA_res_unspec_flag$iso ) %>% 
+      arrange( iso, year )
+    IEA_res_unspec_out$flag <- NA
+    IEA_res_unspec_out$flag[ paste0( IEA_res_unspec_out$iso, IEA_res_unspec_out$year ) %in% 
+                               paste0( IEA_res_unspec_flag$iso, IEA_res_unspec_flag$year ) ] <- 1
+    IEA_res_unspec_out$year <- as.character( IEA_res_unspec_out$year )
+
+    # Above result should be identical to what is read in from IEA_biomass_double_counting.xlsx
+    # If a warning prints, please review/update IEA_biomass_double_counting.xlsx
+    if ( !isTRUE( all.equal( IEA_res_unspec_out[ c( 1:4 ) ], IEA_correction[ c( 1:4 ) ] ) ) )
+      warning( "Input values have changed. Please review diagnostic-output/A.IEA_biomass_adjustment.csv, update input/energy/IEA_biomass_double_counting.xlsx, then re-run the system." )
+
+# Compute adjustment made to IEA residential biomass. This amount will be
+# subtracted from unspecified biomass.
+    printLog( "Compute adjustments to IEA unspecified biomass" )
+    
+    IEA_correction <- filter( IEA_correction, !is.na( decision ), 
+                              !grepl( "ignore", decision ) )
+    IEA_adj <- select( biomass_IEA_final, iso, units, year, IEA, IEA_ext_total )
+    IEA_adj$year <- paste0( "X", IEA_adj$year )
+    
+    # IEA for USA in biomass_final is actually IEA, so replace with IEA first
+    IEA_usa <- filter( IEA_en, sector == "1A4b_Residential", fuel == "biomass", iso == "usa" ) %>%
+      melt( measure = X_IEA_years )
+    IEA_adj$IEA[ IEA_adj$iso == "usa" ] <- IEA_usa$value[ match( 
+      IEA_adj$year[ IEA_adj$iso == "usa" ], IEA_usa$variable ) ]
+    
+    IEA_adj$IEA[ is.na( IEA_adj$IEA ) ] <- 0
+    IEA_adj <- mutate( IEA_adj, adj = IEA_ext_total - IEA )  %>%
+      filter( paste( iso, year ) %in% 
+                paste( IEA_correction$iso, IEA_correction$year ) )
+
+    # Add all years and cast to wide format
+    IEA_adj_wide <- merge( data.frame( year = X_IEA_years ), 
+                           data.frame( iso = unique( IEA_adj$iso ) ) ) %>%
+      merge( IEA_adj, all = T ) %>%
+      cast( iso ~ year, value = "adj" )
+    IEA_adj_wide[ is.na( IEA_adj_wide ) ] <- 0 
+
+# ------------------------------------------------------------------------------
+# 6. Make final biomass dataset
+    printLog( "Compile final dataset" )
+
 # Combine IEA and Fern    
     added_Fern <- filter( biomass_1, iso %in% iso_Fern, year %in% emissions_years ) %>%
       select( iso, units, year, pop2, src, biomass_pc = Fern_pc, biomass_tot = Fern )
@@ -430,23 +508,58 @@ initialize( script_name, log_msg, headers )
                                         biomass_tot = IEA_ext_total ),
                                 added_Fern )
     biomass_final$year <- paste0( "X", biomass_final$year )
+    
+# TODO: extend biomass_final back to 1750 
 
-# Replace residential biomass in IEA_en with data in biomass_final
+# Replace residential biomass in CEDS with data in biomass_final
     biomass_final_wide <- cast( biomass_final, iso + units ~ year, value = "biomass_tot" )
-    IEA_en[ IEA_en$sector == "1A4b_Residential" & IEA_en$fuel == "biomass", X_IEA_years ] <- 
+    IEA_en_adj <- IEA_en
+    IEA_en_adj[ IEA_en_adj$sector == "1A4b_Residential" & IEA_en_adj$fuel == "biomass", X_IEA_years ] <- 
       biomass_final_wide[ match( 
-        IEA_en$iso[ IEA_en$sector == "1A4b_Residential" & IEA_en$fuel == "biomass" ], 
+        IEA_en_adj$iso[ IEA_en_adj$sector == "1A4b_Residential" & IEA_en_adj$fuel == "biomass" ], 
         biomass_final_wide$iso ), X_IEA_years ] 
+
+# Adjust CEDS unspecified biomass
+    # Subtract adjustment to residential biomass from unspecified biomass
+    IEA_en_unspec <- filter( IEA_en_adj, sector == "1A5_Other-unspecified", fuel == "biomass", 
+                             iso %in% IEA_adj_wide$iso )
+    IEA_en_unspec[ X_IEA_years ] <- IEA_en_unspec[ X_IEA_years ] - IEA_adj_wide[ X_IEA_years ]
+    
+    # If unspecified biomass < 0 after adjustment, bring up to 0
+    IEA_en_unspec[ IEA_en_unspec < 0 ] <- 0
+    
+    # Bind back with other sectors/fuels
+    IEA_en_adj <- bind_rows( filter( IEA_en_adj, ! (sector == "1A5_Other-unspecified" & fuel == "biomass" & 
+                                     iso %in% IEA_adj_wide$iso ) ), IEA_en_unspec ) %>%
+      arrange( iso, sector, fuel ) %>% data.frame( )
+   
+# Diagnostics: Compare residential/unspecified biomass before and after adjustment 
+    res_unspec <- filter( IEA_en, sector %in% c( "1A4b_Residential", "1A5_Other-unspecified" ), 
+                          fuel == "biomass", iso %in% IEA_adj_wide$iso ) %>%
+      melt( measure = X_IEA_years ) %>%
+      cast( iso + fuel + units + variable ~ sector )
+    names( res_unspec ) <- c( "iso", "fuel", "units", "year", "1A4b_Residential", "1A5_Other-unspecified" )
+    
+    res_unspec_adj <- filter( IEA_en_adj, sector %in% c( "1A4b_Residential", "1A5_Other-unspecified" ), 
+                          fuel == "biomass", iso %in% IEA_adj_wide$iso ) %>%
+      melt( measure = X_IEA_years ) %>% 
+      cast( iso + fuel + units + variable ~ sector )
+    names( res_unspec_adj ) <- c( "iso", "fuel", "units", "year", "1A4b_Residential-ADJUSTED", "1A5_Other-unspecified-ADJUSTED" )
+    
+    res_unspec_comp <- merge( res_unspec, res_unspec_adj )
     
 # ------------------------------------------------------------------------------
-# 6. Write output
-    biomass_IEA_final[ is.na( biomass_IEA_final ) ] <- ""
+# 7. Write output
     biomass_final[ is.na( biomass_final ) ] <- ""
+    biomass_IEA_final[ is.na( biomass_IEA_final ) ] <- ""
+    IEA_res_unspec_out[ is.na( IEA_res_unspec_out ) ] <- ""
     
-    writeData( IEA_en, "MED_OUT", "A.en_stat_sector_fuel" )
-    writeData( biomass_final, "MED_OUT", "A.residential_biomass_full" )
+    writeData( IEA_en_adj, "MED_OUT", "A.en_stat_sector_fuel" )
+    writeData( biomass_final, "MED_OUT", "A.residential_biomass_full", meta = F )
 
 # Diagnostics
-    writeData( biomass_IEA_final, "DIAG_OUT", "A.residential_biomass_IEA_ext" )
-    
+    writeData( biomass_IEA_final, "DIAG_OUT", "A.residential_biomass_IEA_ext", meta = F )
+    writeData( IEA_res_unspec_out, "DIAG_OUT", "A.IEA_biomass_double_counting", meta = F )
+    writeData( res_unspec_comp, "DIAG_OUT", "A.IEA_biomass_adjustment", meta =  F )
+
 logStop()

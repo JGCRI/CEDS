@@ -299,7 +299,8 @@ $(MED_OUT)/A.en_stat_sector_fuel.csv : \
 	$(ENERGY_DATA)/IEA_energy_balance_factor.csv \
 	$(MED_OUT)/A.Fernandes_biomass_conversion.csv \
 	$(ENERGY_DATA)/Europe_wooduse_Europe_TNO_4_Steve.xlsx \
-	$(ENERGY_DATA)/EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors.xlsx
+	$(ENERGY_DATA)/EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors.xlsx \
+	$(ENERGY_DATA)/IEA_biomass_double_counting.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 
