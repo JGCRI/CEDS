@@ -57,7 +57,7 @@ id_cols <- c( "iso", "sector", "fuel", "units" )
 inventory_data_file <- paste0('JRC_PEGASOS_',em,'_TS_REF')
 sheet_name = paste0( 'NEW_v4.3_EM_', em, '_ref' )
 
-edgar <-  readData( domain, domain_extension = "Edgar/",
+edgar <-  readData( domain, domain_extension = domain_ext,
 				    inventory_data_file,  ".xlsx", 
 					sheet_selection = sheet_name, skip_rows = 8 ) 
 
