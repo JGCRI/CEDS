@@ -1,6 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A3.2.Adjust_Shipping_Fuel_Cons.R
-# Authors Names: Steve Smith
+# Authors Names: Steve Smith, Linh Vu
+# Date Last Updated: 2 Mar 2016
 # Program Purpose: Reads in exogenous time series for global shipping fuel consumption
 #                  Adds difference with reported shipping fuel to global international shipping sector
 #
@@ -11,9 +12,13 @@
 #
 #                  Note that this additional fuel is not otherwise accounted for. Because 
 #                  we are using a sectoral approach, we are implicitly assuming the difference
-#                  is within statistical reporting differences
-#
-# Output Description: Energy data with additional consumption for international shipping 
+#                  is within statistical reporting differences.
+#                   
+#                  The output is energy data with additional consumption for international
+#                  shipping.
+# Input: A.IEA_BP_energy_ext.csv, A.IEA_en_stat_ctry_hist.csv, Shipping_Fuel_Consumption.xlsx
+#        IEA_product_fuel.csv
+# Output: A.IEA_BP_energy_ext.csv
 #-------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -35,7 +40,8 @@
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( "data_functions.R", "analysis_functions.R", "process_db_functions.R" ) # Additional function files required.
+    headers <- c( "data_functions.R", "analysis_functions.R", "process_db_functions.R", 
+                  "timeframe_functions.R") # Additional function files required.
     log_msg <- "Add under-counted shipping emissions to global region" # First message to be printed to the log
     script_name <- "A3.2.Adjust_Shipping_Fuel_Cons.R"
     
@@ -44,42 +50,29 @@
 
 # ------------------------------------------------------------------------------
 # 1. Read in files
-
     iea_data <- readData( "MED_OUT", "A.IEA_en_stat_ctry_hist" )
     iea_data_extended <- readData( "MED_OUT", "A.IEA_BP_energy_ext" )
-    shipping_fuel_org <- readData( "ENERGY_IN", "Shipping_Fuel_Consumption" , ".xlsx", sheet_selection = "Data" ) 
+    shipping_fuel <- readData( "ENERGY_IN", "Shipping_Fuel_Consumption" , ".xlsx", 
+                                   skip_rows = 3, sheet_selection = "Data" )
     IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
 
-    fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
-    
 # -----------------------------------------------------------------------------------------
-# 2. Clean shipping data
-    # Use 4:180 to cut off the many extra rows that excel included
-    shipping_fuel_org <- shipping_fuel_org[4:180, 1:14] # Note data also includes goods loaded if that might be useful
-    names( shipping_fuel_org ) <- c('Year','hard_coal','heavy_oil','diesel_oil','total_petr','units')
-  
-    # make a new data frame by binding (cbind) the names
-    shipping_fuel <- as.data.frame(cbind( names( shipping_fuel_org ), t( shipping_fuel_org ) ))
+# 2. Clean reported shipping data
+# Result is time series for total shipping fuel from 1850 to 2012 
+# in three categories: hard_coal, heavy_oil, diesel_oil 
+    shipping_fuel <- shipping_fuel[ 1:163, 1:4 ]
+    names( shipping_fuel ) <- c( "year", "hard_coal", "heavy_oil", "diesel_oil" )
     
-    # assign column names as the first row
-    # names( shipping_fuel ) <- shipping_fuel[ 1, 1:ncol(shipping_fuel)]
-    # The above doesn't work. Don't know why.
-    
-    # Now assign names 
-    names( shipping_fuel ) <- c( 'fuel', paste0( 'X' , 1850:2012 ) )
-    
-    # remove the names that are currently the first row
-    shipping_fuel <- shipping_fuel[ -1,  ]
-  
-# Now have the time series for total shipping fuel from 1850 to some recent year 
-# in three categories: hard_coal, heavy_oil, diesel_oil
-#                 
-    
+    # Melt and recast
+    shipping_fuel <- melt( shipping_fuel, id = "year" )
+    names( shipping_fuel ) <- c( "year", "fuel", "ship_fuel" )
+ 
 # -----------------------------------------------------------------------------------------
-# 3. Collect other needed data
-    
+# 3. Compute IEA shipping fuel
+# Total IEA shipping = fishing + international shipping + domestic aviation    
+# For purposes here, treat all coal as hard coal
+  
     iea_data$fuel <- IEA_product_fuel$fuel[ match( iea_data$PRODUCT, IEA_product_fuel$product ) ]
-    # For purposes here, treat all coal as hard coal
     iea_data$fuel [ which ( iea_data$fuel %in% c( 'hard_coal', 'brown_coal' ) ) ] <- 'hard_coal'
     
     Fishing_fuel <- aggregate( iea_data[ X_IEA_years ],
@@ -92,7 +85,6 @@
     ceds_iea_data <- aggregate( iea_data_extended[ X_IEA_years ],
                                by=list( fuel = iea_data_extended$fuel,
                                         sector = iea_data_extended$sector ), sum )
-    # Again, treat all coal as hard coal
     ceds_iea_data$fuel [ which ( ceds_iea_data$fuel %in% c( 'hard_coal', 'brown_coal' ) ) ] <- 'hard_coal'
     
     Int_Bunker_fuel <- ceds_iea_data[ which(ceds_iea_data$sector == "1A3di_International-shipping" ), ]
@@ -104,8 +96,15 @@
     Total_IEA_Ship_Fuel <- rbind( Int_Bunker_fuel, Domestic_Ship_fuel, Fishing_fuel)
     Total_IEA_Ship_Fuel <- aggregate( Total_IEA_Ship_Fuel[ X_IEA_years ],
                                 by=list( fuel = Total_IEA_Ship_Fuel$fuel ), sum )
+
+    # Keep only diesel_oil, heavy_oil, and coal
+    Total_IEA_Ship_Fuel <- filter( Total_IEA_Ship_Fuel, 
+                                   fuel %in% c( "hard_coal", "heavy_oil", "diesel_oil" ) )
     
-    # For purposes here, combine brown and hard coal
+    # Melt
+    Total_IEA_Ship_Fuel <- melt( Total_IEA_Ship_Fuel, id = "fuel" )
+    names( Total_IEA_Ship_Fuel ) <- c( "fuel", "year", "IEA_fuel" )
+    Total_IEA_Ship_Fuel$year <- xYearToNum( Total_IEA_Ship_Fuel$year )
     
 # -----------------------------------------------------------------------------------------
 # 4. Determine amount of additional shipping fuel to be added 
@@ -128,17 +127,72 @@
 #
 # For years before IEA years, the global international shipping sector will contain 
 # the entire shipping fuel estimate, since there is no IEA data at that point. 
+    
+# Combine two dfs
+    comp <- merge( Total_IEA_Ship_Fuel, shipping_fuel, all = T )
+
+# If IEA < ship_fuel, add the difference to a new df
+    comp <- mutate( comp, diff = ship_fuel - IEA_fuel )
+    to_add <- filter( comp, diff > 0 )
+
+# For heavy_oil, if IEA > ship_fuel, subtract the difference from added diesel_oil
+    to_subtract <- filter( comp, fuel == "heavy_oil", diff < 0 )
+    to_subtract$fuel <- "diesel_oil"
+    
+# Result is shipping fuel to be added to global intl shipping -- put this in a df 
+    global_intl_ship <- merge( select( to_add, year, fuel, global_fuel = diff ), 
+                               select( to_subtract, year, fuel, adj = diff ), 
+                               all = T )
+    adj_years <- !is.na( global_intl_ship$adj )  # where is IEA > ship_fuel?
+    global_intl_ship$global_fuel[ adj_years ] <- 
+      global_intl_ship$global_fuel[ adj_years ] + global_intl_ship$adj[ adj_years ]
+    global_intl_ship$adj <- NULL  # already made adjustment so don't need this anymore
+    
+# Extend global_int_ship from 1850 to end of emissions years
+    global_intl_ship_full <- merge( data.frame( year = 1850:max( emissions_years ) ), 
+                               data.frame( fuel = c( "hard_coal", "heavy_oil", "diesel_oil" ) ) ) %>%
+      merge( global_intl_ship, all = T )
+    global_intl_ship_full$global_fuel[ is.na( global_intl_ship_full$global_fuel ) ] <- 0
+    
+# Give all ship_fuel to global_fuel before IEA starts
+    global_intl_ship_full <- merge( global_intl_ship_full, shipping_fuel, all = T )
+    before_IEA <- global_intl_ship_full$year < min( IEA_years )
+    global_intl_ship_full$global_fuel[ before_IEA ] <- 
+      global_intl_ship_full$ship_fuel[ before_IEA ]
+    global_intl_ship_full$ship_fuel <- NULL  # already copied over so don't need this anymore
+    
+# For 2013-2014, extend using average IEA underreport for 2010-2012
+    avg <- filter( global_intl_ship_full, year %in% seq( 2010, 2012 ) ) %>%
+      group_by( fuel ) %>% summarise( global_fuel = mean( global_fuel ) )
+    extended_years <- global_intl_ship_full$year %in% c( 2013, 2014 )
+    global_intl_ship_full$global_fuel[ extended_years ] <- 
+      avg$global_fuel[ match( global_intl_ship_full$fuel[ extended_years ], avg$fuel ) ]
+    
+# Cast to wide format
+    global_intl_ship_out <- global_intl_ship_full
+    global_intl_ship_out$sector <- "1A3di_International-shipping"
+    global_intl_ship_out$iso <- "global"
+    global_intl_ship_out$units <- "kt"
+    global_intl_ship_out$year <- paste0( "X", global_intl_ship_out$year )
+    global_intl_ship_out <- cast( global_intl_ship_out, 
+                                  fuel + sector + iso + units ~ year, value = "global_fuel" )
+    
+# Add global_intl_ship_out to CEDS
+    iea_data_extended <- rbind( iea_data_extended, global_intl_ship_out[ 
+      names( global_intl_ship_out ) %in% names( iea_data_extended ) ] )
+    
+#     # Test: should have global_fuel = IEA_fuel + ship_fuel
+#     test <- merge( global_intl_ship_full, select( comp, -diff ), all = T )
+#     test[ is.na( test ) ] <- 0
+#     test <- mutate( test, check = global_fuel + IEA_fuel - ship_fuel )
+    
 
 # -----------------------------------------------------------------------------
 # 8. Output
+    writeData( global_intl_ship_out, "DIAG_OUT", "A.global_intl_shipping_fuel")
+    writeData( iea_data_extended, "MED_OUT", "A.IEA_BP_energy_ext" )
     
-# write extended energy data
-#  writeData( IEA_BP_ext, domain = "MED_OUT", fn = "A.IEA_BP_energy_ext", 
-#          comments = comments.A.energy_data_extension )
 
-# writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_fuel'), meta = FALSE )
-  
-        
 # Every script should finish with this line
  logStop()
     
