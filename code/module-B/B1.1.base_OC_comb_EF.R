@@ -107,10 +107,12 @@ bond$ceds_fuel <- fuel_map[ match(bond$Fuel,fuel_map$Fuel),'fuel']
 bond <- bond[which( bond$Fuel_kt > 0 &
                       bond$BC_kt > 0 &
                       bond$OC_kt > 0     )  , ]
-bond <- bond[which(bond$Year >1959 & bond$Year < 2001),]
+bond <- bond[which(bond$Year >1959 ),]
+
 bond_everything <- bond
 bond <- bond[which(bond$ceds_fuel %!in% c( 'process','natural_gas')),]
-
+bond <- bond[- which(bond$Fuel %in% fuel_map[which(fuel_map$fuel == 'biomass'),'Fuel']   
+                     & bond$Year > 2000 ),]
 
 # aggregate by Region
 
