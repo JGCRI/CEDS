@@ -312,11 +312,14 @@ $(MED_OUT)/A.residential_biomass_full.csv : \
 $(MED_OUT)/A.IEA_BP_energy_ext.csv : \
 	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
 	$(MOD_A)/A3.1.IEA_BP_data_extension_PRE.R \
+	$(MOD_A)/A3.2.Adjust_Shipping_Fuel_Cons.R \
 	$(MED_OUT)/A.en_stat_sector_fuel.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
-	$(ENERGY_DATA)/BP_energy_data.xlsx
+	$(ENERGY_DATA)/BP_energy_data.xlsx \
+	$(ENERGY_DATA)/Shipping_Fuel_Consumption.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
+	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 
 # aa4-1
 # naming note: includes both module A3 and A4
