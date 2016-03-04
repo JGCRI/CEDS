@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: S1.1.write_summary_data.R
 # Author: Rachel Hoesly, Steve Smith, Linh Vu
-# Date Last Updated: 29 Feb 2016
+# Date Last Updated: 4 Mar 2016
 # Program Purpose: Produces summary output
 #               
 # Output Files: data in final-emissions folder
@@ -153,17 +153,17 @@ if ( !file.exists( paste0("../final-emissions/", summary_fn, ".csv" ) ) ) {
 } else {
   printLog( "Compare emissions summary from current run and last run" )
   
-  # move last-run files to a temp folder last-run
-  dir.create( "../final-emissions/last-run", showWarnings = F )
+  # move last-run files to a temp folder [em]_last-run
+  dir.create( paste0( "../final-emissions/", em, "_last-run" ), showWarnings = F )
   fl <- list.files( "../final-emissions/", pattern = paste0( em, ".*", FILENAME_POSTSCRIPT ), full.names = T )
-  moveFileList( fl, "../final-emissions/last-run/" )
+  moveFileList( fl, paste0( "../final-emissions/", em, "_last-run/" ) )
 
   # write out current-run
   writeSummary()
   
   # read current-run and last-run emissions summary
   em_current <- readData( "FIN_OUT", summary_fn, meta = F )
-  em_last <- readData( "FIN_OUT", paste0( "last-run/", summary_fn ), meta = F )
+  em_last <- readData( "FIN_OUT", paste0( em, "_last-run/", summary_fn ), meta = F )
   id_cols <- names( em_current )[ !grepl( "X", names( em_current ) ) ]
   id_cols_last <- names( em_last )[ !grepl( "X", names( em_last ) ) ]
   
@@ -185,7 +185,7 @@ if ( !file.exists( paste0("../final-emissions/", summary_fn, ".csv" ) ) ) {
                    pattern = diag_fn, full.names = T ) )
       
     # move content of last-run to previous-versions
-      fl <- list.files("../final-emissions/last-run/", full.names = T )
+      fl <- list.files( paste0( "../final-emissions/", em, "_last-run" ), full.names = T )
       moveFileList( fl, "../final-emissions/previous-versions/" )
     
     # make df of added/dropped data
@@ -245,7 +245,7 @@ if ( !file.exists( paste0("../final-emissions/", summary_fn, ".csv" ) ) ) {
   }
   
   # delete the temp folder last-run
-  unlink( "../final-emissions/last-run", recursive = T )
+  unlink( paste0( "../final-emissions/", em, "_last-run" ), recursive = T )
 }
 
 logStop()
