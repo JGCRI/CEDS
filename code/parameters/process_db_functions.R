@@ -6,7 +6,7 @@
 # This file should be sourced by any R script altering the CEDS databases
 # on activity, emissions, or emissions factors data.
 # Functions contained:
-#   cleanData, addToActivityDb, addToEmissionsDb, addToEFDb
+#   cleanData, addToActivityDb, addToEmissionsDb, addToEFDb, addToDb_overwrite
 
 # Note: These functions require the functions in IO_functions.R, timeframe_functions.R,
 #       and data_functions.R
@@ -473,16 +473,19 @@ addToEmissionsDb_overwrite <- function( df, em, type ){
 }
 
 # ----------------------------------------------------------------------------------
-# addToDb
+# addToDb_overwrite
 # Brief:            Adds data to a database by overwriting existing values for iso/sector/fuel/year
 #                   combinations in supplied data frame.
 # Details:          Reads in specified database (noted by input called file_extention) and
 #                   replaces/overwrites values for iso-sector-fuel-combinations with values in 
-#                   input dataframe. Replaces values using match function (finds first match). If
-#                   addEntries == FALSE, then the database is the same size and sort as
-#                   the old database. If addEntries == TRUE then new database contains 
+#                   input dataframe. Replaces values using match function (finds first match). 
+#                   If addEntries == FALSE, then the database is the same size and sort as
+#                   the old database.                    
+#                   If addEntries == TRUE then new database contains 
 #                   iso/sector/fuel/year combinations in the supplied dataframe
 #                   that are not in the original dataabse (new data base has more rows)
+#                   If duplicates exist in the new_data, the last entry of the dataframe is give
+#                   priority
 # Dependencies:     common_data.r, IO_functions.R, data_functions.R,
 # Author:           Rachel Hoesly
 # Parameters: 
@@ -495,6 +498,8 @@ addToEmissionsDb_overwrite <- function( df, em, type ){
 # Return:           none
 # Input files:      B.[em]_xxxxx_db.csv, common_data.R
 # Output files:     B.[em]_xxxxx_db.csv
+# example:          addToDb_overwrite(new_data = s_content, em = 'SO2', file_extention = 'S_Content_db')
+
 addToDb_overwrite <- function( new_data, em, file_extention, module = 'B',
                                addEntries = FALSE ){
   printLog ("Adding new data to database")
@@ -525,6 +530,13 @@ addToDb_overwrite <- function( new_data, em, file_extention, module = 'B',
                                                    of database and new data to be added to database are not the same.")}
   if( !identical(unique(original_db$units), unique(original_db$units))){ stop("In addToDb_overwrite, units of database and 
                                                                               new data to be added to database are not the same.")}
+  
+  # check New data for duplicates and remove - priority given to last data
+  nrow_duplicated <- nrow(new_data)
+  new_data <- new_data[  !duplicated( new_data[,id.names.new] , fromLast = TRUE)  , ]
+  nrow_unique <- nrow( new_data)
+  
+  if( nrow_duplicated != nrow_unique) printLog('New Data has duplicate entries. Last given priority')
   
   # Insert the new data in the proper locations- 
   # overwrite any existing data of the same combination and years,
