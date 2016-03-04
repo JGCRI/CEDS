@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Program Name: B1.1.base_BCOC_comb_EF.R
+# Program Name: B1.1.base_OC_comb_EF.R
 # Author: Rachel Hoesly
 # Date Last Updated: Feb 11, 2016
 # Program Purpose: 1. Produce OC emissions factors from Bond et al data.
@@ -49,7 +49,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "BC"
+if ( is.na( em ) ) em <- "OC"
 
 # ------------------------------------------------------------------------------
 # 0.5 Define functions for later use
@@ -107,8 +107,10 @@ bond$ceds_fuel <- fuel_map[ match(bond$Fuel,fuel_map$Fuel),'fuel']
 bond <- bond[which( bond$Fuel_kt > 0 &
                       bond$BC_kt > 0 &
                       bond$OC_kt > 0     )  , ]
+bond <- bond[which(bond$Year >1959 & bond$Year < 2001),]
+bond_everything <- bond
 bond <- bond[which(bond$ceds_fuel %!in% c( 'process','natural_gas')),]
-bond <- bond[which(bond$Year >1959),]
+
 
 # aggregate by Region
 
@@ -236,10 +238,43 @@ final$units <- 'kt/kt'
 
 final <- final[,c('iso','sector','fuel', 'units' , X_emissions_years)]
 
+bond_process <- cast( bond_region , Region + Fuel + Tech + Sector ~ Year , value = paste0(em,'_kt'))
+bond_process [ X_emissions_years[X_emissions_years %!in% X_bond_years] ] <- NA
+# ------------------------------------------------------------------------------
+# 8. Process emissions
+
+#map to iso
+bond_process <- merge( bond_everything, iso_map[,c('iso','Country')], all.x=TRUE, all.y = FALSE)
+bond_process <- bond_process[complete.cases(bond_process$iso),]
+
+# map to fuel
+bond_process$fuel <- fuel_map[ match(bond_process$Fuel, fuel_map$Fuel), 'fuel']
+
+# map to sector
+bond_process <- merge( bond_process, sector_map, all.x=TRUE, all.y = FALSE)
+process_sectors <- MSL[which(MSL$type == 'NC'),'sector']
+bond_process <- bond_process[which(bond_process$sector %in% process_sectors), ]
+
+# organize and extend
+bond_process <- replace(bond_process, is.na(bond_process), 0)
+bond_process <- aggregate( bond_process[X_emissions_years],
+                           by = list( iso = bond_process$iso,
+                                      sector = bond_process$sector,
+                                      fuel = bond_process$fuel),
+                           FUN = sum)
+bond_process <- replace(bond_process, bond_process == 0, NA)
+bond_process <- interpolateValues(bond_process)
+bond_process <- extendValues(bond_process)
+bond_process$units <- 'kt'
+bond_process <- bond_process[ , c( 'iso','sector','fuel','units',X_emissions_years)]
+
+
 # ------------------------------------------------------------------------------
 # 7. Write output
 
 writeData( final , "MED_OUT", paste0( "B.",em,"_comb_EF_db" ) )
+writeData( bond_process , "DEFAULT_EF_IN", domain_extension = 'non-combustion-emissions/', 
+           fn = paste0( "B.",em,"_bond_NC_em" ) , meta = F)
 
 # Every script should finish with this line
 logStop()
