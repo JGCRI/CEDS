@@ -240,13 +240,15 @@ final$units <- 'kt/kt'
 
 final <- final[,c('iso','sector','fuel', 'units' , X_emissions_years)]
 
-bond_process <- cast( bond_region , Region + Fuel + Tech + Sector ~ Year , value = paste0(em,'_kt'))
-bond_process [ X_emissions_years[X_emissions_years %!in% X_bond_years] ] <- NA
+
 # ------------------------------------------------------------------------------
 # 8. Process emissions
-
+bond_everything$Year <- paste0('X',bond_everything$Year)
+bond_process <- cast( bond_everything , Country + Fuel + Tech + Sector ~ Year , value = paste0(em,'_kt'))
+bond_process [ X_emissions_years[X_emissions_years %!in% X_bond_years] ] <- NA
+ 
 #map to iso
-bond_process <- merge( bond_everything, iso_map[,c('iso','Country')], all.x=TRUE, all.y = FALSE)
+bond_process <- merge( bond_process, iso_map[,c('iso','Country')], all.x=TRUE, all.y = FALSE)
 bond_process <- bond_process[complete.cases(bond_process$iso),]
 
 # map to fuel
@@ -258,24 +260,33 @@ process_sectors <- MSL[which(MSL$type == 'NC'),'sector']
 bond_process <- bond_process[which(bond_process$sector %in% process_sectors), ]
 
 # organize and extend
-bond_process <- replace(bond_process, is.na(bond_process), 0)
-bond_process <- aggregate( bond_process[X_emissions_years],
+bond_process <- bond_process[ , c( 'iso','sector','fuel',X_emissions_years)]
+ 
+bond_process_aggregated <- aggregate( bond_process[X_emissions_years],
                            by = list( iso = bond_process$iso,
                                       sector = bond_process$sector,
                                       fuel = bond_process$fuel),
                            FUN = sum)
-bond_process <- replace(bond_process, bond_process == 0, NA)
-bond_process <- interpolateValues(bond_process)
-bond_process <- extendValues(bond_process)
-bond_process$units <- 'kt'
-bond_process <- bond_process[ , c( 'iso','sector','fuel','units',X_emissions_years)]
+
+bond_process_aggregated <- bond_process_aggregated[ rowSums(is.na(bond_process_aggregated[X_emissions_years]))!=
+                                                      length(X_emissions_years), ]
+
+
+bond_process_aggregated <- replace(bond_process_aggregated, bond_process_aggregated == 0, NA)
+
+
+bond_process_extend <- interpolateValues(bond_process_aggregated)
+bond_process_extend[X_emissions_years] <- t(na.locf(t(bond_process_extend[X_emissions_years])))
+bond_process_extend[X_emissions_years] <- t(na.locf(t(bond_process_extend[X_emissions_years]),fromLast = T))
+bond_process_extend$units <- 'kt'
+bond_process_extend <- bond_process_extend[ , c( 'iso','sector','fuel','units',X_emissions_years)]
 
 
 # ------------------------------------------------------------------------------
 # 7. Write output
 
 writeData( final , "MED_OUT", paste0( "B.",em,"_comb_EF_db" ) )
-writeData( bond_process , "DEFAULT_EF_IN", domain_extension = 'non-combustion-emissions/', 
+writeData( bond_process_extend , "DEFAULT_EF_IN", domain_extension = 'non-combustion-emissions/', 
            fn = paste0( "B.",em,"_bond_NC_em" ) , meta = F)
 
 # Every script should finish with this line
