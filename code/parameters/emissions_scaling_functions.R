@@ -457,13 +457,11 @@ F.scaling <- function( ceds_data, inv_data, region,
   methods <- c('interp_method','pre_ext_method','post_ext_method')
   if( 'other' %in% names(ext_method)) methods <- c(methods, 'other')
   for( n in seq_along(methods)){
-    all <- ext_method[ext_method$iso %in% 'all', c(scaling_name,methods[n])]
-    for ( i in seq_along(all$scaling)){
-      ext_method_default[ ext_method_default$scaling %in% all$scaling[i],methods[n]] <- all[i,methods[n]]}
-    
-    other <- ext_method[ext_method$iso %!in% 'all', c(scaling_name,methods[n])]
-    for ( i in seq_along(other$scaling)){
-      ext_method_default[ ext_method_default$scaling %in% other$scaling[i],methods[n]] <- other[i,methods[n]]}
+    ext_method_default <- replaceValueColMatch(ext_method_default, ext_method,
+                                               x.ColName = methods[n],
+                                               match.x = c('iso',scaling_name),
+                                               addEntries = F)
+
   }
   
   # Define Default Years, update with mapping file
@@ -497,12 +495,10 @@ F.scaling <- function( ceds_data, inv_data, region,
   ext_year$post_ext_year[is.na(ext_year$post_ext_year)] <- ext_end_year
   for( n in seq_along(years)){
     
-    all <- ext_year[ext_year$iso %in% 'all', c(scaling_name,years[n])]
-    for ( i in seq_along(all$scaling)){
-      ext_year_default[ ext_year_default$scaling %in% all$scaling[i],years[n]] <- all[i,years[n]]}
-    other <- ext_year[ext_year$iso %!in% 'all', c(scaling_name,years[n])]
-    for ( i in seq_along(other$scaling)){
-      ext_year_default[ ext_year_default$scaling %in% other$scaling[i],years[n]] <- other[i,years[n]]}
+    ext_year_default <- replaceValueColMatch(ext_year_default, ext_year,
+                                               x.ColName = years[n],
+                                               match.x = c('iso',scaling_name),
+                                               addEntries = F)
   }
   
   # ------------------------------------
