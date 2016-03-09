@@ -295,6 +295,13 @@ for ( DataSet in 1:4 ) {
 		analysis_fuels <- c(  "diesel_oil", "heavy_oil", "hard_coal", "natural_gas" )
 	}
 	
+	if( em == "NH3" ) {
+		if ( DataSet == 3 ) {
+			analysis_sectors <- c( "5D_Wastewater-handling" )
+			analysis_fuels <- c( "process" )
+		}	
+	}
+	
 	emission_factor_function ( analysis_sectors, analysis_fuels )
 }
 
