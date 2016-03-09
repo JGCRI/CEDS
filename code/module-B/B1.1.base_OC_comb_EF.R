@@ -117,7 +117,8 @@ bond <- bond[- which(bond$Fuel %in% fuel_map[which(fuel_map$fuel == 'biomass'),'
 # aggregate by Region
 
 bond_region <- aggregate( bond[ , c( "Fuel_kt" ,"BC_kt", "OC_kt" )],
-                          by = list( Region = bond$Region ,
+                          by = list(  Region = bond$Region ,
+                                      Country = bond$Country,
                                       Fuel = bond$Fuel ,
                                       Tech = bond$Tech ,
                                       Sector =  bond$Sector,
@@ -137,10 +138,10 @@ bond_region$Year <- paste0('X', bond_region$Year)
 # 2. Reformat and create average EFs
 
 # cast to wide and interpolate/extend
-bond_EFs <- cast( bond_region , Region + Fuel + Tech + Sector ~ Year , value = 'EF')
+bond_EFs <- cast( bond_region , Region + Country  + Fuel + Tech + Sector ~ Year , value = 'EF')
 bond_EFs [ X_emissions_years[X_emissions_years %!in% X_bond_years] ] <- NA
 
-bond_EFs <- bond_EFs[, c( "Region", "Fuel" , "Tech" , "Sector", X_emissions_years)]
+bond_EFs <- bond_EFs[, c( "Region", "Country","Fuel" , "Tech" , "Sector", X_emissions_years)]
 bond_EFs <- interpolate_extend(bond_EFs)
 bond_EFs <- bond_EFs[complete.cases(bond_EFs[X_emissions_years]) , ]
 
@@ -212,7 +213,6 @@ EF <- replaceValueColMatch(EF_nas , EF_Region_fuel_average ,
 
 EF_nas <- EF[is.na(EF$X1960),]
 EF_final <- rbind( EF_final , EF[!is.na(EF$X1960),] )
-
 
 # add EFs by region fuel 
 EF <- replaceValueColMatch(EF_nas , EF_fuel_Sector_average ,
