@@ -44,7 +44,7 @@ if ( is.na( em ) ) em <- "BC"
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
 
-write_years <- 1750:end_year
+write_years <- 1970:end_year
 
 # Define functions to move a list of files (full path name)
 moveFile <- function( fn, new_dir ) {
@@ -73,21 +73,42 @@ X_write_years <- paste0('X',write_years)
 final_emissions <- final_emissions_read[,c('iso','sector','fuel','units',X_write_years)]
 final_emissions$em <- em
 
+# save shipping and aviation emissions
+bunker_emissions <- final_emissions[ which( final_emissions$sector %in% 
+                    c( "1A3ai_International-aviation", "1A3aii_Domestic-aviation",
+                       "1A3di_International-shipping", "1A3dii_Domestic-naviation" ) ) , ]
+
 # remove international shipping and aviation emissions
-final_emissions <- final_emissions[-which(final_emissions$sector == "1A3di_International-shipping" ),]
-final_emissions <- final_emissions[-which(final_emissions$sector == "1A3ai_International-aviation" ),]
-final_emissions <- final_emissions[-which(final_emissions$sector == "1A3aii_Domestic-aviation" ),]
+final_emissions <- final_emissions[ -which( final_emissions$sector %in% 
+                   c( "1A3ai_International-aviation", "1A3aii_Domestic-aviation",
+                      "1A3di_International-shipping", "1A3dii_Domestic-naviation" ) ) , ]
 
 # add summary sectors
 final_emissions$summary_sector <- Master_Sector_Level_map[match(final_emissions$sector,
                                   Master_Sector_Level_map$working_sectors_v1),'aggregate_sectors']
+bunker_emissions$summary_sector <- Master_Sector_Level_map[match(bunker_emissions$sector,
+                                  Master_Sector_Level_map$working_sectors_v1),'aggregate_sectors']
+
 #simplify units
 # This assumes units are correct. Need to add a more comprehensive unit conversion function (since drivers will come in various units)
 final_emissions$units <- 'kt'
+bunker_emissions$units <- 'kt'
+
+#sum bunker emissions to global values
+Bunker_global <- aggregate( bunker_emissions[ X_write_years ],
+                            by=list( em = bunker_emissions$em,
+                                     fuel = bunker_emissions$fuel,
+                                     summary_sector = bunker_emissions$summary_sector,
+                                     units = bunker_emissions$units ), sum )
+Bunker_global$iso <- "global"
 
 # reorder columns
 final_emissions <- final_emissions[,c("iso","summary_sector","fuel","em","units",X_write_years)]
+bunker_emissions <- bunker_emissions[,c("iso","summary_sector","fuel","em","units",X_write_years)]
 
+writeData( bunker_emissions, "MED_OUT", paste0( "S.", em, "_bunker_emissions" ),  meta = F )
+
+final_emissions <- rbind( final_emissions, Bunker_global )
 
 # ---------------------------------------------------------------------------
 # 2. Produce summary outputs
