@@ -35,7 +35,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "BC"
+if ( is.na( em ) ) em <- "SO2"
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -55,6 +55,9 @@ moveFile <- function( fn, new_dir ) {
 moveFileList <- function( fn_list, new_dir ) {
   lapply( fn_list, function( fn ) moveFile( fn, new_dir ) )
 }
+
+# Option to also write out data by CEDS sectors
+WRITE_CEDS_SECTORS = FALSE
 
 # writeSummary()  # defined in 3
 
@@ -99,12 +102,13 @@ Bunker_global <- aggregate( bunker_emissions[ X_write_years ],
                             by=list( em = bunker_emissions$em,
                                      fuel = bunker_emissions$fuel,
                                      summary_sector = bunker_emissions$summary_sector,
+                                     sector = bunker_emissions$sector,
                                      units = bunker_emissions$units ), sum )
 Bunker_global$iso <- "global"
 
 # reorder columns
-final_emissions <- final_emissions[,c("iso","summary_sector","fuel","em","units",X_write_years)]
-bunker_emissions <- bunker_emissions[,c("iso","summary_sector","fuel","em","units",X_write_years)]
+final_emissions <- final_emissions[,c("iso", "summary_sector", "sector", "fuel","em","units",X_write_years)]
+bunker_emissions <- bunker_emissions[,c("iso", "summary_sector","sector", "fuel","em","units",X_write_years)]
 
 writeData( bunker_emissions, "MED_OUT", paste0( "S.", em, "_bunker_emissions" ),  meta = F )
 
@@ -142,6 +146,32 @@ Em_by_Country_Sector <- aggregate(final_emissions[X_write_years],
 #Sort
 Em_by_Country_Sector <- Em_by_Country_Sector[ with( Em_by_Country_Sector, order( iso , sector ) ), ]
 
+# Emissions by country and CEDS sector
+if ( WRITE_CEDS_SECTORS ) {
+	# Total Emissions by CEDS Sector and Country
+	Em_by_Country_CEDS_Sector <- aggregate(final_emissions[X_write_years],
+								   by=list(iso=final_emissions$iso,
+										   sector=final_emissions$sector,
+										   em= final_emissions$em,
+										   units=final_emissions$units),sum )
+	#Sort
+	Em_by_Country_CEDS_Sector <- Em_by_Country_CEDS_Sector[ with( Em_by_Country_CEDS_Sector, order( iso , sector ) ), ]
+
+    file_name <- paste0( em , "_em_country_CEDS_sector", FILENAME_POSTSCRIPT )
+    writeData( Em_by_Country_CEDS_Sector, "FIN_OUT", file_name, meta = F )
+
+	# Global Emissions by CEDS Sector 
+	Em_by_CEDS_Sector <- aggregate(final_emissions[X_write_years],
+								   by=list(sector=final_emissions$sector,
+										   em= final_emissions$em,
+										   units=final_emissions$units),sum )
+	#Sort
+	Em_by_CEDS_Sector <- Em_by_CEDS_Sector[ with( Em_by_CEDS_Sector, order( sector ) ), ]
+
+    file_name <- paste0( em , "_gbl_em_by_CEDS_sector", FILENAME_POSTSCRIPT )
+    writeData( Em_by_CEDS_Sector, "FIN_OUT", file_name, meta = F )
+
+}
 
 # ---------------------------------------------------------------------------
 # 3. Write summary and diagnostics outputs
