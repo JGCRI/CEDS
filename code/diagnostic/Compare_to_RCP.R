@@ -357,4 +357,24 @@ writeData(sector,'DIAG_OUT', paste0(em,'_sector_RCP_Comparison'),domain_extensio
                  '.pdf') , width = 7, height = 4)
 
 
+# ---------------------------------------------------------------------------
+# 4.  Region and Sector Comparisons (tables only)
+
+#Prime Data
+region_sector_ceds <- aggregate(ceds[x_years], 
+                         by = list(region = ceds$Region, sector = ceds$Sector ),FUN=sum )
+region_sector_ceds$inv <- 'CEDS'
+
+region_sector_rcp <- aggregate(RCP[,x_rcp_years], 
+                        by = list(region = RCP$Region, sector = RCP$Sector ),FUN=sum )
+region_sector_rcp$inv <- 'RCP'
+
+region_sector_both <- rbind( region_sector_ceds[,c( 'inv', 'region', 'sector', x_rcp_years )],
+                             region_sector_rcp[,c( 'inv', 'region', 'sector', x_rcp_years )])
+
+region_sector_both <- region_sector_both [ with( region_sector_both , order( region , sector, inv ) ), ]
+
+#writeout
+writeData( region_sector_both,'DIAG_OUT', paste0(em,'_region_sector_RCP_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
+
 logStop()
