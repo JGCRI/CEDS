@@ -381,7 +381,7 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
         
             if( extract_all ){ # Read all .csv files within the zip
                 zipped_files <- listZippedFiles ( full_file_path )
-                if ( length( zipped_files > 120 ) ) {
+                if ( length( zipped_files ) > 120  ) {
                   unz_files1 <- lapply( zipped_files[ 1: 120 ], unz, description = full_file_path )
                   x1 <- lapply ( unz_files1, read.csv, na.strings = missing_value,
                                  stringsAsFactors = F, comment.char = GCAM_DATA_COMMENT, # Our comment signal
