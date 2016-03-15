@@ -381,10 +381,24 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
         
             if( extract_all ){ # Read all .csv files within the zip
                 zipped_files <- listZippedFiles ( full_file_path )
+                if ( length( zipped_files > 120 ) ) {
+                  unz_files1 <- lapply( zipped_files[ 1: 120 ], unz, description = full_file_path )
+                  x1 <- lapply ( unz_files1, read.csv, na.strings = missing_value,
+                                 stringsAsFactors = F, comment.char = GCAM_DATA_COMMENT, # Our comment signal
+                                 ...)
+                  invisible( closeAllConnections( ) )
+                  unz_files2 <- lapply( zipped_files[ 121: length( zipped_files ) ], unz, description = full_file_path )
+                  x2 <- lapply ( unz_files2, read.csv, na.strings = missing_value,
+                                 stringsAsFactors = F, comment.char = GCAM_DATA_COMMENT, # Our comment signal
+                                 ...)
+                  invisible( closeAllConnections( ) )
+                  x <- c( x1, x2 )
+                  } else {
                 unz_files <- lapply( zipped_files, unz, description = full_file_path )
                 x <- lapply ( unz_files, read.csv, na.strings = missing_value,
                               stringsAsFactors = F, comment.char = GCAM_DATA_COMMENT, # Our comment signal
                               ...)
+                  }
                               
             }else{
                 if( length ( zipped_selection ) == 0 ) { # If no file specified within zip
