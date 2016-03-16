@@ -72,6 +72,7 @@ initialize( script_name, log_msg, headers )
     
     tBtu_to_TJ <- 0.94782 * 10^3 # source: eia.gov/cfapps/ipdbproject/docs/unitswithpetro.cfm
     
+    
 # ------------------------------------------------------------------------------
 # 2. Combine IEA, EIA, Fernandes, and Europe biomass into one df
 # Prepare population data
@@ -195,16 +196,10 @@ initialize( script_name, log_msg, headers )
     iso_Fern <- c( iso_Fern, "aze", "rus", "svk", "ukr" )
     iso_IEA <- c( iso_IEA, "geo", "irl", "mda", "swe" )
     rm( iso_Eur, iso_rest )
-
-# Take note of which source is used for which country
-    biomass_1$src <- NA
-    biomass_1$src[ biomass_1$iso %in% iso_Fern ] <- "Fernandes"
-    biomass_1$src[ biomass_1$iso %in% iso_IEA ] <- "IEA 2015"
-    biomass_1$src[ biomass_1$iso == "usa" ] <- "EIA"
     
 # Keep relevant columns
     biomass_1 <- select( biomass_1, iso, units, year, pop2, IEA, Fern, Eur, 
-                         IEA_pc, Fern_pc, Eur_pc, src ) 
+                         IEA_pc, Fern_pc, Eur_pc ) 
     
 # ------------------------------------------------------------------------------
 # 4. Correct gaps in IEA residential biomass
@@ -245,9 +240,9 @@ initialize( script_name, log_msg, headers )
     # What countries have irregular NA?
     # che: 1983-1992; deu: 1960-1969, 1986-1989; pol: 1990-1992
     # kwt: 1960-1970, 1997-2013
-    diag_IEA_NA_irreg <- filter( diag_IEA_NA, first_yr > 1960 | diff != 1 )
+    diag_IEA_NA_irreg <- filter( diag_IEA_NA, first_yr > min( IEA_years ) | diff != 1 )
     diag_IEA_NA_irreg <- filter( diag_IEA_NA, iso %in% diag_IEA_NA_irreg$iso )
-    
+
 # kwt has NA IEA for the rightmost edge years (1997-2013) -- extend average
 # of the last 3 available years (1994-1996) forward
     kwt_avg <- filter( biomass_1a_IEA, iso == "kwt", year %in% seq( 1994, 1996 ) )
@@ -377,49 +372,141 @@ initialize( script_name, log_msg, headers )
       biomass_1c_IEA$max_IEA_pc_ext[ biomass_1c_IEA$is_ext & 
                                    biomass_1c_IEA$IEA_pc_ext_b > biomass_1c_IEA$max_IEA_pc_ext ] 
 
-# Prepare for 4d
-    biomass_1c_IEA <- select_( biomass_1c_IEA, .dots = names( biomass_1b_IEA ) )
-    biomass_1c_IEA$IEA_pc_ext_d <- biomass_1c_IEA$IEA_pc_ext_c  # will change in 3d
-    biomass_1c_IEA$flag_d <- NA  # ==1 if changed in 3d
+
+# 4d. Make final IEA dataset
+    biomass_IEA_final <- select_( biomass_1c_IEA, 
+                                  .dots = c( names( biomass_1 ), "IEA_pc_ext_a", "flag_a", 
+                                             "IEA_pc_ext_b", "flag_b", "IEA_pc_ext_c", "flag_c", 
+                                             "is_ext" ) )
+    biomass_IEA_final$IEA_pc_ext_final <- biomass_IEA_final$IEA_pc_ext_c
+
+# Compute back total biomass and clean up
+    biomass_IEA_final$IEA_ext_total <- biomass_IEA_final$IEA_pc_ext_final * biomass_IEA_final$pop2
+    
+# ------------------------------------------------------------------------------
+# 5. Merge all sources to compile final 1700-2013 residential biomass series
+    printLog( "Compile 1700-2013 residential biomass series" )
+    
+# Define values
+    CONVERGENCE_YEAR <- 1920  # what year to converge to Fernandes?
+    LAST_IEA_YEAR <- min( IEA_years )  # 1960
+    LAST_FERN_YEAR <- min( Fern_biomass$year )  # 1850
+    biomass_years <- seq( min( pop_master$year ), max( biomass_IEA_final$year ) )  # 1700-2013
+    
+# Combine IEA and Fern to get 1960-2013 series
+    added_Fern <- filter( biomass_1, iso %in% iso_Fern, year %in% emissions_years ) %>%
+      select( iso, year, units, ceds = Fern )
+    biomass_final <- bind_rows( select( biomass_IEA_final, iso, year, units, 
+                                        ceds = IEA_ext_total, is_ext ),
+                                added_Fern )
+
+# Add rows for all biomass_years and column of Fernandes biomass
+    biomass_final_ext <- merge( data.frame( iso = unique( biomass_final$iso ) ), 
+                                data.frame( year = biomass_years ) ) %>%
+      merge( select( biomass_final, iso, year, ceds, is_ext ), all.x = T ) %>%
+      merge( Fern_biomass, all.x = T )
+    biomass_final_ext$units <- "kt"
+    
+# Compute rural per-capita biomass (global, pse, ussr and yug won't have population -- that's ok)
+    biomass_final_ext <- merge( biomass_final_ext, pop_master, all.x = T ) %>%
+      mutate( ceds_pc_orig = ceds / pop2, Fern_pc = Fern / pop2 )
+    
+# For 1850-1920, just copy Fernandes values to CEDS
+    Fern_years <- biomass_final_ext$year <= CONVERGENCE_YEAR & 
+      biomass_final_ext$year >= LAST_FERN_YEAR
+    biomass_final_ext$ceds_pc_ext <- biomass_final_ext$ceds_pc_orig
+    biomass_final_ext$ceds_pc_ext[ Fern_years ] <- biomass_final_ext$Fern_pc[ Fern_years ]
     
     
-# 4d. To make IEA converge to Fernandes eventually: Go backwards in time and find the 
-#   last (most recent) year where extrapolated IEA drops below Fernandes, replace 
-#   this year and all earlier years with Fernandes.
-# For each country, find most recent year where extrapolated IEA_pc_ext < Fern_pc
-    last_IEA_below_Fern <- filter( biomass_1c_IEA, is_ext ) %>%
-      filter( IEA_pc_ext_c < Fern_pc ) %>% 
+# For 1921-2013, IEA should be adjusted to converge to Fernandes by 1920. For each country, 
+# define start_yr to be the last year where extrapolated IEA falls below Fernandes (if
+# applicable) and LAST_IEA_YEAR otherwise. Interpolate start_yr delta so that IEA rural
+# per-capita matches Fernandes in 1920, and take
+#     ceds[yr] = max( Fern[yr] + (ceds[start_yr] - Fern[start_yr]) * (yr - 1920)/(start_yr - 1920), 
+#                     min( ceds[start_yr], Fern[yr] )    
+# For 1700-1849, just carry 1850 Fernandes rural per-capita backward.
+    # Find the last (most recent) year where extrapolated IEA drops below Fernandes 
+    last_IEA_below_Fern <- filter( biomass_IEA_final, is_ext ) %>%
+      filter( IEA_pc_ext_final < Fern_pc ) %>% 
       group_by( iso ) %>%
       mutate( last_yr = max( year ) ) %>%
-      select( iso, last_yr ) %>% unique()
+      select( iso, last_yr ) %>% unique() 
     
-# Replace all years before last_yr with Fernandes
-    biomass_1d_IEA <- merge( biomass_1c_IEA, last_IEA_below_Fern, all.x = T )
-    biomass_1d_IEA$flag_d[ !is.na( biomass_1d_IEA$last_yr ) & 
-                             biomass_1d_IEA$year <= biomass_1d_IEA$last_yr ] <- 1
-    biomass_1d_IEA$IEA_pc_ext_d[ !is.na( biomass_1d_IEA$last_yr ) & 
-                                 biomass_1d_IEA$year <= biomass_1d_IEA$last_yr ] <- 
-      biomass_1d_IEA$Fern_pc[ !is.na( biomass_1d_IEA$last_yr ) & 
-                                biomass_1d_IEA$year <= biomass_1d_IEA$last_yr ] 
-
-# Keep relevant columns and sort
-    biomass_1d_IEA <- select_( biomass_1d_IEA, .dots = names( biomass_1c_IEA ) ) %>%
+    # Add column start_yr to biomass_final_ext
+    biomass_final_ext$start_yr <- last_IEA_below_Fern$last_yr[ 
+      match( biomass_final_ext$iso, last_IEA_below_Fern$iso ) ]
+    biomass_final_ext$start_yr[ is.na( biomass_final_ext$start_yr ) | 
+                                  biomass_final_ext$start_yr < LAST_IEA_YEAR ] <- LAST_IEA_YEAR
+    
+    # Extend and adjust ceds_pc
+    biomass_final_ext <- arrange( biomass_final_ext, iso, year )
+    biomass_final_ext$ceds_pc_ext_adj <- biomass_final_ext$ceds_pc_ext
+    scaled <- filter( biomass_final_ext, year <= start_yr )
+    scaled <- ddply( scaled, .(iso), function( df ) {
+      interp_years <- df$year > CONVERGENCE_YEAR & df$year <= df$start_yr
+      max_years <- interp_years & df$iso %in% last_IEA_below_Fern$iso  #LV
+      within( df, {
+        # extend ceds_pc by interpolating start_yr delta
+        ceds_pc_ext[ interp_years ] <- Fern_pc[ interp_years ] + 
+          ( ceds_pc_ext[ year == start_yr ] - Fern_pc[ year == start_yr ] ) * 
+          ( year[ interp_years ] - CONVERGENCE_YEAR ) / 
+          ( start_yr[ year == start_yr ] - CONVERGENCE_YEAR )
+        
+        # adjust ceds_pc_ext by comparing with min( ceds[start_yr], Fern[yr] )
+        ceds_pc_ext_adj[ interp_years ] <- ceds_pc_ext[ interp_years ]
+        ceds_pc_ext_adj[ max_years ] <- pmax( ceds_pc_ext[ max_years ], 
+                                          pmin( Fern_pc[ max_years ], 
+                                          ceds_pc_ext[ max_years & year == start_yr ] ) )
+        
+        # carry 1850 values backward
+        ceds_pc_ext <- na.locf( ceds_pc_ext, fromLast = T )
+        ceds_pc_ext_adj <- na.locf( ceds_pc_ext_adj, fromLast = T )
+      })
+    })
+    
+    biomass_final_ext <- bind_rows( filter( biomass_final_ext, year > start_yr ), scaled ) %>%
       arrange( iso, year )
-
-# 4e. Make final IEA dataset
-    biomass_IEA_final <- select_( biomass_1d_IEA, 
-                              .dots = c( names( biomass_1 ), "IEA_pc_ext_a", "flag_a", 
-                                         "IEA_pc_ext_b", "flag_b", "IEA_pc_ext_c", "flag_c", 
-                                         "IEA_pc_ext_d", "flag_d", "is_ext" ) )
-    biomass_IEA_final$IEA_pc_ext_final <- biomass_IEA_final$IEA_pc_ext_d
-    biomass_IEA_final$is_ext[ biomass_IEA_final$is_ext ] <- 1
-    biomass_IEA_final$is_ext[ biomass_IEA_final$is_ext == 0 ] <- NA
+    biomass_final_ext$is_adj <- biomass_final_ext$ceds_pc_ext != biomass_final_ext$ceds_pc_ext_adj
     
 # Compute back total biomass
-    biomass_IEA_final$IEA_ext_total <- biomass_IEA_final$IEA_pc_ext_final * biomass_IEA_final$pop2
+    biomass_final_ext <- mutate( biomass_final_ext, ceds_tot_final = ceds_pc_ext_adj * pop2 ) 
+    
+# Add source note
+    biomass_final_ext$src <- "Fernandes"
+ 
+    # countries using IEA for 1960-2013
+    IEA_used <- biomass_final_ext$year %in% IEA_years & biomass_final_ext$iso %in% iso_IEA
+    biomass_final_ext$src[ IEA_used ] <- "IEA"
+    biomass_final_ext$src[ IEA_used & biomass_final_ext$is_ext ] <- 
+      "IEA - extrapolated/adjusted using Fernandes trend"
+    
+    # countries using delta-interpolated IEA for 1921-2013
+    IEA_delta_interp <- biomass_final_ext$year > CONVERGENCE_YEAR &
+      biomass_final_ext$year <= biomass_final_ext$start_yr & biomass_final_ext$iso %in% iso_IEA 
+    biomass_final_ext$src[ IEA_delta_interp ] <- 
+      paste0( "IEA - interpolated ", biomass_final_ext$start_yr[ IEA_delta_interp ], 
+              " delta to match Fernandes per-capita by ", CONVERGENCE_YEAR )
+    
+    # countries using min-adjusted interpolated IEA for 1921-2013
+    biomass_final_ext$src[ IEA_delta_interp & biomass_final_ext$is_adj ] <-
+      paste0( "IEA - taken to be min of IEA ", 
+              biomass_final_ext$start_yr[ IEA_delta_interp & biomass_final_ext$is_adj ], 
+              " and Fernandes ", biomass_final_ext$year[ IEA_delta_interp & biomass_final_ext$is_adj ] )
+    
+    # replace IEA with EIA for USA
+    biomass_final_ext$src[ biomass_final_ext$iso == "usa" ] <- 
+      gsub( "IEA", "EIA", biomass_final_ext$src[ biomass_final_ext$iso == "usa" ] )
+    
+    # countries without data
+    biomass_final_ext$src[ biomass_final_ext$iso %in% c( "global", "pse", "ussr", "yug" ) ] <- NA
+
+# Clean up
+    biomass_final_ext <- select( biomass_final_ext, iso, year, units, pop2, 
+                                 Fern_pc, ceds_pc_orig, ceds_pc_ext, 
+                                 ceds_pc_final = ceds_pc_ext_adj, ceds_tot_final, src )
 
 # ------------------------------------------------------------------------------
-# 5. Detect potential double counting in IEA unspecified biomass
+# 6. Detect potential double counting in IEA unspecified biomass
 # IEA residential and unspecified biomass might be correlated (i.e. one drops as the 
 # other rises). If so, unspecified biomass needs to be adjusted if residential biomass
 # is increased. 
@@ -506,77 +593,12 @@ initialize( script_name, log_msg, headers )
       merge( IEA_adj, all = T ) %>%
       cast( iso ~ year, value = "adj" )
     IEA_adj_wide[ is.na( IEA_adj_wide ) ] <- 0 
-
-# ------------------------------------------------------------------------------
-# 6. Merge all sources to compile final 1700-2013 residential biomass series
-    printLog( "Compile 1700-2013 residential biomass series" )
-    
-# Define values
-    CONVERGENCE_YEAR <- 1920  # what year to converge to Fernandes?
-    LAST_IEA_YEAR <- min( IEA_years )  # 1960
-    LAST_FERN_YEAR <- min( Fern_biomass$year )  # 1850
-    biomass_years <- seq( min( pop_master$year ), max( biomass_IEA_final$year ) )  # 1700-2013
-
-# Combine IEA and Fern to get 1960-2013 series
-    added_Fern <- filter( biomass_1, iso %in% iso_Fern, year %in% emissions_years ) %>%
-      select( iso, units, year, pop2, src, biomass_pc = Fern_pc, biomass_tot = Fern )
-    biomass_final <- bind_rows( select( biomass_IEA_final, iso, units, year, 
-                                        pop2, src, biomass_pc = IEA_pc_ext_final, 
-                                        biomass_tot = IEA_ext_total ),
-                                added_Fern )
-
-# Add rows for all biomass_years and column of Fernandes biomass
-    biomass_final_ext <- merge( data.frame( iso = unique( biomass_final$iso ) ), 
-                                data.frame( year = biomass_years ) ) %>%
-      merge( select( biomass_final, iso, year, src, ceds = biomass_tot ), all.x = T ) %>%
-      merge( Fern_biomass, all.x = T )
-    biomass_final_ext$units <- "kt"
-    
-# Compute rural per-capita biomass (global, pse, ussr and yug won't have population -- that's ok)
-    biomass_final_ext <- merge( biomass_final_ext, pop_master, all.x = T ) %>%
-      mutate( ceds_pc = ceds / pop2, Fern_pc = Fern / pop2 )
-    
-# For 1850-1920, just copy Fernandes values to CEDS
-    Fern_years <- biomass_final_ext$year <= CONVERGENCE_YEAR & 
-      biomass_final_ext$year >= LAST_FERN_YEAR
-    biomass_final_ext$ceds_pc[ Fern_years ] <- biomass_final_ext$Fern_pc[ Fern_years ]
-    
-# For 1921-1959, linearly interpolate 1960 delta so that rural-per capita matches 
-# Fernandes in 1920: 
-#     ceds[yr] = Fern[yr] + (ceds[1960] - Fern[1960]) * (yr - 1920)/(1960-1920)
-# For 1700-1849, carry 1850 Fernandes per-capita backward
-    scaled <- filter( biomass_final_ext, year <= LAST_IEA_YEAR )
-    scaled <- ddply( scaled, .(iso), function( df ){
-      interp_years <- df$year >= CONVERGENCE_YEAR & df$year < LAST_IEA_YEAR
-      within( df, { 
-        ceds_pc[ interp_years ] <- 
-          Fern_pc[ interp_years ] + 
-          ( ceds_pc[ year == LAST_IEA_YEAR ] - Fern_pc[ year == LAST_IEA_YEAR ] ) * 
-          ( year[ interp_years ] - CONVERGENCE_YEAR ) / 
-          ( LAST_IEA_YEAR - CONVERGENCE_YEAR )
-        ceds_pc <- na.locf( ceds_pc, fromLast = T )
-      } )
-    } )
-    biomass_final_ext <- bind_rows( filter( biomass_final_ext, year > LAST_IEA_YEAR ), 
-                                    scaled )
-    
-# Compute back total biomass, add source note and clean up
-    biomass_final_ext <- mutate( biomass_final_ext, ceds = ceds_pc * pop2 ) %>%
-      select( iso, year, units, pop2, ceds_biomass_pc = ceds_pc, 
-              ceds_biomass = ceds, src ) %>%
-      arrange( iso, year )
-    biomass_final_ext$src[ biomass_final_ext$year < LAST_IEA_YEAR ] <- "Fernandes"
-    biomass_final_ext$src[ biomass_final_ext$year < LAST_IEA_YEAR &
-                             biomass_final_ext$year > CONVERGENCE_YEAR & 
-                             biomass_final_ext$iso %!in% iso_Fern ] <- "interpolated to converge to Fernandes"
-    biomass_final_ext$src[ biomass_final_ext$iso %in% c( "global", "pse", "ussr", "yug" ) ] <- NA
-    
     
 # ------------------------------------------------------------------------------
 # 7. Make final biomass dataset
 # Replace residential biomass in CEDS with data in biomass_final
     biomass_final$year <- paste0( "X", biomass_final$year )
-    biomass_final_wide <- cast( biomass_final, iso + units ~ year, value = "biomass_tot" )
+    biomass_final_wide <- cast( biomass_final, iso + units ~ year, value = "ceds" )
     IEA_en_adj <- IEA_en
     IEA_en_adj[ IEA_en_adj$sector == "1A4b_Residential" & IEA_en_adj$fuel == "biomass", X_IEA_years ] <- 
       biomass_final_wide[ match( 
