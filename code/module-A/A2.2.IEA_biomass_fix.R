@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A2.2.IEA_biomass_fix.R
 # Author: Linh Vu
-# Date Last Updated: 3 Mar 2016
+# Date Last Updated: 16 Mar 2016
 # Program Purpose:  This program corrects system (IEA) residential biomass using 
 #                   EIA, Fernandes et al. 2007, and Denier van der Gon et al. 2015
 #                   (European) biomass data.
@@ -61,10 +61,16 @@ initialize( script_name, log_msg, headers )
 # Read biomass double-counting correction
     IEA_correction <- readData( "ENERGY_IN", "IEA_biomass_double_counting", ".xlsx", meta = F )
     
-# Define conversion factors
-    kt_to_TJ <- 13.79960448  # 2005 for European countries and USA (TJ/kt)
+# Read/define conversion factors
+    # 2005 TJ/kt for USA and European countries
+    Master_Country_List <- readData( "MAPPINGS", "Master_Country_List", meta = F )
+    kt_to_TJ <- readData( "MED_OUT", "A.Fernandes_biomass_conversion", meta = F )
+    kt_to_TJ$region <- Master_Country_List$Region[ match( kt_to_TJ$iso, Master_Country_List$iso ) ]
+    kt_to_TJ <- select( kt_to_TJ, iso, units, region, X2005 ) %>%
+      filter( iso == "usa" | grepl( "Europe", region ) )
+    kt_to_TJ <- mean( kt_to_TJ$X2005, na.rm = T )
+    
     tBtu_to_TJ <- 0.94782 * 10^3 # source: eia.gov/cfapps/ipdbproject/docs/unitswithpetro.cfm
-
     
 # ------------------------------------------------------------------------------
 # 2. Combine IEA, EIA, Fernandes, and Europe biomass into one df
