@@ -55,11 +55,11 @@ if ( em %!in% c('SO2','NOx','NMVOC','BC','OC','CH4','CO','CO2') ) {
 # 0.5. Load Packages and Define functions
 
 # Define heat_contents function used in section 2
-calc_heat_content <- function(conversion, IEAfuels) {
-  conversion <- conversion[,IEAfuels]
-  unit_multiplier <- sum(colSums(conversion, na.rm = T)) / 
-    length(na.omit(unlist(conversion)))
-  return(unit_multiplier)
+calc_heat_content <- function( conversion, IEAfuel ) {
+  conversion <- conversion[ , IEAfuel ]
+  unit_multiplier <- sum( colSums(conversion, na.rm = T ) ) / 
+    length( na.omit( unlist( conversion ) ) )
+  return( unit_multiplier )
 }
 
 # ---------------------------------------------------------------------------
@@ -124,8 +124,9 @@ mult_browncoal <- calc_heat_content(conversion, browncoal)
 hardcoal <- c("Anthracite", "Other.bituminous.coal")
 mult_hardcoal <- calc_heat_content(conversion, hardcoal)
 
-biomass <- c("Biogasoline", "Biodiesels", "Other.liquid.biofuels", "Charcoal")
-mult_biomass <- calc_heat_content(conversion, biomass)
+# biomass <- c("Biogasoline", "Biodiesels", "Other.liquid.biofuels", "Charcoal")
+# IEA does not have covnersion factors for biomass, so assume value for wood
+mult_biomass <- 13799.60448 # Value for wood
 
 lightoil <- c("Motor.gasoline", "Aviation.gasoline","Gasoline.type.jet.fuel", 
               "Kerosene.type.jet.fuel", "Other.kerosene")
