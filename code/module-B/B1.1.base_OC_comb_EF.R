@@ -111,6 +111,7 @@ bond <- bond[which(bond$Year >1959 ),]
 
 bond_everything <- bond
 bond <- bond[which(bond$ceds_fuel %!in% c( 'process','natural_gas')),]
+# Remove estimates for biomass after 2000 (bond data doesn't update emission factors after 2000)
 bond <- bond[- which(bond$Fuel %in% fuel_map[which(fuel_map$fuel == 'biomass'),'Fuel']   
                      & bond$Year > 2000 ),]
 
@@ -150,12 +151,21 @@ bond_EFs$fuel <- fuel_map[ match(bond_EFs$Fuel, fuel_map$Fuel), 'fuel']
 bond_EFs <- bond_EFs[which(!is.na(bond_EFs$fuel)),]
 bond_EFs <- bond_EFs[which((bond_EFs$fuel != 'NA')),]
 
+EF_residenital_biomass <- aggregate( bond_EFs[X_emissions_years],
+                                            by = list( Country = bond_EFs$Country,
+                                                       fuel = bond_EFs$fuel,
+                                                       Sector = bond_EFs$Sector),
+                                            FUN = mean)
+EF_residenital_biomass$iso <- iso_map[match(EF_residenital_biomass$Country, iso_map$Country),'iso']
+EF_residenital_biomass <- EF_residenital_biomass[which( EF_residenital_biomass$fuel == 'biomass' &
+                                                          EF_residenital_biomass$Sector == ' Residential '),]
+
 EF_Region_fuel_Sector_average <- aggregate( bond_EFs[X_emissions_years],
                                      by = list( Region = bond_EFs$Region,
                                                 fuel = bond_EFs$fuel,
                                                 Sector = bond_EFs$Sector),
                                      FUN = mean)
-
+writeData( EF_Region_fuel_Sector_average, 'DIAG_OUT',paste0('B.',em,'_Bond_EFs_Region_fuel_Sector'))
 EF_fuel_Sector_average <- aggregate( bond_EFs[X_emissions_years],
                                             by = list( fuel = bond_EFs$fuel,
                                                        Sector = bond_EFs$Sector),
@@ -182,7 +192,7 @@ bond_EFs_iso_sector <- bond_EFs_iso_sector[complete.cases(bond_EFs_iso_sector$se
 # map to iso
 bond_EFs_iso_sector <- merge( bond_EFs_iso_sector, iso_map[,c('iso','Country')], all=TRUE)
 bond_EFs_iso_sector <- bond_EFs_iso_sector[complete.cases(bond_EFs_iso_sector$iso),]
-
+writeData( bond_EFs_iso_sector, 'DIAG_OUT',paste0('B.',em,'_Bond_EFs_iso_sector_fuel'))
 # make ef template from activity data
 ef_template <- activity_data[ , c('iso','sector','fuel')]
 ef_template$units <- 'kt/kt'
@@ -195,14 +205,49 @@ ef_template$Sector <- sector_map[ match( ef_template$sector, sector_map$sector) 
 # make natural gas ef = 0
 ef_template[which( ef_template$fuel == 'natural_gas'), X_emissions_years] <- 0
 
+nrow_all <- nrow(ef_template)
+
+# start with redefining FSU countries:
+# change the residential emissions factors (for coal oil and gas) to industrial combustion
+FSU_residential <- EF_Region_fuel_Sector_average[which(EF_Region_fuel_Sector_average$Region == 'Former USSR ' &
+                                    EF_Region_fuel_Sector_average$fuel %in% c("diesel_oil","brown_coal" ,"coal_coke","hard_coal","heavy_oil","light_oil") &
+                                    EF_Region_fuel_Sector_average$Sector == ' Industrial  '),]
+FSU_residential$Sector <- " Residential "
+
+EF <- replaceValueColMatch(ef_template , FSU_residential ,
+                           x.ColName = X_emissions_years ,
+                           match.x = c('Region','Sector','fuel'), 
+                           addEntries = FALSE)
+
+EF_nas <- EF[is.na(EF$X1960),]
+EF_final <- EF[!is.na(EF$X1960),]
+
+#  add EFs for residential biomass by iso
+EF <- replaceValueColMatch(EF_nas , EF_residenital_biomass ,
+                           x.ColName = X_emissions_years ,
+                           match.x = c('iso','Sector','fuel'), 
+                           addEntries = FALSE)
+
+EF_nas <- EF[is.na(EF$X1960),]
+EF_final <- rbind( EF_final , EF[!is.na(EF$X1960),] )
+
 # add EFs by iso,sector,fuel
-EF <- replaceValueColMatch(ef_template , bond_EFs_iso_sector ,
+EF <- replaceValueColMatch(EF_nas , bond_EFs_iso_sector ,
                               x.ColName = X_emissions_years ,
                               match.x = c('iso','sector','fuel'), 
                               addEntries = FALSE)
 
 EF_nas <- EF[is.na(EF$X1960),]
-EF_final <- EF[!is.na(EF$X1960),]
+EF_final <- rbind( EF_final , EF[!is.na(EF$X1960),] )
+
+# add EFs by region, aggregate Sector,fuel
+EF <- replaceValueColMatch(EF_nas , EF_Region_fuel_Sector_average ,
+                           x.ColName = X_emissions_years ,
+                           match.x = c('Region','Sector','fuel'), 
+                           addEntries = FALSE)
+
+EF_nas <- EF[is.na(EF$X1960),]
+EF_final <- rbind( EF_final , EF[!is.na(EF$X1960),] )
 
 
 # add EFs by region fuel 
@@ -214,7 +259,7 @@ EF <- replaceValueColMatch(EF_nas , EF_Region_fuel_average ,
 EF_nas <- EF[is.na(EF$X1960),]
 EF_final <- rbind( EF_final , EF[!is.na(EF$X1960),] )
 
-# add EFs by region fuel 
+# add EFs by fuel , aggregate sector
 EF <- replaceValueColMatch(EF_nas , EF_fuel_Sector_average ,
                            x.ColName = X_emissions_years ,
                            match.x = c('Sector','fuel'), 
@@ -223,7 +268,7 @@ EF <- replaceValueColMatch(EF_nas , EF_fuel_Sector_average ,
 EF_nas <- EF[is.na(EF$X1960),]
 EF_final <- rbind( EF_final , EF[!is.na(EF$X1960),] )
 
-# add EFs by region 
+# add EFs by global fuel average 
 EF <-EF_nas
 EF[X_emissions_years] <- EF_fuel_average[ match(EF$fuel,EF_fuel_average$fuel), X_emissions_years]
 
@@ -232,7 +277,8 @@ EF_final <- rbind( EF_final , EF[!is.na(EF$X1960),] )
 
 # ------------------------------------------------------------------------------
 # 7. Final Processing
-
+if ( nrow(EF_nas)>0 |
+     nrow(EF_final) != nrow_all ) stop('NAs in BC-OC efs. Please check code.')
 EF_final <- EF_final[ with( EF_final, order( iso, sector, fuel ) ), ]
 
 final <- EF_final
