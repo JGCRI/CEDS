@@ -407,8 +407,7 @@ $(MED_OUT)/A.NC_activity.csv : \
 $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(MOD_B)/B1.1.base_comb_EF.R \
 	$(MOD_B)/B1.2.add_comb_EF.R \
-	$(MOD_B)/B1.1.base_BC_comb_EF.R \
-	$(MOD_B)/B1.1.base_OC_comb_EF.R \
+	$(MOD_B)/B1.1.base_BCOC_comb_EF.R \
 	$(MOD_B)/B1.1.base_OTHER_comb_EF.R \
 	$(MOD_B)/B1.1.base_comb_EF_control_percent.R \
 	$(MOD_B)/B1.1.base_SO2_comb_EF_parameters.R \
@@ -428,15 +427,10 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(PARAMS)/interpolation_extention_functions.R \
 	$(EF_DATA)/SO2_base_EF.csv \
 	$(MED_OUT)/A.comb_activity.csv \
-	$(MAPPINGS)/Bond_ctry_mapping.csv \
-	$(MAPPINGS)/Bond_fuel_mapping.csv \
-	$(MAPPINGS)/Bond_sector_mapping.csv \
-	$(INV_DATA)/Bond_BC1-Central_1990.csv \
-	$(INV_DATA)/Bond_BC1-Central_1996.csv \
-	$(INV_DATA)/Bond_OC1-Central_1990.csv \
-	$(INV_DATA)/Bond_OC1-Central_1996.csv \
-	$(INV_DATA)/Bond_Fuel-Central_1990.csv \
-	$(INV_DATA)/Bond_Fuel-Central_1996.csv
+	$(MAPPINGS)/Bond/Bond_country_map.csv \
+	$(MAPPINGS)/Bond/Bond_fuel_map.csv \
+	$(MAPPINGS)/Bond/Bond_sector_map.csv \
+	$(INV_DATA)/160227_SPEW_BCOCemission.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 

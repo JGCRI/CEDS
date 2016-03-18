@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Program Name: B1.1.base_OC_comb_EF.R
+# Program Name: B1.1.base_BCOC_comb_EF.R
 # Author: Rachel Hoesly
 # Date Last Updated: Feb 11, 2016
 # Program Purpose: 1. Produce OC emissions factors from Bond et al data.
@@ -10,15 +10,13 @@
 # Output Files: B.comb_EF_db.csv
 # Notes: 1. Emission factors (ef) are calculated as emissions divided by consumption.
 #           Missing (zero or NA) ef are replaced using the following rules, in order:
-#           a. replace with ef of the same sector_fuel and region for the same year,
-#              if available;
-#           b. then replace with region fuel average
-#           c. then global sector fuel average
-#           d. then global fuel average
-#        2. Variables with modifiable values: threshold_var.
-# TODO: correct biomass
-#       Consolidate ef correction
-#       iso codes do not uniquely identify countries
+#           a. FSU residential coal-oil-gas replaced with FSU industrial coal oil gas
+#           b. resdiential biomass replaced with iso sector fuel where available
+#           c. others replaced with Region sector fuel EF where available
+#           d. then replace with region fuel average
+#           e. then global sector fuel average
+#           f. then global fuel average
+
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -41,7 +39,7 @@ PARAM_DIR <- "../code/parameters/"
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R", "process_db_functions.R", 
               "interpolation_extention_functions.R" ) # Additional function files required.
-log_msg <- "Produce BC emissions factors from Bond et al data" # First message to be printed to the log
+log_msg <- "Produce OC BC emissions factors from Bond et al data" # First message to be printed to the log
 script_name <- "B1.1.base_BCOC_comb_EF.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
@@ -82,10 +80,11 @@ sector_level_map <- readData( "MAPPINGS", "Master_Sector_Level_map", meta = F )
 MCL <- readData( "MAPPINGS", "Master_Country_List" )
 MSLevel <- readData( "MAPPINGS", "Master_Sector_Level_Map" )
 
-bcoc_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/"  ,"Bond_BCOC_1925-2010", meta = F )
-sector_map <- readData( "EM_INV", domain_extension = "Bond-BCOC/" , "Bond_sector_map_oc", meta = F )
-iso_map <- readData( "EM_INV", domain_extension = "Bond-BCOC/" , "Bond_country_map_oc", meta = F )
-fuel_map <- readData( "EM_INV", domain_extension = "Bond-BCOC/" , "Bond_fuel_map_oc", meta = F )
+bcoc_historical <- readData( "EM_INV" ,"160227_SPEW_BCOCemission", 
+                             ".xlsx", meta = F )
+sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_map", meta = F )
+iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_country_map", meta = F )
+fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_fuel_map", meta = F )
 
 # ------------------------------------------------------------------------------
 # 2. Bond EFs
@@ -326,21 +325,27 @@ bond_everything <- aggregate( bond_everything[paste0(em,'_kt')],
                                                  Year = bond_everything$Year),
                                       FUN = sum)
 bond_everything <- bond_everything[which(!is.na(bond_everything[,em_col] )),]
+
+# Cast and select process sectors
 bond_process <- cast( bond_everything , iso + sector + fuel ~ Year , value = paste0(em,'_kt'))
+
+process_sectors <- MSL[which(MSL$type == 'NC'),'sector']
+bond_process <- bond_process[which(bond_process$sector %in% process_sectors), ]
 bond_process [ X_emissions_years[X_emissions_years %!in% X_bond_years] ] <- NA
+
  
 # organize and extend
 bond_process <- bond_process[ , c( 'iso','sector','fuel',X_emissions_years)]
 
 bond_process <- bond_process[ rowSums(is.na(bond_process[X_emissions_years]))!=
                                                       length(X_emissions_years), ]
-
 bond_process <- replace(bond_process, bond_process == 0, NA)
-
-
 bond_process_extend <- interpolateValues(bond_process)
 bond_process_extend[X_emissions_years] <- t(na.locf(t(bond_process_extend[X_emissions_years])))
 bond_process_extend[X_emissions_years] <- t(na.locf(t(bond_process_extend[X_emissions_years]),fromLast = T))
+
+# relabel fuel and process and add units
+bond_process_extend$fuel <- 'process'
 bond_process_extend$units <- 'kt'
 bond_process_extend <- bond_process_extend[ , c( 'iso','sector','fuel','units',X_emissions_years)]
 
