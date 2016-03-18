@@ -53,7 +53,7 @@
     iea_data <- readData( "MED_OUT", "A.IEA_en_stat_ctry_hist" )
     iea_data_extended <- readData( "MED_OUT", "A.IEA_BP_energy_ext" )
     shipping_fuel <- readData( "ENERGY_IN", "Shipping_Fuel_Consumption" , ".xlsx", 
-                                   skip_rows = 3, sheet_selection = "Data" )
+                                   skip_rows = 4, sheet_selection = "Data" )
     IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
 
 # -----------------------------------------------------------------------------------------
