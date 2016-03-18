@@ -63,9 +63,9 @@ if (em %in% c('SO2','NOx','NMVOC','BC','OC','CO','CH4','CO2','NH3')) {
   if( em == "SO2" ){
     scripts <- c( scripts, "B1.1.base_SO2_comb_EF_parameters.R" )
   } else if( em == "BC" ){
-    scripts <- c( scripts, "B1.1.base_OC_comb_EF.R" )
+    scripts <- c( scripts, "B1.1.base_BCOC_comb_EF.R" )
   } else if( em == "OC" ){
-    scripts <- c( scripts, "B1.1.base_OC_comb_EF.R" )
+    scripts <- c( scripts, "B1.1.base_BCOC_comb_EF.R" )
   } else if( em == "NH3" ){
     scripts <- c( scripts, "B1.1.base_NH3_comb_EF.R" )
   } else{
