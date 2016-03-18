@@ -38,14 +38,6 @@ em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "SO2"
 
 # ---------------------------------------------------------------------------
-# 0.5 Load Packages
-
-# source figure and comparison files to print figures
-source('../code/diagnostic/Figures.R') 
-source('../code/diagnostic/Compare_to_RCP.R')
-
-
-# ---------------------------------------------------------------------------
 # 0.5. Script Options
 
 write_years <- 1970:end_year
@@ -61,7 +53,7 @@ moveFileList <- function( fn_list, new_dir ) {
 }
 
 # Option to also write out data by CEDS sectors
-WRITE_CEDS_SECTORS = FALSE
+WRITE_CEDS_SECTORS = TRUE
 
 # writeSummary()  # defined in 3
 
@@ -303,7 +295,12 @@ if ( !file.exists( paste0("../final-emissions/", summary_fn, ".csv" ) ) ) {
   unlink( paste0( "../final-emissions/", em, "_last-run" ), recursive = T )
 }
 
-  
+# ---------------------------------------------------------------------------
+
+# source figure and comparison files to print figures
+source('../code/diagnostic/Figures.R') 
+source('../code/diagnostic/Compare_to_RCP.R')
+ 
 
 logStop()
 
