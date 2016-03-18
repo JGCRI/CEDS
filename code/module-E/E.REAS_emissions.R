@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: E.REAS_emissions.R
-# Author(s): Rachel Hoesly
-# Date Last Updated: Feb 11, 2016
+# Author(s): Rachel Hoesly, Leyang Feng
+# Date Last Updated: March 16, 2016
 # Program Purpose: To read in & reformat REAS emissions data.
 # Input Files: All REAS data
 # Output Files: E.em_REAS_inventory.csv
@@ -9,8 +9,8 @@
 # TODO: 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
-# Set working directory to the CEDS “input” directory & define PARAM_DIR as the
-# location of the CEDS “parameters” directory, relative to the new working directory.
+# Set working directory to the CEDS "input" directory and define PARAM_DIR as the
+# location of the CEDS "parameters" directory, relative to the new working directory.
 dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
 for ( i in 1:length( dirs ) ) {
   setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
@@ -72,12 +72,15 @@ initialize( script_name, log_msg, headers )
     read_process_reas <- function ( file_name ){
     # read files 
     read_in_data <- read.table( paste0('./',em,'_',inv_name,'_temp_folder/',em.read,'/',file_name) , stringsAsFactors = FALSE,
-                        col.names = paste('temp_col',1:22),
+                        col.names = paste('temp_col',1:50),
                         strip.white = T,
                         fill = T)
+    
     # assign column names
-    col_names <- c( 'FUEL_TYPE', unlist( read_in_data[which(read_in_data[,1] == 'Fuel'), 3:22] ) )
-    col_names[8] <- 'OTHERS_IND'
+    col_names <- c( 'FUEL_TYPE', unlist( read_in_data[which(read_in_data[,1] == 'Fuel'), 3:50] ) )
+    if ( length( which( col_names %in% 'OTHERS') ) > 1 ) {
+      col_names[ which( col_names %in% 'OTHERS') [ 1 ] ] <- 'OTHERS_IND'
+      }
     col_names <- tolower(col_names)
     names( read_in_data ) <- col_names
     read_in_data <- read_in_data[,col_names[!is.na(col_names)]]
@@ -91,23 +94,42 @@ initialize( script_name, log_msg, headers )
   
     
     # seperate combustion and process data (different shape)
-    combustion_data <- read_in_data[6:23,]
-    non_combustion_data <- read_in_data[25:42,1:2]
+    combustion_data <- read_in_data[ 6 : 23, ]
+    non_combustion_data <- read_in_data[ 25 : nrow( read_in_data ), ]
     
     # Format combustion
     combustion_data$fuel_type <- tolower(combustion_data$fuel_type)
     combustion_data <- combustion_data[which(!combustion_data[,1] == 'sub_total'),]
+    combustion_data$total_combustion <- NULL
     combustion_data <- melt( combustion_data , id.vars = 'fuel_type')
     names(combustion_data) <- c( 'fuel_type','sector','emissions')
+    combustion_data$sector <- paste0( 'comb', '-', combustion_data$sector )
     
     # format non_combustion
-    names(non_combustion_data) <- c( 'sector' , 'emissions')
-    non_combustion_data <- non_combustion_data[which( !non_combustion_data[,1] == 'Sector'),]
-    non_combustion_data <- non_combustion_data[which( !non_combustion_data[,1] %in% 'SUB_TOTAL'),]
-    non_combustion_data <- non_combustion_data[which( !non_combustion_data[,2] %in% '[t/year]'),]
-    non_combustion_data[which(non_combustion_data$SECTOR == 'total'),'sector'] <- 'total_non_combustion'
+    non_combustion_data <- non_combustion_data[which( !non_combustion_data[,1] %in% 'Sector'), ]
+    non_combustion_data <- non_combustion_data[which( !non_combustion_data[,1] %in% 'SUB_TOTAL'), ]
+    non_combustion_data <- non_combustion_data[which( !non_combustion_data[,1] %in% 'Total'), ]
+    non_combustion_data <- non_combustion_data[which( !non_combustion_data[,1] %in% 'TOTAL'), ]
+    
+    sector_indicator <- which( non_combustion_data == '[t/year]', arr.ind = T )
+    sector_indicator <- as.matrix( sector_indicator ) 
+    sector_indicator <- as.data.frame( sector_indicator )
+    sector_indicator <- sector_indicator[ order( sector_indicator[ , 1 ] ), ]
+
+    temp_non_combustion_storage <- c()
+    for ( i in 1 : nrow( sector_indicator ) ) { 
+      sector_name <- paste( non_combustion_data[ sector_indicator[ i, 1 ], 1 : ( sector_indicator[ i, 2 ] - 1 ) ], collapse = '_' )
+      data_start_row <- sector_indicator[ i, 1 ] + 1
+      data_end_row <- ifelse( i == nrow( sector_indicator ), nrow( non_combustion_data ), ( sector_indicator[ i+1, 1 ] - 1) ) 
+      temp_data <- non_combustion_data[ data_start_row : data_end_row , 1 : 2 ] 
+      temp_data[ , 1 ] <- paste0( sector_name, '-', temp_data[ , 1 ] )  
+      temp_non_combustion_storage <- rbind( temp_non_combustion_storage, temp_data )
+    }
+    colnames( temp_non_combustion_storage ) <- c( 'sector' , 'emissions')
+    temp_non_combustion_storage$sector <- tolower( temp_non_combustion_storage$sector )
+    non_combustion_data <- temp_non_combustion_storage
     non_combustion_data$fuel_type <- 'process'
-    non_combustion_data$sector <- tolower(non_combustion_data$sector)
+    non_combustion_data$sector <- paste0( 'ncomb', '-', non_combustion_data$sector )
     
     # combine
     all_data <- rbind.fill(combustion_data, non_combustion_data)
@@ -123,7 +145,9 @@ initialize( script_name, log_msg, headers )
     
     return (all_data)
     }
-    
+  
+
+  if ( length( files ) > 0 ) {
   # apply function to list of files
    reas_data_list <- lapply( X = files , FUN = read_process_reas) 
    
@@ -147,6 +171,11 @@ initialize( script_name, log_msg, headers )
    reas_data$iso <- tolower( reas_data$country )  # lowercase ISO
    
    reas_data_wide <- cast(reas_data, sub_region + iso + sector + fuel_type + units  ~ year,  value = 'emissions')
+   
+   } else {
+   # if no data to process for this emissions species, create dummy file.   
+   reas_data_wide <- data.frame()
+   }
  
   # ------------------------------------------------------------------------------
   # 5. Output
