@@ -5,7 +5,7 @@
 # Program Purpose:  Write out waste emissions as default NC emissions. Outputs
 #                   of this program will be read in by C1.3.proc_NC_emissions_user_added.R
 #                   and overwrite existing Edgar emissions
-# Input Files: Global_Emissions_of_Pollutants_from_Open_Burning_of_Domestic_Waste-suppl_(Wiedinmyer_etal_2015).xlsx,
+# Input Files: Global_Emissions_of_Pollutants_from_Open_Burning_of_Domestic_Waste.xlsx,
 #              Master_Country_List.csv 
 # Output Files:    C.[em]_NC_emissions_waste.csv
 # Notes:
@@ -41,7 +41,7 @@ initialize( script_name, log_msg, headers )
 
 # ------------------------------------------------------------------------------
 # 1. Read input
-    waste_input <- readData( "EM_INV", "Global_Emissions_of_Pollutants_from_Open_Burning_of_Domestic_Waste-suppl_(Wiedinmyer_etal_2015)", 
+    waste_input <- readData( "EM_INV", "Global_Emissions_of_Pollutants_from_Open_Burning_of_Domestic_Waste", 
                              ".xlsx", sheet_selection = "Table S3", skip_rows = 1 )[ 1: 226, ]
     MCL <- readData( "MAPPINGS", "Master_Country_List" )
     
