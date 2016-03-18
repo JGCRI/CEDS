@@ -291,21 +291,30 @@ $(MED_OUT)/A.IEA_en_stat_ctry_hist.csv : \
 # Corrects inconsistencies in residential biomass consumption
 $(MED_OUT)/A.en_stat_sector_fuel.csv : \
 	$(MOD_A)/A2.1.IEA_en_bal.R \
-	$(MOD_A)/A2.2.IEA_biomass_fix.R \
 	$(MED_OUT)/A.IEA_en_stat_ctry_hist.csv \
 	$(EN_MAPPINGS)/IEA_flow_sector.csv \
 	$(EN_MAPPINGS)/IEA_product_fuel.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
-	$(ENERGY_DATA)/IEA_energy_balance_factor.csv \
+	$(MED_OUT)/A.Fernandes_biomass_conversion.csv \
+	$(ENERGY_DATA)/IEA_energy_balance_factor.csv
+	Rscript $< $(EM) --nosave --no-restore
+
+$(MED_OUT)/A.en_biomass_fix.csv : \
+	$(MOD_A)/A2.2.IEA_biomass_fix.R \
+	$(MED_OUT)/A.UN_pop_master.csv \
+	$(MED_OUT)/A.en_stat_sector_fuel.csv \
+	$(MED_OUT)/A.Fernandes_residential_biomass.csv \
 	$(MED_OUT)/A.Fernandes_biomass_conversion.csv \
 	$(ENERGY_DATA)/Europe_wooduse_Europe_TNO_4_Steve.xlsx \
 	$(ENERGY_DATA)/EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors.xlsx \
 	$(ENERGY_DATA)/IEA_biomass_double_counting.xlsx
 	Rscript $< $(EM) --nosave --no-restore
-	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 
-$(MED_OUT)/A.residential_biomass_full.csv : \
-	$(MED_OUT)/A.en_stat_sector_fuel.csv
+$(MED_OUT)/A.en_biomass_fsu_fix.csv : \
+	$(MOD_A)/A2.3.IEA_FSU_energy_fix.R \
+	$(MED_OUT)/A.UN_pop_master.csv \
+	$(MED_OUT)/A.en_biomass_fix.csv
+	Rscript $< $(EM) --nosave --no-restore
 
 # aa3-1
 # Extends IEA data with BP data
@@ -313,7 +322,7 @@ $(MED_OUT)/A.IEA_BP_energy_ext.csv : \
 	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
 	$(MOD_A)/A3.1.IEA_BP_data_extension_PRE.R \
 	$(MOD_A)/A3.2.Adjust_Shipping_Fuel_Cons.R \
-	$(MED_OUT)/A.en_stat_sector_fuel.csv \
+	$(MED_OUT)/A.en_biomass_fsu_fix.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(ENERGY_DATA)/BP_energy_data.xlsx \
 	$(ENERGY_DATA)/Shipping_Fuel_Consumption.xlsx

@@ -5,7 +5,7 @@
 # Program Purpose: Reads in BP data for years not yet covered by IEA data
 #                  Alters BP data to agree with IEA data labels
 #                  Adds recent BP-projected data to historical years data         
-# Input Files: A.en_stat_sector_fuel.csv, BP_energy_data.xlsx, 
+# Input Files: A.en_biomass_fsu_fix.csv, BP_energy_data.xlsx, 
 #              Master_Country_List.csv, Master_Fuel_Sector_List.xlsx, 
 # Output Files: A.comb_activity.csv, A.IEA_BP_sum_comparison.csv, A.IEA_BP_trend_comparison.csv   
 # Notes: IEA_years, BP_years, end_year and X_ variants defined in common_data.R
@@ -43,7 +43,7 @@
 # ------------------------------------------------------------------------------
 # 1. Read in files
 
-    iea_data_full <- readData( "MED_OUT", "A.en_stat_sector_fuel" )
+    iea_data_full <- readData( "MED_OUT", "A.en_biomass_fsu_fix" )
     bp_energy_data <- readData( "ENERGY_IN","BP_energy_data", ".xlsx")
     ctry_mapping <- readData( "MAPPINGS", "Master_Country_List" )
     fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )

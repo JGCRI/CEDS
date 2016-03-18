@@ -137,7 +137,7 @@
 
 # For heavy_oil, if IEA > ship_fuel, subtract the difference from added diesel_oil
     to_subtract <- filter( comp, fuel == "heavy_oil", diff < 0 )
-    to_subtract$fuel <- "diesel_oil"
+    if( nrow( to_subtract ) > 0) to_subtract$fuel <- "diesel_oil"
     
 # Result is shipping fuel to be added to global intl shipping -- put this in a df 
     global_intl_ship <- merge( select( to_add, year, fuel, global_fuel = diff ), 
