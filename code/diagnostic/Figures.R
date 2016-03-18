@@ -37,7 +37,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "OC"
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -56,6 +56,7 @@ PRINT_BIG_TABLES <- FALSE
 # 1. Load files
 
 Master_Country_List <- readData( "MAPPINGS", "Master_Country_List")
+MSLevel <- readData( "MAPPINGS", "Master_Sector_Level_Map" )
 TotalEmissions <- readData('MED_OUT', paste0('F.',em,'_scaled_emissions'))
 
 if ( PRINT_DEFAULTS ) DefaultEmissions <- readData('MED_OUT', paste0('D.',em,'_default_total_emissions'))
@@ -80,6 +81,10 @@ TotalEmissions.long$Country <- Master_Country_List[match(TotalEmissions.long$iso
 TotalEmissions.long$Region <- as.factor(TotalEmissions.long$Region)
 TotalEmissions.long$year <- as.integer(TotalEmissions.long$year)
 
+TotalEmissions.long$agg_Sector <- MSLevel[match(TotalEmissions$sector,MSLevel$working_sectors_v1),'FSU_extension']
+TotalEmissions.long[which(is.na(TotalEmissions.long$agg_Sector)),'agg_Sector'] <- "Process"
+TotalEmissions.long$agg_Sector <- as.factor(TotalEmissions.long$agg_Sector)
+
 # Also add to the long format to use aggregate
 TotalEmissions$Region <- Master_Country_List[match(TotalEmissions$iso,Master_Country_List$iso),'Figure_Region']
 TotalEmissions$Country <- Master_Country_List[match(TotalEmissions$iso,Master_Country_List$iso),'Country_Name']
@@ -98,13 +103,17 @@ if ( PRINT_DEFAULTS ){
 	DefaultEmissions.long$Region <- as.factor(DefaultEmissions.long$Region)
 	DefaultEmissions.long$year <- as.integer(DefaultEmissions.long$year)
 	
+  DefaultEmissions.long$agg_Sector <- MSLevel[match(DefaultEmissions$sector,Master_Country_List$sector),'Figure_Region']
+	
+	
 	# Also add to the long format to use aggregate
 	DefaultEmissions$Region <- Master_Country_List[match(DefaultEmissions$iso,Master_Country_List$iso),'Figure_Region']
 	DefaultEmissions$Country <- Master_Country_List[match(DefaultEmissions$iso,Master_Country_List$iso),'Country_Name']
 	
 }
 # ---------------------------------------------------------------------------
-# 0. Tables - Total scaled emissions by country
+# 0. Tables - 
+# Total scaled emissions by country
 
 Em_by_Country<-aggregate( TotalEmissions[ X_emissions_years ],
                          by=list( Region =  TotalEmissions$Region,
@@ -199,11 +208,12 @@ Regions<-ddply(TotalEmissions.long, .(Region,year),summarize,
                Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Regions
-	df$Region <- factor(df$Region,levels=c('North America','Western Europe',
+# df <- df[order(-df$Region),]
+df$Region <- factor(df$Region,levels=c('North America','Western Europe',
 											'Eastern Europe', 'FSU','Middle East',
 										   'Africa','Other Asia','China','Central and South America',
-										   'South East Asia and Aust/NZ'))
-df <- df[order(-df$Region),]
+										   'South East Asia and Aust/NZ', 'Global'))
+
 plot <- ggplot(df, aes(x=year,y=Emissions,
                        fill=Region)) + 
                   geom_area(size=1) +
@@ -227,7 +237,7 @@ if ( PRINT_DEFAULTS ){
 	df$Region <- factor(df$Region,levels=c('North America','Western Europe',
 											'Eastern Europe', 'FSU','Middle East',
 										   'Africa','Other Asia','China','Central and South America',
-										   'South East Asia and Aust/NZ'))
+										   'South East Asia and Aust/NZ', 'Global'))
 	df <- df[-which(is.na(df$Region)),]
 	plot <- ggplot(df, aes(x=year,y=Emissions,
 							fill=Region)) + 
@@ -248,8 +258,8 @@ df <- Regions
 	df$Region <- factor(df$Region,levels=c('North America','Western Europe',
 											'Eastern Europe', 'FSU','Middle East',
 										   'Africa','Other Asia','China','Central and South America',
-										   'South East Asia and Aust/NZ'))
-df <- df[-which(is.na(df$Region)),]
+										   'South East Asia and Aust/NZ', 'Global'))
+# df <- df[-which(is.na(df$Region)),]
 plot <- ggplot(df, aes(x=year,y=Emissions,
                        color=Region)) + 
   geom_line(size=1) +
@@ -283,45 +293,44 @@ if ( PRINT_DEFAULTS ){
 }
 
 # ---------------------------------------------------------------------------
-# 1. Plots - #Stacked Area Plot By Sector
+# 1. Plots - #Stacked Area Plot By aggregate Sector
 
 #Scaled
-Sectors<-ddply(TotalEmissions.long, .(sector,year),summarize,
+Sectors<-ddply(TotalEmissions.long, .(agg_Sector,year),summarize,
                Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Sectors
-plot <- ggplot(df, aes(x=year,y=Emissions, fill=sector)) + 
+plot <- ggplot(df, aes(x=year,y=Emissions, fill=agg_Sector)) + 
   geom_area(size=1) +
   scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
   scale_y_continuous(labels = comma)+
   ggtitle(paste('Global Scaled', em ,'Emissions'))+
   labs(x='Year',y= paste(em,'Emissions [kt]') )+
-  guides(fill=guide_legend(ncol=2))
+  guides(fill=guide_legend(ncol=1))
 plot              
-ggsave( paste0('summary-plots/',em,'_sectors.scaled.pdf'), width = 11, height = 6 )
+ggsave( paste0('summary-plots/',em,'_agg_sectors.scaled.pdf'), width = 11, height = 6 )
 #Convert to wide format for easier viewing
-data.wide <- cast(df, sector ~ year, mean, value="Emissions")
-writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_sector') )
+data.wide <- cast(df, agg_Sector ~ year, mean, value="Emissions")
+writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_agg_sector') )
 
 #Default
 if ( PRINT_DEFAULTS ){
-  Sectors<-ddply(DefaultEmissions.long, .(sector,year),summarize,
-               Emissions=sum(Emissions, na.rm=TRUE))
-
-df <- Sectors
-plot <- ggplot(df, aes(x=year,y=Emissions,
-                        fill=sector)) + 
-  geom_area(size=1) +
-  scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
-  scale_y_continuous(labels = comma)+
-  ggtitle(paste('Global Default', em ,'Emissions'))+
-  labs(x='Year',y= paste(em,'Emissions [kt]') )+
-  guides(fill=guide_legend(ncol=2))
+  Sectors<-ddply(DefaultEmissions.long, .(agg_Sector,year),summarize,
+                 Emissions=sum(Emissions, na.rm=TRUE))
   
-plot              
-ggsave( paste0('summary-plots/',em,'_sectors.default.pdf'), width = 11, height = 6 )
+  df <- Sectors
+  plot <- ggplot(df, aes(x=year,y=Emissions,
+                         fill=agg_Sector)) + 
+    geom_area(size=1) +
+    scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
+    scale_y_continuous(labels = comma)+
+    ggtitle(paste('Global Default', em ,'Emissions'))+
+    labs(x='Year',y= paste(em,'Emissions [kt]') )+
+    guides(fill=guide_legend(ncol=2))
+  
+  plot              
+  ggsave( paste0('summary-plots/',em,'_agg_sectors.default.pdf'), width = 11, height = 6 )
 }
-
 
 # ---------------------------------------------------------------------------
 # 1. Plots - #Stacked Area Plot By Fuel

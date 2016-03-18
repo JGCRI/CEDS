@@ -40,6 +40,10 @@ if ( is.na( em ) ) em <- "SO2"
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
 
+# source figure and comparison files to print figures
+source('../code/diagnostic/Figures.R') 
+source('../code/diagnostic/Compare_to_RCP.R')
+
 
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
@@ -298,6 +302,8 @@ if ( !file.exists( paste0("../final-emissions/", summary_fn, ".csv" ) ) ) {
   # delete the temp folder last-run
   unlink( paste0( "../final-emissions/", em, "_last-run" ), recursive = T )
 }
+
+  
 
 logStop()
 
