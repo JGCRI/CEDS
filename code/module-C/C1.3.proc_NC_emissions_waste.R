@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.3.proc_NC_emissions_waste.R
 # Author: Linh Vu
-# Date Last Updated: 15 Mar 2016
+# Date Last Updated: 18 Mar 2016
 # Program Purpose:  Write out waste emissions as default NC emissions. Outputs
 #                   of this program will be read in by C1.3.proc_NC_emissions_user_added.R
 #                   and overwrite existing Edgar emissions
@@ -44,6 +44,10 @@ initialize( script_name, log_msg, headers )
     waste_input <- readData( "EM_INV", "Global_Emissions_of_Pollutants_from_Open_Burning_of_Domestic_Waste", 
                              ".xlsx", sheet_selection = "Table S3", skip_rows = 1 )[ 1: 226, ]
     MCL <- readData( "MAPPINGS", "Master_Country_List" )
+
+# Unit conversion factors
+    OC_conv <- 1/1.3  # weight to units of carbon
+    NOx_conv <- (14 + 16*2)/(14 + 16)  # NO to NO2
     
 # ------------------------------------------------------------------------------
 # 2. Process and convert to standard CEDS format
@@ -80,6 +84,12 @@ initialize( script_name, log_msg, headers )
     em_names <- c( "SO2", "NOx", "CO", "NMVOC", "BC", "OC", "NH3", "CH4" )
     names( waste_input ) <- c( "iso", em_names )
     
+# Unit conversion
+# Note OC reported here is total OC and NOx is NO, so need to convert OC to units
+# of carbon and NO to NO2 for CEDS
+    waste_input$OC <- waste_input$OC * OC_conv
+    waste_input$NOx <- waste_input$NOx * NOx_conv
+
 # Convert to standard CEDS input format
     waste_input <- melt( waste_input, id = "iso" )
     names( waste_input )[ names( waste_input ) %in% c( "variable", "value" ) ] <- c( "emission", "X2000" )
