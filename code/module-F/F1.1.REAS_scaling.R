@@ -61,15 +61,24 @@ if ( em %!in% c('CO','NH3','NMVOC','NOx','SO2', 'CH4') ) {
 #   mapping method (by sector, fuel, or both), & the regions covered by
 #   the inventory (as a vector of iso codes)
 
-# For the moment, scale just ag and wastewater sources
-sector_fuel_mapping <- 'REAS_scaling_mapping_AgrWaste'
+sector_fuel_mapping <- 'REAS_scaling_mapping'
 
 mapping_method <- 'sector'
 inv_name <- 'REAS'
 # Do not include partial regions (Russia) or Japan (for which we have more complete inventory)
-region <- c("afg","bgd","brn","btn","chn","idn","ind","kaz","kgz","khm","kor",
-            "lao","lka","mdv","mmr","mng","mys","npl","pak","phl","prk","sgp","tha",
-            "tjk","tkm","twn","uzb","vnm")
+
+if ( em == "NH3" ) {
+	region <- c("afg","bgd","brn","btn","chn","idn","ind","kaz","kgz","khm","kor",
+				"lao","lka","mdv","mmr","mng","mys","npl","pak","phl","prk","sgp","tha",
+				"tjk","tkm","twn","uzb","vnm")
+
+	# Do not include regions for which we have other inventories ("kor"). 
+	# Include Taiwan to get REAS sector detail, then re-scale with Taiwan inventory data directly
+} else {
+  region <- c("afg","bgd","brn","btn","idn","ind","kaz","kgz","khm",
+				"lao","lka","mdv","mmr","mng","mys","npl","pak","phl","prk","sgp","tha",
+				"tjk","tkm","twn","uzb","vnm")
+}
 inv_years<-c(2000:2008)
 
 # ------------------------------------------------------------------------------
