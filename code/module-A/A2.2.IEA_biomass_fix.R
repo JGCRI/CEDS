@@ -11,7 +11,7 @@
 #                  Europe_wooduse_Europe_TNO_4_Steve.xlsx, A.UN_pop_master.csv, 
 #                  EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors.xlsx, 
 #                  IEA_biomass_double_counting.xlsx
-# Output Files:    A.en_stat_sector_fuel.csv, A.residential_biomass_full.csv
+# Output Files:    A.en_biomass_fix.csv, A.residential_biomass_full.csv
 # Notes:
 # TODO: 
 #   
@@ -45,7 +45,7 @@ initialize( script_name, log_msg, headers )
 
 # ------------------------------------------------------------------------------
 # 1. Read raw input files and define useful values
-    library( "zoo" )
+    loadPackage( "zoo" )
 
 # Read population
     pop_master <- readData( "MED_OUT", "A.UN_pop_master", meta = F )
@@ -640,7 +640,7 @@ initialize( script_name, log_msg, headers )
     biomass_IEA_final[ is.na( biomass_IEA_final ) ] <- ""
     IEA_res_unspec_out[ is.na( IEA_res_unspec_out ) ] <- ""
     
-    writeData( IEA_en_adj, "MED_OUT", "A.en_stat_sector_fuel" )
+    writeData( IEA_en_adj, "MED_OUT", "A.en_biomass_fix" )
     writeData( biomass_final_ext, "MED_OUT", "A.residential_biomass_full", meta = F )
 
 # Diagnostics
