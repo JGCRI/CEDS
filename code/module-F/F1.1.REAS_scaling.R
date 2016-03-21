@@ -52,7 +52,7 @@ initialize( script_name, log_msg, headers )
 # Stop script if running for unsupported emissions species
 # Note, while REAS has BC, there is no OC, so retain consistent BC, OC estimates
 if ( em %!in% c('CO','NH3','NMVOC','NOx','SO2', 'CH4') ) {
-  stop (paste( ' REAS script is not supported for emission species', em, 'remove from script
+  stop (paste( 'REAS script is not supported for emission species ', em, '. Remove from script
                list in F1.1.inventory_scaling.R'))
 }
 
@@ -66,23 +66,19 @@ sector_fuel_mapping <- 'REAS_scaling_mapping'
 mapping_method <- 'sector'
 inv_name <- 'REAS'
 # Do not include partial regions (Russia) or Japan (for which we have more complete inventory)
-
 if ( em == "NH3" ) {
 	region <- c("afg","bgd","brn","btn","chn","idn","ind","kaz","kgz","khm","kor",
 				"lao","lka","mdv","mmr","mng","mys","npl","pak","phl","prk","sgp","tha",
 				"tjk","tkm","twn","uzb","vnm")
 
-	# Do not include regions for which we have other inventories ("kor"). 
-	# Include Taiwan to get REAS sector detail, then re-scale with Taiwan inventory data directly
+# Do not include regions for which we have other inventories ("kor"). 
+# Include Taiwan to get REAS sector detail, then re-scale with Taiwan inventory data directly
 } else {
   region <- c("afg","bgd","brn","btn","idn","ind","kaz","kgz","khm",
 				"lao","lka","mdv","mmr","mng","mys","npl","pak","phl","prk","sgp","tha",
 				"tjk","tkm","twn","uzb","vnm")
 }
 inv_years<-c(2000:2008)
-
-# ------------------------------------------------------------------------------
-# 1.5 Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
 
 # REAS level 1 inventory is reformatted by the E2.REAS_em_emissions_lvl1.R script
 inventory_data_file <- paste0("E.", em, "_REAS_inventory")

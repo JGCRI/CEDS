@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Program Name: F1.1.south_korea_scaling.R
+# Program Name: F1.1.South_korea_scaling.R
 # Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly, Steve Smith, Ryan Bolt
 # Date Last Modified: January 12, 2016
 # Program Purpose: To create scaling factors and update emissions estimate for
@@ -9,7 +9,7 @@
 # Units are initially in Mg or Metric Tonnes
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv, 
 #              F.[em]_scaled_emissions.csv, korea_scaling_mapping.csv, 
-#              national_tier1_caps.xlsx
+#              E.[em]_Korea_inventory.csv
 # Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
 # Notes: 
 # TODO: Re-write read-in so that order of years is taken from input data instead of assumed.
@@ -37,8 +37,8 @@ if ( is.na( em ) ) em <- "NOx"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R", "analysis_functions.R" ) # Additional function files required.
-log_msg <- "test inventory data" # First message to be printed to the log
-script_name <- paste0(em,"-F1.1.south_korea_scaling.R")
+log_msg <- "South Korea inventory scaling" # First message to be printed to the log
+script_name <- paste0(em,"-F1.1.South_korea_scaling.R")
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -48,7 +48,7 @@ initialize( script_name, log_msg, headers )
 
 # Stop script if running for unsupported species
 if ( em %!in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ) {
-  stop (paste( ' KOR scaling is not supported for emission species', em, 'remove from script
+  stop (paste( 'KOR scaling is not supported for emission species ', em, '. Remove from script
                list in F1.1.inventory_scaling.R'))
 }
 
@@ -56,8 +56,6 @@ if ( em %!in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ) {
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-#inventory_data_file <- 'Korea/Korea-Translation'
-inv_data_folder <- "EM_INV"
 sector_fuel_mapping <- 'S_Korea_scaling_mapping'
 mapping_method <- 'sector'
 inv_name <- 'SKorea' #for naming diagnostic files

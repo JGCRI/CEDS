@@ -3,12 +3,11 @@
 # Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly, Steve Smith, Ryan Bolt
 # Date Last Modified: Jan 15, 2016
 # Program Purpose: To create scaling factors and update emissions estimate for
-# the CAN region from latest emissions working copy by using aggregate 
+# the Japan region from latest emissions working copy by using aggregate 
 # Japan trends inventory data.
-#
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv, 
 #              F.[em]_scaled_emissions.csv, jpn_scaling_mapping.csv, 
-#              national_tier1_caps.xlsx
+#              E.[em]_Japan_inventory.csv
 # Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
 # Notes: 
 # TODO: Re-write read-in so that order of years is taken from input data instead of assumed.
@@ -31,12 +30,12 @@ PARAM_DIR <- "../code/parameters/"
 # Get emission species first so can name log appropriately
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[1]
-if ( is.na( em ) ) em <- "NOx"
+if ( is.na( em ) ) em <- "SO2"
   
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R", "analysis_functions.R" ) # Additional function files required.
-log_msg <- "test inventory data" # First message to be printed to the log
+log_msg <- "Japan inventory scaling" # First message to be printed to the log
 script_name <- paste0(em,"-F1.1.Japan_scaling.R")
 
 source( paste0( PARAM_DIR, "header.R" ) )
@@ -47,7 +46,7 @@ initialize( script_name, log_msg, headers )
 
 # Stop script if running for unsupported species
 if ( em %!in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3' ) ) {
-  stop (paste( ' Japan scaling is not supported for emission species', em, 'remove from script
+  stop (paste( 'Japan scaling is not supported for emission species ', em, '. Remove from script
                list in F1.1.inventory_scaling.R'))
 }
 
@@ -55,39 +54,14 @@ if ( em %!in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3' ) ) {
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-inventory_data_file <- 'Japan/CEDS_REAS_JAPAN'
-inv_data_folder <- "EM_INV"
 sector_fuel_mapping <- 'jpn_scaling_mapping'
 mapping_method <- 'sector'
 inv_name <- 'Japan' #for naming diagnostic files
 region <- c( "jpn" ) 
-inv_years<-c(1950:2010)
-
-# ------------------------------------------------------------------------------
-# 1.5 Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
-
-# Import Sheet
-sheet_name <- em
-inv_data_sheet <- readData( inv_data_folder, inventory_data_file , ".xlsx", 
-                            sheet_selection = sheet_name ) 
-# Clean rows and columns to standard format
-names(inv_data_sheet) <- c('sector', paste0('X',inv_years))
-inv_data_sheet$iso <- 'jpn'
-inv_data_sheet <- inv_data_sheet[,c('iso','sector', paste0('X',inv_years))]
-
-# Make numeric and convert from tonnes to kt
-inv_data_sheet[,paste0('X',inv_years)] <- sapply(inv_data_sheet[,paste0('X',inv_years)],as.numeric)
-inv_data_sheet[,paste0('X',inv_years)] <- 
-  as.matrix(inv_data_sheet[,paste0('X',inv_years)])/1000
 
 # Japan's data goes to 1950 but the EF and emissions data sheets only go back to 1960. Therefore, we need to
 # remove data from 1950 - 1959 for the time being.
-keep <- c("iso", "sector", paste0('X',1960:2010))
-inv_data_sheet <- inv_data_sheet[,keep]
 inv_years<-c(1960:2010)
-
-# write standard form inventory
-writeData( inv_data_sheet , domain = "MED_OUT", paste0('E.',em,'_',inv_name,'_inventory'))
 inventory_data_file <- paste0('E.',em,'_',inv_name,'_inventory')
 inv_data_folder <- 'MED_OUT'
 

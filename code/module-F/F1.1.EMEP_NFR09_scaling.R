@@ -52,7 +52,7 @@ initialize( script_name, log_msg, headers )
 # Stop script if running for unsupported emissions species
 # Note, while EMEP has BC, there is no OC, so retain consistent BC, OC estimates
 if ( em %!in% c('CO','NH3','NMVOC','NOx','SO2') ) {
-  stop (paste( ' EMEP script is not supported for emission species', em, 'remove from script
+  stop (paste( 'EMEP scaling is not supported for emission species ', em, '. Remove from script
                list in F1.1.inventory_scaling.R'))
 }
 
@@ -78,9 +78,6 @@ region <- c("aut", "bel", "bgr", "che", "cyp", "cze", "deu",
             "nld", "nor", "pol", "prt", "rou", "svk", "svn", "swe"
             )
 inv_years<-c(1980:2012)
-
-# ------------------------------------------------------------------------------
-# 1.5 Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
 
 # EMEP level 1 inventory is reformatted by the E2.EMEP_em_emissions_lvl1.R script
 inventory_data_file <- paste0("E.", em, "_EMEP_NFR09_inventory")

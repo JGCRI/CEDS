@@ -1,14 +1,13 @@
 #------------------------------------------------------------------------------
-# Program Name: F1.1.Edgar_scaling.R
+# Program Name: F1.1.Edgar_PEGASOS_scaling.R
 # Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly
 # Date Last Modified: Dec 27, 2015
 # Program Purpose: To create scaling factors and update emissions estimate for
-# the CAN region from latest emissions working copy by using aggregate 
-# CAN trends inventory data.
+#                  Edgar PEGASOS
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv, 
-#              F.[em]_scaled_emissions.csv, CAN_sector_mapping.csv, 
-#              national_tier1_caps.xlsx
-# Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
+#              F.[em]_scaled_emissions.csv, JRC_PEGASOS_[em]_TS_REF.xlsx
+# Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv, 
+#               E.[em]_EDGAR_PG_inventory.csv
 # Notes: 
 # TODO:
 # ------------------------------------------------------------------------------
@@ -37,7 +36,7 @@ if ( is.na( em ) ) em <- "NH3"
 headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R", "analysis_functions.R",
               "interpolation_extention_functions.R" ) # Additional function files required.
 log_msg <- "Edgar inventory scaling" # First message to be printed to the log
-script_name <- paste0(em,"-F1.1.Edgar_scaling.R")
+script_name <- paste0(em,"-F1.1.Edgar_PEGASOS_scaling.R")
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -47,7 +46,7 @@ initialize( script_name, log_msg, headers )
 
   # Stop script if running for unsupported species
   if ( em %!in% c('SO2','NOx','NMVOC','CO', 'CH4', 'NH3' ) ) {
-    stop (paste( ' Edgar scaling is not supported for emission species', em, 'remove from script
+    stop (paste( 'Edgar scaling is not supported for emission species ', em, '. Remove from script
                  list in F1.1.inventory_scaling.R'))
   }
   
