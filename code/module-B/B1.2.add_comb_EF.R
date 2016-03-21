@@ -29,7 +29,7 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c() # Additional function files required.
-log_msg <- paste0( "Calling species-specific child script to add non-combustion",
+log_msg <- paste0( "Calling species-specific child script to add combustion",
                    " emissions data to the database" ) # First message to be printed to the log
 script_name <- "B1.2.add_comb_EF.R"
 
