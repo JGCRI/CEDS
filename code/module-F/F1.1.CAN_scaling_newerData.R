@@ -11,7 +11,7 @@
 #
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv, 
 #              F.[em]_scaled_emissions.csv, CAN_sector_mapping.csv, 
-#              national_tier1_caps.xlsx
+#              E.[em]_CAN_inventory.csv
 # Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
 # Notes: 
 # TODO: Re-write read-in so that order of years is taken from input data instead of assumed.
@@ -40,7 +40,7 @@ if ( is.na( em ) ) em <- "NOx"
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R" , "analysis_functions.R",
               "interpolation_extention_functions.R") # Additional function files required.
-log_msg <- "test inventory data" # First message to be printed to the log
+log_msg <- "Canada inventory scaling (newer data)" # First message to be printed to the log
 script_name <- paste0(em,"-F1.1.CAN_scaling_newerData.R")
 
 source( paste0( PARAM_DIR, "header.R" ) )
@@ -51,7 +51,7 @@ initialize( script_name, log_msg, headers )
 
   # Stop script if running for unsupported species
   if ( em %!in% c('SO2', 'NOx','NMVOC','CO') ) {
-    stop (paste( ' CAN scaling is not supported for emission species', em, 'remove from script
+    stop (paste( 'CAN scaling is not supported for emission species ', em, '. Remove from script
                  list in F1.1.inventory_scaling.R'))
   }
   
@@ -61,8 +61,6 @@ initialize( script_name, log_msg, headers )
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-  inventory_data_file <- paste0('Canada/ape_results_e_',em,'_2013')
-  inv_data_folder <- "EM_INV"
   sector_fuel_mapping <- 'CAN_scaling_mapping'
   mapping_method <- 'sector'
   inv_name <- 'CAN' #for naming diagnostic files
@@ -71,35 +69,11 @@ initialize( script_name, log_msg, headers )
   # Because this data comes read in as reversed.
   inv_years_reversed<-c(2013:1990)
 
-# ------------------------------------------------------------------------------
-# 1.5 Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
-  
-  # Import Sheet
-  sheet_name <- "Sheet1"
-  inv_data_sheet <- readData( inv_data_folder, inventory_data_file , ".xlsx", 
-                              sheet_selection = sheet_name ) 
-  # Clean rows and columns to standard format
-  inv_data_sheet <- inv_data_sheet[-1:-7,]
-  names(inv_data_sheet) <- c('sector', paste0('X',inv_years_reversed))
-  inv_data_sheet$iso <- 'can'
-  inv_data_sheet <- inv_data_sheet[,c('iso','sector', paste0('X',inv_years))]
-
-  # Remove rows with all NAs  
-  remove.na <- which(apply(inv_data_sheet[,paste0('X',inv_years)], 1, function(x) all(is.na(x))))
-  inv_data_sheet <- inv_data_sheet[-remove.na,]
-  
-  # Make numeric and convert from tonnes to kt
-  inv_data_sheet[,paste0('X',inv_years)] <- sapply(inv_data_sheet[,paste0('X',inv_years)],as.numeric)
-  inv_data_sheet[,paste0('X',inv_years)] <- 
-                as.matrix(inv_data_sheet[,paste0('X',inv_years)])/1000
-  
-  # write standard form inventory
-  writeData( inv_data_sheet , domain = "MED_OUT", paste0('E.',em,'_',inv_name,'_inventory'))
   inventory_data_file <- paste0('E.',em,'_',inv_name,'_inventory')
   inv_data_folder <- 'MED_OUT'
   
-  # ------------------------------------------------------------------------------
-  # 2. Read In Data with scaling functions
+# ------------------------------------------------------------------------------
+# 2. Read In Data with scaling functions
   
   # Read in the inventory data, mapping file, the specified emissions species, and
   # the latest versions of the scaled EFs  
@@ -110,8 +84,8 @@ initialize( script_name, log_msg, headers )
   list2env(scaling_data , envir = .GlobalEnv) 
   
   
-  # ------------------------------------------------------------------------------
-  # 3. Arrange the CEDS emissions data to match the inventory data
+# ------------------------------------------------------------------------------
+# 3. Arrange the CEDS emissions data to match the inventory data
   
   # Aggregate inventory data to scaling sectors/fuels 
   inv_data <- F.invAggregate( std_form_inv , region )
@@ -119,8 +93,8 @@ initialize( script_name, log_msg, headers )
   # Aggregate ceds data to scaling sectors/fuels
   ceds_data <- F.cedsAggregate( input_em, region, mapping_method )
   
-  # ------------------------------------------------------------------------------
-  # 4. Calculate Scaling Factors, reaggregate to CEDS sectors  
+# ------------------------------------------------------------------------------
+# 4. Calculate Scaling Factors, reaggregate to CEDS sectors  
   
   # Calculate and extend scaling factors
   scaling_factors_list <- F.scaling( ceds_data, inv_data, region, 
@@ -134,8 +108,8 @@ initialize( script_name, log_msg, headers )
   scaled_ef <- scaled[[1]]
   scaled_em <- scaled[[2]]
   
-  # ------------------------------------------------------------------------------
-  # 5. Encorporate scaled em and EF and
+# ------------------------------------------------------------------------------
+# 5. Encorporate scaled em and EF and
   # Write Scaled emissions and emission factors
   
   F.addScaledToDb( scaled_ef, scaled_em, meta_notes )

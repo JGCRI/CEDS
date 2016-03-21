@@ -46,7 +46,7 @@
 
 # Stop script if running for unsupported species
   if ( em %!in% c('SO2','CO','NMVOC','NOx') ) {
-    stop (paste( ' UNFCCC script is not supported for emission species', em, 'remove from script
+    stop (paste( 'UNFCCC script is not supported for emission species ', em, '. Remove from script
                  list in F1.1.inventory_scaling.R'))
   }
 
@@ -69,11 +69,7 @@
   region <- c(  "aus" , "blr" , "grc" , "nzl" )
   inv_years<-c(1990:2012)
   
-
-# ------------------------------------------------------------------------------
-# 1.5 Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
-  
-  # UNFCCC inventory is processed in E.UNFCCC_[em]_emissions.R script
+# UNFCCC inventory is processed in E.UNFCCC_[em]_emissions.R script
   inventory_data_file <- paste0('E.',em,'_UNFCCC_inventory')
   inv_data_folder <- "MED_OUT"
   

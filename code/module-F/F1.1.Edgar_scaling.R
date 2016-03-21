@@ -3,12 +3,11 @@
 # Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly
 # Date Last Modified: Dec 27, 2015
 # Program Purpose: To create scaling factors and update emissions estimate for
-# the CAN region from latest emissions working copy by using aggregate 
-# CAN trends inventory data.
+#                  Edgar
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv, 
-#              F.[em]_scaled_emissions.csv, CAN_sector_mapping.csv, 
-#              national_tier1_caps.xlsx
-# Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
+#              F.[em]_scaled_emissions.csv, EDGAR42_[em].csv
+# Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv, 
+#               E.[em]_EDGAR_inventory.csv
 # Notes: 
 # TODO:
 # ------------------------------------------------------------------------------
@@ -47,7 +46,7 @@ initialize( script_name, log_msg, headers )
 
   # Stop script if running for unsupported species
   if ( em %!in% c('SO2','NOx','NMVOC','CO', 'CH4') ) {
-    stop (paste( ' Edgar scaling is not supported for emission species', em, 'remove from script
+    stop (paste( 'Edgar scaling is not supported for emission species ', em, '. Remove from script
                  list in F1.1.inventory_scaling.R'))
   }
   

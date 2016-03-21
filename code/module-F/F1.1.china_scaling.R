@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Program Name: F1.1.china_scaling.R
+# Program Name: F1.1.China_scaling.R
 # Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly, Steve Smith, Ryan Bolt
 # Date Last Modified: January 12, 2016
 # Program Purpose: To create scaling factors and update emissions estimate for
@@ -8,8 +8,8 @@
 # This data only contains data from 2008,2010,2012.
 # Units are initially in Mg or Metric Tonnes
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv, 
-#              F.[em]_scaled_emissions.csv, MEIC_scaling_mapping.csv, 
-#              national_tier1_caps.xlsx
+#              F.[em]_scaled_emissions.csv, MEIC_scaling_mapping.xlsx, 
+#              E.[em]_CHN_inventory.csv
 # Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
 # Notes: 
 # TODO: Re-write read-in so that order of years is taken from input data instead of assumed.
@@ -37,8 +37,8 @@ if ( is.na( em ) ) em <- "NOx"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R",  "analysis_functions.R") # Additional function files required.
-log_msg <- "test inventory data" # First message to be printed to the log
-script_name <- paste0(em,"-F1.1.china_scaling.R")
+log_msg <- "China inventory scaling" # First message to be printed to the log
+script_name <- paste0(em,"-F1.1.China_scaling.R")
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -48,62 +48,22 @@ initialize( script_name, log_msg, headers )
 
 # Stop script if running for unsupported species
 if ( em %!in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO', 'BC', 'OC' ) ) {
-  stop (paste( ' CHN scaling is not supported for emission species', em, 'remove from script
+  stop (paste( 'CHN scaling is not supported for emission species ', em, '. Remove from script
                list in F1.1.inventory_scaling.R'))
 }
 
-# For each Module E script, define the following parameters:
+# For each Module F script, define the following parameters:
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-inventory_data_file <- 'China/CEDS_MEIC_Emissions_2rdLevel_20160226'
-inv_data_folder <- "EM_INV"
-sector_fuel_mapping <- 'MEIC_scaling_mapping'
-mapping_method <- 'sector'
 inv_name <- 'CHN' #for naming diagnostic files
 region <- c( "chn" ) 
-inv_years<-c(2008,2010,2012)
-
-
-
-# ------------------------------------------------------------------------------
-# 1.5 Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
-
-# Import Sheets containing 2008,2010,2012 data.
-sheet_name <- "2008"
-inv_data_sheet_eight <- readData( inv_data_folder, inventory_data_file , ".xlsx", 
-                            sheet_selection = sheet_name )
-sheet_name <- "2010"
-inv_data_sheet_ten <- readData( inv_data_folder, inventory_data_file , ".xlsx", 
-                                  sheet_selection = sheet_name )
-sheet_name <- "2012"
-inv_data_sheet_twelve <- readData( inv_data_folder, inventory_data_file , ".xlsx", 
-                                  sheet_selection = sheet_name )
-
-# Putting data for specific emission into a single dataframe.
-
-sector <- inv_data_sheet_eight[,'CEDS-Working-Sector-Name, Unit: Mg']
-X2008 <- inv_data_sheet_eight[,em]
-X2010 <- inv_data_sheet_ten[,em]
-X2012 <- inv_data_sheet_twelve[,em]
-
-inv_data_species <- data.frame(sector, X2008,X2010, X2012) 
-
-
-# Clean rows and columns to standard format
-inv_data_species$iso <- 'chn'
-inv_data_species <- inv_data_species[,c('iso','sector', paste0('X',inv_years))]
-
-
-# Make numeric and convert from tonnes to kt
-inv_data_species[,paste0('X',inv_years)] <- sapply(inv_data_species[,paste0('X',inv_years)],as.numeric)
-inv_data_species[,paste0('X',inv_years)] <- 
-  as.matrix(inv_data_species[,paste0('X',inv_years)])/1000
-
-# write standard form inventory
-writeData( inv_data_species , domain = "MED_OUT", paste0('E.',em,'_',inv_name,'_inventory'))
 inventory_data_file <- paste0('E.',em,'_',inv_name,'_inventory')
 inv_data_folder <- 'MED_OUT'
+sector_fuel_mapping <- 'MEIC_scaling_mapping'
+mapping_method <- 'sector'
+inv_years<-c(2008,2010,2012)
+
 
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions
