@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: E.EMEP_emissions.R
 # Author(s): Patrick O'Rourke
-# Date Last Updated: December 21st , 2015
+# Date Last Updated: March 21st , 2016
 # Program Purpose: To read in & reformat EMEP emissions data.
 # Input Files: All EMEP Emissions Data
 # Output Files: All Initial EMEP txt files resaved as csv files (in input folder), 
@@ -34,7 +34,7 @@ source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
 # -----------------------------------------------------------------------------------------------------------
-#0.5 Settings/Load Files & Convert all txt files to csv
+# 0.5 Settings/Load Files & Convert all txt files to csv
   #logging does not support txt files, so convert to csv
   MCL <- readData( "MAPPINGS", "Master_Country_List" )
   loadPackage('tools')
@@ -47,9 +47,8 @@ initialize( script_name, log_msg, headers )
   em.read <- em
   if(em == "SO2") em.read <- "SOx"
 
-  
 # -----------------------------------------------------------------------------------------------------------
-
+# 0.75 Select EMEP level
     
 # SELECT EMEP LEVEL - 'LEVEL1' OR 'LEVEL2'
   level <- 'LEVEL1'
@@ -59,10 +58,8 @@ initialize( script_name, log_msg, headers )
 # if ( is.na( Em_Format ) ) Em_Format <- "NFR14"
   if ( is.na( Em_Format ) ) Em_Format <- "NFR09"
   
-
 # -----------------------------------------------------------------------------------------------------------
 # 1. Read in files
-
 
 # Create a List of EMEP Files
   inv_file_name <- paste0('EMEP_',Em_Format,'_', level , '_', em.read , ".txt" )
@@ -145,8 +142,6 @@ if( file.exists( file_path ) ){
 	  remove_ISO <- c('rus')
 	  EMEP_emdf<-EMEP_emdf[-which(EMEP_emdf$iso %in% remove_ISO), ]
 
-  
-
 	  # interpolate EMEP over problem years, NMVOC for bel
   
 	  if (em == 'NMVOCxx'){ # Now deal with issues such as this in scaling mapping
@@ -159,14 +154,12 @@ if( file.exists( file_path ) ){
 # end processing for EMEP species
 } else {
 
-  # -----------------------------------------------------------------------------------------------------------
-  
-  # 4. create dummy files for non EMEP species
+# -----------------------------------------------------------------------------------------------------------
+# 4. Create dummy files for non EMEP species
     EMEP_emdf <- c('iso','sector','year')
     EMEP_emRUS <- c('iso','sector','year')
 }  
   
-
 # ------------------------------------------------------------------------------
   # 5. Output
   # Write Data: 
