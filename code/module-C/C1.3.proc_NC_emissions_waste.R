@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.3.proc_NC_emissions_waste.R
 # Author: Linh Vu
-# Date Last Updated: 18 Mar 2016
+# Date Last Updated: 22 Mar 2016
 # Program Purpose:  Write out waste emissions as default NC emissions. Outputs
 #                   of this program will be read in by C1.3.proc_NC_emissions_user_added.R
 #                   and overwrite existing Edgar emissions
@@ -92,7 +92,7 @@ initialize( script_name, log_msg, headers )
 
 # Convert to standard CEDS input format
     waste_input <- melt( waste_input, id = "iso" )
-    names( waste_input )[ names( waste_input ) %in% c( "variable", "value" ) ] <- c( "emission", "X2000" )
+    names( waste_input )[ names( waste_input ) %in% c( "variable", "value" ) ] <- c( "emission", "X2010" )
     waste_input$sector <- "5C_Waste-incineration"
     waste_input$fuel <- "process"
     waste_input$units <- "kt"
@@ -101,7 +101,7 @@ initialize( script_name, log_msg, headers )
 # 3. Output
     for ( em in em_names ){
       df <- filter( waste_input, emission == em ) %>%
-        select( iso, sector, fuel, units, X2000 )
+        select( iso, sector, fuel, units, X2010 )
       writeData( df, "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/", 
                  fn = paste0( "C.", em, "_NC_emissions_waste" ) )
     }
