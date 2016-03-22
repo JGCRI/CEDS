@@ -223,12 +223,12 @@ reformat_EMEP <- function(df_in, df_totals){
     df_difference$Diff_1990 = (df_difference$CEDS_1990 - df_difference$EMEP_1990)   #   Make a column for 1990 Differences (Difference = CEDS - EMEP)
     df_difference$Ratio_1980 = (df_difference$CEDS_1980/df_difference$EMEP_1980) #   Make a Column for 1980 Ratio (Ratio = CEDS/EMEP)
     df_difference$Ratio_1990 = (df_difference$CEDS_1990/df_difference$EMEP_1990) #   Make a column for 1990 Ratio (Ratio = CEDS/EMEP) 
-    df_difference <- df_difference [, -(2:5)]   #   Remove Columns for CEDS & EMEP 1980 as well as 1990 Data
+	
     #   Make columns for if 1980 & 1990 were scaled by CEDS system ('No' if not in scaling script or
     #   if not EMEP level 1 Data for that nation, 'Yes' if scaled)
     df_difference$Scaled_1980 <- ""  # 1980 Scaled Column
     df_difference$Scaled_1990 <- ""   # 1990 Scaled Column
-    df_difference <- df_difference[,c("Country", "Diff_1980", "Ratio_1980", "Scaled_1980", "Diff_1990", "Ratio_1990" ,"Scaled_1990")]  #   Reorder Columns of Interest
+    df_difference <- df_difference[,c("Country", "EMEP_1980", "Diff_1980", "Ratio_1980", "Scaled_1980", "EMEP_1990", "Diff_1990", "Ratio_1990" ,"Scaled_1990")]  #   Reorder Columns of Interest
     # List nations that were scaled to EMEP data --> Germany not in EMEP, Moldova not Scaled
     emep_scale <- c("aut", "bel", "bgr", "che", "cyp", "cze", "dnk", "esp", "est", "fin", "fra",
                   "gbr", "geo", "hrv", "hun", "irl", "isl", "ita", "ltu", "lux", "lva", "mkd",
