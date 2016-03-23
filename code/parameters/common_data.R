@@ -26,6 +26,9 @@ X_end_year = paste0("X",end_year)
 
 # historical extension using CDIAC and RCP
 historical_pre_extension_year <- 1750
+historical_end_extension_year <- 1965
+extended_years <- historical_pre_extension_year:end_year
+X_extended_years <- paste0('X',extended_years)
 
 #---------------------------------
 # Conversion Factors

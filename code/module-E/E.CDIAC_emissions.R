@@ -157,9 +157,35 @@ rep.row<-function(x,n){
   #   CDIAC(FSU): CDIAC(FSU,fuel)*ratio
   
 # -----------------------------------------------------------------------------------------------------------
-# 5. Summary  
+# 5. Add liquid and gas fuels 
+  
+  X_cdiac_years <- c('X1750',X_cdiac_years)
+  cdiac_final <- cdiac_final[ ,c('iso','fuel', X_cdiac_years)]
+  
+  cdiac_liquid_and_gas <- cdiac_final[which(cdiac_final$fuel %in% c( 'liquid_fuels','gas_fuels')),]
+  cdiac_liquid_and_gas <- aggregate( cdiac_liquid_and_gas[X_cdiac_years],
+                                     by = list(iso = cdiac_liquid_and_gas$iso),
+                                     FUN = sum)
+  
+  cdiac_liquid_and_gas$fuel <- 'liquid_and_gas_fuels'
+  
+  cdiac_liquid_and_gas <- cdiac_liquid_and_gas[ ,c('iso','fuel', X_cdiac_years)]
+  
+  cdiac_final <- rbind(cdiac_final,cdiac_liquid_and_gas)
+ 
+   # sort and organize
+  cdiac_final <- cdiac_final[ ,c('iso','fuel', X_cdiac_years)]
+  cdiac_final <- cdiac_final[ with( cdiac_final, order( iso, fuel ) ), ]
+  
+  
+# -----------------------------------------------------------------------------------------------------------
+# 6. Summary  
+  # non combustion 
+  cdiac_cement <- cdiac_final[ which( cdiac_final$fuel %in% c("cement_production") ) , ]
+  cdiac_total <- cdiac_final[ which( cdiac_final$fuel %in% c("Total_CO2") ) , ]
+  
   # Figure region and cdiac fuel
-  cdiac_region_fuel <- cdiac_final
+  cdiac_region_fuel <- cdiac_final 
   cdiac_region_fuel$Figure_Region <- MCL[ match( cdiac_region_fuel$iso , MCL$iso ) , "Figure_Region"]
   cdiac_region_fuel <- aggregate( cdiac_region_fuel[ X_cdiac_years],
                                     by = list( Figure_Region = cdiac_region_fuel$Figure_Region,
@@ -178,7 +204,10 @@ rep.row<-function(x,n){
 # -----------------------------------------------------------------------------------------------------------
 # 5. Output
  
-  writeData(cdiac_final, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_inventory" ), meta = TRUE )
+  writeData(cdiac_final, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_inventory" ), meta = F )
+  writeData(cdiac_cement, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_Cement" ), meta = F )
+  writeData(cdiac_total, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_Total_CO2" ), meta = F )
+  
   writeData(cdiac_region_fuel, domain = "DIAG_OUT", fn = paste0( "E.CO2_CDIAC_by_figure_region_CIDACfuel" ), meta = TRUE )
   writeData(cdiac_iso_fuel, domain = "DIAG_OUT", fn = paste0( "E.CO2_CDIAC_by_iso_CIDACfuel" ), meta = TRUE )
   
