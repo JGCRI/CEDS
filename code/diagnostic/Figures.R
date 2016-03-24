@@ -56,7 +56,7 @@ PRINT_BIG_TABLES <- FALSE
 # 1. Load files
 
 Master_Country_List <- readData( "MAPPINGS", "Master_Country_List")
-MSLevel <- readData( "MAPPINGS", "Master_Sector_Level_Map" )
+MSLevel <- readData( "MAPPINGS", "Master_Sector_Level_map" )
 TotalEmissions <- readData('MED_OUT', paste0('F.',em,'_scaled_emissions'))
 
 if ( PRINT_DEFAULTS ) DefaultEmissions <- readData('MED_OUT', paste0('D.',em,'_default_total_emissions'))
