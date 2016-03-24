@@ -292,7 +292,7 @@ for ( DataSet in 1:4 ) {
 		analysis_fuels <- c( "diesel_oil", "hard_coal" )
 	} else if ( DataSet == 4 ) {
 		analysis_sectors <- c( "1A1a_Electricity-public", "1A2g_Ind-Comb-other" )
-		analysis_fuels <- c(  "diesel_oil", "heavy_oil", "hard_coal", "natural_gas" )
+		analysis_fuels <- c(  "diesel_oil", "heavy_oil", "hard_coal", "brown_coal", "natural_gas" )
 	}
 	
 	if( em == "NH3" ) {
