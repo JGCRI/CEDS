@@ -76,8 +76,13 @@ nc_activity <- replaceValueColMatch(nc_blank,activity_data,
                              match.x = c('iso','activity','units'),
                              addEntries = FALSE)
 
-# Give global process sectors a dummy activity
-nc_activity[ , paste0('X', start_year:end_year) ] <- 1
+# Split out global process sectors and give them a dummy activity
+global_nc_activity <-  subset( nc_activity, iso %in% c( "global" ) )
+global_nc_activity[ , paste0('X', start_year:end_year) ] <- 1
+
+# Combine back together
+iso_nc_activity <-  subset( nc_activity, iso %!in% c( "global" ) )
+nc_activity  <- rbind( iso_nc_activity,  global_nc_activity )
 
 # Drop unneccessary columns
 nc_activity <- nc_activity[,c('iso','sector','fuel','units',X_emissions_years)]
