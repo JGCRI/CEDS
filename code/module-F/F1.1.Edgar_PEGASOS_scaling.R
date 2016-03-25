@@ -86,7 +86,7 @@ initialize( script_name, log_msg, headers )
   sheet_name = paste0( 'NEW_v4.3_EM_', em, '_ref' )
   
   # Import file
-  inv_data_sheet <- readData( inv_data_folder, domain_extension = "Edgar/",
+  inv_data_sheet <- readData( inv_data_folder, domain_extension = "EDGAR/",
                               inventory_data_file,  ".xlsx", 
                             sheet_selection = sheet_name, skip_rows = 8 ) 
   
