@@ -83,7 +83,7 @@ initialize( script_name, log_msg, headers )
 # 1.5 Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
   
   # Import file
-  inv_data_sheet <- readData( inv_data_folder, domain_extension = "Edgar/",
+  inv_data_sheet <- readData( inv_data_folder, domain_extension = "EDGAR/",
                               inventory_data_file ) 
   
   # Clean rows and columns to standard format
