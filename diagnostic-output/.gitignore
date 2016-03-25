@@ -3,4 +3,5 @@
 # Except this file
 !.gitignore
 !summary-plots
+!ceds-comparisons
 !README
