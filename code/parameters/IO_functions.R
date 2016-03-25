@@ -458,8 +458,9 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
   
 	# Convert years columns to numeric values if to_numeric = TRUE
 	if( to_numeric == TRUE){
+	  printLog("Converting NAs to numeric")
 	  names <- names( x )
-	  years <- names[names %in% X_emissions_years]
+	  years <- names[names %in% X_extended_years]
 	  if (length(years)>0){
 	  x[,years] <- suppressWarnings(sapply( X= x[,years] , FUN=as.numeric) )}
   	}

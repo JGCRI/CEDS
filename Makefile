@@ -5,6 +5,7 @@ MOD_C = code/module-C
 MOD_D = code/module-D
 MOD_E = code/module-E
 MOD_F = code/module-F
+MOD_H = code/module-H
 MOD_S = code/module-S
 PARAMS = code/parameters
 SOCIO_DATA = input/general
@@ -19,6 +20,8 @@ INV_DATA = input/emissions-inventories
 MED_OUT = intermediate-output
 DIAG_OUT = diagnostic-output
 FINAL_OUT = final-emissions
+EXT_IN = input/extention
+EXT_DATA = input/extention/extention-data
 LOGS = code/logs
 DOCS = documentation
 
@@ -59,7 +62,7 @@ else
 # recursive call, once EM has been specified, and triggers the
 # build of the entire system. This target must be the final
 # outputs of the system.
-emissions : $(FINAL_OUT)/$(EM)_emissions_by_country_FOR-REVIEW-ONLY.csv
+emissions : $(MED_OUT)/H.$(EM)_total_EFs_extended.csv
 
 endif
 
@@ -129,6 +132,9 @@ clean-modE :
 
 clean-modF :
 	rm -fv $(MED_OUT)/F*.csv
+
+clean-modH :
+	rm -fv $(MED_OUT)/H*.csv
 
 clean-SO2 :
 	rm -fv $(MED_OUT)/*SO2*.csv \
@@ -286,7 +292,7 @@ $(MED_OUT)/A.Fernandes_residential_biomass.csv : \
 
 $(MED_OUT)/A.Fernandes_biomass_conversion.csv : \
 	$(MED_OUT)/A.Fernandes_residential_biomass.csv
-	
+
 # aa1-3
 # Initial processing of IEA energy data
 $(MED_OUT)/A.IEA_en_stat_ctry_hist.csv : \
@@ -485,7 +491,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv : \
 	$(MED_OUT)/E.$(EM)_Japan_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
-	$(MED_OUT)/E.$(EM)_US_inventory.csv 
+	$(MED_OUT)/E.$(EM)_US_inventory.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
@@ -621,13 +627,33 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 $(MED_OUT)/F.$(EM)_scaled_EF.csv : \
 	$(MED_OUT)/F.$(EM)_scaled_emissions.csv
 
-$(FINAL_OUT)/S.$(EM)_Extended_CEDS_Emissions.csv : \
-	$(MOD_S)/S1.1.extend_ceds.R \
-	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
-	$(MED_OUT)/F.$(EM)_scaled_emissions.csv
+# Module H
+$(MED_OUT)/H.$(EM)_total_activity_extended.csv : \
+	$(MOD_H)/H1.1.base_activity.R \
+	$(MOD_H)/H1.2.add_activity.R \
+	$(MOD_H)/H1.3.proc_activity.R \
+	$(MOD_H)/H1.2.add_activity_CDIAC.R \
+	$(MOD_H)/H1.2.add_activity_Fernandez.R \
+	$(MOD_H)/H1.2.add_activity_population.R \
+	$(MED_OUT)/F.$(EM)_scaled_emissions.csv \
+	$(EXT_IN)/CEDS_historical_extension_drivers_activity.csv
 	Rscript $< $(EM) --nosave --no-restore
+	Rscript $(word 2,$^) $(EM) --nosave --no-restore
+	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 
-$(FINAL_OUT)/$(EM)_emissions_by_country_FOR-REVIEW-ONLY.csv : \
-	$(MOD_S)/S1.1.write_summary_data.R \
-	$(FINAL_OUT)/S.$(EM)_Extended_CEDS_Emissions.csv
+
+$(MED_OUT)/H.$(EM)_total_EFs_extended.csv : \
+	$(MOD_H)/H2.1.base_EFs.R \
+	$(MOD_H)/H2.2.add_EFs.R \
+	$(MOD_H)/H2.3.proc_EFs.R \
+	$(EXT_IN)/CEDS_historical_extension_methods_EF.csv \
+	$(MED_OUT)/H.$(EM)_total_activity_extended.csv
 	Rscript $< $(EM) --nosave --no-restore
+	Rscript $(word 2,$^) $(EM) --nosave --no-restore
+	Rscript $(word 3,$^) $(EM) --nosave --no-restore
+
+
+#$(FINAL_OUT)/$(EM)_emissions_by_country_FOR-REVIEW-ONLY.csv : \
+	$(MOD_S)/S1.1.write_summary_data.R \
+	$(FINAL_OUT)/H.$(EM)_total_extended_emissions.csv
+#	Rscript $< $(EM) --nosave --no-restore

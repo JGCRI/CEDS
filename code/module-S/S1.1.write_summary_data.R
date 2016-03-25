@@ -62,7 +62,7 @@ WRITE_CEDS_SECTORS = TRUE
 # 1. Load files
 
 Master_Country_List <- readData( "MAPPINGS", "Master_Country_List")
-final_emissions_read <- readData ( 'FIN_OUT', paste0( "S.",em,"_Extended_CEDS_Emissions") )
+final_emissions_read <- readData ( 'FIN_OUT', paste0( "H.",em,"__total_extended_emissions") )
 Master_Sector_Level_map <- readData(domain = 'MAPPINGS', file_name = 'Master_Sector_Level_map')
 
 # ---------------------------------------------------------------------------
