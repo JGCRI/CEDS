@@ -50,6 +50,7 @@ initialize( script_name, log_msg, headers )
   
   em.read <- em
   if(em == "NMVOC") em.read <- "NMV"
+  if(em == "NOx" ) em.read <- "NOX"
 
   # -----------------------------------------------------------------------------------------------------------
   # 1. Read in Data
