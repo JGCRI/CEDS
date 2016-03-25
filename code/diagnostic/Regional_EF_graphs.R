@@ -283,7 +283,7 @@ for ( DataSet in 1:4 ) {
 	
 	if ( DataSet == 1 ) {
 		analysis_sectors <- c( "1A4b_Residential" )
-		analysis_fuels <- c( "biomass", "diesel_oil", "natural_gas" )
+		analysis_fuels <- c( "biomass", "diesel_oil", "natural_gas", "hard_coal" )
 	} else if ( DataSet == 2 ) {
 		analysis_sectors <- c( "1A3b_Road" )
 		analysis_fuels <- c( "diesel_oil", "light_oil" )
