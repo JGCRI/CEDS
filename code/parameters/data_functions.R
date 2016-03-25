@@ -7,7 +7,6 @@
 # Functions contained:
 #   %!in%, replaceValueColMatch ,gsub2, repeatAndAddVector, addCols, findDataStart, naReplace, addCols,
 #   buildCEDSTemplate, removeBlanks
-
 # Notes:
 # -----------------------------------------------------------------------------
 # Brief:        
@@ -19,6 +18,11 @@
 # Return:       
 # Input Files:  
 # Output Files: 
+
+# -----------------------------------------------------------------------------
+
+loadPackage('tools')
+
 # -----------------------------------------------------------------------------
 # %!in%"
 # Brief:        Is not an element of" (opposite of %in%).
