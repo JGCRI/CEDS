@@ -3,12 +3,12 @@
 # Author's Name: Page Kyle, for GCAM; modified for use in CEDS project by
 #                Steve Smith, Emily Voelker, Tyler Pitkanen, Jon Seibert, and
 #                Linh Vu
-# Date Last Modified: 19 December 2015
+# Date Last Modified: 23 March 2016
 # Program Purpose: Reads in the initial IEA energy data.
 #				   Splits the composite data into individual countries.
 # 				   Maps the aggregate coal consumption in earlier years to 
 #                      specific coal types.
-# Input Files: A.UN_pop_master, OECD_E_stat.csv, NonOECD_E_stat.csv, Master_Country_List.csv
+# Input Files: A.UN_pop_master.csv, OECD_E_stat.csv, NonOECD_E_stat.csv, Master_Country_List.csv
 # Output Files: A.IEA_en_stat_ctry_hist.csv
 # Notes: IEA_years and X_IEA_years are now defined in 
 #           common_data.R, and range from 1960-2010.
@@ -17,6 +17,8 @@
 #           in a few places. (Unless its already doing this.)
 #		Ultimately modify this to use more detailed data on coking coal 
 #           consumption instead of using a constant ratio for the split.
+#   Add additional energy data adjustment options and modularize adjustment 
+#           calculations.
 #-------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -38,7 +40,8 @@
     
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( "data_functions.R" ) # Additional function files required.
+    headers <- c( "data_functions.R", "timeframe_functions.R", 
+                  "interpolation_extention_functions.R") # Additional function files required.
     log_msg <- "IEA energy balances by all countries and historical years" # First message to be printed to the log
     script_name <- "A1.3.IEA_downscale_ctry.R"
     
@@ -47,9 +50,11 @@
 
 # ------------------------------------------------------------------------------
 # 1. Read in files
+# Load packages
+    library( "tools" )
 
 # Read in historical years, UN population data, OECD and non-OECD energy
-#   statistics, and mappings.
+#   statistics, mappings, and energy adjustment files.
 # "Invalid factor" warnings can be ignored- hence the warning suppressor code.
     w <- getOption( "warn" )
     options( warn=-1 )	# suppress the warning about columns names and appending
@@ -58,14 +63,81 @@
 	OECD_E_Stat <- readData( "ENERGY_IN", "OECD_E_Stat", ".csv" )
 	NonOECD_E_Stat <- readData( "ENERGY_IN", "NonOECD_E_Stat", ".csv" )
 	MCL <- readData( "MAPPINGS", "Master_Country_List" )
+	adj_list <- list.files( path =  "energy/energy-data-adjustment", pattern = "*.csv" ) %>% file_path_sans_ext()
+	adj_list <- adj_list[ !grepl( "metadata", adj_list ) ]  # remove metadata
+	adj_list <- lapply ( adj_list, FUN = readData, domain = "ENERGY_IN", domain_extension = "energy-data-adjustment/" )
 
     options( warn=w )
+    
+# Define functions 
+# extendAdjValues(): Interpolate and extend IEA adjustment values for multiplier method
+# Params:  data frame containing base adjustment values. Should have the following format:
+#               COUNTRY, FLOW, PRODUCT: as in IEA Energy Stat
+#               method: multiplier
+#               ext_backward: percentage, none [default: none]
+#               ext_forward: percentage, none [default: none]
+#               Xyears: adjustment values for base years (ordered)
+# Returns:  data frame containing adjustment values, interpolated between base years
+#           and extended according to ext_backward and ext_forward flags. 
+# TODO: add ext_forward = "absolute" and method = "replace"
+  extendAdjValues <- function( df ){
+    id <- names( df )[ !grepl( "X", names( df ) ) ]
+    valid_ext <- c( "percentage", "none" )
+    
+    # validate inputs
+    if ( any( df$method != "multiplier" ) ) {
+      warning( "Invalid method -- must be multiplier. Default chosen: multiplier." )
+      df$method <- "multiplier"
+    }
+    if ( any( df$ext_backward %!in% valid_ext ) ) {
+      warning( "Invalid ext_backward -- must be percentage or none. Default chosen: none. ")
+      df$ext_backward[ df$ext_backward %!in% valid_ext ] <- "none"     
+    }
+    if ( any( df$ext_forward %!in% valid_ext ) ) {
+      warning( "Invalid ext_forward -- must be percentage or none. Default chosen: none." )
+      df$ext_forward[ df$ext_forward %!in% valid_ext ] <- "none"     
+    }
+    
+    # interpolate between Xyears
+    df <- interpolateValues( df )
+    
+    # get backward and forward extension range
+    first_yr <- head( names( df )[ grepl( "X", names( df ) ) ], n = 1 ) %>% xYearToNum()
+    bwd_range <- c()
+    if ( first_yr > min( IEA_years ) )
+      bwd_range <- paste0( "X", seq( min( IEA_years ), first_yr - 1 ) )
+    last_yr <- tail( names( df )[ grepl( "X", names( df ) ) ], n = 1 ) %>% xYearToNum()
+    fwd_range <- c()
+    if ( last_yr < max( IEA_years ) )
+      fwd_range <- paste0( "X", seq( last_yr + 1, max( IEA_years ) ) )
+    
+    # add columns for all IEA years
+    df[, bwd_range ] <- NA
+    df[, fwd_range ] <- NA
+    df <- df[, c( id, X_IEA_years ) ]
+    
+    # extend backward by method specified in ext_backward
+    first_X_yr <- paste0( "X", first_yr )
+    df[ df$ext_backward == "none", bwd_range ] <- 1
+    if ( any( df$ext_backward == "percentage" ) )
+      df[ df$ext_backward == "percentage", bwd_range ] <- df[ df$ext_backward == "percentage", first_X_yr ]
+    
+    # extend forward by method specified in ext_foward
+    last_X_yr <- paste0( "X", last_yr )
+    df[ df$ext_forward == "none", fwd_range ] <- 1
+    if ( any( df$ext_forward == "percentage" ) )
+      df[ df$ext_forward == "percentage", fwd_range ] <- df[ df$ext_forward == "percentage", last_X_yr ]
+    
+    return( df )
+  }    
+    
+    
 # ------------------------------------------------------------------------------
 # 2. Perform computations
-
+    
 # 2.1 Preparatory Calculations
 
-# subset only the relevant years, and combine OECD data with non-OECD data
+# Subset only the relevant years, and combine OECD data with non-OECD data
 	printLog( "Combining OECD and non-OECD databases" )
 	IEA_IDcodes  <- c( "COUNTRY", "FLOW", "PRODUCT" )
 	A.IEAfull <- rbind( OECD_E_Stat[ c( IEA_IDcodes, X_IEA_years ) ],
@@ -76,6 +148,41 @@
 # At present, all this does it decapitalize the K in "Other Kerosene (kt)"
 	A.IEAfull$PRODUCT[ A.IEAfull$PRODUCT == "Other Kerosene (kt)" ] <- 
         "Other kerosene (kt)"
+	
+# Adjust IEA energy stat according to instruction files in energy-data-adjustment folder
+	printLog( "Adjusting IEA Energy Statistics" )
+	if ( length( adj_list ) > 0 ) {
+	  # Extend adjustment values to all IEA years
+	  adj_en_ext <- lapply( adj_list, FUN = extendAdjValues )
+	  adj_en_ext <- do.call( rbind, adj_en_ext )
+	  
+	  # Keep only ID and Xyear columns
+	  adj_en_ext <- cbind( adj_en_ext[, IEA_IDcodes ], adj_en_ext[, grepl( "X", names( adj_en_ext ) ) ] )
+	  
+	  # Adjustment files may repeat COUNTRY+FLOW+PRODUCT, so multiply adjustment
+	  # values by COUNTRY+FLOW+PRODUCT and year (note that method=multiplier)
+	  adj_en_ext <- group_by( adj_en_ext, COUNTRY, FLOW, PRODUCT ) %>%
+	    summarise_each( "prod" )
+	  
+	  # Make adjustment to relevant COUNTRY+FLOW+PRODUCT
+	  IEA_to_adjust <- filter( A.IEAfull, paste0( COUNTRY, FLOW, PRODUCT ) %in% 
+	                             paste0( adj_en_ext$COUNTRY, adj_en_ext$FLOW, adj_en_ext$PRODUCT ) ) %>%
+	    arrange( COUNTRY, FLOW, PRODUCT )
+	  adj_en_ext <- filter( adj_en_ext, paste0( COUNTRY, FLOW, PRODUCT ) %in% 
+	                          paste0( IEA_to_adjust$COUNTRY, IEA_to_adjust$FLOW, IEA_to_adjust$PRODUCT ) ) %>%
+	    arrange( COUNTRY, FLOW, PRODUCT )
+	  IEA_adjusted <- IEA_to_adjust
+	  IEA_adjusted[, X_IEA_years ] <- IEA_adjusted[, X_IEA_years ] * adj_en_ext[, X_IEA_years ]
+	  A.IEAfull <- 	filter( A.IEAfull, paste0( COUNTRY, FLOW, PRODUCT ) %!in% 
+	                          paste0( adj_en_ext$COUNTRY, adj_en_ext$FLOW, adj_en_ext$PRODUCT ) ) %>%
+	    rbind( IEA_adjusted ) %>%
+	    arrange( COUNTRY, FLOW, PRODUCT )
+	  
+	  # Diagnostics: What is the amount changed?
+	  IEA_adjust_diff <- IEA_adjusted
+	  IEA_adjust_diff[, X_IEA_years ] <- IEA_adjust_diff[, X_IEA_years ] - IEA_to_adjust[, X_IEA_years ]
+	
+	 }
 
 # 2.2 Deal with composite regions (e.g. Other Africa) and historical countries
 #     (Former Soviet Union and Former Yugoslavia) that get broken
@@ -417,8 +524,20 @@ A.USSR_Yug_ctry_stat <- fsu_data
 # Write tables as CSV files 
 	writeData( A.IEA_en_stat_ctry_hist, "MED_OUT", "A.IEA_en_stat_ctry_hist", 
         comments = comments.A.IEA_en_stat_ctry_hist )
+	
+# Write diagnostics
+	if ( exists( "IEA_adjusted" ) ) {
+	  writeData( IEA_adjusted, "DIAG_OUT", "A.IEA_en_stat_adjusted" )
+	  writeData( IEA_adjust_diff, "DIAG_OUT", "A.IEA_en_stat_adjust_diff" )
+	}
 
-
+# 	
+# test <- filter( NonOECD_E_Stat, COUNTRY=="Peoples Republic of China", 
+#                 FLOW %in% c( "ROAD", "AGRICULT", "COMMPUB"),
+#                 PRODUCT == "Gas/diesel oil excl. biofuels (kt)")
+# writeData(test, "TEST_FILES", "China diesel series", meta = F)
+	
+	
 # -----------------------------------------------------------------------------	
 # 4. Check sums of country data against world data for all products
 # Last tested with IEA data published in 2010, for years 1985 and 2005 and for 
