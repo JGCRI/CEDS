@@ -33,7 +33,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "OC"
+if ( is.na( em ) ) em <- "BC"
 
 # ---------------------------------------------------------------------------
 # 1. Load Data
@@ -122,17 +122,20 @@ user_data_list <- lapply ( X = user_files_list, FUN = readData,
 names(user_data_list ) <- user_files_list 
 
 user_data <- do.call(rbind.fill, user_data_list)
+if( length(user_data_list) == 0) user_data <- data.frame( iso = character(0), 
+                                                  sector = character(0))
 
 # expand fuel
 # Expand fuels - all-comb
+if( nrow(user_data) > 0 ){
 expand <- user_data[which(user_data$fuel == 'all' ) ,]
 user_data <- user_data[which(user_data$fuel != 'all' ) ,]
 comb_fuels <- c('biomass', 'hard_coal','brown_coal','coal_coke','natural_gas','heavy_oil','diesel_oil','light_oil')
 for (i in seq_along(comb_fuels)){
-  expand$fuel <- rep(comb_fuels[i], times= nrow(expand) )
+  expand$fuel <- rep(x = comb_fuels[i], times= nrow(expand) )
   user_data <- rbind( user_data, expand )
 }
-
+}
 
 # ---------------------------------------------------------------------------
 # 5. Transform Emissions Trend into EF trend
