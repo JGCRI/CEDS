@@ -1,6 +1,6 @@
 # Program Name: B1.1.base_comb_GAINS_EMF-30.R
-# Author: Rachel Hoesly
-# Date Last Updated: 16 Dec 2015 
+# Author: Rachel Hoesly, Linh Vu
+# Date Last Updated: 25 Mar 2016
 # Program Purpose: Generate base emission factors from global GAINS EMF-30 data
 #                  SO2, BC, OC, CO2, and CH4 are just used as diagnostics
 #
@@ -322,8 +322,23 @@ if (em == 'SO2'){
   gainsEMF30_all <- gainsEMF30_all[-which(gainsEMF30_all$fuel == 'coal_coke'),]
 }
 
+# Brown coal has lower heat content so ends up having a higher default EF when converting
+# kg/PJ to kg/kg. To correct, give brown coal EF the same value as hard coal for most 
+# emissions, and 70% hard coal value for NOx.
+#
+# This is because brown coal has a lower NOx EF per unit weight than hard coal. 
+# The ratio ranges from 0.6 for pulverized coal units to 0.8 for Spreader stokers 
+# (Source: US EPA, AP-42), so we use 0.7 average value
+  Xyears <- names( gainsEMF30_all )[ grepl( "X", names( gainsEMF30_all ) ) ]
+  gains_brown_coal <- filter( gainsEMF30_all, fuel == "brown_coal" ) %>% arrange( iso, sector )
+  gains_hard_coal <- filter( gainsEMF30_all, fuel == "hard_coal" ) %>% arrange( iso, sector )
+  gains_brown_coal[, Xyears ] <- gains_hard_coal[, Xyears ]
+  if ( em == "NOx" )
+    gains_brown_coal[, Xyears ] <- .7 * gains_brown_coal[, Xyears ]
+  gainsEMF30_all <- filter( gainsEMF30_all, fuel != "brown_coal" ) %>%
+    rbind( gains_brown_coal ) %>% arrange( iso, sector, fuel )
+  
 # seperate process and combustion
-
 process_gainsEMF30 <- gainsEMF30_all[which(gainsEMF30_all$fuel=='process'),]
 gainsEMF30_comb <- gainsEMF30_all[gainsEMF30_all$fuel %!in% 'process',]
 
