@@ -1,16 +1,12 @@
 # ------------------------------------------------------------------------------
 # Program Name: G1.1.Grid_emissions.R
 # Author(s): Leyang Feng
-# Date Last Updated: 18 January 2016
-# Program Purpose: Produce gridded emissions using CEDS SO2 output.      
-# Input Files: F.SO2_scaled_emissions.csv, country_location_index_05.csv, 
-#              EDGAR_CEDS_SO2_mapping.csv, EDGAR_sectors.csv, [iso]_mask
-# Output Files: CEDS_SO2_anthro_[year]_0.5_v1_01_18_2016.nc
-# Notes: 1. Hard coded for SO2 but relatively easy to expand to other gases.
-#        2. Only produce gridded emission for 1970 ~ 2014 
-# TODO: 1. Modify the nest for loops for efficiency 
-#       2. Plug in better emission-pattern check function  
-#       3. Add summary print out function
+# Date Last Updated: 25 March 2016
+# Program Purpose: Produce gridded VOCs emissions using CEDS emissions NMVOC final output.       
+# Input Files: S.NMVOC_Extended_CEDS_Emissions.csv 
+# Output Files: CEDS_[em]_anthro_[VOCID]_[VOC-name]_[year]_grid-resolution_version_mm_dd_yyyy.nc
+# Notes: 
+# TODO: 
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -42,9 +38,10 @@
 # 0.5 Initialize gridding setups
 
     gridding_initialize( grid_resolution = 0.5,
-                         start_year = 1970,
+                         start_year = 1850,
                          end_year = 2014, load_masks = T, load_seasonality_profile = T )
-    output_dir <- filePath( 'FIN_out', 'gridded_emissions/', extension = "" )
+    output_dir <- filePath( 'FIN_OUT', 'gridded_emissions/', extension = "" )
+    proxy_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy/")
 # ------------------------------------------------------------------------------
 # 1. Define emission species and read in files
   
@@ -79,6 +76,15 @@
     level3_sector_list <- unique( ceds_gridding_sector_list$CEDS_level_3_grids_abr )
     level3_sector_longname_list <- unique( ceds_gridding_sector_list$CEDS_level_3_grids )
 # 2.3.  Convert the emission data from CEDS working sectors to CEDS intermediate gridding sector 
+    # Extract NMVOC 2L emission under global up in front 
+    X2L_emissions <- subset( emissions, 
+                             iso == 'global' & sector == '2L_Other-process-emissions', 
+                             colnames( emissions ) )
+    # drop the global-2L line 
+    emissions <- subset( emissions, 
+                         !( iso == 'global' & sector == '2L_Other-process-emissions' ), 
+                         colnames( emissions ) )
+    # do the merge 
     ceds_gridding_mapping_level1 <- ceds_gridding_mapping[ , c( 'CEDS_working_sector', 'CEDS_level_1_grids_abr' ) ]
     emissions_level1_sector <- merge( emissions, ceds_gridding_mapping_level1, 
                                            by.x = 'sector', by.y = 'CEDS_working_sector' )
@@ -98,9 +104,8 @@
     # For now, the scaling routine uses nested for loops to go through every years
     # gases and sectors. May consider to take away for loop for sectors and keep year loops 
     # for future parallelization 
-    #for ( year in year_list ) {
-    #for ( year in year_list[ ( length( year_list ) - 5 ): length( year_list) ] ) {  
-    for ( year in '2000' ) { 
+    for ( year in year_list ) {
+      
       grid_one_year_subVOCs( em, year, emissions_level1_sector, country_location_index, level1_sector_list, grid_resolution, VOC_ratios, VOC_list, mass = F )
     
       # write netCDF to disk, each netCDF contains one year's all sectors' data for one gas 

@@ -1,4 +1,4 @@
-# -------------------------------------------------
+ # -------------------------------------------------
 # monthly_nc_output
 # Brief: generate a fliped matrix by a given matrix
 # Dependencies: 
@@ -32,12 +32,10 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
 	  eval( parse( text = exp ) )
 	  exp <- paste0( 'WST_', VOC, '_em_global_final <- WST_', VOC, '_em_global' )
 	  eval( parse( text = exp ) )
-	  #####################################################
 	  exp <- paste0( 'SHP_', VOC, '_em_global_final <- SHP_', VOC, '_em_global' )
 	  eval( parse( text = exp ) )
-	  exp <- paste0( 'SHP_', VOC, '_em_global_final <- matrix( 0, 360, 720 )' )
-	  #####################################################
-	  
+
+
 	  # second, add seasonality
     temp_sector_list <- sector_list[ !sector_list == 'RCO' ]
 
@@ -219,9 +217,9 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
 # output: 
 grid_one_year_subVOCs <- function( em_species, year, em_data, location_index, sector_list, grid_resolution, VOC_ratio_table, VOC_list, mass = F ) { 
   X_year <- paste0( 'X', year )
-  emission_year <- em_data[ c( 'iso', 'CEDS_grd_sector', X_year ) ]
+  emissions_year <- em_data[ c( 'iso', 'CEDS_grd_sector', X_year ) ]
 
-  invisible( lapply( sector_list, grid_one_sector_subVOCs, em_species, year, location_index, grid_resolution, emission_year, VOC_ratio_table, VOC_list, mass ) )
+  invisible( lapply( sector_list, grid_one_sector_subVOCs, em_species, year, location_index, grid_resolution, emissions_year, VOC_ratio_table, VOC_list, mass ) )
   
   
   }
@@ -236,6 +234,8 @@ grid_one_year_subVOCs <- function( em_species, year, em_data, location_index, se
 # output: 
 grid_one_sector_subVOCs <- function( sector, em_species, year, location_index, grid_resolution, em_data, VOC_ratio_table, VOC_list, mass ) {
   
+  # for sectors other than shipping
+  if ( sector != 'SHP' ) {
   # extract VOC ratios for current sector
   ## VOC ratio sectors are not at itermediate level, so do some aggregation
   sector_final <- sector
@@ -275,6 +275,60 @@ grid_one_sector_subVOCs <- function( sector, em_species, year, location_index, g
       var_to_remove <- paste0( country, '_', VOC, '_em_spatial' )
       rm( list = var_to_remove, envir = as.environment( '.GlobalEnv' ) )
       }
+    }
+  
+  # for SHP sector 
+  } else {
+    # there are two parts of shiping specificlly for NMVOC: shipping in general and 2L sector under region global 
+    # extrac the VOC ratio for SHP and X2L from the ratio table 
+	ratio_global <- subset( VOC_ratio_table, iso == 'global', c( 'iso', 'CEDS_grd_sector', VOC_list ) )
+	ratio_SHP <- as.numeric( subset( ratio_global, CEDS_grd_sector == 'SHP', VOC_list ) )
+	ratio_X2L <- as.numeric( subset( ratio_global, CEDS_grd_sector == 'X2L', VOC_list ) )
+    
+	# deal with SHp and X2L at the same time 
+    
+	# SHP proxy process
+	proxy_SHP <- get_proxy( em_species, year, sector )
+  mask_SHP <- global_mask 
+  proxy_weighted_SHP <- proxy_SHP * mask_SHP 
+	proxy_normalized_SHP <- proxy_weighted_SHP / sum( proxy_weighted_SHP )
+	# X2L proxy process
+  proxy_year <- '1996'	# we only have X2L proxy for year 1996 and apply this proxy for all years 
+	proxy_X2L_name <- paste0( 'X2L', '_', proxy_year )
+	load( paste0( proxy_dir, proxy_X2L_name ) )
+  proxy_X2L <- get( proxy_X2L_name )
+  rm( list = proxy_X2L_name )
+  mask_X2L <- global_mask	
+	proxy_weighted_X2L <- proxy_X2L * mask_X2L 
+	proxy_normalized_X2L <- proxy_weighted_X2L / sum( proxy_weighted_X2L )
+	
+	# extract emission values 
+	# SHP extraction 
+  emissions_year_SHP <- subset( emissions_year, emissions_year$CEDS_grd_sector == 'SHP',
+                                c( 'iso', paste0( 'X', year ) ) )
+  emission_value_SHP <- sum( emissions_year_SHP[ , 2 ] ) 
+	# X2L extraction 
+	emissions_year_X2L <- subset( emissions_year, emissions_year$CEDS_grd_sector == 'X2L',
+                                c( 'iso', paste0( 'X', year ) ) )
+  emission_value_X2L <- sum( emissions_year_X2L[ , 2 ] ) 
+	
+    
+  global_grid_area <- grid_area( grid_resolution, all_lon = T )
+  flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
+    
+	# make em_spatial for each VOC for SHP and X2L separately and then combine( add ) thses two together 
+	invisible( lapply( VOC_list, function( each_VOC ) {
+	  em_spatial_SHP <- emission_value_SHP * proxy_normalized_SHP * ratio_SHP[ which( VOC_list == each_VOC ) ]
+	  em_spatial_X2L <- emission_value_X2L * proxy_normalized_X2L * ratio_X2L[ which( VOC_list == each_VOC ) ]
+	  em_spatial <- em_spatial_SHP + em_spatial_X2L 
+	    
+	  if ( mass == F ) { 
+	    em_spatial <- em_spatial * flux_factor 
+	    }
+	  # the combined grid for SHP and X2L will be called as SHP sector grid 
+	  tempname <- paste0( sector, '_', each_VOC, '_em_global' ) 
+    assign( tempname, em_spatial, .GlobalEnv )
+	  } ) )
     }
   }
 # ------------------------------------------------------------------------------

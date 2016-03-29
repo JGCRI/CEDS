@@ -1,10 +1,10 @@
 # ------------------------------------------------------------------------------
 # Program Name: G1.3.Aircraft_emission_gridding.R
 # Author(s): Leyang Feng
-# Date Last Updated: 
-# Program Purpose:       
-# Input Files: 
-# Output Files: 
+# Date Last Updated: March 29 2016 
+# Program Purpose:  Produce gridded emissions for Aircraft sector using CEDS emissions final output.         
+# Input Files: S.[em]_Extended_CEDS_Emissions.csv 
+# Output Files: CEDS_[em]_AIR_anthro_year_grid-resolution_version_mm_dd_yyyy.csv
 # Notes: 
 # TODO: 
 # ------------------------------------------------------------------------------
@@ -38,9 +38,9 @@
 # 0.5 Initialize gridding setups
 
     gridding_initialize( grid_resolution = 0.5,
-                         start_year = 1750,
+                         start_year = 1850,
                          end_year = 2014, load_masks = T, load_seasonality_profile = T )
-    output_dir <- filePath( 'FIN_out', 'gridded_emissions/', extension="")
+    output_dir <- filePath( 'FIN_OUT', 'gridded_emissions/', extension="")
     
 # ------------------------------------------------------------------------------
 # 1. Define emission species and read in files
@@ -54,7 +54,8 @@
     MODULE_G <- "../code/module-G/"
     
 # read in the emission data
-    emissions <- readData( "MED_OUT", paste0( "F.", em, "_scaled_emissions" ) )
+    #emissions <- readData( "MED_OUT", paste0( "F.", em, "_scaled_emissions" ) )
+    emissions <- readData( "FIN_OUT", paste0( "S.", em, "_Extended_CEDS_Emissions" ) )
 # read in the CEDS gridding sector mapping
     ceds_gridding_mapping<- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'CEDS_sector_to_gridding_sector_mapping' )
 
@@ -67,10 +68,10 @@
     # extract aircraft emissions only
     air_emissions <- subset( emissions, 
                              sector == '1A3ai_International-aviation' | sector == '1A3aii_Domestic-aviation', 
-                             c( 'iso', 'sector', 'fuel', paste0( 'X', emissions_years ) ) )    
+                             c( 'iso', 'sector', 'fuel', paste0( 'X', year_list ) ) )    
     # sum up all aircraft emissions 
     air_emissions <- cbind( CEDS_gridding_sector = 'AIR', air_emissions )
-    air_emissions <- aggregate( air_emissions[ , paste0( 'X', emissions_years ) ],
+    air_emissions <- aggregate( air_emissions[ , paste0( 'X', year_list ) ],
                                 by = list( air_emissions$CEDS_gridding_sector ),
                                 FUN = sum ) 
     colnames( air_emissions) [ 1 ] <- 'sector'
@@ -80,9 +81,7 @@
     # For now, the scaling routine uses nested for loops to go through every years
     # gases and sectors. May consider to take away for loop for sectors and keep year loops 
     # for future parallelization 
-    #for ( year in year_list ) {
-    #for ( year in year_list[ ( length( year_list ) - 5 ): length( year_list) ] ) {  
-    for ( year in '2000' ) {  
+    for ( year in year_list ) {
       
       grid_one_year_air( em, year, air_emissions, grid_resolution, sector = 'AIR', mass = F )
       
