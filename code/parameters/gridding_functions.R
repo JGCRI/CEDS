@@ -1,15 +1,10 @@
 #------------------------------------------------------------------------------
-# Program Name: G.gridding_functions.R
+# Program Name: gridding_functions.R
 # Author's Name: Leyang Feng
-# Date Last Modified: 18 January 2016
+# Date Last Modified: 04 March 2016
 # Program Purpose: Core functions for module-G
-# Note: 1. Functions in the script can be only used within module-G
-#       2. Some R packages used in this script needs other libraries built in 
-#          your operation system, contact Leyang Feng for any assistance
-#       3. ncdf4 package is not available through CRAN, contact Leyang Feng
-#          for assistance about this package 
-# TODO: 1. make the checking function out of G.emiDistributing( iso )
-#       2. fix hard-coded stuff within writeNC_globalExt function 
+# Note: 
+# TODO: 
 # 
 # 
 # ------------------------------------------------------------------------------
@@ -21,13 +16,20 @@ loadPackage( 'geosphere' )
 # ------------------------------------------------------------------------------
 # grid_one_country
 # Brief: Generate a country's emission spatial distribution using proxy
-# Dependencies: 
+# Dependencies: none
 # Author: Leyang Feng
-# parameters: iso - the three digits iso country code for the country 
-#                   desired for emission spatial distribution     
+# parameters: country - Character. the country that its gridded emission is desired. 
+#             location_index - Location index table, contains matrix index information for the country in global extent
+#             em_data - Emission data processed by upper layer function ( grid_one_sector )
+#             proxy - Spatial proxy used for gridding
+#             proxy_backup - Backup spatial proxy used for gridding when proxy_replace_flag = T
+#             year - Character. The current gridding year.   
+#             sector - Character. The current gridding secotr.
+#             em_species - Character. The current emission species. 
+#             proxy_replace_flag - Indicator of which proxy to use. Default is F so the proxy is used, otherwise use proxy_backup 
 # return: null 
-# input files: country_location_index, emission, [iso]_mask
-# output: [iso]_emis_spatial 
+# input files: null
+# output: [country]_em_spatial - gridded emission for input country  
 
 grid_one_country <- function( country, location_index, em_data, proxy, proxy_backup, year, sector, em_species, proxy_replace_flag ) {
   
@@ -80,8 +82,10 @@ grid_one_country <- function( country, location_index, em_data, proxy, proxy_bac
   em_spatial <- emission_value * norm_weighted_proxy 
   
   # save the emis_spatial as iso_emis_spatial into memory
-  em_name <- paste0( country, '_em_spatial' )
-  assign( em_name, em_spatial, .GlobalEnv )
+  #em_name <- paste0( country, '_em_spatial' )
+  #assign( em_name, em_spatial, .GlobalEnv )
+  
+  return( em_spatial )
 }
 
 # ------------------------------------------------------------------------------
@@ -89,47 +93,50 @@ grid_one_country <- function( country, location_index, em_data, proxy, proxy_bac
 # Brief: Aggregate each country's emission spatial distribution to global level
 # Dependencies: 
 # Author: Leyang Feng
-# parameters: iso_list - a list of country iso code. For all countries in the list, 
-#                        their emission spatial distibutions are desired to be aggregated
-#                        to global level.  
-#             mass = T - if TURE, the output will be in unit of 'kt'. If FALSE, 
-#                        the unit of output will be converted to 'kg m-2 s-1'
-# return: Global emission spatial distribution  
-# input files: [iso]_emis_spatial
-# output : [sector]_emis_global
-
-aggregate_all_countries <- function( sector, country_list, location_index, grid_resolution, mass ) {
-  # create a empty template grid for later aggregating
-  grid_template <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution ) 
+# parameters: sector - The current sector for gridding.
+#             country_list - The country list that each countries' gridded emission is going to be aggregated to global extent.  
+#             location_index - Location index table, contains matrix index information for the country in global extent
+#             grid_resolution - The grid reolution. 
+#             mass - Given by upper layer function. Output in mass(kt) if TRUE, otherwise the output is in flux(kg m-2 s-1) 
+# return: Global emission spatial distribution for given sector.   
+# input files: 
+# output: 
+aggregate_all_regions <- function( region_em_spatial_list, location_index, 
+                                   grid_resolution, mass ) {
+  
+  # create a empty template grid for later aggregating 
+  temp_grid <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
   
   # aggregating
-  for ( country in country_list ) {   # use for loop for efficient aggregating
+  for ( i in seq_along( region_em_spatial_list ) ) { ## use for loop for efficient aggregating
     
-    # retrieve matrix indexes for iso for later locating
-    row_col_index <- location_index[ location_index$iso == country, ]
+	# get the region name
+	  region_name <- names( region_em_spatial_list ) [ i ]
+    region_name <- unlist( strsplit( region_name, split = '_' ) ) [ 1 ]
+	
+	# retrieve matrix indexes for iso for later locating
+	  row_col_index <- location_index[ location_index$iso == region_name, ]
     start_row <- row_col_index$start_row
     end_row <- row_col_index$end_row
     start_col <- row_col_index$start_col
     end_col <- row_col_index$end_col
     
-    # retrieve the iso_emis_spatial from memory 
-    em_spatial_name <- paste0( country, '_em_spatial')
-    em_spatial <- get( em_spatial_name )
-    
-    # add the emis_spatial to empty template grid
-    grid_template[ start_row : end_row , start_col : end_col ] <- 
-      grid_template[ start_row : end_row , start_col :end_col ] + em_spatial
+	# add the em_spatial to empty template grid
+	temp_grid[ start_row : end_row , start_col : end_col ] <- 
+    temp_grid[ start_row : end_row , start_col :end_col ] + region_em_spatial_list[[ i ]]
   }
   
   # convert the unit from mass to flux if desired
   if ( mass == F ) {
+    
     # generate the global_grid_area matrix for later calculation 
     global_grid_area <- grid_area( grid_resolution, all_lon = T )
-    flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
-    grid_template <- grid_template * flux_factor
+    flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 ) # from kt to kg/m-2/s-1
+    temp_grid <- temp_grid * flux_factor
   }
-  
-  return( grid_template )
+    
+  return( temp_grid )
+ 
 }
 
 # ------------------------------------------------------------------------------
@@ -235,8 +242,15 @@ get_proxy <- function( em_species, year, sector ) {
     # list out all availiable proxies in proxy_dir
     proxy_list <- list.files( proxy_dir ) 
     
-    # generate the proxy name want to load 
-    proxy_filename <- paste( em_species, year, sector, sep = '_')
+    # generate the proxy name want to load and some adjustement
+    year_num <- as.numeric( year ) 
+    
+    if ( year_num < 1970 && 
+         sector %in% c( 'ELEC', 'FFFI', 'ETRN', 'INDC', 'INPU', 'NRTR', 'ROAD', 'SLV', 'WST', 'AGR', 'SHP' )  ) {
+      proxy_filename <- paste0( em_species, '_1970_', sector )
+    } else { 
+        proxy_filename <- paste( em_species, year, sector, sep = '_')
+      }
     
     # if the proxy desired is not in proxy_list, load population as proxy 
     if( ( proxy_filename %in% proxy_list ) == T ) {
@@ -264,6 +278,8 @@ get_proxy <- function( em_species, year, sector ) {
 # output: 
 grid_one_sector <- function( sector, em_species, year, location_index, grid_resolution, em_data, mass ) {
   
+  # for sectors other than shipping
+  if ( sector != 'SHP' ) {
   # retrive the proxy data
   proxy <- get_proxy( em_species, year, sector )
   proxy_backup <- get_backup_proxy( year, type = 'population' )
@@ -273,7 +289,7 @@ grid_one_sector <- function( sector, em_species, year, location_index, grid_reso
                               c( 'iso', paste0( 'X', year ) ) )
   # if no mask available for certain country, generate a country drop list 
   country_drop_list <- mask_avail_check( emissions_year_sector$iso, location_index$iso )
-  summary_dir <- filePath( "MED_OUT", "", extension = "" )
+  #summary_dir <- filePath( "MED_OUT", "", extension = "" )
   #cat( country_drop_list, file = paste0( summary_dir, 'dropped_countries.txt' ), append = TRUE, sep = "\n" )
   # drop country if necessary 
   for ( country in country_drop_list ) {
@@ -290,15 +306,39 @@ grid_one_sector <- function( sector, em_species, year, location_index, grid_reso
     proxy_replace_flag[ proxy_replace_flag == T ] <- F
   }
   # calling the G.emiDistribute function to do the scalling
-  invisible( lapply( country_list, grid_one_country, location_index, emissions_year_sector, proxy, proxy_backup, year, sector, em_species, proxy_replace_flag ) )
-
+  region_em_spatial_list <- lapply( country_list, grid_one_country, location_index, emissions_year_sector, proxy, proxy_backup, year, sector, em_species, proxy_replace_flag )
+  names( region_em_spatial_list ) <- paste0( country_list, '_em_spatal' )
   # aggregating
-  output_name <- paste0( sector, '_em_global' )
-  expressions <- paste0( 'temp_emission <<- aggregate_all_countries( ',sector, ', country_list, location_index, grid_resolution, mass = ', mass, ' )' )
-  eval( parse( text = expressions ) )
-  assign( output_name, temp_emission, .GlobalEnv )
-
-}
+  global_em_spatial <- aggregate_all_regions( region_em_spatial_list, location_index, 
+                                   grid_resolution, mass )
+  # aggregating
+  #output_name <- paste0( sector, '_em_global' )
+  #expressions <- paste0( 'temp_emission <<- aggregate_all_countries( ',sector, ', country_list, location_index, grid_resolution, mass = ', mass, ' )' )
+  #eval( parse( text = expressions ) )
+  #assign( output_name, temp_emission, .GlobalEnv )
+  
+  # for shipping sector 
+  } else {
+    proxy <- get_proxy( em_species, year, sector )
+    
+	  emissions_year_sector <- subset( em_data, em_data$CEDS_grd_sector == sector,
+                                c( 'iso', paste0( 'X', year ) ) )
+	  emission_value <- sum( emissions_year_sector[, 2 ] )
+    
+	  mask <- global_mask
+	  proxy_weighted <- proxy * mask 
+    proxy_normlized <- proxy_weighted / sum( proxy_weighted )
+    global_em_spatial <- proxy_normlized * emission_value
+    if ( mass == F ) {
+      # generate the global_grid_area matrix for later calculation 
+      global_grid_area <- grid_area( grid_resolution, all_lon = T )
+      flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
+      global_em_spatial <- global_em_spatial * flux_factor
+    } 
+  
+  }
+  return( global_em_spatial )
+  }
 # ------------------------------------------------------------------------------
 # grid_one_year
 # Brief: generate a fliped matrix by a given matrix
@@ -309,27 +349,13 @@ grid_one_sector <- function( sector, em_species, year, location_index, grid_reso
 # input files: 
 # output: 
 grid_one_year <- function( em_species, year, em_data, location_index, sector_list, grid_resolution, mass = F ) { 
-  X_year <<- paste0( 'X', year )
-  emissions_year <<- em_data[ c( 'iso', 'CEDS_grd_sector', X_year ) ]
+  X_year <- paste0( 'X', year )
+  emissions_year <- em_data[ c( 'iso', 'CEDS_grd_sector', X_year ) ]
   
-  sector_list <- sector_list[ !sector_list == 'SHP' ]
-  invisible( lapply( sector_list, grid_one_sector, em_species, year, location_index, grid_resolution, emissions_year, mass ) )
+  sector_em_global_list <- lapply( sector_list, grid_one_sector, em_species, year, location_index, grid_resolution, emissions_year, mass ) 
+  names( sector_em_global_list ) <- paste0( sector_list, '_em_global' )
   
-  # SHP gridding
-  proxy <- get_proxy( em_species, year, 'SHP' )
-  emissions_year_SHP <- subset( emissions_year, emissions_year$CEDS_grd_sector == 'SHP',
-                              c( 'iso', paste0( 'X', year ) ) )
-  emission_value <- sum( emissions_year_SHP[, 2 ] )
-  proxy_weighted <- proxy * global_mask 
-  proxy_normlized <- proxy_weighted / sum( proxy_weighted )
-  SHP_em_global <- proxy_normlized * emission_value
-  if ( mass == F ) {
-    # generate the global_grid_area matrix for later calculation 
-    global_grid_area <- grid_area( grid_resolution, all_lon = T )
-    flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
-    SHP_em_global <<- SHP_em_global * flux_factor
-  } else { SHP_em_global <<- SHP_em_global }
-  
+  return( sector_em_global_list )
 }
 # ------------------------------------------------------------------------------
 # gridding_initialize
@@ -517,6 +543,11 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   
   # process emission grids from low level sectors to high level sectors 
   # and adding seasonality ( except RCO )
+  for ( i in seq_along( sectorl1_em_global_list ) ) {
+    grid_name <- names( sectorl1_em_global_list ) [ i ]
+    assign( grid_name, sectorl1_em_global_list[[ i ]] )
+    }
+  
   # first, aggregate to higher level
   AGR_em_global_final <- AGR_em_global
   ENE_em_global_final <- ELEC_em_global + FFFI_em_global + ETRN_em_global  
@@ -559,6 +590,8 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   checksum_total_emission_list <- c( checksum_total_emission_list, checksum_total_emission_each_month_list )
   checksum_sector_list <- c( checksum_sector_list, rep( 'RCO', 12 ) )
   
+############################################################################################################
+    
   data_list <- paste0( sector_list, '_em_global_final')
   
   lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
@@ -671,7 +704,9 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
     
   # close nc_new
   nc_close( nc_new)
-  
+
+#########################################################################################################################
+    
   # additional section: write a summary and check text
 
   summary_table <- data.frame( year = year, species = em_species, 
@@ -679,6 +714,9 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
                                month = rep( 1 : 12, length( sector_list ) ),
                                global_total = checksum_total_emission_list,
                                unit = 'kt' )
+  ceds_version <- 'v'
+  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
+  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
   summary_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
   write.csv( summary_table, file = summary_name, row.names = F )
 }
@@ -817,7 +855,7 @@ substitue_or_not <- function( ratio, max_ratio ) {
   else if ( is.na( ratio ) == T ) { flag <- F } # similar to nan
   else if ( ratio == 0 ) { flag <- F } # ratio=0/number, zero emission => no substitution needed
   else { 
-    if ( ratio > ( max_ratio / 1000 ) ) { flag <- T } # for outlier needs substitution
+    if ( ratio > ( max_ratio / 100 ) ) { flag <- T } # for outlier needs substitution
 	else { flag <- F } # non-outlier doesn't need substitution 
   }
   return( flag )
@@ -887,120 +925,122 @@ final_monthly_nc_output_air <- function( output_dir, grid_resolution, year, em_s
   AIR_em_global_final <- temp_array
   checksum_total_emission_list <- checksum_total_emission_each_month_list
   checksum_sector_list <- rep( sector , 12 ) 
-  
-  
-  lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
-  lats <- seq( -90 + grid_resolution / 2, 90 - grid_resolution / 2, grid_resolution )
-  levs <- seq( 0.305, 14.945, 0.61 )
-  time <- c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 )
-  londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
-  latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
-  levdim <- ncdim_def( "level", "km", as.double ( levs ), longname = 'altitude' ) 
-  timedim <- ncdim_def( "time", paste0( "days since ", year, "-01-01 0:0:0" ), as.double( time ), 
-                        calendar = '365_day', longname = 'time' )
-  dim_list <- list( londim, latdim, levdim, timedim )
-  lon_bnds_data <- cbind( seq( -180, ( 180 - grid_resolution ), grid_resolution ), 
-                          seq( ( -180 + grid_resolution ), 180, grid_resolution ) )
-  lat_bnds_data <- cbind( seq( -90, (90 - grid_resolution) , grid_resolution), 
-                          seq( ( -90 + grid_resolution ), 90, grid_resolution ) )
-  bnds <- 1 : 2
-  bndsdim <- ncdim_def( "bnds", '', as.integer( bnds ), longname = 'bounds', create_dimvar = F )
-  time_bnds_data <- cbind( c( 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 ),
-                      c( 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 ) )
-  
-  if ( mass == T ){
-    data_unit <- 'kt'
-  } else {
-    data_unit <- 'kg m-2 s-1'  
-  }
-  
-  # define nc variables
-  missing_value <- 1.e20
-  AIR <- ncvar_def( sector, data_unit, dim_list, missval = missing_value, longname = sector_long, prec = 'float', compression = 5  )
-  lon_bnds <- ncvar_def( 'lon_bnds', '', list( londim, bndsdim ), prec = 'double' )
-  lat_bnds <- ncvar_def( 'lat_bnds', '', list( latdim, bndsdim ), prec = 'double' )
-  time_bnds <- ncvar_def( 'time_bnds', '', list( timedim, bndsdim ), prec = 'double' )
-  
-  # generate nc file name
-  ceds_version <- 'v'
-  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
-  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
-  nc_file_name <- paste0( output_dir, 'CEDS_', em_species, '_', sector, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.nc' ) 
-  
-  # generate the var_list 
-  variable_list <- list( AIR, lat_bnds, lon_bnds, time_bnds )
 
-  # create new nc file
-  nc_new <- nc_create( nc_file_name, variable_list, force_v4 = T )
+################################################################################################  
   
-  # put nc variables into the nc file
-  # transpose and flip the data first 
-  dims <- dim( AIR_em_global_final )
-  temp_data <- array( dim = c( dims[ 2 ], dims[ 1 ], dims[ 3 ], dims[ 4 ] ) )
-  for ( i in 1 : dims[ 4 ] ) {
-    for ( j in 1: dims[ 3 ] ) {
-	  temp_data[ , , j, i ] <- t( flip_a_matrix( AIR_em_global_final[ , , j, i ] ) ) 
-	}
-  }
-  # then put the data into nc 
-  for ( i in seq_along( time ) ) {
-    ncvar_put( nc_new, AIR, temp_data[ , , , i ], start = c( 1, 1, 1, i ), count = c( -1, -1, -1, 1 ) )
-  }
-  # for ( i in seq_along( time ) ) {
-    # for (  j in seq_along( levs ) ) {
-	  # ncvar_put( nc_new, AIR, temp_data[ , , j, i ], start = c( 1, 1, j, i ), count = c( -1, -1, -1, 1 ) )
-	# }
-  # }
-  ncvar_put( nc_new, lon_bnds, lon_bnds_data )
-  ncvar_put( nc_new, lat_bnds, lat_bnds_data )
-  ncvar_put( nc_new, time_bnds, time_bnds_data )
-  
-  # nc variable attributes
-  # attributes for dimensions
-  ncatt_put( nc_new, "lon", "axis", "X" )
-  ncatt_put( nc_new, "lon", "standard_name", "longitude" )
-  ncatt_put( nc_new, "lon", "bounds", "lon_bnds" )
-  ncatt_put( nc_new, "lat", "axis", "Y" )
-  ncatt_put( nc_new, "lat", "standard_name", "latitude" )
-  ncatt_put( nc_new, "lat", "bounds", "lat_bnds" )
-  ncatt_put( nc_new, "time", "standard_name", "time" )
-  ncatt_put( nc_new, "time", "axis", "T" )
-  ncatt_put( nc_new, "time", "bounds", "time_bnds" )
-  # attributes for variables
-  ncatt_put( nc_new, 'AIR', 'cell_methods', 'time:mean' )
-  ncatt_put( nc_new, 'AIR', 'missing_value', 1e+20, prec = 'float' )
-  # nc global attributes
-  ncatt_put( nc_new, 0, 'IMPORTANT', 'FOR TEST ONLY, DO NOT USE' )
-  ncatt_put( nc_new, 0, 'title', paste0('Annual Emissions of ', em_species ) )
-  ncatt_put( nc_new, 0, 'institution_id', 'PNNL-JGCRI' )
-  ncatt_put( nc_new, 0, 'institution', 'Pacific Northwest National Laboratory - JGCRI' )
-  ncatt_put( nc_new, 0, 'activity_id', 'input4MIPs' )
-  ncatt_put( nc_new, 0, 'Conventions', 'CF-1.6' )
-  ncatt_put( nc_new, 0, 'creation_date', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%Y-%m-%dT%H:%M:%SZ' ) ) )
-  ncatt_put( nc_new, 0, 'data_structure', 'grid' )
-  ncatt_put( nc_new, 0, 'frequency', 'mon' )
-  ncatt_put( nc_new, 0, 'realm', 'atmos' )
-  ncatt_put( nc_new, 0, 'source', paste0( 'CEDS ', 
-                                          as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%m-%d-%Y' ) ),
-                                          ': Community Emissions Data System (CEDS) for Historical Emissions' ) )
-  ncatt_put( nc_new, 0, 'source_id', paste0( 'CEDS-', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%m-%d-%Y' ) ) ) )
-  ncatt_put( nc_new, 0, 'further_info_url', 'http://www.globalchange.umd.edu/ceds/' )
-  ncatt_put( nc_new, 0, 'license', 'FOR TESTING AND REVIEW ONLY' )
-  ncatt_put( nc_new, 0, 'history', 
-             paste0( as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%d-%m-%Y %H:%M:%S %p %Z' ) ),
-                     '; College Park, MD, USA') )
-  ncatt_put( nc_new, 0, 'comment', 'Test Dataset for CMIP6' )
-  ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes.' )
-  ncatt_put( nc_new, 0, 'host', 'TBD' )
-  ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
-  ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
-
-  global_total_emission <- sum( checksum_total_emission_list ) * 0.001
-  ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2), ' Tg/year' ) )
-  
-    
-  # close nc_new
-  nc_close( nc_new)
+#   lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
+#   lats <- seq( -90 + grid_resolution / 2, 90 - grid_resolution / 2, grid_resolution )
+#   levs <- seq( 0.305, 14.945, 0.61 )
+#   time <- c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 )
+#   londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
+#   latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
+#   levdim <- ncdim_def( "level", "km", as.double ( levs ), longname = 'altitude' ) 
+#   timedim <- ncdim_def( "time", paste0( "days since ", year, "-01-01 0:0:0" ), as.double( time ), 
+#                         calendar = '365_day', longname = 'time' )
+#   dim_list <- list( londim, latdim, levdim, timedim )
+#   lon_bnds_data <- cbind( seq( -180, ( 180 - grid_resolution ), grid_resolution ), 
+#                           seq( ( -180 + grid_resolution ), 180, grid_resolution ) )
+#   lat_bnds_data <- cbind( seq( -90, (90 - grid_resolution) , grid_resolution), 
+#                           seq( ( -90 + grid_resolution ), 90, grid_resolution ) )
+#   bnds <- 1 : 2
+#   bndsdim <- ncdim_def( "bnds", '', as.integer( bnds ), longname = 'bounds', create_dimvar = F )
+#   time_bnds_data <- cbind( c( 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 ),
+#                       c( 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 ) )
+#   
+#   if ( mass == T ){
+#     data_unit <- 'kt'
+#   } else {
+#     data_unit <- 'kg m-2 s-1'  
+#   }
+#   
+#   # define nc variables
+#   missing_value <- 1.e20
+#   AIR <- ncvar_def( sector, data_unit, dim_list, missval = missing_value, longname = sector_long, prec = 'float', compression = 5  )
+#   lon_bnds <- ncvar_def( 'lon_bnds', '', list( londim, bndsdim ), prec = 'double' )
+#   lat_bnds <- ncvar_def( 'lat_bnds', '', list( latdim, bndsdim ), prec = 'double' )
+#   time_bnds <- ncvar_def( 'time_bnds', '', list( timedim, bndsdim ), prec = 'double' )
+#   
+#   # generate nc file name
+#   ceds_version <- 'v'
+#   date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
+#   ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
+#   nc_file_name <- paste0( output_dir, 'CEDS_', em_species, '_', sector, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.nc' ) 
+#   
+#   # generate the var_list 
+#   variable_list <- list( AIR, lat_bnds, lon_bnds, time_bnds )
+# 
+#   # create new nc file
+#   nc_new <- nc_create( nc_file_name, variable_list, force_v4 = T )
+#   
+#   # put nc variables into the nc file
+#   # transpose and flip the data first 
+#   dims <- dim( AIR_em_global_final )
+#   temp_data <- array( dim = c( dims[ 2 ], dims[ 1 ], dims[ 3 ], dims[ 4 ] ) )
+#   for ( i in 1 : dims[ 4 ] ) {
+#     for ( j in 1: dims[ 3 ] ) {
+# 	  temp_data[ , , j, i ] <- t( flip_a_matrix( AIR_em_global_final[ , , j, i ] ) ) 
+# 	}
+#   }
+#   # then put the data into nc 
+#   for ( i in seq_along( time ) ) {
+#     ncvar_put( nc_new, AIR, temp_data[ , , , i ], start = c( 1, 1, 1, i ), count = c( -1, -1, -1, 1 ) )
+#   }
+#   # for ( i in seq_along( time ) ) {
+#     # for (  j in seq_along( levs ) ) {
+# 	  # ncvar_put( nc_new, AIR, temp_data[ , , j, i ], start = c( 1, 1, j, i ), count = c( -1, -1, -1, 1 ) )
+# 	# }
+#   # }
+#   ncvar_put( nc_new, lon_bnds, lon_bnds_data )
+#   ncvar_put( nc_new, lat_bnds, lat_bnds_data )
+#   ncvar_put( nc_new, time_bnds, time_bnds_data )
+#   
+#   # nc variable attributes
+#   # attributes for dimensions
+#   ncatt_put( nc_new, "lon", "axis", "X" )
+#   ncatt_put( nc_new, "lon", "standard_name", "longitude" )
+#   ncatt_put( nc_new, "lon", "bounds", "lon_bnds" )
+#   ncatt_put( nc_new, "lat", "axis", "Y" )
+#   ncatt_put( nc_new, "lat", "standard_name", "latitude" )
+#   ncatt_put( nc_new, "lat", "bounds", "lat_bnds" )
+#   ncatt_put( nc_new, "time", "standard_name", "time" )
+#   ncatt_put( nc_new, "time", "axis", "T" )
+#   ncatt_put( nc_new, "time", "bounds", "time_bnds" )
+#   # attributes for variables
+#   ncatt_put( nc_new, 'AIR', 'cell_methods', 'time:mean' )
+#   ncatt_put( nc_new, 'AIR', 'missing_value', 1e+20, prec = 'float' )
+#   # nc global attributes
+#   ncatt_put( nc_new, 0, 'IMPORTANT', 'FOR TEST ONLY, DO NOT USE' )
+#   ncatt_put( nc_new, 0, 'title', paste0('Annual Emissions of ', em_species ) )
+#   ncatt_put( nc_new, 0, 'institution_id', 'PNNL-JGCRI' )
+#   ncatt_put( nc_new, 0, 'institution', 'Pacific Northwest National Laboratory - JGCRI' )
+#   ncatt_put( nc_new, 0, 'activity_id', 'input4MIPs' )
+#   ncatt_put( nc_new, 0, 'Conventions', 'CF-1.6' )
+#   ncatt_put( nc_new, 0, 'creation_date', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%Y-%m-%dT%H:%M:%SZ' ) ) )
+#   ncatt_put( nc_new, 0, 'data_structure', 'grid' )
+#   ncatt_put( nc_new, 0, 'frequency', 'mon' )
+#   ncatt_put( nc_new, 0, 'realm', 'atmos' )
+#   ncatt_put( nc_new, 0, 'source', paste0( 'CEDS ', 
+#                                           as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%m-%d-%Y' ) ),
+#                                           ': Community Emissions Data System (CEDS) for Historical Emissions' ) )
+#   ncatt_put( nc_new, 0, 'source_id', paste0( 'CEDS-', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%m-%d-%Y' ) ) ) )
+#   ncatt_put( nc_new, 0, 'further_info_url', 'http://www.globalchange.umd.edu/ceds/' )
+#   ncatt_put( nc_new, 0, 'license', 'FOR TESTING AND REVIEW ONLY' )
+#   ncatt_put( nc_new, 0, 'history', 
+#              paste0( as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%d-%m-%Y %H:%M:%S %p %Z' ) ),
+#                      '; College Park, MD, USA') )
+#   ncatt_put( nc_new, 0, 'comment', 'Test Dataset for CMIP6' )
+#   ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes.' )
+#   ncatt_put( nc_new, 0, 'host', 'TBD' )
+#   ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
+#   ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
+# 
+#   global_total_emission <- sum( checksum_total_emission_list ) * 0.001
+#   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2), ' Tg/year' ) )
+#   
+#     
+#   # close nc_new
+#   nc_close( nc_new)
+#################################################################################################
   
   # additional section: write a summary and check text
 
@@ -1009,6 +1049,9 @@ final_monthly_nc_output_air <- function( output_dir, grid_resolution, year, em_s
                                month = rep( 1 : 12 ),
                                global_total = checksum_total_emission_list,
                                unit = 'kt' )
+  ceds_version <- 'v'
+  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
+  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
   summary_name <- paste0( output_dir, 'CEDS_', em_species, '_', sector, '_', '_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
   write.csv( summary_table, file = summary_name, row.names = F )
 }
@@ -1035,4 +1078,28 @@ region_emCombine <- function( em_data, region_list_for_combination ) {
     }
     return( em_data )
   }
+}
+# -------------------------------------------------
+# grid_2L
+# Brief: generate a fliped matrix by a given matrix
+# Dependencies: 
+# Author: Leyang Feng
+# parameters: x - the matrix to be fliped  
+# return: a fliped matrix 
+# input files: 
+# output:
+grid_2L <- function( X2L_emissions, year ) {
+  
+  emission_value <- X2L_emissions[ , paste0( 'X', year ) ]
+  
+  proxy_year <- '1996'
+  proxy_name <- paste0( 'X2L', '_', proxy_year )
+  load( paste0( proxy_dir, proxy_name ) )
+  proxy <- get( proxy_name )
+  rm( list = proxy_name )
+   
+  proxy_normalized <- proxy / sum( proxy )
+  em_spatial <- proxy_normalized * emission_value
+  
+  return( em_spatial )
 }

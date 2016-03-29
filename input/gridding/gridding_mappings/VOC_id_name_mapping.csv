@@ -1,13 +1,13 @@
 VOC_id,VOC_name,molecular weight
-VOC1,alcohols,46.2
-VOC2,ethane,30
-VOC3,propane,44
-VOC4,butanes,57.8
-VOC5,pentanes,72
-VOC6,hexanes_plus_higher_alkanes,106.8
-VOC7,ethene,28
-VOC8,propene,42
-VOC9,ethyne,26
+VOC01,alcohols,46.2
+VOC02,ethane,30
+VOC03,propane,44
+VOC04,butanes,57.8
+VOC05,pentanes,72
+VOC06,hexanes_plus_higher_alkanes,106.8
+VOC07,ethene,28
+VOC08,propene,42
+VOC09,ethyne,26
 VOC12,other_alkenes_and_alkynes,67
 VOC13,benzene,78
 VOC14,toluene,92
