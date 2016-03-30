@@ -78,7 +78,7 @@ activity_data <- readData( "MED_OUT", "A.comb_activity" )
 MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" , meta = F)
 sector_level_map <- readData( "MAPPINGS", "Master_Sector_Level_map", meta = F )
 MCL <- readData( "MAPPINGS", "Master_Country_List" )
-MSLevel <- readData( "MAPPINGS", "Master_Sector_Level_Map" )
+MSLevel <- readData( "MAPPINGS", "Master_Sector_Level_map" )
 
 bcoc_historical <- readData( "EM_INV" ,"160227_SPEW_BCOCemission", 
                              ".xlsx", meta = F )
