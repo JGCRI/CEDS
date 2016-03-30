@@ -71,12 +71,12 @@ if ( length( sector_map_list ) > 0 ){
 # Do nothing if no instruction files exist
 } else { 
   printLog( paste( "No sector-change instructions exist for", em, ". No modification made." ) )
-  ef_full <- ef
+  ef_full_changed <- ef
 }
   
 # ---------------------------------------------------------------------------
 # 3. Output
-  writeData( ef_changed, "MED_OUT", paste0( "H.", em, "_total_EFs_extended_adjusted-sector" ) )
+  writeData( ef_full_changed, "MED_OUT", paste0( "H.", em, "_total_EFs_extended_adjusted-sector" ) )
 
 
 logStop()
