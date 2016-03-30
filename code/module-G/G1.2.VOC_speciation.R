@@ -38,8 +38,8 @@
 # 0.5 Initialize gridding setups
 
     gridding_initialize( grid_resolution = 0.5,
-                         start_year = 1850,
-                         end_year = 2014, load_masks = T, load_seasonality_profile = T )
+                         start_year = 1750,
+                         end_year = 1850, load_masks = T, load_seasonality_profile = T )
     output_dir <- filePath( 'FIN_OUT', 'gridded_emissions/', extension = "" )
     proxy_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy/")
 # ------------------------------------------------------------------------------
@@ -54,7 +54,7 @@
     MODULE_G <- "../code/module-G/"
     
 # read in the emission data
-    emissions <- readData( "MED_OUT", paste0( "F.", em, "_scaled_emissions" ) )
+    emissions <- readData( "FIN_OUT", paste0( "S.", em, "_Extended_CEDS_Emissions" ) )
 # read in the country_location_index, which indicates the location of each country mask in the 'world' matrix 
     country_location_index <- 
       readData( "GRIDDING", domain_extension = "gridding_mappings/", file_name =  paste0( "country_location_index_", as.character( grid_resolution ) ) ) 
