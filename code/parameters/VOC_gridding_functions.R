@@ -304,11 +304,11 @@ grid_one_sector_subVOCs <- function( sector, em_species, year, location_index, g
 	
 	# extract emission values 
 	# SHP extraction 
-  emissions_year_SHP <- subset( emissions_year, emissions_year$CEDS_grd_sector == 'SHP',
+  emissions_year_SHP <- subset( em_data, em_data$CEDS_grd_sector == 'SHP',
                                 c( 'iso', paste0( 'X', year ) ) )
   emission_value_SHP <- sum( emissions_year_SHP[ , 2 ] ) 
 	# X2L extraction 
-	emissions_year_X2L <- subset( emissions_year, emissions_year$CEDS_grd_sector == 'X2L',
+	emissions_year_X2L <- subset( em_data, em_data$CEDS_grd_sector == 'X2L',
                                 c( 'iso', paste0( 'X', year ) ) )
   emission_value_X2L <- sum( emissions_year_X2L[ , 2 ] ) 
 	
