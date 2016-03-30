@@ -42,7 +42,7 @@ if ( is.na( em ) ) em <- "OC"
 # ---------------------------------------------------------------------------
 # 1. Load files
 
-EFs <- readData( 'MED_OUT',paste0('H.',em,'_total_EFs_extended') )
+EFs <- readData( 'MED_OUT',paste0('H.',em,'_total_EFs_extended_adjusted-sector') )
 activity <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended') )
 
 # ---------------------------------------------------------------------------
