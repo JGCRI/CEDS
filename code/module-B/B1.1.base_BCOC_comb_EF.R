@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: B1.1.base_BCOC_comb_EF.R
 # Author: Rachel Hoesly
-# Date Last Updated: Feb 11, 2016
+# Date Last Updated: 30 March 2016
 # Program Purpose: 1. Produce OC emissions factors from Bond et al data.
 #              
 # Input Files: 
@@ -78,7 +78,7 @@ activity_data <- readData( "MED_OUT", "A.comb_activity" )
 MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" , meta = F)
 sector_level_map <- readData( "MAPPINGS", "Master_Sector_Level_map", meta = F )
 MCL <- readData( "MAPPINGS", "Master_Country_List" )
-MSLevel <- readData( "MAPPINGS", "Master_Sector_Level_map" )
+MSLevel <- readData( "MAPPINGS", "Master_Sector_Level_Map" )
 
 bcoc_historical <- readData( "EM_INV" ,"160227_SPEW_BCOCemission", 
                              ".xlsx", meta = F )
@@ -108,7 +108,7 @@ bond$fuel <- fuel_map[ match(bond$Fuel,fuel_map$Fuel),'fuel']
 bond <- merge( bond, sector_map, all=TRUE)
 bond <- bond[which(bond$fuel != 'NA'),]
 
-# remove wierd data and data we don't use
+# remove weird data and data we don't use
 bond <- bond[which( bond$Fuel_kt > 0 &
                       bond$BC_kt > 0 &
                       bond$OC_kt > 0     )  , ]
@@ -211,14 +211,8 @@ bond_EF_fuel [ X_emissions_years[X_emissions_years %!in% X_bond_years] ] <- NA
 bond_EF_fuel <- bond_EF_fuel[, c( "fuel", X_emissions_years)]
 bond_EF_fuel <- interpolate_extend(bond_EF_fuel)
 
-# FSU - replace residential with industrial
-FSU_residential <- bond_EF_region[which(bond_EF_region$Region == 'Former USSR ' &
-                                          bond_EF_region$fuel %in% c("diesel_oil","brown_coal" ,"coal_coke","hard_coal","heavy_oil","light_oil") &
-                                          bond_EF_region$sector == '1A2g_Ind-Comb-other'),]
-FSU_residential$sector <- "1A4b_Residential"
-
 # residential biomass
-EF_residenital_biomass <- bond_EF_country[which(bond_EF_country$fuel %in% c("biomass") &
+EF_residential_biomass <- bond_EF_country[which(bond_EF_country$fuel %in% c("biomass") &
                                                 bond_EF_country$sector == '1A4b_Residential'),]
 
 # ------------------------------------------------------------------------------
@@ -238,24 +232,14 @@ ef_template[which( ef_template$fuel == 'natural_gas'), X_emissions_years] <- 0
 
 nrow_all <- nrow(ef_template)
 
-# start with redefining FSU countries:
-# change the residential emissions factors (for coal oil and gas) to industrial combustion
-EF <- replaceValueColMatch(ef_template , FSU_residential ,
-                           x.ColName = X_emissions_years ,
-                           match.x = c('Region','sector','fuel'), 
-                           addEntries = FALSE)
-
-EF_nas <- EF[is.na(EF$X1960),]
-EF_final <- EF[!is.na(EF$X1960),]
-
 #  add EFs for residential biomass by iso
-EF <- replaceValueColMatch(EF_nas , EF_residenital_biomass ,
+EF <- replaceValueColMatch(ef_template , EF_residential_biomass ,
                            x.ColName = X_emissions_years ,
                            match.x = c('iso','sector','fuel'), 
                            addEntries = FALSE)
 
 EF_nas <- EF[is.na(EF$X1960),]
-EF_final <- rbind( EF_final , EF[!is.na(EF$X1960),] )
+EF_final <- EF[!is.na(EF$X1960),]
 
 # add EFs by region, sector, fuel
 EF <- replaceValueColMatch(EF_nas , bond_EF_region ,
