@@ -653,7 +653,7 @@ $(MED_OUT)/H.$(EM)_total_EFs_extended.csv : \
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 
-$(FINAL_OUT)/$(EM)_total_extended_emissions.csv : \
+$(MED_OUT)/$(EM)_total_CEDS_emissions.csv : \
 	$(MOD_H)/H4.1.proc_Extended_Emissions.R \
 	$(MED_OUT)/H.$(EM)_total_EFs_extended.csv \
 	$(MED_OUT)/H.$(EM)_total_activity_extended.csv
@@ -661,5 +661,5 @@ $(FINAL_OUT)/$(EM)_total_extended_emissions.csv : \
 
 $(FINAL_OUT)/$(EM)_emissions_by_country_FOR-REVIEW-ONLY.csv : \
 	$(MOD_S)/S1.1.write_summary_data.R \
-	$(FINAL_OUT)/$(EM)_total_extended_emissions.csv
+	$(MED_OUT)/$(EM)_total_CEDS_emissions.csv
 	Rscript $< $(EM) --nosave --no-restore

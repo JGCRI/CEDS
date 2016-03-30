@@ -62,7 +62,7 @@ WRITE_CEDS_SECTORS = TRUE
 # 1. Load files
 
 Master_Country_List <- readData( "MAPPINGS", "Master_Country_List")
-final_emissions_read <- readData ( 'FIN_OUT', paste0( em,"_total_extended_emissions") )
+final_emissions_read <- readData ( "MED_OUT" , paste0(em,'_total_CEDS_emissions') )
 Master_Sector_Level_map <- readData(domain = 'MAPPINGS', file_name = 'Master_Sector_Level_map')
 
 # ---------------------------------------------------------------------------
@@ -298,9 +298,9 @@ if ( !file.exists( paste0("../final-emissions/", summary_fn, ".csv" ) ) ) {
 # ---------------------------------------------------------------------------
 
 # source figure and comparison files to print figures
-source('../code/diagnostic/Figures.R') 
-source('../code/diagnostic/Compare_to_RCP.R')
- 
+# source('../code/diagnostic/Figures.R') 
+# source('../code/diagnostic/Compare_to_RCP.R')
+#  
 
 logStop()
 

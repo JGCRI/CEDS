@@ -61,6 +61,6 @@ emissions[X_extended_years] <- EFs[X_extended_years] * activity[X_extended_years
 # ---------------------------------------------------------------------------
 # 5. Write to file
 
-writeData( emissions, "FIN_OUT" , paste0(em,'_total_extended_emissions'))
+writeData( emissions, "MED_OUT" , paste0(em,'_total_CEDS_emissions'), meta = F)
 
 
