@@ -66,6 +66,9 @@ printLog('Running add_activity scripts to extend activity data')
 
   scripts <- c( 'H2.2.add_EFs_Emissions-trend.R' ,
                 'H2.2.add_EFs_EF-trend.R',
+                'H2.2.add_EFs_EF-converge.R',
+                'H2.2.add_EFs_constant.R',
+                'H2.2.add_EFs_default.R',
                 'H2.3.proc_EFs.R')
 
 

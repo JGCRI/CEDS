@@ -94,7 +94,7 @@ printLog('Running add_activity scripts to extend activity data')
 # scripts have to be called in order of time period, most recent to most historical - 
 # Bond-CDIAC must be called before CDIAC fuels
 
-  scripts <- c( #"H1.2.add_activity_CDIAC-Bond.R" , # change driver selection in CDIAC script when adding back in
+  scripts <- c( "H1.2.add_activity_CDIAC-Bond.R" , 
                 "H1.2.add_activity_CDIAC.R" ,
                 "H1.2.add_activity_Fernandez.R" , "H1.2.add_activity_population.R"   )
 

@@ -1,20 +1,1 @@
-"","fuel","Fuel"
-"1","diesel_oil"," Middle distilla"
-"2","coal_coke"," Petroleum Coke "
-"3","coal_coke"," Coking Coal    "
-"4","hard_coal"," Briquettes     "
-"5","brown_coal"," Brown Coal     "
-"6","hard_coal"," Hard Coal      "
-"7","heavy_oil"," Heavy Fuel Oil "
-"8","light_oil"," Light distillat"
-"10","natural_gas"," Natural Gas    "
-"12",NA," Waste-- Municip"
-"13","biomass"," Wood           "
-"134","process"," Waste/open     "
-"152","process"," Manufacturing  "
-"157","biomass"," Agricultural Wa"
-"158","biomass"," Animal wastes  "
-"161","biomass"," Charcoal       "
-"164","light_oil"," Kerosene       "
-"166","light_oil"," Liquefied Petro"
-"184","light_oil"," Aviation Gasoli"
+fuel,Fueldiesel_oil, Middle distillacoal_coke, Petroleum Coke coal_coke, Coking Coal    hard_coal, Briquettes     brown_coal, Brown Coal     hard_coal, Hard Coal      heavy_oil, Heavy Fuel Oil light_oil, Light distillatnatural_gas, Natural Gas    NA, Waste-- Municipbiomass, Wood           process, Waste/open     process, Manufacturing  biomass, Agricultural Wabiomass, Animal wastes  biomass, Charcoal       light_oil, Kerosene       light_oil, Liquefied Petrolight_oil, Aviation Gasoli
