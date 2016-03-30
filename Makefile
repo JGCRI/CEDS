@@ -62,7 +62,7 @@ else
 # recursive call, once EM has been specified, and triggers the
 # build of the entire system. This target must be the final
 # outputs of the system.
-emissions : $(MED_OUT)/H.$(EM)_total_EFs_extended.csv
+emissions : $(FINAL_OUT)/$(EM)_emissions_by_country_FOR-REVIEW-ONLY.csv
 
 endif
 
@@ -636,6 +636,7 @@ $(MED_OUT)/H.$(EM)_total_activity_extended.csv : \
 	$(MOD_H)/H1.2.add_activity_Fernandez.R \
 	$(MOD_H)/H1.2.add_activity_population.R \
 	$(MED_OUT)/F.$(EM)_scaled_emissions.csv \
+	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
 	$(EXT_IN)/CEDS_historical_extension_drivers_activity.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
@@ -652,8 +653,13 @@ $(MED_OUT)/H.$(EM)_total_EFs_extended.csv : \
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 
+$(FINAL_OUT)/$(EM)_total_extended_emissions.csv : \
+	$(MOD_H)/H4.1.proc_Extended_Emissions.R \
+	$(MED_OUT)/H.$(EM)_total_EFs_extended.csv \
+	$(MED_OUT)/H.$(EM)_total_activity_extended.csv
+	Rscript $< $(EM) --nosave --no-restore
 
-#$(FINAL_OUT)/$(EM)_emissions_by_country_FOR-REVIEW-ONLY.csv : \
+$(FINAL_OUT)/$(EM)_emissions_by_country_FOR-REVIEW-ONLY.csv : \
 	$(MOD_S)/S1.1.write_summary_data.R \
-	$(FINAL_OUT)/H.$(EM)_total_extended_emissions.csv
-#	Rscript $< $(EM) --nosave --no-restore
+	$(FINAL_OUT)/$(EM)_total_extended_emissions.csv
+	Rscript $< $(EM) --nosave --no-restore

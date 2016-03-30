@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Program Name: H3.1.proc_Extended_Emissions.R
+# Program Name: H4.1.proc_Extended_Emissions.R
 # Author: Rachel Hoesly
 # Date Last Updated: March 22, 2016
 # Program Purpose: Process extendtion EFs database to finalize and sort CEDS EFs database.
@@ -25,9 +25,9 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c() # Additional function files required.
+headers <- c('data_functions.R') # Additional function files required.
 log_msg <- paste0( "Processing CEDS extention EFs database" ) # First message to be printed to the log
-script_name <- "H3.1.proc_Extended_Emissions.R"
+script_name <- "H4.1.proc_Extended_Emissions.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -54,13 +54,13 @@ activity <- activity[ with( activity, order( iso, sector, fuel ) ), ]
 
 if( !identical(EFs[,c('iso','sector','fuel')], activity[,c('iso','sector','fuel')])) stop("There are NAs in final activity database.")
 
-emissions <- EFsEFs[,c('iso','sector','fuel')]
+emissions <- EFs[,c('iso','sector','fuel')]
 emissions$units <- 'kt'
 emissions[X_extended_years] <- EFs[X_extended_years] * activity[X_extended_years]
 
 # ---------------------------------------------------------------------------
 # 5. Write to file
 
-writeData( emissions, "Fin_OUT" , paste0(em,'_total_extended_emissions'))
+writeData( emissions, "FIN_OUT" , paste0(em,'_total_extended_emissions'))
 
 
