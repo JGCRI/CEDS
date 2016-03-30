@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: H2.2.add_EFs_EF-trend.R
 # Author: Rachel Hoesly
-# Program Purpose: Create base database to extend EFs backward
+# Program Purpose: Extend EFs back by EF trend
 #               
 # Output Files:
 # TODO: 
@@ -25,7 +25,7 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R") # Additional function files may be required.
-log_msg <- "Creating database for CEDS EFs extention before 1960" # First message to be printed to the log
+log_msg <- "Extending emissions factors 1960 using EF trend" # First message to be printed to the log
 script_name <- "H2.2.add_EFs_EF-trend.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )

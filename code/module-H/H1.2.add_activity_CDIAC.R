@@ -54,7 +54,7 @@ cdiac <- readData( "MED_OUT" , 'E.CO2_CDIAC_inventory' )
 # Section in the script that correpsond to "extra_driver_info" in CEDS_historical_extension_drivers.csv
 script_methods <- c('fuels','Total_CO2','cement_production','solid_fuels','liquid_fuels', 'gas_fuels', 'liquid_and_gas_fuels')
 
-driver_info <- unique(extension_drivers_all[which( extension_drivers_all$driver_data_source %in% c( 'CDIAC', 'CDIAC-Bond') ), # change to just CDIAC when bond script is done
+driver_info <- unique(extension_drivers_all[which( extension_drivers_all$driver_data_source %in% c( 'CDIAC') ), 
                                             'extra_driver_info'])
 if( any( driver_info %!in% script_methods) ) stop('CDIAC Methods specified in CEDS_historical_extension_drivers (extra_driver_info)
                                                   that are not addressed in H1.2.add_activity_CDIAC.R. Please Check.' )
@@ -62,7 +62,7 @@ if( any( driver_info %!in% script_methods) ) stop('CDIAC Methods specified in CE
 # ---------------------------------------------------------------------------
 # 2. Select data to extend based on extension drivers
 
-extension_drivers <- extension_drivers_all[which( extension_drivers_all$driver_data_source %in% c( 'CDIAC', 'CDIAC-Bond') ), ] # change to just CDIAC when bond script is done
+extension_drivers <- extension_drivers_all[which( extension_drivers_all$driver_data_source %in% c( 'CDIAC') ), ] 
 activity <- activity_all
 
 # ---------------------------------------------------------------------------
