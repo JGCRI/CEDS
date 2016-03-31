@@ -34,7 +34,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "OC"
+if ( is.na( em ) ) em <- "BC"
 
 # ------------------------------------------------------------------------------------
 
@@ -51,8 +51,11 @@ activity <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended') )
 EFs <- EFs[ with( EFs, order( iso, sector, fuel ) ), ]
 activity <- activity[ with( activity, order( iso, sector, fuel ) ), ]
 
+check_iso <- identical( activity$iso, EFs$iso)
+check_sector <- identical( activity$sector, EFs$sector)
+check_fuel <- identical( activity$fuel, EFs$fuel)
 
-if( !identical(EFs[,c('iso','sector','fuel')], activity[,c('iso','sector','fuel')])) stop("There are NAs in final activity database.")
+if( !all( c(check_iso, check_sector, check_fuel) )) stop("Activity and EFs databases do not match.")
 
 emissions <- EFs[,c('iso','sector','fuel')]
 emissions$units <- 'kt'

@@ -33,7 +33,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "OC"
+if ( is.na( em ) ) em <- "NH3"
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -89,9 +89,9 @@ for (i in seq_along(year_intervals)) {
   drivers <- extension_drivers[ which( extension_drivers$extra_driver_info %in% c('fuels','solid_fuels','liquid_fuels','gas_fuels','liquid_and_gas_fuels') &
                                        paste(extension_drivers$ext_start_year,extension_drivers$ext_end_year,sep='-') == interval ), ]
   
-  ratio_year <- unique(drivers[,'ext_end_year'])
+  ratio_year <- unique(drivers[,'ext_end_year'])+1
   ext_start_year <- unique(drivers[,'ext_start_year'])
-  extention_years <- paste0('X',ext_start_year:ratio_year)
+  extention_years <- paste0('X',ext_start_year:unique(drivers[,'ext_end_year']))
   
   # select extension data for current method
   sectors <- drivers[, c('sector','fuel') ]
