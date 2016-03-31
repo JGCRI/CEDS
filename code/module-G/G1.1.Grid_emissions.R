@@ -56,7 +56,7 @@
     
 # read in the emission data
     #emissions <- readData( "MED_OUT", paste0( "F.", em, "_scaled_emissions" ) )
-    emissions <- readData( "FIN_OUT", paste0( "S.", em, "_Extended_CEDS_Emissions" ) )
+    emissions <- readData( "FIN_OUT", paste0( em, '_em_country_CEDS_sector_FOR-REVIEW-ONLY'  ) )
 # read in the country_location_index, which indicates the location of each country mask in the 'world' matrix 
     country_location_index <- 
       readData( "GRIDDING", domain_extension = "gridding_mappings/", file_name =  paste0( "country_location_index_", as.character( grid_resolution ) ) ) 
@@ -78,9 +78,11 @@
 # 2.3. Convert the emission data from CEDS working sectors to CEDS level 1 gridding sector 
     # special treatment for NMVOC 2L_other_process_emissions emissions
     if ( em == 'NMVOC') {
+      # Extract NMVOC 2L emission under global up in front 
       X2L_emissions <- subset( emissions, 
                                iso == 'global' & sector == '2L_Other-process-emissions', 
                                colnames( emissions ) )
+      # drop the global-2L line 
       emissions <- subset( emissions, 
                            !( iso == 'global' & sector == '2L_Other-process-emissions' ), 
                            colnames( emissions ) )
