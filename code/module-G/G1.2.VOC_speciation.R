@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: G1.1.Grid_emissions.R
+# Program Name: G1.2.VOC_speciation.R
 # Author(s): Leyang Feng
 # Date Last Updated: 25 March 2016
 # Program Purpose: Produce gridded VOCs emissions using CEDS emissions NMVOC final output.       
@@ -28,8 +28,8 @@
 # Call standard script header function to read in universal header files - 
 # provides logging, file support, and system functions - and start the script log.
     headers <- c( 'gridding_functions.R', 'data_functions.R', 'VOC_gridding_functions.R' ) # Any additional function files required
-    log_msg <- "CEDS emissions gridding" # First message to be printed to the log
-    script_name <- "G1.1.Grid_emissions.R"
+    log_msg <- "VOC speciation gridding" # First message to be printed to the log
+    script_name <- "G1.2.VOC_speciation.R"
 
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
@@ -54,7 +54,7 @@
     MODULE_G <- "../code/module-G/"
     
 # read in the emission data
-    emissions <- readData( "FIN_OUT", paste0( "S.", em, "_Extended_CEDS_Emissions" ) )
+    emissions <- readData( "FIN_OUT", paste0( em, '_em_country_CEDS_sector_FOR-REVIEW-ONLY' ) )
 # read in the country_location_index, which indicates the location of each country mask in the 'world' matrix 
     country_location_index <- 
       readData( "GRIDDING", domain_extension = "gridding_mappings/", file_name =  paste0( "country_location_index_", as.character( grid_resolution ) ) ) 
