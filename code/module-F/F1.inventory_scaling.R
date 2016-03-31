@@ -113,6 +113,12 @@ if ( is.na( em ) ) em <- "NH3"
   # South Korea
   if ( em %in% c('SO2', 'NOx', 'CO', 'NMVOC' ) ) scripts <- c(scripts, 'F1.1.South_korea_scaling.R')
   
+  # Taiwan
+  if ( em %in% c('SO2', 'NOx', 'CO', 'NMVOC' ) ) scripts <- c(scripts, 'F1.1.Taiwan_scaling.R')
+  
+  # Australia
+  if ( em %in% c('SO2', 'NOx', 'CO', 'NMVOC' ) ) scripts <- c(scripts, 'F1.1.Australia_scaling.R')
+  
 # ------------------------------------------------------------------------------------
 # 4. Run all scripts for the given emissions type
 
