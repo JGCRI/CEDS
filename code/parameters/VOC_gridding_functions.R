@@ -377,7 +377,7 @@ grid_one_country_subVOCs <- function( country, location_index, em_data, proxy, p
     } else {
       message_line <- paste0( 'Backup proxy used: ', country, ' ,', year, ' ,', sector, ' ,', em_species )  
       }
-    cat( message_line, file = paste0( summary_dir, 'proxy_replacement_list .txt' ), append = TRUE, sep="\n" )
+    #cat( message_line, file = paste0( summary_dir, 'proxy_replacement_list.txt' ), append = TRUE, sep="\n" )
   } else {
     # extract the proxy as the extent of the iso_mask
     proxy_cropped <- proxy[ start_row : end_row, start_col : end_col ] 

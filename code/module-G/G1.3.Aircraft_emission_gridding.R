@@ -68,7 +68,7 @@
     # extract aircraft emissions only
     air_emissions <- subset( emissions, 
                              sector == '1A3ai_International-aviation' | sector == '1A3aii_Domestic-aviation', 
-                             c( 'iso', 'sector', 'fuel', paste0( 'X', year_list ) ) )    
+                             c( 'iso', 'sector', paste0( 'X', year_list ) ) )    
     # sum up all aircraft emissions 
     air_emissions <- cbind( CEDS_gridding_sector = 'AIR', air_emissions )
     air_emissions <- aggregate( air_emissions[ , paste0( 'X', year_list ) ],

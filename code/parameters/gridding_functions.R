@@ -308,10 +308,11 @@ grid_one_sector <- function( sector, em_species, year, location_index, grid_reso
   # then use proxy_backup
   proxy_replace_flag <- proxy_substitution_check( country_list, location_index, emissions_year_sector, proxy )
   
-  # if using population as proxy, no need to do proxy substitution 
-  if ( as.numeric( year ) < 1970 ) {
-    proxy_replace_flag[ proxy_replace_flag == T ] <- F
-  }
+# # if using population as proxy, no need to do proxy substitution 
+# if ( as.numeric( year ) < 1970 ) {
+#  proxy_replace_flag[ proxy_replace_flag == T ] <- F
+# }
+  
   # calling the G.emiDistribute function to do the scalling
   region_em_spatial_list <- lapply( country_list, grid_one_country, location_index, emissions_year_sector, proxy, proxy_backup, year, sector, em_species, proxy_replace_flag )
   names( region_em_spatial_list ) <- paste0( country_list, '_em_spatal' )
