@@ -34,7 +34,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "BC"
+if ( is.na( em ) ) em <- "NH3"
 
 # ---------------------------------------------------------------------------
 # 1. Load input
@@ -71,7 +71,7 @@ if ( length( sector_map_list ) > 0 ){
 # Do nothing if no instruction files exist
 } else { 
   printLog( paste( "No sector-change instructions exist for", em, ". No modification made." ) )
-  ef_full_changed <- ef
+  ef_full_changed <- ef_full
 }
   
 # ---------------------------------------------------------------------------
