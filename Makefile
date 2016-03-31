@@ -610,6 +610,8 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US_inventory.csv \
+	$(MED_OUT)/E.$(EM)_TWN_inventory.csv \
+	$(MED_OUT)/E.$(EM)_AUS_inventory.csv \
 	$(SC_MAPPINGS)/Argentina_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/CAN_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/MEIC_scaling_mapping.xlsx \
