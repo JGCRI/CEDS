@@ -49,16 +49,6 @@ final_iso <- unique(MCL[which(MCL$final_data_flag == 1),'iso'])
 
 trend <- 'Emissions-trend'
 
-# select method
-extension_drivers_EF <- extension_drivers_EF[ which( extension_drivers_EF$method == trend ) ,]
-
-# delete, all row for a sector-fuel if there is a sector-fuel entry for the specific emission species
-driver_em <- extension_drivers_EF[which( extension_drivers_EF$em == em), ]
-if( nrow(driver_em) > 0 ){
-em_instruction_sectors <- unique( paste( driver_em$sector,driver_em$fuel  ,sep = '-'))
-extension_drivers_EF <- extension_drivers_EF[ which( paste( extension_drivers_EF$sector,extension_drivers_EF$fuel ,extension_drivers_EF$em ,sep = '-') %!in%  paste( em_instruction_sectors ,'all' ,sep = '-') ), ]
-}
-
 # Expand fuels - all-comb
 expand <- extension_drivers_EF[which(extension_drivers_EF$fuel == 'all-comb' ) ,]
 extension_drivers_EF <- extension_drivers_EF[which(extension_drivers_EF$fuel != 'all-comb' ) ,]
@@ -67,10 +57,22 @@ for (i in seq_along(comb_fuels)){
   expand$fuel <- rep(comb_fuels[i], times= nrow(expand) )
   extension_drivers_EF <- rbind( extension_drivers_EF, expand )
 }
+extension_drivers_EF <- extension_drivers_EF[ which( extension_drivers_EF$em %in% c(em , 'all' )), ]
+
+# delete, all row for a sector-fuel if there is a sector-fuel entry for the specific emission species
+driver_em <- extension_drivers_EF[which( extension_drivers_EF$em == em), ]
+if( nrow(driver_em) > 0 ){
+  em_instruction <- unique( paste( driver_em$sector,driver_em$fuel,driver_em$start_year,driver_em$end_year  ,sep = '-'))
+  extension_drivers_EF <- extension_drivers_EF[ which( 
+    paste( extension_drivers_EF$sector, extension_drivers_EF$fuel , extension_drivers_EF$start_year, extension_drivers_EF$end_year, extension_drivers_EF$em, sep = '-') %!in%  
+      paste( em_instruction ,'all' ,sep = '-') ), ]
+}
 
 # select em
-extension_drivers_EF <- extension_drivers_EF[ which( extension_drivers_EF$em %in% c(em , 'all' )), ]
 extension_drivers_EF$em <- em
+
+# select method
+extension_drivers_EF <- extension_drivers_EF[ which( extension_drivers_EF$method == trend ) ,]
 
 drivers <- extension_drivers_EF
 

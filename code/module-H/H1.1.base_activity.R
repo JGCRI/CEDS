@@ -33,18 +33,27 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "OC"
+if ( is.na( em ) ) em <- "NH3"
 
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
 ceds_activity <- readData( 'MED_OUT', paste0( 'A.total_activity' ) )
+shipping_fuel <- readData( 'DIAG_OUT', 'A.global_intl_shipping_fuel')
 
 # ---------------------------------------------------------------------------
 # 2. Extend Data frame
 
 ceds_activity[ paste0('X', historical_pre_extension_year: 1959)] <- NA
 ceds_activity <- ceds_activity[ c( 'iso' , 'sector' , 'fuel' , 'units' , X_extended_years ) ]
+ceds_activity[ which( ceds_activity$sector == '1A3di_International-shipping'), paste0('X',1850:1959) ] <- 0
+
+# ---------------------------------------------------------------------------
+# 3. Add Shipping Fuel
+ceds_activity <- replaceValueColMatch( ceds_activity, shipping_fuel,
+                                       x.ColName = paste0('X',1850:1959),
+                                       match.x = c('iso','sector','fuel','units'),
+                                       addEntries = F)
 
 # ---------------------------------------------------------------------------
 # 3. Output
