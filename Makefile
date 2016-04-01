@@ -582,6 +582,16 @@ $(MED_OUT)/E.$(EM)_US_inventory.csv : \
 	$(MOD_E)/E.US_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
 
+# ee1-2
+ $(MED_OUT)/E.$(EM)_AUS_inventory.csv : \
+		$(MOD_E)/E.Austrailia_emissions.R
+		Rscript $< $(EM) --nosave --no-restore
+
+# ee1-2
+$(MED_OUT)/E.$(EM)_TWN_inventory.csv : \
+	$(MOD_E)/E.Taiwan_emissions.R
+	Rscript $< $(EM) --nosave --no-restore
+
 # ff1-1a
 # Creates scaled emissions and emissions factors
 $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
@@ -610,8 +620,6 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US_inventory.csv \
-	$(MED_OUT)/E.$(EM)_TWN_inventory.csv \
-	$(MED_OUT)/E.$(EM)_AUS_inventory.csv \
 	$(SC_MAPPINGS)/Argentina_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/CAN_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/MEIC_scaling_mapping.xlsx \
