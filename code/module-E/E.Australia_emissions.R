@@ -111,6 +111,11 @@ inv_data$unit <- 'kt'
 inv_data <- inv_data[ , c( 'iso', 'sector', 'unit', paste0( 'X', inv_years ) ) ]
 inv_data[ is.na( inv_data ) ] <- 0
 
+# write out a dummy file unsupported species
+if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) {
+  inv_data <- data.frame( )
+}
+
 # ------------------------------------------------------------------------------
 # 5. Output
 # write standard form inventory
