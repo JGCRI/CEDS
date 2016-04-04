@@ -41,10 +41,10 @@ initialize( script_name, log_msg, headers )
 # 1. Define parameters for inventory specific script
 
 # Stop script if running for unsupported species
-if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) {
-  stop (paste( ' Australia scaling is not supported for emission species', em, 'remove from script
-               list in F1.1.inventory_scaling.R') )
-}
+#if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) {
+#  stop (paste( ' Australia scaling is not supported for emission species', em, 'remove from script
+#               list in F1.1.inventory_scaling.R') )
+#}
 
 # For each Module E script, define the following parameters:
 # Inventory parameters. Provide the inventory and mapping file names, the
@@ -63,6 +63,11 @@ inv_years<-c( 2000, 2006, 2012 )
 # ------------------------------------------------------------------------------
 # 2 Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
 
+# write out a dummy file unsupported species
+if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) {
+  inv_data <- data.frame( )
+
+  } else {
 # Import Sheets containing 2008,2010,2012 data.
 sheet_name <- "1999-2000"
 inv_data_2000 <- readData( inv_data_folder, inventory_data_file , ".xlsx", sheet_selection = sheet_name )
@@ -111,9 +116,6 @@ inv_data$unit <- 'kt'
 inv_data <- inv_data[ , c( 'iso', 'sector', 'unit', paste0( 'X', inv_years ) ) ]
 inv_data[ is.na( inv_data ) ] <- 0
 
-# write out a dummy file unsupported species
-if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) {
-  inv_data <- data.frame( )
 }
 
 # ------------------------------------------------------------------------------
