@@ -346,6 +346,13 @@ $(MED_OUT)/A.IEA_BP_energy_ext.csv : \
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 
+# aa3-2
+# Write out difference between IEA and CEDS coal
+$(MED_OUT)/A.IEA_CEDS_coal_difference.csv : \
+	$(MOD_A)/A3.3.write_coal_diff.R \
+	$(MED_OUT)/A.IEA_BP_energy_ext.csv
+	Rscript $< $(EM) --nosave --no-restore
+
 # aa4-1
 # naming note: includes both module A3 and A4
 # Expands energy data to include all possible id combinations
