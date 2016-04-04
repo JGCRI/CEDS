@@ -375,7 +375,7 @@ ggsave( paste0('summary-plots/',em,'_fuel.default.pdf'), width = 11, height = 6 
 
 # ---------------------------------------------------------------------------
 
-logstop()
+logStop()
 
 
 
