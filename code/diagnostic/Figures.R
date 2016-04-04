@@ -37,7 +37,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "OC"
+if ( is.na( em ) ) em <- "SO2"
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -57,7 +57,7 @@ PRINT_BIG_TABLES <- FALSE
 
 Master_Country_List <- readData( "MAPPINGS", "Master_Country_List")
 MSLevel <- readData( "MAPPINGS", "Master_Sector_Level_map" )
-TotalEmissions <- readData('MED_OUT', paste0('F.',em,'_scaled_emissions'))
+TotalEmissions <- readData('MED_OUT', paste0(em,'_total_CEDS_emissions'))
 
 if ( PRINT_DEFAULTS ) DefaultEmissions <- readData('MED_OUT', paste0('D.',em,'_default_total_emissions'))
 
@@ -67,7 +67,9 @@ setwd('../diagnostic-output')
 # Data Problems
 
 # 1. Prepare Data 
-x_years<-paste('X',1960:2013,sep="")
+start <- 1750
+end <- 2013
+x_years<-paste('X',start:end,sep="")
 
 TotalEmissions.long <- melt(TotalEmissions,id.vars = c('iso','sector','fuel','units'))
 names(TotalEmissions.long) <- c('iso','sector','fuel','units','year','Emissions')
@@ -217,7 +219,7 @@ df$Region <- factor(df$Region,levels=c('North America','Western Europe',
 plot <- ggplot(df, aes(x=year,y=Emissions,
                        fill=Region)) + 
                   geom_area(size=1) +
-                  scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
+                  scale_x_continuous(breaks=seq(start,end, 20))+
                   scale_y_continuous(labels = comma)+
                   ggtitle( paste('Global Scaled',em,' Emissions') )+
                   labs(x='Year',y= paste(em,'Emissions [kt]') )
@@ -242,7 +244,7 @@ if ( PRINT_DEFAULTS ){
 	plot <- ggplot(df, aes(x=year,y=Emissions,
 							fill=Region)) + 
 	  geom_area(size=1) +
-	  scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
+	  scale_x_continuous(breaks=seq(start,end, 20))+
 	  scale_y_continuous(labels = comma)+
 	  ggtitle( paste('Global Default',em,' Emissions') )+
 	  labs(x='Year',y= paste(em,'Emissions [kt]') )
@@ -263,7 +265,7 @@ df <- Regions
 plot <- ggplot(df, aes(x=year,y=Emissions,
                        color=Region)) + 
   geom_line(size=1) +
-  scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
+  scale_x_continuous(breaks=seq(start,end, 20))+
   scale_y_continuous(labels = comma)+
   ggtitle( paste('Total Scaled',em,' Emissions') )+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
@@ -284,7 +286,7 @@ if ( PRINT_DEFAULTS ){
 	plot <- ggplot(df, aes(x=year,y=Emissions,
 							color=Region)) + 
 	  geom_line(size=1) +
-	  scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
+	  scale_x_continuous(breaks=seq(start,end, 20))+
 	  scale_y_continuous(labels = comma)+
 	  ggtitle( paste('Total Default',em,' Emissions') ) +
 	  labs(x='Year',y= paste(em,'Emissions [kt]') )
@@ -302,7 +304,7 @@ Sectors<-ddply(TotalEmissions.long, .(agg_Sector,year),summarize,
 df <- Sectors
 plot <- ggplot(df, aes(x=year,y=Emissions, fill=agg_Sector)) + 
   geom_area(size=1) +
-  scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
+  scale_x_continuous(breaks=seq(start,end, 20))+
   scale_y_continuous(labels = comma)+
   ggtitle(paste('Global Scaled', em ,'Emissions'))+
   labs(x='Year',y= paste(em,'Emissions [kt]') )+
@@ -322,7 +324,7 @@ if ( PRINT_DEFAULTS ){
   plot <- ggplot(df, aes(x=year,y=Emissions,
                          fill=agg_Sector)) + 
     geom_area(size=1) +
-    scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
+    scale_x_continuous(breaks=seq(start,end, 20))+
     scale_y_continuous(labels = comma)+
     ggtitle(paste('Global Default', em ,'Emissions'))+
     labs(x='Year',y= paste(em,'Emissions [kt]') )+
@@ -343,7 +345,7 @@ df <- Fuels
 plot <- ggplot(df, aes(x=year,y=Emissions,
                         fill=fuel)) + 
   geom_area(size=1) +
-  scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
+  scale_x_continuous(breaks=seq(start,end, 20))+
   scale_y_continuous(labels = comma)+
   ggtitle(paste('Global Scaled', em ,'Emissions'))+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
@@ -362,7 +364,7 @@ df <- Fuels
 plot <- ggplot(df, aes(x=year,y=Emissions,
                       fill=fuel)) + 
   geom_area(size=1) +
-  scale_x_continuous(breaks=c(1960,1970,1980,1990,2000,2010))+
+  scale_x_continuous(breaks=seq(start,end, 20))+
   scale_y_continuous(labels = comma)+
   ggtitle(paste('Global Default', em ,'Emissions'))+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
@@ -371,9 +373,9 @@ ggsave( paste0('summary-plots/',em,'_fuel.default.pdf'), width = 11, height = 6 
 }
 
 
+# ---------------------------------------------------------------------------
 
-
-
+logstop()
 
 
 
