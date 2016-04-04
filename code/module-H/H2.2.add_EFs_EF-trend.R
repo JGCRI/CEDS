@@ -24,7 +24,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R") # Additional function files may be required.
+headers <- c( "data_functions.R",'ModH_extention_functions.R') # Additional function files may be required.
 log_msg <- "Extending emissions factors 1960 using EF trend" # First message to be printed to the log
 script_name <- "H2.2.add_EFs_EF-trend.R"
 
@@ -33,7 +33,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NOx"
+if ( is.na( em ) ) em <- "SO2"
 
 # ---------------------------------------------------------------------------
 # 1. Load Data
@@ -44,36 +44,9 @@ extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF'
 # ---------------------------------------------------------------------------
 # 2. Select relavent driver-methods
 
-trend <- 'Emissions-trend'
+trend <- 'EF-trend'
 
-# Expand fuels - all-comb
-expand <- extension_drivers_EF[which(extension_drivers_EF$fuel == 'all-comb' ) ,]
-extension_drivers_EF <- extension_drivers_EF[which(extension_drivers_EF$fuel != 'all-comb' ) ,]
-comb_fuels <- c('biomass', 'hard_coal','brown_coal','coal_coke','natural_gas','heavy_oil','diesel_oil','light_oil')
-for (i in seq_along(comb_fuels)){
-  expand$fuel <- rep(comb_fuels[i], times= nrow(expand) )
-  extension_drivers_EF <- rbind( extension_drivers_EF, expand )
-}
-extension_drivers_EF <- extension_drivers_EF[ which( extension_drivers_EF$em %in% c(em , 'all' )), ]
-
-# delete, all row for a sector-fuel if there is a sector-fuel entry for the specific emission species
-driver_em <- extension_drivers_EF[which( extension_drivers_EF$em == em), ]
-if( nrow(driver_em) > 0 ){
-  em_instruction <- unique( paste( driver_em$sector,driver_em$fuel,driver_em$start_year,driver_em$end_year  ,sep = '-'))
-  extension_drivers_EF <- extension_drivers_EF[ which( 
-    paste( extension_drivers_EF$sector, extension_drivers_EF$fuel , extension_drivers_EF$start_year, extension_drivers_EF$end_year, extension_drivers_EF$em, sep = '-') %!in%  
-      paste( em_instruction ,'all' ,sep = '-') ), ]
-}
-
-# select em
-
-extension_drivers_EF$em <- em
-
-
-# select method
-extension_drivers_EF <- extension_drivers_EF[ which( extension_drivers_EF$method == trend ) ,]
-
-drivers <- extension_drivers_EF
+drivers <-  select_EF_drivers(trend)
 
 
 # ---------------------------------------------------------------------------
@@ -136,132 +109,35 @@ names(user_data_list ) <- user_files_list
 
 user_data <- do.call(rbind.fill, user_data_list)
 
-# expand fuel
-# Expand fuels - all-comb
-expand <- user_data[which(user_data$fuel == 'all' ) ,]
-user_data <- user_data[which(user_data$fuel != 'all' ) ,]
-comb_fuels <- c('biomass', 'hard_coal','brown_coal','coal_coke','natural_gas','heavy_oil','diesel_oil','light_oil')
-for (i in seq_along(comb_fuels)){
-  expand$fuel <- rep(comb_fuels[i], times= nrow(expand) )
-  user_data <- rbind( user_data, expand )
-}
-
-
 # ---------------------------------------------------------------------------
-# 5. Transform Use EF trend to extend
+# 5. Use trends to extend EFs
 
-EF_trends <- rbind.fill ( drivers_method_data_extended , user_data )
-years <- names( EF_trends )[grep( "X",names( EF_trends )  )]
-EF_trends[years] <- replace ( EF_trends[ years] , EF_trends[ years]=='NaN' , NA )
-
-year_intervals <- unique(EF_trends[,c('start_year','end_year')])
-
-for (i in seq_along(year_intervals$start_year)) {
-
-  ratio_year <- as.numeric(year_intervals[i,'end_year'])+1
-  if( is.na(ratio_year) ) ratio_year <- 1965
-  end_year <- as.numeric(year_intervals[i,'end_year'])
-  start_year <- as.numeric(year_intervals[i,'start_year'])
-  
-  
-  
-  if( !any(is.na(c(end_year,start_year))) ) { 
-    
-  extention_years <- paste0('X',start_year:ratio_year)  
-    
-  # select extension data for current method
-  sectors <- EF_trends[ which( EF_trends$end_year == end_year &
-                               EF_trends$start_year == start_year)  , ]
-  sectors <- paste(sectors$iso,sectors$sector,sectors$fuel,sep='-')
-  
-  # select ceds data to extend
-  ceds_extention_ratios <- ceds_EFs[ which( paste(ceds_EFs$iso,ceds_EFs$sector, ceds_EFs$fuel, sep="-") %in% sectors  ) , ]
-  
-  #extended data template
-  ceds_extention_ratios <- ceds_extention_ratios[,c('iso','sector','fuel',paste0('X',ratio_year))]
-  names(ceds_extention_ratios)[which(names(ceds_extention_ratios) == paste0('X',ratio_year))] <- 'CEDS_ratio_year'
-  
-  # add Driver identifyer ratio year
-  ceds_extention_ratios <- merge(ceds_extention_ratios, EF_trends[,c('iso','sector','fuel', paste0('X',ratio_year))],
-                                 by.x = c('iso','sector','fuel'),
-                                 all.x = TRUE, all.y = FALSE)
-  names(ceds_extention_ratios)[which(names(ceds_extention_ratios) == paste0('X',ratio_year))] <- 'trend_ratio_year'
-  
-  # calculate ratio
-  ceds_extention_ratios$ratio <- ceds_extention_ratios$CEDS_ratio_year/ceds_extention_ratios$trend_ratio_year
-  # make all infinite ratios zero
-  ceds_extention_ratios[!is.finite(ceds_extention_ratios$ratio) , 'ratio'] <- 0
-  
-  # add driver data and use ratio to calculate extended value
-  ceds_extended <- ceds_extention_ratios[,c('iso','fuel','sector','ratio')]
-  ceds_extended[extention_years] <- NA
-  ceds_extended <- replaceValueColMatch( ceds_extended, EF_trends,
-                                         x.ColName = extention_years ,
-                                         match.x = c('iso','fuel','sector'),
-                                         addEntries = F)
-  
-  # calculate extended data
-  ceds_extended[ extention_years ] <- ceds_extended$ratio * ceds_extended[ extention_years ]
-  ceds_extended[is.na(ceds_extended)] <- 0
-  
-  # add to final extention template
-  ceds_EFs <- replaceValueColMatch(ceds_EFs, ceds_extended,
-                                   x.ColName = extention_years,
-                                   match.x = c('iso','sector','fuel'),
-                                   addEntries = FALSE)
-  
-  }
-  
-  if( any(is.na(c(end_year,start_year))) ) {
-    extention_years <- paste0('X',1750:1964)
-    
-    # select extension data for current method
-    sectors <- EF_trends[ which( is.na(EF_trends$start_year) )  , ]
-    sectors <- paste(sectors$iso,sectors$sector,sectors$fuel,sep='-')
-    
-    # select ceds data to extend
-    ceds_extention_ratios <- ceds_EFs[ which( paste(ceds_EFs$iso,ceds_EFs$sector, ceds_EFs$fuel, sep="-") %in% sectors  ) , ]
-    
-    #extended data template
-    ceds_extention_ratios <- ceds_extention_ratios[,c('iso','sector','fuel',paste0('X',ratio_year))]
-    names(ceds_extention_ratios)[which(names(ceds_extention_ratios) == paste0('X',ratio_year))] <- 'CEDS_ratio_year'
-    
-    # add Driver identifyer ratio year
-    ceds_extention_ratios <- merge(ceds_extention_ratios, EF_trends[,c('iso','sector','fuel', paste0('X',ratio_year))],
-                                   by.x = c('iso','sector','fuel'),
-                                   all.x = TRUE, all.y = FALSE)
-    names(ceds_extention_ratios)[which(names(ceds_extention_ratios) == paste0('X',ratio_year))] <- 'trend_ratio_year'
-    
-    # calculate ratio
-    ceds_extention_ratios$ratio <- ceds_extention_ratios$CEDS_ratio_year/ceds_extention_ratios$trend_ratio_year
-    # make all infinite ratios zero
-    ceds_extention_ratios[!is.finite(ceds_extention_ratios$ratio) , 'ratio'] <- 0
-    
-    # add driver data and use ratio to calculate extended value
-    ceds_extended <- ceds_extention_ratios[,c('iso','fuel','sector','ratio')]
-    ceds_extended[extention_years] <- NA
-    ceds_extended <- replaceValueColMatch( ceds_extended, EF_trends,
-                                           x.ColName = extention_years ,
-                                           match.x = c('iso','fuel','sector'),
-                                           addEntries = F)
-    
-    # calculate extended data
-    ceds_extended[ extention_years ] <- ceds_extended$ratio * ceds_extended[ extention_years ]
-    ceds_extended[is.na(ceds_extended)] <- 0
-    
-    # add to final extention template
-    ceds_EFs <- replaceValueColMatch(ceds_EFs, ceds_extended,
-                                     x.ColName = extention_years,
-                                     match.x = c('iso','sector','fuel'),
-                                     addEntries = FALSE)
-    
-    
-  }
+order <- data_frame(order= numeric(0),
+                    start= numeric(0))
+for (i in seq_along(user_data_list) ){
+  order[i,] <- c(i,user_data_list[[i]]$start_year[1])
 }
+order <- order[order(-order$order),]
+order_user_data_list <- list()
+for ( i in seq_along(order$order) ){
+  order_user_data_list[[i]] <- user_data_list[[order$order[i]]]
+}
+
+
+new_EFs <- ceds_EFs
+for (i in seq_along(order_user_data_list) ){
+  driver_trend <- order_user_data_list[[i]]
+  start <- unique(driver_trend$start_year)
+  end <-unique(driver_trend$end_year)
+  
+  new_EFs <- extend_data_on_trend (driver_trend, new_EFs, start, end)
+
+  }
+
 
 # ---------------------------------------------------------------------------
 # 4. Output
 
-writeData( ceds_EFs, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'))
+writeData( new_EFs, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'))
 
 logStop()
