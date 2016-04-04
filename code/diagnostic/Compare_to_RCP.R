@@ -1,10 +1,9 @@
 # ------------------------------------------------------------------------------
 # Program Name: Compare_to_RCP.R
-# Author: Rachel Hoesly
-# Date Last Updated: Jan 26 2016 
-# Program Purpose: Produces diagnostic summary figures of default and 
-#                  scaled emissions
-# Input Files: F.em_scaled_emissions
+# Author: Rachel Hoesly, Linh Vu
+# Date Last Updated: 4 April 2016 
+# Program Purpose: Produces diagnostic summary figures of final emissions
+# Input Files: [em]_total_CEDS_emissions.csv
 #               
 # Output Files: figures in the diagnostic-output
 # TODO: 
@@ -50,7 +49,7 @@ library('gridExtra')
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
 
-rcp_start_year <- 1970
+rcp_start_year <- 1850
 rcp_end_year <- 2000
 rcp_years <- seq(from=rcp_start_year,to=rcp_end_year,by=10)
 x_rcp_years <- paste0('X',rcp_years)
@@ -67,7 +66,7 @@ Map_sector <- readData( "EM_INV", domain_extension = 'RCP/',"RCP_CEDS_sector_map
 
 
 Master_Country_List <- readData('MAPPINGS', 'Master_Country_List')
-Scaled_Emissions <- readData('MED_OUT', paste0('F.',em,'_scaled_emissions'))
+Total_Emissions <- readData('MED_OUT', paste0(em,'_total_CEDS_emissions'))
 
 # ---------------------------------------------------------------------------
 # 1. Load and process RCP files
@@ -137,9 +136,9 @@ RCP[grep('Stan',RCP$Region),'Region'] <- "Asia-Stan"
 RCP$Region <- gsub(" $","", RCP$Region, perl=T)
 # ---------------------------------------------------------------------------
 # 1. Process CEDS Emissions Data 
-x_years<-paste('X',1970:2014,sep="")
+x_years<-paste('X',1850:2014,sep="")
 
-ceds <- Scaled_Emissions
+ceds <- Total_Emissions
 ceds$em <- em
 
 # remove internation shipping, and aviation for comparison with RCP
@@ -210,7 +209,7 @@ max <- 1.2*(max(df$total_emissions))
 plot <- ggplot(df, aes(x=year,y=total_emissions, color = inv)) + 
   geom_point(shape=19) +
   geom_line(data = subset(df, inv=='CEDS'),size=1,aes(x=year,y=total_emissions, color = inv)) +
-  scale_x_continuous(breaks=c(1970,1980,1990,2000,2010))+
+  scale_x_continuous(breaks= seq(from=rcp_start_year,to=rcp_end_year,by=30) )+
   scale_y_continuous(limits = c(0,max ),labels = comma)+
   ggtitle( paste('Global',em,'Emissions') )+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
@@ -264,7 +263,7 @@ max <- 1.2*(max(plot_df$total_emissions))
 plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region, shape=inv)) + 
   geom_point(data = subset(plot_df, inv =='RCP'),size=2,aes(x=year,y=total_emissions, color = region)) +
   geom_line(data = subset(plot_df, inv =='CEDS'),size=1,aes(x=year,y=total_emissions, color = region)) +
-  scale_x_continuous(breaks=c(1970,1980,1990,2000,2010))+
+  scale_x_continuous(breaks=seq(from=rcp_start_year,to=rcp_end_year,by=30))+
   # guides(color=guide_legend(ncol=3))+
   ggtitle( paste('Total',em,'Emissions by Region') )+
   labs(x='Year',y= paste(em,'Emissions [kt]'))+
@@ -295,7 +294,7 @@ for(i in 1:6){
   plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region, shape=inv)) + 
     geom_point(data = subset(plot_df, inv =='RCP'),size=2,aes(x=year,y=total_emissions, color = region)) +
     geom_line(data = subset(plot_df, inv =='CEDS'),size=1,aes(x=year,y=total_emissions, color = region)) +
-    scale_x_continuous(breaks=c(1970,1980,1990,2000,2010))+
+    scale_x_continuous(breaks=seq(from=rcp_start_year,to=rcp_end_year,by=30))+
     scale_y_continuous(limits = c(0,max ),labels = comma)+
     scale_shape_discrete(guide=FALSE)+
     labs(x='Year',y= paste(em,'Emissions [kt]'))+
@@ -347,13 +346,13 @@ writeData(sector,'DIAG_OUT', paste0(em,'_sector_RCP_Comparison'),domain_extensio
   plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = sector, shape=inv)) + 
     geom_point(data = subset(plot_df, inv =='RCP'),size=2,aes(x=year,y=total_emissions, color = sector)) +
     geom_line(data = subset(plot_df, inv =='CEDS'),size=1,aes(x=year,y=total_emissions, color = sector)) +
-    scale_x_continuous(breaks=c(1970,1980,1990,2000,2010))+
+    scale_x_continuous(breaks=seq(from=rcp_start_year,to=rcp_end_year,by=30))+
     ggtitle( paste('Global',em,'Emissions by Sector') )+
     labs(x='Year',y= paste(em,'Emissions [kt]'))+
     scale_shape_discrete(guide=FALSE)+
     scale_y_continuous(limits = c(0,max ),labels = comma)
   plot              
-  ggsave( paste0('ceds-comparisons/',em,'_sector_RCP_Comparison_',
+  ggsave( paste0('ceds-comparisons/',em,'_sector_RCP_Comparison',
                  '.pdf') , width = 7, height = 4)
 
 

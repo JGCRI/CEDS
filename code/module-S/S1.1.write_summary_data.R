@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: S1.1.write_summary_data.R
 # Author: Rachel Hoesly, Steve Smith, Linh Vu
-# Date Last Updated: 4 Mar 2016
+# Date Last Updated: 4 April 2016
 # Program Purpose: Produces summary output
 #               
 # Output Files: data in final-emissions folder
@@ -298,9 +298,9 @@ if ( !file.exists( paste0("../final-emissions/", summary_fn, ".csv" ) ) ) {
 # ---------------------------------------------------------------------------
 
 # source figure and comparison files to print figures
-# source('../code/diagnostic/Figures.R') 
-# source('../code/diagnostic/Compare_to_RCP.R')
-#  
+source('../code/diagnostic/Figures.R') 
+source('../code/diagnostic/Compare_to_RCP.R')
+ 
 
 logStop()
 
