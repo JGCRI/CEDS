@@ -104,7 +104,7 @@ recent_controls <- cbind( gains_recent[ , c( 'iso', 'sector', 'fuel', 'units' ) 
 # ------------------------------------------------------------------------------
 # 3. Write output
 
-writeData( recent_controls , "DEFAULT_EF_PARAM", paste0( "U.",em,"_GAINS_recent_control_percent" ) )
+writeData( recent_controls , "DEFAULT_EF_PARAM", paste0( "B.",em,"_GAINS_recent_control_percent" ) )
 
 # Every script should finish with this line
 logStop()
