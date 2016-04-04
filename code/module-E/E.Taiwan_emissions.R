@@ -41,10 +41,10 @@ initialize( script_name, log_msg, headers )
 # 1. Define parameters for inventory specific script
 
 # Stop script if running for unsupported species
-if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) {
-  stop (paste( ' TWN scaling is not supported for emission species', em, 'remove from script
-               list in F1.1.inventory_scaling.R') )
-}
+#if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) {
+#  stop (paste( ' TWN scaling is not supported for emission species', em, 'remove from script
+#               list in F1.1.inventory_scaling.R') )
+#}
 
 # For each Module E script, define the following parameters:
 # Inventory parameters. Provide the inventory and mapping file names, the
@@ -63,6 +63,11 @@ inv_years<-c( 2003, 2006, 2010 )
 # ------------------------------------------------------------------------------
 # 2 Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
 
+# write out a dummy file unsupported species
+if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) {
+  inv_data_species <- data.frame( )
+
+  } else { 
 # Import Sheets containing 2008,2010,2012 data.
 sheet_name <- "2003"
 inv_data_sheet_two <- readData( inv_data_folder, inventory_data_file , ".xlsx", skip = 1, 
@@ -120,9 +125,6 @@ inv_data_species$iso <- 'twn'
 inv_data_species$unit <- 'kt'
 inv_data_species <- inv_data_species[ , c( 'iso', 'sector', 'unit', paste0( 'X', inv_years ) ) ]
 
-# write out a dummy file unsupported species
-if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) {
-  inv_data_species <- data.frame( )
 }
 
 
