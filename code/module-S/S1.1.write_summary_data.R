@@ -203,6 +203,8 @@ if ( !file.exists( paste0("../final-emissions/", summary_fn, ".csv" ) ) ) {
   # move last-run files to a temp folder [em]_last-run
   dir.create( paste0( "../final-emissions/", em, "_last-run" ), showWarnings = F )
   fl <- list.files( "../final-emissions/", pattern = paste0( em, ".*", FILENAME_POSTSCRIPT ), full.names = T )
+  if ( em == "OC" )
+    fl <- fl[ !grepl( "NMVOC", fl ) ]
   moveFileList( fl, paste0( "../final-emissions/", em, "_last-run/" ) )
 
   # write out current-run
@@ -233,6 +235,8 @@ if ( !file.exists( paste0("../final-emissions/", summary_fn, ".csv" ) ) ) {
       
     # move content of last-run to previous-versions
       fl <- list.files( paste0( "../final-emissions/", em, "_last-run" ), full.names = T )
+      if ( em == "OC" )
+        fl <- fl[ !grepl( "NMVOC", fl ) ]
       moveFileList( fl, "../final-emissions/previous-versions/" )
     
     # make df of added/dropped data
