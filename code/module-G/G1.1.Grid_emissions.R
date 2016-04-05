@@ -41,6 +41,7 @@
                          start_year = 1750,
                          end_year = 1850, load_masks = T, load_seasonality_profile = T )
     output_dir <- filePath( 'FIN_OUT', 'gridded_emissions/', extension = "" )
+    total_grid_dir <- filePath( 'DIAG_OUT', 'gridded_emissions/', extension = "" )
     proxy_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy/")
     
 # ------------------------------------------------------------------------------
@@ -99,7 +100,7 @@
                                                           emissions_level1_sector$iso ), 
                                                FUN = sum )
     # change column names
-    colnames( emissions_level1_sector )[ 1 : 2 ] <- c( 'CEDS_grd_sector', 'iso' ) 
+    colnames( emissions_level1_sector ) <- c( 'CEDS_grd_sector', 'iso', paste0( 'X', year_list ) ) 
 # 2.4. Combine two or more country's emission into one country ( if necessary )
     emissions_level1_sector <- region_emCombine( emissions_level1_sector, country_combine_list )
     
@@ -122,7 +123,7 @@
       # write netCDF to disk, each netCDF contains one year's all sectors' data for one gas 
       final_monthly_nc_output( output_dir, grid_resolution, year, em, level3_sector_list, level3_sector_longname_list, mass = F )
       # write total emission netCDF to disk 
-      annual_total_emission_nc_output( output_dir, grid_resolution, year, em, mass = F )
+      annual_total_emission_nc_output( total_grid_dir, grid_resolution, year, em, mass = F )
     }
 
 # -----------------------------------------------------------------------------
