@@ -1,22 +1,22 @@
 # ------------------------------------------------------------------------------
-# Program Name: Comparing_EMEP_and_CEDS.R
+# Program Name: Compare_to_EMEP.R
 # Author(s): Patrick O'Rourke
-# Date Last Updated: March 20, 2016
+# Date Last Updated: 4 April 2016
 # Program Purpose: To generate figures of comparison for the EMEP 'as in models' & CEDS national
 #                  totals.
-# Input Files: EMEP 'as in models' Emissions Inventory, CEDS Scaled Emissions Inventory, EMEP 
+# Input Files: EMEP 'as in models' Emissions Inventory, CEDS Final Emissions Inventory, EMEP 
 #               Level 1 Emissions Inventory ("E.em_EMEP_em_Format_inventory" )
 # Output Files: 1)  "em_group#.pdf"  (CEDS & EMEP National Total Graphs - Saved in 
 #                   "diagnostic-output/EMEP")
 #               2) "em_CEDS_EMEP_NT_Differences.csv" (CEDS & EMEP Nationtal Total
 #                   Differences- Saved in "diagnostic-output/EMEP")
-#               3) "F.em_CEDS_national_totals_File_postscript"  (CEDS National Totals Long - 
+#               3) "em_CEDS_national_totals_File_postscript"  (CEDS National Totals Long - 
 #                   Saved in "intermediate-output")
-#               4) "F.em_CEDS_wide_nat_File_postscript.tot"  (CEDS National Totals Wide - Saved in
+#               4) "em_CEDS_wide_nat_File_postscript.tot"  (CEDS National Totals Wide - Saved in
 #                  "intermediate-output")
-#               5) "F.em_EMEP_models_national_totals.csv" (EMEP as in models 
+#               5) "em_EMEP_models_national_totals.csv" (EMEP as in models 
 #                   National Totals Long - Saved in "intermediate-output"))
-#               6) "F.em_EMEP_models_wide_nat.tot.csv" (EMEP as in models National
+#               6) "em_EMEP_models_wide_nat.tot.csv" (EMEP as in models National
 #                   Totals Wide - Saved in "intermediate-output")
 # Notes: 1. EMEP 'as in models' Emissions are provided as: 1980, 1985, 1991 - 2013
 #        2. CEDS Emissions are here provided as: 1980-2014
@@ -45,15 +45,18 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R" ) # Any additional function files required
-log_msg <- "Comparing CEDS Scaled National Totals to EMEP 'as in models' National Totals" 
+log_msg <- "Comparing CEDS Final National Totals to EMEP 'as in models' National Totals" 
           # First message to be printed to the log
-script_name <- "Comparing_EMEP_and_CEDS.R.R"
+script_name <- "Compare_to_EMEP.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
 # ------------------------------------------------------------------------------
 #0.5 Settings/Load Files & Convert all txt files to csv
+source( "../code/module-E/E.EMEP_as_in_models_emissions.R" )
+
+
 #logging does not support txt files, so convert to csv
 MCL <- readData( "MAPPINGS", "Master_Country_List" )
 loadPackage('tools')
@@ -66,8 +69,10 @@ library('ggplot2')
 library('plyr')
 library('scales')
 
-# Define region of  Countries scaled by EMEP scaling script
+# Define values
+LAST_PLOT_YEAR <- 1980
 
+# Define region of  Countries scaled by EMEP scaling script
 region <- c("alb", "aut", "bel", "bgr", "bih", "blr", "che", "cyp", "cze", "dnk",
             "esp", "est", "fin", "fra", "gbr", "geo", "grc", "hrv", "hun", "irl",
             "isl", "ita", "ltu", "lux", "lva", "mda", "mkd", "mlt", "nld", "nor",
@@ -185,9 +190,9 @@ reformat_EMEP <- function(df_in, df_totals){
   } 
   
 # Define function 'graph' which plots & saves graphs of comparison (Section 3)
-  graph <- function(df_in, subset_df, grouping, plot_name ){
-    subset_df <- subset(df_in, Country %in% grouping) # Subset Group 
-    plot <- function(x){                           # Define the function 'plot'- CEDS scaled data as lines, EMEP data as symbols, colors by Country
+  graph <- function(df_in, grouping, plot_name ){
+    subset_df <- subset(df_in, Country %in% grouping & year >= LAST_PLOT_YEAR ) # Subset Group 
+    plot <- function(x){                           # Define the function 'plot'- CEDS data as lines, EMEP data as symbols, colors by Country
       ggplot(x, aes(x = year, y = Emission, group = interaction(DataSource, Country), colour = Country)) +
         geom_point(data = x, aes(x = year, y = Emission, group = interaction(DataSource,Country),
                                  shape = DataSource, size = DataSource )) +
@@ -199,9 +204,9 @@ reformat_EMEP <- function(df_in, df_totals){
     }
     plot_name <- plot(subset_df)                   # Plot & Save Group 1 to "/diagnostic-output/EMEP" in pdf form
     print(plot_name)                               # Show plot
-}
+  }
 
-# Define Function which makes Table of differences - CEDS Scaled & EMEP as in models for 1980 & 1990 (Section)
+# Define Function which makes Table of differences - CEDS & EMEP as in models for 1980 & 1990 (Section)
   make_difference <- function(CEDS_in, EMEP_in, df, df2, nt_df2, df_difference, df_out){
     # reformat CEDS
     columns_names_keep1 <- c("Country", "DataSource", "X1980", "X1990" )
@@ -267,11 +272,10 @@ if ( em %!in% c('BC','CO','NH3','NMVOC','NOx','SO2') ) {
 
 # Add option to pick which dataset to compare to.
 CEDS_Data = "Default"
-CEDS_Data = "Scaled"
+CEDS_Data = "Final"
 
-File_postscript = ""
-if ( CEDS_Data == "Default" ) File_postscript = "_Default" 
-if (CEDS_Data == "Scaled") File_postscript = ""
+File_postscript = "_EMEP_Comparison"
+if ( CEDS_Data == "Default" ) File_postscript = "_EMEP_Comparison_Default" 
 
 # ------------------------------------------------------------------------------
 # 1. Read in files
@@ -290,8 +294,8 @@ if (CEDS_Data == "Scaled") File_postscript = ""
 #   B. Read in CEDS data
         
 #       Create a list of CEDS files
-if ( CEDS_Data ==  "Scaled" ) {
-        inv2_file_name <- paste0('F.', em, '_', 'scaled_emissions' )
+if ( CEDS_Data ==  "Final" ) {
+        inv2_file_name <- paste0( em, '_total_CEDS_emissions' )
 } else {
         inv2_file_name <- paste0('D.', em, '_', 'default_total_emissions' )
 }
@@ -316,6 +320,7 @@ if ( CEDS_Data ==  "Scaled" ) {
         
 #     Change from wide to long format
       EMEPlong <- gather(EMEP_NT, Year, Emission, (X1980:X2013))     
+      names( EMEPlong )[ names( EMEPlong ) %in% c( "variable", "value" ) ] <- c( "Year", "Emission")
       EMEPlong <- EMEPlong[ order(EMEPlong$Country, EMEPlong$Year), ] # Sort by Country & Sector
        
 # B. Reformat  CEDS data
@@ -325,11 +330,12 @@ if ( CEDS_Data ==  "Scaled" ) {
      CEDS_NT <- make_ceds_total(CEDS_new, CEDS_NT)
          
 #    Change from wide to long format
-     CEDSlong <- gather(CEDS_NT, Year, Emission, X1980:X2014)
+     CEDSlong <- gather(CEDS_NT, Year, Emission, X1750:X2014)
+     names( CEDSlong )[ names( CEDSlong ) %in% c( "variable", "value" ) ] <- c( "Year", "Emission")
      CEDSlong <- CEDSlong[ order(CEDSlong$Country, CEDSlong$Year), ] # Order long format by Country & Year
 
 # C. Reformat EMEP level 1 data
-     EMEPlvl1_new <- reformat_EMEPlvl1 (EMEPlvl1, EMEPlvl1_NT)
+     EMEPlvl1_new <- reformat_EMEPlvl1(EMEPlvl1, EMEPlvl1_NT)
 
 #   Make EMEP level national totals
      EMEPlvl1_NT <- make_emeplvl1_total(EMEPlvl1_new, EMEPlvl1_NT)
@@ -339,9 +345,8 @@ if ( CEDS_Data ==  "Scaled" ) {
         
 # ------------------------------------------------------------------------------
 # 3. Make Scattplots Comparing CEDS & EMEP for each Emissions Species
-# Set Working Directory to "EMEP" Folder in "diagnostic-output" so that figures are saved in this folder
-setwd( "..")
-setwd( "./diagnostic-output/EMEP")
+# Set Working Directory to "diagnostic-output/ceds-comparisons" so that figures are saved in this folder
+setwd("../diagnostic-output/ceds-comparisons")
         
 # Groups for plots are by constructed by relative size of emissions 
   # SO2 Groups:
@@ -382,57 +387,57 @@ setwd( "./diagnostic-output/EMEP")
   if(em == "CO") group6 <- c("Spain", "Poland", "Italy", "United Kingdom", "France", "Ukraine")
 
 #   Plot & Save Groups to "/diagnostic-output/EMEP" in pdf form
-    graph(nt_df, nt_group1, group1, g1 ) # Group 1 
-    ggsave( paste0( em, "_group1", File_postscript, ".pdf" ), width=10.0, height=5.5)
+    graph(nt_df, group1, g1 ) # Group 1 
+    ggsave( paste0( em, "_Group1", File_postscript, ".pdf" ), width=10.0, height=5.5)
     
-    graph(nt_df, nt_group2, group2, g2 ) # Group 2
-    ggsave( paste0( em, "_group2", File_postscript, ".pdf" ), width=10.0, height=5.5)
+    graph(nt_df, group2, g2 ) # Group 2
+    ggsave( paste0( em, "_Group2", File_postscript, ".pdf" ), width=10.0, height=5.5)
     
-    graph(nt_df, nt_group3, group3, g3 ) # Group 3
-    ggsave( paste0( em, "_group3", File_postscript, ".pdf" ), width=10.0, height=5.5)
+    graph(nt_df, group3, g3 ) # Group 3
+    ggsave( paste0( em, "_Group3", File_postscript, ".pdf" ), width=10.0, height=5.5)
     
-    graph(nt_df, nt_group4, group4, g4 ) # Group 4
-    ggsave( paste0( em, "_group4", File_postscript, ".pdf" ), width=10.0, height=5.5)
+    graph(nt_df, group4, g4 ) # Group 4
+    ggsave( paste0( em, "_Group4", File_postscript, ".pdf" ), width=10.0, height=5.5)
     
-    graph(nt_df, nt_group5, group5, g5 ) # Group 5
-    ggsave( paste0( em, "_group5", File_postscript, ".pdf" ), width=10.0, height=5.5)
+    graph(nt_df, group5, g5 ) # Group 5
+    ggsave( paste0( em, "_Group5", File_postscript, ".pdf" ), width=10.0, height=5.5)
     
-    graph(nt_df, nt_group6, group6, g6 ) # Group 6
-    ggsave( paste0( em, "_group6", File_postscript, ".pdf" ), width=10.0, height=5.5)
+    graph(nt_df, group6, g6 ) # Group 6
+    ggsave( paste0( em, "_Group6", File_postscript, ".pdf" ), width=10.0, height=5.5)
     
 # ------------------------------------------------------------------------------
-# 4. Making Table of differences  Between CEDS Scaled Emissions & EMEP Emissions for 1980 & 1990
+# 4. Making Table of differences  Between CEDS Final Emissions & EMEP Emissions for 1980 & 1990
     diff <- make_difference(CEDS_NT, EMEP_NT, df, df2, nt_df2, df_difference, diff)
     
 # ------------------------------------------------------------------------------
 # 5. Save all tables created
 #  Reset working directory
-    setwd( "..")
+    setwd( "../../input")
       
 # A. Write Difference Table
-    writeData(diff,  domain = "DIAG_OUT", domain_extension = "EMEP/",
+    writeData(diff,  domain = "DIAG_OUT", domain_extension = "ceds-comparisons/",
               fn = paste0( em, "_CEDS_EMEP_NT_Differences", File_postscript ), meta = FALSE)
       
-# B. Write tables of the wide & long formatted National Totals
-  # Changing working directory to "intermediate-output"
-  setwd( "..")
-  setwd( "./intermediate-output")
-  
-# Write CEDS long data as a csv file of CEDS national totals)
-  writeData(CEDSlong, domain = "MED_OUT", fn = paste0( "F.", em, "_CEDS_national_totals", File_postscript ),
-            meta = FALSE )
-             
-# Write CEDS wide data (a csv file of CEDS national totals)  
-  writeData(CEDS_NT, domain = "MED_OUT", fn = paste0( "F.", em, "_CEDS_wide_nat", File_postscript,".tot" ),
-            meta = FALSE )
-                
-# Write EMEP 'as in models' long data (a csv file of EMEP national totals)
-  writeData(EMEPlong, domain = "MED_OUT", fn = paste0( "F.", em, "_EMEP_models_national_totals" ),
-            meta = FALSE )
-                
-# Write EMEP 'as in models' wide data (a csv file of EMEP national totals)               
-  writeData(EMEP_NT, domain = "MED_OUT", fn = paste0( "F.", em, "_EMEP_models_wide_nat.tot" ),
-            meta = FALSE )
+# # B. Write tables of the wide & long formatted National Totals
+#   # Changing working directory to "intermediate-output"
+#   setwd( "..")
+#   setwd( "./intermediate-output")
+#   
+# # Write CEDS long data (a csv file of CEDS national totals)
+#   writeData(CEDSlong, domain = "MED_OUT", fn = paste0( em, "_CEDS_national_totals", File_postscript ),
+#             meta = FALSE )
+#              
+# # Write CEDS wide data (a csv file of CEDS national totals)  
+#   writeData(CEDS_NT, domain = "MED_OUT", fn = paste0( em, "_CEDS_wide_nat", File_postscript,".tot" ),
+#             meta = FALSE )
+#                 
+# # Write EMEP 'as in models' long data (a csv file of EMEP national totals)
+#   writeData(EMEPlong, domain = "MED_OUT", fn = paste0( em, "_EMEP_models_national_totals" ),
+#             meta = FALSE )
+#                 
+# # Write EMEP 'as in models' wide data (a csv file of EMEP national totals)               
+#   writeData(EMEP_NT, domain = "MED_OUT", fn = paste0( em, "_EMEP_models_wide_nat.tot" ),
+#             meta = FALSE )
 
 #   Every script should finish with this line-
 logStop()

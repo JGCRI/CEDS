@@ -764,6 +764,12 @@ grid_one_year_air <- function( em_species, year, em_data, grid_resolution, secto
   proxy <- get_proxy( em_species, year, sector )
   emission_value <- em_data[ , paste0( 'X', year )]
   
+  # if 0 emission for distrubuting, use a shortcut 
+  if ( emission_value <= 0 ) { 
+    AiR_em_global <- array( 0, dim = dim( proxy ) ) 
+  
+  # if emission exists, do gridding 
+  } else { 
   proxy_normalized  <- proxy / sum( proxy )
   proxy_normalized [ is.na( proxy_normalized ) ] <- 0 
   AIR_em_global <- proxy_normalized  * emission_value
@@ -773,9 +779,11 @@ grid_one_year_air <- function( em_species, year, em_data, grid_resolution, secto
     flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
     for ( i in 1: dim( AIR_em_global )[ 3 ] ) {
 	  AIR_em_global[ , , i ] <- AIR_em_global[ , , i ] * flux_factor
-	}
-	AIR_em_global <<- AIR_em_global
-  } else { AIR_em_global <<- AIR_em_global }
+	    }
+	  AIR_em_global <- AIR_em_global
+  } else { AIR_em_global <- AIR_em_global } 
+}
+  return( AIR_em_global )
 }
 # -------------------------------------------------
 # final_monthly_nc_output
@@ -797,6 +805,13 @@ final_monthly_nc_output_air <- function( output_dir, grid_resolution, year, em_s
   # For AIR the low level is the same as high level   
   # first, aggregate to higher level
   AIR_em_global_final <- AIR_em_global
+  
+  # if 0 emission from AIR_em_global_final, do a shortcut 
+  if ( sum( AIR_em_global_final ) == 0 ) { 
+    AIR_em_global_final <- array( 0, dim = c( dim( AIR_em_global_final ), 12 ) ) 
+    checksum_total_emission_list <- rep( 0, 12 )
+  # if emission exists, do adding seasonality profile 
+  } else { 
   # second, add seasonality 
   seasonality <- get_seasonalityFrac( em_species, sector, year )
   temp_array <- array( dim = dim( seasonality ) )
@@ -813,8 +828,7 @@ final_monthly_nc_output_air <- function( output_dir, grid_resolution, year, em_s
   }
   AIR_em_global_final <- temp_array
   checksum_total_emission_list <- checksum_total_emission_each_month_list
-  checksum_sector_list <- rep( sector , 12 ) 
-
+  }
 ################################################################################################  
   
   lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
