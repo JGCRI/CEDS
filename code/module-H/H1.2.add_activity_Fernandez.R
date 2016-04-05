@@ -44,7 +44,8 @@ if ( is.na( em ) ) em <- "NH3"
 
 activity_all <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended_db') )
 extension_drivers_all <- readData("EXT_IN", 'CEDS_historical_extension_drivers_activity')
-biomass_fernandes <- readData('MED_OUT','A.Fernandes_residential_biomass')
+biomass_fernandes_full <- readData('MED_OUT','A.residential_biomass_full')
+
 
 # ---------------------------------------------------------------------------
 # 2. Select data to extend based on extension drivers
@@ -55,9 +56,9 @@ activity <- activity_all
 # ---------------------------------------------------------------------------
 # 3. Driver data processing
 
-biomass <- biomass_fernandes[,c('iso','year','consumption')]
+biomass <- biomass_fernandes_full[,c('iso','year','ceds_tot_final')]
 biomass$X_year <- paste0('X',biomass$year)
-biomass <- cast(biomass, iso ~ X_year, value = 'consumption',
+biomass <- cast(biomass, iso ~ X_year, value = 'ceds_tot_final',
                 fun.aggregate = sum)
 
 # ---------------------------------------------------------------------------
