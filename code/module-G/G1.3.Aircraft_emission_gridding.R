@@ -83,7 +83,7 @@
     # for future parallelization 
     for ( year in year_list ) {
       
-      grid_one_year_air( em, year, air_emissions, grid_resolution, sector = 'AIR', mass = F )
+      AIR_em_global <- grid_one_year_air( em, year, air_emissions, grid_resolution, sector = 'AIR', mass = F )
       
       # write netCDF to disk, each netCDF contains one year's all sectors' data for one gas 
 
