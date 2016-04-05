@@ -46,6 +46,8 @@ if ( is.na( em ) ) em <- "NH3"
   sector_map_list <- list.files( path = "extention/sector-change/", pattern = "*.csv" ) %>% file_path_sans_ext()
   sector_map_list <- sector_map_list[ grepl( em, sector_map_list )  & 
                                         !grepl( "metadata", sector_map_list ) ]
+  if ( em == "OC" )
+    sector_map_list <- sector_map_list[ !grepl( "NMVOC", sector_map_list ) ]
   sector_map_list <- lapply( sector_map_list, FUN = readData, domain = "EXT_IN", domain_extension = "sector-change/" )
 
 # ---------------------------------------------------------------------------
