@@ -121,6 +121,8 @@
       
       # write netCDF to disk, each netCDF contains one year's all sectors' data for one gas 
       final_monthly_nc_output( output_dir, grid_resolution, year, em, level3_sector_list, level3_sector_longname_list, mass = F )
+      # write total emission netCDF to disk 
+      annual_total_emission_nc_output( output_dir, grid_resolution, year, em, mass = F )
     }
 
 # -----------------------------------------------------------------------------
