@@ -69,11 +69,11 @@
    extention_years <- paste0('X',ext_start_year:ext_end_year)
    
    # select extension data for current method
-   sectors <- driver_trend[, c('sector','fuel') ]
-   sectors <- unique(paste(sectors$sector,sectors$fuel,sep='-'))
+   driver_lines <- driver_trend[, c('iso','sector','fuel') ]
+   driver_lines <- unique(paste(driver_lines$iso,driver_lines$sector,driver_lines$fuel,sep='-'))
    
    # select ceds data to extend
-   ceds_extention_ratios <- input_data[ which( paste(input_data$sector, input_data$fuel, sep="-") %in% sectors  ) , ]
+   ceds_extention_ratios <- input_data[ which( paste(input_data$iso,input_data$sector, input_data$fuel, sep="-") %in% driver_lines  ) , ]
    
    #extended data template
    ceds_extention_ratios <- ceds_extention_ratios[,c('iso','sector','fuel',ratio_years)]
