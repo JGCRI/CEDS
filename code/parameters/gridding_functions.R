@@ -992,3 +992,130 @@ grid_2L <- function( X2L_emissions, year ) {
   
   return( em_spatial )
 }
+# -------------------------------------------------
+# annual_total_emission_nc_output
+# Brief: generate a fliped matrix by a given matrix
+# Dependencies: 
+# Author: Leyang Feng
+# parameters: x - the matrix to be fliped  
+# return: a fliped matrix 
+# input files: 
+# output: 
+annual_total_emission_nc_output <- function( output_dir, grid_resolution, year, em_species, mass = F ) {
+  
+  # 0 set up some basics for later use
+  global_grid_area <- grid_area( grid_resolution, all_lon = T )
+  flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
+    
+  # 1 adding all sector's grid together so generate total emission grid 
+  
+  # convert flux back to mass 
+  total_grid <- lapply( sectorl1_em_global_list, '/', flux_factor )
+  total_grid <- Reduce( '+', total_grid )
+  
+  total_sum_in_kt <- sum( total_grid )
+  
+  if ( mass == F ) {
+    total_grid <- total_grid * flux_factor 
+  } else { total_grid <- total_grid }
+  
+  # generate the nc file 
+  
+  lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
+  lats <- seq( -90 + grid_resolution / 2, 90 - grid_resolution / 2, grid_resolution )
+  londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
+  latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
+  dim_list <- list( londim, latdim )
+  lon_bnds_data <- cbind( seq( -180, ( 180 - grid_resolution ), grid_resolution ), 
+                          seq( ( -180 + grid_resolution ), 180, grid_resolution ) )
+  lat_bnds_data <- cbind( seq( -90, (90 - grid_resolution) , grid_resolution), 
+                          seq( ( -90 + grid_resolution ), 90, grid_resolution ) )
+  bnds <- 1 : 2
+  bndsdim <- ncdim_def( "bnds", '', as.integer( bnds ), longname = 'bounds', create_dimvar = F )
+
+  if ( mass == T ){
+    data_unit <- 'kt'
+  } else {
+    data_unit <- 'kg m-2 s-1'  
+  }
+  
+  # define nc variables
+  missing_value <- 1.e20
+  long_name <- 'Global total emissions '
+  total_emission <- ncvar_def( 'total_emission', data_unit, dim_list, missval = missing_value, longname = long_name , prec = 'float', compression = 5 )
+  lon_bnds <- ncvar_def( 'lon_bnds', '', list( londim, bndsdim ), prec = 'double' )
+  lat_bnds <- ncvar_def( 'lat_bnds', '', list( latdim, bndsdim ), prec = 'double' )
+  
+  # generate nc file name
+  ceds_version <- 'v'
+  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
+  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
+  nc_file_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', 'TOTAL', '_', grid_resolution, '_', ver_date, '.nc' ) 
+  
+  # generate the var_list 
+  variable_list <- list( total_emission, lat_bnds, lon_bnds ) 
+
+  # create new nc file
+  nc_new <- nc_create( nc_file_name, variable_list, force_v4 = T )
+  
+  # put nc variables into the nc file
+  ncvar_put( nc_new, total_emission, t( flip_a_matrix( total_grid ) ) )
+  ncvar_put( nc_new, lon_bnds, lon_bnds_data )
+  ncvar_put( nc_new, lat_bnds, lat_bnds_data )
+
+  
+  # nc variable attributes
+  # attributes for dimensions
+  ncatt_put( nc_new, "lon", "axis", "X" )
+  ncatt_put( nc_new, "lon", "standard_name", "longitude" )
+  ncatt_put( nc_new, "lon", "bounds", "lon_bnds" )
+  ncatt_put( nc_new, "lat", "axis", "Y" )
+  ncatt_put( nc_new, "lat", "standard_name", "latitude" )
+  ncatt_put( nc_new, "lat", "bounds", "lat_bnds" )
+  # attributes for variables
+  ncatt_put( nc_new, total_emission, 'cell_methods', 'time:mean' )
+  ncatt_put( nc_new, total_emission, 'missing_value', 1e+20, prec = 'float' )
+  # nc global attributes
+  ncatt_put( nc_new, 0, 'IMPORTANT', 'FOR TEST ONLY, DO NOT USE' )
+  ncatt_put( nc_new, 0, 'title', paste0('Annual Emissions of ', em_species ) )
+  ncatt_put( nc_new, 0, 'institution_id', 'PNNL-JGCRI' )
+  ncatt_put( nc_new, 0, 'institution', 'Pacific Northwest National Laboratory - JGCRI' )
+  ncatt_put( nc_new, 0, 'activity_id', 'input4MIPs' )
+  ncatt_put( nc_new, 0, 'Conventions', 'CF-1.6' )
+  ncatt_put( nc_new, 0, 'creation_date', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%Y-%m-%dT%H:%M:%SZ' ) ) )
+  ncatt_put( nc_new, 0, 'data_structure', 'grid' )
+  ncatt_put( nc_new, 0, 'frequency', 'mon' )
+  ncatt_put( nc_new, 0, 'realm', 'atmos' )
+  ncatt_put( nc_new, 0, 'source', paste0( 'CEDS ', 
+                                          as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%m-%d-%Y' ) ),
+                                          ': Community Emissions Data System (CEDS) for Historical Emissions' ) )
+  ncatt_put( nc_new, 0, 'source_id', paste0( 'CEDS-', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%m-%d-%Y' ) ) ) )
+  ncatt_put( nc_new, 0, 'further_info_url', 'http://www.globalchange.umd.edu/ceds/' )
+  ncatt_put( nc_new, 0, 'license', 'FOR TESTING AND REVIEW ONLY' )
+  ncatt_put( nc_new, 0, 'history', 
+             paste0( as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%d-%m-%Y %H:%M:%S %p %Z' ) ),
+                     '; College Park, MD, USA') )
+  ncatt_put( nc_new, 0, 'comment', 'Test Dataset for CMIP6' )
+  ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes.' )
+  ncatt_put( nc_new, 0, 'host', 'TBD' )
+  ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
+  ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
+
+  global_total_emission <- total_sum_in_kt * 0.001
+  ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2), ' Tg/year' ) )
+  
+    
+  # close nc_new
+  nc_close( nc_new)
+ 
+  # additional section: write a summary and check text
+
+  summary_table <- data.frame( year = year, species = em_species,  
+                               global_total = total_sum_in_kt,
+                               unit = 'kt' )
+  ceds_version <- 'v'
+  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
+  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
+  summary_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', 'TOTAL', '_', grid_resolution, '_', ver_date, '.csv' )
+  write.csv( summary_table, file = summary_name, row.names = F )
+}
