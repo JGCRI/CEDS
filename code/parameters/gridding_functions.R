@@ -766,7 +766,7 @@ grid_one_year_air <- function( em_species, year, em_data, grid_resolution, secto
   
   # if 0 emission for distrubuting, use a shortcut 
   if ( emission_value <= 0 ) { 
-    AiR_em_global <- array( 0, dim = dim( proxy ) ) 
+    AIR_em_global <- array( 0, dim = dim( proxy ) ) 
   
   # if emission exists, do gridding 
   } else { 

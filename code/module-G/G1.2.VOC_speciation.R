@@ -66,6 +66,8 @@
     VOC_ratios <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'VOC_ratio_AllSectors' )
 # read in VOC name weight list
     VOC_names <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'VOC_id_name_mapping' )
+# read in the country emission combine mapping ( could be empty if no combination is needed )
+    country_combine_list <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'country_emission_combine_mapping' )
 # ------------------------------------------------------------------------------
 # 2. Pre-processing
 # 2.1. Extract CEDS intermediate gridding sector list
@@ -97,6 +99,8 @@
                                                FUN = sum )
     # change column names
     colnames( emissions_level1_sector )[ 1 : 2 ] <- c( 'CEDS_grd_sector', 'iso' ) 
+    # Combine two or more country's emission into one country ( if necessary )
+    emissions_level1_sector <- region_emCombine( emissions_level1_sector, country_combine_list )
 # 2.4. Extract VOC list
     VOC_list <- VOC_names$VOC_id
 # ------------------------------------------------------------------------------
