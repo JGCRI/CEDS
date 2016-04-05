@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: Comparing_EMEP_and_CEDS.R
+# Program Name: Compare_to_EMEP.R
 # Author(s): Patrick O'Rourke
 # Date Last Updated: 4 April 2016
 # Program Purpose: To generate figures of comparison for the EMEP 'as in models' & CEDS national
@@ -47,7 +47,7 @@ PARAM_DIR <- "../code/parameters/"
 headers <- c( "data_functions.R", "analysis_functions.R" ) # Any additional function files required
 log_msg <- "Comparing CEDS Final National Totals to EMEP 'as in models' National Totals" 
           # First message to be printed to the log
-script_name <- "Comparing_EMEP_and_CEDS.R.R"
+script_name <- "Compare_to_EMEP.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
