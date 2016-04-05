@@ -98,7 +98,7 @@
                                                           emissions_level1_sector$iso ), 
                                                FUN = sum )
     # change column names
-    colnames( emissions_level1_sector )[ 1 : 2 ] <- c( 'CEDS_grd_sector', 'iso' ) 
+    colnames( emissions_level1_sector ) <- c( 'CEDS_grd_sector', 'iso', paste0( 'X', year_list ) ) 
     # Combine two or more country's emission into one country ( if necessary )
     emissions_level1_sector <- region_emCombine( emissions_level1_sector, country_combine_list )
 # 2.4. Extract VOC list
