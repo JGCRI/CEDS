@@ -1,6 +1,6 @@
 # Program Name: H3.1.apply_EF_pathway.R
 # Author: Linh Vu
-# Date Last Updated: 30 March 2016
+# Date Last Updated: 5 April 2016
 # Program Purpose: Apply minimum/maximum EF pathway to extended EF
 # Input Files: H.[em]_total_EFs_extended.csv, Master_Country_List.csv
 # Output Files: H.[em]_total_EFs_extended_adjusted-pathway.csv 
@@ -47,9 +47,11 @@ if ( is.na( em ) ) em <- "CO"
     ef <- readData( "MED_OUT" , paste0( "H.", em, "_total_EFs_extended" ) )
 
 # Read EF pathway for selected emission
-    fl <- list.files( path = "./extention/EF-pathway", pattern = ".csv" )
+    fl <- list.files( path = "./extention/EF-pathway", pattern = "EF_pathway.csv" )
     fl <- file_path_sans_ext( fl )
-    fl <- fl[ !grepl( "metadata", fl ) & grepl( em, fl ) ]
+    fl <- fl[ grepl( em, fl ) ]
+    if (em == "OC" )
+      fl <- fl[ !grepl( "NMVOC", fl ) ]
     fl <- lapply( fl, FUN = readData, domain = "EXT_IN", 
                   domain_extension = "EF-pathway/" )
 
