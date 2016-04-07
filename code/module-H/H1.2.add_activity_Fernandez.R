@@ -44,8 +44,7 @@ if ( is.na( em ) ) em <- "NH3"
 
 activity_all <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended_db') )
 extension_drivers_all <- readData("EXT_IN", 'CEDS_historical_extension_drivers_activity')
-biomass_fernandes_full <- readData('MED_OUT','A.residential_biomass_full')
-
+biomass_fernandes <- readData('MED_OUT','A.residential_biomass_full')
 
 # ---------------------------------------------------------------------------
 # 2. Select data to extend based on extension drivers
@@ -56,69 +55,29 @@ activity <- activity_all
 # ---------------------------------------------------------------------------
 # 3. Driver data processing
 
-biomass <- biomass_fernandes_full[,c('iso','year','ceds_tot_final')]
+biomass <- biomass_fernandes[,c('iso','year','units','ceds_tot_final')]
 biomass$X_year <- paste0('X',biomass$year)
-biomass <- cast(biomass, iso ~ X_year, value = 'ceds_tot_final',
+biomass <- cast(biomass, iso + units ~ X_year, value = 'ceds_tot_final',
                 fun.aggregate = sum)
+biomass$fuel <- 'biomass'
+biomass$sector <- '1A4b_Residential'
+
 
 # ---------------------------------------------------------------------------
 # 4. Extend Data
 
+year_intervals <- unique(paste(extension_drivers$ext_start_year,extension_drivers$ext_end_year,sep='-'))
 
-drivers <- extension_drivers
-year_intervals <- unique(paste(drivers$ext_start_year,drivers$ext_end_year,sep='-'))
+if ( length( year_intervals) > 1 ) stop( 'Fernandas residential biomass script cannot handle multiple time intervals, please check activity drivers.')
 
-for (i in seq_along(year_intervals)) {
-  
-  interval <- year_intervals[i]
-  
-  drivers <- extension_drivers[ which( extension_drivers$driver_data_source == 'Fernandez' &
-                                       paste(extension_drivers$ext_start_year,extension_drivers$ext_end_year,sep='-') == interval ), ]
-  
-  ratio_year <- unique(drivers[,'ext_end_year'])
-  ext_start_year <- unique(drivers[,'ext_start_year'])
-  extention_years <- paste0('X',ext_start_year:ratio_year)
-  
-  # select extension data for current method
-  sectors <- drivers[, c('sector','fuel') ]
-  sectors <- paste(sectors$sector,sectors$fuel,sep='-')
-  
-  # select ceds data to extend
-  ceds_extention_ratios <- activity[ which( paste(activity$sector, activity$fuel, sep="-") %in% sectors  ) , ]
-  
-  #extended data template
-  ceds_extention_ratios <- ceds_extention_ratios[,c('iso','sector','fuel',paste0('X',ratio_year))]
-  names(ceds_extention_ratios)[which(names(ceds_extention_ratios) == paste0('X',ratio_year))] <- 'CEDS_ratio_year'
-  
-  # add Driver identifyer ratio year
-  ceds_extention_ratios <- merge(ceds_extention_ratios, biomass[,c("iso", paste0('X',ratio_year))],
-                                 by.x = c('iso'),
-                                 by.y = c("iso"),
-                                 all.x = TRUE, all.y = FALSE)
-  names(ceds_extention_ratios)[which(names(ceds_extention_ratios) == paste0('X',ratio_year))] <- 'CDIAC_ratio_year'
-  
-  
-  # calculate ratio
-  ceds_extention_ratios$ratio <- ceds_extention_ratios$CEDS_ratio_year/ceds_extention_ratios$CDIAC_ratio_year
-  # make all infinite ratios zero
-  ceds_extention_ratios[!is.finite(ceds_extention_ratios$ratio) , 'ratio'] <- 0
-  
-  # add driver data and use ratio to calculate extended value
-  ceds_extended <- ceds_extention_ratios[,c('iso','fuel','sector','ratio')]
-  ceds_extended[extention_years] <- biomass[ match( ceds_extended$iso , biomass$iso )
-                                             ,extention_years]
-  ceds_extended[is.na(ceds_extended)] <- 0
-  
-  # calculate extended data
-  ceds_extended[ extention_years ] <- ceds_extended$ratio * ceds_extended[ extention_years ]
-  
+
   # add to final extention template
-  activity <- replaceValueColMatch(activity, ceds_extended,
-                                              x.ColName = extention_years,
+  activity <- replaceValueColMatch(activity, biomass,
+                                              x.ColName = paste0('X',extension_drivers$ext_start_year[1]:extension_drivers$ext_end_year[1]),
                                               match.x = c('iso','sector','fuel'),
                                               addEntries = FALSE)
 
-  }
+
 
 # ---------------------------------------------------------------------------
 # 5. Write to database
