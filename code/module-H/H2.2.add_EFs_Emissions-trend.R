@@ -41,6 +41,8 @@ if ( is.na( em ) ) em <- "SO2"
 activity <- readData("MED_OUT", paste0('H.',em,'_total_activity_extended') )
 extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF')
 MCL <- readData("MAPPINGS",'Master_Country_List')
+# read in population data used for later extention of drivers_method_data_list
+pop <- readData( "MED_OUT", "A.UN_pop_master" )
 
 final_iso <- unique(MCL[which(MCL$final_data_flag == 1),'iso'])
 
@@ -64,6 +66,46 @@ for(i in seq_along(drivers_method_files$file_name) ){
       drivers_method_data_list[[i]] <- x
     }
 names(drivers_method_data_list) <- drivers_method_files$file_name
+
+# The U.N_manure data only contains data from 1860 to 2004
+# codes below extends the drivers_method_data_list$U.N_manure data back to 1750 using population data 
+
+# first, preprocess the population data 
+pop$year <- paste0( 'pop_', pop$year )
+pop_wide <- cast( pop, iso ~ year, value = 'pop', fun.aggregate = sum )
+pop_wide <- pop_wide[ , c( 'iso', paste0( 'pop_', as.character( 1750 : 2014 ) ) ) ]
+
+# extract drivers_method_data_list$U.N_manure as manure
+manure <- drivers_method_data_list$U.N_manure
+# merge manure and pop_wide to get the comman isos 
+pop_manure <- merge( manure, pop_wide, by = c( 'iso' ), all.x = T )
+
+# make unmatched country's population into 0 
+pop_manure[ is.na( pop_manure ) ] <- 0
+
+# 1750 - 1859 pop data 
+ext_years <- as.character( 1750 : 1859 )
+pop_ext_years <- pop_manure[ , c( paste0( 'pop_', ext_years ) ) ]
+# 1860 manure data
+manure_1860 <- matrix( rep( pop_manure$X1860, ncol( pop_ext_years ) ), ncol = ncol( pop_ext_years ) )
+# 1860 pop_data 
+pop_1860 <- matrix( rep( pop_manure$pop_1860, ncol( pop_ext_years ) ), ncol = ncol( pop_ext_years ) )
+
+# compute ext_year manure values 
+manure_ext_year <- manure_1860 * pop_ext_years / pop_1860 
+# replace NAs with ) generated during calculation 
+manure_ext_year[ is.na( manure_ext_year ) ] <- 0
+
+# make manure_ext_year into proper layout and adding data after 1860 
+last_year_in_manure <- as.numeric( substr( tail( names( manure ), n = 1 ), 2, nchar( tail( names( manure ), n = 1 ) ) ) )
+manure_extended <- cbind( pop_manure[ , c( 'iso', 'units' ) ], 
+                          manure_ext_year, 
+                          pop_manure[ , paste0( 'X', as.character( 1860 : last_year_in_manure ) ) ] ) 
+
+colnames( manure_extended ) <- c( 'iso', 'units', paste0( 'X', as.character( 1750 : last_year_in_manure ) ) )
+drivers_method_data_list$U.N_manure <- manure_extended
+# end of U.N_manure fix 
+
 
 # All Driver Data
 drivers_method_data_extended_list <- list()
