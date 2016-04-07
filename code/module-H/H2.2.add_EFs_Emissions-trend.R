@@ -70,6 +70,9 @@ names(drivers_method_data_list) <- drivers_method_files$file_name
 # The U.N_manure data only contains data from 1860 to 2004
 # codes below extends the drivers_method_data_list$U.N_manure data back to 1750 using population data 
 
+# for non_N emissions there would not be U.N_manure data 
+if ( 'U.N_manure' %in% names(drivers_method_data_list ) ) {
+
 # first, preprocess the population data 
 pop$year <- paste0( 'pop_', pop$year )
 pop_wide <- cast( pop, iso ~ year, value = 'pop', fun.aggregate = sum )
@@ -105,7 +108,7 @@ manure_extended <- cbind( pop_manure[ , c( 'iso', 'units' ) ],
 colnames( manure_extended ) <- c( 'iso', 'units', paste0( 'X', as.character( 1750 : last_year_in_manure ) ) )
 drivers_method_data_list$U.N_manure <- manure_extended
 # end of U.N_manure fix 
-
+}
 
 # All Driver Data
 drivers_method_data_extended_list <- list()
