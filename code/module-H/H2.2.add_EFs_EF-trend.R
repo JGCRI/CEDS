@@ -93,7 +93,7 @@ user_files_list <- file_path_sans_ext( user_files_list )
 
 #de select meta-data
 if (length(grep(pattern = "metadata", user_files_list )) > 0)
-  user_files_list <- files_list[-grep(pattern = "metadata", user_files_list )]
+  user_files_list <- user_files_list[-grep(pattern = "metadata", user_files_list )]
 
 # select emission
 user_files_list <- user_files_list[c(grep(pattern = paste0( '\\.', em ), user_files_list ),
