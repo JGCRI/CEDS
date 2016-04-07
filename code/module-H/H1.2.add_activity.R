@@ -94,8 +94,9 @@ printLog('Running add_activity scripts to extend activity data')
 # scripts have to be called in order of time period, most recent to most historical - 
 # Bond-CDIAC must be called before CDIAC fuels
 
-  scripts <- c( "H1.2.add_activity_Fernandez.R" , "H1.2.add_activity_population.R",
-                "H1.2.add_activity_CDIAC.R", "H1.2.add_activity_Bond.R")
+  scripts <- c( "H1.2.add_activity_total_coal.R" ,
+                "H1.2.add_activity_Fernandez.R" , "H1.2.add_activity_population.R",
+                "H1.2.add_activity_CDIAC.R")
 
 
 # Run all child scripts for the given emissions type. The call to
