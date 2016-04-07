@@ -22,6 +22,7 @@
 # -----------------------------------------------------------------------------
 
 loadPackage('tools')
+loadPackage('zoo')
 
 # -----------------------------------------------------------------------------
 # %!in%"
@@ -396,3 +397,28 @@ buildCEDSTemplate <- function( iso_list = NULL, sector_list = NULL, fuel_list = 
 }
 
 # ----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------
+# interpolate_NAs
+# Brief: Linearly interpolate over NA values
+# Details: 
+# Dependencies: 
+# Author: Rachel hoesly
+# Parameters: 
+# 	df: data frame of numeric values (no id columns)		
+# Return: data frame of same size as df, with interpolated values
+# Input files: none
+# Output files: none
+# 
+# Usage examples: 
+
+interpolate_NAs <- function( df){
+  df <- as.data.frame(df)
+  interpolate_rows<- c()
+  for ( i in seq_along(df[,1] )) {
+    row <- df[i, ]
+    if( length(rle(is.na(c(NA,row,NA)))$values)>3 ) {interpolate_rows <- c(interpolate_rows, i) }}
+
+  df[ interpolate_rows , ] <- t( na.approx(t(df[ interpolate_rows , ]))   )
+  return (df)
+}
+
