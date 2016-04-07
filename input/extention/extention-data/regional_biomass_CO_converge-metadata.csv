@@ -1,0 +1,1 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.CommentEmissions Factor,CO,global,Residential Biomass,1850,1920,"For countries with predominately cooking uses (HDD < 1000), use GAINS regional default. Heating regions (HDD > 5000) use AP42 woodstove value. Interpolate in-between."
