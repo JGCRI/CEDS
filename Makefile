@@ -659,6 +659,7 @@ $(MED_OUT)/H.$(EM)_total_activity_extended.csv : \
 	$(MOD_H)/H1.2.add_activity_Fernandez.R \
 	$(MOD_H)/H1.2.add_activity_population.R \
 	$(MED_OUT)/F.$(EM)_scaled_emissions.csv \
+	$(MED_OUT)/A.IEA_CEDS_coal_difference.csv \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
 	$(EXT_IN)/CEDS_historical_extension_drivers_activity.csv
 	Rscript $< $(EM) --nosave --no-restore
