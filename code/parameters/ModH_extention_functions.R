@@ -3,21 +3,20 @@
 # Authors: Rachel Hoesly
 # Last Updated: April 1, 2016
 
-# This file should be sourced by any R script doing heavy-duty reformatting of CEDS data.
+# This file should be sourced by R scripts in the H - EF  module
 # Functions contained:
-#   %!in%, replaceValueColMatch ,gsub2, repeatAndAddVector, addCols, findDataStart, naReplace, addCols,
-#   buildCEDSTemplate, removeBlanks
+# 
 # Notes:
 # -----------------------------------------------------------------------------
-# Brief:        
+# Brief:     select the correct lines from the EF driver file to extend EFs
 # Details:      
 # Dependencies: 
 # Author(s):    
 # Params:       
 #  
 # Return:       
-# Input Files:  
-# Output Files: 
+# Input Files:  trend_name = the string for method of extention in the EF driver file, example - 'CDIAC' or 'default'
+# Output Files: dataframe with correct lines from the EF driver file
 
 # -----------------------------------------------------------------------------
  select_EF_drivers <- function(trend_name){
