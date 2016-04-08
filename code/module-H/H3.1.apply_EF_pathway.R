@@ -85,8 +85,8 @@ if( length( fl ) > 0 ){
     all_iso <- unique( Master_Country_List$iso )
     iso_to_add <- all_iso[ all_iso %!in% pathway_full$iso ]
     rows_to_add <- filter( pathway_full, iso == "all" )
-    rows_to_add <- rows_to_add[ rep( seq( nrow( rows_to_add ) ), length( iso_to_add ) ), ]
-    rows_to_add$iso <- iso_to_add
+    rows_to_add$iso <- NULL
+    rows_to_add <- merge( rows_to_add, data.frame( iso = iso_to_add ) )
     pathway_full <- rbind( pathway_full, rows_to_add ) %>%
       filter( iso != "all" ) %>%
       arrange( iso, sector, fuel )
@@ -107,9 +107,6 @@ if( length( fl ) > 0 ){
     pathway_full_long$min_ef[ is.na( pathway_full_long$min_ef ) ] <- -Inf
     pathway_full_long$max_ef[ is.na( pathway_full_long$max_ef ) ] <- Inf
     pathway_full_long <- select( pathway_full_long, iso, sector, fuel, year, min_ef, max_ef )
-    
-# remove duplicate rows
-    pathway_full_long <- unique(pathway_full_long)
     
 # ---------------------------------------------------------------------------
 # 3. Apply EF pathway to selected emissions
