@@ -224,7 +224,7 @@ control_percent$pre_ext_year <- '1990'
 control_percent[control_percent$iso %in% west, 'pre_ext_year' ] <- '1980'
 
 # Override above default with values in pre_ext_year_map
-if ( exists( "pre_ext_year_map") & nrow( pre_ext_year_map > 0 ) ) {
+if ( exists( "pre_ext_year_map") & nrow( pre_ext_year_map ) > 0 ) {
   names( pre_ext_year_map )[ names( pre_ext_year_map ) == "pre_ext_year" ] <- "pre_ext_year_override"
   control_percent <- merge( control_percent, pre_ext_year_map, all.x = T )
   override <- !is.na( control_percent$pre_ext_year_override )
