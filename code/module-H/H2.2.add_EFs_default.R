@@ -1,8 +1,9 @@
 # ------------------------------------------------------------------------------
 # Program Name: H2.2.add_EFs_default.R.R
 # Author: Rachel Hoesly
-# Program Purpose: 
-#               
+# Program Purpose: Extend Efs - or replace extended EFs - with default EFs
+# Input Files: 'H.EM_total_EFs_extended_db.csv, 'D.EM_default_total_EF.csv
+#               CEDS_historical_extension_methods_EF.csv
 # Output Files:
 # TODO: 
 # ---------------------------------------------------------------------------
@@ -41,7 +42,6 @@ if ( is.na( em ) ) em <- "OC"
 ceds_EFs <- readData( 'MED_OUT', paste0('H.',em,'_total_EFs_extended_db') )  
 default_EFs <- readData( 'MED_OUT' , paste0('D.',em,'_default_total_EF'))
 extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF')
-
 
 # expand default_EFs
 default_EFs [ paste0('X',1750:1959)] <- default_EFs[ 'X1960']

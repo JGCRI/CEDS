@@ -50,7 +50,7 @@ EFs_all <- readData( 'MED_OUT',paste0('H.',em,'_total_EFs_extended_db') )
 
 EFs_all[ X_extended_years ] <- t(na.locf(t(EFs_all[ X_extended_years ]), fromLast = TRUE))
 
-# EFs_all <- replace( EFs_all, is.na(EFs_all), 0)
+EFs_all <- replace( EFs_all, is.na(EFs_all), 0)
 
 if(any(is.na(EFs_all))) stop("There are NAs in final activity database.")
 

@@ -4,7 +4,7 @@
 # Program Purpose: Extend Coal data back from IEA data start (1960, 1965, 1971) 
 #                 using CDIAC, Bond data, IEA data
 #               
-# Output Files:
+# Output Files:  H.EM_total_activity_extended_db
 # TODO: 
 # ---------------------------------------------------------------------------
 

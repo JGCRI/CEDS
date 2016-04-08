@@ -2,8 +2,9 @@
 # Program Name: H2.2.add_EFs_EF-converge.R
 # Author: Rachel Hoesly
 # Program Purpose: extend EF back by converging to a given value
-#               
-# Output Files:
+# Input Files : H.EM_total_EFs_extended_db.csv,CEDS_historical_extension_methods_EF.csv,
+#               regional_biomass_CO_converge.csv
+# Output Files: H.EM_total_EFs_extended_db.csv
 # TODO: 
 # ---------------------------------------------------------------------------
 
@@ -51,7 +52,7 @@ CO_converge <- readData( domain = 'EXT_IN', domain_extension = 'extention-data/'
 # ---------------------------------------------------------------------------
 # 2. Select relavent driver-methods
 
-trend <- 'Emissions-converge'
+trend <- 'EF-converge'
 
 # Expand fuels - all-comb
 expand <- extension_drivers_EF[which(extension_drivers_EF$fuel == 'all-comb' ) ,]
@@ -138,10 +139,3 @@ if( em == 'CO'){
 writeData( ceds_EFs, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'))
 
 logStop()
-
-
-
-
-
-
-
