@@ -680,13 +680,13 @@ $(MED_OUT)/H.$(EM)_total_EFs_extended.csv : \
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
-
+	
 $(MED_OUT)/H.$(EM)_total_EFs_extended_adjusted-pathway.csv : \
 	$(MOD_H)/H3.1.apply_EF_pathway.R \
 	$(MAPPINGS)/Master_Country_List.csv \
 	$(MED_OUT)/H.$(EM)_total_EFs_extended.csv
 	Rscript $< $(EM) --nosave --no-restore
-
+	
 $(MED_OUT)/H.$(EM)_total_EFs_extended_adjusted-sector.csv : \
 	$(MOD_H)/H3.2.replace_EF_sectors.R \
 	$(MED_OUT)/H.$(EM)_total_EFs_extended_adjusted-pathway.csv
