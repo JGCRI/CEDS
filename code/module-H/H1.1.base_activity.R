@@ -1,9 +1,10 @@
 # ------------------------------------------------------------------------------
 # Program Name: H1.1.base_activity.R
 # Author: Rachel Hoesly
+# Date Last Modified: 7 April 2016
 # Program Purpose: Extend CEDS activity backward
-#               
-# Output Files:
+# Input Files:  A.total_activity.csv, A.intl_shipping_en.csv
+# Output Files: 
 # TODO: 
 # ---------------------------------------------------------------------------
 
@@ -39,7 +40,8 @@ if ( is.na( em ) ) em <- "NH3"
 # 1. Load Data
 
 ceds_activity <- readData( 'MED_OUT', paste0( 'A.total_activity' ) )
-shipping_fuel <- readData( 'DIAG_OUT', 'A.global_intl_shipping_fuel')
+shipping_fuel <- readData( 'MED_OUT', 'A.intl_shipping_en' )
+
 
 # ---------------------------------------------------------------------------
 # 2. Extend Data frame
@@ -51,7 +53,7 @@ ceds_activity[ which( ceds_activity$sector == '1A3di_International-shipping'), p
 # ---------------------------------------------------------------------------
 # 3. Add Shipping Fuel
 ceds_activity <- replaceValueColMatch( ceds_activity, shipping_fuel,
-                                       x.ColName = paste0('X',1850:1959),
+                                       x.ColName = paste0('X',1750:1959),
                                        match.x = c('iso','sector','fuel','units'),
                                        addEntries = F)
 
