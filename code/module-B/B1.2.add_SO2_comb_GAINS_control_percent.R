@@ -1,6 +1,6 @@
 # Program Name: B1.2.add_SO2_GAINS_control_percent.R
 # Author: Ryan Bolt, Leyang, Linh Vu
-# Date Last Updated: 26 December 2015 
+# Date Last Updated: 8 April 2016
 # Program Purpose: Process 2005 GAINS emissions and fuel to calculate GAINS EF, then calculate 
 # 2005 GAINS control percentage. Combine 2005 GAINS control percentage to SO2 control percentage
 # database in the end. 
@@ -8,7 +8,7 @@
 # Input Files: Master_Country_List.csv, GAINS_emiss_act_sect-EU28-2005-SO2_nohead.csv, 
 #              GAINS_aen_act_sect-nohead-EU28.csv, GAINS_country_mapping.csv, GAINS_fuel_mapping.csv,
 #              GAINS_sector_mapping.csv, OECD_Conversion_Factors.csv, NonOECD_Conversion_Factors.csv,
-#              B.SO2_S_Content_db.csv, B.SO2_GAINS_s_ash_ret.csv
+#              B.SO2_S_Content_db.csv, B.SO2_GAINS_s_ash_ret.csv, GAINS_pre_ext_year.csv
 # Output Files: B.SO2_GAINS_control_percent.csv, B1.2.heat_content.csv
 # Notes: 
 # TODO: 
@@ -62,6 +62,9 @@ s_content <- readData( "DEFAULT_EF_PARAM", "B.SO2_GAINS_s_content")
 gains_ashret <- readData('DEFAULT_EF_PARAM', 'B.SO2_GAINS_s_ash_ret')
 
 GAINS_heat_content <- readData( "MED_OUT", "B1.1.Europe_heat_content_IEA") 
+
+if ( file.exists( filePath( "GAINS_MAPPINGS", "GAINS_pre_ext_year" ) ) )
+  pre_ext_year_map <- readData( "GAINS_MAPPINGS",  "GAINS_pre_ext_year" )
 
 # ---------------------------------------------------------------------------
 # 2.0 Melting and combing same sectors and fuels in fuel consumption
@@ -219,6 +222,15 @@ west <- MCL[which(MCL$IEA_Fert_reg == 'Western Europe'),'iso']
 control_percent$pre_ext_method <- 'linear_0'
 control_percent$pre_ext_year <- '1990'
 control_percent[control_percent$iso %in% west, 'pre_ext_year' ] <- '1980'
+
+# Override above default with values in pre_ext_year_map
+if ( exists( "pre_ext_year_map") & nrow( pre_ext_year_map > 0 ) ) {
+  names( pre_ext_year_map )[ names( pre_ext_year_map ) == "pre_ext_year" ] <- "pre_ext_year_override"
+  control_percent <- merge( control_percent, pre_ext_year_map, all.x = T )
+  override <- !is.na( control_percent$pre_ext_year_override )
+  control_percent$pre_ext_year[ override ] <- control_percent$pre_ext_year_override[ override ]
+  control_percent$pre_ext_year_override <- NULL
+}
 
 # -------------------------------------------------------------------------------
 # 5. Output
