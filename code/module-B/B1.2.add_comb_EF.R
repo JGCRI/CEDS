@@ -61,8 +61,10 @@ if( em == "SO2" ){
   scripts <- c( 'B1.2.add_SO2_comb_GAINS_ash_ret.R',
                 'B1.2.add_SO2_comb_GAINS_s_content.R',
                 'B1.2.add_SO2_comb_GAINS_control_percent.R',
-                'B1.2.add_SO2_comb_diesel_sulfur_content.R',
-                'B1.2.add_SO2_recent_control_percent.R')
+                'B1.2.add_SO2_comb_diesel_sulfur_content.R')
+# Remove this for now. Script now overwrites previous control%, which is not what we want.
+# Script needs to read other control %s, and extend from there.
+#                'B1.2.add_SO2_recent_control_percent.R')
   # adds script that calculates emission factors from SO2 parameters
   scripts <- c(scripts, 'B1.2.add_SO2_comb_S_content_ash.R',
                'B1.3.proc_SO2_comb_EF_S_content_ash.R')
