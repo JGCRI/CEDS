@@ -345,8 +345,8 @@ if ( CEDS_Data ==  "Final" ) {
         
 # ------------------------------------------------------------------------------
 # 3. Make Scattplots Comparing CEDS & EMEP for each Emissions Species
-# Set Working Directory to "diagnostic-output/ceds-comparisons" so that figures are saved in this folder
-setwd("../diagnostic-output/ceds-comparisons")
+# Set Working Directory to "diagnostic-output/EMEP" so that figures are saved in this folder
+setwd("../diagnostic-output/EMEP")
         
 # Groups for plots are by constructed by relative size of emissions 
   # SO2 Groups:
@@ -415,7 +415,7 @@ setwd("../diagnostic-output/ceds-comparisons")
     setwd( "../../input")
       
 # A. Write Difference Table
-    writeData(diff,  domain = "DIAG_OUT", domain_extension = "ceds-comparisons/",
+    writeData(diff,  domain = "DIAG_OUT", domain_extension = "EMEP/",
               fn = paste0( em, "_CEDS_EMEP_NT_Differences", File_postscript ), meta = FALSE)
       
 # # B. Write tables of the wide & long formatted National Totals
