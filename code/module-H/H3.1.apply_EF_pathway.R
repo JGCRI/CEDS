@@ -34,7 +34,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO"
+if ( is.na( em ) ) em <- "NOx"
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -107,6 +107,9 @@ if( length( fl ) > 0 ){
     pathway_full_long$min_ef[ is.na( pathway_full_long$min_ef ) ] <- -Inf
     pathway_full_long$max_ef[ is.na( pathway_full_long$max_ef ) ] <- Inf
     pathway_full_long <- select( pathway_full_long, iso, sector, fuel, year, min_ef, max_ef )
+    
+# remove duplicate rows
+    pathway_full_long <- unique(pathway_full_long)
     
 # ---------------------------------------------------------------------------
 # 3. Apply EF pathway to selected emissions
