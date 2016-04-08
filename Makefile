@@ -670,6 +670,11 @@ $(MED_OUT)/H.$(EM)_total_EFs_extended.csv : \
 	$(MOD_H)/H2.1.base_EFs.R \
 	$(MOD_H)/H2.2.add_EFs.R \
 	$(MOD_H)/H2.3.proc_EFs.R \
+	$(MOD_H)/H2.2.add_EFs_constant.R \
+	$(MOD_H)/H2.2.add_EFs_default.R \
+	$(MOD_H)/H2.2.add_EFs_EF-converge.R \
+	$(MOD_H)/H2.2.add_EFs_EF-trend.R \
+	$(MOD_H)/H2.2.add_EFs_Emissions-trend.R \
 	$(EXT_IN)/CEDS_historical_extension_methods_EF.csv \
 	$(MED_OUT)/H.$(EM)_total_activity_extended.csv
 	Rscript $< $(EM) --nosave --no-restore

@@ -1,9 +1,11 @@
 # ------------------------------------------------------------------------------
 # Program Name: H1.2.add_activity_Fernandez.R
 # Author: Rachel Hoesly
-# Program Purpose: Extend CEDS activity backward
-#               
-# Output Files:
+# Program Purpose: Extend CEDS activity backward with Fernandez Biomass data according
+#                 to the extend activity driver file
+# Input Files:  A.residential_biomass_full,  CEDS_historical_extension_drivers_activity
+#               H.EM_total_activity_extended_db 
+# Output Files: H.EM_total_activity_extended_db
 # TODO: 
 # ---------------------------------------------------------------------------
 
