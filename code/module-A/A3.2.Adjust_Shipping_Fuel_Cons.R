@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A3.2.Adjust_Shipping_Fuel_Cons.R
 # Authors Names: Steve Smith, Linh Vu
-# Date Last Updated: 2 Mar 2016
+# Date Last Updated: 7 Mar 2016
 # Program Purpose: Reads in exogenous time series for global shipping fuel consumption
 #                  Adds difference with reported shipping fuel to global international shipping sector
 #
@@ -18,7 +18,7 @@
 #                  shipping.
 # Input: A.IEA_BP_energy_ext.csv, A.IEA_en_stat_ctry_hist.csv, Shipping_Fuel_Consumption.xlsx
 #        IEA_product_fuel.csv
-# Output: A.IEA_BP_energy_ext.csv
+# Output: A.IEA_BP_energy_ext.csv, A.intl_shipping_en.csv
 #-------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -41,7 +41,8 @@
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "data_functions.R", "analysis_functions.R", "process_db_functions.R", 
-                  "timeframe_functions.R") # Additional function files required.
+                  "timeframe_functions.R", "interpolation_extention_functions.R", 
+                  "common_data.R" ) # Additional function files required.
     log_msg <- "Add under-counted shipping emissions to global region" # First message to be printed to the log
     script_name <- "A3.2.Adjust_Shipping_Fuel_Cons.R"
     
@@ -55,6 +56,10 @@
     shipping_fuel <- readData( "ENERGY_IN", "Shipping_Fuel_Consumption" , ".xlsx", 
                                    skip_rows = 4, sheet_selection = "Data" )
     IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
+
+# Pre-1855 shipping coal extrapolation
+    shipping_coal_extrap <- readData( "ENERGY_IN", "Shipping_Fuel_Consumption" , ".xlsx", 
+                                 sheet_selection = "Pre-1855_Extrap" )
 
 # -----------------------------------------------------------------------------------------
 # 2. Clean reported shipping data
@@ -164,34 +169,59 @@
 # For 2013-2014, extend using average IEA underreport for 2010-2012
     avg <- filter( global_intl_ship_full, year %in% seq( 2010, 2012 ) ) %>%
       group_by( fuel ) %>% summarise( global_fuel = mean( global_fuel ) )
-    extended_years <- global_intl_ship_full$year %in% c( 2013, 2014 )
-    global_intl_ship_full$global_fuel[ extended_years ] <- 
-      avg$global_fuel[ match( global_intl_ship_full$fuel[ extended_years ], avg$fuel ) ]
+    extended <- global_intl_ship_full$year %in% c( 2013, 2014 )
+    global_intl_ship_full$global_fuel[ extended ] <- 
+      avg$global_fuel[ match( global_intl_ship_full$fuel[ extended ], avg$fuel ) ]
     
 # Cast to wide format
-    global_intl_ship_out <- global_intl_ship_full
-    global_intl_ship_out$sector <- "1A3di_International-shipping"
-    global_intl_ship_out$iso <- "global"
-    global_intl_ship_out$units <- "kt"
-    global_intl_ship_out$year <- paste0( "X", global_intl_ship_out$year )
-    global_intl_ship_out <- cast( global_intl_ship_out, 
+    global_intl_ship_wide <- global_intl_ship_full
+    global_intl_ship_wide$sector <- "1A3di_International-shipping"
+    global_intl_ship_wide$iso <- "global"
+    global_intl_ship_wide$units <- "kt"
+    global_intl_ship_wide$year <- paste0( "X", global_intl_ship_wide$year )
+    global_intl_ship_wide <- cast( global_intl_ship_wide, 
                                   fuel + sector + iso + units ~ year, value = "global_fuel" )
+
+# Add global_intl_ship_wide to CEDS
+    iea_data_extended <- rbind( iea_data_extended, global_intl_ship_wide[ 
+      names( global_intl_ship_wide ) %in% names( iea_data_extended ) ] )
     
-# Add global_intl_ship_out to CEDS
-    iea_data_extended <- rbind( iea_data_extended, global_intl_ship_out[ 
-      names( global_intl_ship_out ) %in% names( iea_data_extended ) ] )
+# Diagnostics: should have global_fuel = IEA_fuel + ship_fuel
+    ship_check <- merge( global_intl_ship_full, select( comp, -diff ), all = T )
+    ship_check[ is.na( ship_check ) ] <- 0
+    ship_check <- mutate( ship_check, check = IEA_fuel + global_fuel - ship_fuel ) %>%
+      filter( check != 0 ) %>% arrange( desc( year ) )
+        
+# -----------------------------------------------------------------------------
+# 5. Extrapolate pre-1855 shipping coal
+# Reformat and extend extrap values
+    global_coal <- select( shipping_coal_extrap, year = Year, global = Total_Ship_Extrap ) %>%
+      melt( id = "year" )
+    names( global_coal ) <- c( "year", "iso", "consumption" )
+    british_coal <- select( shipping_coal_extrap, year = Year, gbr = British_Shipping_Coal ) %>%
+      melt( id = "year" )
+    names( british_coal ) <- c( "year", "iso", "consumption" )
+    coal_extrap <- rbind( global_coal, british_coal )
+    coal_extrap$sector <- "1A3di_International-shipping"
+    coal_extrap$fuel <- "hard_coal"
+    coal_extrap$units <- "kt"
+    coal_extrap$year <- paste0( "X", coal_extrap$year )
+    coal_extrap <- cast( coal_extrap, iso + sector + fuel + units ~ year, value = "consumption" )
+    coal_extrap$X1750 <- 0
+    coal_extrap <- interpolateValues( coal_extrap )
     
-#     # Test: should have global_fuel = IEA_fuel + ship_fuel
-#     test <- merge( global_intl_ship_full, select( comp, -diff ), all = T )
-#     test[ is.na( test ) ] <- 0
-#     test <- mutate( test, check = global_fuel + IEA_fuel - ship_fuel )
-    
+# Add extended years to global_intl_ship_wide
+    ship_out <- rbind.fill( coal_extrap, global_intl_ship_wide )
+    ship_out[ is.na( ship_out ) ] <- 0
+    ship_out <- ship_out[ c( "iso", "sector", "fuel", "units", X_extended_years ) ]
+    ship_out <- group_by( ship_out, iso, sector, fuel, units ) %>%
+      summarise_each( fun = "max" )
 
 # -----------------------------------------------------------------------------
-# 8. Output
-    writeData( global_intl_ship_out, "DIAG_OUT", "A.global_intl_shipping_fuel")
+# 6. Output
+    writeData( ship_out, "MED_OUT", "A.intl_shipping_en" )
     writeData( iea_data_extended, "MED_OUT", "A.IEA_BP_energy_ext" )
-    
+    writeData( ship_check, "DIAG_OUT", "A.intl_shipping_discrepancy" )
 
 # Every script should finish with this line
  logStop()

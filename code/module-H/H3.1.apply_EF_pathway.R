@@ -34,7 +34,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO"
+if ( is.na( em ) ) em <- "NOx"
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -85,8 +85,8 @@ if( length( fl ) > 0 ){
     all_iso <- unique( Master_Country_List$iso )
     iso_to_add <- all_iso[ all_iso %!in% pathway_full$iso ]
     rows_to_add <- filter( pathway_full, iso == "all" )
-    rows_to_add <- rows_to_add[ rep( seq( nrow( rows_to_add ) ), length( iso_to_add ) ), ]
-    rows_to_add$iso <- iso_to_add
+    rows_to_add$iso <- NULL
+    rows_to_add <- merge( rows_to_add, data.frame( iso = iso_to_add ) )
     pathway_full <- rbind( pathway_full, rows_to_add ) %>%
       filter( iso != "all" ) %>%
       arrange( iso, sector, fuel )
