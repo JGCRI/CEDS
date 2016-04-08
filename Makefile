@@ -336,7 +336,6 @@ $(MED_OUT)/A.en_biomass_fsu_fix.csv : \
 # Extends IEA data with BP data
 $(MED_OUT)/A.IEA_BP_energy_ext.csv : \
 	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
-	$(MOD_A)/A3.1.IEA_BP_data_extension_PRE.R \
 	$(MOD_A)/A3.2.Adjust_Shipping_Fuel_Cons.R \
 	$(MED_OUT)/A.en_biomass_fsu_fix.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
@@ -344,7 +343,6 @@ $(MED_OUT)/A.IEA_BP_energy_ext.csv : \
 	$(ENERGY_DATA)/Shipping_Fuel_Consumption.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
-	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 
 # aa3-2
 # Write out difference between IEA and CEDS coal
@@ -680,13 +678,13 @@ $(MED_OUT)/H.$(EM)_total_EFs_extended.csv : \
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
-	
+
 $(MED_OUT)/H.$(EM)_total_EFs_extended_adjusted-pathway.csv : \
 	$(MOD_H)/H3.1.apply_EF_pathway.R \
 	$(MAPPINGS)/Master_Country_List.csv \
 	$(MED_OUT)/H.$(EM)_total_EFs_extended.csv
 	Rscript $< $(EM) --nosave --no-restore
-	
+
 $(MED_OUT)/H.$(EM)_total_EFs_extended_adjusted-sector.csv : \
 	$(MOD_H)/H3.2.replace_EF_sectors.R \
 	$(MED_OUT)/H.$(EM)_total_EFs_extended_adjusted-pathway.csv
