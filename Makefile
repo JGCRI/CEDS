@@ -56,6 +56,8 @@ export EM = NONE
 	@echo "Selected gas is " $(EM)
 	@$(MAKE) emissions
 
+activity : $(MED_OUT)/A.total_activity.csv
+
 else
 
 # This target is only visible to the Makefile during the
