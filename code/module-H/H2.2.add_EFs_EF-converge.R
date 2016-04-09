@@ -5,7 +5,7 @@
 # Input Files : H.EM_total_EFs_extended_db.csv,CEDS_historical_extension_methods_EF.csv,
 #               regional_biomass_CO_converge.csv
 # Output Files: H.EM_total_EFs_extended_db.csv
-# TODO: 
+# TODO: Add guards for year intervals in bounds (add utility function for this)
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
@@ -79,44 +79,44 @@ extension_drivers_EF$em <- em
 # select method
 extension_drivers_EF <- extension_drivers_EF[ which( extension_drivers_EF$method == trend ) ,]
 
+#**** If have data, then begin process data block
 if ( nrow( extension_drivers_EF) > 0 ) {
-
+  
 drivers_EFconverge <- extension_drivers_EF
-
-
+  
 # ---------------------------------------------------------------------------
 # 3. Select, extend, and merge
-
+  
 drivers_EFconverge <- unique( drivers_EFconverge[ , c('sector','fuel','start_year','end_year','converge_year','converge_value')] )
 
 for ( i in seq_along(drivers_EFconverge$sector)){
-drivers <- drivers_EFconverge[i,]
-
-selected_EFs <- ceds_EFs[which( paste( ceds_EFs$sector, ceds_EFs$fuel , sep = '-') %in%  
-                                  paste( drivers$sector, drivers$fuel , sep = '-')), 
-                         c('iso','sector','fuel', paste0('X',drivers[1,'start_year']: (drivers[1,'end_year']+1)))]
-selected_EFs [ paste0('X',drivers[1,'start_year']: drivers[1,'end_year']) ] <- NA
-
-# insert converge value
-selected_EFs [ paste0('X',drivers[1,'converge_year']) ]  <- drivers[1,'converge_value'] 
-# interpolate
-selected_EFs [ paste0('X', drivers[1,'converge_year']: (drivers[1,'end_year']+1) ) ] <- 
-    t( na.approx( t(selected_EFs [ paste0('X', drivers[1,'converge_year']: (drivers[1,'end_year']+1) ) ] ) ) )
-# extend
-selected_EFs[paste0('X',drivers[1,'start_year']: (drivers[1,'end_year'])) ] <- 
-  t(na.locf(t(selected_EFs[ paste0('X',drivers[1,'start_year']: (drivers[1,'end_year'])) ]),fromLast = T))
-
-# add to final extention template
-ceds_EFs <- replaceValueColMatch(ceds_EFs, selected_EFs,
-                                 x.ColName = paste0('X',drivers[1,'start_year']: (drivers[1,'end_year'])) ,
-                                 match.x = c('iso','sector','fuel'),
-                                 addEntries = FALSE)
-
-
+  drivers <- drivers_EFconverge[i,]
+  
+  selected_EFs <- ceds_EFs[which( paste( ceds_EFs$sector, ceds_EFs$fuel , sep = '-') %in%  
+                                    paste( drivers$sector, drivers$fuel , sep = '-')), 
+                           c('iso','sector','fuel', paste0('X',drivers[1,'start_year']: (drivers[1,'end_year']+1)))]
+  selected_EFs [ paste0('X',drivers[1,'start_year']: drivers[1,'end_year']) ] <- NA
+  
+  # insert converge value
+  selected_EFs [ paste0('X',drivers[1,'converge_year']) ]  <- drivers[1,'converge_value'] 
+  # interpolate
+  selected_EFs [ paste0('X', drivers[1,'converge_year']: (drivers[1,'end_year']+1) ) ] <- 
+      t( na.approx( t(selected_EFs [ paste0('X', drivers[1,'converge_year']: (drivers[1,'end_year']+1) ) ] ) ) )
+  # extend
+  selected_EFs[paste0('X',drivers[1,'start_year']: (drivers[1,'end_year'])) ] <- 
+    t(na.locf(t(selected_EFs[ paste0('X',drivers[1,'start_year']: (drivers[1,'end_year'])) ]),fromLast = T))
+  
+  # add to final extention template
+  #TODO: would it be more efficient to do this at once instead of one at a time? 
+  ceds_EFs <- replaceValueColMatch(ceds_EFs, selected_EFs,
+                                   x.ColName = paste0('X',drivers[1,'start_year']: (drivers[1,'end_year'])) ,
+                                   match.x = c('iso','sector','fuel'),
+                                   addEntries = FALSE)
 }
-}
+
 # ---------------------------------------------------------------------------
 # 4. Converge to Values
+# TODO - instead of hard coding, find way of specifying file in CEDS_historical_extension_methods_EF so don't need extra loop
 if( em == 'CO'){
   
   res_biomass <- ceds_EFs[which( ceds_EFs$iso %in% CO_converge$iso &
@@ -132,6 +132,9 @@ if( em == 'CO'){
                                    match.x = c('iso','sector','fuel'),
                                    addEntries = FALSE)
 }
+
+#**** End process data block
+} 
 
 # ---------------------------------------------------------------------------
 # 5. Output
