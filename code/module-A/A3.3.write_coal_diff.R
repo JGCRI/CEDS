@@ -45,7 +45,8 @@ initialize( script_name, log_msg, headers )
 # 2. Write out difference between IEA DOMSUP coal and CEDS coal
   primary_coals <- c( "Brown coal (if no detail) (kt)", "Coking coal (kt)", 
                       "Hard coal (if no detail) (kt)", "Other bituminous coal (kt)", 
-                      "Sub-bituminous coal (kt)", "Lignite (kt)", "Anthracite (kt)" )
+                      "Sub-bituminous coal (kt)", "Lignite (kt)", "Anthracite (kt)", 
+                      "Patent fuel (kt)" )
   IEA_coal <- filter( IEA_en_stat_ctry_hist, FLOW == "DOMSUP", PRODUCT %in% primary_coals ) %>%
     select( -PRODUCT ) %>% group_by( iso, FLOW ) %>%
     summarise_each( "sum" )
