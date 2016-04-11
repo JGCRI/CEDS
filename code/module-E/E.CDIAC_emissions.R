@@ -114,7 +114,7 @@ rep.row<-function(x,n){
   #   CDIAC(FSU): CDIAC(FSU,fuel)*ratio
   
   FSU_countries <- c('aze','arm' , 'blr','est','geo','kaz','kgz','lva',
-                     'ltu','mda','tjk','tkm','ukr','uzb')
+                     'ltu','mda','tjk','tkm','ukr','uzb', 'rus')
   FSU_end_year <- 1991
   USSR_data <- cdiac_corrected[ which( cdiac_corrected$iso == 'USSR'),]
   FSU_years <- paste0('X', historical_pre_extension_year:FSU_end_year)
