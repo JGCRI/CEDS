@@ -33,7 +33,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "NH3"
 
 # ---------------------------------------------------------------------------
 # 1. Load Data
@@ -53,7 +53,7 @@ drivers <-  select_EF_drivers(trend)
 # 3. Import data files from driver-method-file
 
 if ( nrow(drivers ) > 0){
-drivers_method_files <- unique(drivers[,c("file_name","domain","domain_extention" )])
+drivers_method_files <- unique(drivers[,c('start_year','end_year',"file_name","domain","domain_extention" )])
 drivers_method_data_list <- list()
 for(i in seq_along(drivers_method_files$file_name) ){
   if( is.na(drivers_method_files[i,"domain_extention"]) ) {
@@ -62,9 +62,10 @@ for(i in seq_along(drivers_method_files$file_name) ){
   drivers_method_data_list[[i]] <- x
 }
 names(drivers_method_data_list) <- drivers_method_files$file_name
+
 drivers_method_data_extended_list <- list()
 for ( i in seq_along(drivers_method_files$file_name)) {
-  drivers_method_data_sector_fuel <- drivers[which( drivers$file_name == drivers_method_files$file_name[i] ), c('sector','fuel')]
+  drivers_method_data_sector_fuel <- drivers[which( drivers$file_name == drivers_method_files$file_name[i] ), c('start_year','end_year','sector','fuel')]
   drivers_method_data <- drivers_method_data_list[[i]]
   if( length( unique(drivers_method_data$sector) ) > 1 | length( unique(drivers_method_data$fuel) ) > 1 ) stop( 'Driver-Method data has more than one sector or fuel')
   drivers_method_data_extended <- data.frame()
@@ -72,17 +73,18 @@ for ( i in seq_along(drivers_method_files$file_name)) {
   for ( n in seq_along(drivers_method_data_sector_fuel$sector)){
     drivers_method_data$sector <- rep(drivers_method_data_sector_fuel$sector[n], times= nrow(drivers_method_data) )
     drivers_method_data$fuel <- rep(drivers_method_data_sector_fuel$fuel[n], times= nrow(drivers_method_data) )
-    drivers_method_data <- drivers_method_data[ , c( 'iso','sector','fuel',years)]
+    drivers_method_data$start_year <- rep(drivers_method_data_sector_fuel$start_year[n], times= nrow(drivers_method_data) )
+    drivers_method_data$end_year <- rep(drivers_method_data_sector_fuel$end_year[n], times= nrow(drivers_method_data) )
+    drivers_method_data <- drivers_method_data[ , c( 'iso','sector','fuel','start_year','end_year',years)]
     drivers_method_data_extended <- rbind(drivers_method_data_extended, drivers_method_data)
   }
   drivers_method_data_extended_list[[i]] <- drivers_method_data_extended
 }
 drivers_method_data_extended <- do.call(rbind.fill, drivers_method_data_extended_list)
 
-#Mdaybe change later - replace NAs with zero
-drivers_method_data_extended <- replace( drivers_method_data_extended, is.na(drivers_method_data_extended), 0)
+writeData(drivers_method_data, 'EXT_IN', domain_extension = 'extention-data/', paste0('H.',em,'_user_defined_data_EF-trend'))
 
-} else { drivers_method_data_extended <- data.frame() }
+} 
 
 # ---------------------------------------------------------------------------
 # 4. Import files from user drop folder
