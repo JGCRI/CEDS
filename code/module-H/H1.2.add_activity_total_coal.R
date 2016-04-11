@@ -58,6 +58,7 @@ cdiac_solid_fuel <- readData( 'MED_OUT' , 'E.CO2_CDIAC_solid_fuel')
 
 activity <- activity_all
 
+all_countries <- unique(activity$iso)
 # ---------------------------------------------------------------------------
 # 3. Bond Data processing
 
@@ -118,25 +119,29 @@ activity <- activity_all
   ceds_total_coal_extended[ is.na( ceds_total_coal_extended ) ] <- 0
 
 # ---------------------------------------------------------------------------
-# 4. Calculate and apply multiplier to merge extended CEDS total coal with bond
+# 5. Calculate and apply multiplier to merge extended CEDS total coal with bond
 #    total coal. 
 #    object names: (ceds_total_coal_extended, bond_total_coal) -> final_ceds_total_coal
 
 # calculate multiplier = bond value/cdiac extended value
 bond_multiplier <- as.data.frame(bond_total_coal)
+  #template
 cdiac_extention_values <- bond_total_coal[,c('iso','X1850')]
 cdiac_extention_values[bond_years] <- ceds_total_coal_extended[match(cdiac_extention_values$iso,ceds_total_coal_extended$iso),bond_years]
-
+  # calculate
 bond_multiplier[bond_years] <- bond_multiplier[bond_years] / cdiac_extention_values[bond_years]
-
+  # correct unreal values
 bond_multiplier[bond_years] <- replace( bond_multiplier[bond_years],bond_multiplier[bond_years] == Inf, 1)  
 bond_multiplier[bond_years] <- replace( bond_multiplier[bond_years],bond_multiplier[bond_years] == NA, 1) 
 
 bond_multiplier$X1845 <- 1
 
-# Interpolate multiplier Values
+# Add columns for inbetween years
 bond_multiplier[ paste0('X',1845:2000)[ paste0('X',1845:2000)  %!in% names(bond_multiplier)]  ] <- NA
 bond_multiplier <- bond_multiplier[ , c('iso',paste0('X',1845:2000))]
+# correct multiplier - isr
+bond_multiplier[ which( bond_multiplier$iso == 'isr'), paste0('X',1976:1984)] <- NA
+# Interpolate
 bond_multiplier[ , c(paste0('X',1845:2000))] <- interpolate_NAs(bond_multiplier[ , c(paste0('X',1845:2000))])
 bond_multiplier[ is.na(bond_multiplier) ] <- 1
 
@@ -149,9 +154,9 @@ final_ceds_total_coal <- ceds_total_coal_extended
 final_ceds_total_coal[ paste0('X',1845:2000) ] <- final_ceds_total_coal[ paste0('X',1845:2000) ] * multipliers[ paste0('X',1845:2000) ]
 
 # ---------------------------------------------------------------------------
-# 5. Ceds Coal Splits
+# 5. Dissaggregate total coal into fuel types using CEDS stary year split 
 
-# Calculate Ceds fuel % in start_year
+# Calculate Ceds fuel % (by iso) in start_year
 ceds_coal_fuel <- activity_all[which( activity_all$fuel %in% c('hard_coal', 'brown_coal','coal_coke')),
                                 c('iso', 'sector','fuel', paste0('X',1960:2010))]
 ceds_coal_fuel <- rbind.fill( ceds_coal_fuel , iea_other_coal[c('iso','sector','fuel',paste0('X',1960:2010))] )
@@ -173,7 +178,11 @@ for( i in seq_along( ( ceds_coal_percentages$iso ))){
   if ( total == 0) ceds_coal_percentages$percent[i] <- 0
 }
 
+test <- aggregate( ceds_coal_percentages$percent, by = list(iso = ceds_coal_percentages$iso),sum) 
+# Not all countries break down percentages sum to 1, some sum to zero if they have no coal IEA data in their start year.
+
 # Dissaggregate Coal into coal types
+
 ceds_coal_dissaggregate <- ceds_coal_percentages
 # loop over IEA data start years
 dissaggregate_fuel_list<-list()
@@ -189,9 +198,20 @@ for( i in seq_along(start_years) ){
 }
 coal_extended_dissagregate_by_fuel <- do.call('rbind.fill', dissaggregate_fuel_list)
 
-other_transformation_coal <- coal_extended_dissagregate_by_fuel[which(coal_extended_dissagregate_by_fuel$fuel %in% 'coal'),c('iso','fuel', paste0('X',1750:1970))]
-coal_extended_dissagregate_by_fuel <- coal_extended_dissagregate_by_fuel[which(coal_extended_dissagregate_by_fuel$fuel %!in% 'coal'),]
-coal_extended_dissagregate_by_fuel <- coal_extended_dissagregate_by_fuel[ ,c('iso','fuel', paste0('X',1750:1970))]
+# fill out dataframe with zeros for iso-fuel combinations
+template <- data.frame( iso = rep( all_countries , each = 4),
+                        fuel = rep( x=c('hard_coal','brown_coal','coal_coke','coal'), times = length(all_countries) ), stringsAsFactors = F )
+template[ paste0('X', 1750:1970)] <- 0
+coal_extended_dissagregate_by_fuel_full <- template
+coal_extended_dissagregate_by_fuel_full[paste0('X', 1750:1970)] <- 
+                    coal_extended_dissagregate_by_fuel[match(paste(template$iso,template$fuel),
+                                                              paste(coal_extended_dissagregate_by_fuel$iso,coal_extended_dissagregate_by_fuel$fuel) ),
+                                                                paste0('X', 1750:1970) ]
+
+# seperate coal by fuel into other tranformation coal and combustion coal
+other_transformation_coal <- coal_extended_dissagregate_by_fuel_full[which(coal_extended_dissagregate_by_fuel_full$fuel %in% 'coal'),c('iso','fuel', paste0('X',1750:1970))]
+combustion_coal_by_fuel <- coal_extended_dissagregate_by_fuel_full[which(coal_extended_dissagregate_by_fuel_full$fuel %!in% 'coal'),]
+
 
 # ---------------------------------------------------------------------------
 # 6. Merge Bond Sector Splits and CEDS aggregate Sector Splits
@@ -245,6 +265,35 @@ bond_sector_percentages[paste0('X',1750:1849)] <- bond_sector_percentages[paste0
 bond_sector_percentages <- bond_sector_percentages[ , c('iso','ext_sector','fuel',paste0('X',1750:2000))]
 bond_sector_percentages[ is.na(bond_sector_percentages) ] <- 0
 
+# fill out dataframe with zero values
+fuels = c('hard_coal','brown_coal','coal_coke')
+ext_sectors = c('Power','Industry','RCO','Shipping','Transportation')
+template <- data.frame( iso = rep(all_countries, each =  length(fuels)*length(ext_sectors)) ,
+                        fuel =  rep(fuels, each=length(ext_sectors), times= length(all_countries))   ,
+                        ext_sector = rep(x= ext_sectors, times = length(all_countries)*length(fuels)), stringsAsFactors=F )
+bond_sector_percentages_full <- template
+bond_sector_percentages_full[ paste0('X',1750:1970) ] <- bond_sector_percentages[match(paste(template$iso, template$fuel, template$e),
+                                                                                    paste(bond_sector_percentages$iso, bond_sector_percentages$fuel, bond_sector_percentages$ext_sector))
+                                                                                    , paste0('X',1750:1970)]
+bond_sector_percentages_full[is.na(bond_sector_percentages_full)] <- 0
+
+# for countries with no bond sectors, fill in arbitrary sector split (50% RCO, 50% industry)
+#TODO get rid of for loops
+bond_sector_percentages_corrected <- bond_sector_percentages_full
+for (i in seq_along( all_countries)){
+  for ( n in seq(fuels)){
+    for (m in seq_along(1750:1970)){
+    if( sum(bond_sector_percentages_corrected[which( bond_sector_percentages_corrected$iso == all_countries[i] &
+                                           bond_sector_percentages_corrected$fuel == fuels[n] ) , paste0('X',(1750:1970)[m])]) == 0 ){
+     bond_sector_percentages_corrected[which( bond_sector_percentages_corrected$iso == all_countries[i] &
+                                           bond_sector_percentages_corrected$fuel == fuels[n] ) , paste0('X',(1750:1970)[m])] <- c(0,0.5,0.5,0,0)
+   } }}}
+
+test <- aggregate(bond_sector_percentages_corrected[paste0('X',1750:1970)],
+                                          by = list(iso = bond_sector_percentages_corrected$iso,
+                                                    fuel = bond_sector_percentages_corrected$fuel ),
+                                          FUN=sum)
+
 # Calculate CEDS aggregate sector splits
 ceds_aggregate_sectors <- activity_all[ which( activity_all$fuel %in% c('hard_coal','brown_coal','coal_coke')),]
 ceds_aggregate_sectors$ext_sector <- ext_sector_map[match(ceds_aggregate_sectors$sector, ext_sector_map$sector),'ext_sector']
@@ -284,7 +333,7 @@ for ( i in seq_along(start_years)) {
   years <- year0:yearEnd
   countries <- iea_start_year[which( iea_start_year$start_year == start_years[i]),'iso' ]
   
-  combined_percentages <- merge(bond_sector_percentages[,c('iso','ext_sector','fuel',paste0('X',1750:1850))],
+  combined_percentages <- merge(bond_sector_percentages_corrected[,c('iso','ext_sector','fuel',paste0('X',1750:1850))],
                                 ceds_agg_percent[,c('iso','ext_sector','fuel','percent')] )
   names(combined_percentages)[which(names(combined_percentages) == 'percent' )] <- paste0('X',yearEnd)
   
@@ -310,11 +359,38 @@ for ( i in seq_along(start_years)) {
 }
 combined_sector_percentages <- do.call(rbind.fill,combined_sector_percentages_list)
 combined_sector_percentages <- combined_sector_percentages[, c('iso','ext_sector','fuel',paste0('X',1750:1971))]
+combined_sector_percentages[is.na(combined_sector_percentages)] <- 0
 
-test <- aggregate(combined_sector_percentages[paste0('X',1850:1971)],
+
+test <- aggregate(combined_sector_percentages[paste0('X',1850:1970)],
                   by = list( iso = combined_sector_percentages$iso,
-                             fuel = combined_sector_percentages$fuel),
-                  FUN = sum)
+                             fuel = combined_sector_percentages$fuel) ,
+                  FUN = sum, na.rm=T)
+write.csv(test, 'total_percents.csv')
+
+# Renormalize combined percentages 
+combined_sector_percentages_corrected <- combined_sector_percentages
+for( i in seq_along(all_countries)) {
+  for ( n in seq_along( fuels )){
+    for (m in seq_along( ext_sectors )){
+     for (l in seq_along( 1750:1970 )) {
+        breakdown <- combined_sector_percentages_corrected[which( combined_sector_percentages_corrected$iso == all_countries[i] &
+                                                                    combined_sector_percentages_corrected$fuel == fuels[n]   ), 
+                                                           paste0('X',(1750:1970)[l]) ]
+        if ( all(is.na(breakdown)) ){
+          combined_sector_percentages_corrected[which( combined_sector_percentages_corrected$iso == all_countries[i] &
+                                                         combined_sector_percentages_corrected$fuel == fuels[n]   ), 
+                                                paste0('X',(1750:1970)[l]) ] <- c(0.5,0,0.5,0,0)
+        }else if( sum(breakdown) != 1 ){  
+         combined_sector_percentages_corrected[which( combined_sector_percentages_corrected$iso == all_countries[i] &
+                                                        combined_sector_percentages_corrected$fuel == fuels[n]   ), 
+                                               paste0('X',(1750:1970)[l]) ] <- breakdown/sum(breakdown)
+         } }}}}
+
+test <- aggregate(combined_sector_percentages_corrected[paste0('X',1850:1970)],
+                  by = list( iso = combined_sector_percentages_corrected$iso,
+                             fuel = combined_sector_percentages_corrected$fuel) ,
+                  FUN = sum, na.rm=T)
 
 # ---------------------------------------------------------------------------
 # 6. CEDS disaggregate Sector Splits
@@ -385,10 +461,32 @@ combined_template <- replace( combined_template, is.na(combined_template), 0)
 
 final_percentages[paste0('X',1750:1971)] <- ceds_breakdown[paste0('X',1750:1971)]* combined_template[paste0('X',1750:1971)]
 
+# Renormalize combined percentages 
+final_percentages_corrected <- final_percentages
+for( i in seq_along(all_countries)) {
+  for ( n in seq_along( fuels )){
+      for (l in seq_along( 1750:1970 )) {
+        breakdown <- final_percentages_corrected[which( final_percentages_corrected$iso == all_countries[i] &
+                                                                    final_percentages_corrected$fuel == fuels[n]   ), 
+                                                           paste0('X',(1750:1970)[l]) ]
+        if ( sum(breakdown) == 0 ){
+          final_percentages_corrected[which( final_percentages_corrected$iso == all_countries[i] &
+                                                         final_percentages_corrected$fuel == fuels[n]   ), 
+                                                paste0('X',(1750:1970)[l]) ] <- c(rep(times=12,x=0),0.5,rep(times=11,x=0),0.5,0,0)
+        }else if( sum(breakdown) != 1 ){  
+          final_percentages_corrected[which( final_percentages_corrected$iso == all_countries[i] &
+                                                         final_percentages_corrected$fuel == fuels[n]   ), 
+                                                paste0('X',(1750:1970)[l]) ] <- breakdown/sum(breakdown)
+        } }}}
+
+test <- aggregate(final_percentages_corrected[paste0('X',1850:1970)],
+                  by = list( iso = final_percentages_corrected$iso,
+                             fuel = final_percentages_corrected$fuel) ,
+                  FUN = sum, na.rm=T)
 
 # ---------------------------------------------------------------------------
 # 7. Dissaggregate total CEDS coal to CEDS sectors
-# Dissagregate coal_extended_dissagregate_by_fuel using final_percentages
+# Dissagregate combustion_coal_by_fuel using final_percentages
 
 # Loop over IEA data start years
   dissaggregate_sector_list<-list()
@@ -400,7 +498,7 @@ final_percentages[paste0('X',1750:1971)] <- ceds_breakdown[paste0('X',1750:1971)
     # total fuel template - same order as percentages
     aggregate <- percentages[c('iso','sector','ext_sector','fuel')]
     aggregate[ paste0('X',1750:(start_years[i]-1) ) ] <- 0
-    aggregate <- replaceValueColMatch(aggregate, coal_extended_dissagregate_by_fuel,
+    aggregate <- replaceValueColMatch(aggregate, combustion_coal_by_fuel,
                                           x.ColName = paste0('X',1750:(start_years[i]-1) ),
                                           match.x = c('iso','fuel'),
                                           addEntries = F)
@@ -424,7 +522,8 @@ final_percentages[paste0('X',1750:1971)] <- ceds_breakdown[paste0('X',1750:1971)
   # do not add intl shipping ( use other data )  
   final_coal <- final_coal[which(final_coal$sector%!in% '1A3di_International-shipping'),]
 
-
+  final_coal[is.na(final_coal)] <- 0
+  
 # ---------------------------------------------------------------------------
 # 7. Add to database
 
@@ -453,13 +552,21 @@ final_percentages[paste0('X',1750:1971)] <- ceds_breakdown[paste0('X',1750:1971)
   activity <- rbind( activity.replace, activity.done )
 
 # ---------------------------------------------------------------------------
+# Diagnostic
+# Sum Coal and add other trasformation
+ summed_coal_total <- rbind.fill( final_coal , other_transformation_coal)
+ summed_coal_total <- aggregate( summed_coal_total[ paste0('X',1750:1970)],
+                                  by = list(iso = summed_coal_total$iso),
+                                  FUN = sum, na.rm=T)
+    
+# ---------------------------------------------------------------------------
 # 7. Write to database
 
   writeData(final_ceds_total_coal, 'DIAG_OUT', 'H.Extended_total_coal')
   writeData(other_transformation_coal, 'DIAG_OUT', 'H.Extended_other_tranformation_coal')
-  writeData(coal_extended_dissagregate_by_fuel, 'DIAG_OUT', 'H.Extended_coal_by_fuel')
-  writeData(coal_dissaggregate_final, 'DIAG_OUT', 'H.Extended_coal_by_sector_fuel')
-  
+  writeData(combustion_coal_by_fuel, 'DIAG_OUT', 'H.Extended_coal_by_fuel')
+  writeData(final_coal, 'DIAG_OUT', 'H.Extended_coal_by_sector_fuel')
+  writeData(summed_coal_total, 'DIAG_OUT', 'H.Extended_coal_by_sector_fuel_aggregated') 
   
   if( !(nrow(activity_all) == nrow(activity) & ncol(activity_all) == ncol(activity) ) ){
     stop( "New and old activity do not match") } else{
