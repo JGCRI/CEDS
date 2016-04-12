@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: S1.1.write_summary_data.R
 # Author: Rachel Hoesly, Steve Smith, Linh Vu
-# Date Last Updated: 4 April 2016
+# Date Last Updated: 12 April 2016
 # Program Purpose: Produces summary output
 #               
 # Output Files: data in final-emissions folder
@@ -112,6 +112,8 @@ final_emissions <- rbind( final_emissions, Bunker_global )
 
 # ---------------------------------------------------------------------------
 # 2. Produce summary outputs
+# NOTE: This block should not write any summary outputs. Put any writeData()
+# in function writeSummary() in block 3.
 
 FILENAME_POSTSCRIPT = "_FOR-REVIEW-ONLY"
 
@@ -153,9 +155,6 @@ if ( WRITE_CEDS_SECTORS ) {
 	#Sort
 	Em_by_Country_CEDS_Sector <- Em_by_Country_CEDS_Sector[ with( Em_by_Country_CEDS_Sector, order( iso , sector ) ), ]
 
-    file_name <- paste0( em , "_em_country_CEDS_sector", FILENAME_POSTSCRIPT )
-    writeData( Em_by_Country_CEDS_Sector, "FIN_OUT", file_name, meta = F )
-
 	# Global Emissions by CEDS Sector 
 	Em_by_CEDS_Sector <- aggregate(final_emissions[X_write_years],
 								   by=list(sector=final_emissions$sector,
@@ -163,9 +162,6 @@ if ( WRITE_CEDS_SECTORS ) {
 										   units=final_emissions$units),sum )
 	#Sort
 	Em_by_CEDS_Sector <- Em_by_CEDS_Sector[ with( Em_by_CEDS_Sector, order( sector ) ), ]
-
-    file_name <- paste0( em , "_gbl_em_by_CEDS_sector", FILENAME_POSTSCRIPT )
-    writeData( Em_by_CEDS_Sector, "FIN_OUT", file_name, meta = F )
 
 }
 
@@ -179,8 +175,11 @@ if ( WRITE_CEDS_SECTORS ) {
   dir.create( "../final-emissions/diagnostics", showWarnings = F )
   dir.create( "../final-emissions/previous-versions", showWarnings = F )
   summary_fn <- paste0( em , "_emissions_by_country_sector", FILENAME_POSTSCRIPT )
-  summary_ctry_fn <- paste0( em , "_emissions_by_country", FILENAME_POSTSCRIPT )
-  summary_global_fn <- paste0( em , "_global_emissions_by_fuel", FILENAME_POSTSCRIPT )
+  summary_fn1 <- paste0( em , "_emissions_by_country", FILENAME_POSTSCRIPT )
+  summary_fn2 <- paste0( em , "_global_emissions_by_fuel", FILENAME_POSTSCRIPT )
+  summary_fn3 <- paste0( em , "_em_country_CEDS_sector", FILENAME_POSTSCRIPT )
+  summary_fn4 <- paste0( em , "_gbl_em_by_CEDS_sector", FILENAME_POSTSCRIPT )
+  
   diag_fn <- paste0( em ,"_emissions_by_country_sector" )
   THRESHOLD_PERCENT <- 1
   
@@ -188,8 +187,10 @@ if ( WRITE_CEDS_SECTORS ) {
   writeSummary <- function() {
     printLog( "Write emissions summary" )
     writeData( Em_by_Country_Sector, "FIN_OUT", summary_fn, meta = F )
-    writeData( Em_by_Country, "FIN_OUT", summary_ctry_fn, meta = F )
-    writeData( Summary_Emissions, "FIN_OUT", summary_global_fn, meta = F )
+    writeData( Em_by_Country, "FIN_OUT", summary_fn1, meta = F )
+    writeData( Summary_Emissions, "FIN_OUT", summary_fn2, meta = F )
+    writeData( Em_by_Country_CEDS_Sector, "FIN_OUT", summary_fn3, meta = F )
+    writeData( Em_by_CEDS_Sector, "FIN_OUT", summary_fn4, meta = F )
   }
   
 # If no summary file exists, write out current-run files and exit
