@@ -703,6 +703,9 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
         w <- getOption( "warn" )
         options( warn = -1 )  # suppress the warning
         if( exists( "all_metadata" ) ) {
+			# Remove duplicate entries if necessary
+			all_metadata <- all_metadata[ !duplicated( all_metadata ), ]
+
             write.table( all_metadata, file=mymetafn, sep=",", row.names=F,
                          col.names=T, append=F, ... )
         }
