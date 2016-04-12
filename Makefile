@@ -112,7 +112,7 @@ clean-logs :
 	rm -fv $(LOGS)/*.R.d
 
 clean-io :
-	rm -fv $(DOCS)/*.IO_documentation.csv
+	rm -fv $(DOCS)/*IO_documentation.csv
 
 clean-modA :
 	rm -fv $(MED_OUT)/A*.csv
