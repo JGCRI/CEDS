@@ -51,6 +51,9 @@ library('gridExtra')
 
 rcp_start_year <- 1850
 rcp_end_year <- 2000
+CEDS_start_year <- 1800
+CEDS_end_year <- end_year
+
 rcp_years <- seq(from=rcp_start_year,to=rcp_end_year,by=10)
 x_rcp_years <- paste0('X',rcp_years)
 
@@ -136,7 +139,7 @@ RCP[grep('Stan',RCP$Region),'Region'] <- "Asia-Stan"
 RCP$Region <- gsub(" $","", RCP$Region, perl=T)
 # ---------------------------------------------------------------------------
 # 1. Process CEDS Emissions Data 
-x_years<-paste('X',1850:2014,sep="")
+x_years<-paste('X',CEDS_start_year:CEDS_end_year,sep="")
 
 ceds <- Total_Emissions
 ceds$em <- em
@@ -213,7 +216,7 @@ plot <- ggplot(df, aes(x=year,y=total_emissions, color = inv)) +
   scale_y_continuous(limits = c(0,max ),labels = comma)+
   ggtitle( paste('Global',em,'Emissions') )+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
-plot              
+              
 ggsave( paste0('ceds-comparisons/',em,'_Global_RCP_Comparison.pdf') , width = 7, height = 4)
 
 # ---------------------------------------------------------------------------
@@ -268,7 +271,7 @@ plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region, shape=inv)
   ggtitle( paste('Total',em,'Emissions by Region') )+
   labs(x='Year',y= paste(em,'Emissions [kt]'))+
   scale_y_continuous(limits = c(0,max ),labels = comma)
-plot              
+              
 ggsave( paste0('ceds-comparisons/',em,'_Regional_RCP_Comparison_', 
                paste(plot_regions,collapse ='-' ),
                '.pdf') , width = 7, height = 4)
