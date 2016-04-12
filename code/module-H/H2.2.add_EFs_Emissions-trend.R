@@ -33,16 +33,16 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "NH3"
 
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-activity <- readData("MED_OUT", paste0('H.',em,'_total_activity_extended') )
-extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF')
-MCL <- readData("MAPPINGS",'Master_Country_List')
+activity <- readData("MED_OUT", paste0('H.',em,'_total_activity_extended') , meta = F )
+extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = F )
+MCL <- readData("MAPPINGS",'Master_Country_List', meta = F )
 # read in population data used for later extention of drivers_method_data_list
-pop <- readData( "MED_OUT", "A.UN_pop_master" )
+pop <- readData( "MED_OUT", "A.UN_pop_master" , meta = F )
 
 final_iso <- unique(MCL[which(MCL$final_data_flag == 1),'iso'])
 

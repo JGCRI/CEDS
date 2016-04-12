@@ -34,9 +34,9 @@
    # delete, all row for a sector-fuel if there is a sector-fuel entry for the specific emission species
    driver_em <- extension_drivers_EF[which( extension_drivers_EF$em == em), ]
    if( nrow(driver_em) > 0 ){
-     em_instruction <- unique( paste( driver_em$sector,driver_em$fuel,driver_em$start_year,driver_em$end_year  ,sep = '-'))
+     em_instruction <- unique( paste( driver_em$sector,driver_em$fuel ,sep = '-'))
      extension_drivers_EF <- extension_drivers_EF[ which( 
-       paste( extension_drivers_EF$sector, extension_drivers_EF$fuel , extension_drivers_EF$start_year, extension_drivers_EF$end_year, extension_drivers_EF$em, sep = '-') %!in%  
+       paste( extension_drivers_EF$sector, extension_drivers_EF$fuel , extension_drivers_EF$em, sep = '-') %!in%  
          paste( em_instruction ,'all' ,sep = '-') ), ]
  }
  

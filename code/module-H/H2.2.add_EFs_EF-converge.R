@@ -25,7 +25,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R") # Additional function files may be required.
+headers <- c( "data_functions.R",'ModH_extention_functions.R') # Additional function files may be required.
 log_msg <- "Converging EFs to given values" # First message to be printed to the log
 script_name <- "H2.2.add_EFs_EF-converge.R"
 
@@ -44,8 +44,8 @@ loadPackage('zoo')
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-ceds_EFs <- readData( 'MED_OUT', paste0('H.',em,'_total_EFs_extended_db') )  
-extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF')
+ceds_EFs <- readData( 'MED_OUT', paste0('H.',em,'_total_EFs_extended_db') , meta = F )  
+extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = F )
 
 CO_converge <- readData( domain = 'EXT_IN', domain_extension = 'extention-data/', file_name = 'regional_biomass_CO_converge')
 
@@ -54,30 +54,8 @@ CO_converge <- readData( domain = 'EXT_IN', domain_extension = 'extention-data/'
 
 trend <- 'EF-converge'
 
-# Expand fuels - all-comb
-expand <- extension_drivers_EF[which(extension_drivers_EF$fuel == 'all-comb' ) ,]
-extension_drivers_EF <- extension_drivers_EF[which(extension_drivers_EF$fuel != 'all-comb' ) ,]
-comb_fuels <- c('biomass', 'hard_coal','brown_coal','coal_coke','natural_gas','heavy_oil','diesel_oil','light_oil')
-for (i in seq_along(comb_fuels)){
-  expand$fuel <- rep(comb_fuels[i], times= nrow(expand) )
-  extension_drivers_EF <- rbind( extension_drivers_EF, expand )
-}
-extension_drivers_EF <- extension_drivers_EF[ which( extension_drivers_EF$em %in% c(em , 'all' )), ]
-
-# delete, all row for a sector-fuel if there is a sector-fuel entry for the specific emission species
-driver_em <- extension_drivers_EF[which( extension_drivers_EF$em == em), ]
-if( nrow(driver_em) > 0 ){
-  em_instruction <- unique( paste( driver_em$sector,driver_em$fuel,driver_em$start_year,driver_em$end_year  ,sep = '-'))
-  extension_drivers_EF <- extension_drivers_EF[ which( 
-    paste( extension_drivers_EF$sector, extension_drivers_EF$fuel , extension_drivers_EF$start_year, extension_drivers_EF$end_year, extension_drivers_EF$em, sep = '-') %!in%  
-      paste( em_instruction ,'all' ,sep = '-') ), ]
-}
-
-# select em
-extension_drivers_EF$em <- em
-
 # select method
-extension_drivers_EF <- extension_drivers_EF[ which( extension_drivers_EF$method == trend ) ,]
+extension_drivers_EF <- select_EF_drivers(trend)
 
 #**** If have data, then begin process data block
 if ( nrow( extension_drivers_EF) > 0 ) {
@@ -139,6 +117,6 @@ if( em == 'CO'){
 # ---------------------------------------------------------------------------
 # 5. Output
 
-writeData( ceds_EFs, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'))
+writeData( ceds_EFs, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'), meta = F)
 
 logStop()

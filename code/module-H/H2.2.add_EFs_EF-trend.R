@@ -38,8 +38,8 @@ if ( is.na( em ) ) em <- "NH3"
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-ceds_EFs <- readData( 'MED_OUT', paste0('H.',em,'_total_EFs_extended_db') )  
-extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF')
+ceds_EFs <- readData( 'MED_OUT', paste0('H.',em,'_total_EFs_extended_db') , meta = F )  
+extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = F )
 
 # ---------------------------------------------------------------------------
 # 2. Select relavent driver-methods
@@ -140,6 +140,6 @@ for (i in seq_along(order_user_data_list) ){
 # ---------------------------------------------------------------------------
 # 4. Output
 
-writeData( new_EFs, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'))
+writeData( new_EFs, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'), meta = F)
 
 logStop()

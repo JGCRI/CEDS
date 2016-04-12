@@ -33,14 +33,14 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "NOx"
 
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-ceds_EFs <- readData( 'MED_OUT', paste0( 'F.',em,'_scaled_EF' ) )  
-extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF')
-extension_drivers_activity <- readData("EXT_IN", 'CEDS_historical_extension_drivers_activity')
+ceds_EFs <- readData( 'MED_OUT', paste0( 'F.',em,'_scaled_EF' ) , meta = F )  
+extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = F )
+extension_drivers_activity <- readData("EXT_IN", 'CEDS_historical_extension_drivers_activity', meta = F )
 
 # ---------------------------------------------------------------------------
 # 2. Check EF methods
