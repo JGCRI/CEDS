@@ -189,8 +189,10 @@ if ( WRITE_CEDS_SECTORS ) {
     writeData( Em_by_Country_Sector, "FIN_OUT", summary_fn, meta = F )
     writeData( Em_by_Country, "FIN_OUT", summary_fn1, meta = F )
     writeData( Summary_Emissions, "FIN_OUT", summary_fn2, meta = F )
-    writeData( Em_by_Country_CEDS_Sector, "FIN_OUT", summary_fn3, meta = F )
-    writeData( Em_by_CEDS_Sector, "FIN_OUT", summary_fn4, meta = F )
+    if ( WRITE_CEDS_SECTORS ) { 
+      writeData( Em_by_Country_CEDS_Sector, "FIN_OUT", summary_fn3, meta = F )
+      writeData( Em_by_CEDS_Sector, "FIN_OUT", summary_fn4, meta = F )
+    }
   }
   
 # If no summary file exists, write out current-run files and exit
