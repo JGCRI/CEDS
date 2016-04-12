@@ -131,8 +131,12 @@ logStop <- function() {
         output <- collapseList( OUTPUTS[[ fn ]], sep = "\r\n" )
     } else{ output <- "" }
 
+	# Detect if em exists first then writing/creating species specific [em]_IO_documentation
+    # if no agruement is provided in Makfile, em <- 'CM' as CM stands for common	
+	if ( !exists( 'em', envir = .GlobalEnv ) ) em <- "CM"
+	
     # Full file path for IO documentation
-    IO_doc_path <- filePath( "DOCUMENTATION", "IO_documentation", ".csv" ) 
+    IO_doc_path <- filePath( "DOCUMENTATION", paste0( em, "_", "IO_documentation" ), ".csv" ) 
     
     printLog( "Writing dependency information for", fn, "..." )
     
@@ -142,7 +146,7 @@ logStop <- function() {
                                         output_files = "", output_description = "" )
         IO_doc <- IO_doc[ IO_doc$file == "No such file", ]
 	} else {
-        IO_doc <- readData( "DOCUMENTATION", "IO_documentation", meta = FALSE, mute = TRUE, to_numeric=FALSE )
+        IO_doc <- readData( "DOCUMENTATION", paste0( em, "_", "IO_documentation" ), meta = FALSE, mute = TRUE, to_numeric=FALSE )
     }
     
     sys_doc <- readData( "DOCUMENTATION", "System_Documentation", ".xlsx", meta = FALSE, 
@@ -175,7 +179,7 @@ logStop <- function() {
     # Sort by file name
     IO_doc <- arrange( IO_doc, file )
     
-    writeData( IO_doc, "DOCUMENTATION", "IO_documentation", meta = FALSE, mute = TRUE )
+    writeData( IO_doc, "DOCUMENTATION", paste0( em, "_", "IO_documentation" ), meta = FALSE, mute = TRUE )
 
 	
 	logfile <- paste( MODULE_PROC_ROOT, "/../logs/", fn, ".log", sep="" )
@@ -351,9 +355,12 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
 
     multi_sheet <- FALSE
     
+    # Assign em so the correct [em]_IO_documentation can be found  
+	if ( !exists( 'em', envir = .GlobalEnv ) ) em <- "CM"
+	
 	# Update dependency list, if necessary
 	deps <- DEPENDENCIES[[ GCAM_SOURCE_FN[ GCAM_SOURCE_RD ] ]]
-	if( !( full_file_path %in% deps ) && file_name != "System_Documentation" && file_name != "IO_documentation" ) {
+	if( !( full_file_path %in% deps ) && file_name != "System_Documentation" && file_name != paste0( em, "_", "IO_documentation" ) ) {
 		DEPENDENCIES[[ GCAM_SOURCE_FN[ GCAM_SOURCE_RD ] ]] <<- c( deps, full_file_path )
 	}
 	
@@ -653,9 +660,12 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
     
     full_fn <- paste0( fn, ".csv" )
     
+	# Assign em so the correct [em]_IO_documentation can be found   
+	if ( !exists( 'em', envir = .GlobalEnv ) ) em <- "CM"
+	
     # Update dependency list, if necessary
 	outs <- OUTPUTS[[ GCAM_SOURCE_FN[ GCAM_SOURCE_RD ] ]]
-	if( !( full_fn %in% outs ) && fn != "IO_documentation" ) {
+	if( !( full_fn %in% outs ) && fn != paste0( em, "_", "IO_documentation" ) ) {
 		OUTPUTS[[ GCAM_SOURCE_FN[ GCAM_SOURCE_RD ] ]] <<- c( outs, full_fn )
 	}
     
