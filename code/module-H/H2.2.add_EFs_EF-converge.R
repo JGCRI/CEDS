@@ -47,7 +47,9 @@ loadPackage('zoo')
 ceds_EFs <- readData( 'MED_OUT', paste0('H.',em,'_total_EFs_extended_db') , meta = F )  
 extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = F )
 
-CO_converge <- readData( domain = 'EXT_IN', domain_extension = 'extention-data/', file_name = 'regional_biomass_CO_converge')
+if( em == 'CO'){
+  CO_converge <- readData( domain = 'EXT_IN', domain_extension = 'extention-data/', file_name = 'regional_biomass_CO_converge')
+}
 
 # ---------------------------------------------------------------------------
 # 2. Select relavent driver-methods
