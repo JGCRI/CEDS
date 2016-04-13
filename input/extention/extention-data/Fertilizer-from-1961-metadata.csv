@@ -1,0 +1,3 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+Emissions Trend,NOx,global,3D_Soil-emissions,1961,2013,Fertilizer_Consumption.xlsx
+Emissions Trend,NH3,global,3D_Soil-emissions,1961,2013,Fertilizer_Consumption.xlsx
