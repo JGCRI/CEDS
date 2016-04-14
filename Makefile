@@ -353,6 +353,16 @@ $(MED_OUT)/A.IEA_CEDS_coal_difference.csv : \
 	$(MED_OUT)/A.IEA_BP_energy_ext.csv
 	Rscript $< $(EM) --nosave --no-restore
 
+# aa3-3
+# Process pig iron production
+$(EXT_DATA)/U.Pig_Iron_Production.csv : \
+	$(MOD_A)/A3.4.proc_pig_iron.R \
+	$(MED_OUT)/A.UN_pop_master.csv \
+	#(ACTIV)/metals/Blast_furnace_iron_production_1850-2014.xlsx \
+	#(ACTIV)/metals/Pig_Iron_Production_US.csv \
+	#(ACTIV)/metals/Pig_Iron_Production_Mitchell.csv
+	Rscript $< $(EM) --nosave --no-restore
+
 # aa4-1
 # naming note: includes both module A3 and A4
 # Expands energy data to include all possible id combinations
