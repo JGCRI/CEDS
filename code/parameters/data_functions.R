@@ -417,8 +417,8 @@ interpolate_NAs <- function( df){
   for ( i in seq_along(df[,1] )) {
     row <- df[i, ]
     if( length(rle(is.na(c(NA,row,NA)))$values)>3 ) {interpolate_rows <- c(interpolate_rows, i) }}
-
-  df[ interpolate_rows , ] <- t( na.approx(t(df[ interpolate_rows , ]), na.rm = F)   )
+  if( length(interpolate_rows)>0){
+  df[ interpolate_rows , ] <- t( na.approx(t(df[ interpolate_rows , ]), na.rm = F)   )}
   return (df)
 }
 
