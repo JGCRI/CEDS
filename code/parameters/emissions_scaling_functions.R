@@ -18,7 +18,7 @@
 
 loadPackage('zoo')
 source('../code/parameters/interpolation_extention_functions.R')
-
+source('../code/parameters/data_functions.R')
 # ------------------------------------------------------------------------------
 # F.initializeMeta
 # Brief: creates default meta data for scaled emissions and ef
@@ -748,7 +748,7 @@ F.scaling <- function( ceds_data, inv_data, region,
                                              addEntries = TRUE)
         }}
       
-      linear_int <- t( na.approx( t(linear[,X_inv_years_full])  , na.rm=FALSE) )
+      linear_int <- interpolate_NAs(linear[,X_inv_years_full])
       linear <- cbind( linear[,c('iso', scaling_name)] , linear_int)
       names(linear) <- c('iso', scaling_name , X_inv_years_full ) }
     if (nrow(cant_interp)>0) linear <- rbind(linear,cant_interp)
@@ -897,10 +897,10 @@ F.scaling <- function( ceds_data, inv_data, region,
         } else if( ext_method_default[i,'pre_ext_method'] == 'linear_1'){
           if( ext_method_default[i,'other'] ==  ext_year_default[i,'pre_ext_year'] ){
           pre_scaling_ext_line[1,1]<-1
-          pre_scaling_ext_line[1,] <- na.approx(  t(pre_scaling_ext_line[1,]) , maxgap = Inf)
+          pre_scaling_ext_line[1,] <- interpolate_NAs(pre_scaling_ext_line[1,])
           } else if(ext_method_default[i,'other'] >  ext_year_default[i,'pre_ext_year']){
           pre_scaling_ext_line[1,paste0('X',ext_method_default[i,'other'])] <- 1
-          pre_scaling_ext_line[1,] <- na.approx(  t(pre_scaling_ext_line[1,]) , na.rm=FALSE, maxgap = Inf)  
+          pre_scaling_ext_line[1,] <- interpolate_NAs(pre_scaling_ext_line[1,])
           pre_scaling_ext_line[1,] <- na.locf(  t(pre_scaling_ext_line[1,]) , fromLast=TRUE ,na.rm=FALSE ,maxgap = Inf)  
           }
           
@@ -1008,7 +1008,7 @@ F.scaling <- function( ceds_data, inv_data, region,
         # Linear Extrapolation to Scaling Factor = 1, from most recent value
         else if( ext_method_default[i,'post_ext_method'] == 'linear_1'){
           post_scaling_ext_line[1,ncol(post_scaling_ext_line)]<-1
-          post_scaling_ext_line[1,] <- na.approx(  t(post_scaling_ext_line[1,]) , maxgap = Inf)
+          post_scaling_ext_line[1,] <- interpolate_NAs(post_scaling_ext_line[1,])
           # Add meta notes          
           if(meta==TRUE){
             year <- X_post_scaling_ext_years
