@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: H1.2.add_activity_total_coal.R
 # Author: Rachel Hoesly
-# Program Purpose: Extend Coal data back for all countries from IEA data start (1960, 1965, 1971) 
+# Program Purpose: Extend Coal data back for all countries from IEA data start (1960, 1971) 
 #                 using CDIAC, Bond data, IEA data
 #               
 # Output Files:  H.EM_total_activity_extended_db
@@ -59,6 +59,7 @@ cdiac_solid_fuel <- readData( 'MED_OUT' , 'E.CO2_CDIAC_solid_fuel')
 activity <- activity_all
 
 all_countries <- unique(activity$iso)
+
 # ---------------------------------------------------------------------------
 # 3. Bond Data processing
 
@@ -98,6 +99,8 @@ all_countries <- unique(activity$iso)
 
 # ---------------------------------------------------------------------------
 # 4. Extend total coal with cdiac data
+  printLog('Extending Total Coal Values with CDIAC')
+  
   ceds_total_coal[ paste0("X",1750:1959) ] <- NA
   ceds_total_coal$fuel <- 'solid_fuels'
   ceds_total_coal$sector <- 'all'
@@ -156,6 +159,8 @@ final_ceds_total_coal[ paste0('X',1845:2000) ] <- final_ceds_total_coal[ paste0(
 # ---------------------------------------------------------------------------
 # 5. Dissaggregate total coal into fuel types using CEDS stary year split 
 
+printLog('Disaggregating total coal into fuel types')
+
 # Calculate Ceds fuel % (by iso) in start_year
 ceds_coal_fuel <- activity_all[which( activity_all$fuel %in% c('hard_coal', 'brown_coal','coal_coke')),
                                 c('iso', 'sector','fuel', paste0('X',1960:2010))]
@@ -212,6 +217,8 @@ combustion_coal_by_fuel <- coal_extended_dissagregate_by_fuel_full[which(coal_ex
 
 # ---------------------------------------------------------------------------
 # 6. Merge Bond Sector Splits and CEDS aggregate Sector Splits
+#  Sector breakdowns from total fuel type to ext_sector
+printLog('Calculating coal sector breakdowns')
 
 # Calculate Bond Sector Percentages
 bond <- merge( bond_historical, iso_map[,c('iso','Country')])
@@ -455,7 +462,6 @@ ceds_breakdown[which( ceds_breakdown$start_year == '1971'), 'X1971'] <- ceds_bre
 
 ceds_breakdown <- merge( ceds_breakdown, bond_percent_1850, all.x = T, all.y=F)
 ceds_breakdown <- ceds_breakdown[ , c('iso','sector','ext_sector','fuel','X1849','X1960','X1971' )]
-ceds_breakdown[which(ceds_breakdown$X1849 == NA),'X1849'] <- 0
 
 
 ceds_breakdown[ paste0('X',1849:1971)[ paste0('X',1849:1971)  %!in% names(ceds_breakdown)]  ] <- NA
@@ -463,9 +469,6 @@ ceds_breakdown <- ceds_breakdown[ , c('iso','sector','ext_sector','fuel',paste0(
 ceds_breakdown[ , paste0('X',1849:1971)] <- interpolate_NAs(ceds_breakdown[ ,paste0('X',1849:1971)])
 ceds_breakdown[paste0('X',1750:1848)] <- ceds_breakdown[paste0('X',1849)]
 ceds_breakdown <- ceds_breakdown[ , c('iso','sector','ext_sector','fuel',paste0('X',1750:1971))]
-
-ceds_breakdown[which( ceds_breakdown$sector == '1A4a_Commercial-institutional'),paste0('X',1750:1971)] <- 
-          t( na.locf( t(ceds_breakdown[which( ceds_breakdown$sector == '1A4a_Commercial-institutional'),paste0('X',1750:1971)]),fromLast = T )   )
 
 ceds_breakdown <- replace( ceds_breakdown, is.na(ceds_breakdown) , 0 )
 
@@ -505,7 +508,7 @@ for( i in seq_along(all_countries)) {
 # ---------------------------------------------------------------------------
 # 7. Dissaggregate total CEDS coal to CEDS sectors
 # Dissagregate combustion_coal_by_fuel using final_percentages
-
+printLog('Disaggregating coal to ceds sectors')
 # Loop over IEA data start years
   dissaggregate_sector_list<-list()
   for( i in seq_along(start_years) ){
@@ -595,20 +598,19 @@ for( i in seq_along(all_countries)) {
  summed_coal_total <- aggregate( summed_coal_total[ paste0('X',1750:1970)],
                                   by = list(fuel = summed_coal_total$fuel),
                                   FUN = sum, na.rm=T)
-  
-  
- # summed_coal_total <- aggregate( summed_coal_total[ paste0('X',1750:1970)],
- #                                  by = list(iso = summed_coal_total$iso),
- #                                  FUN = sum, na.rm=T)
-    
+ all_other_tranformation_coal <-  rbind.fill(other_transformation_coal,iea_other_coal)
+ all_other_tranformation_coal <- aggregate(all_other_tranformation_coal[paste0('X',1750:2013)],
+                                           by = list(all_other_tranformation_coal$iso),
+                                           sum)
+   
 # ---------------------------------------------------------------------------
 # 7. Write to database
 
   writeData(final_ceds_total_coal, 'DIAG_OUT', 'H.Extended_total_coal')
-  writeData(other_transformation_coal, 'DIAG_OUT', 'H.Extended_other_tranformation_coal')
+  writeData( all_other_tranformation_coal , 'DIAG_OUT', 'H.Extended_other_tranformation_coal')
   writeData(combustion_coal_by_fuel, 'DIAG_OUT', 'H.Extended_coal_by_fuel')
   writeData(final_coal, 'DIAG_OUT', 'H.Extended_coal_by_sector_fuel')
-  writeData(summed_coal_total, 'DIAG_OUT', 'H.Extended_coal_by_sector_fuel_aggregated') 
+  writeData(summed_coal_total, 'DIAG_OUT', 'H.Extended_coal_dissagregated_by_sector_fuel_aggregated') 
   
   if( !(nrow(activity_all) == nrow(activity) & ncol(activity_all) == ncol(activity) ) ){
     stop( "New and old activity do not match") } else{
