@@ -27,7 +27,7 @@
 
 # Call standard script header function to read in universal header files - 
 # provides logging, file support, and system functions - and start the script log.
-    headers <- c( 'gridding_functions.R', 'data_functions.R', 'VOC_gridding_functions.R' ) # Any additional function files required
+    headers <- c( 'gridding_functions.R', 'data_functions.R' ) # Any additional function files required
     log_msg <- "VOC speciation gridding" # First message to be printed to the log
     script_name <- "G1.2.VOC_speciation.R"
 
