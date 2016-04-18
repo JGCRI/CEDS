@@ -64,7 +64,7 @@ else
 # recursive call, once EM has been specified, and triggers the
 # build of the entire system. This target must be the final
 # outputs of the system.
-emissions : $(FINAL_OUT)/$(EM)_emissions_by_country_FOR-REVIEW-ONLY.csv
+emissions : $(FINAL_OUT)/current-versions/CEDS_$(EM)_emissions_by_country_sector_%.csv
 
 endif
 
@@ -709,7 +709,7 @@ $(MED_OUT)/$(EM)_total_CEDS_emissions.csv : \
 	$(MED_OUT)/H.$(EM)_total_activity_extended.csv
 	Rscript $< $(EM) --nosave --no-restore
 
-$(FINAL_OUT)/$(EM)_emissions_by_country_FOR-REVIEW-ONLY.csv : \
+$(FINAL_OUT)/current-versions/CEDS_$(EM)_emissions_by_country_sector_%.csv : \
 	$(MOD_S)/S1.1.write_summary_data.R \
 	$(MED_OUT)/$(EM)_total_CEDS_emissions.csv
 	Rscript $< $(EM) --nosave --no-restore

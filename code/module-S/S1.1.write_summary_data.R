@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
-# Program Name: S1.1.write_summary_data.R
+# Program Name: S1.1.write_summary_data.R 
 # Author: Rachel Hoesly, Steve Smith, Linh Vu
-# Date Last Updated: 12 April 2016
+# Date Last Updated: 18 April 2016
 # Program Purpose: Produces summary output
 #               
 # Output Files: data in final-emissions folder
@@ -119,8 +119,6 @@ final_emissions <- rbind( final_emissions, Bunker_global )
 # NOTE: This block should not write any summary outputs. Put any writeData()
 # in function writeSummary() in block 3.
 
-FILENAME_POSTSCRIPT = "_FOR-REVIEW-ONLY"
-
 #Total emissions by Country
 Em_by_Country<-aggregate(final_emissions[X_write_years],
                          by=list(iso=final_emissions$iso,
@@ -174,33 +172,35 @@ if ( WRITE_CEDS_SECTORS ) {
 # Compare emissions summary from the current run and the last run. If values 
 # change over a threshold, move last-run files to previous-versions, write out 
 # current-run files, and write out comparison diagnostics.
+  FILENAME_POSTSCRIPT <- paste( "_v", substr( Sys.Date(), 6, 7 ), substr( Sys.Date(), 9, 10 ), 
+                                substr( Sys.Date(), 1, 4 ), sep = "_" )  # "_v_mm_dd_yyyy"
 
 # Create output folders (if not already exist) and define values
-  dir.create( "../final-emissions/diagnostics", showWarnings = F )
+  dir.create( "../final-emissions/current-versions", showWarnings = F )
   dir.create( "../final-emissions/previous-versions", showWarnings = F )
-  summary_fn <- paste0( em , "_emissions_by_country_sector", FILENAME_POSTSCRIPT )
-  summary_fn1 <- paste0( em , "_emissions_by_country", FILENAME_POSTSCRIPT )
-  summary_fn2 <- paste0( em , "_global_emissions_by_fuel", FILENAME_POSTSCRIPT )
-  summary_fn3 <- paste0( em , "_em_country_CEDS_sector", FILENAME_POSTSCRIPT )
-  summary_fn4 <- paste0( em , "_gbl_em_by_CEDS_sector", FILENAME_POSTSCRIPT )
-  
-  diag_fn <- paste0( em ,"_emissions_by_country_sector" )
+  dir.create( "../final-emissions/diagnostics", showWarnings = F )
+  base_fn <- paste0( "CEDS_", em ,"_emissions_by_country_sector" )
+  summary_fn <- paste0( "CEDS_", em , "_emissions_by_country_sector", FILENAME_POSTSCRIPT )
+  summary_fn1 <- paste0( "CEDS_", em , "_emissions_by_country", FILENAME_POSTSCRIPT )
+  summary_fn2 <- paste0( "CEDS_", em , "_global_emissions_by_fuel", FILENAME_POSTSCRIPT )
+  summary_fn3 <- paste0( "CEDS_", em , "_emissions_by_country_CEDS_sector", FILENAME_POSTSCRIPT )
+  summary_fn4 <- paste0( "CEDS_", em , "_global_emissions_by_CEDS_sector", FILENAME_POSTSCRIPT )
   THRESHOLD_PERCENT <- 1
   
 # Define function to write summary files
   writeSummary <- function() {
     printLog( "Write emissions summary" )
-    writeData( Em_by_Country_Sector, "FIN_OUT", summary_fn, meta = F )
-    writeData( Em_by_Country, "FIN_OUT", summary_fn1, meta = F )
-    writeData( Summary_Emissions, "FIN_OUT", summary_fn2, meta = F )
+    writeData( Em_by_Country_Sector, "FIN_OUT", summary_fn, domain_extension = "current-versions/", meta = F )
+    writeData( Em_by_Country, "FIN_OUT", summary_fn1, domain_extension = "current-versions/", meta = F )
+    writeData( Summary_Emissions, "FIN_OUT", summary_fn2, domain_extension = "current-versions/", meta = F )
     if ( WRITE_CEDS_SECTORS ) { 
-      writeData( Em_by_Country_CEDS_Sector, "FIN_OUT", summary_fn3, meta = F )
-      writeData( Em_by_CEDS_Sector, "FIN_OUT", summary_fn4, meta = F )
+      writeData( Em_by_Country_CEDS_Sector, "FIN_OUT", summary_fn3, domain_extension = "current-versions/", meta = F )
+      writeData( Em_by_CEDS_Sector, "FIN_OUT", summary_fn4, domain_extension = "current-versions/", meta = F )
     }
   }
   
 # If no summary file exists, write out current-run files and exit
-if ( !file.exists( paste0("../final-emissions/", summary_fn, ".csv" ) ) ) {
+if ( length( list.files( "../final-emissions/current-versions/", pattern = paste0( "_", em ) ) ) == 0 ) {
   writeSummary()
 
 # Else compare current-run and last-run emissions summary
@@ -209,41 +209,42 @@ if ( !file.exists( paste0("../final-emissions/", summary_fn, ".csv" ) ) ) {
   
   # move last-run files to a temp folder [em]_last-run
   dir.create( paste0( "../final-emissions/", em, "_last-run" ), showWarnings = F )
-  fl <- list.files( "../final-emissions/", pattern = paste0( em, ".*", FILENAME_POSTSCRIPT ), full.names = T )
-  if ( em == "OC" )
-    fl <- fl[ !grepl( "NMVOC", fl ) ]
+  fl <- list.files( "../final-emissions/current-versions/", pattern = paste0( "_", em ), full.names = T )
   moveFileList( fl, paste0( "../final-emissions/", em, "_last-run/" ) )
 
   # write out current-run
   writeSummary()
   
   # read current-run and last-run emissions summary
-  em_current <- readData( "FIN_OUT", summary_fn, meta = F )
-  em_last <- readData( "FIN_OUT", paste0( em, "_last-run/", summary_fn ), meta = F )
+  em_current <- readData( "FIN_OUT", summary_fn, domain_extension = "current-versions/", meta = F )
+  em_last_fn <- list.files( paste0( "../final-emissions/", em, "_last-run/" ), pattern = base_fn ) %>% file_path_sans_ext()
+  em_last <- readData( "FIN_OUT", paste0( em, "_last-run/", em_last_fn ), meta = F )
   id_cols <- names( em_current )[ !grepl( "X", names( em_current ) ) ]
   id_cols_last <- names( em_last )[ !grepl( "X", names( em_last ) ) ]
   
   # if current-run and last-run have different ID columns, do nothing
   if ( any( sort( id_cols ) != sort( id_cols_last ) ) ) {
-    warning( paste0( "Current and last versions of ", summary_fn, 
-                     ".csv have different ID columns. Cannot run comparison." ) )
+    warning( paste( "Current and last versions of", base_fn, 
+                     "have different ID columns. Cannot run comparison." ) )
   
-  # if current-run and last-run are identical, do nothing
+  # if current-run and last-run are identical, delete current-run and move last-run to current-versions/
   } else if ( identical( em_current, em_last ) ) {
-    warning( paste0( summary_fn, ".csv did not change from last run." ) )
+    warning( paste( base_fn, "did not change from last run." ) )
+    unlink( dir( "../final-emissions/current-versions/", 
+                 pattern = paste0( "_", em ), full.names = T ) )  
+    fl <- list.files( paste0( "../final-emissions/", em, "_last-run/" ), pattern = paste0( "_", em ), full.names = T )
+    moveFileList( fl, "../final-emissions/current-versions/" )
 
   # else run comparison diagnostics
   } else {
     # delete relevant emissions from previous-versions and diagnostics
       unlink( dir( "../final-emissions/previous-versions/", 
-                   pattern = paste0( em, ".*", FILENAME_POSTSCRIPT ), full.names = T ) )
+                   pattern = paste0( "_", em ), full.names = T ) )
       unlink( dir( "../final-emissions/diagnostics/", 
-                   pattern = diag_fn, full.names = T ) )
+                   pattern = paste0( "_", em ), full.names = T ) )
       
     # move content of last-run to previous-versions
       fl <- list.files( paste0( "../final-emissions/", em, "_last-run" ), full.names = T )
-      if ( em == "OC" )
-        fl <- fl[ !grepl( "NMVOC", fl ) ]
       moveFileList( fl, "../final-emissions/previous-versions/" )
     
     # make df of added/dropped data
@@ -285,20 +286,20 @@ if ( !file.exists( paste0("../final-emissions/", summary_fn, ".csv" ) ) ) {
 
     # write out diagnostics
       if ( nrow( dropped_rows ) > 0 )
-        writeData( dropped_rows, "FIN_OUT", paste0( "diagnostics/", diag_fn, "_dropped-rows" ), meta = F )
+        writeData( dropped_rows, "FIN_OUT", paste0( "diagnostics/", summary_fn, "_dropped-rows" ), meta = F )
       if ( nrow( added_rows ) > 0 )
-        writeData( added_rows, "FIN_OUT", paste0( "diagnostics/", diag_fn, "_added-rows" ), meta = F )
+        writeData( added_rows, "FIN_OUT", paste0( "diagnostics/", summary_fn, "_added-rows" ), meta = F )
       if ( ncol( dropped_cols ) > length( id_cols ) )
-        writeData( dropped_cols, "FIN_OUT", paste0( "diagnostics/", diag_fn, "_dropped-cols" ), meta = F )
+        writeData( dropped_cols, "FIN_OUT", paste0( "diagnostics/", summary_fn, "_dropped-cols" ), meta = F )
       if ( ncol( added_cols ) > length( id_cols ) )
-        writeData( added_cols, "FIN_OUT", paste0( "diagnostics/", diag_fn, "_added-cols" ), meta = F )
+        writeData( added_cols, "FIN_OUT", paste0( "diagnostics/", summary_fn, "_added-cols" ), meta = F )
       if ( nrow( em_comp_out ) > 0 )
-        writeData( em_comp_out, "FIN_OUT", paste0( "diagnostics/", diag_fn, "_comparison" ), meta = F )
+        writeData( em_comp_out, "FIN_OUT", paste0( "diagnostics/", summary_fn, "_comparison" ), meta = F )
       if ( !all( em_comp$diff == 0 ) ) {
         abs_diff[ is.na( abs_diff ) ] <- ""
         abs_diff_percent[ is.na( abs_diff_percent ) ] <- ""
-        writeData( abs_diff, "FIN_OUT", paste0( "diagnostics/", diag_fn, "_diff" ), meta = F )
-        writeData( abs_diff_percent, "FIN_OUT", paste0( "diagnostics/", diag_fn, "_diff-percent" ), meta = F )
+        writeData( abs_diff, "FIN_OUT", paste0( "diagnostics/", summary_fn, "_diff" ), meta = F )
+        writeData( abs_diff_percent, "FIN_OUT", paste0( "diagnostics/", summary_fn, "_diff-percent" ), meta = F )
       }
   }
   
