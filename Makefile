@@ -494,6 +494,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 # cc1-2
 $(MED_OUT)/C.$(EM)_NC_emissions.csv : \
 	$(MOD_C)/C1.3.proc_NC_emissions.R \
+	$(MOD_C)/C1.3.proc_NC_emissions_waste.R \
 	$(MOD_C)/C1.3.proc_NC_emissions_user_added_inventories.R \
 	$(MOD_C)/C1.3.proc_NC_emissions_user_added.R \
 	$(MED_OUT)/C.$(EM)_NC_emissions_db.csv \
@@ -512,7 +513,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv : \
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
-
+	Rscript $(word 4,$^) $(EM) --nosave --no-restore
 # cc2-1
 $(MED_OUT)/C.$(EM)_NC_EF.csv : \
 	$(MOD_C)/C2.1.base_NC_EF.R \
