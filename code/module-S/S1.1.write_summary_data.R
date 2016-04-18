@@ -72,6 +72,10 @@ X_write_years <- paste0('X',write_years)
 final_emissions <- final_emissions_read[,c('iso','sector','fuel','units',X_write_years)]
 final_emissions$em <- em
 
+# remove sectors that are not supplied in CEDS
+empty_sectors <- c( "11A_Volcanoes", "11B_Forest-fires", "11C_Other-natural" )
+final_emissions <- final_emissions[ -which( final_emissions$sector %in% empty_sectors ) , ]
+
 # save shipping and aviation emissions
 bunker_emissions <- final_emissions[ which( final_emissions$sector %in% 
                     c( "1A3ai_International-aviation", "1A3aii_Domestic-aviation",
