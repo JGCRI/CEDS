@@ -477,13 +477,13 @@ ceds_breakdown[which( ceds_breakdown$start_year == '1960'), 'X1960'] <- ceds_bre
 ceds_breakdown[which( ceds_breakdown$start_year == '1971'), 'X1971'] <- ceds_breakdown[which( ceds_breakdown$start_year == '1971'), 'percent']
 
 ceds_breakdown <- merge( ceds_breakdown, bond_percent_1850, all.x = T, all.y=F)
-ceds_breakdown <- ceds_breakdown[ , c('iso','sector','ext_sector','fuel','X1849','X1960','X1971' )]
+ceds_breakdown <- ceds_breakdown[ , c('iso','sector','ext_sector','fuel','X1850','X1960','X1971' )]
 
 
-ceds_breakdown[ paste0('X',1849:1971)[ paste0('X',1849:1971)  %!in% names(ceds_breakdown)]  ] <- NA
-ceds_breakdown <- ceds_breakdown[ , c('iso','sector','ext_sector','fuel',paste0('X',1849:1971))]
-ceds_breakdown[ , paste0('X',1849:1971)] <- interpolate_NAs(ceds_breakdown[ ,paste0('X',1849:1971)])
-ceds_breakdown[paste0('X',1750:1848)] <- ceds_breakdown[paste0('X',1849)]
+ceds_breakdown[ paste0('X',1850:1971)[ paste0('X',1850:1971)  %!in% names(ceds_breakdown)]  ] <- NA
+ceds_breakdown <- ceds_breakdown[ , c('iso','sector','ext_sector','fuel',paste0('X',1850:1971))]
+ceds_breakdown[ , paste0('X',1850:1971)] <- interpolate_NAs(ceds_breakdown[ ,paste0('X',1850:1971)])
+ceds_breakdown[paste0('X',1750:1849)] <- ceds_breakdown[paste0('X',1850)]
 ceds_breakdown <- ceds_breakdown[ , c('iso','sector','ext_sector','fuel',paste0('X',1750:1971))]
 
 ceds_breakdown <- replace( ceds_breakdown, is.na(ceds_breakdown) , 0 )
@@ -554,12 +554,12 @@ printLog('Disaggregating coal to ceds sectors')
   # fill out data with zero country and sectors 
   coal_activity <- activity_all[which( activity_all$fuel %in% c('hard_coal', 'brown_coal','coal_coke')),]
   final_coal <- coal_activity
-  final_coal[paste0('X',1750:1970)] <- NA
+  final_coal[paste0('X',1750:1959)] <- NA
   # loop over start_years
   
   for ( i in seq_along ( start_years ) ){
     countries <- iea_start_year[which( iea_start_year$start_year == start_years[i]),'iso']
-    
+    final_coal[which(coal_dissaggregate_final$iso %in% countries), paste0('X',1750:(start_years[i]-1))] <- NA
     coal_values_start_date <- coal_dissaggregate_final[ which(coal_dissaggregate_final$iso %in% countries), 
                                                         c('iso','sector','fuel', paste0('X',1750:(start_years[i]-1)) )]
     
@@ -617,7 +617,7 @@ printLog('Disaggregating coal to ceds sectors')
  all_other_tranformation_coal <-  rbind.fill(other_transformation_coal,iea_other_coal)
  all_other_tranformation_coal <- aggregate(all_other_tranformation_coal[paste0('X',1750:2013)],
                                            by = list(all_other_tranformation_coal$iso),
-                                           sum)
+                                           sum, na.rm=T)
    
 # ---------------------------------------------------------------------------
 # 7. Write to database
