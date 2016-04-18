@@ -5,7 +5,7 @@
 #                 using CDIAC, Bond data, IEA data
 #               
 # Output Files:  H.EM_total_activity_extended_db
-# TODO: 
+# TODO: edit replaceValueColMatch to handle single column match, change bond-correction
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
@@ -53,6 +53,8 @@ iea_other_coal <- readData( 'MED_OUT','A.IEA_CEDS_coal_difference' )
 iea_start_year <- readData( 'ENERGY_IN' , 'IEA_iso_start_data')
 
 cdiac_solid_fuel <- readData( 'MED_OUT' , 'E.CO2_CDIAC_solid_fuel')
+
+solid_fuel_correction <- readData('EXT_IN', 'solid_fuel_correction_values')
 # ---------------------------------------------------------------------------
 # 2. Select data to extend based on extension drivers
 
@@ -75,8 +77,22 @@ all_countries <- unique(activity$iso)
                     FUN = sum)
   
   bond_total_coal <- cast(bond, iso ~ Year, value = 'Fuel (kt)')
+  
   bond_years <- names(bond_total_coal)[names(bond_total_coal) %!in% 'iso']
-# Intepolate years (keep 5 year intervals, fill in missing data)
+
+  #Override bond values with corrections
+  solid_fuel_correction <- solid_fuel_correction[which(solid_fuel_correction$value == 'bond total coal'),]
+  correction_years <- names(bond_correction)[names(bond_correction) %!in% 'iso']
+  
+  bond_total_coal[which( bond_total_coal$iso == 'gbr'), correction_years] <- 
+      solid_fuel_correction[which(solid_fuel_correction$iso == 'gbr'),correction_years]
+  
+  # TODO - edit replaceValueColMatch to handle single column match
+  # bond_total_coal <- replaceValueColMatch(bond_total_coal, bond_correction,
+  #                                         match.x = 'iso',
+  #                                         x.ColName = correction_years)
+  
+  # Intepolate years (keep 5 year intervals, fill in missing data)
   bond_total_coal <- bond_total_coal[ , c('iso',bond_years)]
   bond_total_coal[ , bond_years] <- interpolate_NAs(bond_total_coal[ , bond_years])
 
