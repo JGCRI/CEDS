@@ -82,7 +82,7 @@ all_countries <- unique(activity$iso)
 
   #Override bond values with corrections
   solid_fuel_correction <- solid_fuel_correction[which(solid_fuel_correction$value == 'bond total coal'),]
-  correction_years <- names(bond_correction)[names(bond_correction) %!in% 'iso']
+  correction_years <- names( solid_fuel_correction)[ which(names( solid_fuel_correction) %!in% c('iso','value'))]
   
   bond_total_coal[which( bond_total_coal$iso == 'gbr'), correction_years] <- 
       solid_fuel_correction[which(solid_fuel_correction$iso == 'gbr'),correction_years]
