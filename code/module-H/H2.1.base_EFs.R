@@ -33,7 +33,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NOx"
+if ( is.na( em ) ) em <- "OC"
 
 # ---------------------------------------------------------------------------
 # 1. Load Data
@@ -65,17 +65,10 @@ if( any( extension_drivers_EF$method %!in% valid_methods) ) stop(
 # 3. Extend Data frame
 
 ceds_EF_extended <- ceds_EFs
-ceds_EF_extended[ paste0('X', historical_pre_extension_year: (historical_end_extension_year-1))] <- NA
+ceds_EF_extended[ paste0('X', historical_pre_extension_year: (historical_end_extension_year-1))] <- ceds_EFs$X1960
 ceds_EF_extended <- ceds_EF_extended[ c( 'iso' , 'sector' , 'fuel' , 'units' , X_extended_years ) ]
 
-# # constant extention
-# constant <- extension_drivers_EF[which( extension_drivers_EF$method == 'constant'),c('sector','fuel')]
-# ceds_EF_extended[ which( paste(ceds_EF_extended$sector ,ceds_EF_extended$fuel,sep="-") %in% paste(constant$sector ,constant$fuel,sep="-")) , 
-#                   paste0('X', historical_pre_extension_year: (historical_end_extension_year-1))] <- 
-#             ceds_EF_extended[ which( paste(ceds_EF_extended$sector ,ceds_EF_extended$fuel,sep="-") %in% paste(constant$sector ,constant$fuel,sep="-")) , 
-#                              paste0('X', (historical_end_extension_year))]
-# 
-# ceds_EF_extended <- ceds_EF_extended[ c( 'iso' , 'sector' , 'fuel' , 'units' , X_extended_years ) ]
+# TODO: change default to NA and have a better check method for EF drivers
 
 # ---------------------------------------------------------------------------
 # 4. Output
