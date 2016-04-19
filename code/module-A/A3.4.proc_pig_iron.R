@@ -6,7 +6,7 @@
 # Input Files:  Blast_furnace_iron_production_1850-2014.xlsx, 
 #               Pig_Iron_Production_US.csv, Pig_Iron_Production_Mitchell.csv, 
 #               A.UN_pop_master.csv
-# Output Files: U.Pig_Iron_Production.csv, U.Pig_Iron_Production_full.csv
+# Output Files: A.Pig_Iron_Production.csv, A.Pig_Iron_Production_full.csv
 # TODO: Read in just the primary data (and not rely on the “data” sheet extrapolation)
 # ---------------------------------------------------------------------------
 dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
@@ -182,7 +182,7 @@ initialize( script_name, log_msg, headers )
     
 # ---------------------------------------------------------------------------
 # 3. Output
-    writeData( driver, "EXT_IN", "U.Pig_Iron_Production", domain_extension = "extention-data/" )
-    writeData( all_wide_out, "DIAG_OUT", "U.Pig_Iron_Production_full", meta = F )
+    writeData( driver, "EXT_IN", "A.Pig_Iron_Production", domain_extension = "extention-data/" )
+    writeData( all_wide_out, "DIAG_OUT", "A.Pig_Iron_Production_full", meta = F )
 
 logStop()

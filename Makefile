@@ -355,7 +355,7 @@ $(MED_OUT)/A.IEA_CEDS_coal_difference.csv : \
 
 # aa3-3
 # Process pig iron production
-$(EXT_DATA)/U.Pig_Iron_Production.csv : \
+$(EXT_DATA)/A.Pig_Iron_Production.csv : \
 	$(MOD_A)/A3.4.proc_pig_iron.R \
 	$(MED_OUT)/A.UN_pop_master.csv \
 	#(ACTIV)/metals/Blast_furnace_iron_production_1850-2014.xlsx \
@@ -669,6 +669,9 @@ $(MED_OUT)/H.$(EM)_total_activity_extended.csv : \
 	$(MOD_H)/H1.2.add_activity_CDIAC.R \
 	$(MOD_H)/H1.2.add_activity_Fernandez.R \
 	$(MOD_H)/H1.2.add_activity_population.R \
+	$(MOD_H)/H1.2.add_activity_total_coal.R \
+	$(MOD_H)/H1.2.add_activity_Bond_industrial_biomass.R \
+	$(MOD_H)/H1.2.add_activity_Bond_other_biomass.R \
 	$(MED_OUT)/F.$(EM)_scaled_emissions.csv \
 	$(MED_OUT)/A.IEA_CEDS_coal_difference.csv \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
@@ -687,6 +690,7 @@ $(MED_OUT)/H.$(EM)_total_EFs_extended.csv : \
 	$(MOD_H)/H2.2.add_EFs_EF-trend.R \
 	$(MOD_H)/H2.2.add_EFs_Emissions-trend.R \
 	$(EXT_IN)/CEDS_historical_extension_methods_EF.csv \
+	$(EXT_IN)/extention-data/A.Pig_Iron_Production.csv \
 	$(MED_OUT)/H.$(EM)_total_activity_extended.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
