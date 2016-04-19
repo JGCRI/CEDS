@@ -33,7 +33,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NH3"
+if ( is.na( em ) ) em <- "OC"
 
 # ---------------------------------------------------------------------------
 # 1. Load Data
@@ -131,19 +131,18 @@ order <- data_frame(order= numeric(0),
 for (i in seq_along(user_data_list) ){
   order[i,] <- c(i,user_data_list[[i]]$start_year[1])
 }
-order <- order[order(-order$order),]
+order <- order[order(-order$start),]
 order_user_data_list <- list()
 for ( i in seq_along(order$order) ){
   order_user_data_list[[i]] <- user_data_list[[order$order[i]]]
 }
-
 
 new_EFs <- ceds_EFs
 for (i in seq_along(order_user_data_list) ){
   driver_trend <- order_user_data_list[[i]]
   start <- unique(driver_trend$start_year)
   end <-unique(driver_trend$end_year)
-  
+ 
   new_EFs <- extend_data_on_trend (driver_trend, new_EFs, start, end)
 
   }
