@@ -78,7 +78,8 @@
     level3_sector_longname_list <- unique( ceds_gridding_sector_list$CEDS_level_3_grids )
 # 2.3. Convert the emission data from CEDS working sectors to CEDS level 1 gridding sector 
     # special treatment for NMVOC 2L_other_process_emissions emissions
-    if ( em == 'NMVOC') {
+    X2L_sector_flag <- em == 'NMVOC' & any( '2L_Other-process-emissions' %in% emissions$sector )
+    if ( X2L_sector_flag == T ) {
       # Extract NMVOC 2L emission under global up in front 
       X2L_emissions <- subset( emissions, 
                                iso == 'global' & sector == '2L_Other-process-emissions', 
@@ -98,9 +99,11 @@
     emissions_level1_sector <- aggregate( emissions_level1_sector[ , paste0( 'X', year_list ) ], 
                                                by = list( emissions_level1_sector$CEDS_level_1_grids_abr, 
                                                           emissions_level1_sector$iso ), 
-                                               FUN = sum )
+                                                                                     FUN = sum )
     # change column names
     colnames( emissions_level1_sector ) <- c( 'CEDS_grd_sector', 'iso', paste0( 'X', year_list ) ) 
+    # remove AIR sector in data
+    emissions_level1_sector <- emissions_level1_sector[ !emissions_level1_sector$CEDS_grd_sector == 'AIR', ]
 # 2.4. Combine two or more country's emission into one country ( if necessary )
     emissions_level1_sector <- region_emCombine( emissions_level1_sector, country_combine_list )
     
@@ -114,7 +117,7 @@
       sectorl1_em_global_list <- grid_one_year( em, year, emissions_level1_sector, country_location_index, level1_sector_list, grid_resolution, mass = F )
       
       # when dealing with NMVOC, treat sector 2L under global differently then add back to shipping grids
-      if ( em == 'NMVOC' ) {
+      if ( X2L_sector_flag == T ) {
         X2L_em_golbal <- grid_2L( X2L_emissions, year )
         sectorl1_em_global_list$SHP_em_global <- sectorl1_em_global_list$SHP_em_global + X2L_em_golbal
         }
