@@ -55,7 +55,7 @@
     
 # read in the emission data
     #emissions <- readData( "MED_OUT", paste0( "F.", em, "_scaled_emissions" ) )
-    emissions <- readData( "FIN_OUT", paste0( em, '_em_country_CEDS_sector_FOR-REVIEW-ONLY' ) )
+    emissions <- readData( "FIN_OUT", domain_extension = "current-versions/", paste0( em, '_em_country_CEDS_sector_FOR-REVIEW-ONLY' ) )
 # read in the CEDS gridding sector mapping
     ceds_gridding_mapping<- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'CEDS_sector_to_gridding_sector_mapping' )
 
