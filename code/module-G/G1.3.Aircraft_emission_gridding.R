@@ -38,8 +38,8 @@
 # 0.5 Initialize gridding setups
 
     gridding_initialize( grid_resolution = 0.5,
-                         start_year = 1851,
-                         end_year = 1851, load_masks = T, load_seasonality_profile = T )
+                         start_year = 1750,
+                         end_year = 1850, load_masks = T, load_seasonality_profile = T )
     output_dir <- filePath( 'FIN_OUT', 'gridded_emissions/', extension="")
     
 # ------------------------------------------------------------------------------

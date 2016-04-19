@@ -321,6 +321,7 @@ grid_one_sector <- function( sector, em_species, year, location_index, grid_reso
   # calling the G.emiDistribute function to do the scalling
   region_em_spatial_list <- lapply( country_list, grid_one_country, location_index, emissions_year_sector, proxy, proxy_backup, year, sector, em_species, proxy_replace_flag )
   names( region_em_spatial_list ) <- paste0( country_list, '_em_spatal' )
+  
   # aggregating
   global_em_spatial <- aggregate_all_regions( region_em_spatial_list, location_index, 
                                    grid_resolution, mass )
@@ -841,7 +842,7 @@ region_emCombine <- function( em_data, region_list_for_combination ) {
 # output: 
 mask_avail_check <- function( emission_country_list, mask_country_list ){
   emission_country_list <- unique( emission_country_list)
-  if ( FALSE %in% ( emission_country_list %in% mask_country_list ) == TRUE ) {
+  if ( ( FALSE %in% ( emission_country_list %in% mask_country_list ) ) == TRUE ) {
     country_drop_list <- emission_country_list[ which( !emission_country_list %in% mask_country_list )]
   } 
   return( country_drop_list )
@@ -1596,5 +1597,205 @@ annual_total_emission_nc_output <- function( output_dir, grid_resolution, year, 
   date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
   ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
   summary_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', 'TOTAL', '_', grid_resolution, '_', ver_date, '.csv' )
+  write.csv( summary_table, file = summary_name, row.names = F )
+}
+# -------------------------------------------------
+# final_monthly_nc_output_biomass
+# Brief: generate a fliped matrix by a given matrix
+# Dependencies: 
+# Author: Leyang Feng
+# parameters: x - the matrix to be fliped  
+# return: a fliped matrix 
+# input files: 
+# output: 
+final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, em_species, sector_list, sector_list_long, mass = F ) {
+  
+  # 0 set up some basics for later use
+  global_grid_area <- grid_area( grid_resolution, all_lon = T )
+  flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
+  Days_in_Month <- c( 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 )
+  
+  # process emission grids from low level sectors to high level sectors 
+  # and adding seasonality ( except RCO )
+  for ( i in seq_along( sectorl1_em_global_list ) ) {
+    grid_name <- names( sectorl1_em_global_list ) [ i ]
+    assign( grid_name, sectorl1_em_global_list[[ i ]] )
+    }
+  
+  # first, aggregate to higher level
+  ENE_em_global_final <- ELEC_em_global
+  SHP_em_global_final <- SHP_em_global  
+  IND_em_global_final <- INDC_em_global
+  TRA_em_global_final <- NRTR_em_global + ROAD_em_global
+    # belwo three sector does not exist in biomass emissions 
+  AGR_em_global_final <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
+  SLV_em_global_final <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
+  WST_em_global_final <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
+  # second, add seasonality
+  temp_sector_list <- sector_list[ !sector_list == 'RCO' ]
+  
+  checksum_sector_list <- c( )
+  checksum_total_emission_list <- c( )
+  for ( sector in temp_sector_list ) {
+    seasonality <- get_seasonalityFrac( em_species, sector, year )
+    temp_annual_data_name <- paste0( sector, '_em_global_final' )
+    annual_data <- get( temp_annual_data_name )
+    temp_array <- array( dim = dim( seasonality ) )
+    checksum_total_emission_each_month_list <- c( )
+    for ( i in 1 : dim( temp_array )[ 3 ] ) {
+      temp_array[ , , i ] <- annual_data * seasonality[, , i ] * ( 365 / Days_in_Month[ i ] )
+      checksum_total_emission <- sum( temp_array[ , , i ] / flux_factor / ( 365 / Days_in_Month[ i ] ), na.rm = T )
+      checksum_total_emission_each_month_list <- c( checksum_total_emission_each_month_list, checksum_total_emission )
+    }
+    assign( temp_annual_data_name, temp_array )
+    checksum_total_emission_list <- c( checksum_total_emission_list, checksum_total_emission_each_month_list )
+    checksum_sector_list <- c( checksum_sector_list, rep( sector, 12 ) )
+    }
+  # special treatment for RCO 
+  seasonality <- get_seasonalityFrac( em_species, 'RCO', year )
+  temp_array <- array( dim = dim( seasonality ) )
+  checksum_total_emission_each_month_list <- c( )
+  for ( i in 1 : dim( temp_array )[ 3 ] ) {
+    temp_array[ , , i ] <- RCORC_em_global * seasonality[, , i ] * ( 365 / Days_in_Month[ i ] ) + RCOO_em_global * RCOO_seasonality[ , , i ] * ( 365 / Days_in_Month[ i ] )
+    checksum_total_emission <- sum( temp_array[ , , i ] / flux_factor / ( 365 / Days_in_Month[ i ] ), na.rm = T )
+    checksum_total_emission_each_month_list <- c( checksum_total_emission_each_month_list, checksum_total_emission )
+    
+  }
+  RCO_em_global_final <- temp_array
+  checksum_total_emission_list <- c( checksum_total_emission_list, checksum_total_emission_each_month_list )
+  checksum_sector_list <- c( checksum_sector_list, rep( 'RCO', 12 ) )
+  
+############################################################################################################
+    
+  data_list <- paste0( sector_list, '_em_global_final')
+  
+  lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
+  lats <- seq( -90 + grid_resolution / 2, 90 - grid_resolution / 2, grid_resolution )
+  time <- c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 )
+  londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
+  latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
+  timedim <- ncdim_def( "time", paste0( "days since ", year, "-01-01 0:0:0" ), as.double( time ), 
+                        calendar = '365_day', longname = 'time' )
+  dim_list <- list( londim, latdim, timedim )
+  lon_bnds_data <- cbind( seq( -180, ( 180 - grid_resolution ), grid_resolution ), 
+                          seq( ( -180 + grid_resolution ), 180, grid_resolution ) )
+  lat_bnds_data <- cbind( seq( -90, (90 - grid_resolution) , grid_resolution), 
+                          seq( ( -90 + grid_resolution ), 90, grid_resolution ) )
+  bnds <- 1 : 2
+  bndsdim <- ncdim_def( "bnds", '', as.integer( bnds ), longname = 'bounds', create_dimvar = F )
+  time_bnds_data <- cbind( c( 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 ),
+                      c( 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 ) )
+  
+  if ( mass == T ){
+    data_unit <- 'kt'
+  } else {
+    data_unit <- 'kg m-2 s-1'  
+  }
+  
+  # define nc variables
+  left_part <- sector_list 
+  mid_part <- ' <- '
+  right_part <- paste0( 'ncvar_def( \'', left_part, '\', \'', data_unit, '\', dim_list, missval = missing_value, longname= \'' ,sector_list_long, '\' , prec = \'float\', compression = 5 )' )
+  expressions <- paste0( left_part, mid_part, right_part )
+  missing_value <- 1.e20
+  eval( parse( text = expressions ) )
+  lon_bnds <- ncvar_def( 'lon_bnds', '', list( londim, bndsdim ), prec = 'double' )
+  lat_bnds <- ncvar_def( 'lat_bnds', '', list( latdim, bndsdim ), prec = 'double' )
+  time_bnds <- ncvar_def( 'time_bnds', '', list( timedim, bndsdim ), prec = 'double' )
+  
+  # generate nc file name
+  ceds_version <- 'v'
+  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
+  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
+  nc_file_name <- paste0( output_dir, 'CEDS_', em_species, '_BIO_anthro_', year, '_', grid_resolution, '_', ver_date, '.nc' ) 
+  
+  # generate the var_list 
+  var_list_expression <- c()
+  for ( part in left_part ) {
+    var_list_expression <- paste0( var_list_expression, ', ', part )
+    }
+  var_list_expression <- paste0( 'variable_list <- list( ', substr( var_list_expression, 3, nchar( var_list_expression) ), ', lat_bnds, lon_bnds, time_bnds )' )
+  eval( parse( text = var_list_expression ) ) 
+
+  
+  # create new nc file
+  nc_new <- nc_create( nc_file_name, variable_list, force_v4 = T )
+  
+  # put nc variables into the nc file
+  for ( i in seq_along( time ) ) {
+  expressions <- paste0( 'ncvar_put( nc_new, ', left_part, ' ,t( flip_a_matrix( ', data_list, '[ , , i ]',
+                         ' ) ) , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )' )
+  eval( parse( text = expressions ) )
+  }
+  ncvar_put( nc_new, lon_bnds, lon_bnds_data )
+  ncvar_put( nc_new, lat_bnds, lat_bnds_data )
+  ncvar_put( nc_new, time_bnds, time_bnds_data )
+  
+  # nc variable attributes
+  # attributes for dimensions
+  ncatt_put( nc_new, "lon", "axis", "X" )
+  ncatt_put( nc_new, "lon", "standard_name", "longitude" )
+  ncatt_put( nc_new, "lon", "bounds", "lon_bnds" )
+  ncatt_put( nc_new, "lat", "axis", "Y" )
+  ncatt_put( nc_new, "lat", "standard_name", "latitude" )
+  ncatt_put( nc_new, "lat", "bounds", "lat_bnds" )
+  ncatt_put( nc_new, "time", "standard_name", "time" )
+  ncatt_put( nc_new, "time", "axis", "T" )
+  ncatt_put( nc_new, "time", "bounds", "time_bnds" )
+  # attributes for variables
+  for ( each_var in sector_list ) {
+    ncatt_put( nc_new, each_var, 'cell_methods', 'time:mean' )
+    ncatt_put( nc_new, each_var, 'missing_value', 1e+20, prec = 'float' )
+  }
+  # nc global attributes
+  #ncatt_put( nc_new, 0, 'IMPORTANT', 'FOR TEST ONLY, DO NOT USE' )
+  ncatt_put( nc_new, 0, 'title', paste0('Annual Emissions of ', em_species ) )
+  ncatt_put( nc_new, 0, 'institution_id', 'PNNL-JGCRI' )
+  ncatt_put( nc_new, 0, 'institution', 'Pacific Northwest National Laboratory - JGCRI' )
+  ncatt_put( nc_new, 0, 'activity_id', 'input4MIPs' )
+  ncatt_put( nc_new, 0, 'Conventions', 'CF-1.6' )
+  ncatt_put( nc_new, 0, 'creation_date', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%Y-%m-%dT%H:%M:%SZ' ) ) )
+  ncatt_put( nc_new, 0, 'data_structure', 'grid' )
+  ncatt_put( nc_new, 0, 'frequency', 'mon' )
+  ncatt_put( nc_new, 0, 'realm', 'atmos' )
+  ncatt_put( nc_new, 0, 'source', paste0( 'CEDS ', 
+                                          as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%m-%d-%Y' ) ),
+                                          ': Community Emissions Data System (CEDS) for Historical Emissions' ) )
+  ncatt_put( nc_new, 0, 'source_id', paste0( 'CEDS-', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%m-%d-%Y' ) ) ) )
+  ncatt_put( nc_new, 0, 'further_info_url', 'http://www.globalchange.umd.edu/ceds/' )
+  #ncatt_put( nc_new, 0, 'license', 'FOR TESTING AND REVIEW ONLY' )
+  ncatt_put( nc_new, 0, 'history', 
+             paste0( as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%d-%m-%Y %H:%M:%S %p %Z' ) ),
+                     '; College Park, MD, USA') )
+  #ncatt_put( nc_new, 0, 'comment', 'Test Dataset for CMIP6' )
+  ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes.' )
+  ncatt_put( nc_new, 0, 'host', 'TBD' )
+  ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
+  ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
+
+  global_total_emission <- sum( checksum_total_emission_list ) * 0.001
+  ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2), ' Tg/year' ) )
+  
+  # species information 
+  species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC' ), info = c( 'Mass flux of SOx, reported as 100% SO2', 'Mass flux of NOx, reported as 100% NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass'), stringsAsFactors = F )
+  info_line <- species_info[ species_info$species == em, ]$info 
+  ncatt_put( nc_new, 0, 'reporting_unit', info_line )
+  
+  # close nc_new
+  nc_close( nc_new)
+
+#########################################################################################################################
+    
+  # additional section: write a summary and check text
+
+  summary_table <- data.frame( year = year, species = em_species, 
+                               sector = checksum_sector_list,
+                               month = rep( 1 : 12, length( sector_list ) ),
+                               global_total = checksum_total_emission_list,
+                               unit = 'kt' )
+  ceds_version <- 'v'
+  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
+  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
+  summary_name <- paste0( output_dir, 'CEDS_', em_species, '_BIO_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
   write.csv( summary_table, file = summary_name, row.names = F )
 }
