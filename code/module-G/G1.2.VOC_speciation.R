@@ -54,7 +54,10 @@
     MODULE_G <- "../code/module-G/"
     
 # read in the emission data
-    emissions <- readData( "FIN_OUT", domain_extension = "current-versions/", paste0( em, '_em_country_CEDS_sector_FOR-REVIEW-ONLY' ) )
+    target_filename <- list.files( filePath( "FIN_OUT", "", extension = "", domain_extension = "current-versions/" ),
+                                   pattern = paste0( ".*_", em, '_emissions_by_country_CEDS_secto.*' ) )
+    target_filename <- substr( target_filename, 1, ( nchar( target_filename ) - 4 ) )
+    emissions <- readData( "FIN_OUT", domain_extension = "current-versions/", target_filename )
 # read in the country_location_index, which indicates the location of each country mask in the 'world' matrix 
     country_location_index <- 
       readData( "GRIDDING", domain_extension = "gridding_mappings/", file_name =  paste0( "country_location_index_", as.character( grid_resolution ) ) ) 

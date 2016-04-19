@@ -54,8 +54,10 @@
     MODULE_G <- "../code/module-G/"
     
 # read in the emission data
-    #emissions <- readData( "MED_OUT", paste0( "F.", em, "_scaled_emissions" ) )
-    emissions <- readData( "FIN_OUT", domain_extension = "current-versions/", paste0( em, '_em_country_CEDS_sector_FOR-REVIEW-ONLY' ) )
+    target_filename <- list.files( filePath( "FIN_OUT", "", extension = "", domain_extension = "current-versions/" ),
+                                   pattern = paste0( ".*_", em, '_emissions_by_country_CEDS_secto.*' ) )
+    target_filename <- substr( target_filename, 1, ( nchar( target_filename ) - 4 ) )
+    emissions <- readData( "FIN_OUT", domain_extension = "current-versions/", target_filename )
 # read in the CEDS gridding sector mapping
     ceds_gridding_mapping<- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'CEDS_sector_to_gridding_sector_mapping' )
 
