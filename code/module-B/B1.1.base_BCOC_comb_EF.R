@@ -347,7 +347,7 @@ bond_process_extend <- bond_process_extend[ , c( 'iso','sector','fuel','units',X
 # 7. Write output
 
 writeData( final_out , "MED_OUT", paste0( "B.",em,"_comb_EF_db" ) )
-writeData( final_full, "DEFAULT_EF_IN", paste0( "B.",em,"_SPEW_comb_EF" ), domain_extension = "EF_parameters/" )
+writeData( final_full, "EXT_IN", paste0( "B.",em,"_SPEW_comb_EF" ), domain_extension = "extention-data/" )
 writeData( bond_process_extend , "DEFAULT_EF_IN", domain_extension = 'non-combustion-emissions/', 
            fn = paste0( "B.",em,"_SPEW_NC_em" ) , meta = F)
 
