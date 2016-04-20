@@ -56,7 +56,7 @@ export EM = NONE
 	@echo "Selected gas is " $(EM)
 	@$(MAKE) emissions
 
-activity : $(MED_OUT)/A.total_activity.csv
+activity : $(MED_OUT)/A.total_activity.csv $(EXT_DATA)/A.Pig_Iron_Production.csv
 
 else
 
