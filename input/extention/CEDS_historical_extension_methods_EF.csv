@@ -330,7 +330,7 @@ sector,fuel,em,method,start_year,end_year,file_name,domain,domain_extention,conv
 3D_Soil-emissions,process,NH3,Emissions-trend,1961,1969,NH3_Fertilizer-from-1961,EXT_IN,extention-data/,,
 3D_Soil-emissions,process,NH3,EF-trend,1860,1960,U.N_Fertilizer-per-cap,EXT_IN,extention-data/,,
 3D_Soil-emissions,process,NH3,constant,1750,1859,,,,,
-3D_Soil-emissions,process,NOx,Emissions-trend,1961,1969,NOxFertilizer-from-1961,EXT_IN,extention-data/,,
+3D_Soil-emissions,process,NOx,Emissions-trend,1961,1969,NOx_Fertilizer-from-1961,EXT_IN,extention-data/,,
 3D_Soil-emissions,process,NOx,EF-trend,1860,1960,U.N_Fertilizer-per-cap,EXT_IN,extention-data/,,
 3D_Soil-emissions,process,NOx,constant,1750,1859,,,,,
 3E_Enteric-fermentation,process,all,constant,1750,1969,,,,,
