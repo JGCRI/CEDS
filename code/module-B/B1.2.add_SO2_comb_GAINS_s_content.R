@@ -1,6 +1,6 @@
 # Program Name: B1.2.add_SO2_GAINS_s_content.R
 # Author:  Rachel Hoesly
-# Date Last Updated: Dec 28 2015 
+# Date Last Updated: 19 April 2016
 # Program Purpose: Add 2005 GAINS sulfur content data into defualt sulfur content database
 # 
 # Input Files: GAINS_country_mapping.csv,GAINS_fuel_mapping.csv,
@@ -86,9 +86,27 @@ gains_s_content <- gains_s_content[,c("iso","sector", "fuel","units","X2005")]
 # retain non zero values
 gains_s_content <- gains_s_content[which( gains_s_content$X2005 > 0),]
 
+# Note 0_Temp-Aggregated is a temporary/aggregated sector, here used to aggregate DOM
+# and IN_*. Copy the values of 0_Temp-Aggregated back to those sectors
+disagg_sectors <- c( "1A2a_Ind-Comb-Iron-steel", "1A2b_Ind-Comb-Non-ferrous-metals",
+                     "1A2c_Ind-Comb-Chemicals", "1A2d_Ind-Comb-Pulp-paper", 
+                     "1A2e_Ind-Comb-Food-tobacco", "1A2f_Ind-Comb-Non-metalic-minerals",
+                     "1A2g_Ind-Comb-Construction", "1A2g_Ind-Comb-machinery",
+                     "1A2g_Ind-Comb-mining-quarying", "1A2g_Ind-Comb-other",
+                     "1A2g_Ind-Comb-textile-leather", "1A2g_Ind-Comb-transpequip",
+                     "1A2g_Ind-Comb-wood-products", "1A4a_Commercial-institutional",
+                     "1A4b_Residential", "1A4c_Agriculture-forestry-fishing",
+                     "1A5_Other-unspecified" )
+gains_s_content_disagg <- filter( gains_s_content, sector == "0_Temp-Aggregated" ) %>%
+  repeatAndAddVector( "sector", disagg_sectors )
+gains_s_content_final <- filter( gains_s_content, sector != "0_Temp-Aggregated" ) %>%
+  bind_rows( gains_s_content_disagg ) %>%
+  arrange( iso, sector, fuel )
+
+
 # -------------------------------------------------------------------------------
 # 3. Output
-writeData(gains_s_content, domain = "DEFAULT_EF_PARAM", fn = "B.SO2_GAINS_s_content")
+writeData(gains_s_content_final, domain = "DEFAULT_EF_PARAM", fn = "B.SO2_GAINS_s_content")
 
 
 

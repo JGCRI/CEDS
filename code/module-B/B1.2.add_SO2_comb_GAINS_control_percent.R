@@ -1,6 +1,6 @@
 # Program Name: B1.2.add_SO2_GAINS_control_percent.R
 # Author: Ryan Bolt, Leyang, Linh Vu
-# Date Last Updated: 8 April 2016
+# Date Last Updated: 19 April 2016
 # Program Purpose: Process 2005 GAINS emissions and fuel to calculate GAINS EF, then calculate 
 # 2005 GAINS control percentage. Combine 2005 GAINS control percentage to SO2 control percentage
 # database in the end. 
@@ -84,6 +84,18 @@ EUfuel <- melt(EUfuel, id.vars = c( "cou_abb", "reg_abb","sector.activity"))
 EUemiss <- melt(EUemiss, id.vars = c( "cou_abb", "reg_abb", "Sector.Activity"))
 
 # 2.3 Changing column names along with puting sectors and fuels into CEDS names
+# Note 0_Temp-Aggregated is a temporary/aggregated sector, here used to aggregate DOM
+# and IN_*. So need to copy the values of 0_Temp-Aggregated back to those sectors
+disagg_sectors <- c( "1A2a_Ind-Comb-Iron-steel", "1A2b_Ind-Comb-Non-ferrous-metals",
+                     "1A2c_Ind-Comb-Chemicals", "1A2d_Ind-Comb-Pulp-paper", 
+                     "1A2e_Ind-Comb-Food-tobacco", "1A2f_Ind-Comb-Non-metalic-minerals",
+                     "1A2g_Ind-Comb-Construction", "1A2g_Ind-Comb-machinery",
+                     "1A2g_Ind-Comb-mining-quarying", "1A2g_Ind-Comb-other",
+                     "1A2g_Ind-Comb-textile-leather", "1A2g_Ind-Comb-transpequip",
+                     "1A2g_Ind-Comb-wood-products", "1A4a_Commercial-institutional",
+                     "1A4b_Residential", "1A4c_Agriculture-forestry-fishing",
+                     "1A5_Other-unspecified" )
+
 colnames(EUfuel) <- c("iso", "reg_abb", "sector", "fuel", "Energy")
 EUfuel$fuel <- fuelmap[match(EUfuel$fuel,fuelmap$GAINS.fuel),1]
 EUfuel <- mapCEDS_sector_fuel( mapping_data = EUfuel,
@@ -98,6 +110,11 @@ EUfuel <- mapCEDS_sector_fuel( mapping_data = EUfuel,
                                      aggregate_col = c('Energy'),
                                      oneToOne = FALSE,
                                      agg.fun = sum)
+EUfuel_disagg <- filter( EUfuel, sector == "0_Temp-Aggregated" ) %>%
+  repeatAndAddVector( "sector", disagg_sectors )
+EUfuel <- filter( EUfuel, sector != "0_Temp-Aggregated" ) %>%
+  bind_rows( EUfuel_disagg ) %>%
+  arrange( iso, sector, fuel )
 
 
 colnames(EUemiss) <- c("iso", "reg_abb", "sector", "fuel", "Sulfur_emiss")
@@ -114,6 +131,11 @@ EUemiss <- mapCEDS_sector_fuel( mapping_data = EUemiss,
                                aggregate_col = c('Sulfur_emiss'),
                                oneToOne = FALSE,
                                agg.fun = sum)
+EUemiss_disagg <- filter( EUemiss, sector == "0_Temp-Aggregated" ) %>%
+  repeatAndAddVector( "sector", disagg_sectors )
+EUemiss <- filter( EUemiss, sector != "0_Temp-Aggregated" ) %>%
+  bind_rows( EUemiss_disagg ) %>%
+  arrange( iso, sector, fuel )
 
 #Convert to isocode
 EUemiss$iso <- tolower(gainstoiso$ISO.code[match(EUemiss$iso,gainstoiso$country)])
