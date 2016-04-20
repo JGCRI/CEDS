@@ -553,13 +553,15 @@ printLog('Disaggregating coal to ceds sectors')
   
   # fill out data with zero country and sectors 
   coal_activity <- activity_all[which( activity_all$fuel %in% c('hard_coal', 'brown_coal','coal_coke')),]
+  
   final_coal <- coal_activity
   final_coal[paste0('X',1750:1959)] <- NA
-  # loop over start_years
   
-  for ( i in seq_along ( start_years ) ){
+  for ( i in seq_along( start_years )){
     countries <- iea_start_year[which( iea_start_year$start_year == start_years[i]),'iso']
-    final_coal[which(coal_dissaggregate_final$iso %in% countries), paste0('X',1750:(start_years[i]-1))] <- NA
+    
+    final_coal[which(final_coal$iso %in% countries), paste0('X',1750:(start_years[i]-1))] <- NA
+    
     coal_values_start_date <- coal_dissaggregate_final[ which(coal_dissaggregate_final$iso %in% countries), 
                                                         c('iso','sector','fuel', paste0('X',1750:(start_years[i]-1)) )]
     
@@ -567,12 +569,6 @@ printLog('Disaggregating coal to ceds sectors')
                                      x.ColName = paste0('X',1750:(start_years[i]-1)),
                                      match.x = c('iso','sector','fuel'),
                                      addEntries = F)
-    
-  
-    # coal_dissaggregate_final[match(paste( final_coal$iso, final_coal$fuel, final_coal$sector)  , 
-    #                                              paste(coal_dissaggregate_final$iso, coal_dissaggregate_final$fuel, coal_dissaggregate_final$sector )), 
-    #                                              paste0('X',1750:1970)]
-  
   }  
 
   # do not add intl shipping ( use other data )  
@@ -582,11 +578,15 @@ printLog('Disaggregating coal to ceds sectors')
   
 # ---------------------------------------------------------------------------
 # 7. Add to database
-
+  replace_sectors <- unique(final_coal$sector)
+  
 #Split activity data into data to replace, and not replace
-  rows <- which(!is.na(activity$X1750) | activity$fuel %!in% c('hard_coal','brown_coal','coal_coke') )
-  activity.done <- activity[  rows , ]
-  activity.replace <- activity[ which( 1:nrow(activity) %!in% rows ) , ]
+  
+  activity.replace <- activity[ which( activity$sector %in% replace_sectors &
+                              activity$fuel %in% c('hard_coal','brown_coal','coal_coke') ), ]
+  
+  activity.done <- activity[ which( !(activity$sector %in% replace_sectors &
+                                         activity$fuel %in% c('hard_coal','brown_coal','coal_coke')) ) , ]
 
 # loop over IEA data start years ( 1960, 1965, 1971)
   for ( i in seq_along ( start_years ) ){
@@ -616,7 +616,7 @@ printLog('Disaggregating coal to ceds sectors')
                                   FUN = sum, na.rm=T)
  all_other_tranformation_coal <-  rbind.fill(other_transformation_coal,iea_other_coal)
  all_other_tranformation_coal <- aggregate(all_other_tranformation_coal[paste0('X',1750:2013)],
-                                           by = list(all_other_tranformation_coal$iso),
+                                           by = list(iso = all_other_tranformation_coal$iso),
                                            sum, na.rm=T)
    
 # ---------------------------------------------------------------------------
@@ -628,12 +628,10 @@ printLog('Disaggregating coal to ceds sectors')
   writeData(final_coal, 'DIAG_OUT', 'H.Extended_coal_by_sector_fuel')
   writeData(summed_coal_total, 'DIAG_OUT', 'H.Extended_coal_dissagregated_by_sector_fuel_aggregated') 
   
-  if( !(nrow(activity_all) == nrow(activity) & ncol(activity_all) == ncol(activity) ) ){
-    stop( "New and old activity do not match") } else{
-      writeData( activity, "MED_OUT" , paste0('H.',em,'_total_activity_extended_db')) }
+  if( !( (nrow(activity_all) == nrow(activity)) & (ncol(activity_all) == ncol(activity)) ) ){
+    stop( "New and old activity do not match") 
+    }else if(( (nrow(activity_all) == nrow(activity)) & (ncol(activity_all) == ncol(activity)) )) 
+      { writeData( activity, "MED_OUT" , paste0('H.',em,'_total_activity_extended_db')) }
   
-  writeData( aggregate( activity[,paste0('X',1750:2014)],
-                        by = list(activity$fuel), sum, na.rm=T)
-    ,"DIAG_OUT", 'H.extended_aggregate_CEDS_COAL')
   
   logStop()
