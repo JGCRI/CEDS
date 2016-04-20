@@ -313,7 +313,7 @@ sector,fuel,em,method,start_year,end_year,file_name,domain,domain_extention,conv
 2C_Metal-production,process,all,Emissions-trend,1750,1969,E.CO2_CDIAC_solid_fuel,MED_OUT,,,
 2C_Metal-production,process,SO2,Emissions-trend,1850,1969,U.SO2_Metal_Smelting,DEFAULT_EF_IN,non-combustion-emissions/,,
 2C_Metal-production,process,SO2,Emissions-trend,1750,1849,E.CO2_CDIAC_solid_fuel,MED_OUT,,,
-2C_Metal-production,process,CO,Emissions-trend,1750,1849,A.Pig_Iron_Production,EXT_IN,extention-data/,,
+2C_Metal-production,process,CO,Emissions-trend,1750,1969,A.Pig_Iron_Production,EXT_IN,extention-data/,,
 2D_Degreasing-Cleaning,process,all,EF-converge,1750,1969,,,,1850,0
 2D_Paint-application,process,all,EF-converge,1750,1969,,,,1850,0
 2D3_Chemical-products-manufacture-processing,process,all,EF-converge,1750,1969,,,,1850,0
