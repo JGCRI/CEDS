@@ -136,7 +136,8 @@ clean-modF :
 	rm -fv $(MED_OUT)/F*.csv
 
 clean-modH :
-	rm -fv $(MED_OUT)/H*.csv
+	rm -fv $(MED_OUT)/H*.csv \
+	rm -fv $(EXT_IN)/extention-data/H*.csv
 
 clean-SO2 :
 	rm -fv $(MED_OUT)/*SO2*.csv \
