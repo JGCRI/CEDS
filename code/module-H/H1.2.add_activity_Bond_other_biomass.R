@@ -93,7 +93,6 @@ activity[which( activity$fuel == 'biomass' &
 activity[which( activity$fuel == 'biomass' & activity$sector %in% other_sectors), paste0('X',1750:1971)] <- 
   interpolate_NAs(activity[which( activity$fuel == 'biomass' & activity$sector %in% other_sectors), paste0('X',1750:1971)])
 
-write.csv(activity[which( activity$fuel == 'biomass' & activity$sector %in% other_sectors), ], 'test.csv')
 
 # ---------------------------------------------------------------------------
 # 4. Write to database
