@@ -56,10 +56,16 @@ cdiac_solid_fuel <- readData( 'MED_OUT' , 'E.CO2_CDIAC_solid_fuel')
 
 solid_fuel_correction <- readData('EXT_IN', 'solid_fuel_correction_values')
 # ---------------------------------------------------------------------------
-# 2. Select data to extend based on extension drivers
+# 2. Define Variables, select options
+
+# bond merge year : year when aggregate sectors are 100% bond data. Will slowly transition
+# from bond to ceds after this year , 100% ceds in start year (either 1960 or 1971 varies by iso)
+
+bond_merge_start <- 1850
+
+if ( bond_merge_start %!in% 1850:1959) stop('bond_merge_start must be between 1850 and 1959')
 
 activity <- activity_all
-
 all_countries <- unique(activity$iso)
 
 # ---------------------------------------------------------------------------
@@ -173,7 +179,7 @@ final_ceds_total_coal <- ceds_total_coal_extended
 final_ceds_total_coal[ paste0('X',1845:2000) ] <- final_ceds_total_coal[ paste0('X',1845:2000) ] * multipliers[ paste0('X',1845:2000) ]
 
 # ---------------------------------------------------------------------------
-# 5. Dissaggregate total coal into fuel types using CEDS stary year split 
+# 5. Dissaggregate total coal into fuel types using CEDS start year split 
 
 printLog('Disaggregating total coal into fuel types')
 
@@ -344,14 +350,13 @@ ceds_agg_percent <- do.call(rbind.fill, ceds_agg_percent_list)
 #ceds_agg_percent  and bond_sector_percentages
 combined_sector_percentages_list <- list()
 for ( i in seq_along(start_years)) {
-  year0 <- 1850
-  yearEnd <- start_years[i]
-  years <- year0:yearEnd
+  year0 <- bond_merge_start
+  years <- year0:start_years[i]
   countries <- iea_start_year[which( iea_start_year$start_year == start_years[i]),'iso' ]
   
-  combined_percentages <- merge(bond_sector_percentages_corrected[,c('iso','ext_sector','fuel',paste0('X',1750:1850))],
+  combined_percentages <- merge(bond_sector_percentages_corrected[,c('iso','ext_sector','fuel',paste0('X',1750: (year0 - 1) ))],
                                 ceds_agg_percent[,c('iso','ext_sector','fuel','percent')] )
-  names(combined_percentages)[which(names(combined_percentages) == 'percent' )] <- paste0('X',yearEnd)
+  names(combined_percentages)[which(names(combined_percentages) == 'percent' )] <- paste0('X',start_years[i])
   
   combined_percentages <- combined_percentages[which( combined_percentages$iso %in% countries),]
   
