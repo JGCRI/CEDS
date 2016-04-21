@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: G1.4.Biamass_emissions_gridding.R
+# Program Name: G1.4.Biomass_emissions_gridding.R
 # Author(s): Leyang Feng
 # Date Last Updated: 19 April 2016
 # Program Purpose: Produce gridded emissions using CEDS emissions final output for biomass only.      
@@ -29,7 +29,7 @@
 # provides logging, file support, and system functions - and start the script log.
     headers <- c( 'gridding_functions.R', 'data_functions.R' ) # Any additional function files required
     log_msg <- "CEDS emissions gridding for biomass" # First message to be printed to the log
-    script_name <- "G1.4.Biamass_emissions_gridding.R"
+    script_name <- "G1.4.Biomass_emissions_gridding.R"
 
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
