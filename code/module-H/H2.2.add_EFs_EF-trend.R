@@ -94,7 +94,7 @@ for ( i in seq_along(drivers_method_files$file_name)) {
 
 drivers_method_data_extended <- do.call(rbind.fill, drivers_method_data_extended_list)
 
-writeData(drivers_method_data, 'EXT_IN', domain_extension = 'extention-data/', paste0('H.',em,'_user_defined_data_EF-trend'))
+writeData(drivers_method_data_extended, 'EXT_IN', domain_extension = 'extention-data/', paste0('H.',em,'_user_defined_data_EF-trend'))
 
 } 
 
