@@ -34,7 +34,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "BC"
+if ( is.na( em ) ) em <- "SO2"
 
 # ------------------------------------------------------------------------------------
 
@@ -62,7 +62,39 @@ emissions$units <- 'kt'
 emissions[X_extended_years] <- EFs[X_extended_years] * activity[X_extended_years]
 
 # ---------------------------------------------------------------------------
-# 5. Write to file
+# 5. Replace SO2 other transformation emission
+
+if( em == 'SO2'){
+  
+  MODULE_H <- "../code/module-H/"
+  source_child <- function( file_name ){ source( paste( MODULE_H, file_name, sep = "" ) ) }
+  source_child ('H4.2.add_emissions_SO2_other_transformation.R' )
+  
+  other_tranformation_emissions_calculated <- readData('MED_OUT', 'H.SO2_calculated_other_transformation_emissions')
+  
+  other_transformation_emissions_extended <- emissions[which(emissions$sector == "1A1bc_Other-transformation"),]
+  
+  # Take Max of calculated and extended Other transformation emissions
+  both_estimates <- rbind.fill(other_tranformation_emissions_calculated,other_transformation_emissions_extended)[
+                                          , c('iso','sector','fuel',paste0('X',1750:end_year)) ] 
+  
+  final_other_tranformation <- aggregate(both_estimates[paste0('X',1750:end_year)],
+                                         by = list(iso = both_estimates$iso,
+                                                   sector = both_estimates$sector,
+                                                   fuel = both_estimates$fuel),
+                                         FUN = max)
+  
+  emissions <- replaceValueColMatch(emissions, final_other_tranformation,
+                                    x.ColName = paste0('X',1750:end_year),
+                                    match.x = c('iso','sector','fuel'),
+                                    addEntries = F)
+  
+ writeData(final_other_tranformation , 'DIAG_OUT', 'H.SO2_final_other_tranformation_emissions')
+ 
+  }
+
+# ---------------------------------------------------------------------------
+# 6. Write to file
 
 writeData( emissions, "MED_OUT" , paste0(em,'_total_CEDS_emissions') )
 
