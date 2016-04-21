@@ -182,10 +182,13 @@ global_ceds <- aggregate(ceds[x_years],
 global_ceds$inv <- 'CEDS'
 global_ceds_long <- melt(global_ceds, id.vars = c('total','inv'))
 
+# Remove AWB from rcp totals
 rcp <- RCP[which(RCP$Sector == 'Tot_Ant'),]
-if(em == 'OC'){
 rcp_awb <- RCP[which(RCP$Sector == 'AWB'),]
 rcp[,x_rcp_years] <- rcp[,x_rcp_years] - rcp_awb[,x_rcp_years]
+
+# Convert OC from mass units to carbon units
+if(em == 'OC'){
 rcp[,x_rcp_years] <- rcp[,x_rcp_years]/1.4
 }
 
