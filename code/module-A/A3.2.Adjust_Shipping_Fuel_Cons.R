@@ -217,9 +217,14 @@
     ship_out <- group_by( ship_out, iso, sector, fuel, units ) %>%
       summarise_each( fun = "max" )
 
+#Seperate for output
+    global_shipping <- ship_out[which(ship_out$iso == 'global'),]
+    else_shipping <- ship_out[which(ship_out$iso != 'global'),]
+    
 # -----------------------------------------------------------------------------
 # 6. Output
-    writeData( ship_out, "MED_OUT", "A.intl_shipping_en" )
+    writeData( global_shipping, "MED_OUT", "A.intl_shipping_en" )
+    writeData( else_shipping, "DIAG_OUT", "A.intl_shipping_en_country_break-out" )
     writeData( iea_data_extended, "MED_OUT", "A.IEA_BP_energy_ext" )
     writeData( ship_check, "DIAG_OUT", "A.intl_shipping_discrepancy" )
 
