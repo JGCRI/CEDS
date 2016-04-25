@@ -33,7 +33,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NH3"
+if ( is.na( em ) ) em <- "SO2"
 
 # ---------------------------------------------------------------------------
 # 1. Load files
@@ -286,7 +286,7 @@ for ( i in seq_along((start_years))){
   }
 
 # ---------------------------------------------------------------------------
-# 6. Extend 1750 to 1850 with Population
+# 6. Extend 1750 to 1750 with Population
 
 # set up extention data (population)
   extension_data_1960 <- dissagregate_biomass_1960[,c('iso','sector','fuel')]
@@ -300,8 +300,17 @@ for ( i in seq_along((start_years))){
   dissagregate_biomass_1971[ paste0('X', 1750:1849)] <- NA
 
 # extend
-  final_extended_1960 <- extend_data_on_trend(driver_trend = extension_data_1960, input_data = dissagregate_biomass_1960 , start = 1750, end = 1850)
-  final_extended_1971 <- extend_data_on_trend(driver_trend = extension_data_1971, input_data = dissagregate_biomass_1971 , start = 1750, end = 1850)
+  final_extended_1960 <- extend_data_on_trend(driver_trend = extension_data_1960, input_data = dissagregate_biomass_1960 , start = 1750, end = 1849)
+  final_extended_1971 <- extend_data_on_trend(driver_trend = extension_data_1971, input_data = dissagregate_biomass_1971 , start = 1750, end = 1849)
+
+  # TODO: change extend_data_on_trend function - it currently takes average of previous years. 
+  # If start year is zero then data should be extended at zero - or option
+  final_extended_1960[which( final_extended_1960$X1850 == 0), paste0('X',1750:1849) ] <- 0
+  final_extended_1971[which( final_extended_1971$X1850 == 0), paste0('X',1750:1849) ] <- 0
+  
+  final_extended_biomass <- rbind.fill(final_extended_1960, final_extended_1971)
+  final_extended_biomass <- final_extended_biomass[,c('iso','sector','fuel',paste0('X',1750:1970))]
+  
 
 # ---------------------------------------------------------------------------
 # 6. Add to Activity Database
@@ -332,7 +341,7 @@ activity <- rbind( activity.done,activity.replace)
 # ---------------------------------------------------------------------------
 # 7. Write to database
 
-writeData( rbind.fill(dissagregate_biomass_1960, dissagregate_biomass_1971),
+writeData( final_extended_biomass,
            'DIAG_OUT', paste0('H.',em,'_extended_industrial_biomass'))
 writeData(blended_biomass, 'DIAG_OUT', paste0('H.',em,'_extended_total_industrial_biomass'))
 
