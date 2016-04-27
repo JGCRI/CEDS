@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: B1.1.base_BCOC_comb_EF.R
 # Author: Rachel Hoesly, Linh Vu
-# Date Last Updated: 14 April 2016
+# Date Last Updated: 26 April 2016
 # Program Purpose: 1. Produce OC emissions factors from SPEW (i.e. Bond) data.
 #              
 # Input Files: Bond_ctry_mapping.csv, Bond_fuel_mapping.csv, Bond_sector_mapping.csv,
@@ -309,6 +309,9 @@ final_out <- final_full[,c('iso','sector','fuel', 'units' , X_emissions_years ) 
 
 # ------------------------------------------------------------------------------
 # 8. Process emissions
+
+X_bond_process_years <- paste0('X',seq(1850,2010,5))
+
 bond_everything$Year <- paste0('X',bond_everything$Year)
 bond_everything <- merge( bond_everything , iso_map[,c('iso','Country')], all= TRUE)
 
@@ -325,7 +328,7 @@ bond_process <- cast( bond_everything , iso + sector + fuel ~ Year , value = pas
 
 process_sectors <- MSL[which(MSL$type == 'NC'),'sector']
 bond_process <- bond_process[which(bond_process$sector %in% process_sectors), ]
-bond_process [ X_emissions_years[X_emissions_years %!in% X_bond_years] ] <- NA
+bond_process [ X_emissions_years[X_emissions_years %!in% X_bond_process_years] ] <- NA
 
  
 # organize and extend
@@ -336,6 +339,9 @@ bond_process <- bond_process[ rowSums(is.na(bond_process[Xyears]))!=
 bond_process <- replace(bond_process, bond_process == 0, NA)
 bond_process_extend <- interpolateValues(bond_process)
 bond_process_extend[ is.na( bond_process_extend ) ] <- 0
+
+# Bond stops at 2010. Copy 2010 values to 2011-2014
+bond_process_extend[, paste0( "X", 2011:2014 ) ] <- bond_process_extend$X2010
 
 # relabel fuel and process and add units
 bond_process_extend$fuel <- 'process'
