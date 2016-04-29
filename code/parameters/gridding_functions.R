@@ -958,7 +958,7 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   time <- c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 )
   londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
   latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
-  timedim <- ncdim_def( "time", paste0( "days since ", year, "-01-01 0:0:0" ), as.double( time ), 
+  timedim <- ncdim_def( "time", paste0( "days since 1750-01-01 0:0:0" ), as.double( time ), 
                         calendar = '365_day', longname = 'time' )
   dim_list <- list( londim, latdim, timedim )
   lon_bnds_data <- cbind( seq( -180, ( 180 - grid_resolution ), grid_resolution ), 
@@ -1061,7 +1061,7 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2), ' Tg/year' ) )
   
   # species information 
-  species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC' ), info = c( 'Mass flux of SOx, reported as 100% SO2', 'Mass flux of NOx, reported as 100% NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass'), stringsAsFactors = F )
+  species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass'), stringsAsFactors = F )
   info_line <- species_info[ species_info$species == em, ]$info 
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
   
@@ -1136,7 +1136,7 @@ final_monthly_nc_output_air <- function( output_dir, grid_resolution, year, em_s
   londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
   latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
   levdim <- ncdim_def( "level", "km", as.double ( levs ), longname = 'altitude' ) 
-  timedim <- ncdim_def( "time", paste0( "days since ", year, "-01-01 0:0:0" ), as.double( time ), 
+  timedim <- ncdim_def( "time", paste0( "days since 1750-01-01 0:0:0" ), as.double( time ), 
                         calendar = '365_day', longname = 'time' )
   dim_list <- list( londim, latdim, levdim, timedim )
   lon_bnds_data <- cbind( seq( -180, ( 180 - grid_resolution ), grid_resolution ), 
@@ -1238,7 +1238,7 @@ final_monthly_nc_output_air <- function( output_dir, grid_resolution, year, em_s
   global_total_emission <- sum( checksum_total_emission_list ) * 0.001
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2), ' Tg/year' ) )
   # species information 
-  species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC' ), info = c( 'Mass flux of SOx, reported as 100% SO2', 'Mass flux of NOx, reported as 100% NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass'), stringsAsFactors = F )
+  species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass'), stringsAsFactors = F )
   info_line <- species_info[ species_info$species == em, ]$info 
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
   
@@ -1347,7 +1347,7 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
     time <- c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 )
     londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
     latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
-    timedim <- ncdim_def( "time", paste0( "days since ", year, "-01-01 0:0:0" ), as.double( time ),
+    timedim <- ncdim_def( "time", paste0( "days since 1750-01-01 0:0:0" ), as.double( time ),
                           calendar = '365_day', longname = 'time' )
     dim_list <- list( londim, latdim, timedim )
     lon_bnds_data <- cbind( seq( -180, ( 180 - grid_resolution ), grid_resolution ), 
@@ -1580,7 +1580,7 @@ annual_total_emission_nc_output <- function( output_dir, grid_resolution, year, 
   global_total_emission <- total_sum_in_kt * 0.001
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2), ' Tg/year' ) )
   # species information 
-  species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC' ), info = c( 'Mass flux of SOx, reported as 100% SO2', 'Mass flux of NOx, reported as 100% NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass'), stringsAsFactors = F )
+  species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass'), stringsAsFactors = F )
   info_line <- species_info[ species_info$species == em, ]$info 
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
   
@@ -1674,7 +1674,7 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
   time <- c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 )
   londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
   latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
-  timedim <- ncdim_def( "time", paste0( "days since ", year, "-01-01 0:0:0" ), as.double( time ), 
+  timedim <- ncdim_def( "time", paste0( "days since 1750-01-01 0:0:0" ), as.double( time ), 
                         calendar = '365_day', longname = 'time' )
   dim_list <- list( londim, latdim, timedim )
   lon_bnds_data <- cbind( seq( -180, ( 180 - grid_resolution ), grid_resolution ), 
@@ -1707,7 +1707,7 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
   ceds_version <- 'v'
   date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
   ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
-  nc_file_name <- paste0( output_dir, 'CEDS_', em_species, '_BIO_anthro_', year, '_', grid_resolution, '_', ver_date, '.nc' ) 
+  nc_file_name <- paste0( output_dir, 'CEDS_', em_species, '_SOLID_BIOFUEL_anthro_', year, '_', grid_resolution, '_', ver_date, '.nc' ) 
   
   # generate the var_list 
   var_list_expression <- c()
@@ -1772,12 +1772,13 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
   ncatt_put( nc_new, 0, 'host', 'TBD' )
   ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
   ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
+  ncatt_put( nc_new, 0, 'note', 'These are a subset of anthro emissions and SHOULD NOT BE ADDED to the anthro emissions data. These are supplemental data only.' )
 
   global_total_emission <- sum( checksum_total_emission_list ) * 0.001
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2), ' Tg/year' ) )
   
   # species information 
-  species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC' ), info = c( 'Mass flux of SOx, reported as 100% SO2', 'Mass flux of NOx, reported as 100% NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass'), stringsAsFactors = F )
+  species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass'), stringsAsFactors = F )
   info_line <- species_info[ species_info$species == em, ]$info 
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
   
@@ -1796,6 +1797,6 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
   ceds_version <- 'v'
   date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
   ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
-  summary_name <- paste0( output_dir, 'CEDS_', em_species, '_BIO_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
+  summary_name <- paste0( output_dir, 'CEDS_', em_species, '_SOLID_BIOFUEL_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
   write.csv( summary_table, file = summary_name, row.names = F )
 }
