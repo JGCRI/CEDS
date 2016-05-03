@@ -102,7 +102,9 @@ clean-intermediate :
 clean-diagnostic :
 	rm -fv $(DIAG_OUT)/*.csv \
 	rm -fv $(DIAG_OUT)/summary-plots/*.csv \
-	rm -fv $(DIAG_OUT)/summary-plots/*.pdf
+	rm -fv $(DIAG_OUT)/summary-plots/*.pdf \
+	rm -fv $(DIAG_OUT)/ceds-comparisons/*.pdf \
+	rm -fv $(DIAG_OUT)/ceds-comparisons/*.csv
 
 clean-final :
 	rm -fv $(FINAL_OUT)/*.csv
@@ -350,9 +352,12 @@ $(MED_OUT)/A.IEA_BP_energy_ext.csv : \
 # aa3-2
 # Write out difference between IEA and CEDS coal
 $(MED_OUT)/A.IEA_CEDS_coal_difference.csv : \
-	$(MOD_A)/A3.3.write_coal_diff.R \
+	$(MOD_A)/A3.3.write_IEA_diff.R \
 	$(MED_OUT)/A.IEA_BP_energy_ext.csv
 	Rscript $< $(EM) --nosave --no-restore
+
+$(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv : \
+	$(MED_OUT)/A.IEA_CEDS_coal_difference
 
 # aa3-3
 # Process pig iron production
@@ -675,6 +680,7 @@ $(MED_OUT)/H.$(EM)_total_activity_extended.csv : \
 	$(MOD_H)/H1.2.add_activity_Bond_other_biomass.R \
 	$(MED_OUT)/F.$(EM)_scaled_emissions.csv \
 	$(MED_OUT)/A.IEA_CEDS_coal_difference.csv \
+	$(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
 	$(EXT_IN)/CEDS_historical_extension_drivers_activity.csv
 	Rscript $< $(EM) --nosave --no-restore
