@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A2.2.IEA_biomass_fix.R
 # Author: Linh Vu
-# Date Last Updated: 16 Mar 2016
+# Date Last Updated: 3 May 2016
 # Program Purpose:  This program corrects system (IEA) residential biomass using 
 #                   EIA, Fernandes et al. 2007, and Denier van der Gon et al. 2015
 #                   (European) biomass data.
@@ -222,8 +222,8 @@ initialize( script_name, log_msg, headers )
     biomass_1_IEA <- filter( biomass_1, iso %in% iso_IEA )
     
     # Prepare for 4a
-    biomass_1_IEA$IEA_pc_ext_a <- biomass_1_IEA$IEA_pc  # will change in 3a
-    biomass_1_IEA$flag_a <- NA  # ==1 if changed in 3a
+    biomass_1_IEA$IEA_pc_ext_a <- biomass_1_IEA$IEA_pc  # will change in 4a
+    biomass_1_IEA$flag_a <- NA  # ==1 if changed in 4a
     biomass_1_IEA <- arrange( biomass_1_IEA, iso, desc( year ) )
 
 # 4a. To fix NA: Starting from most recent year and going backwards in time, if IEA
@@ -275,8 +275,8 @@ initialize( script_name, log_msg, headers )
 
 # Prepare for 4b
     biomass_1a_IEA <- arrange( biomass_1a_IEA, iso, year )
-    biomass_1a_IEA$IEA_pc_ext_b <- biomass_1a_IEA$IEA_pc_ext_a  # will change in 3b
-    biomass_1a_IEA$flag_b <- NA  # ==1 if changed in 3b
+    biomass_1a_IEA$IEA_pc_ext_b <- biomass_1a_IEA$IEA_pc_ext_a  # will change in 4b
+    biomass_1a_IEA$flag_b <- NA  # ==1 if changed in 4b
     
     
 # 4b. To fix breaks: Going backwards in time, find the last (most recent) year where 
@@ -323,8 +323,8 @@ initialize( script_name, log_msg, headers )
     
 # Prepare for 4c
     biomass_1b_IEA <- arrange( biomass_1b_IEA, iso, year )
-    biomass_1b_IEA$IEA_pc_ext_c <- biomass_1b_IEA$IEA_pc_ext_b  # will change in 3c
-    biomass_1b_IEA$flag_c <- NA  # ==1 if changed in 3c
+    biomass_1b_IEA$IEA_pc_ext_c <- biomass_1b_IEA$IEA_pc_ext_b  # will change in 4c
+    biomass_1b_IEA$flag_c <- NA  # ==1 if changed in 4c
     
     # Make a logical column is_ext == T if IEA_pc has been extrapolated
     biomass_1b_IEA$is_ext <- is.na( biomass_1b_IEA$IEA_pc ) | 
@@ -573,17 +573,21 @@ initialize( script_name, log_msg, headers )
     
     IEA_correction <- filter( IEA_correction, !is.na( decision ), 
                               !grepl( "ignore", decision ) )
-    IEA_adj <- select( biomass_IEA_final, iso, units, year, IEA, IEA_ext_total )
+    IEA_adj <- select( biomass_final_ext, iso, units, year, ceds_tot_final ) %>% 
+      filter( year %in% IEA_years )
+    IEA_adj$IEA <- biomass_IEA_final$IEA[ match( paste0( IEA_adj$iso, IEA_adj$year ), 
+                                                 paste0( biomass_IEA_final$iso, biomass_IEA_final$year ) ) ]
     IEA_adj$year <- paste0( "X", IEA_adj$year )
     
-    # IEA for USA in biomass_final is actually EIA, so replace with IEA first
+    # IEA for USA is actually EIA, so replace with IEA first
     IEA_usa <- filter( IEA_en, sector == "1A4b_Residential", fuel == "biomass", iso == "usa" ) %>%
       melt( measure = X_IEA_years )
     IEA_adj$IEA[ IEA_adj$iso == "usa" ] <- IEA_usa$value[ match( 
       IEA_adj$year[ IEA_adj$iso == "usa" ], IEA_usa$variable ) ]
     
+    # Compute adjustment
     IEA_adj$IEA[ is.na( IEA_adj$IEA ) ] <- 0
-    IEA_adj <- mutate( IEA_adj, adj = IEA_ext_total - IEA )  %>%
+    IEA_adj <- mutate( IEA_adj, adj = ceds_tot_final - IEA )  %>%
       filter( paste( iso, year ) %in% 
                 paste( IEA_correction$iso, IEA_correction$year ) )
 
@@ -596,14 +600,22 @@ initialize( script_name, log_msg, headers )
     
 # ------------------------------------------------------------------------------
 # 7. Make final biomass dataset
-# Replace residential biomass in CEDS with data in biomass_final
-    biomass_final$year <- paste0( "X", biomass_final$year )
-    biomass_final_wide <- cast( biomass_final, iso + units ~ year, value = "ceds" )
-    IEA_en_adj <- IEA_en
+# First create rows of 1A4b_Residential biomass in IEA_en if not already exist
+    iso_w_res <- filter( IEA_en, sector == "1A4b_Residential", fuel == "biomass" )
+    iso_no_res <- setdiff( IEA_en$iso, iso_w_res$iso )
+    IEA_en_adj <- bind_rows( IEA_en, data.frame( 
+      iso = iso_no_res, sector = "1A4b_Residential", fuel = "biomass", units = "kt" ) ) %>%
+      arrange( iso, sector, fuel )
+    
+# Replace residential biomass in CEDS with data in biomass_final_ext
+    biomass_replaced <- select( biomass_final_ext, iso, year, units, ceds_tot_final ) %>%
+      filter( year %in% IEA_years )
+    biomass_replaced$year <- paste0( "X", biomass_replaced$year )
+    biomass_replaced_wide <- cast( biomass_replaced, iso + units ~ year, value = "ceds_tot_final" )
     IEA_en_adj[ IEA_en_adj$sector == "1A4b_Residential" & IEA_en_adj$fuel == "biomass", X_IEA_years ] <- 
-      biomass_final_wide[ match( 
+      biomass_replaced_wide[ match( 
         IEA_en_adj$iso[ IEA_en_adj$sector == "1A4b_Residential" & IEA_en_adj$fuel == "biomass" ], 
-        biomass_final_wide$iso ), X_IEA_years ] 
+        biomass_replaced_wide$iso ), X_IEA_years ] 
 
 # Adjust CEDS unspecified biomass
     # Subtract adjustment to residential biomass from unspecified biomass
