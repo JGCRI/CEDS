@@ -56,7 +56,9 @@ export EM = NONE
 	@echo "Selected gas is " $(EM)
 	@$(MAKE) emissions
 
-activity : $(MED_OUT)/A.total_activity.csv $(EXT_DATA)/A.Pig_Iron_Production.csv
+activity : $(MED_OUT)/A.total_activity.csv \
+	$(EXT_DATA)/A.Pig_Iron_Production.csv \
+	$(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv
 
 else
 
@@ -357,7 +359,7 @@ $(MED_OUT)/A.IEA_CEDS_coal_difference.csv : \
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv : \
-	$(MED_OUT)/A.IEA_CEDS_coal_difference
+	$(MED_OUT)/A.IEA_CEDS_coal_difference.csv
 
 # aa3-3
 # Process pig iron production
