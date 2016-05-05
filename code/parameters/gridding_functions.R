@@ -552,7 +552,8 @@ get_proxy <- function( em_species, year, sector ) {
     # specify the proxy_dir
     proxy_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy/")
     # list out all availiable proxies in proxy_dir
-    proxy_list <- list.files( proxy_dir ) 
+    proxy_list <- list.files( proxy_dir )
+    if ( 'README' %in% proxy_list )	{ proxy_list <- proxy_list[ proxy_list != 'README' ] }
     
     # generate the proxy name want to load and some adjustement
     year_num <- as.numeric( year ) 
@@ -789,7 +790,7 @@ gridding_initialize <- function( grid_resolution = 0.5,
   
   # load country masks 
   mask_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "mask/")
-  mask_list <- list.files( mask_dir )
+  mask_list <- list.files( mask_dir, pattern == '.*_mask' )
   if ( load_masks == T ) {
     invisible( lapply( mask_list, function( mask_list ) { load( paste0( mask_dir, mask_list), .GlobalEnv ) } ) )
     country_mask_initialized <- T
@@ -862,7 +863,7 @@ mask_avail_check <- function( emission_country_list, mask_country_list ){
 get_seasonalityFrac <- function( em_species, sector, year ) {
 
   seasonality_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "seasonality/" )
-  total_seasonality_list <- list.files( seasonality_dir )
+  total_seasonality_list <- list.files( seasonality_dir, pattern = '.*_seasonality' )
   
   seasonality_filename <- paste0( sector, '_', em_species, '_', year, '_seasonality' )
   
