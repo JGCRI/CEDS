@@ -40,8 +40,7 @@
     gridding_initialize( grid_resolution = 0.5,
                          start_year = 1750,
                          end_year = 1850, load_masks = T, load_seasonality_profile = T )
-    output_dir <- filePath( 'FIN_OUT', 'gridded_emissions/', extension = "" )
-    total_grid_dir <- filePath( 'DIAG_OUT', 'gridded_emissions/', extension = "" )
+    output_dir <- filePath( 'FIN_OUT', 'gridded-emissions/', extension = "" )
     proxy_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy/")
     
 # ------------------------------------------------------------------------------
