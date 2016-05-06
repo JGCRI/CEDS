@@ -96,7 +96,8 @@ part2: CO-emissions NMVOC-emissions
 
 # Targets used to remove output files for a fresh run
 clean-all : \
-	clean-intermediate clean-diagnostic clean-final clean-logs clean-io clean-modB clean-modC
+	clean-intermediate clean-diagnostic clean-final clean-logs clean-io clean-modB clean-modC \
+	clean-modD clean-modE clean-modF clean-modH
 
 clean-intermediate :
 	rm -fv $(MED_OUT)/*.csv
