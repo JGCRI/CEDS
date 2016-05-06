@@ -33,14 +33,57 @@ source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
 # -----------------------------------------------------------------------------------------------------------
-# 0.5 Load Package
+# 0.5 Load Package, Define Functions
 
   loadPackage('zoo')
 
-rep.row<-function(x,n){
-  matrix(rep(x,each=n),nrow=n)
-}
+  rep.row <- function(x,n){ matrix(rep(x,each=n),nrow=n) }
 
+  split_countries <- function(all_data_in,
+                              combined_iso,
+                              dissagregate_iso,
+                              dis_end_year,
+                              dis_start_year = historical_pre_extension_year,
+                              population_data = population){
+    
+    aggregate_data <- all_data_in[ which( all_data_in$iso == combined_iso),]
+    dissaggregate_years <- paste0('X', dis_start_year : dis_end_year)
+    
+    # template for extended disaggregate - fill
+    disaggregate_extended <- all_data_in[ which( all_data_in$iso %in% dissagregate_iso), c('iso','fuel')]
+    
+    # driver data - population disaggregate and aggregate
+    
+    #part of the ratio - disaggregate population
+    disaggregate_population_data <- disaggregate_extended
+    disaggregate_population_data[dissaggregate_years] <- population_data[ match(disaggregate_population_data$iso,population_data$iso) , dissaggregate_years]
+    #part of the ratio - aggregate population
+    aggregate_pop <- population_data[ which( population_data$iso %in% dissagregate_iso), c('iso',dissaggregate_years)]
+    aggregate_pop <- rbind(aggregate_pop,c(combined_iso,colSums(aggregate_pop[dissaggregate_years])))
+    aggregate_pop[dissaggregate_years] <- sapply(aggregate_pop[dissaggregate_years],FUN=as.numeric)
+    aggregate_population_data <- disaggregate_extended
+    aggregate_population_data[dissaggregate_years] <- aggregate_pop[ match(rep( x=combined_iso,times=nrow(aggregate_population_data)),
+                                                                      aggregate_pop$iso) , dissaggregate_years]
+    
+    # multiplyer - aggregate CDIAC data
+    aggregate_cdiac_multiplier <- disaggregate_extended 
+    aggregate_cdiac_multiplier[dissaggregate_years] <- aggregate_data[ match(aggregate_cdiac_multiplier$fuel,aggregate_data$fuel),
+                                                                       dissaggregate_years]
+    
+    #Extend Data
+    disaggregate_extended[dissaggregate_years] <- as.matrix(aggregate_cdiac_multiplier[dissaggregate_years]) * 
+      as.matrix(disaggregate_population_data[dissaggregate_years]) / as.matrix(aggregate_population_data[dissaggregate_years])
+    
+    # add back to full data
+    cdiac_aggregate_corrected <- replaceValueColMatch(all_data_in,disaggregate_extended,
+                                                      x.ColName = dissaggregate_years,
+                                                      match.x = c('iso','fuel'),
+                                                      addEntries = FALSE)
+    #remove aggregate from final cdiac data to prevent double counting
+    cdiac_aggregate_corrected <- cdiac_aggregate_corrected[-which(cdiac_aggregate_corrected$iso == combined_iso),]
+    
+    return(cdiac_aggregate_corrected)
+  }
 # -----------------------------------------------------------------------------------------------------------
 # 1. Read in files
   cdiac_read <- readData('EM_INV', domain_extension = "CDIAC/",  'CDIAC_national_1751_2011'  ) 
@@ -98,7 +141,7 @@ rep.row<-function(x,n){
   years_cdiac <- cdiac_year_wide[, 4:ncol(cdiac_year_wide)]
   
   years_cdiac[years_cdiac < 0 ] <- NA
-  years_cdiac <- as.data.frame(t(apply(years_cdiac,MARGIN=1, na.approx)  ) , sstringsAsFactors = FALSE )
+  years_cdiac <- as.data.frame(t(apply(years_cdiac,MARGIN=1, na.approx)  ) , stringsAsFactors = FALSE )
   names(years_cdiac) <- names(cdiac_year_wide)[4:ncol(cdiac_year_wide)]
   
   cdiac_corrected <- cbind(id_cdiac,years_cdiac)
@@ -109,178 +152,50 @@ rep.row<-function(x,n){
   X_cdiac_years <- paste0('X',cdiac_start_year:cdiac_end_year)
   
   # -----------------------------------------------------------------------------------------------------------
-  # 4. Extend FSU
-  #        ratio: Pop(FSU)/Pop(USSR)
-  #   CDIAC(FSU): CDIAC(FSU,fuel)*ratio
-  
-  FSU_countries <- c('aze','arm' , 'blr','est','geo','kaz','kgz','lva',
-                     'ltu','mda','tjk','tkm','ukr','uzb', 'rus')
-  FSU_end_year <- 1991
-  USSR_data <- cdiac_corrected[ which( cdiac_corrected$iso == 'USSR'),]
-  FSU_years <- paste0('X', historical_pre_extension_year:FSU_end_year)
-  
-  # template for extended FSU - fill
-  FSU_extended <- cdiac_corrected[ which( cdiac_corrected$iso %in% FSU_countries), c('iso','fuel')]
-  
-  # driver data - population FSU and USSR
-  #part of the ratio - FSU population
-  FSU_population <- FSU_extended
-  FSU_population[FSU_years] <- population[ match(FSU_population$iso,population$iso) , FSU_years]
-  #part of the ratio - USSR population
-  USSR_pop <- population[ which( population$iso %in% FSU_countries), c('iso',FSU_years)]
-  USSR_pop <- rbind(USSR_pop,c('USSR',colSums(USSR_pop[FSU_years])))
-  USSR_pop[FSU_years] <- sapply(USSR_pop[FSU_years],FUN=as.numeric)
-  USSR_population <- FSU_extended
-  USSR_population[FSU_years] <- USSR_pop[ match(rep( x='USSR',times=nrow(USSR_population)),
-                                                       USSR_pop$iso) , FSU_years]
-  
-  # multiplyer - USSR CDIAC data
-  USSR_cdiac_multiplier <- FSU_extended 
-  USSR_cdiac_multiplier[FSU_years] <- USSR_data[ match(USSR_cdiac_multiplier$fuel,USSR_data$fuel),
-                                                    FSU_years]
-  
-  #Extend Data
-  FSU_extended[FSU_years] <- as.matrix(USSR_cdiac_multiplier[FSU_years]) * 
-                             as.matrix(FSU_population[FSU_years]) / as.matrix(USSR_population[FSU_years])
-  
-  # add back to full data
-  cdiac_ussr_corrected <- replaceValueColMatch(cdiac_corrected,FSU_extended,
-                                      x.ColName = FSU_years,
-                                      match.x = c('iso','fuel'),
-                                      addEntries = FALSE)
-  #remove USSR from final cdiac data to prevent double counting
-  cdiac_ussr_corrected <- cdiac_ussr_corrected[-which(cdiac_ussr_corrected$iso == 'USSR'),]
-  
-  # -----------------------------------------------------------------------------------------------------------
-  # 5. Extend FS Yugoslavia
-  #        ratio: Pop(FSY)/Pop(yugoslavia)
-  #   CDIAC(FSU): CDIAC(FSY,fuel)*ratio
-  
-  FSYug_countries <- c('bih','hrv','mkd','svn', 'scg')
-  FSYug_end_year <- 1991
-  Yug_data <- cdiac_ussr_corrected[ which( cdiac_ussr_corrected$iso == 'yug'),]
-  FSYug_years <- paste0('X', historical_pre_extension_year:FSYug_end_year)
-  
-  # template for extended FSYug - fill
-  FSYug_extended <- cdiac_ussr_corrected[ which( cdiac_ussr_corrected$iso %in% FSYug_countries), c('iso','fuel')]
-  
-  # driver data - population FSYug and Yug
-  #part of the ratio - FSYug population
-  FSYug_population <- FSYug_extended
-  FSYug_population[FSYug_years] <- population[ match(FSYug_population$iso,population$iso) , FSYug_years]
-  #part of the ratio - Yug population
-  Yug_pop <- population[ which( population$iso %in% FSYug_countries), c('iso',FSYug_years)]
-  Yug_pop <- rbind(Yug_pop,c('yug',colSums(Yug_pop[FSYug_years])))
-  Yug_pop[FSYug_years] <- sapply(Yug_pop[FSYug_years],FUN=as.numeric)
-  Yug_population <- FSYug_extended
-  Yug_population[FSYug_years] <- Yug_pop[ match(rep( x='yug',times=nrow(Yug_population)),
-                                                Yug_pop$iso) , FSYug_years]
-  
-  # multiplyer - Yug CDIAC data
-  Yug_cdiac_multiplier <- FSYug_extended 
-  Yug_cdiac_multiplier[FSYug_years] <- Yug_data[ match(Yug_cdiac_multiplier$fuel,Yug_data$fuel),
-                                                 FSYug_years]
-  
-  #Extend Data
-  FSYug_extended[FSYug_years] <- as.matrix(Yug_cdiac_multiplier[FSYug_years]) * 
-    as.matrix(FSYug_population[FSYug_years]) / as.matrix(Yug_population[FSYug_years])
-  
-  # add back to full data
-  cdiac_yug_corrected <- replaceValueColMatch(cdiac_ussr_corrected,FSYug_extended,
-                                      x.ColName = FSYug_years,
-                                      match.x = c('iso','fuel'),
-                                      addEntries = FALSE)
-  #remove Yug from final cdiac data to prevent double counting
-  cdiac_yug_corrected  <- cdiac_yug_corrected [-which(cdiac_yug_corrected $iso == 'yug'),]
-  
-  # -----------------------------------------------------------------------------------------------------------
-  # 5. Extend Serbia and Montenegro
-  #        ratio: Pop(SernMont)/Pop(scgoslavia)
-  #   CDIAC(FSU): CDIAC(SernMont,fuel)*ratio
-  
-  SernMont_countries <- c('srb','mne')
-  SernMont_end_year <- 2005
-  scg_data <- cdiac_yug_corrected[ which( cdiac_yug_corrected$iso == 'scg'),]
-  SernMont_years <- paste0('X', historical_pre_extension_year:SernMont_end_year)
-  
-  # template for extended SernMont - fill
-  SernMont_extended <- cdiac_ussr_corrected[ which( cdiac_ussr_corrected$iso %in% SernMont_countries), c('iso','fuel')]
-  
-  # driver data - population SernMont and scg
-  #part of the ratio - SernMont population
-  SernMont_population <- SernMont_extended
-  SernMont_population[SernMont_years] <- population[ match(SernMont_population$iso,population$iso) , SernMont_years]
-  #part of the ratio - scg population
-  scg_pop <- population[ which( population$iso %in% SernMont_countries), c('iso',SernMont_years)]
-  scg_pop <- rbind(scg_pop,c('scg',colSums(scg_pop[SernMont_years])))
-  scg_pop[SernMont_years] <- sapply(scg_pop[SernMont_years],FUN=as.numeric)
-  scg_population <- SernMont_extended
-  scg_population[SernMont_years] <- scg_pop[ match(rep( x='scg',times=nrow(scg_population)),
-                                                scg_pop$iso) , SernMont_years]
-  
-  # multiplyer - scg CDIAC data
-  scg_cdiac_multiplier <- SernMont_extended 
-  scg_cdiac_multiplier[SernMont_years] <- scg_data[ match(scg_cdiac_multiplier$fuel,scg_data$fuel),
-                                                 SernMont_years]
-  
-  #Extend Data
-  SernMont_extended[SernMont_years] <- as.matrix(scg_cdiac_multiplier[SernMont_years]) * 
-    as.matrix(SernMont_population[SernMont_years]) / as.matrix(scg_population[SernMont_years])
-  
-  # add back to full data
-  cdiac_scg_corrected <- replaceValueColMatch(cdiac_yug_corrected,SernMont_extended,
-                                              x.ColName = SernMont_years,
-                                              match.x = c('iso','fuel'),
-                                              addEntries = FALSE)
-  #remove scg from final cdiac data to prevent double counting
-  cdiac_scg_corrected  <- cdiac_scg_corrected [-which(cdiac_scg_corrected $iso == 'scg'),]
-  
-  
-  # -----------------------------------------------------------------------------------------------------------
-  # 6. Extend Czechoslovakia
-  #        ratio: Pop(czech-slovak)/Pop(Czechoslovakia)
-  #   CDIAC(FU): CDIAC(czech-slovak,fuel)*ratio
-  
-  Fcsk_countries <- c('cze','svk')
-  Fcsk_end_year <- 1991
-  csk_data <- cdiac_scg_corrected[ which( cdiac_scg_corrected$iso == 'csk'),]
-  Fcsk_years <- paste0('X', historical_pre_extension_year:Fcsk_end_year)
-  
-  # template for extended Fcsk - fill
-  Fcsk_extended <- cdiac_ussr_corrected[ which( cdiac_ussr_corrected$iso %in% Fcsk_countries), c('iso','fuel')]
-  
-  # driver data - population Fcsk and csk
-  #part of the ratio - Fcsk population
-  Fcsk_population <- Fcsk_extended
-  Fcsk_population[Fcsk_years] <- population[ match(Fcsk_population$iso,population$iso) , Fcsk_years]
-  #part of the ratio - csk population
-  csk_pop <- population[ which( population$iso %in% Fcsk_countries), c('iso',Fcsk_years)]
-  csk_pop <- rbind(csk_pop,c('csk',colSums(csk_pop[Fcsk_years])))
-  csk_pop[Fcsk_years] <- sapply(csk_pop[Fcsk_years],FUN=as.numeric)
-  csk_population <- Fcsk_extended
-  csk_population[Fcsk_years] <- csk_pop[ match(rep( x='csk',times=nrow(csk_population)),
-                                                csk_pop$iso) , Fcsk_years]
-  
-  # multiplyer - csk CDIAC data
-  csk_cdiac_multiplier <- Fcsk_extended 
-  csk_cdiac_multiplier[Fcsk_years] <- csk_data[ match(csk_cdiac_multiplier$fuel,csk_data$fuel),
-                                                 Fcsk_years]
-  
-  #Extend Data
-  Fcsk_extended[Fcsk_years] <- as.matrix(csk_cdiac_multiplier[Fcsk_years]) * 
-    as.matrix(Fcsk_population[Fcsk_years]) / as.matrix(csk_population[Fcsk_years])
-  
-  # add back to full data
-  cdiac_csk_corrected <- replaceValueColMatch(cdiac_scg_corrected,Fcsk_extended,
-                                              x.ColName = Fcsk_years,
-                                              match.x = c('iso','fuel'),
-                                              addEntries = FALSE)
-  #remove csk from final cdiac data to prevent double counting
-  cdiac_csk_corrected  <- cdiac_csk_corrected [-which(cdiac_csk_corrected $iso == 'csk'),]  
-# -----------------------------------------------------------------------------------------------------------
-# 5. Add liquid and gas fuels 
+  # 4. Split Countries
  
-  cdiac_final <- cdiac_csk_corrected 
+  # FSU
+    cdiac_ussr_corrected <- split_countries(all_data_in = cdiac_corrected,
+                                          combined_iso = 'USSR',
+                                          dis_end_year = 1991,
+                                          dissagregate_iso = c('aze','arm' , 'blr','est','geo','kaz','kgz','lva',
+                                                                   'ltu','mda','tjk','tkm','ukr','uzb', 'rus'))
+   #  Yugoslavia
+  cdiac_yug_corrected  <- split_countries(all_data_in = cdiac_ussr_corrected,
+                                          combined_iso = 'yug',
+                                          dis_end_year = 1991,
+                                          dissagregate_iso = c('bih','hrv','mkd','svn', 'scg'))
+  # Serbia and Montenegro
+  cdiac_scg_corrected  <- split_countries(all_data_in = cdiac_yug_corrected,
+                                          combined_iso = 'scg',
+                                          dis_end_year = 2005,
+                                          dissagregate_iso = c('srb','mne'))
+  # Czechoslovakia
+    cdiac_csk_corrected  <- split_countries(all_data_in = cdiac_scg_corrected,
+                                           combined_iso = 'csk',
+                                           dis_end_year = 1991,
+                                           dissagregate_iso = c('cze','svk') ) 
+  # Czechoslovakia
+  cdiac_csk_corrected  <- split_countries(all_data_in = cdiac_scg_corrected,
+                                          combined_iso = 'csk',
+                                          dis_end_year = 1991,
+                                          dissagregate_iso = c('cze','svk') ) 
+  # East and West Pakistan
+  cdiac_pak_corrected  <- split_countries(all_data_in = cdiac_csk_corrected,
+                                          combined_iso = 'EAST_WEST_PAKISTAN',
+                                          dis_end_year = 1971,
+                                          dissagregate_iso = c('pak','bgd') ) 
+  # United Korea
+  cdiac_kor_corrected  <- split_countries(all_data_in = cdiac_pak_corrected,
+                                          combined_iso = 'UNITED_KOREA',
+                                          dis_end_year = 1944,
+                                          dissagregate_iso = c('prk','kor') ) 
+  
+  cdiac_final <- cdiac_kor_corrected
+  
+  # -----------------------------------------------------------------------------------------------------------
+  # 8. Add liquid and gas fuels 
+ 
   X_cdiac_years <- c('X1750',X_cdiac_years)
   cdiac_final <- cdiac_final[ ,c('iso','fuel', X_cdiac_years)]
   
