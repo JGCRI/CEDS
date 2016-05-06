@@ -33,7 +33,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NH3"
+if ( is.na( em ) ) em <- "SO2"
 
 # ---------------------------------------------------------------------------
 # 1. Load Data
@@ -189,7 +189,7 @@ if( !identical(emissions_trends[,c('iso','sector','fuel')], activity_trends[,c('
 
 EF_trends <- emissions_trends
 EF_trends[years] <- emissions_trends[years]/activity_trends[ years ]
-EF_trends[years] <- replace ( EF_trends[ years] , EF_trends[ years]=='NaN' , NA ) 
+EF_trends[years] <- replace ( EF_trends[ years] , EF_trends[ years]=='NaN' , 0 ) 
 
 writeData( EF_trends, domain = "EXT_IN" , domain_extension = "extention-data/", 
            fn = paste0('H.',em,'_',
