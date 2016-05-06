@@ -55,14 +55,14 @@ initialize( script_name, log_msg, headers )
     # driver data - population disaggregate and aggregate
     
     #part of the ratio - disaggregate population
-    disaggregate_population <- disaggregate_extended
+    disaggregate_population_data <- disaggregate_extended
     disaggregate_population_data[dissaggregate_years] <- population_data[ match(disaggregate_population_data$iso,population_data$iso) , dissaggregate_years]
     #part of the ratio - aggregate population
     aggregate_pop <- population_data[ which( population_data$iso %in% dissagregate_iso), c('iso',dissaggregate_years)]
     aggregate_pop <- rbind(aggregate_pop,c(combined_iso,colSums(aggregate_pop[dissaggregate_years])))
     aggregate_pop[dissaggregate_years] <- sapply(aggregate_pop[dissaggregate_years],FUN=as.numeric)
-    aggregate_population <- disaggregate_extended
-    aggregate_population_data[dissaggregate_years] <- aggregate_pop[ match(rep( x=combined_iso,times=nrow(aggregate_population)),
+    aggregate_population_data <- disaggregate_extended
+    aggregate_population_data[dissaggregate_years] <- aggregate_pop[ match(rep( x=combined_iso,times=nrow(aggregate_population_data)),
                                                                       aggregate_pop$iso) , dissaggregate_years]
     
     # multiplyer - aggregate CDIAC data
@@ -191,11 +191,11 @@ initialize( script_name, log_msg, headers )
                                           dis_end_year = 1944,
                                           dissagregate_iso = c('prk','kor') ) 
   
+  cdiac_final <- cdiac_kor_corrected
   
   # -----------------------------------------------------------------------------------------------------------
   # 8. Add liquid and gas fuels 
  
-  cdiac_final <- cdiac_csk_corrected 
   X_cdiac_years <- c('X1750',X_cdiac_years)
   cdiac_final <- cdiac_final[ ,c('iso','fuel', X_cdiac_years)]
   
