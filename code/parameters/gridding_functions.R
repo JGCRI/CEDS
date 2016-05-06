@@ -790,7 +790,7 @@ gridding_initialize <- function( grid_resolution = 0.5,
   
   # load country masks 
   mask_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "mask/")
-  mask_list <- list.files( mask_dir, pattern == '.*_mask' )
+  mask_list <- list.files( mask_dir, pattern = '.*_mask' )
   if ( load_masks == T ) {
     invisible( lapply( mask_list, function( mask_list ) { load( paste0( mask_dir, mask_list), .GlobalEnv ) } ) )
     country_mask_initialized <- T
