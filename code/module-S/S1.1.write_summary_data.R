@@ -79,12 +79,12 @@ final_emissions <- final_emissions[ -which( final_emissions$sector %in% empty_se
 # save shipping and aviation emissions
 bunker_emissions <- final_emissions[ which( final_emissions$sector %in% 
                     c( "1A3ai_International-aviation", "1A3aii_Domestic-aviation",
-                       "1A3di_International-shipping", "1A3dii_Domestic-naviation" ) ) , ]
+                       "1A3di_International-shipping" ) ) , ]
 
 # remove international shipping and aviation emissions
 final_emissions <- final_emissions[ -which( final_emissions$sector %in% 
                    c( "1A3ai_International-aviation", "1A3aii_Domestic-aviation",
-                      "1A3di_International-shipping", "1A3dii_Domestic-naviation" ) ) , ]
+                      "1A3di_International-shipping" ) ) , ]
 
 # add summary sectors
 final_emissions$summary_sector <- Master_Sector_Level_map[match(final_emissions$sector,
