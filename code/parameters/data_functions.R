@@ -422,3 +422,184 @@ interpolate_NAs <- function( df){
   return (df)
 }
 
+# -----------------------------------------------------------------------------
+# extend_data_on_trend
+# Brief:     extends data based on trend of other data
+# Details:   for general use in modH, not cdiac extention.   
+# Dependencies: 
+# Author(s):    
+# Params:    
+        # driver_trend: data to extend with 
+        # input_data: data to be extended
+        # start : start year of extension (must be in driver_trend)
+        # end: end extension (year before ratio year)
+#  
+# Return:       
+# Input Files:  
+# Output Files: 
+# TODO: merge, switch to extend_data_on_trend_cdiac
+
+extend_data_on_trend <- function(driver_trend, input_data, start, end){
+  # input_data <- new_EFs 
+  
+  # Expand fuels - all-comb
+  expand <- driver_trend[which(driver_trend$fuel == 'all' ) ,]
+  driver_trend <- driver_trend[which(driver_trend$fuel != 'all' ) ,]
+  comb_fuels <- c('biomass', 'hard_coal','brown_coal','coal_coke','natural_gas','heavy_oil','diesel_oil','light_oil')
+  for (i in seq_along(comb_fuels)){
+    expand$fuel <- rep(comb_fuels[i], times= nrow(expand) )
+    driver_trend <- rbind( driver_trend, expand )
+  }
+  
+  ratio_years <- paste0('X',c(end+1,end+2,end+3,end+4,end+5))
+  ext_start_year <- start
+  ext_end_year <- end
+  extention_years <- paste0('X',ext_start_year:ext_end_year)
+  
+  # select extension data for current method
+  driver_lines <- driver_trend[, c('iso','sector','fuel') ]
+  driver_lines <- unique(paste(driver_lines$iso,driver_lines$sector,driver_lines$fuel,sep='-'))
+  
+  # select ceds data to extend
+  ceds_extention_ratios <- input_data[ which( paste(input_data$iso,input_data$sector, input_data$fuel, sep="-") %in% driver_lines  ) , ]
+  
+  #extended data template
+  ceds_extention_ratios <- ceds_extention_ratios[,c('iso','sector','fuel',ratio_years)]
+  
+  # add Driver identifyer ratio year
+  ceds_extention_ratios <- merge(ceds_extention_ratios, driver_trend[,c("iso", 'sector','fuel', ratio_years)],
+                                 by.x = c('iso', 'sector','fuel'),
+                                 by.y = c("iso", 'sector','fuel'),
+                                 all.x = TRUE, all.y = FALSE)
+  
+  ceds_extention_ratios[ ratio_years ] <- ceds_extention_ratios[ paste0(ratio_years,'.x')]/ceds_extention_ratios[ paste0(ratio_years,'.y')]
+  ceds_extention_ratios <- replace(ceds_extention_ratios, ceds_extention_ratios == 'NaN', 0)
+  ceds_extention_ratios <- replace(ceds_extention_ratios, is.na(ceds_extention_ratios), 0) 
+  
+  ceds_extention_ratios$ratio <-  rowMeans(ceds_extention_ratios[ ratio_years ])
+  
+  # add driver data and use ratio to calculate extended value
+  ceds_extended <- ceds_extention_ratios[,c('iso','fuel','sector','ratio')]
+  ceds_extended [ extention_years ] <- NA
+  ceds_extended <- replaceValueColMatch(ceds_extended, driver_trend,
+                                        x.ColName = extention_years,
+                                        match.x = c('iso','sector','fuel'),
+                                        addEntries = FALSE)
+  
+  ceds_extended[is.na(ceds_extended)] <- 0
+  
+  # calculate extended data
+  ceds_extended[ extention_years ] <- ceds_extended$ratio * ceds_extended[ extention_years ]
+  
+  # add to final extention template
+  input_data <- replaceValueColMatch(input_data, ceds_extended,
+                                     x.ColName = extention_years,
+                                     match.x = c('iso','sector','fuel'),
+                                     addEntries = FALSE)
+  
+  return(input_data)
+}
+# -----------------------------------------------------------------------------
+# extend_data_on_trend_cdiac
+# Brief:     extends data based on trend of other data
+# Details:     for use in cdiac extension script only 
+# Dependencies: 
+# Author(s):    
+# Params:    
+# driver_trend, 
+# input_data, 
+# start, 
+# end,
+# expand = T,
+# range = 5,
+# id_match.driver = c('iso','sector','fuel') : identifiers that match between driver and input (ex for extension with population, iso and temp variable. Must be at least 2)
+# id_match.input = id_match.driver : id columns for the original data, if different than id driver . (ex cdiac, iso and fuel - but extended with iso and temp (population)) - used
+#                                   to match adn replace variables in final part of function
+#  
+# Return:       
+# Input Files:  
+# Output Files: 
+# TODO:
+      # must have at least 2 id variables
+      # switch/merge with extend_data_on_trendextend_data_on_trend
+
+# driver_trend=driver_trend_for_ratios
+# input_data=input_data1
+# start = dis_start_year
+# end = dis_end_year
+# expand = F
+# range = range_cdiac
+# id_match.driver = c('iso','temp')
+# id_match.input = c('iso','fuel')
+# ratio_start_year = 1948
+
+extend_data_on_trend_cdiac <- function(driver_trend, input_data, 
+                                       start, end,
+                                       ratio_start_year = (end + 1),
+                                 expand = T,
+                                 range = 5,
+                                 id_match.driver = c('iso','sector','fuel'),
+                                 id_match.input = id_match.driver) {
+  input_years <- names(input_data)[grep('X',names(input_data))]
+  extra_id <- names(input_data)[names(input_data) %!in% c(input_years, id_match.driver, id_match.input)]
+  
+  if( expand == T){
+    # Expand fuels - all-comb
+    expand <- driver_trend[which(driver_trend$fuel == 'all' ) ,]
+    driver_trend <- driver_trend[which(driver_trend$fuel != 'all' ) ,]
+    comb_fuels <- c('biomass', 'hard_coal','brown_coal','coal_coke','natural_gas','heavy_oil','diesel_oil','light_oil')
+    for (i in seq_along(comb_fuels)){
+      expand$fuel <- rep(comb_fuels[i], times= nrow(expand) )
+      driver_trend <- rbind( driver_trend, expand )
+    }
+  }
+  
+  ratio_years <- paste0('X',c(ratio_start_year + 0:(range-1)))
+  ext_start_year <- start
+  ext_end_year <- end
+  extension_years <- paste0('X',ext_start_year:ext_end_year)
+  
+  # # select extension data for current method
+  driver_lines <- unique( apply( driver_trend[ , id_match.driver ] , 1 , paste , collapse = "-" ) )
+  
+  # select ceds data to extend
+  ceds_extension_ratios <- input_data[ which( apply( input_data[ , id_match.driver ] , 1 , paste , collapse = "-" ) %in% driver_lines  ) , ]
+  
+  #extended data template
+  ceds_extension_ratios <- ceds_extension_ratios[,unique(c(id_match.driver,id_match.input,extra_id,ratio_years))]
+  
+  # add Driver identifyer ratio year
+  ceds_extension_ratios <- merge(ceds_extension_ratios, driver_trend[,c(id_match.driver,ratio_years)],
+                                 by.x = id_match.driver,
+                                 by.y = id_match.driver,
+                                 all.x = TRUE, all.y = FALSE)
+  
+  ceds_extension_ratios[ ratio_years ] <- ceds_extension_ratios[ paste0(ratio_years,'.x')]/ceds_extension_ratios[ paste0(ratio_years,'.y')]
+  ceds_extension_ratios <- replace(ceds_extension_ratios, ceds_extension_ratios == 'NaN', 0)
+  ceds_extension_ratios <- replace(ceds_extension_ratios, is.na(ceds_extension_ratios), 0) 
+  
+  ceds_extension_ratios$ratio <-  rowMeans(ceds_extension_ratios[ ratio_years ])
+  
+  # add driver data and use ratio to calculate extended value
+  ceds_extended <- ceds_extension_ratios[,unique(c(id_match.driver,id_match.input,extra_id,'ratio'))]
+  ceds_extended [ extension_years ] <- NA
+  ceds_extended <- replaceValueColMatch(ceds_extended, driver_trend,
+                                        x.ColName = extension_years,
+                                        match.x = id_match.driver,
+                                        addEntries = FALSE)
+  
+  ceds_extended[is.na(ceds_extended)] <- 0
+  
+  # calculate extended data
+  ceds_extended[ extension_years ] <- ceds_extended$ratio * ceds_extended[ extension_years ]
+  
+  # add to final extension template
+  input_data[extension_years] <- NA
+  input_data <- replaceValueColMatch(input_data, ceds_extended,
+                                     x.ColName = extension_years,
+                                     match.x = id_match.input,
+                                     addEntries = FALSE)
+  
+  return(input_data[,c(id_match.input, extra_id,extension_years,input_years)])
+}
+
