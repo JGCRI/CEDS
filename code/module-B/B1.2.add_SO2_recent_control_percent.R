@@ -71,14 +71,14 @@ for ( row_index in 1 : nrow( gains_recent ) ) {
   last_year_ef <- gains_recent[ row_index, paste0( 'X', last_inv_year ) ]
   last_year_ef_list <- c( last_year_ef_list, last_year_ef )
   }
-  # make into matrix form 
-  gains_last_year_ef <- matrix( rep( last_year_ef_list, length( recent_years ) ), ncol = length( recent_years ) )
+# make into matrix form 
+gains_last_year_ef <- matrix( rep( last_year_ef_list, length( recent_years ) ), ncol = length( recent_years ) )
 
 # calculate the recent year %control
 recent_controls <- 1 - ( gains_recent[ , 5 : ncol( gains_recent ) ] / gains_last_year_ef )
 
 # generate a mask that pick out the %control needes to be recalculated 
-last_year_mask <- data_frame( iso = gains_recent$iso )
+last_year_mask <- data.frame( iso = gains_recent$iso )
 for ( year in recent_years ) {
   mask_or_not_list <- c( )
   for ( each_iso in last_year_mask$iso ) {
