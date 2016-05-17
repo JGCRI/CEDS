@@ -597,8 +597,10 @@ F.scaling <- function( ceds_data, inv_data, region,
     
     max <- max_scaling_factor
     min <- 1/max_scaling_factor
-    index <- rbind( which( scaling[,X_inv_years] >= max , arr.ind=T ) ,
-                    which( scaling[,X_inv_years] <= min , arr.ind=T) )
+    
+    temp_X_years <- names( scaling )[ grepl( "X", names( scaling ) ) ]
+    index <- rbind( which( scaling[,temp_X_years] >= max , arr.ind=T ) ,
+                    which( scaling[,temp_X_years] <= min , arr.ind=T) )
     
     if(nrow(index)>0){
       printLog( "Replacing very large/small scaling factors." )
@@ -637,10 +639,10 @@ F.scaling <- function( ceds_data, inv_data, region,
       
       writeData( problem_scaling_factors , domain = "DIAG_OUT" , paste0('F.',em,'_Problem_Scaling_Factors_',inv_name), meta = FALSE )
       
-      scaling[,X_inv_years] <- replace(scaling[,X_inv_years], 
-                                                 scaling[,X_inv_years] > max , max )
-      scaling[,X_inv_years] <- replace(scaling[,X_inv_years], 
-                                                 scaling[,X_inv_years] < min , min )
+      scaling[,temp_X_years] <- replace(scaling[,temp_X_years], 
+                                                 scaling[,temp_X_years] > max , max )
+      scaling[,temp_X_years] <- replace(scaling[,temp_X_years], 
+                                                 scaling[,temp_X_years] < min , min )
     }  }
 
   # ------------------------------------
@@ -698,7 +700,7 @@ F.scaling <- function( ceds_data, inv_data, region,
   scaling_interp <- as.data.frame(matrix(data=NA, nrow = nrow(scaling), ncol = length(X_inv_years_full)))
   scaling_interp <- cbind( scaling[,c('iso', scaling_name)],scaling_interp)
   names(scaling_interp) <- c('iso', scaling_name , X_inv_years_full )
-  scaling_interp[, X_inv_years ] <- scaling[ , X_inv_years]
+  scaling_interp[, temp_X_years ] <- scaling[ , temp_X_years]
   
   # identify any non-trailing/leading na's
   interpolation_rows<-c()
