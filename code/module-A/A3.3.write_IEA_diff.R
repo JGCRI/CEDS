@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A3.3.write_IEA_diff.R
 # Authors Names: Linh Vu
-# Date Last Modified: 6 May 2016
+# Date Last Modified: 16 May 2016
 # Program Purpose:    Write out difference between IEA DOMSUP and CEDS
 #                     consumption for coal, natural gas, petroleum
 # Input Files: A.IEA_en_stat_ctry_hist.csv, A.IEA_BP_energy_ext.csv
@@ -71,23 +71,68 @@ initialize( script_name, log_msg, headers )
   CEDS_oil_list <- c( "heavy_oil", "light_oil", "diesel_oil" )
   
 # Define functions
-# writeDiff(): Write out IEA and CEDS consumption difference
-#   params:   IEA_fuel_list: vector of IEA PRODUCT names
+# writeDiff(): Function to write out IEA and CEDS consumption difference
+#   params:   IEA_data: df containing IEA data
+#             CEDS_data: df containing CEDS data  
+#             IEA_fuel_list: vector of IEA PRODUCT names
 #             CEDS_fuel_list: vector of CEDS fuel names
 #             fuel_name: fuel name in function's output
+#             IEA_flow_list: vector of IEA FLOW to include [default: "DOMSUP"]
+#             IEA_flow_list_exclude: vector of IEA FLOW to exclude [default: NA]
 #   Returns:  List of two data frames, where df1 contains IEA and CEDS difference and
 #             df2 contains diagnostics of where IEA < CEDS 
-# Note that units is kt, so may need to process IEA input for certain fuels
-  writeDiff <- function( IEA_fuel_list, CEDS_fuel_list, fuel_name ) {
-    IEA_subset <- filter( IEA_en_stat_ctry_hist, FLOW == "DOMSUP", PRODUCT %in% IEA_fuel_list ) %>%
-      select( -PRODUCT ) %>% group_by( iso, FLOW ) %>%
-      summarise_each( "sum" )
-    
-    CEDS_subset <- filter( IEA_BP_energy_ext, fuel %in% CEDS_fuel_list ) %>%
+# Note:
+#  -- units is kt, so may need to process IEA input for certain fuels
+#  -- IEA consumption = IEA_data[FLOW = IEA_flow_list, PRODUCT = IEA_fuel_list]
+#                     - IEA_data[FLOW = IEA_flow_list_exclude, PRODUCT = IEA_fuel_list]
+#     CEDS consumption = CEDS_data[fuel = CEDS_fuel_list]
+#  --> Output diff = max(IEA consumption - CEDS consumption, 0)
+  writeDiff <- function( IEA_data, CEDS_data, IEA_fuel_list, CEDS_fuel_list, fuel_name, 
+                         IEA_flow_list = "DOMSUP", IEA_flow_list_exclude = NA ) {
+    IEA_subset <- computeIEASupply( IEA_data, IEA_fuel_list, IEA_flow_list, IEA_flow_list_exclude )
+    CEDS_subset <- filter( CEDS_data, fuel %in% CEDS_fuel_list ) %>%
       select( -fuel, -sector, -units ) %>% group_by( iso ) %>%
       summarise_each( "sum" )
-    
     return ( computeDiff( IEA_subset, CEDS_subset, fuel_name ) )
+  }
+  
+# computeIEASupply(): Helper function to compute IEA supply of specified fuel
+#   params:   IEA_data: df containing IEA data
+#             IEA_fuel_list: vector of IEA PRODUCT names  
+#             IEA_flow_list: vector of IEA FLOW to include [default: "DOMSUP"]
+#             IEA_flow_list_exclude: vector of IEA FLOW to exclude [default: NA]
+#   Returns:  df containing IEA_data[FLOW = IEA_flow_list, PRODUCT = IEA_fuel_list]
+#             - IEA_data[FLOW = IEA_flow_list_exclude, PRODUCT = IEA_fuel_list]
+  computeIEASupply <- function( IEA_data, IEA_fuel_list, IEA_flow_list = "DOMSUP", 
+                                  IEA_flow_list_exclude = NA ) {
+    
+    # out = IEA_data[FLOW = IEA_flow_list, PRODUCT = IEA_fuel_list]
+    out <- filter( IEA_data, FLOW %in% IEA_flow_list, PRODUCT %in% IEA_fuel_list ) %>%
+      select( -PRODUCT, -FLOW ) %>% group_by( iso ) %>%
+      summarise_each( "sum" ) %>% data.frame()
+    
+    # If necessary, subtract consumption from IEA_flow_list_exclude
+    if ( !is.na ( IEA_flow_list_exclude ) ) {
+      out <- melt( out, measure = X_IEA_years )
+      
+      # excluded = IEA_data[FLOW = IEA_flow_list_exclude, PRODUCT = IEA_fuel_list]
+      excluded <- filter( IEA_data, FLOW %in% IEA_flow_list_exclude, PRODUCT %in% IEA_fuel_list ) %>%  # select only rows of IEA_flow_list_exclude and IEA_fuel_list 
+        select( -PRODUCT, -FLOW ) %>%   # drop columns PRODUCT and FLOW
+        group_by( iso ) %>%             # group table by iso (ID column)
+        summarise_each( "sum" ) %>%     # aggregate by iso
+        data.frame() %>%                # convert grouped table to df to avoid later issues
+        melt( measure = X_IEA_years )   # (refer to dplyr package documentation for more functions)
+      names( excluded ) <- c( "iso", "variable", "to_subtract" )
+      
+      # output = out - excluded
+      out <- merge( out, excluded, all.x = T )
+      out$value[ !is.na( out$to_subtract ) ] <- out$value[ !is.na( out$to_subtract ) ] - 
+        out$to_subtract[ !is.na( out$to_subtract ) ]
+      out$to_subtract <- NULL
+      out <- cast( out )
+    }
+    
+    return( out )
   }
   
 # computeDiff(): Helper function to compute IEA and CEDS difference
@@ -135,21 +180,25 @@ initialize( script_name, log_msg, headers )
     conversionFactor_naturalgas_TJ_per_kt
 
 # Coal
-  out <- writeDiff( IEA_coal_list, CEDS_coal_list, "coal" )
+  out <- writeDiff( IEA_en_stat_ctry_hist, IEA_BP_energy_ext, IEA_coal_list, CEDS_coal_list, 
+                    "coal", "DOMSUP", NA )
   diff_coal <- out[[ "diff" ]]
   subzero_coal <- out[[ "subzero" ]]
   
 # Natural gas
-  out <- writeDiff( IEA_natural_gas_list, CEDS_natural_gas_list, "natural_gas" )
+  out <- writeDiff( IEA_en_stat_ctry_hist, IEA_BP_energy_ext, IEA_natural_gas_list, CEDS_natural_gas_list, 
+                    "natural_gas", "DOMSUP", "NONENUSE" )
   diff_natural_gas <- out[[ "diff" ]]
   subzero_natural_gas <- out[[ "subzero" ]]
   
-# Oil: Take IEA supply = primary oil DOMSUP + secondary oil products imports/exports
-  IEA_oil_primary <- filter( IEA_en_stat_ctry_hist, FLOW == "DOMSUP", PRODUCT %in% IEA_oil_list_primary )
-  IEA_oil_secondary <- filter( IEA_en_stat_ctry_hist, FLOW %in% c( "IMPORTS", "EXPORTS" ), 
-                               PRODUCT %in% IEA_oil_list_secondary )
+# Oil
+# Take IEA supply = primary oil DOMSUP + secondary oil IMPORTS/EXPORTS
+#                   - primary oil NONENUSE - secondary oil NONENUSE
+  IEA_oil_primary <- computeIEASupply( IEA_en_stat_ctry_hist, IEA_oil_list_primary, "DOMSUP", "NONENUSE" )
+  IEA_oil_secondary <- computeIEASupply( IEA_en_stat_ctry_hist, IEA_oil_list_secondary, 
+                                         c( "IMPORTS", "EXPORTS" ), "NONENUSE" )
   IEA_oil <- bind_rows( IEA_oil_primary, IEA_oil_secondary ) %>% 
-    select( -PRODUCT, -FLOW ) %>% group_by( iso ) %>%
+    group_by( iso ) %>%
     summarise_each( "sum" )
   CEDS_oil <- filter( IEA_BP_energy_ext, fuel %in% CEDS_oil_list ) %>%
     select( -fuel, -sector, -units ) %>% group_by( iso ) %>%
@@ -165,7 +214,7 @@ initialize( script_name, log_msg, headers )
   diag_ratio[, X_IEA_years ] <- diag_ratio[, X_IEA_years ] / CEDS_oil_temp[, X_IEA_years ]
   
 # Diagnostics: Write out IEA Non-Energy consumption for natural gas and oil
-  IEA_NE_sectors <- c( "NECHEM", "NEINTREN", "NEOTHER", "NETRANS", "NONENUSE", "NONFERR", "NONMET" )
+  IEA_NE_sectors <- c( "NECHEM", "NEINTREN", "NEOTHER", "NETRANS", "NONENUSE" )
   CEDS_fuels <- c( "light_oil", "heavy_oil", "diesel_oil", "natural_gas" )
   IEA_nonenergy <- filter( IEA_en_stat_ctry_hist, FLOW %in% IEA_NE_sectors )
   IEA_nonenergy$sector <- IEA_flow_sector$sector[ match( IEA_nonenergy$FLOW, IEA_flow_sector$flow_code ) ]
