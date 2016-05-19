@@ -956,10 +956,13 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   
   lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
   lats <- seq( -90 + grid_resolution / 2, 90 - grid_resolution / 2, grid_resolution )
-  time <- c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 )
+  #base_days <- as.numeric( strptime( paste0( year, '0101' ), format = '%Y%m%d', tz = 'UTC' ) - strptime( "17500101", format = "%Y%m%d", tz = 'UTC' ) )
+  base_days <- ( as.numeric( year ) - 1750 ) * 365 
+  time <- floor( c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 ) )
+  time <- time + base_days 
   londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
   latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
-  timedim <- ncdim_def( "time", paste0( "days since 1750-01-01 0:0:0" ), as.double( time ), 
+  timedim <- ncdim_def( "time", paste0( "days since 1750-01-01 0:0:0" ), as.double( time ),  
                         calendar = '365_day', longname = 'time' )
   dim_list <- list( londim, latdim, timedim )
   lon_bnds_data <- cbind( seq( -180, ( 180 - grid_resolution ), grid_resolution ), 
@@ -1133,7 +1136,10 @@ final_monthly_nc_output_air <- function( output_dir, grid_resolution, year, em_s
   lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
   lats <- seq( -90 + grid_resolution / 2, 90 - grid_resolution / 2, grid_resolution )
   levs <- seq( 0.305, 14.945, 0.61 )
-  time <- c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 )
+  #base_days <- as.numeric( strptime( paste0( year, '0101' ), format = '%Y%m%d', tz = 'UTC' ) - strptime( "17500101", format = "%Y%m%d", tz = 'UTC' ) )
+  base_days <- ( as.numeric( year ) - 1750 ) * 365 
+  time <- floor( c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 ) )
+  time <- time + base_days 
   londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
   latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
   levdim <- ncdim_def( "level", "km", as.double ( levs ), longname = 'altitude' ) 
@@ -1207,6 +1213,7 @@ final_monthly_nc_output_air <- function( output_dir, grid_resolution, year, em_s
   ncatt_put( nc_new, "time", "standard_name", "time" )
   ncatt_put( nc_new, "time", "axis", "T" )
   ncatt_put( nc_new, "time", "bounds", "time_bnds" )
+  ncatt_put( nc_new, "lon", "axis", "Z" )
   # attributes for variables
   ncatt_put( nc_new, 'AIR', 'cell_methods', 'time:mean' )
   ncatt_put( nc_new, 'AIR', 'missing_value', 1e+20, prec = 'float' )
@@ -1343,9 +1350,12 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
   	data_list <- paste0( sector_list, '_', VOC, '_em_global_final')
 	  
   	
-	lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
+	  lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
     lats <- seq( -90 + grid_resolution / 2, 90 - grid_resolution / 2, grid_resolution )
-    time <- c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 )
+    #base_days <- as.numeric( strptime( paste0( year, '0101' ), format = '%Y%m%d', tz = 'UTC' ) - strptime( "17500101", format = "%Y%m%d", tz = 'UTC' ) )
+    base_days <- ( as.numeric( year ) - 1750 ) * 365 
+    time <- floor( c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 ) )
+    time <- time + base_days 
     londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
     latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
     timedim <- ncdim_def( "time", paste0( "days since 1750-01-01 0:0:0" ), as.double( time ),
@@ -1672,7 +1682,10 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
   
   lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
   lats <- seq( -90 + grid_resolution / 2, 90 - grid_resolution / 2, grid_resolution )
-  time <- c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 )
+  #base_days <- as.numeric( strptime( paste0( year, '0101' ), format = '%Y%m%d', tz = 'UTC' ) - strptime( "17500101", format = "%Y%m%d", tz = 'UTC' ) )
+  base_days <- ( as.numeric( year ) - 1750 ) * 365 
+  time <- floor( c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 ) )
+  time <- time + base_days 
   londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
   latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
   timedim <- ncdim_def( "time", paste0( "days since 1750-01-01 0:0:0" ), as.double( time ), 
