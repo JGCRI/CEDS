@@ -439,7 +439,7 @@ interpolate_NAs <- function( df){
 # Output Files: 
 # TODO: merge, switch to extend_data_on_trend_cdiac
 
-extend_data_on_trend <- function(driver_trend, input_data, start, end){
+extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnostics = F){
   # input_data <- new_EFs 
   
   # Expand fuels - all-comb
@@ -477,7 +477,12 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end){
   ceds_extention_ratios <- replace(ceds_extention_ratios, is.na(ceds_extention_ratios), 0) 
   
   ceds_extention_ratios$ratio <-  rowMeans(ceds_extention_ratios[ ratio_years ])
-  
+
+  # Ratio Diagnostics
+  if(diagnostics == T) writeData(ceds_extention_ratios , "DIAG_OUT", 
+                                 paste0('ceds_extention_ratios_',unique(driver_trend$sector)[1],'_',unique(driver_trend$fuel)[1],'_',start,'-',end),
+                                 meta=F)
+
   # add driver data and use ratio to calculate extended value
   ceds_extended <- ceds_extention_ratios[,c('iso','fuel','sector','ratio')]
   ceds_extended [ extention_years ] <- NA
