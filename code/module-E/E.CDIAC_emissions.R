@@ -41,21 +41,6 @@ initialize( script_name, log_msg, headers )
 
 # split cdiac countries - get ratio of emission by fuel in ratio year, extend that ratio with cdiac emissions,
 # and renomalize to sum to 1 by fuel
-  # all_data_in = cdiac_corrected
-  # combined_iso = 'USSR'
-  # dis_end_year = 1991
-  # dissagregate_iso = c('aze','arm' , 'blr','est','geo','kaz','kgz','lva',
-  # 'ltu','mda','tjk','tkm','ukr','uzb', 'rus')
-  # dis_start_year = historical_pre_extension_year
-  # population_data = population
-  # range_cdiac = 2
-  # ratio_start_year_cdiac = dis_end_year + 1
-  # 
-  # all_data_in = cdiac_pak_corrected
-  # combined_iso = 'UNITED_KOREA'
-  # dis_end_year = 1944
-  # ratio_start_year_cdiac = 1948
-  # dissagregate_iso = c('prk','kor')
   
   split_cdiac <- function(all_data_in,
                         combined_iso,
@@ -64,14 +49,64 @@ initialize( script_name, log_msg, headers )
                         range_cdiac = 2,
                         dis_start_year = historical_pre_extension_year,
                         ratio_start_year_cdiac = (dis_end_year+1),
-                        population_data = population){
+                        population_data = population) {
   
+  if( dis_end_year == cdiac_end_year) all_data_in[paste0('X',(cdiac_end_year+1):(cdiac_end_year+range_cdiac)) ] <- all_data_in[paste0('X',cdiac_end_year) ]
+     
   # Define useful variables
   dissaggregate_years <- paste0('X', dis_start_year : dis_end_year)
   CDIAC_categories <- unique( all_data_in$fuel)
   ratio_years <- paste0('X',c(ratio_start_year_cdiac + 0:(range_cdiac-1)))
   
   # Subset CDIAC data
+
+  if( all(dissagregate_iso %in% unique(all_data_in$iso)) == FALSE) {
+    warning( "Disaggregate iso not in original data, splitting with population")
+  dis_pop <- population[which( population$iso %in% dissagregate_iso),c('iso',dissaggregate_years)]   
+  agg_pop <- population[which( population$iso %in% combined_iso),c('iso',dissaggregate_years)] 
+  
+  # population ratio for dissaggregate countries
+  pop_ratio <- dis_pop[c('iso',dissaggregate_years)]
+  pop_ratio[dissaggregate_years] <- agg_pop[dissaggregate_years]
+  pop_ratio[dissaggregate_years] <- dis_pop[dissaggregate_years] / pop_ratio[dissaggregate_years]
+  
+  # Subset aggregate data
+  aggregate_data <- all_data_in[ which( all_data_in$iso == combined_iso), ]
+  
+  # Disaggregate CDIAC aggregate data
+  #set up template
+  fuels <- unique(aggregate_data$fuel)
+  new_data_agg_template <- data.frame(iso = rep(dissagregate_iso, each = length(fuels)),
+                         fuel = rep(fuels, times = length(dissagregate_iso)))
+  new_data_agg_template <- merge(new_data_agg_template, aggregate_data[c('fuel',dissaggregate_years)],
+                                 all.x=T)
+  new_data_agg_template <- new_data_agg_template[order(new_data_agg_template$iso,new_data_agg_template$fuel), c('iso','fuel',dissaggregate_years)]
+  
+  new_data_ratio_template <- data.frame(iso = rep(dissagregate_iso, each = length(fuels)),
+                                      fuel = rep(fuels, times = length(dissagregate_iso)))
+  new_data_ratio_template <- merge(new_data_ratio_template, pop_ratio[c('iso',dissaggregate_years)],
+                                   all.x=T)
+  new_data_ratio_template <- new_data_ratio_template[order(new_data_ratio_template$iso,new_data_ratio_template$fuel),]
+  
+  # calculate
+  new_data <- new_data_agg_template
+  new_data[dissaggregate_years] <- new_data_agg_template[dissaggregate_years] * new_data_ratio_template[dissaggregate_years]
+  
+  # add back to full data
+  cdiac_aggregate_corrected <- rbind.fill(all_data_in,new_data)
+  cdiac_aggregate_corrected[is.na(cdiac_aggregate_corrected)] <- 0
+   
+  } else {
+  # Subset CDIAC data
+  # disaggregate_data <- all_data_in[ which( all_data_in$iso %in% dissagregate_iso), ]
+  # aggregate_data <- all_data_in[ which( all_data_in$iso == combined_iso), ]
+  # 
+  # aggregate_replace <- aggregate( disaggregate_data[ratio_years], 
+  #                                 by = list(fuel = disaggregate_data$fuel),
+  #                                 FUN = sum)
+  # aggregate_data[ paste0('X',ratio_years) ] <- aggregate_replace[ match( aggregate_data$fuel , aggregate_replace$fuel ) ,  
+  #                                                                                     ratio_years ] 
+  # 
   disaggregate_data <- all_data_in[ which( all_data_in$iso %in% dissagregate_iso), ]
   aggregate_data <- all_data_in[ which( all_data_in$iso == combined_iso), ]
   aggregate_replace <- aggregate( disaggregate_data[paste0('X',(dis_end_year+1):cdiac_end_year)], by = list(fuel = disaggregate_data$fuel),FUN = sum)
@@ -97,7 +132,7 @@ initialize( script_name, log_msg, headers )
   driver_trend_for_ratios$temp <- 'place_holder'
   ceds_extension_ratios$temp <- 'place_holder'
   
-  input_data1 <- ceds_extension_ratios
+  # input_data1 <- ceds_extension_ratios
   
   extended_ceds_extension_ratios <- extend_data_on_trend_cdiac(driver_trend_for_ratios,ceds_extension_ratios, 
                                                                start = dis_start_year, end = dis_end_year,
@@ -109,9 +144,15 @@ initialize( script_name, log_msg, headers )
   
   extended_ceds_extension_ratios <- extended_ceds_extension_ratios[,c('iso','fuel',dissaggregate_years,ratio_years)]
   
+  # Aggregate 
+  extended_ceds_extension_ratios_agg <- aggregate(extended_ceds_extension_ratios[dissaggregate_years],
+                                     by = list(iso = extended_ceds_extension_ratios$iso,
+                                               fuel = extended_ceds_extension_ratios$fuel),
+                                     FUN = sum)
+  
   # Renomalize ratios so that all dissaggregate countries sum to 1 by fuel
   # TO DO: get rid of loops
-  extended_ceds_extension_ratios_renormalize <- extended_ceds_extension_ratios
+  extended_ceds_extension_ratios_renormalize <- extended_ceds_extension_ratios_agg
   for (i in seq_along(cdiac_fuels)){
     for ( j in seq_along( dissaggregate_years )){
       
@@ -138,18 +179,22 @@ initialize( script_name, log_msg, headers )
   disaggregate_extended[dissaggregate_years] <- as.matrix(aggregate_cdiac_multiplier[dissaggregate_years]) * 
     extended_ceds_extension_ratios_renormalize[ dissaggregate_years ] 
   
-  
+
   # add back to full data
   cdiac_aggregate_corrected <- replaceValueColMatch(all_data_in,disaggregate_extended,
                                                     x.ColName = dissaggregate_years,
                                                     match.x = c('iso','fuel'),
                                                     addEntries = FALSE)
   
+  
+  }
+  
   #remove aggregate from final cdiac data to prevent double counting
-  cdiac_aggregate_corrected <- cdiac_aggregate_corrected[-which(cdiac_aggregate_corrected$iso == combined_iso),]
+  cdiac_aggregate_corrected <- cdiac_aggregate_corrected[which(cdiac_aggregate_corrected$iso %!in% combined_iso), ]
+  cdiac_aggregate_corrected <- cdiac_aggregate_corrected[ ,c('iso','fuel',paste0('X', historical_pre_extension_year:cdiac_end_year)) ]
   
   return(cdiac_aggregate_corrected)
-}
+  }
   
 # -----------------------------------------------------------------------------------------------------------
 # 1. Read in files
@@ -164,14 +209,12 @@ initialize( script_name, log_msg, headers )
   cdiac_start_year <- 1751
   cdiac_end_year <- 2011
   
-  
   # un population
   un_pop$X_year <- paste0( "X" , un_pop$year)
   un_pop$pop <- as.numeric(un_pop$pop)
   population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_year:end_year ) , ] , 
                       iso ~ X_year, value = 'pop')
-  
-  # cdiac
+   # cdiac
   cdiac_fuel_wide <- cdiac_read
   cdiac_fuel_wide$units <- 'kt-C'
   cdiac_fuel_wide <- cdiac_fuel_wide[-1:-2,]
@@ -227,7 +270,6 @@ initialize( script_name, log_msg, headers )
                                           dis_end_year = 1991,
                                           dissagregate_iso = c('aze','arm' , 'blr','est','geo','kaz','kgz','lva',
                                                                    'ltu','mda','tjk','tkm','ukr','uzb', 'rus'))
-  
    #  Yugoslavia
   cdiac_yug_corrected  <- split_cdiac(all_data_in = cdiac_ussr_corrected,
                                           combined_iso = 'yug',
@@ -254,8 +296,51 @@ initialize( script_name, log_msg, headers )
                                           dis_end_year = 1944,
                                           ratio_start_year_cdiac = 1948,
                                           dissagregate_iso = c('prk','kor') ) 
+  # French Equatorial Africa
+  cdiac_FrEqAf_corrected  <- split_cdiac(all_data_in = cdiac_kor_corrected,
+                                      combined_iso = 'FRENCH_EQUATORIAL_AFRICA',
+                                      dis_end_year = 1958,
+                                      dis_start_year = 1950,
+                                      dissagregate_iso = c('caf','cmr','cog','gab','tcd') ) 
+  # French Indo-china
+  cdiac_FrInCh_corrected  <- split_cdiac(all_data_in = cdiac_FrEqAf_corrected,
+                                      combined_iso = 'FRENCH_INDO-CHINA',
+                                      dis_end_year = 1954,
+                                      dissagregate_iso = c('loa','vnm','khm') ) 
+  # French West Africa
+  cdiac_FrWeAf_corrected  <- split_cdiac(all_data_in = cdiac_FrInCh_corrected,
+                                      combined_iso = 'FRENCH_WEST_AFRICA',
+                                      dis_end_year = 1957,
+                                      dissagregate_iso = c('mrt','sen','mli','gin','civ','bra','ben','ner') ) 
+  #Rwanda-Urundi
+  cdiac_RU_corrected  <- split_cdiac(all_data_in = cdiac_FrWeAf_corrected,
+                                         combined_iso = 'RWANDA-URUNDI',
+                                         dis_end_year = 1961,
+                                         dissagregate_iso = c('rwa','bdi') ) 
   
-  cdiac_final <- cdiac_kor_corrected
+  cdiac_NAR_corrected <- split_cdiac(all_data_in = cdiac_RU_corrected,
+                                     combined_iso = 'NETHERLAND_ANTILLES_AND_ARUBA',
+                                     dis_end_year = 1985,
+                                     dis_start_year = 1926,
+                                     dissagregate_iso = c('ant','abw'),
+                                     range_cdiac = 2)
+  
+  cdiac_NA_corrected <- split_cdiac(all_data_in = cdiac_NAR_corrected,
+                                    combined_iso = 'ant',
+                                    dis_end_year = 2011,
+                                    dissagregate_iso = c('cuw','sxm') )
+ 
+  cdiac_RN_corrected <- split_cdiac(all_data_in = cdiac_NA_corrected,
+                                    combined_iso = 'RHODESIA-NYASALAND',
+                                    dis_end_year = 1963,
+                                    dissagregate_iso = c('zmb','mwi') )
+  cdiac_LI_corrected <- split_cdiac(all_data_in = cdiac_RN_corrected,
+                                    combined_iso = 'LEEWARD ISLANDS',
+                                    dis_end_year = 1956,
+                                    dis_start_year = 1950,
+                                    dissagregate_iso = c('kna','atg') )
+  
+  cdiac_final <- cdiac_LI_corrected
   
   # -----------------------------------------------------------------------------------------------------------
   # 8. Add liquid and gas fuels 
@@ -315,15 +400,7 @@ initialize( script_name, log_msg, headers )
   
   writeData(cdiac_region_fuel, domain = "DIAG_OUT", fn = paste0( "E.CO2_CDIAC_by_figure_region_CIDACfuel" ), meta = TRUE )
   writeData(cdiac_iso_fuel, domain = "DIAG_OUT", fn = paste0( "E.CO2_CDIAC_by_iso_CIDACfuel" ), meta = TRUE )
-  
-  
-  changed_countries <- c(c('aze','arm' , 'blr','est','geo','kaz','kgz','lva',
-                            'ltu','mda','tjk','tkm','ukr','uzb', 'rus'), 
-                         c('bih','hrv','mkd','svn', 'scg'),c('srb','mne'),c('cze','svk'),
-                         c('pak','bgd'),c('prk','kor'))
- test <- cdiac_final[which(cdiac_final$iso %in% changed_countries) , ]
-  
- write.csv(test,'split_countries.csv')
+
  
   logStop()
     
