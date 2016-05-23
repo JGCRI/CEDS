@@ -112,7 +112,7 @@ reformat_EMEP <- function(df_in, df_totals){
     df_out <- subset(df_in [, (columns_CEDS_keep)])
     df_out <- df_out[ order(df_out$Country, df_out$sector), ] # Sort by Country & Sector
     remove <- c("1A3ai_International-aviation", "1A3aii_Domestic-aviation",
-              "1A3dii_Domestic-naviation","1A3di_International-shipping",
+              "1A3dii_Domestic-navigation","1A3di_International-shipping",
               "6B_Other-not-in-total", "11A_Volcanoes", "11B_Forest-fires",
               "11C_Other-natural")  #        Remove CEDS sectors not included in National Totals
     df_out <- df_out[-which( df_out$sector %in% remove), ]  

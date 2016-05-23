@@ -52,7 +52,7 @@ iea_start_year <- readData( 'ENERGY_IN' , 'IEA_iso_start_data', meta = F )
 other_sectors <- c('1A1a_Electricity-autoproducer','1A1a_Electricity-public',
                    '1A1a_Heat-production', '1A3ai_International-aviation',
                    '1A3aii_Domestic-aviation', '1A3b_Road', '1A3c_Rail',
-                   '1A3dii_Domestic-naviation', '1A3eii_Other-transp',
+                   '1A3dii_Domestic-navigation', '1A3eii_Other-transp',
                    '1A4a_Commercial-institutional', '1A4c_Agriculture-forestry-fishing',
                    '1A5_Other-unspecified')
 

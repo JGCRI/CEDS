@@ -93,7 +93,7 @@
     ceds_iea_data$fuel [ which ( ceds_iea_data$fuel %in% c( 'hard_coal', 'brown_coal' ) ) ] <- 'hard_coal'
     
     Int_Bunker_fuel <- ceds_iea_data[ which(ceds_iea_data$sector == "1A3di_International-shipping" ), ]
-    Domestic_Ship_fuel <- ceds_iea_data[ which(ceds_iea_data$sector == "1A3dii_Domestic-naviation" ), ]
+    Domestic_Ship_fuel <- ceds_iea_data[ which(ceds_iea_data$sector == "1A3dii_Domestic-navigation" ), ]
     
     Int_Bunker_fuel <- Int_Bunker_fuel[ c( "fuel", X_IEA_years ) ]
     Domestic_Ship_fuel <- Domestic_Ship_fuel[ c( "fuel", X_IEA_years ) ]
