@@ -49,7 +49,7 @@
 # Define emissions species variable
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "BC"
+    if ( is.na( em ) ) em <- "SO2"
     em_lc <- tolower( em ) 
   
     MODULE_G <- "../code/module-G/"
@@ -121,7 +121,9 @@
       # when dealing with NMVOC, treat sector 2L under global differently then add back to shipping grids
       if ( X2L_sector_flag == T ) {
         X2L_em_golbal <- grid_2L( X2L_emissions, year )
-        sectorl1_em_global_list$SHP_em_global <- sectorl1_em_global_list$SHP_em_global + X2L_em_golbal
+        global_grid_area <- grid_area( grid_resolution, all_lon = T )
+        flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
+        sectorl1_em_global_list$SHP_em_global <- ( sectorl1_em_global_list$SHP_em_global/flux_factor + X2L_em_golbal ) * flux_factor
         }
 
       
