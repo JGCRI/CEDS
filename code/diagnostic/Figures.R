@@ -37,7 +37,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "BC"
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -73,6 +73,8 @@ setwd('../diagnostic-output')
 start <- 1750
 end <- end_year
 x_years<-paste('X',start:end,sep="")
+
+TotalEmissions <- TotalEmissions[,c('iso','sector','fuel','units',x_years)]
 
 TotalEmissions.long <- melt(TotalEmissions,id.vars = c('iso','sector','fuel','units'))
 names(TotalEmissions.long) <- c('iso','sector','fuel','units','year','Emissions')
@@ -255,19 +257,18 @@ Regions<-ddply(TotalEmissions.long, .(Region,year),summarize,
                Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Regions
-# df <- df[order(-df$Region),]
-df$Region <- factor(df$Region,levels=c('North America','Western Europe',
-											'Eastern Europe', 'FSU','Middle East',
-										   'Africa','Other Asia','China','Central and South America',
-										   'South East Asia and Aust/NZ', 'Global'))
 
-plot <- ggplot(df, aes(x=year,y=Emissions,
-                       fill=Region)) + 
-                  geom_area(size=1) +
-                  scale_x_continuous(breaks=seq(start,end, 20))+
-                  scale_y_continuous(labels = comma)+
-                  ggtitle( paste('Global Scaled',em,' Emissions') )+
-                  labs(x='Year',y= paste(em,'Emissions [kt]') )
+plot <- ggplot(df, aes(x=year,y=Emissions, fill=Region)) + 
+               geom_area(size=1) +
+        theme( plot.title = element_text(vjust=0.8), 
+               axis.title.x = element_text(vjust=0.3), axis.title.y = element_text(vjust=0.3), 
+               legend.position=c( 0.12, 0.69 ) ) +
+        theme( legend.background =element_rect(color="black"), legend.key = element_blank() ) +
+                scale_x_continuous(breaks=seq(start,end, 20))+
+                scale_y_continuous(labels = comma)+
+                ggtitle( paste('Global ',em,' Emissions') )+
+                labs(x='Year',y= paste(em,'Emissions [kt]') )
+
 ggsave( paste0('summary-plots/',em,'_regions.scaled.pdf') , width = 11, height = 6 )
 #Convert to wide format for easier viewing
 data.wide <- cast(df, Region ~ year, mean, value="Emissions")
@@ -280,10 +281,6 @@ if ( PRINT_DEFAULTS ){
 				   Emissions=sum(Emissions, na.rm=TRUE))
 
 	df <- Regions
-	df$Region <- factor(df$Region,levels=c('North America','Western Europe',
-											'Eastern Europe', 'FSU','Middle East',
-										   'Africa','Other Asia','China','Central and South America',
-										   'South East Asia and Aust/NZ', 'Global'))
 	df <- df[-which(is.na(df$Region)),]
 	plot <- ggplot(df, aes(x=year,y=Emissions,
 							fill=Region)) + 
@@ -301,11 +298,6 @@ Regions<-ddply(TotalEmissions.long, .(Region,year),summarize,
                Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Regions
-	df$Region <- factor(df$Region,levels=c('North America','Western Europe',
-											'Eastern Europe', 'FSU','Middle East',
-										   'Africa','Other Asia','China','Central and South America',
-										   'South East Asia and Aust/NZ', 'Global'))
-# df <- df[-which(is.na(df$Region)),]
 plot <- ggplot(df, aes(x=year,y=Emissions,
                        color=Region)) + 
   geom_line(size=1) +
@@ -322,10 +314,6 @@ if ( PRINT_DEFAULTS ){
 				   Emissions=sum(Emissions, na.rm=TRUE))
 
 	df <- Regions
-	df$Region <- factor(df$Region,levels=c('North America','Western Europe',
-											'Eastern Europe', 'FSU','Middle East',
-										   'Africa','Other Asia','China','Central and South America',
-										   'South East Asia and Aust/NZ'))
 	df <- df[-which(is.na(df$Region)),]
 	plot <- ggplot(df, aes(x=year,y=Emissions,
 							color=Region)) + 
@@ -347,12 +335,17 @@ Sectors<-ddply(TotalEmissions.long, .(agg_Sector,year),summarize,
 df <- Sectors
 plot <- ggplot(df, aes(x=year,y=Emissions, fill=agg_Sector)) + 
   geom_area(size=1) +
+  theme( plot.title = element_text(vjust=0.8), 
+         axis.title.x = element_text(vjust=0.3), axis.title.y = element_text(vjust=0.3), 
+         legend.position=c( 0.08, 0.78 ) ) +
+  theme( legend.background =element_rect(color="black"), legend.key = element_blank() ) +
   scale_x_continuous(breaks=seq(start,end, 20))+
   scale_y_continuous(labels = comma)+
-  ggtitle(paste('Global Scaled', em ,'Emissions'))+
+  ggtitle(paste('Global ', em ,'Emissions'))+
   labs(x='Year',y= paste(em,'Emissions [kt]') )+
-  guides(fill=guide_legend(ncol=1))
+  guides(fill=guide_legend(ncol=1) ) + labs(fill="Sector") 
 ggsave( paste0('summary-plots/',em,'_agg_sectors.scaled.pdf'), width = 11, height = 6 )
+
 #Convert to wide format for easier viewing
 data.wide <- cast(df, agg_Sector ~ year, mean, value="Emissions")
 writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_agg_sector') )
