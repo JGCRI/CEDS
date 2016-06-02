@@ -60,7 +60,11 @@
     emissions <- readData( "FIN_OUT", domain_extension = "current-versions/", target_filename )
 # read in the CEDS gridding sector mapping
     ceds_gridding_mapping<- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'CEDS_sector_to_gridding_sector_mapping' )
-
+# read in the proxy mapping 
+    proxy_mapping <- readData( domain = "GRIDDING", domain_extension = "gridding_mappings/", 'proxy_mapping' )
+# read in the seasonality mapping 
+    seasonality_mapping <- readData( domain = "GRIDDING", domain_extension = "gridding_mappings/", 'seasonality_mapping' )
+    
 # ------------------------------------------------------------------------------
 # 2. Pre-processing
     # extract aircraft related CEDS working sectors for ceds gridding sector mapping
