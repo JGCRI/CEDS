@@ -884,6 +884,7 @@ get_seasonalityFrac <- function( em_species, sector, year ) {
 final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_species, sector_list, sector_list_long, mass = F ) {
   
   #debug
+  #em_species <- em
   #sector_list <- level3_sector_list
   #sector_list_long <- level3_sector_longname_list
   
@@ -902,13 +903,12 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   
   # first, aggregate to higher level
   AGR_em_global_final <- AGR_em_global
-  ENE_em_global_final <- ELEC_em_global + FFFI_em_global + ETRN_em_global  
+  ENE_em_global_final <- ELEC_em_global + FFFI_em_global + ETRN_em_global + FLR_em_global
   SLV_em_global_final <- SLV_em_global
   WST_em_global_final <- WST_em_global
   SHP_em_global_final <- SHP_em_global  
   IND_em_global_final <- INDC_em_global + INPU_em_global
   TRA_em_global_final <- NRTR_em_global + ROAD_em_global
-  FLR_em_global_final <- FLR_em_global
   # second, add seasonality
   temp_sector_list <- sector_list[ !sector_list == 'RCO' ]
   
@@ -1285,7 +1285,7 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
     # first, aggregate to higher level
     exp <- paste0( 'AGR_', VOC, '_em_global_final <- AGR_', VOC, '_em_global' )
 	  eval( parse( text = exp ) )
-	  exp <- paste0( 'ENE_', VOC, '_em_global_final <- ELEC_', VOC, '_em_global + FFFI_', VOC, '_em_global + ETRN_', VOC, '_em_global' )
+	  exp <- paste0( 'ENE_', VOC, '_em_global_final <- ELEC_', VOC, '_em_global + FFFI_', VOC, '_em_global + ETRN_', VOC, '_em_global + FLR_', VOC, '_em_global' )
 	  eval( parse( text = exp ) )
     exp <- paste0( 'IND_', VOC, '_em_global_final <- INDC_', VOC, '_em_global + INPU_', VOC, '_em_global' )
 	  eval( parse( text = exp ) )     
@@ -1296,8 +1296,6 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
 	  exp <- paste0( 'WST_', VOC, '_em_global_final <- WST_', VOC, '_em_global' )
 	  eval( parse( text = exp ) )
 	  exp <- paste0( 'SHP_', VOC, '_em_global_final <- SHP_', VOC, '_em_global' )
-	  eval( parse( text = exp ) )
-	  exp <- paste0( 'FLR_', VOC, '_em_global_final <- FLR_', VOC, '_em_global' )
 	  eval( parse( text = exp ) )
 
 	  # second, add seasonality
@@ -1628,6 +1626,7 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
     }
   
   # first, aggregate to higher level
+  # level1 sector FLR should be added to ENE_em_global_final but actually doesn't exist for fuel type biomass
   ENE_em_global_final <- ELEC_em_global
   SHP_em_global_final <- SHP_em_global  
   IND_em_global_final <- INDC_em_global
@@ -1636,7 +1635,6 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
   AGR_em_global_final <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
   SLV_em_global_final <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
   WST_em_global_final <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
-  FLR_em_global_final <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
   # second, add seasonality
   temp_sector_list <- sector_list[ !sector_list == 'RCO' ]
   
