@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: F.emissions_scaling_functions.R
 # Author's Name: Tyler Pitkanen, Rachel Hoesly
-# Date Last Modified: Nov 3, 2015
+# Date Last Modified: 2 Jun 2016
 # Program Purpose: Header file containing generalized functions designed to
 #   scale CEDS emissions data and emissions factors based on inventory data. 
 #   This file is made to be sourced at the beginning of each module F script to
@@ -267,14 +267,14 @@ F.scalingToCeds <- function( scalingData , dataFormat ,valueCol , valueLab = val
 
 
 # ---------------------------------------------------------------------------------
-# F.scale
+# F.scaling
 # Brief: produces scaling factors from aggregated ceds and inventory data
 # Details: takes in the ceds data and the inventory data that has been put in ceds
 #   standard form. Scaling factors are calculated by dividing inv data by ceds 
 #   data. The scaling factors are then interpolated and extrapolated to match
 #   ceds years in a specified manner.
 # Dependencies: CEDS_header.R, F.invAggregate(), F.cedsAggregate
-# Author: Tyler Pitkanen, Rachel Hoesly
+# Author: Tyler Pitkanen, Rachel Hoesly, Linh Vu
 # parameters:
 #   ceds_data:      ceds data for the inventory's region [default: ceds_data]
 #   inv_data:       inv data in ceds standard form [default: inv_data]
@@ -419,7 +419,7 @@ F.scaling <- function( ceds_data, inv_data, region,
   
   if ( ! all( ext_method$post_ext_method %in% c(valid_post_ext_methods,'NA') )) {
     index <- which( ext_method$post_ext_method %in% valid_post_ext_methods == FALSE )
-    warning( paste0(  ext_method$post_ext_method[index] , ': invalid pre-extrapolatio method. Using default option: ',
+    warning( paste0(  ext_method$post_ext_method[index] , ': invalid pre-extrapolation method. Using default option: ',
                       "'" ,post_ext_default,"'") )
     ext_method$post_ext_method[index] <- post_ext_default } 
   
@@ -428,23 +428,42 @@ F.scaling <- function( ceds_data, inv_data, region,
   
   # Define Default Methods Data frame, update with mapping file
   # replace "all" in iso and scaling sector variable
-  replacement_variable <- c('iso','scaling_sector')  
-  for (i in seq_along(replacement_variable)){
-    all <- ext_method[ext_method[,replacement_variable[i]] == 'all', ]
-    while(nrow(all) > 0 ){
-      line <- all[1,]
-      if ( replacement_variable[i] == 'scaling_sector'){
-        replace_col <- unique(scaling_map[,replacement_variable[i]])
-        replace_col <- replace_col[!is.na(replace_col)]}
-      if ( replacement_variable[i] == 'iso') replace_col <- region
-      replace_rows <- do.call(rbind, replicate(length(replace_col), line, simplify=FALSE)) 
-      replace_rows[,replacement_variable[i]] <- replace_col
-      ext_method <- rbind(replace_rows, ext_method)
-      all <- all[-1,]
+  replacement_variable <- c('iso','scaling_sector') 
+  if ( any( ext_method[, replacement_variable]=='all', na.rm = T ) ) {
+    # Define helper columns to decide selection priority
+    ext_method$all_count <- 0     # how many 'all' columns does current row have?
+    ext_method$all_count[ ext_method$iso == 'all' | ext_method$scaling_sector == 'all' ] <- 1
+    ext_method$all_count[ ext_method$iso == 'all' & ext_method$scaling_sector == 'all' ] <- 2
+    ext_method$row_num <- seq( 1, nrow( ext_method ) )  # original row number
+    
+    # Expand 'all'
+    for (i in seq_along(replacement_variable)){
+      all <- ext_method[ext_method[,replacement_variable[i]] == 'all', ]
+      while(nrow(all) > 0 ){
+        line <- all[1,]
+        if ( replacement_variable[i] == 'scaling_sector'){
+          replace_col <- unique(scaling_map[,replacement_variable[i]])
+          replace_col <- replace_col[!is.na(replace_col)]}
+        if ( replacement_variable[i] == 'iso') replace_col <- region
+        replace_rows <- do.call(rbind, replicate(length(replace_col), line, simplify=FALSE)) 
+        replace_rows[,replacement_variable[i]] <- replace_col
+        ext_method <- rbind(replace_rows, ext_method)
+        all <- all[-1,]
+      }
+      ext_method <- ext_method[which(ext_method[,replacement_variable[i]] != 'all'),]
     }
-    ext_method <- ext_method[which(ext_method[,replacement_variable[i]] != 'all'),]
+    
+    # For any iso+scaling_sector combination, select instruction from most specific to less specific,
+    # then last row in original instruction file
+    ext_method <- group_by( ext_method, iso, scaling_sector ) %>%
+      filter( all_count == min( all_count ) ) %>%   # most specific
+      group_by( iso, scaling_sector ) %>%
+      filter( row_num == max( row_num ) )           # last row
+    
+    # Remove duplicates and extra columns
+    ext_method <- select( ext_method, -all_count, -row_num ) %>% unique() %>% data.frame()    
   }
-  
+
   # defaults
   ext_method_default <- inv_data[,c('iso',scaling_name)]
   ext_method_default[,'interp_method'] <- interp_default
@@ -466,23 +485,47 @@ F.scaling <- function( ceds_data, inv_data, region,
   
   # Define Default Years, update with mapping file
   # expand all option for iso and scaling_sector
-    replacement_variable <- c('iso','scaling_sector')  
+  replacement_variable <- c('iso','scaling_sector') 
+  if ( any( ext_year[, replacement_variable]=='all', na.rm = T ) ) {
+    # Define helper columns to decide selection priority
+    ext_year$all_count <- 0     # how many 'all' columns does current row have?
+    ext_year$all_count[ ext_year$iso == 'all' | ext_year$scaling_sector == 'all' ] <- 1
+    ext_year$all_count[ ext_year$iso == 'all' & ext_year$scaling_sector == 'all' ] <- 2
+    ext_year$row_num <- seq( 1, nrow( ext_year ) )  # original row number
+    ext_year$is_range <- ext_year$start_scaling_year != 'NA'  # scaled by single year or year range?
+    
+    # Expand 'all'
     for (i in seq_along(replacement_variable)){
-    all <- ext_year[ext_year[,replacement_variable[i]] == 'all', ]
-    while(nrow(all) > 0 ){
-      line <- all[1,]
-      if ( replacement_variable[i] == 'scaling_sector'){
-      replace_col <- unique(scaling_map[,replacement_variable[i]])
-      replace_col <- replace_col[!is.na(replace_col)]}
-      if ( replacement_variable[i] == 'iso') replace_col <- region
-      replace_rows <- do.call(rbind, replicate(length(replace_col), line, simplify=FALSE)) 
-      replace_rows[,replacement_variable[i]] <- replace_col
-      ext_year <- rbind(replace_rows, ext_year)
-      all <- all[-1,]
+      all <- ext_year[ext_year[,replacement_variable[i]] == 'all', ]
+      while(nrow(all) > 0 ){
+        line <- all[1,]
+        if ( replacement_variable[i] == 'scaling_sector'){
+          replace_col <- unique(scaling_map[,replacement_variable[i]])
+          replace_col <- replace_col[!is.na(replace_col)]}
+        if ( replacement_variable[i] == 'iso') replace_col <- region
+        replace_rows <- do.call(rbind, replicate(length(replace_col), line, simplify=FALSE)) 
+        replace_rows[,replacement_variable[i]] <- replace_col
+        ext_year <- rbind(replace_rows, ext_year)
+        all <- all[-1,]
+      }
+      ext_year <- ext_year[which(ext_year[,replacement_variable[i]] != 'all'),]
     }
-    ext_year <- ext_year[which(ext_year[,replacement_variable[i]] != 'all'),]
-    }
- 
+    
+    # For any iso+scaling_sector combination, select instruction from most specific to less specific,
+    # then last row in original instruction file. Do this for range scaling only.
+    ext_year_range <- filter( ext_year, is_range ) %>%
+      group_by( iso, scaling_sector ) %>%
+      filter( all_count == min( all_count ) ) %>%     # most specific
+      group_by( iso, scaling_sector ) %>%
+      filter( row_num == max( row_num ) )             # last row
+    
+    # Combine with single-year scale
+    ext_year <- filter( ext_year, !is_range ) %>% rbind( ext_year_range )
+    
+    # Remove duplicates and extra columns
+    ext_year <- select( ext_year, -all_count, -row_num, -is_range ) %>% unique() %>% data.frame()  
+  }
+
   # defaults
   ext_year_default <- inv_data[,c('iso',scaling_name)]
   ext_year_default[,'pre_ext_year'] <- ext_start_year
