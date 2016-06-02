@@ -153,7 +153,7 @@ grid_one_country_subVOCs <- function( country, location_index, em_data, proxy, p
     
     
     # what if the backup proxy have all zero pattern 
-    if ( sum(proxy_cropped * mask ) == 0 ) {
+    if ( sum( proxy_cropped * mask ) == 0 ) {
       message_line <- paste0( 'Backup proxy used but all zero pattern: ', country, ' ,', year, ' ,', sector, ' ,', em_species )
     } else {
       message_line <- paste0( 'Backup proxy used: ', country, ' ,', year, ' ,', sector, ' ,', em_species )  
@@ -290,6 +290,9 @@ aggregate_all_countries_subVOCs <- function( VOC, sector, country_list, location
 # output: 
 grid_one_sector <- function( sector, em_species, year, location_index, grid_resolution, em_data, mass ) {
   
+  #debug
+  #em_data <- emissions_year
+  
   # for sectors other than shipping
   if ( sector != 'SHP' ) {
   # retrive the proxy data
@@ -369,11 +372,10 @@ grid_one_sector_subVOCs <- function( sector, em_species, year, location_index, g
   # extract VOC ratios for current sector
   ## VOC ratio sectors are not at itermediate level, so do some aggregation
   sector_final <- sector
-  if ( sector == 'ELEC' | sector == 'FFFI' ) { sector_final = 'ENE' }
+  if ( sector == 'ELEC' | sector == 'FFFI' | sector == 'FLR' ) { sector_final = 'ENE' }
   if ( sector == 'INDC' | sector == 'INPU' ) { sector_final = 'IND' } 
   if ( sector == 'ROAD' | sector == 'NRTR' ) { sector_final = 'TRA' } 
   if ( sector == 'RCORC' | sector == 'RCOO') { sector_final = 'RCO' }
-  
   
   VOC_ratio_country <- subset( VOC_ratio_table, VOC_ratio_table$CEDS_grd_sector == sector_final, c( 'iso', VOC_list ) )
   # retrieve proxy
@@ -471,6 +473,15 @@ grid_one_sector_subVOCs <- function( sector, em_species, year, location_index, g
 # input files: 
 # output: 
 grid_one_year <- function( em_species, year, em_data, location_index, sector_list, grid_resolution, mass = F ) { 
+  
+  #debug
+  #em_species <- em
+  #year <- year
+  #em_data <- emissions_level1_sector
+  #location_index <- country_location_index 
+  #sector_list <- level1_sector_list
+  #mass <- F
+  
   X_year <- paste0( 'X', year )
   emissions_year <- em_data[ c( 'iso', 'CEDS_grd_sector', X_year ) ]
   
@@ -545,10 +556,6 @@ grid_one_year_air <- function( em_species, year, em_data, grid_resolution, secto
 # output: 
 get_proxy <- function( em_species, year, sector ) {
     
-    # use RCO proxy for sector RCOO and RCORC
-    if ( sector == 'RCORC' ) { sector <- 'RCO' }
-    if ( sector == 'RCOO' ) { sector <- 'RCO' }
-    
     # specify the proxy_dir
     proxy_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy/")
     # list out all availiable proxies in proxy_dir
@@ -557,32 +564,21 @@ get_proxy <- function( em_species, year, sector ) {
     
     # generate the proxy name want to load and some adjustement
     year_num <- as.numeric( year ) 
+    proxy_filename <- paste( em_species, year, sector, sep = '_')
     
-    if ( year_num < 1970 && 
-         sector %in% c( 'ELEC', 'FFFI', 'ETRN', 'INDC', 'INPU', 'NRTR', 'ROAD', 'SLV', 'WST', 'AGR', 'SHP' )  ) {
-      proxy_filename <- paste0( em_species, '_1970_', sector )
-    } else { 
-        proxy_filename <- paste( em_species, year, sector, sep = '_')
-    }
-    
-    # special treatment of AIR sector
-    if ( year_num < 1850 && sector == 'AIR' ) {
-      proxy_filename <- paste0( em_species, '_1850_', sector )
-    } else { 
-        proxy_filename <- proxy_filename
-    }
+    # retrieve the proxy file name from the proxy mapping
+    file_to_load <- proxy_mapping[ proxy_mapping$combination == proxy_filename, 'proxy_name' ]
     
     # if the proxy desired is not in proxy_list, load population as proxy 
-    if( ( proxy_filename %in% proxy_list ) == T ) {
-      load( paste0( proxy_dir,proxy_filename ) )
-      proxy <- get( proxy_filename )
-      rm( list = proxy_filename )
+    if( ( file_to_load %in% proxy_list ) == T ) {
+      load( paste0( proxy_dir, file_to_load ) )
+      proxy <- get( file_to_load )
+      rm( list = file_to_load )
     } else { 
-      proxy_filename <- paste0( 'population_', year )
       proxy_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy_backup/")
-      load( paste0( proxy_dir, proxy_filename ) )
-      proxy <- get( proxy_filename )
-      rm( list = proxy_filename )
+      load( paste0( proxy_dir, file_to_load ) )
+      proxy <- get( file_to_load )
+      rm( list = file_to_load )
     }
     
     return( proxy )
@@ -805,7 +801,7 @@ gridding_initialize <- function( grid_resolution = 0.5,
   invisible( lapply( common_seasonality_list, function( common_seasonality ) { load( paste0( seasonality_dir, common_seasonality ), .GlobalEnv ) } ) )
   seasonality_profile_initialized <- T
   message( 'Seasonality profile initialized: ', seasonality_profile_initialized )
-  }
+}
   # -------------------------------------------------
 # region_emCombine
 # Brief: generate a fliped matrix by a given matrix
@@ -852,7 +848,7 @@ mask_avail_check <- function( emission_country_list, mask_country_list ){
   #cat( country_drop_list, file = paste0( summary_dir, 'dropped_countries.txt' ), append = TRUE, sep = "\n" )
 }
 # -------------------------------------------------
-# get_seasonalityFrac
+# ityFrac
 # Brief: generate a fliped matrix by a given matrix
 # Dependencies: 
 # Author: Leyang Feng
@@ -866,21 +862,12 @@ get_seasonalityFrac <- function( em_species, sector, year ) {
   total_seasonality_list <- list.files( seasonality_dir, pattern = '.*_seasonality' )
   
   seasonality_filename <- paste0( sector, '_', em_species, '_', year, '_seasonality' )
+  file_to_load <- seasonality_mapping[ seasonality_mapping$combination == seasonality_filename, 'seasonality_name' ]
   
-  # special treatment for AIR sector 
-  if ( as.numeric( year ) < 1850 && sector == 'AIR' ) {
-      seasonality_filename <- paste0( sector, '_', em_species, '_', '1850', '_seasonality' )
-    } else { 
-        seasonality_filename <- paste0( sector, '_', em_species, '_', year, '_seasonality' )
-    }
+  load( paste0( seasonality_dir, file_to_load ) )
+  seasonality <- get( file_to_load )
+  rm( list = file_to_load )
   
-  if ( ( seasonality_filename %in% total_seasonality_list ) == F ) {
-    if ( sector == 'AGR' & em_species == 'NH3' ) { em_species <- '_NH3' } else { em_species <- NULL }
-    if ( sector == 'RCO' ) { sector <- 'RCORC' }
-    seasonality_filename <- paste0( sector, em_species, '_seasonality')
-  } else { load( paste0( seasonality_dir, seasonality_filename ) ) }
-
-  seasonality <- get( seasonality_filename )
   return( seasonality )
 }
 # =====================================================================
@@ -895,6 +882,11 @@ get_seasonalityFrac <- function( em_species, sector, year ) {
 # input files: 
 # output: 
 final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_species, sector_list, sector_list_long, mass = F ) {
+  
+  #debug
+  #sector_list <- level3_sector_list
+  #sector_list_long <- level3_sector_longname_list
+  
   
   # 0 set up some basics for later use
   global_grid_area <- grid_area( grid_resolution, all_lon = T )
@@ -916,6 +908,7 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   SHP_em_global_final <- SHP_em_global  
   IND_em_global_final <- INDC_em_global + INPU_em_global
   TRA_em_global_final <- NRTR_em_global + ROAD_em_global
+  FLR_em_global_final <- FLR_em_global
   # second, add seasonality
   temp_sector_list <- sector_list[ !sector_list == 'RCO' ]
   
@@ -1304,7 +1297,8 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
 	  eval( parse( text = exp ) )
 	  exp <- paste0( 'SHP_', VOC, '_em_global_final <- SHP_', VOC, '_em_global' )
 	  eval( parse( text = exp ) )
-
+	  exp <- paste0( 'FLR_', VOC, '_em_global_final <- FLR_', VOC, '_em_global' )
+	  eval( parse( text = exp ) )
 
 	  # second, add seasonality
     temp_sector_list <- sector_list[ !sector_list == 'RCO' ]
@@ -1642,6 +1636,7 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
   AGR_em_global_final <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
   SLV_em_global_final <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
   WST_em_global_final <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
+  FLR_em_global_final <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
   # second, add seasonality
   temp_sector_list <- sector_list[ !sector_list == 'RCO' ]
   

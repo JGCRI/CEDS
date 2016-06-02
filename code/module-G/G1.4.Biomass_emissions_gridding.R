@@ -66,6 +66,10 @@
     ceds_gridding_sector_list<- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'CEDS_gridding_sectors' )
 # read in the country emission combine mapping ( could be empty if no combination is needed )
     country_combine_list <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'country_emission_combine_mapping' )
+# read in the proxy mapping 
+    proxy_mapping <- readData( domain = "GRIDDING", domain_extension = "gridding_mappings/", 'proxy_mapping' )
+# read in the seasonality mapping 
+    seasonality_mapping <- readData( domain = "GRIDDING", domain_extension = "gridding_mappings/", 'seasonality_mapping' )
 # ------------------------------------------------------------------------------
 # 2. Pre-processing
 # 2.1. Extract CEDS level 1 gridding sector list
