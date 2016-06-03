@@ -12,7 +12,7 @@ BP_years <- 2014 #The years for which there is only BP data
 X_BP_years <- paste0("X", BP_years)
 
 #Edgar year
-EDGAR_start_year <- 1970
+EDGAR_start_year <- 1971
 EDGAR_end_year <- 2010
 
 #The combined overall yearset for the ceds system
@@ -29,6 +29,12 @@ historical_pre_extension_year <- 1750
 historical_end_extension_year <- 1965
 extended_years <- historical_pre_extension_year:end_year
 X_extended_years <- paste0('X',extended_years)
+
+# Bond Data Years
+bond_start <- 1850
+bond_end <- 2010
+bond_years <- seq.int(bond_start,bond_end, by = 5)
+X_bond_years <- paste0('X', bond_years)
 
 #---------------------------------
 # Conversion Factors
