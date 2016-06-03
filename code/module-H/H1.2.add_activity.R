@@ -95,6 +95,8 @@ printLog('Running add_activity scripts to extend activity data')
 # Bond-CDIAC must be called before CDIAC fuels
 
   scripts <- c( "H1.2.add_activity_total_coal.R" ,
+                "H1.2.add_activity_total_natural_gas.R",
+                "H1.2.add_activity_total_petroleum.R",
                 "H1.2.add_activity_Fernandez.R" , 
                 'H1.2.add_activity_Bond_industrial_biomass.R',
                 'H1.2.add_activity_Bond_other_biomass.R',
