@@ -134,7 +134,7 @@ initialize( script_name, log_msg, headers )
   
   # input_data1 <- ceds_extension_ratios
   
-  extended_ceds_extension_ratios <- extend_data_on_trend_cdiac(driver_trend_for_ratios,ceds_extension_ratios, 
+  extended_ceds_extension_ratios <- extend_data_on_trend_range(driver_trend_for_ratios,ceds_extension_ratios, 
                                                                start = dis_start_year, end = dis_end_year,
                                                                ratio_start_year = ratio_start_year_cdiac,
                                                                expand = F,
@@ -363,7 +363,20 @@ initialize( script_name, log_msg, headers )
   cdiac_final <- cdiac_final[ ,c('iso','fuel', X_cdiac_years)]
   cdiac_final <- cdiac_final[ with( cdiac_final, order( iso, fuel ) ), ]
   
-  
+  # CORRECTIONS-1950 discontinuity, linear interpolate between 1952 and last zero value
+  # make non zeros NA
+  cdiac_final[which( cdiac_final$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
+                       cdiac_final$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1951)] <- 
+    replace ( cdiac_final[which( cdiac_final$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
+                     cdiac_final$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1951)],
+              (cdiac_final[which( cdiac_final$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
+                                        cdiac_final$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1951)] ) != 0 , 
+               NA)
+  # linear interpolation
+  cdiac_final[which( cdiac_final$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
+                       cdiac_final$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1952)] <- 
+    interpolate_NAs(cdiac_final[which( cdiac_final$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
+                                         cdiac_final$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1952)])
 # -----------------------------------------------------------------------------------------------------------
 # 6. Summary  
   # non combustion 
@@ -390,6 +403,7 @@ initialize( script_name, log_msg, headers )
   # cdiac_solid
   cdiac_solid_fuel <- cdiac_final[ which(cdiac_final$fuel == 'solid_fuels'), ]
   
+   
 # -----------------------------------------------------------------------------------------------------------
 # 5. Output
  

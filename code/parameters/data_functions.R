@@ -505,7 +505,7 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
   return(input_data)
 }
 # -----------------------------------------------------------------------------
-# extend_data_on_trend_cdiac
+# extend_data_on_trend_range
 # Brief:     extends data based on trend of other data
 # Details:     for use in cdiac extension script only 
 # Dependencies: 
@@ -538,7 +538,7 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
 # id_match.input = c('iso','fuel')
 # ratio_start_year = 1948
 
-extend_data_on_trend_cdiac <- function(driver_trend, input_data, 
+extend_data_on_trend_range <- function(driver_trend, input_data, 
                                        start, end,
                                        ratio_start_year = (end + 1),
                                  expand = T,
