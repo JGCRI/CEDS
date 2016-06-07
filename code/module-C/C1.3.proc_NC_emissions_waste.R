@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.3.proc_NC_emissions_waste.R
 # Author: Linh Vu
-# Date Last Updated: 22 Mar 2016
+# Date Last Updated: 6 June 2016
 # Program Purpose:  Write out waste emissions as default NC emissions. Outputs
 #                   of this program will be read in by C1.3.proc_NC_emissions_user_added.R
 #                   and overwrite existing Edgar emissions
@@ -79,7 +79,7 @@ initialize( script_name, log_msg, headers )
 
 # Keep relevant emissions (TODO)
     waste_input <- select( waste_input, iso, `Sulfur Dioxide (SO2)`, `Nitrogen Oxides (NOx as NO)`, 
-                           `Carbon Monoxide (CO)`, `NMOC (identified + unidentified)`, BC, OC, 
+                           `Carbon Monoxide (CO)`, `NMOC (identified)`, BC, OC, 
                            `Ammonia (NH3)`, `Methane (CH4)` )
     em_names <- c( "SO2", "NOx", "CO", "NMVOC", "BC", "OC", "NH3", "CH4" )
     names( waste_input ) <- c( "iso", em_names )
