@@ -545,10 +545,22 @@ extend_data_on_trend_range <- function(driver_trend, input_data,
                                  range = 5,
                                  id_match.driver = c('iso','sector','fuel'),
                                  id_match.input = id_match.driver) {
+  
+  # driver_trend = population
+  # input_data = other_biomass
+  # start = zero_year
+  # end = 1970
+  # id_match.driver = c('iso')
+  # id_match.input = c('iso','sector')
+  # ratio_start_year = (end + 1)
+  # expand = T
+  # range = 5
+  
   input_years <- names(input_data)[grep('X',names(input_data))]
   extra_id <- names(input_data)[names(input_data) %!in% c(input_years, id_match.driver, id_match.input)]
   
   if( expand == T){
+    if( any('fuel' %in% names(driver_trend))){
     # Expand fuels - all-comb
     expand <- driver_trend[which(driver_trend$fuel == 'all' ) ,]
     driver_trend <- driver_trend[which(driver_trend$fuel != 'all' ) ,]
@@ -557,12 +569,23 @@ extend_data_on_trend_range <- function(driver_trend, input_data,
       expand$fuel <- rep(comb_fuels[i], times= nrow(expand) )
       driver_trend <- rbind( driver_trend, expand )
     }
-  }
+  }}
   
   ratio_years <- paste0('X',c(ratio_start_year + 0:(range-1)))
   ext_start_year <- start
   ext_end_year <- end
   extension_years <- paste0('X',ext_start_year:ext_end_year)
+  
+  input_data_cols_original <- names(input_data)
+  id_match.input_original <- id_match.input
+  id_match.driver_original <- id_match.driver
+  # add temp column if id_match is only 1 column
+  if( length(id_match.driver) == 1 ){
+    driver_trend$temp <- rep(x='temp', times=nrow(driver_trend))
+    input_data$temp <- rep(x='temp', times=nrow(input_data))
+    id_match.input <- c(id_match.input, 'temp')
+    id_match.driver <- c(id_match.driver, 'temp')
+  }
   
   # # select extension data for current method
   driver_lines <- unique( apply( driver_trend[ , id_match.driver ] , 1 , paste , collapse = "-" ) )
@@ -586,7 +609,7 @@ extend_data_on_trend_range <- function(driver_trend, input_data,
   ceds_extension_ratios$ratio <-  rowMeans(ceds_extension_ratios[ ratio_years ])
   
   # add driver data and use ratio to calculate extended value
-  ceds_extended <- ceds_extension_ratios[,unique(c(id_match.driver,id_match.input,extra_id,'ratio'))]
+  ceds_extended <- ceds_extension_ratios[,unique(c(id_match.driver,id_match.input_original,extra_id,'ratio'))]
   ceds_extended [ extension_years ] <- NA
   ceds_extended <- replaceValueColMatch(ceds_extended, driver_trend,
                                         x.ColName = extension_years,
@@ -600,11 +623,11 @@ extend_data_on_trend_range <- function(driver_trend, input_data,
   
   # add to final extension template
   input_data[extension_years] <- NA
-  input_data <- replaceValueColMatch(input_data, ceds_extended,
+  input_data <- replaceValueColMatch(input_data[input_data_cols_original], ceds_extended,
                                      x.ColName = extension_years,
-                                     match.x = id_match.input,
+                                     match.x = id_match.input_original,
                                      addEntries = FALSE)
   
-  return(input_data[,c(id_match.input, extra_id,extension_years,input_years)])
+  return(input_data)
 }
 
