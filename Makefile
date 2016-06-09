@@ -120,16 +120,18 @@ clean-io :
 	rm -fv $(DOCS)/*IO_documentation.csv
 
 clean-modA :
-	rm -fv $(MED_OUT)/A*.csv
+	rm -fv $(MED_OUT)/A*.csv \
+	rm -fv $(EXT_IN)/extention-data/A.*.csv
 
 clean-modB :
 	rm -fv $(MED_OUT)/B*.csv \
-	rm -fv $(EF_PARAMETERS)/B.*.csv
+	rm -fv $(EF_PARAMETERS)/B.*.csv \
+	rm -fv $(EF_DATA)/non-combustion-emissions/B.*.csv \
+	rm -fv $(EXT_IN)/extention-data/B.*.csv
 
 clean-modC :
 	rm -fv $(MED_OUT)/C*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC_emissions_user_added.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC_inventory_emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC*emissions_user_added.csv
 
 clean-modD :
 	rm -fv $(MED_OUT)/D*.csv
@@ -146,43 +148,35 @@ clean-modH :
 
 clean-SO2 :
 	rm -fv $(MED_OUT)/*SO2*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.SO2*_NC_emissions_user_added.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.SO2*_NC_inventory_emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.SO2*_NC*emissions_user_added.csv
 
 clean-NOx :
 	rm -fv $(MED_OUT)/*NOx*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.NOx*_NC_emissions_user_added.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.NOx*_NC_inventory_emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.NOx*_NC*emissions_user_added.csv
 
 clean-CH4 :
 	rm -fv $(MED_OUT)/*CH4*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.CH4*_NC_emissions_user_added.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.CH4*_NC_inventory_emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.CH4*_NC*emissions_user_added.csv
 
 clean-CO :
 	rm -fv $(MED_OUT)/*CO*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.CO*_NC_emissions_user_added.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.CO*_NC_inventory_emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.CO*_NC*emissions_user_added.csv
 
 clean-NMVOC :
 	rm -fv $(MED_OUT)/*NMVOC*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.NMVOC*_NC_emissions_user_added.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.NMVOC*_NC_inventory_emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.NMVOC*_NC*emissions_user_added.csv
 
 clean-NH3 :
 	rm -fv $(MED_OUT)/*NH3*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.NH3*_NC_emissions_user_added.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.NH3*_NC_inventory_emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.NH3*_NC*emissions_user_added.csv
 
 clean-OC :
 	rm -fv $(MED_OUT)/*OC*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.OC*_NC_emissions_user_added.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.OC*_NC_inventory_emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.OC*_NC*emissions_user_added.csv
 
 clean-BC :
 	rm -fv $(MED_OUT)/*BC*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.BC*_NC_emissions_user_added.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.BC*_NC_inventory_emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.BC*_NC*emissions_user_added.csv
 
 # --------------------------------------------------------------
 
