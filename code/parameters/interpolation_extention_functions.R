@@ -221,8 +221,8 @@ interpolateValues <- function(interp_data,interp_default = 'linear',
   # Interpolate
   if( length(interpolation_rows)>0){
     linear <- interp_df[which(interp_method_full$interp_method == 'linear'),]
-    cant_interpolate <- linear[which(rowSums(!is.na(linear[,X_years_full]))==1),]
-    if(nrow(cant_interpolate)>0) linear <- linear[which(rowSums(!is.na(linear[,X_years_full]))!=1),]
+    cant_interpolate <- linear[which(rowSums(!is.na(linear[,X_years_full]))<=1),]
+    if(nrow(cant_interpolate)>0) linear <- linear[which(rowSums(!is.na(linear[,X_years_full]))>1),]
     if ( nrow(linear)>0){
       # Add Meta notes
       if (meta == TRUE) {
