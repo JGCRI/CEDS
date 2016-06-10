@@ -966,6 +966,7 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   bndsdim <- ncdim_def( "bnds", '', as.integer( bnds ), longname = 'bounds', create_dimvar = F )
   time_bnds_data <- cbind( c( 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 ),
                       c( 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 ) )
+  time_bnds_data <- time_bnds_data + base_days				  
   
   if ( mass == T ){
     data_unit <- 'kt'
@@ -980,9 +981,9 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   expressions <- paste0( left_part, mid_part, right_part )
   missing_value <- 1.e20
   eval( parse( text = expressions ) )
-  lon_bnds <- ncvar_def( 'lon_bnds', '', list( londim, bndsdim ), prec = 'double' )
-  lat_bnds <- ncvar_def( 'lat_bnds', '', list( latdim, bndsdim ), prec = 'double' )
-  time_bnds <- ncvar_def( 'time_bnds', '', list( timedim, bndsdim ), prec = 'double' )
+  lon_bnds <- ncvar_def( 'lon_bnds', '', list( bndsdim, londim ), prec = 'double' )
+  lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
+  time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
   
   # generate nc file name
   ceds_version <- 'v'
@@ -1008,9 +1009,9 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
                          ' ) ) , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )' )
   eval( parse( text = expressions ) )
   }
-  ncvar_put( nc_new, lon_bnds, lon_bnds_data )
-  ncvar_put( nc_new, lat_bnds, lat_bnds_data )
-  ncvar_put( nc_new, time_bnds, time_bnds_data )
+  ncvar_put( nc_new, lon_bnds, t( lon_bnds_data ) )
+  ncvar_put( nc_new, lat_bnds, t( lat_bnds_data ) )
+  ncvar_put( nc_new, time_bnds, t( time_bnds_data ) )
   
   # nc variable attributes
   # attributes for dimensions
@@ -1025,7 +1026,7 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   ncatt_put( nc_new, "time", "bounds", "time_bnds" )
   # attributes for variables
   for ( each_var in sector_list ) {
-    ncatt_put( nc_new, each_var, 'cell_methods', 'time:mean' )
+    ncatt_put( nc_new, each_var, 'cell_methods', 'time: mean' )
     ncatt_put( nc_new, each_var, 'missing_value', 1e+20, prec = 'float' )
   }
   # nc global attributes
@@ -1147,6 +1148,7 @@ final_monthly_nc_output_air <- function( output_dir, grid_resolution, year, em_s
   bndsdim <- ncdim_def( "bnds", '', as.integer( bnds ), longname = 'bounds', create_dimvar = F )
   time_bnds_data <- cbind( c( 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 ),
                       c( 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 ) )
+  time_bnds_data <- time_bnds_data + base_days
   
   if ( mass == T ){
     data_unit <- 'kt'
@@ -1157,9 +1159,9 @@ final_monthly_nc_output_air <- function( output_dir, grid_resolution, year, em_s
   # define nc variables
   missing_value <- 1.e20
   AIR <- ncvar_def( sector, data_unit, dim_list, missval = missing_value, longname = sector_long, prec = 'float', compression = 5  )
-  lon_bnds <- ncvar_def( 'lon_bnds', '', list( londim, bndsdim ), prec = 'double' )
-  lat_bnds <- ncvar_def( 'lat_bnds', '', list( latdim, bndsdim ), prec = 'double' )
-  time_bnds <- ncvar_def( 'time_bnds', '', list( timedim, bndsdim ), prec = 'double' )
+  lon_bnds <- ncvar_def( 'lon_bnds', '', list( bndsdim, londim ), prec = 'double' )
+  lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
+  time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
   
   # generate nc file name
   ceds_version <- 'v'
@@ -1191,9 +1193,9 @@ final_monthly_nc_output_air <- function( output_dir, grid_resolution, year, em_s
 	  # ncvar_put( nc_new, AIR, temp_data[ , , j, i ], start = c( 1, 1, j, i ), count = c( -1, -1, -1, 1 ) )
 	# }
   # }
-  ncvar_put( nc_new, lon_bnds, lon_bnds_data )
-  ncvar_put( nc_new, lat_bnds, lat_bnds_data )
-  ncvar_put( nc_new, time_bnds, time_bnds_data )
+  ncvar_put( nc_new, lon_bnds, t( lon_bnds_data ) )
+  ncvar_put( nc_new, lat_bnds, t( lat_bnds_data ) )
+  ncvar_put( nc_new, time_bnds, t( time_bnds_data ) )
   
   # nc variable attributes
   # attributes for dimensions
@@ -1208,7 +1210,7 @@ final_monthly_nc_output_air <- function( output_dir, grid_resolution, year, em_s
   ncatt_put( nc_new, "time", "bounds", "time_bnds" )
   ncatt_put( nc_new, "lon", "axis", "Z" )
   # attributes for variables
-  ncatt_put( nc_new, 'AIR', 'cell_methods', 'time:mean' )
+  ncatt_put( nc_new, 'AIR', 'cell_methods', 'time: mean' )
   ncatt_put( nc_new, 'AIR', 'missing_value', 1e+20, prec = 'float' )
   # nc global attributes
   #ncatt_put( nc_new, 0, 'IMPORTANT', 'FOR TEST ONLY, DO NOT USE' )
@@ -1361,7 +1363,8 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
     bndsdim <- ncdim_def( "bnds", '', as.integer( bnds ), longname = 'bounds', create_dimvar = F )
     time_bnds_data <- cbind( c( 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 ),
                         c( 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 ) )
-  
+    time_bnds_data <- time_bnds_data + base_days
+	
   if ( mass == T ){
     data_unit <- 'kt'
   } else {
@@ -1375,9 +1378,9 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
   expressions <- paste0( left_part, mid_part, right_part )
   missing_value <- 1.e20
   eval( parse( text = expressions ) )
-  lon_bnds <- ncvar_def( 'lon_bnds', '', list( londim, bndsdim ), prec = 'double' )
-  lat_bnds <- ncvar_def( 'lat_bnds', '', list( latdim, bndsdim ), prec = 'double' )
-  time_bnds <- ncvar_def( 'time_bnds', '', list( timedim, bndsdim ), prec = 'double' )
+  lon_bnds <- ncvar_def( 'lon_bnds', '', list( bndsdim, londim ), prec = 'double' )
+  lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
+  time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
   
   # generate nc file name
   ceds_version <- 'v'
@@ -1405,9 +1408,9 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
                          ' ) ) , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )' )
   eval( parse( text = expressions ) )
   }
-  ncvar_put( nc_new, lon_bnds, lon_bnds_data )
-  ncvar_put( nc_new, lat_bnds, lat_bnds_data )
-  ncvar_put( nc_new, time_bnds, time_bnds_data )
+  ncvar_put( nc_new, lon_bnds, t( lon_bnds_data ) )
+  ncvar_put( nc_new, lat_bnds, t( lat_bnds_data ) )
+  ncvar_put( nc_new, time_bnds, t( time_bnds_data ) )
   
   # nc variable attributes
   # attributes for dimensions
@@ -1422,7 +1425,7 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
   ncatt_put( nc_new, "time", "bounds", "time_bnds" )
   # attributes for variables
   for ( each_var in sector_list ) {
-    ncatt_put( nc_new, each_var, 'cell_methods', 'time:mean' )
+    ncatt_put( nc_new, each_var, 'cell_methods', 'time: mean' )
     ncatt_put( nc_new, each_var, 'missing_value', 1e+20, prec = 'float' )
   }
   # nc global attributes
@@ -1522,8 +1525,8 @@ annual_total_emission_nc_output <- function( output_dir, grid_resolution, year, 
   missing_value <- 1.e20
   long_name <- 'Global total emissions '
   total_emission <- ncvar_def( 'total_emission', data_unit, dim_list, missval = missing_value, longname = long_name , prec = 'float', compression = 5 )
-  lon_bnds <- ncvar_def( 'lon_bnds', '', list( londim, bndsdim ), prec = 'double' )
-  lat_bnds <- ncvar_def( 'lat_bnds', '', list( latdim, bndsdim ), prec = 'double' )
+  lon_bnds <- ncvar_def( 'lon_bnds', '', list( bndsdim, londim ), prec = 'double' )
+  lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
   
   # generate nc file name
   ceds_version <- 'v'
@@ -1539,8 +1542,8 @@ annual_total_emission_nc_output <- function( output_dir, grid_resolution, year, 
   
   # put nc variables into the nc file
   ncvar_put( nc_new, total_emission, t( flip_a_matrix( total_grid ) ) )
-  ncvar_put( nc_new, lon_bnds, lon_bnds_data )
-  ncvar_put( nc_new, lat_bnds, lat_bnds_data )
+  ncvar_put( nc_new, lon_bnds, t( lon_bnds_data ) )
+  ncvar_put( nc_new, lat_bnds, t( lat_bnds_data ) )
 
   
   # nc variable attributes
@@ -1552,7 +1555,7 @@ annual_total_emission_nc_output <- function( output_dir, grid_resolution, year, 
   ncatt_put( nc_new, "lat", "standard_name", "latitude" )
   ncatt_put( nc_new, "lat", "bounds", "lat_bnds" )
   # attributes for variables
-  ncatt_put( nc_new, total_emission, 'cell_methods', 'time:mean' )
+  ncatt_put( nc_new, total_emission, 'cell_methods', 'time: mean' )
   ncatt_put( nc_new, total_emission, 'missing_value', 1e+20, prec = 'float' )
   # nc global attributes
   #ncatt_put( nc_new, 0, 'IMPORTANT', 'FOR TEST ONLY, DO NOT USE' )
@@ -1692,6 +1695,7 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
   bndsdim <- ncdim_def( "bnds", '', as.integer( bnds ), longname = 'bounds', create_dimvar = F )
   time_bnds_data <- cbind( c( 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 ),
                       c( 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 ) )
+  time_bnds_data <- time_bnds_data + base_days
   
   if ( mass == T ){
     data_unit <- 'kt'
@@ -1706,9 +1710,9 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
   expressions <- paste0( left_part, mid_part, right_part )
   missing_value <- 1.e20
   eval( parse( text = expressions ) )
-  lon_bnds <- ncvar_def( 'lon_bnds', '', list( londim, bndsdim ), prec = 'double' )
-  lat_bnds <- ncvar_def( 'lat_bnds', '', list( latdim, bndsdim ), prec = 'double' )
-  time_bnds <- ncvar_def( 'time_bnds', '', list( timedim, bndsdim ), prec = 'double' )
+  lon_bnds <- ncvar_def( 'lon_bnds', '', list( bndsdim, londim ), prec = 'double' )
+  lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
+  time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
   
   # generate nc file name
   ceds_version <- 'v'
@@ -1734,9 +1738,9 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
                          ' ) ) , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )' )
   eval( parse( text = expressions ) )
   }
-  ncvar_put( nc_new, lon_bnds, lon_bnds_data )
-  ncvar_put( nc_new, lat_bnds, lat_bnds_data )
-  ncvar_put( nc_new, time_bnds, time_bnds_data )
+  ncvar_put( nc_new, lon_bnds, t( lon_bnds_data ) )
+  ncvar_put( nc_new, lat_bnds, t( lat_bnds_data ) )
+  ncvar_put( nc_new, time_bnds, t( time_bnds_data ) )
   
   # nc variable attributes
   # attributes for dimensions
@@ -1751,7 +1755,7 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
   ncatt_put( nc_new, "time", "bounds", "time_bnds" )
   # attributes for variables
   for ( each_var in sector_list ) {
-    ncatt_put( nc_new, each_var, 'cell_methods', 'time:mean' )
+    ncatt_put( nc_new, each_var, 'cell_methods', 'time: mean' )
     ncatt_put( nc_new, each_var, 'missing_value', 1e+20, prec = 'float' )
   }
   # nc global attributes
