@@ -1,8 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: H1.2.add_activity_Bond_other_biomass.R
 # Author: Rachel Hoesly
-# Program Purpose: Extend other Biomass linearly back. 
-# In the future: extend back with Bond data, transition from ceds to bond values
+# Program Purpose: Extend other Biomass back with population to zero by certain date. 
 #               
 # Output Files:'H.',em,'_total_activity_extended_db'
 # TODO: extend with Bond data
@@ -25,7 +24,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R","process_db_functions.R", "ModH_extention_functions.R") # Additional function files may be required.
+headers <- c( "data_functions.R","process_db_functions.R") # Additional function files may be required.
 log_msg <- "Extending other biomass activity_data before 1960 with Bond data" # First message to be printed to the log
 script_name <- "H1.2.add_activity_Bond_other_biomass.R"
 
@@ -45,9 +44,10 @@ iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_country_map"
 fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_fuel_map", meta = F )
 sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_map", meta = F )
 iea_start_year <- readData( 'ENERGY_IN' , 'IEA_iso_start_data', meta = F )
+un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' )
 
 # ---------------------------------------------------------------------------
-# 2. Load files
+# 2. Select sectors, script options
 
 other_sectors <- c('1A1a_Electricity-autoproducer','1A1a_Electricity-public',
                    '1A1a_Heat-production', '1A3ai_International-aviation',
@@ -57,41 +57,53 @@ other_sectors <- c('1A1a_Electricity-autoproducer','1A1a_Electricity-public',
                    '1A5_Other-unspecified')
 
 activity <- activity_all
-# ---------------------------------------------------------------------------
-# 3. 
 
-# # Industrial Biomass
-# bond <- merge( bond_historical, iso_map[,c('iso','Country')])
-# bond <- merge( bond, fuel_map)
-# bond <- bond[which( bond[,'Fuel (kt)'] > 0),]
-# bond <- bond[which( bond$fuel == 'biomass'),]
-# bond <- bond[which( bond[,'Year'] < 2005),]
-# bond$Year <- paste0('X',bond$Year)
-# 
-# # bond <- aggregate(bond["Fuel (kt)"],
-# #                   by = list(iso = bond$iso,
-# #                             Year = bond$Year),
-# #                   FUN = sum)
-# bond_other_biomass <- cast(bond, iso + Tech + Sector + fuel ~ Year, value = 'Fuel (kt)',fun.aggregate = sum, na.rm=T)
+# Year to which other biomass goes to zero
+zero_year <- 1900
+end_extension_year <- 1970
+
+# process un population
+un_pop$X_year <- paste0( "X" , un_pop$year)
+un_pop$pop <- as.numeric(un_pop$pop)
+population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_year:end_year ) , ] , 
+                    iso ~ X_year, value = 'pop')
 
 # ---------------------------------------------------------------------------
-# 4. Linearly extend For now, extend with bond data later
+# 4. Extend with population
 
-# replace zeros with nas
-activity[which( activity$fuel == 'biomass' &
-                  activity$sector %in% other_sectors), paste0('X',1750:1970)] <- 
-  replace( activity[which( activity$fuel == 'biomass' &
-                             activity$sector %in% other_sectors), paste0('X',1750:1970)],
-           activity[which( activity$fuel == 'biomass' &
-                                   activity$sector %in% other_sectors), paste0('X',1750:1970)] == 0, NA)
+# select other biomass
+other_biomass <- activity[which( activity$fuel == 'biomass' &
+                  activity$sector %in% other_sectors),] 
+other_biomass[, paste0('X',historical_pre_extension_year: zero_year)] <- 0
 
-activity[which( activity$fuel == 'biomass' &
-                activity$sector %in% other_sectors), paste0('X',1750)] <- 0
-activity[which( activity$fuel == 'biomass' &
-                  activity$sector %in% other_sectors), paste0('X',1900)] <- 0
+# extend with population
+other_biomass <- extend_data_on_trend_range(driver_trend = population, 
+                                            input_data = other_biomass, 
+                                        start = zero_year, 
+                                        end = end_extension_year,
+                                        id_match.driver = c('iso'),
+                                        id_match.input = c('iso','sector'))
+# Slowly Blend to Zero 
+biomass_extension_years <- zero_year:end_extension_year
 
-activity[which( activity$fuel == 'biomass' & activity$sector %in% other_sectors), paste0('X',1750:1971)] <- 
-  interpolate_NAs(activity[which( activity$fuel == 'biomass' & activity$sector %in% other_sectors), paste0('X',1750:1971)])
+# percent ( year n ) 
+other_biomass_extended <- other_biomass
+for ( n in seq_along( biomass_extension_years)){
+  ceds_fraction <- (n-1)*(1/(length(biomass_extension_years)-1))
+  zero_fraction <- 1-ceds_fraction
+  ceds_split <- other_biomass_extended[,paste0('X',biomass_extension_years[n])]
+  zero_split <- rep(0,times = length(ceds_split))
+  
+  other_biomass_extended[,paste0('X',biomass_extension_years[n])] <- zero_split*zero_fraction + ceds_split*ceds_fraction
+  
+}
+# ---------------------------------------------------------------------------
+# 5. Add to Activity Database
+
+activity <- replaceValueColMatch(activity, other_biomass_extended,
+                                 x.ColName = paste0('X',historical_pre_extension_year:end_extension_year),
+                                 match.x = c('iso','sector','fuel'),
+                                 addEntries = F)
 
 
 # ---------------------------------------------------------------------------
