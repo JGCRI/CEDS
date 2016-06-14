@@ -60,14 +60,17 @@ loadPackage('zoo')
 replaceValueColMatch <- function( x,y,x.ColName,y.ColName = x.ColName,
                                   match.x,match.y=match.x,
                                   addEntries){
+ 
   out <- x
   n<-length(match.x)
   x.match.cols <- x[,match.x[1]]
   y.match.cols <- y[,match.y[1]]
+  
+  if ( n > 1) {
   for (i in 2:n){
     x.match.cols <- paste(x.match.cols, x[,match.x[i]]  )
     y.match.cols <- paste(y.match.cols, y[,match.y[i]]  )
-  }
+  }}
   
   out[,x.ColName] <- y[match(x.match.cols,y.match.cols),
                        y.ColName]
@@ -85,6 +88,7 @@ replaceValueColMatch <- function( x,y,x.ColName,y.ColName = x.ColName,
                                                         'in replaceValueColMatch. Check column names.'))
     out <- rbind.fill(out, y[which(is.na(match(y.match.cols,x.match.cols))),])
   }
+  
   return(out)  
 }
 
@@ -440,7 +444,6 @@ interpolate_NAs <- function( df){
 # TODO: merge, switch to extend_data_on_trend_cdiac
 
 extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnostics = F){
-  # input_data <- new_EFs 
   
   # Expand fuels - all-comb
   expand <- driver_trend[which(driver_trend$fuel == 'all' ) ,]
@@ -545,10 +548,23 @@ extend_data_on_trend_range <- function(driver_trend, input_data,
                                  range = 5,
                                  id_match.driver = c('iso','sector','fuel'),
                                  id_match.input = id_match.driver) {
+  
+
+  # driver_trend = driver_trend_for_ratios
+  # input_data = ceds_extension_ratios 
+  # start = dis_start_year 
+  # end = dis_end_year
+  # ratio_start_year = ratio_start_year
+  # expand = F
+  # range = ratio_range_length
+  # id_match.driver = trend_match_cols
+  # id_match.input = c('iso',match_cols)
+  
   input_years <- names(input_data)[grep('X',names(input_data))]
-  extra_id <- names(input_data)[names(input_data) %!in% c(input_years, id_match.driver, id_match.input)]
+  extra_id <- names(input_data)[names(input_data) %!in% c(input_years, id_match.driver, id_match.input, paste0('X',start:end))]
   
   if( expand == T){
+    if( any('fuel' %in% names(driver_trend))){
     # Expand fuels - all-comb
     expand <- driver_trend[which(driver_trend$fuel == 'all' ) ,]
     driver_trend <- driver_trend[which(driver_trend$fuel != 'all' ) ,]
@@ -557,36 +573,44 @@ extend_data_on_trend_range <- function(driver_trend, input_data,
       expand$fuel <- rep(comb_fuels[i], times= nrow(expand) )
       driver_trend <- rbind( driver_trend, expand )
     }
-  }
+  }}
   
   ratio_years <- paste0('X',c(ratio_start_year + 0:(range-1)))
   ext_start_year <- start
   ext_end_year <- end
   extension_years <- paste0('X',ext_start_year:ext_end_year)
   
-  # # select extension data for current method
-  driver_lines <- unique( apply( driver_trend[ , id_match.driver ] , 1 , paste , collapse = "-" ) )
+  input_data_cols_original <- names(input_data)
+  
+  id_match.input_original <- id_match.input
+  id_match.driver_original <- id_match.driver
+  
+  # create vectors of input and driver data we want to use with match() to extend data 
+  driver_lines <- unique( driver_trend[ , id_match.driver ] )
+  if ( length(id_match.driver) > 1 ) driver_lines <- unique( apply( driver_trend[ , id_match.driver ] , 1 , paste , collapse = "-" ) )
+  input_lines <- input_data[ , id_match.driver ]
+  if ( length(id_match.driver) > 1 ) input_lines <- apply( input_data[ , id_match.driver ] , 1 , paste , collapse = "-" )
   
   # select ceds data to extend
-  ceds_extension_ratios <- input_data[ which( apply( input_data[ , id_match.driver ] , 1 , paste , collapse = "-" ) %in% driver_lines  ) , ]
+  extension_ratios <- input_data[ which( input_lines %in% driver_lines  ) , ]
   
   #extended data template
-  ceds_extension_ratios <- ceds_extension_ratios[,unique(c(id_match.driver,id_match.input,extra_id,ratio_years))]
+  extension_ratios <- extension_ratios[,unique(c(id_match.driver,id_match.input,extra_id,ratio_years))]
   
   # add Driver identifyer ratio year
-  ceds_extension_ratios <- merge(ceds_extension_ratios, driver_trend[,c(id_match.driver,ratio_years)],
+  extension_ratios <- merge(extension_ratios, driver_trend[,c(id_match.driver,ratio_years)],
                                  by.x = id_match.driver,
                                  by.y = id_match.driver,
                                  all.x = TRUE, all.y = FALSE)
   
-  ceds_extension_ratios[ ratio_years ] <- ceds_extension_ratios[ paste0(ratio_years,'.x')]/ceds_extension_ratios[ paste0(ratio_years,'.y')]
-  ceds_extension_ratios <- replace(ceds_extension_ratios, ceds_extension_ratios == 'NaN', 0)
-  ceds_extension_ratios <- replace(ceds_extension_ratios, is.na(ceds_extension_ratios), 0) 
+  extension_ratios[ ratio_years ] <- extension_ratios[ paste0(ratio_years,'.x')]/extension_ratios[ paste0(ratio_years,'.y')]
+  extension_ratios <- replace(extension_ratios, extension_ratios == 'NaN', 0)
+  extension_ratios <- replace(extension_ratios, is.na(extension_ratios), 0) 
   
-  ceds_extension_ratios$ratio <-  rowMeans(ceds_extension_ratios[ ratio_years ])
+  extension_ratios$ratio <-  rowMeans(extension_ratios[ ratio_years ])
   
   # add driver data and use ratio to calculate extended value
-  ceds_extended <- ceds_extension_ratios[,unique(c(id_match.driver,id_match.input,extra_id,'ratio'))]
+  ceds_extended <- extension_ratios[,unique(c(id_match.driver,id_match.input_original,extra_id,'ratio'))]
   ceds_extended [ extension_years ] <- NA
   ceds_extended <- replaceValueColMatch(ceds_extended, driver_trend,
                                         x.ColName = extension_years,
@@ -600,11 +624,359 @@ extend_data_on_trend_range <- function(driver_trend, input_data,
   
   # add to final extension template
   input_data[extension_years] <- NA
-  input_data <- replaceValueColMatch(input_data, ceds_extended,
+  input_data <- replaceValueColMatch(input_data[c(id_match.input,extra_id,extension_years,input_years)], ceds_extended,
                                      x.ColName = extension_years,
-                                     match.x = id_match.input,
+                                     match.x = id_match.input_original,
                                      addEntries = FALSE)
   
-  return(input_data[,c(id_match.input, extra_id,extension_years,input_years)])
+  return(input_data)
 }
 
+# -----------------------------------------------------------------------------
+# disaggregate_country
+# Brief:        Disaggregate data of specified aggregate country to specified split countries based on trend data
+#               (e.g. FSU, etc.)
+# Details:      Disaggregates data by user choice of 2 methods.			
+#               1 : Disaggregates using proportions initially from n earliest years from original split data, with proportion changing 
+#               over time according to trend data, proportions renormalized to 1.
+#               2: Disaggregate using proportions from trend data overtime. Note: May result in discontinuities if trend data and original
+# data have different proportions
+# returns data frame of same format without the aggregate country data
+# 
+# Dependencies:	replaceValueCol(), extend_data_on_trend_range
+# Author(s):     Rachel Hoesly
+# 
+# original_data - data frame with rows to be split. Contains lines with aggregate country data in disaggregation
+#           years( dis_start_year:dis_end_year) and disaggregate data in non-disaggregation years. May contain data lines of other countries, which is not disturbed
+# id_cols - columns for matching. defaults to using non year X- cols are selected (id_col = T). Used for normalizing ratios to 1.
+#           ex: c(‘iso’,’sector’,’fuel’) - ratios normalized to 1 over all sector-fuel combinations (all iso’s add to 1 for each combination)
+#           ex: c(‘iso’,’fuel’) - ratios normalized to 1 over all fuels (all iso’s add to 1 for each fuel)
+# trend_data - data by which to trend split or ratios
+# trend_match_cols - columns in trend_data to match with original_data
+# combined_iso - character string, the iso name of the country to be split ex: 'ussr’
+# disaggregate_iso - vector of character strings, the names of the countries to replace combined_iso ex: c('aze','rus','ukr',...)
+# dis_end_year - numeric, the latest year of non zero data for the aggregate iso, ex 1991
+# dis_start_year - earliest year of aggregate data, defaults to 1750
+# ratio_range_length = 2
+# ratio_start_year = (dis_end_year+1)
+# method - numeric (1 or 2)
+#           1: Disaggregates using proportions initially from n earliest years from original split data, with proportion changing 
+#           over time according to trend data, proportions renormalized to 1.
+#           2: Disaggregate using proportions from trend data overtime. Note: May result in discontinuities if trend data and original
+#           data have different proportions
+# remove_aggregate - T/F boolean. If T, then aggregate county data is removed from the returned data frame. If F, lines of aggregate data remain
+# write_over_values - T/F boolean. If T, then any nonzero values for disaggregate_iso countries in disaggregate years will be overwritten.
+#           If F, then function will error and print message showing non zero values in disaggregate years.
+# Return:   data frame with split values, in same format as all_data_in. Does not contain rows of aggregate country data, only 
+#           disaggregate countries
+# Input Files:   none
+# Output Files:  none
+# Notes: If ratio = T:
+#           - if aggregate data is zero in ratio years, defaults to ratio = F
+#           - if disaggregate_iso are not all in all_data, defaults to ratio = F
+#           - if disaggregate_iso are not all in trend_data, load population data to use as trend_data
+# TODO: check extend_data_on_trend_range () - does it trend data forward also , or only back?
+
+disaggregate_country <- function(original_data,
+                                 trend_data,
+                                 trend_match_cols,
+                                 combined_iso,
+                                 disaggregate_iso,
+                                 dis_end_year,
+                                 dis_start_year = historical_pre_extension_year,
+                                 method = 1,
+                                 ratio_range_length = 2,
+                                 ratio_start_year = (dis_end_year+1),
+                                 id_cols = T,
+                                 remove_aggregate = T,
+                                 write_over_values = F
+) {
+  # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  # 1. Prepare data, check inputs
+  
+  # Define id_cols if not user Defines
+  if ( all( id_cols == T) ) id_cols <- names(original_data)[-grep('X', names(original_data))]
+  
+  # Input Parameter Checks
+  if( !all (trend_match_cols %in% names(trend_data) ) ) stop('in disaggregate_country(): all "trend_match columns" are not in "trend_data"')
+  if( !all( paste0('X',dis_start_year:dis_end_year) %in% names(original_data) )) stop('in disaggregate_country(): original data does not extend over specified disaggregation years')
+  if( !all( paste0('X',dis_start_year:dis_end_year) %in% names(trend_data) )) stop('in disaggregate_country(): trend_data does not extend over all disaggregation years')
+  if( !all( paste0('X',ratio_start_year:(ratio_start_year+ratio_range_length)) %in% names(trend_data) )) stop('in disaggregate_country(): trend_data does not extend over all ratio years')
+  if( !combined_iso %in% original_data$iso ) stop('in disaggregate_country(): "combined_iso" is not in "original_data" ')
+  if( !all(trend_match_cols %in%  names(trend_data)) ) stop('in disaggregate_country(): "trend_match_cols" not valid columnnames in trend_data" ')
+  if( !all(id_cols %in% names(original_data)) ) stop('in disaggregate_country(): "id_cols" not valid columnnames in original_data"  ')
+  if( !((identical(method,1) | identical(method,2)) & length(method)==1) ) stop(paste( 'in disaggregate_country(): "', method,'" is not a valid method. Defaulting to method 1, disaggregation 
+          using fractions from original data in ratio years, extended with trend data, and renormalized'))
+  
+  # Remind the user of unused id cols if neccessary
+  unused_ids <- names(original_data)[-grep('X', names(original_data))][ which( names(original_data)[-grep('X', names(original_data))] %!in% id_cols ) ]
+  if( length(unused_ids) > 0) printLog(paste('in disaggregate_country(): There are (non year) id columns in original data that are not specified as id_cols: ',unused_ids ) )
+  
+  # Define match_cols as id_cols that are not 'iso'
+  match_cols <- id_cols[id_cols != 'iso']
+  
+  # Define useful year ranges - variables from input
+  X_all_years <- names(original_data)[grep('X', names(original_data))]
+  X_all_years <- X_all_years[order(X_all_years)]
+  all_years <- as.numeric(gsub( 'X','', X_all_years))
+  all_years <- all_years[order(all_years)]
+  disaggregate_years <- paste0('X', dis_start_year : dis_end_year)
+  ratio_years <- paste0('X',c(ratio_start_year + 0:(ratio_range_length-1)))
+  
+  # Check if ratio years are in original data
+  if( method == 1 & !all(ratio_years %in% X_all_years )){
+      printLog('in disaggregate_country(): selection ratio years are not in original data. Default to disaggregating with trend data only (not extended ratios from original_data)')
+      method <- 2 }
+
+  # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  # 2. Subset Disaggregate and Aggregate Data, and process if neccessary 
+  disaggregate_data <- original_data[ which( original_data$iso %in% disaggregate_iso), ]
+  aggregate_data <- original_data[ which( original_data$iso == combined_iso), c(match_cols,X_all_years) ]
+  
+  # Check Disaggregate Data
+    # often aggregate data becomes zero in ratio years (already disaggregated, like USSR). replace aggregate data with the sum
+    # of disaggregate data
+    if( method == 1 ) {
+      if( sum(aggregate_data[ratio_years]) == 0 ) {
+      aggregate_data_post <- aggregate(disaggregate_data[ ratio_years ],
+                                       by = lapply( X = match_cols, FUN = function(x) { disaggregate_data[[x]] } ),
+                                       sum)
+      names(aggregate_data_post) <- c(match_cols,ratio_years)
+      
+      aggregate_data <- replaceValueColMatch(aggregate_data, aggregate_data_post,
+                                             x.ColName = ratio_years,
+                                             match.x = match_cols,
+                                             addEntries = F)
+      }}
+  
+  # Check Aggregate Data
+    # if disaggregate data rows are not in data at all - add zero rows
+    if( nrow(disaggregate_data) == 0){
+      disaggregate_data <- data.frame(iso = disaggregate_iso)
+      for (i in seq_along(match_cols)){
+        nrow <- nrow(disaggregate_data)
+        ids <- unique( aggregate_data[[ match_cols[i] ]] )
+        number_ids <- length(ids)
+        disaggregate_data <- do.call(rbind, replicate(n = number_ids, expr = disaggregate_data,simplify = FALSE) )
+        disaggregate_data[ match_cols[i] ] <- rep(x = ids, each = nrow)
+      }
+      disaggregate_data[paste0('X',all_years)] <- 0
+    }
+  aggregate_data$iso <- combined_iso
+  aggregate_data <- aggregate_data[, c(id_cols,X_all_years)]
+  
+  # check for non zero values in disaggregate data, in disaggregate years
+  non_zero_disaggregate_iso <- unique(disaggregate_data[which( rowSums(disaggregate_data[disaggregate_years]) != 0 ),'iso'])
+  
+  if( length(non_zero_disaggregate_iso) > 1) non_zero_disaggregate_iso <- paste(non_zero_disaggregate_iso, collapse = ' , ')
+  if( length(non_zero_disaggregate_iso) > 0 ) {
+    # diagnostics on nonzero disaggregate values
+    ag_long <- suppressMessages (  melt( aggregate_data[ c(id_cols, disaggregate_years ) ]) )
+    names(ag_long) <- c(id_cols,'year','ag_value')
+    non_zero_disaggregate <- disaggregate_data[which( rowSums(disaggregate_data[disaggregate_years]) != 0 ),]
+    non_zero_disaggregate <- suppressMessages ( melt( non_zero_disaggregate[ c(id_cols, disaggregate_years ) ] , variable_name = 'year'))
+    non_zero_disaggregate <- merge(non_zero_disaggregate[which(non_zero_disaggregate$value > 0),], 
+                                   ag_long[ c(match_cols, 'year', 'ag_value')],
+                                   all.x = T, all.y = F)
+    non_zero_disaggregate$percent <- non_zero_disaggregate$value/non_zero_disaggregate$ag_value * 100
+    percent_range <- paste0( round(min(non_zero_disaggregate$percent),2 ),'% - ', round(max(non_zero_disaggregate$percent),2 ),'%')
+    
+    if( !write_over_values ){ stop( paste0( 'in disaggregate_country(): there is non zero data in disaggregate countries over disaggregation years, which make up, ',percent_range,
+                                            ' of aggregate values. Disaggregate countries: ', non_zero_disaggregate_iso))}
+    else if( write_over_values ){ printLog( paste0( 'in disaggregate_country(): there is non zero data in disaggregate countries over disaggregation years, which make up, ',percent_range,
+                                                    ' of aggregate values. Disaggregate countries: ', non_zero_disaggregate_iso)) } }
+  
+  # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  # 3. Check Methods:
+  
+  # If disaggregate countries are not in original data, then cannot calculate ratio to extend - if so, defatult to disaaggregate on trend rather than ratio extended on trend
+  if( method == 1  & !all(disaggregate_iso %in% original_data$iso) ) { 
+    method <- 2
+    printLog('in disaggregate_country(): Some disaggregate countries are not in origingal data. Default to disaggregating with trend data only (not extended ratios from original_data)')
+  }
+  # If all aggregate data is zero in ratio years (still, after steps above to aggregate disaggregate isos in ratio years), cannot calculate ratio
+  if( method == 1 ){
+    if( sum(aggregate_data[ratio_years]) == 0 ){
+    printLog( 'in disaggregate_country(): aggregate data sums to zero. No ratios can be calculated. Default to disaggregating with trend data only (not extended ratios from original_data)')
+    method <- 2
+    }}
+
+  # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  # 4. Disaggregate with Method 1  
+  if(  method == 1 ){
+    printLog( "Disaggregating using proportions initially from n earliest years from original split data, with proportion changing 
+              over time according to trend data, proportions renormalized to 1.")
+    
+    # Calculate Ratios - disaggregate country percent of aggregate by fuel
+    ceds_extension_ratios <- merge(disaggregate_data[,c('iso',match_cols,ratio_years)], aggregate_data[,c(match_cols, ratio_years)],
+                                   by = match_cols,
+                                   all.x = TRUE, all.y = FALSE)
+    
+    ceds_extension_ratios[ ratio_years ] <- ceds_extension_ratios[ paste0(ratio_years,'.x')]/ceds_extension_ratios[ paste0(ratio_years,'.y')]
+    ceds_extension_ratios <- replace(ceds_extension_ratios, ceds_extension_ratios == 'NaN', 0)
+    ceds_extension_ratios <- replace(ceds_extension_ratios, is.na(ceds_extension_ratios), 0) 
+    ceds_extension_ratios <- ceds_extension_ratios[,c('iso',match_cols,ratio_years)]
+    
+    # Extend Ratios based on trend
+    driver_trend_for_ratios <- trend_data
+    
+    extended_ceds_extension_ratios <- extend_data_on_trend_range(driver_trend_for_ratios,ceds_extension_ratios, 
+                                                                 start = dis_start_year, end = dis_end_year,
+                                                                 ratio_start_year = ratio_start_year,
+                                                                 expand = F,
+                                                                 range = ratio_range_length,
+                                                                 id_match.driver = trend_match_cols,
+                                                                 id_match.input = c('iso',match_cols))
+    
+    extended_ceds_extension_ratios <- extended_ceds_extension_ratios[,c('iso',match_cols,disaggregate_years,ratio_years)]
+    
+    # Renomalize ratios so that all disaggregate countries sum to 1 by fuel
+    # TO DO: get rid of loops
+    extended_ceds_extension_ratios_renormalize <- extended_ceds_extension_ratios
+    identifiers <- unique(disaggregate_data[,match_cols])
+    if( length(match_cols) > 1 ) identifiers <- apply( FUN = paste, X=unique( disaggregate_data[,match_cols]), MARGIN = 1, collapse="-")
+    
+    for (i in seq_along (identifiers) ){
+      for ( j in seq_along( disaggregate_years )){
+        if( length(match_cols) == 1 ) select_rows <- which( extended_ceds_extension_ratios_renormalize[,match_cols] == identifiers[i] )
+        if( length(match_cols) > 1 ) select_rows <- which( apply( FUN = paste, X=extended_ceds_extension_ratios_renormalize[,match_cols], MARGIN = 1, collapse="-")  == identifiers[i]   )
+        
+        breakdown <- extended_ceds_extension_ratios_renormalize[select_rows, disaggregate_years[j] ]
+        if ( all(is.na(breakdown)|is.nan(breakdown)|breakdown=='NaN') ){ stop(paste('No data to renormalize for ', identifiers[i] ))
+          
+        }else if( sum(breakdown) != 1 ){
+          sum = sum(breakdown)
+          if(sum == 0) sum = 1
+          extended_ceds_extension_ratios_renormalize[ select_rows, disaggregate_years[j] ] <- breakdown/sum
+        }
+        
+      }}
+    
+    # Calculate Split Data - [split data] = [aggregate]*[disaggregate ratio]
+    # ratio
+    ratio_matrix <- disaggregate_data[ , c('iso',match_cols) ] 
+    ratio_matrix <- suppressWarnings(inner_join(ratio_matrix, 
+                               extended_ceds_extension_ratios_renormalize[, c('iso',match_cols, disaggregate_years)],
+                               by = c('iso',match_cols))[,  c('iso',match_cols,disaggregate_years)])
+    ratio_matrix <- arrange_( ratio_matrix, c('iso',match_cols))
+    # aggregate data template
+    aggregate_matrix <- disaggregate_data[ , c('iso',match_cols) ] 
+    aggregate_matrix <- suppressWarnings(inner_join(aggregate_matrix, 
+                                   aggregate_data[, c(match_cols, disaggregate_years)],
+                                   by = match_cols )[,  c('iso',match_cols,disaggregate_years) ])
+    aggregate_matrix <- arrange_( aggregate_matrix, c('iso',match_cols))
+    
+    # check order of ratio and aggregate data matrix
+    if(!all( ratio_matrix$iso == aggregate_matrix$iso )) stop('in disaggregate_country(): in method 1, dataframes in different order when calculating split data.')
+    
+    # calculate new data
+    new_data <- disaggregate_data[ , c('iso',match_cols) ]
+    new_data[disaggregate_years] <- aggregate_matrix[disaggregate_years] * ratio_matrix[ disaggregate_years ] 
+    
+    # add back to full data
+    split_data <- replaceValueColMatch(original_data,new_data,
+                                       x.ColName = disaggregate_years,
+                                       match.x = c('iso',match_cols),
+                                       addEntries = FALSE)
+  }
+  
+  # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  # 5. Disaggregate with Method 2
+  if( method == 2 ) {
+    printLog( "Disaggregating using proportions from trend data overtime.")
+    # If not all dissaggregate countries have data, then use population data as trend data. There should be
+    # population data for all isos
+    if( !all(disaggregate_iso %in% trend_data$iso) ){
+      printLog( "Disaggregate iso not in original data, using population data as trend data ") 
+      
+      # load population data
+      un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' )
+      un_pop$X_year <- paste0( "X" , un_pop$year)
+      un_pop$pop <- as.numeric(un_pop$pop)
+      population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_year:end_year ) , ] , 
+                          iso ~ X_year, value = 'pop')
+      
+      trend_data <- population
+      trend_match_cols <- 'iso'
+      # If population data does not have all iso, stop function
+      if( !all(disaggregate_iso %in% trend_data$iso) ){ stop('in disaggregate_country(): population data does not have data for all disaggregate_iso ')}
+    }
+    
+    
+    # Subset trend_data
+    aggregate_trend_data <- trend_data[ which( trend_data$iso == combined_iso), c(trend_match_cols,disaggregate_years) ]
+    disaggregate_trend_data <- trend_data[ which( trend_data$iso %in% disaggregate_iso), c(trend_match_cols,disaggregate_years)]
+    
+    # if the aggregate country is not in trend data, aggregate the disaggregate entries 
+    if( nrow(aggregate_trend_data ) == 0 ) {
+      if( length(trend_match_cols[trend_match_cols %!in% 'iso']) == 0 ){
+        # todo: get rid of temp column - round about way of aggregating
+        temp_disaggregate_trend <- disaggregate_trend_data
+        temp_disaggregate_trend$temp <- 'temp'
+        
+        aggregate_trend_data <- aggregate( temp_disaggregate_trend[disaggregate_years],
+                                           by = list(iso = temp_disaggregate_trend$temp),
+                                           sum)
+        names(aggregate_trend_data) <- c(trend_match_cols,disaggregate_years)
+      }
+      if( length(trend_match_cols[trend_match_cols %!in% 'iso']) > 0 ){
+        aggregate_trend_data <- aggregate(disaggregate_trend_data[ disaggregate_years ],
+                                          by = lapply( X = trend_match_cols[trend_match_cols %!in% 'iso'], FUN = function(x) { disaggregate_trend_data[[x]] } ),
+                                          sum) 
+        names(aggregate_trend_data) <- c(trend_match_cols,disaggregate_years)}
+    }
+    
+    # calculate trend ratios for disaggregate countries
+    # template - dataframe of aggregate_data with disaggregate isos to merge below to calculate ratios
+    aggregate_trend_data_template <-  do.call("rbind", replicate(n = length(disaggregate_iso), aggregate_trend_data, simplify = FALSE))
+    aggregate_trend_data_template$iso <- disaggregate_iso
+    
+    trend_ratio <- merge(disaggregate_trend_data[,c(trend_match_cols,disaggregate_years)], aggregate_trend_data_template[,c(trend_match_cols,disaggregate_years)],
+                         by = trend_match_cols,
+                         all.x = TRUE, all.y = FALSE)
+    
+    trend_ratio[ disaggregate_years ] <- trend_ratio[ paste0(disaggregate_years,'.x')]/trend_ratio[ paste0(disaggregate_years,'.y')]
+    trend_ratio <- replace(trend_ratio, trend_ratio == 'NaN', 0)
+    trend_ratio <- replace(trend_ratio, is.na(trend_ratio), 0) 
+    trend_ratio <- trend_ratio[,c(trend_match_cols,disaggregate_years)]
+    
+    # Calculate Split Data - [split data] = [aggregate]*[disaggregate ratio]
+    # ratio
+    ratio_matrix <- disaggregate_data[ , c('iso',match_cols) ] 
+    ratio_matrix <- suppressWarnings(inner_join(ratio_matrix, 
+                               trend_ratio[, c(trend_match_cols, disaggregate_years)],
+                               by = trend_match_cols )[,  c('iso',match_cols,disaggregate_years)])
+    ratio_matrix <- arrange_( ratio_matrix, c('iso',match_cols))
+    
+    # aggregate data template
+    aggregate_matrix <- disaggregate_data[ , c('iso',match_cols) ] 
+    aggregate_matrix <- suppressWarnings(inner_join(aggregate_matrix, 
+                                   aggregate_data[, c(match_cols, disaggregate_years)],
+                                   by = match_cols)[,  c('iso',match_cols,disaggregate_years) ])
+    aggregate_matrix <- arrange_( aggregate_matrix, c('iso',match_cols))
+    
+    # check order of ratio and aggregate data matrix
+    if(!all( ratio_matrix$iso == aggregate_matrix$iso )) stop('in disaggregate_country(): in method 2, dataframes in different order when calculating split data.')
+    
+    # calculate new data
+    new_data <- disaggregate_data[ , c('iso',match_cols) ]
+    new_data[disaggregate_years] <- aggregate_matrix[disaggregate_years] * ratio_matrix[ disaggregate_years ] 
+    
+    # add back to full data
+    split_data <- replaceValueColMatch(original_data,new_data,
+                                       x.ColName = disaggregate_years,
+                                       match.x = c('iso',match_cols),
+                                       addEntries = FALSE)
+    
+  }
+  
+  # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  # 6. Final processing
+  
+  if( remove_aggregate == T ){
+  #remove aggregate from final cdiac data to prevent double counting
+  split_data <- split_data[which(split_data$iso %!in% combined_iso), ]
+  split_data <- split_data[ ,c(id_cols , X_all_years) ] }
+  
+  return(split_data)
+}
