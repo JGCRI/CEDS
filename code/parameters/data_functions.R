@@ -510,16 +510,18 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
 # -----------------------------------------------------------------------------
 # extend_data_on_trend_range
 # Brief:     extends data based on trend of other data
-# Details:     for use in cdiac extension script only 
+# Details:     Calculates an average ratio of input:trend data in specified ratio years. 
+#           Extended Data (year x) = input data(average ratio years)/trend data(ratio years)*trend data (year x)
 # Dependencies: 
-# Author(s):    
+# Author(s):   Rachel Hoesly 
 # Params:    
-# driver_trend, 
-# input_data, 
-# start, 
-# end,
-# expand = T,
-# range = 5,
+# driver_trend - trend by which to extend input data
+# input_data - data to be extended 
+# start - start of extention range (earliest year to be extended)  
+# end - end of extention range (lastest year to be extended) 
+# expand = T, if input data has "all" or "all-combustion" for fuel, then is expands the data
+# range = 5 - the length of the range of ratio years (calculates the average ratio)
+# ratio_start_year - earliest year of ratio years, defaults to the the year following extendtion end year
 # id_match.driver = c('iso','sector','fuel') : identifiers that match between driver and input (ex for extension with population, iso and temp variable. Must be at least 2)
 # id_match.input = id_match.driver : id columns for the original data, if different than id driver . (ex cdiac, iso and fuel - but extended with iso and temp (population)) - used
 #                                   to match adn replace variables in final part of function
@@ -529,7 +531,7 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
 # Output Files: 
 # TODO:
       # must have at least 2 id variables
-      # switch/merge with extend_data_on_trendextend_data_on_trend
+      # switch/merge with extend_data_on_trend
 
 # driver_trend=driver_trend_for_ratios
 # input_data=input_data1
