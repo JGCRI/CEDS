@@ -1054,6 +1054,13 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   ncatt_put( nc_new, 0, 'host', 'TBD' )
   ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
   ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
+  ncatt_put( nc_new, 0, 'dataset_category', 'emissions' )
+  ncatt_put( nc_new, 0, 'dataset_version_number', '1.0.0' )
+  ncatt_put( nc_new, 0, 'grid_label', 'gr' )
+  ncatt_put( nc_new, 0, 'grid_resolution', '50 km' )
+  ncatt_put( nc_new, 0, 'grid', '0.5x0.5 degree latitude x longitude' )
+  ncatt_put( nc_new, 0, 'mip_era', 'CMIP6' )
+  ncatt_put( nc_new, 0, 'target_mip', 'CMIP' )
 
   global_total_emission <- sum( checksum_total_emission_list ) * 0.001
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2), ' Tg/year' ) )
@@ -1237,6 +1244,13 @@ final_monthly_nc_output_air <- function( output_dir, grid_resolution, year, em_s
   ncatt_put( nc_new, 0, 'host', 'TBD' )
   ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
   ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
+  ncatt_put( nc_new, 0, 'dataset_category', 'emissions' )
+  ncatt_put( nc_new, 0, 'dataset_version_number', '1.0.0' )
+  ncatt_put( nc_new, 0, 'grid_label', 'gr' )
+  ncatt_put( nc_new, 0, 'grid_resolution', '50 km' )
+  ncatt_put( nc_new, 0, 'grid', '0.5x0.5 degree latitude x longitude' )
+  ncatt_put( nc_new, 0, 'mip_era', 'CMIP6' )
+  ncatt_put( nc_new, 0, 'target_mip', 'CMIP' )
 
   global_total_emission <- sum( checksum_total_emission_list ) * 0.001
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2), ' Tg/year' ) )
@@ -1456,6 +1470,13 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
   ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
   ncatt_put( nc_new, 0, 'molecular weight', VOC_names$molecular.weight[ which( VOC_names$VOC_id %in% VOC ) ], prec = 'float' )
   ncatt_put( nc_new, 0, 'molecular weight unit', 'g mole-1' )
+  ncatt_put( nc_new, 0, 'dataset_category', 'emissions' )
+  ncatt_put( nc_new, 0, 'dataset_version_number', '1.0.0' )
+  ncatt_put( nc_new, 0, 'grid_label', 'gr' )
+  ncatt_put( nc_new, 0, 'grid_resolution', '50 km' )
+  ncatt_put( nc_new, 0, 'grid', '0.5x0.5 degree latitude x longitude' )
+  ncatt_put( nc_new, 0, 'mip_era', 'CMIP6' )
+  ncatt_put( nc_new, 0, 'target_mip', 'CMIP' )
 
   global_total_emission <- sum( checksum_total_emission_list ) * 0.001
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2), ' Tg/year' ) )
@@ -1582,6 +1603,13 @@ annual_total_emission_nc_output <- function( output_dir, grid_resolution, year, 
   ncatt_put( nc_new, 0, 'host', 'TBD' )
   ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
   ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
+  ncatt_put( nc_new, 0, 'dataset_category', 'emissions' )
+  ncatt_put( nc_new, 0, 'dataset_version_number', '1.0.0' )
+  ncatt_put( nc_new, 0, 'grid_label', 'gr' )
+  ncatt_put( nc_new, 0, 'grid_resolution', '50 km' )
+  ncatt_put( nc_new, 0, 'grid', '0.5x0.5 degree latitude x longitude' )
+  ncatt_put( nc_new, 0, 'mip_era', 'CMIP6' )
+  ncatt_put( nc_new, 0, 'target_mip', 'CMIP' )
 
   global_total_emission <- total_sum_in_kt * 0.001
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2), ' Tg/year' ) )
@@ -1784,7 +1812,14 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
   ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
   ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
   ncatt_put( nc_new, 0, 'note', 'These are a subset of anthro emissions and SHOULD NOT BE ADDED to the anthro emissions data. These are supplemental data only.' )
-
+  ncatt_put( nc_new, 0, 'dataset_category', 'emissions' )
+  ncatt_put( nc_new, 0, 'dataset_version_number', '1.0.0' )
+  ncatt_put( nc_new, 0, 'grid_label', 'gr' )
+  ncatt_put( nc_new, 0, 'grid_resolution', '50 km' )
+  ncatt_put( nc_new, 0, 'grid', '0.5x0.5 degree latitude x longitude' )
+  ncatt_put( nc_new, 0, 'mip_era', 'CMIP6' )
+  ncatt_put( nc_new, 0, 'target_mip', 'CMIP' )
+  
   global_total_emission <- sum( checksum_total_emission_list ) * 0.001
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2), ' Tg/year' ) )
   
@@ -1810,4 +1845,395 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
   ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
   summary_name <- paste0( output_dir, 'CEDS_', em_species, '_SOLID_BIOFUEL_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
   write.csv( summary_table, file = summary_name, row.names = F )
+}
+# -------------------------------------------------
+# annual2chunk
+# Brief: generate a fliped matrix by a given matrix
+# Dependencies: 
+# Author: Leyang Feng
+# parameters: x - the matrix to be fliped  
+# return: a fliped matrix 
+# input files: 
+# output: 
+annual2chunk <- function( em, grid_resolution, gridtype, chunk_start_years, chunk_end_years, chunk_count_index, input_dir, output_dir, VOC_chunk, VOC_info = NULL ) {
+  
+  # create filename pattern using grid type 
+  filename_patterns <- paste0( em, '_', gridtype, '_', ( chunk_start_years[ chunk_count_index ] : chunk_end_years[ chunk_count_index ] ), '.*nc' )
+  if ( VOC_chunk == T ) { 
+    VOC_id <- unlist( strsplit( gridtype, split = '-' ) ) [ 1 ]
+    filename_patterns <- paste0( gridtype, '_anthro_', ( chunk_start_years[ chunk_count_index ] : chunk_end_years[ chunk_count_index ] ), '.*nc' )
+  }
+  # generate file list in the input dir 
+  nc_file_list <- c( )
+  for ( filename_pattern in filename_patterns ) { 
+    matched_filename <- list.files( input_dir, pattern = filename_pattern )
+    nc_file_list <- c( nc_file_list, matched_filename )
+  }
+  
+  # read in each nc file and extract variables 
+  # create ampty arries for storage
+  AGR_array <- c( )
+  ENE_array <- c( )
+  IND_array <- c( )
+  TRA_array <- c( )
+  RCO_array <- c( )
+  SLV_array <- c( )
+  WST_array <- c( )
+  SHP_array <- c( )
+  time_array <- c( )
+  time_bnds_array <- c( )
+  # go through each nc files, extract the variables and append to storage array 
+  for ( nc_file in nc_file_list ) {
+    # open the nc file 
+    nc_temp <- nc_open( paste0( input_dir, '/', nc_file ) ) 
+    # extract the data for variables 
+    AGR_temp_data <- ncvar_get( nc_temp, 'AGR' )
+    ENE_temp_data <- ncvar_get( nc_temp, 'ENE' )
+    IND_temp_data <- ncvar_get( nc_temp, 'IND' )
+    TRA_temp_data <- ncvar_get( nc_temp, 'TRA' )
+    RCO_temp_data <- ncvar_get( nc_temp, 'RCO' )
+    SLV_temp_data <- ncvar_get( nc_temp, 'SLV' )
+    WST_temp_data <- ncvar_get( nc_temp, 'WST' )
+    SHP_temp_data <- ncvar_get( nc_temp, 'SHP' )
+    time_temp_data <- ncvar_get( nc_temp, 'time' )
+    time_bnds_temp_data <- ncvar_get( nc_temp, 'time_bnds' )
+    # close the nc file 
+    nc_close( nc_temp )
+    # append the data to storage array 
+    AGR_array <- c( AGR_array, AGR_temp_data )
+    ENE_array <- c( ENE_array, ENE_temp_data )
+    IND_array <- c( IND_array, IND_temp_data )
+    TRA_array <- c( TRA_array, TRA_temp_data )
+    RCO_array <- c( RCO_array, RCO_temp_data )
+    SLV_array <- c( SLV_array, SLV_temp_data )
+    WST_array <- c( WST_array, WST_temp_data )
+    SHP_array <- c( SHP_array, SHP_temp_data )
+    time_array <- c( time_array, time_temp_data )
+    time_bnds_array <- c( time_bnds_array, time_bnds_temp_data )
+  }
+  
+  # reshape the array
+  # calculate how many years in the duration 
+  years_in_current_chunk <- chunk_end_years[ chunk_count_index ] - chunk_start_years[ chunk_count_index ] + 1 
+  # define dim for 3-D data 
+  data_dim <- c( dim( AGR_temp_data )[ 1 : 2 ], 12 * years_in_current_chunk ) # the dim for AGR_temp_data should always be the same in each nc file 
+  # time array has no need to be reshaped -- it's a one dimensional vector 
+  time_bnds_dim <- c( dim( time_bnds_temp_data )[ 1 ], 12 * years_in_current_chunk )
+  # reshaping
+  dim( AGR_array ) <- data_dim 
+  dim( ENE_array ) <- data_dim 
+  dim( IND_array ) <- data_dim 
+  dim( TRA_array ) <- data_dim 
+  dim( RCO_array ) <- data_dim 
+  dim( SLV_array ) <- data_dim 
+  dim( WST_array ) <- data_dim 
+  dim( SHP_array ) <- data_dim 
+  time_array <- time_array
+  dim( time_bnds_array ) <- time_bnds_dim 
+  
+  # the new nc generation routine begins here 
+  lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
+  lats <- seq( -90 + grid_resolution / 2, 90 - grid_resolution / 2, grid_resolution )
+  time <-time_array 
+  londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
+  latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
+  timedim <- ncdim_def( "time", paste0( "days since 1750-01-01 0:0:0" ), as.double( time ),  
+                        calendar = '365_day', longname = 'time' )
+  dim_list <- list( londim, latdim, timedim )
+  lon_bnds_data <- cbind( seq( -180, ( 180 - grid_resolution ), grid_resolution ), 
+                          seq( ( -180 + grid_resolution ), 180, grid_resolution ) )
+  lat_bnds_data <- cbind( seq( -90, (90 - grid_resolution) , grid_resolution), 
+                          seq( ( -90 + grid_resolution ), 90, grid_resolution ) )
+  bnds <- 1 : 2
+  bndsdim <- ncdim_def( "bnds", '', as.integer( bnds ), longname = 'bounds', create_dimvar = F )
+  time_bnds_data <- time_bnds_array
+  
+  # define unit and missing value 
+  data_unit <- 'kg m-2 s-1'  
+  missing_value <- 1.e20
+  var_name_list <- c( 'AGR', 'ENE', 'IND', 'TRA', 'RCO', 'SLV', 'WST', 'SHP' )
+  
+  # define nc variables
+  AGR <- ncvar_def( 'AGR', 'kg m-2 s-1', dim_list, missval = missing_value, longname= 'Agriculture' , prec = 'float', compression = 5 )
+  ENE <- ncvar_def( 'ENE', 'kg m-2 s-1', dim_list, missval = missing_value, longname= 'Energy Sector' , prec = 'float', compression = 5 )
+  IND <- ncvar_def( 'IND', 'kg m-2 s-1', dim_list, missval = missing_value, longname= 'Industrial Sector' , prec = 'float', compression = 5 )
+  TRA <- ncvar_def( 'TRA', 'kg m-2 s-1', dim_list, missval = missing_value, longname= 'Transportation Sector' , prec = 'float', compression = 5 )
+  RCO <- ncvar_def( 'RCO', 'kg m-2 s-1', dim_list, missval = missing_value, longname= 'Residential, Commercial, Other' , prec = 'float', compression = 5 )
+  SLV <- ncvar_def( 'SLV', 'kg m-2 s-1', dim_list, missval = missing_value, longname= 'Solvents production and application' , prec = 'float', compression = 5 )
+  WST <- ncvar_def( 'WST', 'kg m-2 s-1', dim_list, missval = missing_value, longname= 'Waste' , prec = 'float', compression = 5 )
+  SHP <- ncvar_def( 'SHP', 'kg m-2 s-1', dim_list, missval = missing_value, longname= 'International Shipping' , prec = 'float', compression = 5 )
+  lon_bnds <- ncvar_def( 'lon_bnds', '', list( bndsdim, londim ), prec = 'double' )
+  lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
+  time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
+  
+  # generate nc file name
+  ceds_version <- 'v'
+  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
+  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
+  nc_file_name <- paste0( output_dir, 'CEDS_', em, '_', gridtype, '_', 'chunk_test' ,'_', ver_date, '.nc' )
+  if ( VOC_chunk == T ) { 
+    nc_file_name <- paste0( output_dir, 'CEDS', '_', gridtype, '_', 'chunk_test' ,'_', ver_date, '.nc' )
+  }  
+  
+  # generate the var_list 
+  variable_list <- list( AGR, ENE, IND, TRA, RCO, SLV, WST, SHP, lat_bnds, lon_bnds, time_bnds )
+  
+  # create new nc file
+  nc_new <- nc_create( nc_file_name, variable_list, force_v4 = T )
+  
+  # put nc variables into the nc file
+  for ( i in seq_along( time ) ) {
+    ncvar_put( nc_new, AGR, AGR_array[ , , i ] , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )
+    ncvar_put( nc_new, ENE, ENE_array[ , , i ] , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )
+    ncvar_put( nc_new, IND, IND_array[ , , i ] , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )
+    ncvar_put( nc_new, TRA, TRA_array[ , , i ] , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )
+    ncvar_put( nc_new, RCO, RCO_array[ , , i ] , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )
+    ncvar_put( nc_new, SLV, SLV_array[ , , i ] , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )
+    ncvar_put( nc_new, WST, WST_array[ , , i ] , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )
+    ncvar_put( nc_new, SHP, SHP_array[ , , i ] , start = c( 1, 1, i ), count = c( -1, -1, 1 ) )
+  }
+  ncvar_put( nc_new, lon_bnds, t( lon_bnds_data ) )
+  ncvar_put( nc_new, lat_bnds, t( lat_bnds_data ) )
+  ncvar_put( nc_new, time_bnds, time_bnds_data )
+  
+  # nc variable attributes
+  # attributes for dimensions
+  ncatt_put( nc_new, "lon", "axis", "X" )
+  ncatt_put( nc_new, "lon", "standard_name", "longitude" )
+  ncatt_put( nc_new, "lon", "bounds", "lon_bnds" )
+  ncatt_put( nc_new, "lat", "axis", "Y" )
+  ncatt_put( nc_new, "lat", "standard_name", "latitude" )
+  ncatt_put( nc_new, "lat", "bounds", "lat_bnds" )
+  ncatt_put( nc_new, "time", "standard_name", "time" )
+  ncatt_put( nc_new, "time", "axis", "T" )
+  ncatt_put( nc_new, "time", "bounds", "time_bnds" )
+  # attributes for variables
+  for ( each_var in var_name_list ) {
+    ncatt_put( nc_new, each_var, 'cell_methods', 'time: mean' )
+    ncatt_put( nc_new, each_var, 'missing_value', 1e+20, prec = 'float' )
+  }
+  # nc global attributes
+  #ncatt_put( nc_new, 0, 'IMPORTANT', 'FOR TEST ONLY, DO NOT USE' )
+  ncatt_put( nc_new, 0, 'title', paste0('Annual Emissions of ', em ) )
+  ncatt_put( nc_new, 0, 'institution_id', 'PNNL-JGCRI' )
+  ncatt_put( nc_new, 0, 'institution', 'Pacific Northwest National Laboratory - JGCRI' )
+  ncatt_put( nc_new, 0, 'activity_id', 'input4MIPs' )
+  ncatt_put( nc_new, 0, 'Conventions', 'CF-1.6' )
+  ncatt_put( nc_new, 0, 'creation_date', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%Y-%m-%dT%H:%M:%SZ' ) ) )
+  ncatt_put( nc_new, 0, 'data_structure', 'grid' )
+  ncatt_put( nc_new, 0, 'frequency', 'mon' )
+  ncatt_put( nc_new, 0, 'realm', 'atmos' )
+  ncatt_put( nc_new, 0, 'source', paste0( 'CEDS ', 
+                                          as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%m-%d-%Y' ) ),
+                                          ': Community Emissions Data System (CEDS) for Historical Emissions' ) )
+  ncatt_put( nc_new, 0, 'source_id', paste0( 'CEDS-', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%m-%d-%Y' ) ) ) )
+  ncatt_put( nc_new, 0, 'further_info_url', 'http://www.globalchange.umd.edu/ceds/' )
+  #ncatt_put( nc_new, 0, 'license', 'FOR TESTING AND REVIEW ONLY' )
+  ncatt_put( nc_new, 0, 'history', 
+             paste0( as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%d-%m-%Y %H:%M:%S %p %Z' ) ),
+                     '; College Park, MD, USA') )
+  #ncatt_put( nc_new, 0, 'comment', 'Test Dataset for CMIP6' )
+  ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes.' )
+  ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
+  ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
+  ncatt_put( nc_new, 0, 'dataset_category', 'emissions' )
+  ncatt_put( nc_new, 0, 'dataset_version_number', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%Y-%m-%d' ) ) )
+  ncatt_put( nc_new, 0, 'grid_label', 'gr' )
+  ncatt_put( nc_new, 0, 'grid_resolution', '50 km' )
+  ncatt_put( nc_new, 0, 'grid', '0.5x0.5 degree latitude x longitude' )
+  ncatt_put( nc_new, 0, 'mip_era', 'CMIP6' )
+  ncatt_put( nc_new, 0, 'target_mip', 'CMIP' )
+  ncatt_put( nc_new, 0, 'external_variables', 'gridcell_area' )
+  ncatt_put( nc_new, 0, 'table_id', 'input4MIPs' )
+  
+  # below attributes may change depending on gridtype 
+  if ( gridtype == 'anthro' ) {
+    ncatt_put( nc_new, 0, 'product', 'primary-emissions-data' )
+    ncatt_put( nc_new, 0, 'variable_id', paste0( em, '-em-anthro') )
+    species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass'), stringsAsFactors = F )
+    info_line <- species_info[ species_info$species == em, ]$info 
+    ncatt_put( nc_new, 0, 'reporting_unit', info_line )
+  }
+  if ( gridtype == 'SOLID_BIOFUEL_anthro' ) {
+    species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass'), stringsAsFactors = F )
+    info_line <- species_info[ species_info$species == em, ]$info 
+    ncatt_put( nc_new, 0, 'reporting_unit', info_line )
+    ncatt_put( nc_new, 0, 'product', 'supplementary-emissions-data' )
+    ncatt_put( nc_new, 0, 'variable_id', paste0( em, '-em-solid-biofuel') )
+    ncatt_put( nc_new, 0, 'note', 'These are a subset of anthro emissions and SHOULD NOT BE ADDED to the anthro emissions data. These are supplemental data only.' )
+  }
+  if ( VOC_chunk == T ) {
+    VOC_name <- VOC_info[ VOC_info$VOC_id == VOC_id, 'VOC_name' ]
+    molecular_weight <- VOC_info[ VOC_info$VOC_id == VOC_id, 'molecular.weight' ]
+    ncatt_put( nc_new, 0, 'product', 'supplementary-emissions-data' )
+    ncatt_put( nc_new, 0, 'variable_id', paste0( VOC_name, '-em-speciated-VOCs') )
+    ncatt_put( nc_new, 0, 'molecular_weight', molecular_weight, prec = 'float' )
+    ncatt_put( nc_new, 0, 'molecular_weight_unit', 'g mole-1' )
+  }
+  
+  # close nc_new
+  nc_close( nc_new )
+}
+# -------------------------------------------------
+# annual2chunk_AIR
+# Brief: generate a fliped matrix by a given matrix
+# Dependencies: 
+# Author: Leyang Feng
+# parameters: x - the matrix to be fliped  
+# return: a fliped matrix 
+# input files: 
+# output: 
+annual2chunk_AIR <- function( em, grid_resolution, gridtype = 'AIR_anthro', chunk_start_years, chunk_end_years, chunk_count_index, input_dir, output_dir ) {
+  
+  # create filename pattern using grid type 
+  filename_patterns <- paste0( em, '_', gridtype, '_', ( chunk_start_years[ chunk_count_index ] : chunk_end_years[ chunk_count_index ] ), '.*nc' )
+  
+  # generate file list in the input dir 
+  nc_file_list <- c( )
+  for ( filename_pattern in filename_patterns ) { 
+    matched_filename <- list.files( input_dir, pattern = filename_pattern )
+    nc_file_list <- c( nc_file_list, matched_filename )
+  }
+  
+  # read in each nc file and extract variables 
+  # create ampty arries for storage
+  AIR_array <- c( )
+  time_array <- c( )
+  time_bnds_array <- c( )
+  # go through each nc files, extract the variables and append to storage array 
+  for ( nc_file in nc_file_list ) {
+    # open the nc file 
+    nc_temp <- nc_open( paste0( input_dir, '/', nc_file ) ) 
+    # extract the data for variables 
+    AIR_temp_data <- ncvar_get( nc_temp, 'AIR' )
+    time_temp_data <- ncvar_get( nc_temp, 'time' )
+    time_bnds_temp_data <- ncvar_get( nc_temp, 'time_bnds' )
+    # close the nc file 
+    nc_close( nc_temp )
+    # append the data to storage array 
+    AIR_array <- c( AIR_array, AIR_temp_data )
+    time_array <- c( time_array, time_temp_data )
+    time_bnds_array <- c( time_bnds_array, time_bnds_temp_data )
+  }
+  
+  # reshape the array
+  # calculate how many years in the duration 
+  years_in_current_chunk <- chunk_end_years[ chunk_count_index ] - chunk_start_years[ chunk_count_index ] + 1 
+  # define dim for 3-D data 
+  data_dim <- c( dim( AIR_temp_data )[ 1 : 3 ], 12 * years_in_current_chunk ) # the dim for AGR_temp_data should always be the same in each nc file 
+  # time array has no need to be reshaped -- it's a one dimensional vector 
+  time_bnds_dim <- c( dim( time_bnds_temp_data )[ 1 ], 12 * years_in_current_chunk )
+  # reshaping
+  dim( AIR_array ) <- data_dim 
+  time_array <- time_array
+  dim( time_bnds_array ) <- time_bnds_dim 
+  
+  # the new nc generation routine begins here 
+  lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
+  lats <- seq( -90 + grid_resolution / 2, 90 - grid_resolution / 2, grid_resolution )
+  levs <- seq( 0.305, 14.945, 0.61 )
+  time <-time_array 
+  londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
+  latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
+  levdim <- ncdim_def( "level", "km", as.double ( levs ), longname = 'altitude' ) 
+  timedim <- ncdim_def( "time", paste0( "days since 1750-01-01 0:0:0" ), as.double( time ),  
+                        calendar = '365_day', longname = 'time' )
+  dim_list <- list( londim, latdim, levdim, timedim )
+  lon_bnds_data <- cbind( seq( -180, ( 180 - grid_resolution ), grid_resolution ), 
+                          seq( ( -180 + grid_resolution ), 180, grid_resolution ) )
+  lat_bnds_data <- cbind( seq( -90, (90 - grid_resolution) , grid_resolution), 
+                          seq( ( -90 + grid_resolution ), 90, grid_resolution ) )
+  bnds <- 1 : 2
+  bndsdim <- ncdim_def( "bnds", '', as.integer( bnds ), longname = 'bounds', create_dimvar = F )
+  time_bnds_data <- time_bnds_array
+  
+  # define unit and missing value 
+  data_unit <- 'kg m-2 s-1'  
+  missing_value <- 1.e20
+  var_name_list <- c( 'AIR' )
+  
+  # define nc variables
+  AIR <- ncvar_def( 'AIR', 'kg m-2 s-1', dim_list, missval = missing_value, longname= 'Aircraft' , prec = 'float', compression = 5 )
+  lon_bnds <- ncvar_def( 'lon_bnds', '', list( bndsdim, londim ), prec = 'double' )
+  lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
+  time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
+  
+  # generate nc file name
+  ceds_version <- 'v'
+  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
+  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
+  nc_file_name <- paste0( output_dir, 'CEDS_', em, '_', gridtype, '_', 'chunk_test' ,'_', ver_date, '.nc' ) 
+  
+  # generate the var_list 
+  variable_list <- list( AIR, lat_bnds, lon_bnds, time_bnds )
+  
+  # create new nc file
+  nc_new <- nc_create( nc_file_name, variable_list, force_v4 = T )
+  
+  # put nc variables into the nc file
+  for ( i in seq_along( time ) ) {
+    ncvar_put( nc_new, AIR, AIR_array[ , , , i ], start = c( 1, 1, 1, i ), count = c( -1, -1, -1, 1 ) )
+  }
+  ncvar_put( nc_new, lon_bnds, t( lon_bnds_data ) )
+  ncvar_put( nc_new, lat_bnds, t( lat_bnds_data ) )
+  ncvar_put( nc_new, time_bnds, time_bnds_data )
+  
+  # nc variable attributes
+  # attributes for dimensions
+  ncatt_put( nc_new, "lon", "axis", "X" )
+  ncatt_put( nc_new, "lon", "standard_name", "longitude" )
+  ncatt_put( nc_new, "lon", "bounds", "lon_bnds" )
+  ncatt_put( nc_new, "lat", "axis", "Y" )
+  ncatt_put( nc_new, "lat", "standard_name", "latitude" )
+  ncatt_put( nc_new, "lat", "bounds", "lat_bnds" )
+  ncatt_put( nc_new, "time", "standard_name", "time" )
+  ncatt_put( nc_new, "time", "axis", "T" )
+  ncatt_put( nc_new, "time", "bounds", "time_bnds" )
+  # attributes for variables
+  for ( each_var in var_name_list ) {
+    ncatt_put( nc_new, each_var, 'cell_methods', 'time: mean' )
+    ncatt_put( nc_new, each_var, 'missing_value', 1e+20, prec = 'float' )
+  }
+  # nc global attributes
+  #ncatt_put( nc_new, 0, 'IMPORTANT', 'FOR TEST ONLY, DO NOT USE' )
+  ncatt_put( nc_new, 0, 'title', paste0('Annual Emissions of ', em ) )
+  ncatt_put( nc_new, 0, 'institution_id', 'PNNL-JGCRI' )
+  ncatt_put( nc_new, 0, 'institution', 'Pacific Northwest National Laboratory - JGCRI' )
+  ncatt_put( nc_new, 0, 'activity_id', 'input4MIPs' )
+  ncatt_put( nc_new, 0, 'Conventions', 'CF-1.6' )
+  ncatt_put( nc_new, 0, 'creation_date', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%Y-%m-%dT%H:%M:%SZ' ) ) )
+  ncatt_put( nc_new, 0, 'data_structure', 'grid' )
+  ncatt_put( nc_new, 0, 'frequency', 'mon' )
+  ncatt_put( nc_new, 0, 'realm', 'atmos' )
+  ncatt_put( nc_new, 0, 'source', paste0( 'CEDS ', 
+                                          as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%m-%d-%Y' ) ),
+                                          ': Community Emissions Data System (CEDS) for Historical Emissions' ) )
+  ncatt_put( nc_new, 0, 'source_id', paste0( 'CEDS-', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%m-%d-%Y' ) ) ) )
+  ncatt_put( nc_new, 0, 'further_info_url', 'http://www.globalchange.umd.edu/ceds/' )
+  #ncatt_put( nc_new, 0, 'license', 'FOR TESTING AND REVIEW ONLY' )
+  ncatt_put( nc_new, 0, 'history', 
+             paste0( as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%d-%m-%Y %H:%M:%S %p %Z' ) ),
+                     '; College Park, MD, USA') )
+  #ncatt_put( nc_new, 0, 'comment', 'Test Dataset for CMIP6' )
+  ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes.' )
+  ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
+  ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
+  ncatt_put( nc_new, 0, 'dataset_category', 'emissions' )
+  ncatt_put( nc_new, 0, 'dataset_version_number', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%Y-%m-%d' ) ) )
+  ncatt_put( nc_new, 0, 'grid_label', 'gr' )
+  ncatt_put( nc_new, 0, 'grid_resolution', '50 km' )
+  ncatt_put( nc_new, 0, 'grid', '0.5x0.5 degree latitude x longitude' )
+  ncatt_put( nc_new, 0, 'mip_era', 'CMIP6' )
+  ncatt_put( nc_new, 0, 'target_mip', 'CMIP' )
+  ncatt_put( nc_new, 0, 'external_variables', 'gridcell_area' )
+  ncatt_put( nc_new, 0, 'table_id', 'input4MIPs' )
+  
+  ncatt_put( nc_new, 0, 'product', 'primary-emissions-data' )
+  ncatt_put( nc_new, 0, 'variable_id', paste0( em, '-em-anthro') )
+  species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass'), stringsAsFactors = F )
+  info_line <- species_info[ species_info$species == em, ]$info 
+  ncatt_put( nc_new, 0, 'reporting_unit', info_line )
+  
+  # close nc_new
+  nc_close( nc_new )
 }
