@@ -48,11 +48,11 @@ if ( start_year %% chunk_years != 0 ) { stop( 'Start year must be a multiple of 
 if ( end_year < start_year ) { stop( ' End year must not be earlier than start year. ') }
 
 # calculate chunk start years
-total_years <- end_year - start_year
-chunk_count <- ceiling( total_years / ( chunk_years - 1 ) )  
+total_years <- end_year - start_year + 1
+chunk_count <- ceiling( total_years / chunk_years  )  
 # calculate chunk end years
-chunk_start_years <- unlist( lapply( 1 : chunk_count, function( i ) { chunk_start_years <- start_year + ( i - 1 ) *chunk_years } ) )
-chunk_end_years <- chunk_start_years + 49 
+chunk_start_years <- unlist( lapply( 1 : chunk_count, function( i ) { chunk_start_years <- start_year + ( i - 1 ) * chunk_years } ) )
+chunk_end_years <- chunk_start_years + ( chunk_years - 1 ) 
 if ( chunk_end_years[ length( chunk_end_years ) ] > end_year ) { chunk_end_years[ length( chunk_end_years ) ] <- end_year }
 
 # define dirs
@@ -83,7 +83,7 @@ VOC_gridtype <- paste0( VOC_type, '-', VOC_short_name )
 
 for ( chunk_count_index in 1 : chunk_count ) {
   
-  annual2chunk( em, grid_resolution, VOC_gridtype, 
+  annual2chunk( em, grid_resolution, gridtype = VOC_gridtype, 
                 chunk_start_years, chunk_end_years, chunk_count_index, 
                 input_dir, output_dir, 
                 VOC_chunk, VOC_info = VOC_mapping ) 
