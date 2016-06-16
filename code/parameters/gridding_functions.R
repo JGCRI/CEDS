@@ -1855,7 +1855,7 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
 # return: a fliped matrix 
 # input files: 
 # output: 
-annual2chunk <- function( em, grid_resolution, gridtype, chunk_start_years, chunk_end_years, chunk_count_index, input_dir, output_dir, VOC_chunk, VOC_info = NULL ) {
+annual2chunk <- function( em, grid_resolution, gridtype = NULL, chunk_start_years, chunk_end_years, chunk_count_index, input_dir, output_dir, VOC_chunk, VOC_info = NULL ) {
   
   # create filename pattern using grid type 
   filename_patterns <- paste0( em, '_', gridtype, '_', ( chunk_start_years[ chunk_count_index ] : chunk_end_years[ chunk_count_index ] ), '.*nc' )
@@ -1911,6 +1911,20 @@ annual2chunk <- function( em, grid_resolution, gridtype, chunk_start_years, chun
     time_array <- c( time_array, time_temp_data )
     time_bnds_array <- c( time_bnds_array, time_bnds_temp_data )
   }
+  
+  # extract values of global_total_emission attribute from first year and last year 
+  # value from first year 
+  first_year_nc_file_name <- nc_file_list[ 1 ]
+  first_year <- chunk_start_years[ chunk_count_index ] 
+  nc_temp <- nc_open( paste0( input_dir, '/', first_year_nc_file_name ) ) 
+  first_year_global_total_emission_value <- ncatt_get( nc_temp, 0, 'global_total_emission' )[[ 2 ]]
+  nc_close( nc_temp )
+  # value from last year 
+  last_year_nc_file_name <- nc_file_list[ length( nc_file_list ) ]
+  last_year <- chunk_end_years[ chunk_count_index ]
+  nc_temp <- nc_open( paste0( input_dir, '/', last_year_nc_file_name ) ) 
+  last_year_global_total_emission_value <- ncatt_get( nc_temp, 0, 'global_total_emission' )[[ 2 ]]
+  nc_close( nc_temp )
   
   # reshape the array
   # calculate how many years in the duration 
@@ -1969,9 +1983,30 @@ annual2chunk <- function( em, grid_resolution, gridtype, chunk_start_years, chun
   # generate nc file name
   ceds_version <- 'v'
   date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
-  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
-  nc_file_name <- paste0( output_dir, 'CEDS_', em, '_', gridtype, '_', 'chunk_test' ,'_', ver_date, '.nc' )
+  ver_date <- paste0( ceds_version, date_parts[ 1 ], '-', date_parts[ 2 ], '-', date_parts[ 3 ] )
+  nc_file_name <- paste0( output_dir, em, '-em-', gsub( '_', '-', gridtype ), 
+                          '_input4MIPs_emissions_CMIP_CEDS-', ver_date,
+                          '_gr', grid_resolution, 'x', grid_resolution, '_',  
+                          chunk_start_years[ chunk_count_index ], '01', '-', 
+                          chunk_end_years[ chunk_count_index ], '12','.nc' ) 
+  if ( gridtype == 'SOLID_BIOFUEL_anthro' ) {
+    nc_file_name <- paste0( output_dir, em, '-em-', gsub( '_', '-', gridtype ), 
+                            '_input4MIPs_emissions_CMIP_CEDS-', ver_date, '-supplimental-data',
+                            '_gr', grid_resolution, 'x', grid_resolution, '_',  
+                            chunk_start_years[ chunk_count_index ], '01', '-', 
+                            chunk_end_years[ chunk_count_index ], '12','.nc' ) 
+    }                        
+  
+  
+  
   if ( VOC_chunk == T ) { 
+    nc_file_name <- paste0( output_dir, gsub( '_', '-', gridtype ), '-em-', 'speciated-VOC', 
+                              '_input4MIPs_emissions_CMIP_CEDS-', ver_date, '-supplimental-data',
+                              '_gr', grid_resolution, 'x', grid_resolution, '_',  
+                              chunk_start_years[ chunk_count_index ], '01', '-', 
+                              chunk_end_years[ chunk_count_index ], '12','.nc' ) 
+    
+    
     nc_file_name <- paste0( output_dir, 'CEDS', '_', gridtype, '_', 'chunk_test' ,'_', ver_date, '.nc' )
   }  
   
@@ -2045,6 +2080,13 @@ annual2chunk <- function( em, grid_resolution, gridtype, chunk_start_years, chun
   ncatt_put( nc_new, 0, 'target_mip', 'CMIP' )
   ncatt_put( nc_new, 0, 'external_variables', 'gridcell_area' )
   ncatt_put( nc_new, 0, 'table_id', 'input4MIPs' )
+  # write first/last year global total emission into metadata
+  if ( first_year != last_year ) {
+    ncatt_put( nc_new, 0, paste0( 'global_total_emission_', first_year ), first_year_global_total_emission_value )
+    ncatt_put( nc_new, 0, paste0( 'global_total_emission_', last_year ), last_year_global_total_emission_value )
+  } else {
+    ncatt_put( nc_new, 0, paste0( 'global_total_emission_', first_year ), first_year_global_total_emission_value )
+  }
   
   # below attributes may change depending on gridtype 
   if ( gridtype == 'anthro' ) {
@@ -2116,6 +2158,20 @@ annual2chunk_AIR <- function( em, grid_resolution, gridtype = 'AIR_anthro', chun
     time_bnds_array <- c( time_bnds_array, time_bnds_temp_data )
   }
   
+  # extract values of global_total_emission attribute from first year and last year 
+  # value from first year 
+  first_year_nc_file_name <- nc_file_list[ 1 ]
+  first_year <- chunk_start_years[ chunk_count_index ] 
+  nc_temp <- nc_open( paste0( input_dir, '/', first_year_nc_file_name ) ) 
+  first_year_global_total_emission_value <- ncatt_get( nc_temp, 0, 'global_total_emission' )[[ 2 ]]
+  nc_close( nc_temp )
+  # value from last year 
+  last_year_nc_file_name <- nc_file_list[ length( nc_file_list ) ]
+  last_year <- chunk_end_years[ chunk_count_index ]
+  nc_temp <- nc_open( paste0( input_dir, '/', last_year_nc_file_name ) ) 
+  last_year_global_total_emission_value <- ncatt_get( nc_temp, 0, 'global_total_emission' )[[ 2 ]]
+  nc_close( nc_temp )
+  
   # reshape the array
   # calculate how many years in the duration 
   years_in_current_chunk <- chunk_end_years[ chunk_count_index ] - chunk_start_years[ chunk_count_index ] + 1 
@@ -2161,8 +2217,12 @@ annual2chunk_AIR <- function( em, grid_resolution, gridtype = 'AIR_anthro', chun
   # generate nc file name
   ceds_version <- 'v'
   date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
-  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
-  nc_file_name <- paste0( output_dir, 'CEDS_', em, '_', gridtype, '_', 'chunk_test' ,'_', ver_date, '.nc' ) 
+  ver_date <- paste0( ceds_version, date_parts[ 1 ], '-', date_parts[ 2 ], '-', date_parts[ 3 ] )
+  nc_file_name <- paste0( output_dir, em, '-em-', gsub( '_', '-', gridtype ), 
+                          '_input4MIPs_emissions_CMIP_CEDS-', ver_date,
+                          '_gr', grid_resolution, 'x', grid_resolution, '_',  
+                          chunk_start_years[ chunk_count_index ], '01', '-', 
+                          chunk_end_years[ chunk_count_index ], '12','.nc' ) 
   
   # generate the var_list 
   variable_list <- list( AIR, lat_bnds, lon_bnds, time_bnds )
@@ -2227,6 +2287,13 @@ annual2chunk_AIR <- function( em, grid_resolution, gridtype = 'AIR_anthro', chun
   ncatt_put( nc_new, 0, 'target_mip', 'CMIP' )
   ncatt_put( nc_new, 0, 'external_variables', 'gridcell_area' )
   ncatt_put( nc_new, 0, 'table_id', 'input4MIPs' )
+  # write first/last year global total emission into metadata
+  if ( first_year != last_year ) {
+    ncatt_put( nc_new, 0, paste0( 'global_total_emission_', first_year ), first_year_global_total_emission_value )
+    ncatt_put( nc_new, 0, paste0( 'global_total_emission_', last_year ), last_year_global_total_emission_value )
+  } else {
+    ncatt_put( nc_new, 0, paste0( 'global_total_emission_', first_year ), first_year_global_total_emission_value )
+  }
   
   ncatt_put( nc_new, 0, 'product', 'primary-emissions-data' )
   ncatt_put( nc_new, 0, 'variable_id', paste0( em, '-em-anthro') )
