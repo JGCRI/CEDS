@@ -1858,7 +1858,7 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
 annual2chunk <- function( em, grid_resolution, gridtype = NULL, chunk_start_years, chunk_end_years, chunk_count_index, input_dir, output_dir, VOC_chunk, VOC_info = NULL ) {
   
   # create filename pattern using grid type 
-  filename_patterns <- paste0( em, '_', gridtype, '_', ( chunk_start_years[ chunk_count_index ] : chunk_end_years[ chunk_count_index ] ), '.*nc' )
+  filename_patterns <- paste0( '_', em, '_', gridtype, '_', ( chunk_start_years[ chunk_count_index ] : chunk_end_years[ chunk_count_index ] ), '.*nc' )
   if ( VOC_chunk == T ) { 
     VOC_id <- unlist( strsplit( gridtype, split = '-' ) ) [ 1 ]
     filename_patterns <- paste0( gridtype, '_anthro_', ( chunk_start_years[ chunk_count_index ] : chunk_end_years[ chunk_count_index ] ), '.*nc' )
@@ -2128,7 +2128,7 @@ annual2chunk <- function( em, grid_resolution, gridtype = NULL, chunk_start_year
 annual2chunk_AIR <- function( em, grid_resolution, gridtype = 'AIR_anthro', chunk_start_years, chunk_end_years, chunk_count_index, input_dir, output_dir ) {
   
   # create filename pattern using grid type 
-  filename_patterns <- paste0( em, '_', gridtype, '_', ( chunk_start_years[ chunk_count_index ] : chunk_end_years[ chunk_count_index ] ), '.*nc' )
+  filename_patterns <- paste0( '_', em, '_', gridtype, '_', ( chunk_start_years[ chunk_count_index ] : chunk_end_years[ chunk_count_index ] ), '.*nc' )
   
   # generate file list in the input dir 
   nc_file_list <- c( )
