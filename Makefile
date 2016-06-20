@@ -96,7 +96,7 @@ part2: CO-emissions NMVOC-emissions
 
 # Targets used to remove output files for a fresh run
 clean-all : \
-	clean-intermediate clean-diagnostic clean-final clean-logs clean-io clean-modB clean-modC \
+	clean-intermediate clean-diagnostic clean-final clean-logs clean-io clean-modA clean-modB clean-modC \
 	clean-modD clean-modE clean-modF clean-modH
 
 clean-intermediate :
@@ -131,7 +131,7 @@ clean-modB :
 
 clean-modC :
 	rm -fv $(MED_OUT)/C*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.*_NC*emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.*.csv
 
 clean-modD :
 	rm -fv $(MED_OUT)/D*.csv
@@ -148,35 +148,35 @@ clean-modH :
 
 clean-SO2 :
 	rm -fv $(MED_OUT)/*SO2*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.SO2*_NC*emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.SO2*.csv
 
 clean-NOx :
 	rm -fv $(MED_OUT)/*NOx*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.NOx*_NC*emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.NOx*.csv
 
 clean-CH4 :
 	rm -fv $(MED_OUT)/*CH4*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.CH4*_NC*emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.CH4*.csv
 
 clean-CO :
 	rm -fv $(MED_OUT)/*CO*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.CO*_NC*emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.CO*.csv
 
 clean-NMVOC :
 	rm -fv $(MED_OUT)/*NMVOC*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.NMVOC*_NC*emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.NMVOC*.csv
 
 clean-NH3 :
 	rm -fv $(MED_OUT)/*NH3*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.NH3*_NC*emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.NH3*.csv
 
 clean-OC :
 	rm -fv $(MED_OUT)/*OC*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.OC*_NC*emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.OC*.csv
 
 clean-BC :
 	rm -fv $(MED_OUT)/*BC*.csv \
-	rm -fv $(EF_DATA)/non-combustion-emissions/C.BC*_NC*emissions_user_added.csv
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.BC*.csv
 
 # --------------------------------------------------------------
 
@@ -498,7 +498,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 # cc1-2
 $(MED_OUT)/C.$(EM)_NC_emissions.csv : \
 	$(MOD_C)/C1.3.proc_NC_emissions.R \
-	$(MOD_C)/C1.3.proc_NC_emissions_waste.R \
+	$(MOD_C)/C1.3.proc_NC_emissions_user_added_waste.R \
 	$(MOD_C)/C1.3.proc_NC_emissions_user_added_inventories.R \
 	$(MOD_C)/C1.3.proc_NC_emissions_user_added.R \
 	$(MED_OUT)/C.$(EM)_NC_emissions_db.csv \
