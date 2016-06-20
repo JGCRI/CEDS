@@ -2005,9 +2005,6 @@ annual2chunk <- function( em, grid_resolution, gridtype = NULL, chunk_start_year
                               '_gr', grid_resolution, 'x', grid_resolution, '_',  
                               chunk_start_years[ chunk_count_index ], '01', '-', 
                               chunk_end_years[ chunk_count_index ], '12','.nc' ) 
-    
-    
-    nc_file_name <- paste0( output_dir, 'CEDS', '_', gridtype, '_', 'chunk_test' ,'_', ver_date, '.nc' )
   }  
   
   # generate the var_list 
