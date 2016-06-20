@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: C2.1.base_NC_EF.R
 # Author: Jon Seibert, Steve Smith
-# Date Last Modified: July 7, 2015
+# Date Last Modified: 15 June 2016
 # Program Purpose: To calculate default emissions factors from the process emissions
 #                  and activity databases, and use them to generate the base process
 #                  emissions factors database.
@@ -42,8 +42,10 @@
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NH3"
+if ( is.na( em ) ) em <- "BC"
 em_lc <- tolower( em )
+
+library( "zoo" )
 
 activity_data <- readData( "MED_OUT", "A.NC_activity" )
 
@@ -114,8 +116,8 @@ if( length ( check ) > 0 ) {
  new_efs[ X_emissions_years ] <- replace( new_efs[ X_emissions_years ] , is.na(new_efs[ X_emissions_years ]), 0)
  new_efs[ X_emissions_years ] <- replace( new_efs[ X_emissions_years ] , new_efs[ X_emissions_years ] == 'Inf', 0)
  
- # ------------------------------------------------------------------------------
- # 3. Correct Edgar Emissions Factors
+# ------------------------------------------------------------------------------
+# 3. Correct Edgar Emissions Factors
  
  # Fix Edgar EFs
  temp_EDGAR_end_year = EDGAR_end_year
@@ -132,9 +134,9 @@ if( length ( check ) > 0 ) {
   #Extend EFs as constant before EDGAR start date
   new_efs_corrected[ , paste0( 'X', start_year:( EDGAR_start_year - 1 ) ) ] <- new_efs[ , paste0( 'X', EDGAR_start_year )  ]
  
-  # ------------------------------------------------------------------------------
-  # 3. Re-Correct Non Edgar Emissions Factors (replaced in C1.3.proc_NC_emissions_user_added.R)
-  #    Extend Non Edgar Emission Factors  (replaced in C1.3.proc_NC_emissions_user_added.R)
+# ------------------------------------------------------------------------------
+# 4. Re-Correct Non Edgar Emissions Factors (replaced in C1.3.proc_NC_emissions_user_added.R)
+#    Extend Non Edgar Emission Factors  (replaced in C1.3.proc_NC_emissions_user_added.R)
   
   # replace EF that we want to remain unchaned
   new_efs_corrected_user_added <-  new_efs_corrected
@@ -159,12 +161,33 @@ if( length ( check ) > 0 ) {
                                               match.x = c('iso','sector','fuel'),
                                               x.ColName = c( 'units', X_emissions_years ),
                                               addEntries = FALSE )
+  
   # write NAs over EFs we want to extend over
   extend_replaced_efs[ emissions_NAs ] <- NA
+  extend_replaced_efs[ extend_replaced_efs == 0 ] <- NA
   
-  #extend
-  extend_replaced_efs <- extendValues(extend_replaced_efs)
+  # drop rows of all NAs
+  all.na <- function(x){return(all(is.na(x)))}
+  extend_replaced_efs <- extend_replaced_efs[ !apply(extend_replaced_efs[,X_emissions_years], 1, all.na), ]
   
+  # keep last data row for every unique iso+sector+fuel+units
+  extend_replaced_efs$num_row <- seq( 1, nrow( extend_replaced_efs ) )
+  extend_replaced_efs <- group_by( extend_replaced_efs, iso, sector, fuel, units ) %>%
+    filter( num_row == max( num_row ) ) %>% data.frame()
+  extend_replaced_efs$num_row <- NULL
+  
+  # interpolate over NAs
+  extend_replaced_efs[, X_emissions_years ] <- interpolate_NAs( extend_replaced_efs[, X_emissions_years ] )
+  
+  # extend last non-NA forward/backward
+  extend_replaced_efs <- melt( extend_replaced_efs, id = c( "iso", "sector", "fuel", "units" ) )
+  extend_replaced_efs <- ddply( extend_replaced_efs, .( iso, sector, fuel, units ), function( df ){
+    df$value <- na.locf( df$value, na.rm = F )
+    df$value <- na.locf( df$value, na.rm = F, fromLast = T )
+    return( df )
+  })
+  
+  extend_replaced_efs <- cast( extend_replaced_efs )
   writeData(extend_replaced_efs, domain = 'DIAG_OUT', fn = paste0( 'C.',em,'_replacement_process_EFs'),
             meta = F)
   
@@ -177,7 +200,7 @@ if( length ( check ) > 0 ) {
 
 
 # --------------------------------------------------------------------------------------------
-# 3. Output
+# 5. Output
 
 writeData( new_efs_corrected_user_added, domain = "MED_OUT", fn = paste0( "C.", em, "_", "NC", "_EF" ) )
 

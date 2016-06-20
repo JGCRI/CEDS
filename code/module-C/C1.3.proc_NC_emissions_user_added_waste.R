@@ -1,8 +1,8 @@
 #------------------------------------------------------------------------------
-# Program Name: C1.3.proc_NC_emissions_waste.R
+# Program Name: C1.3.proc_NC_emissions_user_added_waste.R
 # Author: Linh Vu
 # Date Last Updated: 6 June 2016
-# Program Purpose:  Write out waste emissions as default NC emissions. Outputs
+# Program Purpose:  Write out waste incineration emissions as default NC emissions. Outputs
 #                   of this program will be read in by C1.3.proc_NC_emissions_user_added.R
 #                   and overwrite existing Edgar emissions
 # Input Files: Global_Emissions_of_Pollutants_from_Open_Burning_of_Domestic_Waste.xlsx,
@@ -32,12 +32,15 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provides logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R", "process_db_functions.R" ) # Any additional function files required
-log_msg <- "Write out waste emissions as default NC emissions"
-script_name <- "C1.3.proc_NC_emissions_waste.R"
+log_msg <- "Write out waste incineration emissions"
+script_name <- "C1.3.proc_NC_emissions_user_added_waste.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
+args_from_makefile <- commandArgs( TRUE )
+em <- args_from_makefile[ 1 ]
+if ( is.na( em ) ) em <- "NH3"
 
 # ------------------------------------------------------------------------------
 # 1. Read input
@@ -96,14 +99,13 @@ initialize( script_name, log_msg, headers )
     waste_input$sector <- "5C_Waste-incineration"
     waste_input$fuel <- "process"
     waste_input$units <- "kt"
+    
+# Filter out emission being processed 
+    out <- filter( waste_input, emission == em ) %>% select( iso, sector, fuel, units, X2010 )
 
 # ------------------------------------------------------------------------------
 # 3. Output
-    for ( em in em_names ){
-      df <- filter( waste_input, emission == em ) %>%
-        select( iso, sector, fuel, units, X2010 )
-      writeData( df, "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/", 
-                 fn = paste0( "C.", em, "_NC_emissions_waste" ) )
-    }
-    
+    writeData( out, "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/", 
+               fn = paste0( "C.", em, "_NC_waste_emissions_user_added" ) )
+
 logStop()
