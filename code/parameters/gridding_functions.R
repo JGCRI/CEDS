@@ -2112,7 +2112,36 @@ annual2chunk <- function( em, grid_resolution, gridtype = NULL, chunk_start_year
   
   # close nc_new
   nc_close( nc_new )
-}
+  
+  # additional routine for generating checksum file
+  global_grid_area <- grid_area( grid_resolution, all_lon = T )
+  flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
+  flux_factor <- t( flip_a_matrix( flux_factor ) )
+  Days_in_Month <- c( 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 )
+  
+  total_em_list <- c( )
+  total_em_list <- c( total_em_list, unlist( lapply( 1 : dim( AGR_array ) [ 3 ], function( i ) { sum( AGR_array[ , , i ] / flux_factor / ( 365 / Days_in_Month[ ifelse( i %% 12 == 0, 12, i %% 12 ) ] ) ) } ) ) )
+  total_em_list <- c( total_em_list, unlist( lapply( 1 : dim( ENE_array ) [ 3 ], function( i ) { sum( ENE_array[ , , i ] / flux_factor / ( 365 / Days_in_Month[ ifelse( i %% 12 == 0, 12, i %% 12 ) ] ) ) } ) ) )
+  total_em_list <- c( total_em_list, unlist( lapply( 1 : dim( IND_array ) [ 3 ], function( i ) { sum( IND_array[ , , i ] / flux_factor / ( 365 / Days_in_Month[ ifelse( i %% 12 == 0, 12, i %% 12 ) ] ) ) } ) ) )
+  total_em_list <- c( total_em_list, unlist( lapply( 1 : dim( TRA_array ) [ 3 ], function( i ) { sum( TRA_array[ , , i ] / flux_factor / ( 365 / Days_in_Month[ ifelse( i %% 12 == 0, 12, i %% 12 ) ] ) ) } ) ) )
+  total_em_list <- c( total_em_list, unlist( lapply( 1 : dim( RCO_array ) [ 3 ], function( i ) { sum( RCO_array[ , , i ] / flux_factor / ( 365 / Days_in_Month[ ifelse( i %% 12 == 0, 12, i %% 12 ) ] ) ) } ) ) )
+  total_em_list <- c( total_em_list, unlist( lapply( 1 : dim( SLV_array ) [ 3 ], function( i ) { sum( SLV_array[ , , i ] / flux_factor / ( 365 / Days_in_Month[ ifelse( i %% 12 == 0, 12, i %% 12 ) ] ) ) } ) ) )
+  total_em_list <- c( total_em_list, unlist( lapply( 1 : dim( WST_array ) [ 3 ], function( i ) { sum( WST_array[ , , i ] / flux_factor / ( 365 / Days_in_Month[ ifelse( i %% 12 == 0, 12, i %% 12 ) ] ) ) } ) ) )
+  total_em_list <- c( total_em_list, unlist( lapply( 1 : dim( SHP_array ) [ 3 ], function( i ) { sum( SHP_array[ , , i ] / flux_factor / ( 365 / Days_in_Month[ ifelse( i %% 12 == 0, 12, i %% 12 ) ] ) ) } ) ) )
+  
+  sector_list <- c( 'AGR', 'ENE', 'IND', 'TRA', 'RCO', 'SLV', 'WST', 'SHP' )
+  checksum_sector_list <- unlist( lapply( sector_list, function( sector ) { sectors <- rep( sector, dim( AGR_array )[ 3 ]  ) } ) )
+  checksum_month_list <- rep( 1 : 12, ( dim( AGR_array )[ 3 ] / 12 * length( sector_list ) ) )
+  checksum_year_list  <- rep( unlist( lapply( chunk_start_years[ chunk_count_index ] : chunk_end_years[ chunk_count_index ], function( year ) { years <- rep( year, 12 ) } ) ), length( sector_list ) )
+  checksum_unit_list <- rep( 'kt', length( checksum_sector_list ) ) 
+  checksum_em_list <- rep( em, length( checksum_sector_list ) )
+  if ( VOC_chunk == T ) { checksum_em_list <- rep( paste0( VOC_id, '-', VOC_name ), length( checksum_sector_list ) ) }
+  layout <- data.frame( year = checksum_year_list, em = checksum_em_list, sector = checksum_sector_list, month = checksum_month_list, global_total = total_em_list, units = checksum_unit_list, stringsAsFactors = F )
+  
+  summary_name <- paste0( substr( nc_file_name, 1, ( nchar( nc_file_name) - 3 ) ), '.csv' )
+  write.csv( layout, file = summary_name, row.names = F )
+  
+  }
 # -------------------------------------------------
 # annual2chunk_AIR
 # Brief: generate a fliped matrix by a given matrix
@@ -2298,4 +2327,34 @@ annual2chunk_AIR <- function( em, grid_resolution, gridtype = 'AIR_anthro', chun
   
   # close nc_new
   nc_close( nc_new )
+  
+  # additional routine for generating checksum file
+  global_grid_area <- grid_area( grid_resolution, all_lon = T )
+  flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
+  flux_factor <- t( flip_a_matrix( flux_factor ) )
+  Days_in_Month <- c( 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 )
+
+  total_em_list <- unlist( lapply( 1 : dim( AIR_array )[ 4 ], function( i ) {
+                     temp_block <- AIR_array[ , , , i ]
+                     flux_convertor <- flux_factor * ( 365 / Days_in_Month[ ifelse( i %% 12 == 0, 12, i %% 12 ) ] )
+    
+                     block_sum <- sum( unlist( lapply( 1 : dim( temp_block )[ 3 ], function( j ){ 
+                                    temp_slice <- temp_block[ , ,j ]
+                                    temp_slice <- temp_slice / flux_convertor
+                                    slice_sum <- sum( temp_slice, na.rm = T )
+                                    return( slice_sum )
+                                    } ) ) )
+
+                     return( block_sum )
+                     } ) )
+  
+  checksum_sector_list <- rep( 'AIR', dim( AIR_array )[ 4 ]  )
+  checksum_month_list <- rep( 1 : 12, ( dim( AIR_array )[ 4 ] / 12 ) )
+  checksum_year_list  <- unlist( lapply( chunk_start_years[ chunk_count_index ] : chunk_end_years[ chunk_count_index ], function( year ) { years <- rep( year, 12 ) } ) ) 
+  checksum_unit_list <- rep( 'kt', length( checksum_sector_list ) ) 
+  checksum_em_list <- rep( em, length( checksum_sector_list ) )
+  layout <- data.frame( year = checksum_year_list, em = checksum_em_list, sector = checksum_sector_list, month = checksum_month_list, global_total = total_em_list, units = checksum_unit_list, stringsAsFactors = F )
+
+  summary_name <- paste0( substr( nc_file_name, 1, ( nchar( nc_file_name) - 3 ) ), '.csv' )
+  write.csv( layout, file = summary_name, row.names = F )
 }
