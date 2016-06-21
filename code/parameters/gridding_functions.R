@@ -1855,7 +1855,7 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
 # return: a fliped matrix 
 # input files: 
 # output: 
-annual2chunk <- function( em, grid_resolution, gridtype = NULL, chunk_start_years, chunk_end_years, chunk_count_index, input_dir, output_dir, VOC_chunk, VOC_info = NULL ) {
+annual2chunk <- function( em, grid_resolution, gridtype = NULL, chunk_start_years, chunk_end_years, chunk_count_index, input_dir, output_dir, VOC_chunk, VOC_info = NULL, CEDS_version = 'YYYY-MM-DD' ) {
   
   # create filename pattern using grid type 
   filename_patterns <- paste0( '_', em, '_', gridtype, '_', ( chunk_start_years[ chunk_count_index ] : chunk_end_years[ chunk_count_index ] ), '.*nc' )
@@ -1981,9 +1981,7 @@ annual2chunk <- function( em, grid_resolution, gridtype = NULL, chunk_start_year
   time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
   
   # generate nc file name
-  ceds_version <- 'v'
-  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
-  ver_date <- paste0( ceds_version, date_parts[ 1 ], '-', date_parts[ 2 ], '-', date_parts[ 3 ] )
+  ver_date <- paste0( paste0( 'v', CEDS_version ) )
   nc_file_name <- paste0( output_dir, em, '-em-', gsub( '_', '-', gridtype ), 
                           '_input4MIPs_emissions_CMIP_CEDS-', ver_date,
                           '_gr', '_',  
@@ -2068,7 +2066,7 @@ annual2chunk <- function( em, grid_resolution, gridtype = NULL, chunk_start_year
   ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
   ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
   ncatt_put( nc_new, 0, 'dataset_category', 'emissions' )
-  ncatt_put( nc_new, 0, 'dataset_version_number', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%Y-%m-%d' ) ) )
+  ncatt_put( nc_new, 0, 'dataset_version_number', CEDS_version )
   ncatt_put( nc_new, 0, 'grid_label', 'gr' )
   ncatt_put( nc_new, 0, 'grid_resolution', '50 km' )
   ncatt_put( nc_new, 0, 'grid', '0.5x0.5 degree latitude x longitude' )
@@ -2124,7 +2122,7 @@ annual2chunk <- function( em, grid_resolution, gridtype = NULL, chunk_start_year
 # return: a fliped matrix 
 # input files: 
 # output: 
-annual2chunk_AIR <- function( em, grid_resolution, gridtype = 'AIR_anthro', chunk_start_years, chunk_end_years, chunk_count_index, input_dir, output_dir ) {
+annual2chunk_AIR <- function( em, grid_resolution, gridtype = 'AIR_anthro', chunk_start_years, chunk_end_years, chunk_count_index, input_dir, output_dir, CEDS_version = 'YYYY-MM-DD' ) {
   
   # create filename pattern using grid type 
   filename_patterns <- paste0( '_', em, '_', gridtype, '_', ( chunk_start_years[ chunk_count_index ] : chunk_end_years[ chunk_count_index ] ), '.*nc' )
@@ -2214,9 +2212,7 @@ annual2chunk_AIR <- function( em, grid_resolution, gridtype = 'AIR_anthro', chun
   time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
   
   # generate nc file name
-  ceds_version <- 'v'
-  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
-  ver_date <- paste0( ceds_version, date_parts[ 1 ], '-', date_parts[ 2 ], '-', date_parts[ 3 ] )
+  ver_date <- paste0( paste0( 'v', CEDS_version ) )
   nc_file_name <- paste0( output_dir, em, '-em-', gsub( '_', '-', gridtype ), 
                           '_input4MIPs_emissions_CMIP_CEDS-', ver_date,
                           '_gr', '_',  
@@ -2278,7 +2274,7 @@ annual2chunk_AIR <- function( em, grid_resolution, gridtype = 'AIR_anthro', chun
   ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
   ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
   ncatt_put( nc_new, 0, 'dataset_category', 'emissions' )
-  ncatt_put( nc_new, 0, 'dataset_version_number', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%Y-%m-%d' ) ) )
+  ncatt_put( nc_new, 0, 'dataset_version_number', CEDS_version )
   ncatt_put( nc_new, 0, 'grid_label', 'gr' )
   ncatt_put( nc_new, 0, 'grid_resolution', '50 km' )
   ncatt_put( nc_new, 0, 'grid', '0.5x0.5 degree latitude x longitude' )
