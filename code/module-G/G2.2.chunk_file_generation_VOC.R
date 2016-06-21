@@ -42,6 +42,7 @@ start_year <- 1750
 end_year <- 1850
 chunk_years <- 50
 VOC_chunk <- T
+CEDS_version_value <- '2016-06-18'
 
 # basic start year/end year check 
 if ( start_year %% chunk_years != 0 ) { stop( 'Start year must be a multiple of the chunk_years. ' ) }
@@ -86,7 +87,7 @@ for ( chunk_count_index in 1 : chunk_count ) {
   annual2chunk( em, grid_resolution, gridtype = VOC_gridtype, 
                 chunk_start_years, chunk_end_years, chunk_count_index, 
                 input_dir, output_dir, 
-                VOC_chunk, VOC_info = VOC_mapping ) 
+                VOC_chunk, VOC_info = VOC_mapping, CEDS_version = CEDS_version_value ) 
 }
 
 # -----------------------------------------------------------------------------
