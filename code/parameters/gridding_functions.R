@@ -1986,13 +1986,13 @@ annual2chunk <- function( em, grid_resolution, gridtype = NULL, chunk_start_year
   ver_date <- paste0( ceds_version, date_parts[ 1 ], '-', date_parts[ 2 ], '-', date_parts[ 3 ] )
   nc_file_name <- paste0( output_dir, em, '-em-', gsub( '_', '-', gridtype ), 
                           '_input4MIPs_emissions_CMIP_CEDS-', ver_date,
-                          '_gr', grid_resolution, 'x', grid_resolution, '_',  
+                          '_gr', '_',  
                           chunk_start_years[ chunk_count_index ], '01', '-', 
                           chunk_end_years[ chunk_count_index ], '12','.nc' ) 
   if ( gridtype == 'SOLID_BIOFUEL_anthro' ) {
     nc_file_name <- paste0( output_dir, em, '-em-', gsub( '_', '-', gridtype ), 
                             '_input4MIPs_emissions_CMIP_CEDS-', ver_date, '-supplimental-data',
-                            '_gr', grid_resolution, 'x', grid_resolution, '_',  
+                            '_gr', '_',  
                             chunk_start_years[ chunk_count_index ], '01', '-', 
                             chunk_end_years[ chunk_count_index ], '12','.nc' ) 
     }                        
@@ -2002,7 +2002,7 @@ annual2chunk <- function( em, grid_resolution, gridtype = NULL, chunk_start_year
   if ( VOC_chunk == T ) { 
     nc_file_name <- paste0( output_dir, gsub( '_', '-', gridtype ), '-em-', 'speciated-VOC', 
                               '_input4MIPs_emissions_CMIP_CEDS-', ver_date, '-supplimental-data',
-                              '_gr', grid_resolution, 'x', grid_resolution, '_',  
+                              '_gr', '_',  
                               chunk_start_years[ chunk_count_index ], '01', '-', 
                               chunk_end_years[ chunk_count_index ], '12','.nc' ) 
   }  
@@ -2046,7 +2046,6 @@ annual2chunk <- function( em, grid_resolution, gridtype = NULL, chunk_start_year
   }
   # nc global attributes
   #ncatt_put( nc_new, 0, 'IMPORTANT', 'FOR TEST ONLY, DO NOT USE' )
-  ncatt_put( nc_new, 0, 'title', paste0('Annual Emissions of ', em ) )
   ncatt_put( nc_new, 0, 'institution_id', 'PNNL-JGCRI' )
   ncatt_put( nc_new, 0, 'institution', 'Pacific Northwest National Laboratory - JGCRI' )
   ncatt_put( nc_new, 0, 'activity_id', 'input4MIPs' )
@@ -2087,6 +2086,7 @@ annual2chunk <- function( em, grid_resolution, gridtype = NULL, chunk_start_year
   
   # below attributes may change depending on gridtype 
   if ( gridtype == 'anthro' ) {
+    ncatt_put( nc_new, 0, 'title', paste0( 'Annual Emissions of ', em ) )
     ncatt_put( nc_new, 0, 'product', 'primary-emissions-data' )
     ncatt_put( nc_new, 0, 'variable_id', paste0( em, '-em-anthro') )
     species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass'), stringsAsFactors = F )
@@ -2094,6 +2094,7 @@ annual2chunk <- function( em, grid_resolution, gridtype = NULL, chunk_start_year
     ncatt_put( nc_new, 0, 'reporting_unit', info_line )
   }
   if ( gridtype == 'SOLID_BIOFUEL_anthro' ) {
+    ncatt_put( nc_new, 0, 'title', paste0( 'Annual Solid Biofuel Emissions of ', em ) )
     species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass'), stringsAsFactors = F )
     info_line <- species_info[ species_info$species == em, ]$info 
     ncatt_put( nc_new, 0, 'reporting_unit', info_line )
@@ -2103,6 +2104,7 @@ annual2chunk <- function( em, grid_resolution, gridtype = NULL, chunk_start_year
   }
   if ( VOC_chunk == T ) {
     VOC_name <- VOC_info[ VOC_info$VOC_id == VOC_id, 'VOC_name' ]
+    ncatt_put( nc_new, 0, 'title', paste0( 'Annual Emissions of ', VOC_id, ' - ', VOC_name ) ) 
     molecular_weight <- VOC_info[ VOC_info$VOC_id == VOC_id, 'molecular.weight' ]
     ncatt_put( nc_new, 0, 'product', 'supplementary-emissions-data' )
     ncatt_put( nc_new, 0, 'variable_id', paste0( VOC_name, '-em-speciated-VOCs') )
@@ -2217,7 +2219,7 @@ annual2chunk_AIR <- function( em, grid_resolution, gridtype = 'AIR_anthro', chun
   ver_date <- paste0( ceds_version, date_parts[ 1 ], '-', date_parts[ 2 ], '-', date_parts[ 3 ] )
   nc_file_name <- paste0( output_dir, em, '-em-', gsub( '_', '-', gridtype ), 
                           '_input4MIPs_emissions_CMIP_CEDS-', ver_date,
-                          '_gr', grid_resolution, 'x', grid_resolution, '_',  
+                          '_gr', '_',  
                           chunk_start_years[ chunk_count_index ], '01', '-', 
                           chunk_end_years[ chunk_count_index ], '12','.nc' ) 
   
@@ -2253,7 +2255,7 @@ annual2chunk_AIR <- function( em, grid_resolution, gridtype = 'AIR_anthro', chun
   }
   # nc global attributes
   #ncatt_put( nc_new, 0, 'IMPORTANT', 'FOR TEST ONLY, DO NOT USE' )
-  ncatt_put( nc_new, 0, 'title', paste0('Annual Emissions of ', em ) )
+  ncatt_put( nc_new, 0, 'title', paste0( 'Annual Aircraft Emissions of ', em ) )
   ncatt_put( nc_new, 0, 'institution_id', 'PNNL-JGCRI' )
   ncatt_put( nc_new, 0, 'institution', 'Pacific Northwest National Laboratory - JGCRI' )
   ncatt_put( nc_new, 0, 'activity_id', 'input4MIPs' )
