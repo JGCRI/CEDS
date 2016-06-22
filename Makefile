@@ -499,10 +499,12 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 $(MED_OUT)/C.$(EM)_NC_emissions.csv : \
 	$(MOD_C)/C1.3.proc_NC_emissions.R \
 	$(MOD_C)/C1.3.proc_NC_emissions_user_added_waste.R \
+	$(MOD_C)/C1.3.proc_NC_emissions_user_added_wastewater.R \
 	$(MOD_C)/C1.3.proc_NC_emissions_user_added_inventories.R \
 	$(MOD_C)/C1.3.proc_NC_emissions_user_added.R \
 	$(MED_OUT)/C.$(EM)_NC_emissions_db.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
+	$(MAPPINGS)/Master_Country_List.csv \
 	$(MED_OUT)/A.NC_activity.csv \
 	$(MED_OUT)/E.$(EM)_ARG_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CAN_inventory.csv \
@@ -513,11 +515,19 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv : \
 	$(MED_OUT)/E.$(EM)_Japan_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
-	$(MED_OUT)/E.$(EM)_US_inventory.csv
+	$(MED_OUT)/E.$(EM)_US_inventory.csv \
+	$(MED_OUT)/A.UN_pop_master.csv \
+	$(ACTIV)/wastewater/UN_Percentage_WW_Treatment.xlsx \
+	$(ACTIV)/wastewater/OECD_Percentage_WW_Treatment.xlsx \
+	$(ACTIV)/wastewater/auxiliary_ww_treatment_trend.csv \
+	$(ACTIV)/wastewater/Per-Capita_Protein_and_WW_NH3.csv \
+	$(MAPPINGS)/wastewater_proxy_mapping.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 	Rscript $(word 4,$^) $(EM) --nosave --no-restore
+	Rscript $(word 5,$^) $(EM) --nosave --no-restore
+
 # cc2-1
 $(MED_OUT)/C.$(EM)_NC_EF.csv : \
 	$(MOD_C)/C2.1.base_NC_EF.R \
