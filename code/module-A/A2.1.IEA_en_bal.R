@@ -46,7 +46,7 @@
 # 1. Read in files
     A.IEA_en_stat_ctry_hist_full <- readData( "MED_OUT", "A.IEA_en_stat_ctry_hist" )
     IEA_flow_sector <- readData( "EN_MAPPINGS", "IEA_flow_sector" )
-    IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
+    IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )[,c('product','fuel')]
     IEA_process_sectors <- readData( "EN_MAPPINGS", "IEA_process_sectors" )
     MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
     IEA_energy_balance_factor <- readData( "ENERGY_IN", "IEA_energy_balance_factor" )
