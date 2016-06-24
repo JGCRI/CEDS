@@ -6,7 +6,7 @@
 # Date Last Modified: 23 March 2016
 # Program Purpose: Reads in the initial IEA energy data.
 #				   Splits the composite data into individual countries.
-# 				   Maps the aggregate coal consumption in earlier years to 
+# 				 Maps the aggregate coal consumption in earlier years to 
 #                      specific coal types.
 # Input Files: A.UN_pop_master.csv, OECD_E_stat.csv, NonOECD_E_stat.csv, Master_Country_List.csv
 # Output Files: A.IEA_en_stat_ctry_hist.csv
@@ -27,48 +27,33 @@
 # Before we can load headers we need some paths defined. They may be provided by
 #   a system environment variable or may have already been set in the workspace.
 # Set variable PARAM_DIR to be the data system directory
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if ( length(wd) > 0 ) {
-            setwd( wd[1] )
-            break
-        }
-    }
-    PARAM_DIR <- "../code/parameters/"
-    
+dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
+for ( i in 1:length( dirs ) ) {
+  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
+  wd <- grep( 'CEDS/input', list.dirs(), value = T )
+  if ( length(wd) > 0 ) {
+    setwd( wd[1] )
+    break
+  }
+}
+PARAM_DIR <- "../code/parameters/"
+
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( "data_functions.R", "timeframe_functions.R", 
-                  "interpolation_extention_functions.R") # Additional function files required.
-    log_msg <- "IEA energy balances by all countries and historical years" # First message to be printed to the log
-    script_name <- "A1.3.IEA_downscale_ctry.R"
-    
-    source( paste0( PARAM_DIR, "header.R" ) )
-    initialize( script_name, log_msg, headers )
+headers <- c( "data_functions.R", "timeframe_functions.R", 
+              "interpolation_extention_functions.R") # Additional function files required.
+log_msg <- "IEA energy balances by all countries and historical years" # First message to be printed to the log
+script_name <- "A1.3.IEA_downscale_ctry.R"
+
+source( paste0( PARAM_DIR, "header.R" ) )
+initialize( script_name, log_msg, headers )
 
 # ------------------------------------------------------------------------------
-# 1. Read in files
+# 0.5. Define function, load Packages
+
 # Load packages
-    library( "tools" )
+library( "tools")  
 
-# Read in historical years, UN population data, OECD and non-OECD energy
-#   statistics, mappings, and energy adjustment files.
-# "Invalid factor" warnings can be ignored- hence the warning suppressor code.
-    w <- getOption( "warn" )
-    options( warn=-1 )	# suppress the warning about columns names and appending
-    
-	UN_pop_master <- readData( "MED_OUT", "A.UN_pop_master" )
-	OECD_E_Stat <- readData( "ENERGY_IN", "OECD_E_Stat", ".csv" )
-	NonOECD_E_Stat <- readData( "ENERGY_IN", "NonOECD_E_Stat", ".csv" )
-	MCL <- readData( "MAPPINGS", "Master_Country_List" )
-	adj_list <- list.files( path =  "energy/energy-data-adjustment", pattern = "*.csv" ) %>% file_path_sans_ext()
-	adj_list <- adj_list[ !grepl( "metadata", adj_list ) ]  # remove metadata
-	adj_list <- lapply ( adj_list, FUN = readData, domain = "ENERGY_IN", domain_extension = "energy-data-adjustment/" )
-
-    options( warn=w )
-    
 # Define functions 
 # extendAdjValues(): Interpolate and extend IEA adjustment values for multiplier method
 # Params:  data frame containing base adjustment values. Should have the following format:
@@ -80,62 +65,127 @@
 # Returns:  data frame containing adjustment values, interpolated between base years
 #           and extended according to ext_backward and ext_forward flags. 
 # TODO: add ext_forward = "absolute" and method = "replace"
-  extendAdjValues <- function( df ){
-    id <- names( df )[ !grepl( "X", names( df ) ) ]
-    valid_ext <- c( "percentage", "none" )
-    
-    # validate inputs
-    if ( any( df$method != "multiplier" ) ) {
-      warning( "Invalid method -- must be multiplier. Default chosen: multiplier." )
-      df$method <- "multiplier"
-    }
-    if ( any( df$ext_backward %!in% valid_ext ) ) {
-      warning( "Invalid ext_backward -- must be percentage or none. Default chosen: none. ")
-      df$ext_backward[ df$ext_backward %!in% valid_ext ] <- "none"     
-    }
-    if ( any( df$ext_forward %!in% valid_ext ) ) {
-      warning( "Invalid ext_forward -- must be percentage or none. Default chosen: none." )
-      df$ext_forward[ df$ext_forward %!in% valid_ext ] <- "none"     
-    }
-    
-    # interpolate between Xyears
-    df <- interpolateValues( df )
-    
-    # get backward and forward extension range
-    first_yr <- head( names( df )[ grepl( "X", names( df ) ) ], n = 1 ) %>% xYearToNum()
-    bwd_range <- c()
-    if ( first_yr > min( IEA_years ) )
-      bwd_range <- paste0( "X", seq( min( IEA_years ), first_yr - 1 ) )
-    last_yr <- tail( names( df )[ grepl( "X", names( df ) ) ], n = 1 ) %>% xYearToNum()
-    fwd_range <- c()
-    if ( last_yr < max( IEA_years ) )
-      fwd_range <- paste0( "X", seq( last_yr + 1, max( IEA_years ) ) )
-    
-    # add columns for all IEA years
-    df[, bwd_range ] <- NA
-    df[, fwd_range ] <- NA
-    df <- df[, c( id, X_IEA_years ) ]
-    
-    # extend backward by method specified in ext_backward
-    first_X_yr <- paste0( "X", first_yr )
-    df[ df$ext_backward == "none", bwd_range ] <- 1
-    if ( any( df$ext_backward == "percentage" ) )
-      df[ df$ext_backward == "percentage", bwd_range ] <- df[ df$ext_backward == "percentage", first_X_yr ]
-    
-    # extend forward by method specified in ext_foward
-    last_X_yr <- paste0( "X", last_yr )
-    df[ df$ext_forward == "none", fwd_range ] <- 1
-    if ( any( df$ext_forward == "percentage" ) )
-      df[ df$ext_forward == "percentage", fwd_range ] <- df[ df$ext_forward == "percentage", last_X_yr ]
-    
-    return( df )
-  }    
-    
-    
+extendAdjValues <- function( df ){
+  id <- names( df )[ !grepl( "X", names( df ) ) ]
+  valid_ext <- c( "percentage", "none" )
+  
+  # validate inputs
+  if ( any( df$method != "multiplier" ) ) {
+    warning( "Invalid method -- must be multiplier. Default chosen: multiplier." )
+    df$method <- "multiplier"
+  }
+  if ( any( df$ext_backward %!in% valid_ext ) ) {
+    warning( "Invalid ext_backward -- must be percentage or none. Default chosen: none. ")
+    df$ext_backward[ df$ext_backward %!in% valid_ext ] <- "none"     
+  }
+  if ( any( df$ext_forward %!in% valid_ext ) ) {
+    warning( "Invalid ext_forward -- must be percentage or none. Default chosen: none." )
+    df$ext_forward[ df$ext_forward %!in% valid_ext ] <- "none"     
+  }
+  
+  # interpolate between Xyears
+  df <- interpolateValues( df )
+  
+  # get backward and forward extension range
+  first_yr <- head( names( df )[ grepl( "X", names( df ) ) ], n = 1 ) %>% xYearToNum()
+  bwd_range <- c()
+  if ( first_yr > min( IEA_years ) )
+    bwd_range <- paste0( "X", seq( min( IEA_years ), first_yr - 1 ) )
+  last_yr <- tail( names( df )[ grepl( "X", names( df ) ) ], n = 1 ) %>% xYearToNum()
+  fwd_range <- c()
+  if ( last_yr < max( IEA_years ) )
+    fwd_range <- paste0( "X", seq( last_yr + 1, max( IEA_years ) ) )
+  
+  # add columns for all IEA years
+  df[, bwd_range ] <- NA
+  df[, fwd_range ] <- NA
+  df <- df[, c( id, X_IEA_years ) ]
+  
+  # extend backward by method specified in ext_backward
+  first_X_yr <- paste0( "X", first_yr )
+  df[ df$ext_backward == "none", bwd_range ] <- 1
+  if ( any( df$ext_backward == "percentage" ) )
+    df[ df$ext_backward == "percentage", bwd_range ] <- df[ df$ext_backward == "percentage", first_X_yr ]
+  
+  # extend forward by method specified in ext_foward
+  last_X_yr <- paste0( "X", last_yr )
+  df[ df$ext_forward == "none", fwd_range ] <- 1
+  if ( any( df$ext_forward == "percentage" ) )
+    df[ df$ext_forward == "percentage", fwd_range ] <- df[ df$ext_forward == "percentage", last_X_yr ]
+  
+  return( df )
+}    
+
+
 # ------------------------------------------------------------------------------
-# 2. Perform computations
-    
-# 2.1 Preparatory Calculations
+# 1. Load files
+# "Invalid factor" warnings can be ignored- hence the warning suppressor code.
+w <- getOption( "warn" )
+options( warn=-1 )	# suppress the warning about columns names and appending	
+
+un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' )
+OECD_E_Stat <- readData( "ENERGY_IN", "OECD_E_Stat", ".csv" )
+NonOECD_E_Stat <- readData( "ENERGY_IN", "NonOECD_E_Stat", ".csv" )
+MCL <- readData( "MAPPINGS", "Master_Country_List" )
+IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
+cdiac_total <- readData( "MED_OUT", "E.CO2_CDIAC_inventory" )
+
+adj_list <- list.files( path =  "energy/energy-data-adjustment", pattern = "*.csv" ) %>% file_path_sans_ext()
+adj_list <- adj_list[ !grepl( "metadata", adj_list ) ]  # remove metadata
+adj_list <- lapply ( adj_list, FUN = readData, domain = "ENERGY_IN", domain_extension = "energy-data-adjustment/" )
+
+
+options( warn=w )
+
+
+# ------------------------------------------------------------------------------
+# 2. Prep population, CDIAC data for country splitting
+
+# Process UN Population Data
+
+un_pop$X_year <- paste0( "X" , un_pop$year)
+un_pop$pop <- as.numeric(un_pop$pop)
+population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_year:end_year ) , ] , 
+                    iso ~ X_year, value = 'pop')
+
+# CDIAC
+# extend last year of cdiac data out constantly. 
+# This script does not using cdiac data for current trends, only for disaggregating IEA
+# 'other' regions, so ok to constantly extend those emissions values
+
+cdiac_total[,paste0('X',cdiac_end_year:IEA_end_year)] <- cdiac_total[paste0('X',cdiac_end_year)]
+
+# add population trend for biomass. Cdiac does not include biomass data
+biomass_pop <- population
+biomass_pop$fuel <- 'biomass'
+biomass_pop <- biomass_pop[c('iso','fuel',paste0('X',cdiac_start_year:IEA_end_year))]
+
+cdiac_merge <- rbind.fill(cdiac_total, biomass_pop[c('iso','fuel',paste0('X',cdiac_start_year:IEA_end_year))])
+
+# All but international bunkers, match by fuels
+cdiac_trend_fuel <- merge( IEA_product_fuel[c('product','cdiac_fuel')], cdiac_merge,
+                           by.x = 'cdiac_fuel', by.y = 'fuel',
+                           all = T)
+
+cdiac_trend_fuel <- cdiac_trend_fuel[complete.cases(cdiac_trend_fuel[,c('product','iso','cdiac_fuel')]),]
+cdiac_trend_fuel <- cdiac_trend_fuel[ , c("iso","cdiac_fuel", "product" , paste0("X", start_year:IEA_end_year ))]
+names(cdiac_trend_fuel) <- c( 'iso', 'cdiac_fuel' , 'PRODUCT', paste0("X", start_year:IEA_end_year ))
+
+# international bunkers, match with FLOW
+bunker_flows <- c('MARBUNK','AVRBUNK')
+cdiac_trend_MARbunkers <- cdiac_total[which(cdiac_total$fuel == 'bunker_fuels'),]
+cdiac_trend_MARbunkers$FLOW <- 'MARBUNK'
+
+cdiac_trend_AVbunkers <- cdiac_total[which(cdiac_total$fuel == 'bunker_fuels'),]
+cdiac_trend_AVbunkers$FLOW <- 'AVRBUNK'
+
+cdiac_trend_bunkers <- rbind(cdiac_trend_MARbunkers,cdiac_trend_AVbunkers)
+cdiac_trend_bunkers <- cdiac_trend_bunkers[ , c('iso','fuel','FLOW',  paste0("X", start_year:IEA_end_year ) )]
+
+
+
+# ------------------------------------------------------------------------------
+# 3. Preparatory IEA data Calculations
 
 # Subset only the relevant years, and combine OECD data with non-OECD data
 	printLog( "Combining OECD and non-OECD databases" )
@@ -184,7 +234,7 @@
 	
 	 }
 
-# 2.2 Deal with composite regions (e.g. Other Africa) and historical countries
+# Deal with composite regions (e.g. Other Africa) and historical countries
 #     (Former Soviet Union and Former Yugoslavia) that get broken
 
 # Split the country mapping table into composite regions and single-countries
@@ -200,7 +250,8 @@
 	A.IEAsingle$iso <- IEA_single$iso[ match( A.IEAsingle$COUNTRY, 
 	                                          IEA_single$IEAName ) ]
 
-# 2.2.1 First process FSU and former Yugoslavia --------------------------------
+# ------------------------------------------------------------------------------
+# 4. First process FSU and former Yugoslavia 
 
 # Subset countries that are being downscaled in certain years using historical 
 #   energy data in a specified year
@@ -365,7 +416,7 @@
 	A.USSR_Yug_ctry_stat[ is.na( A.USSR_Yug_ctry_stat ) ] <- 0
     
 # -----------------------------------------------------------------------------
-# 2.2.1.5 Fix scaling of Former Soviet Union (FSU) transformation sector 
+# 5. Fix scaling of Former Soviet Union (FSU) transformation sector 
 
 # Here the reporting is not consistent between the FSU years and afterward. So instead of 
 # by sector, the scaling is performed using the sum of the main transformation sectors
@@ -445,55 +496,99 @@ fsu_data <- replaceValueColMatch(fsu_data,fsu_transf_data_corrected,
 # Put it back
 A.USSR_Yug_ctry_stat <- fsu_data
 
-# 2.2.2 Now process composite regions ------------------------------------------
+# 6. Now process composite regions ------------------------------------------
 
 # Composite regions where population is used to downscale energy to countries 
 #   over all historical years
 # Subset composite regions
-	A.Afr  <- subset( A.IEAcomp, COUNTRY == "Other Africa" )
-	A.LAM  <- subset( A.IEAcomp, COUNTRY == "Other Non-OECD Americas" )
-	A.Asia <- subset( A.IEAcomp, COUNTRY == "Other Asia" )
+  other_countries <- c("Other Africa", "Other Non-OECD Americas", "Other Asia")
+	A.IEA_others  <- subset( A.IEAcomp, COUNTRY %in% other_countries )
 
-# Repeat by number of countries in each
-	A.Afr_repCtry  <- repeatAndAddVector( A.Afr, "iso", 
-	                                      IEA_composite$iso[ IEA_composite$IEAName == "Other Africa" ] )
-	A.LAM_repCtry  <- repeatAndAddVector( A.LAM, "iso", 
-	                                      IEA_composite$iso[ IEA_composite$IEAName == 
-	                                                           "Other Non-OECD Americas" ] )
-	A.Asia_repCtry <- repeatAndAddVector( A.Asia, "iso", 
-	                                      IEA_composite$iso[ IEA_composite$IEAName == "Other Asia" ] )
+# add iso - same as IEA name for other countries 
+  A.IEA_others$iso <- A.IEA_others$COUNTRY
+  
+# Split between bunker fuel and other fuel use (use different cdiac data to disaggregate)
+  bunker_flows <- c('MARBUNK','AVRBUNK')
+  A.IEA_others_fuel <- A.IEA_others[which(A.IEA_others$FLOW %!in% bunker_flows),]
+  A.IEA_others_bunkers <- A.IEA_others[which(A.IEA_others$FLOW %in% bunker_flows),]
 
-# Combine these into a single data table
-	A.Others_repCtry <- rbind( A.Afr_repCtry, A.LAM_repCtry, 
-        A.Asia_repCtry )
-
-# Calculate population shares
-	A.UN_pop_master <- subset( UN_pop_master, year %in% IEA_years &
-        scenario == "Estimates" )
-	A.Others_pop <- subset( A.UN_pop_master, iso %in% A.Others_repCtry$iso )
-	A.Others_pop$IEAcomp <- IEA_composite$IEAName[ 
-	  match( A.Others_pop$iso, IEA_composite$iso ) ]
-
-# Aggregate by country-in-composite-region and year to find population shares
-	A.Composites_pop <- aggregate( A.Others_pop[ "pop" ], by = list( 
-        IEAcomp = A.Others_pop$IEAcomp, year = A.Others_pop$year ), sum )
-	A.Others_pop$share <- A.Others_pop$pop / A.Composites_pop$pop[
-		match( paste( A.Others_pop$IEAcomp, A.Others_pop$year ),
-			paste( A.Composites_pop$IEAcomp, A.Composites_pop$year ) ) ]
-	A.Others_pop$Xyear <- paste( "X", A.Others_pop$year, sep = "" )
-	A.Others_pop.reshape <- cast( A.Others_pop, iso + IEAcomp ~ Xyear, 
-	                              value = "share" )
-
-# Multiply the repeated country databases by the population shares to get the
-#   energy statistics by country
-	A.Others_ctry_stat <- data.frame( A.Others_repCtry[ c( "iso", "FLOW",
-        "PRODUCT" ) ], IEAcomp = A.Others_repCtry$COUNTRY )
-	A.Others_ctry_stat[ X_IEA_years ] <- A.Others_repCtry[ 
-        X_IEA_years ] * A.Others_pop.reshape[ match( 
-            A.Others_ctry_stat$iso, A.Others_pop.reshape$iso ), 
-        X_IEA_years ]
-
-# 2.2.3 Now combine data into one database
+# Disaggregate other_fuel
+  A.IEA_others_fuel_africa <- disaggregate_country(original_data = A.IEA_others_fuel,
+                                                   trend_data = cdiac_trend_fuel,
+                                                   trend_match_cols = c('iso','PRODUCT'),
+                                                   combined_iso = 'Other Africa',
+                                                   disaggregate_iso = unique(MCL[which(MCL$IEAName == 'Other Africa'),'iso']),
+                                                   dis_end_year = IEA_end_year,
+                                                   dis_start_year = start_year,
+                                                   method = 2,
+                                                   id_cols = T,
+                                                   remove_aggregate = T,
+                                                   write_over_values = F,
+                                                   allow_dropped_data = T)
+  
+  A.IEA_others_fuel_asia <- disaggregate_country(original_data = A.IEA_others_fuel_africa,
+                                                   trend_data = cdiac_trend_fuel,
+                                                   trend_match_cols = c('iso','PRODUCT'),
+                                                   combined_iso = 'Other Asia',
+                                                   disaggregate_iso = unique(MCL[which(MCL$IEAName == 'Other Asia'),'iso']),
+                                                   dis_end_year = IEA_end_year,
+                                                   dis_start_year = start_year,
+                                                   method = 2,
+                                                   id_cols = T,
+                                                   remove_aggregate = T,
+                                                   write_over_values = F,
+                                                 allow_dropped_data = T) 
+  
+  A.IEA_others_fuel_americas <- disaggregate_country(original_data = A.IEA_others_fuel_asia,
+                                                 trend_data = cdiac_trend_fuel,
+                                                 trend_match_cols = c('iso','PRODUCT'),
+                                                 combined_iso = 'Other Non-OECD Americas',
+                                                 disaggregate_iso = unique(MCL[which(MCL$IEAName == 'Other Non-OECD Americas'),'iso']),
+                                                 dis_end_year = IEA_end_year,
+                                                 dis_start_year = start_year,
+                                                 method = 2,
+                                                 id_cols = T,
+                                                 remove_aggregate = T,
+                                                 write_over_values = F,
+                                                 allow_dropped_data = T)  
+  # Disaggregate bunker fuel
+  A.IEA_others_bunkers_africa <- disaggregate_country(original_data = A.IEA_others_bunkers,
+                                                   trend_data = cdiac_trend_bunkers,
+                                                   trend_match_cols = c('iso','FLOW'),
+                                                   combined_iso = 'Other Africa',
+                                                   disaggregate_iso = unique(MCL[which(MCL$IEAName == 'Other Africa'),'iso']),
+                                                   dis_end_year = IEA_end_year,
+                                                   dis_start_year = start_year,
+                                                   method = 2,
+                                                   id_cols = T,
+                                                   remove_aggregate = T,
+                                                   write_over_values = F) 
+  A.IEA_others_bunkers_asia <- disaggregate_country(original_data =  A.IEA_others_bunkers_africa,
+                                                      trend_data = cdiac_trend_bunkers,
+                                                      trend_match_cols = c('iso','FLOW'),
+                                                      combined_iso = 'Other Asia',
+                                                      disaggregate_iso = unique(MCL[which(MCL$IEAName == 'Other Asia'),'iso']),
+                                                      dis_end_year = IEA_end_year,
+                                                      dis_start_year = start_year,
+                                                      method = 2,
+                                                      id_cols = T,
+                                                      remove_aggregate = T,
+                                                      write_over_values = F) 
+  A.IEA_others_bunkers_americas <- disaggregate_country(original_data = A.IEA_others_bunkers_asia,
+                                                      trend_data = cdiac_trend_bunkers,
+                                                      trend_match_cols = c('iso','FLOW'),
+                                                      combined_iso = 'Other Non-OECD Americas',
+                                                      disaggregate_iso = unique(MCL[which(MCL$IEAName == 'Other Non-OECD Americas'),'iso']),
+                                                      dis_end_year = IEA_end_year,
+                                                      dis_start_year = start_year,
+                                                      method = 2,
+                                                      id_cols = T,
+                                                      remove_aggregate = T,
+                                                      write_over_values = F) 
+	
+	A.Others_ctry_stat <- rbind(A.IEA_others_fuel_americas,A.IEA_others_bunkers_americas)
+# -----------------------------------------------------------------------------
+# 7. Now combine data into one database
 
 # Subset final energy statistics to only the rows that aren't zero in all years
 	A.IEAsingle <- A.IEAsingle[ rowSums( A.IEAsingle[ 
@@ -538,91 +633,91 @@ A.USSR_Yug_ctry_stat <- fsu_data
 # writeData(test, "TEST_FILES", "China diesel series", meta = F)
 	
 	
-# -----------------------------------------------------------------------------	
-# 4. Check sums of country data against world data for all products
-# Last tested with IEA data published in 2010, for years 1985 and 2005 and for 
-#   Primary Supply and Final Consumption flows
-    comparison_years <- c( "X1985", "X2005" )
-    comparison_flows <- c( "FINCONS", "DOMSUP" )
-
-# 0% error found for all products in 2005, some error found for few secondary 
-#   products in 1985. This error is due to the use of some products going to 
-#   zero in 1990. This means shares cannot be calculated and overall FSU or Yug
-#   data cannot be distributed by country with the current method.
-
-# Pull lists of all products and flows from the data
-# Pick 2 years to compare, one before and one after FSU split eg 1985 and 2005
-	prod_list <- subset( NonOECD_E_Stat, FLOW == "DOMSUP" & 
-        COUNTRY == "World", PRODUCT )
-	prod_num <- length( t( prod_list ) )
-	flow_list <- subset( NonOECD_E_Stat, ( FLOW == "FINCONS" | 
-        FLOW == "DOMSUP" ) & COUNTRY == "World", FLOW )
-
-# Form array with columns for data and errors
-	A.IEA_sum_comp <- data.frame( array( NA, dim = c( 2 * prod_num, 8 ) ) )
-	names( A.IEA_sum_comp ) <- c( "CTRY_SUM_1985", "WORLD_1985", "DIFF_1985",
-        "ERROR(%)_1985", "CTRY_SUM_2005", "WORLD_2005", "DIFF_2005", 
-        "ERROR(%)_2005" )
-
-# Extract country data and world data for Primary Supply (FLOW = DOMSUP) and
-#   Total Final Consumption (FLOW = FINCONS)
-# The sum of the countries doesn't include World marine or aviation bunkers, 
-#   so compare country-sum to OECD_tot + nonOECD_tot
-	ctry_data <- subset( A.IEA_en_stat_ctry_hist, FLOW %in% comparison_flows,
-        c("FLOW", "PRODUCT", comparison_years) )
-	OECD_tot <- subset( NonOECD_E_Stat, COUNTRY == "OECD Total" & FLOW %in%
-        comparison_flows, comparison_years )
-	nonOECD_tot <- subset( NonOECD_E_Stat, COUNTRY == "Memo: Non-OECD Total" &
-        FLOW %in% comparison_flows, comparison_years )
-	world_tot <- OECD_tot + nonOECD_tot
-
-# Assign world data to their respective columns
-	A.IEA_sum_comp$WORLD_1985 <- c( unlist( world_tot )[1:prod_num],
-        unlist( world_tot )[ ( prod_num+1 ):( 2 * prod_num ) ] ) 
-	A.IEA_sum_comp$WORLD_2005 <- c( 
-        unlist( world_tot )[ ( 2 * prod_num + 1 ):( 3 * prod_num ) ], 
-        unlist( world_tot )[ ( 3 * prod_num + 1 ):( 4 * prod_num ) ] )
-
-# Sum the data for each product across all considered years and assign 
-#   country-sum data to columns
-	for ( i in 1:prod_num ) { 
-	ctry_sum_sup <- subset( ctry_data, PRODUCT == paste( prod_list[ i, ] ) &
-        FLOW == "DOMSUP", comparison_years )
-	ctry_sum_fin <- subset( ctry_data, PRODUCT == paste( prod_list[ i, ] ) &
-        FLOW == "FINCONS", comparison_years )
-	A.IEA_sum_comp$CTRY_SUM_1985[ i ] <- colSums( ctry_sum_sup )[ 1 ] 
-	A.IEA_sum_comp$CTRY_SUM_1985[ ( prod_num + i ) ] <- colSums( 
-        ctry_sum_fin )[ 1 ]
-	A.IEA_sum_comp$CTRY_SUM_2005[ i ] <- colSums( ctry_sum_sup )[ 2 ] 
-	A.IEA_sum_comp$CTRY_SUM_2005[ ( prod_num + i ) ] <- colSums(
-        ctry_sum_fin )[ 2 ] 
-    }
-
-#Calculate differences and percent errors of country-sum from world data
-	A.IEA_sum_comp$DIFF_1985 <- A.IEA_sum_comp$CTRY_SUM_1985 -
-        A.IEA_sum_comp$WORLD_1985
-    A.IEA_sum_comp$DIFF_2005 <- A.IEA_sum_comp$CTRY_SUM_2005 -
-        A.IEA_sum_comp$WORLD_2005
-	A.IEA_sum_comp[, "ERROR(%)_1985"] <- abs( A.IEA_sum_comp$DIFF_1985 ) /
-        A.IEA_sum_comp$WORLD_1985 * 100
-	A.IEA_sum_comp[, "ERROR(%)_2005"] <- abs( A.IEA_sum_comp$DIFF_2005 ) /
-        A.IEA_sum_comp$WORLD_2005 * 100
-
-# NaN values occur where world data is zero, clear NaNs for clarity
-# Add labels for flow and product
-	A.IEA_sum_comp2 <- rapply( A.IEA_sum_comp, f=function(x) 
-        ifelse( is.nan(x), 0, x ), how="replace" )
-	A.IEA_sum_comp <- cbind( flow_list, rbind( prod_list, prod_list ),
-        A.IEA_sum_comp2 )
-
-# Add comments for the data and write out as a CSV
-	comments.A.IEA_sum_comp <- c( "Comparison: Sums of Country Data vs. 
-        OECD+NonOECD Totals", "Flows: Primary Supply and Final Consumption", 
-        "Error: percent deviation of Country-Sum from OECD+NonOECD total" )
-	writeData( A.IEA_sum_comp, domain = "DIAG_OUT", fn = "A.IEA_sum_comp",
-        comments = comments.A.IEA_sum_comp, meta = F )
-
-	
-	# Every script should finish with this line
+# # -----------------------------------------------------------------------------	
+# # 4. Check sums of country data against world data for all products
+# # Last tested with IEA data published in 2010, for years 1985 and 2005 and for 
+# #   Primary Supply and Final Consumption flows
+#     comparison_years <- c( "X1985", "X2005" )
+#     comparison_flows <- c( "FINCONS", "DOMSUP" )
+# 
+# # 0% error found for all products in 2005, some error found for few secondary 
+# #   products in 1985. This error is due to the use of some products going to 
+# #   zero in 1990. This means shares cannot be calculated and overall FSU or Yug
+# #   data cannot be distributed by country with the current method.
+# 
+# # Pull lists of all products and flows from the data
+# # Pick 2 years to compare, one before and one after FSU split eg 1985 and 2005
+# 	prod_list <- subset( NonOECD_E_Stat, FLOW == "DOMSUP" & 
+#         COUNTRY == "World", PRODUCT )
+# 	prod_num <- length( t( prod_list ) )
+# 	flow_list <- subset( NonOECD_E_Stat, ( FLOW == "FINCONS" | 
+#         FLOW == "DOMSUP" ) & COUNTRY == "World", FLOW )
+# 
+# # Form array with columns for data and errors
+# 	A.IEA_sum_comp <- data.frame( array( NA, dim = c( 2 * prod_num, 8 ) ) )
+# 	names( A.IEA_sum_comp ) <- c( "CTRY_SUM_1985", "WORLD_1985", "DIFF_1985",
+#         "ERROR(%)_1985", "CTRY_SUM_2005", "WORLD_2005", "DIFF_2005", 
+#         "ERROR(%)_2005" )
+# 
+# # Extract country data and world data for Primary Supply (FLOW = DOMSUP) and
+# #   Total Final Consumption (FLOW = FINCONS)
+# # The sum of the countries doesn't include World marine or aviation bunkers, 
+# #   so compare country-sum to OECD_tot + nonOECD_tot
+# 	ctry_data <- subset( A.IEA_en_stat_ctry_hist, FLOW %in% comparison_flows,
+#         c("FLOW", "PRODUCT", comparison_years) )
+# 	OECD_tot <- subset( NonOECD_E_Stat, COUNTRY == "OECD Total" & FLOW %in%
+#         comparison_flows, comparison_years )
+# 	nonOECD_tot <- subset( NonOECD_E_Stat, COUNTRY == "Memo: Non-OECD Total" &
+#         FLOW %in% comparison_flows, comparison_years )
+# 	world_tot <- OECD_tot + nonOECD_tot
+# 
+# # Assign world data to their respective columns
+# 	A.IEA_sum_comp$WORLD_1985 <- c( unlist( world_tot )[1:prod_num],
+#         unlist( world_tot )[ ( prod_num+1 ):( 2 * prod_num ) ] ) 
+# 	A.IEA_sum_comp$WORLD_2005 <- c( 
+#         unlist( world_tot )[ ( 2 * prod_num + 1 ):( 3 * prod_num ) ], 
+#         unlist( world_tot )[ ( 3 * prod_num + 1 ):( 4 * prod_num ) ] )
+# 
+# # Sum the data for each product across all considered years and assign 
+# #   country-sum data to columns
+# 	for ( i in 1:prod_num ) { 
+# 	ctry_sum_sup <- subset( ctry_data, PRODUCT == paste( prod_list[ i, ] ) &
+#         FLOW == "DOMSUP", comparison_years )
+# 	ctry_sum_fin <- subset( ctry_data, PRODUCT == paste( prod_list[ i, ] ) &
+#         FLOW == "FINCONS", comparison_years )
+# 	A.IEA_sum_comp$CTRY_SUM_1985[ i ] <- colSums( ctry_sum_sup )[ 1 ] 
+# 	A.IEA_sum_comp$CTRY_SUM_1985[ ( prod_num + i ) ] <- colSums( 
+#         ctry_sum_fin )[ 1 ]
+# 	A.IEA_sum_comp$CTRY_SUM_2005[ i ] <- colSums( ctry_sum_sup )[ 2 ] 
+# 	A.IEA_sum_comp$CTRY_SUM_2005[ ( prod_num + i ) ] <- colSums(
+#         ctry_sum_fin )[ 2 ] 
+#     }
+# 
+# #Calculate differences and percent errors of country-sum from world data
+# 	A.IEA_sum_comp$DIFF_1985 <- A.IEA_sum_comp$CTRY_SUM_1985 -
+#         A.IEA_sum_comp$WORLD_1985
+#     A.IEA_sum_comp$DIFF_2005 <- A.IEA_sum_comp$CTRY_SUM_2005 -
+#         A.IEA_sum_comp$WORLD_2005
+# 	A.IEA_sum_comp[, "ERROR(%)_1985"] <- abs( A.IEA_sum_comp$DIFF_1985 ) /
+#         A.IEA_sum_comp$WORLD_1985 * 100
+# 	A.IEA_sum_comp[, "ERROR(%)_2005"] <- abs( A.IEA_sum_comp$DIFF_2005 ) /
+#         A.IEA_sum_comp$WORLD_2005 * 100
+# 
+# # NaN values occur where world data is zero, clear NaNs for clarity
+# # Add labels for flow and product
+# 	A.IEA_sum_comp2 <- rapply( A.IEA_sum_comp, f=function(x) 
+#         ifelse( is.nan(x), 0, x ), how="replace" )
+# 	A.IEA_sum_comp <- cbind( flow_list, rbind( prod_list, prod_list ),
+#         A.IEA_sum_comp2 )
+# 
+# # Add comments for the data and write out as a CSV
+# 	comments.A.IEA_sum_comp <- c( "Comparison: Sums of Country Data vs. 
+#         OECD+NonOECD Totals", "Flows: Primary Supply and Final Consumption", 
+#         "Error: percent deviation of Country-Sum from OECD+NonOECD total" )
+# 	writeData( A.IEA_sum_comp, domain = "DIAG_OUT", fn = "A.IEA_sum_comp",
+#         comments = comments.A.IEA_sum_comp, meta = F )
+# 
+# 	
+# 	# Every script should finish with this line
 	logStop()
 	

@@ -299,6 +299,7 @@ $(MED_OUT)/A.Fernandes_biomass_conversion.csv : \
 # Initial processing of IEA energy data
 $(MED_OUT)/A.IEA_en_stat_ctry_hist.csv : \
 	$(MOD_A)/A1.3.IEA_downscale_ctry.R \
+	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
 	$(MED_OUT)/A.UN_pop_master.csv \
 	$(ENERGY_DATA)/OECD_E_Stat.csv \
 	$(ENERGY_DATA)/NonOECD_E_Stat.csv
