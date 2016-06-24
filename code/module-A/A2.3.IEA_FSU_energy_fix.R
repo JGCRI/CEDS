@@ -61,10 +61,13 @@ end_BP_year <- 2013
   MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
   un_pop <- readData("MED_OUT", "A.UN_pop_master")
   bp_oil_full  <- readData( "ENERGY_IN","BP_energy_data", ".xlsx", sheet_selection = 7 ) 
+  printLog( c("Read in BP data sheet: ", names( bp_oil_full )[[1]]) )
   # Oil Consumption- Million Tonnes = 10^3 kt
   bp_gas_full  <- readData( "ENERGY_IN","BP_energy_data", ".xlsx", sheet_selection = 24 ) 
+  printLog( c("Read in BP data sheet: ", names( bp_gas_full )[[1]]) )
   # Gas Consumption – tonnes
   bp_coal_full <- readData( "ENERGY_IN","BP_energy_data", ".xlsx", sheet_selection = 33 ) 
+  printLog( c("Read in BP data sheet: ", names( bp_coal_full )[[1]]) )
   # Coal Consumption -  Mtoe
 
 

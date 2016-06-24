@@ -49,8 +49,11 @@
     fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
     
     bp_oil_full  <- readData( "ENERGY_IN","BP_energy_data", ".xlsx", sheet_selection = 7 ) # Oil Consumption- Tonnes
+    printLog( c("Read in BP data sheet: ", names( bp_oil_full )[[1]]) )
     bp_gas_full  <- readData( "ENERGY_IN","BP_energy_data", ".xlsx", sheet_selection = 24 ) # Gas Consumption – tonnes
+    printLog( c("Read in BP data sheet: ", names( bp_gas_full )[[1]]) )
     bp_coal_full <- readData( "ENERGY_IN","BP_energy_data", ".xlsx", sheet_selection = 33 ) # Coal Consumption -  Mtoe
+    printLog( c("Read in BP data sheet: ", names( bp_coal_full )[[1]]) )
     
 # Check input data for proper sector and fuel names
     sectorCheck( iea_data_full )
