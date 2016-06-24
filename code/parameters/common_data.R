@@ -36,6 +36,12 @@ bond_end <- 2010
 bond_years <- seq.int(bond_start,bond_end, by = 5)
 X_bond_years <- paste0('X', bond_years)
 
+# CDIAC years
+cdiac_start_year <- 1750
+cdiac_end_year <- 2011
+
+
+
 #---------------------------------
 # Conversion Factors
 conversionFactor_biomass_kt_TJ <- 16  # Biomass - For kt to TJ (multiply by kt to get TJ)    
