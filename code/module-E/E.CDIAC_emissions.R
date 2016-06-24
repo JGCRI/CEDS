@@ -100,7 +100,7 @@ initialize( script_name, log_msg, headers )
   cdiac_corrected <- cbind(id_cdiac,years_cdiac)
   cdiac_corrected$X1750 <- cdiac_corrected$X1751
   cdiac_corrected$fuel <- as.character(cdiac_corrected$fuel)
-  cdaic_start_year <- 1750
+  cdiac_start_year <- 1750
   
   X_cdiac_years <- paste0('X',cdiac_start_year:cdiac_end_year)
   
@@ -125,7 +125,8 @@ initialize( script_name, log_msg, headers )
                                                trend_match_cols = 'iso',
                                               combined_iso = 'yug',
                                               dis_end_year = 1991,
-                                              disaggregate_iso = c('bih','hrv','mkd','svn', 'scg'))
+                                              disaggregate_iso = c('bih','hrv','mkd','svn', 'scg'),
+                                              allow_dropped_data = T)
   # Serbia and Montenegro
   cdiac_scg_corrected  <- disaggregate_country(original_data = cdiac_yug_corrected,
                                                id_cols = c('iso','fuel'),
@@ -166,7 +167,8 @@ initialize( script_name, log_msg, headers )
                                                   trend_match_cols = 'iso',
                                                 combined_iso = 'FRENCH_EQUATORIAL_AFRICA',
                                                 dis_end_year = 1958,
-                                                disaggregate_iso = c('caf','cog','gab','tcd') ) 
+                                                disaggregate_iso = c('caf','cog','gab','tcd')  ,
+                                                allow_dropped_data = T) 
 
   # French West Africa
   cdiac_FrWeAf_corrected  <- disaggregate_country(original_data = cdiac_FrEqAf_corrected,
@@ -174,6 +176,7 @@ initialize( script_name, log_msg, headers )
                                                   trend_data = population,
                                                   trend_match_cols = 'iso',
                                                   combined_iso = 'FRENCH_WEST_AFRICA',
+                                                  method = 2,
                                                   dis_end_year = 1957,
                                                   disaggregate_iso = c('mrt','sen','mli','gin','civ','bfa','ben','ner') ) 
   #Rwanda-Urundi
@@ -183,7 +186,8 @@ initialize( script_name, log_msg, headers )
                                               trend_match_cols = 'iso',
                                            combined_iso = 'RWANDA-URUNDI',
                                            dis_end_year = 1961,
-                                           disaggregate_iso = c('rwa','bdi') ) 
+                                           disaggregate_iso = c('rwa','bdi') ,
+                                           allow_dropped_data = T) 
  # Netherland Antiliies and Aruba 
   cdiac_NAR_corrected <- disaggregate_country(original_data = cdiac_RU_corrected,
                                               id_cols = c('iso','fuel'),
@@ -200,7 +204,7 @@ initialize( script_name, log_msg, headers )
                                              trend_match_cols = 'iso',
                                             combined_iso = 'ant',
                                             dis_end_year = 2011,
-                                            ratio_range_length = 1,
+                                            ratio_range_length = 2,
                                             disaggregate_iso = c('cuw','sxm') )
  # Rhodesia Nyasaland
   cdiac_RN_corrected <- disaggregate_country(original_data = cdiac_NA_corrected,
@@ -209,7 +213,8 @@ initialize( script_name, log_msg, headers )
                                              trend_match_cols = 'iso',
                                             combined_iso = 'RHODESIA-NYASALAND',
                                             dis_end_year = 1963,
-                                            disaggregate_iso = c('zmb','mwi') )
+                                            disaggregate_iso = c('zmb','mwi'),
+                                            allow_dropped_data = T)
  # Leeward Islands 
   cdiac_LI_corrected <- disaggregate_country(original_data = cdiac_RN_corrected,
                                              id_cols = c('iso','fuel'),
@@ -218,15 +223,32 @@ initialize( script_name, log_msg, headers )
                                             combined_iso = 'LEEWARD ISLANDS',
                                             dis_end_year = 1956,
                                             dis_start_year = 1950,
-                                            disaggregate_iso = c('kna','atg') )
+                                            disaggregate_iso = c('kna','atg'),
+                                            allow_dropped_data = T)
   
-  cdiac_final <- cdiac_LI_corrected
+  cdiac_split_final <- cdiac_LI_corrected
   
   # -----------------------------------------------------------------------------------------------------------
-  # 8. Add liquid and gas fuels 
+  # 5. Add zero values for nations too small for cdiac
+  
+
+  # define countries to add to cdiac data
+  non_cdaic_countries <- MCL$iso[MCL$iso %!in% unique(cdiac_split_final$iso)]
+  non_cdaic_countries <-   non_cdaic_countries[  non_cdaic_countries %in% MCL[which(MCL$final_data_flag == 1),'iso']]
+  non_cdaic_countries <-   non_cdaic_countries[   non_cdaic_countries %!in% 'global']
+  
+  add_zeros <- data.frame( iso = rep(non_cdaic_countries, each = length(cdiac_fuels)),
+                           fuel = rep(cdiac_fuels, times = length(non_cdaic_countries)),
+                           units = 'kt-C'  )
+  add_zeros[X_cdiac_years] <- 0
+  
+  
+  cdiac_final <- rbind.fill(add_zeros,cdiac_split_final)
+  cdiac_final$units <- 'kt-C'
+  cdiac_final <- arrange_(cdiac_final, c('iso','fuel','units',X_cdiac_years))
+  # -----------------------------------------------------------------------------------------------------------
+  # 6. Add liquid and gas fuels 
  
-  X_cdiac_years <- c('X1750',X_cdiac_years)
-  cdiac_final <- cdiac_final[ ,c('iso','fuel', X_cdiac_years)]
   
   cdiac_liquid_and_gas <- cdiac_final[which(cdiac_final$fuel %in% c( 'liquid_fuels','gas_fuels')),]
   cdiac_liquid_and_gas <- aggregate( cdiac_liquid_and_gas[X_cdiac_years],
@@ -234,13 +256,14 @@ initialize( script_name, log_msg, headers )
                                      FUN = sum)
   
   cdiac_liquid_and_gas$fuel <- 'liquid_and_gas_fuels'
+  cdiac_liquid_and_gas$units <- 'kt-C'
   
-  cdiac_liquid_and_gas <- cdiac_liquid_and_gas[ ,c('iso','fuel', X_cdiac_years)]
+  cdiac_liquid_and_gas <- cdiac_liquid_and_gas[ ,c('iso','fuel','units', X_cdiac_years)]
   
   cdiac_final <- rbind(cdiac_final,cdiac_liquid_and_gas)
  
    # sort and organize
-  cdiac_final <- cdiac_final[ ,c('iso','fuel', X_cdiac_years)]
+  cdiac_final <- cdiac_final[ ,c('iso','fuel',  X_cdiac_years)]
   cdiac_final <- cdiac_final[ with( cdiac_final, order( iso, fuel ) ), ]
   
   # CORRECTIONS-1950 discontinuity, linear interpolate between 1952 and last zero value
@@ -258,7 +281,7 @@ initialize( script_name, log_msg, headers )
     interpolate_NAs(cdiac_final[which( cdiac_final$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
                                          cdiac_final$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1952)])
 # -----------------------------------------------------------------------------------------------------------
-# 6. Summary  
+# 7. Summary  
   # non combustion 
   cdiac_cement <- cdiac_final[ which( cdiac_final$fuel %in% c("cement_production") ) , ]
   cdiac_total <- cdiac_final[ which( cdiac_final$fuel %in% c("Total_CO2") ) , ]
@@ -285,7 +308,7 @@ initialize( script_name, log_msg, headers )
   
    
 # -----------------------------------------------------------------------------------------------------------
-# 5. Output
+# 8. Output
  
   writeData(cdiac_final, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_inventory" ), meta = F )
   writeData(cdiac_cement, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_Cement" ), meta = F )
