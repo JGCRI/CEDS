@@ -81,8 +81,12 @@ if( em == "BC" || em == "OC" ){
 scripts <- c(scripts,'B1.2.add_comb_default_EF.R')
 
 # Add control percent and processing script for all emission types
-scripts <- c(scripts,'B1.2.add_comb_control_percent.R', 'B1.2.add_comb_default_EF.R',
-             'B1.3.proc_comb_EF_control_percent.R')
+scripts <- c(scripts,'B1.2.add_comb_control_percent.R', 'B1.2.add_comb_default_EF.R' )
+
+# Add recent control percentage for SO2
+if ( em == 'SO2' ) { scripts <- c( scripts, 'B1.2.add_SO2_recent_control_percent.R' ) }
+
+scripts <- c( scripts, 'B1.3.proc_comb_EF_control_percent.R' )
 #-------------------------------------------------------------------------------------
 # 1. Call Scripts
 
