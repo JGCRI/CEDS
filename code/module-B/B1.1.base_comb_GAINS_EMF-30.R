@@ -42,7 +42,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CH4"
+if ( is.na( em ) ) em <- "SO2"
 em_lc <- tolower( em )   
 
 # Stop script if running for unsupported species
@@ -280,39 +280,29 @@ printLog("Interpolating and Extending Data")
 activities_ceds_interp <- interpolateValues(activities_ceds)
 emissions_ceds_interp <- interpolateValues(emissions_ceds)
 
-years <- 2000:end_year
-X_years <- paste0('X',years)
+ceds_years <- 2000:end_year
+X_ceds_years <- paste0('X',ceds_years)
+
+emf_years <- 2000:2020
+X_emf_years <- paste0('X',emf_years)
 
 # ---------------------------------------------------------------------------
 # 5. Seperate process data and Calculate Emission Factors
 
 printLog('Calculating emission factors')
 
-#combine activity and emissions
-a <- melt(activities_ceds_interp, id.vars = c('iso','sector','fuel','units'))
-e <- melt(emissions_ceds_interp, id.vars = c('iso','sector','fuel','units'))
+combined <- merge(activities_ceds_interp, 
+                  emissions_ceds_interp, 
+                  by = c('iso','sector','fuel'),
+                  suffixes = c(".a",".e"), all = T )
 
-combined <- merge(a, e, 
-                  by = c('iso','sector','fuel','variable'),
-                  suffixes = c(".a",".e") )
-combined$EF <- combined$value.e/combined$value.a
+combined[X_emf_years] <- combined[ paste0(X_emf_years, '.e') ]/combined[ paste0(X_emf_years, '.a') ]
 combined$units <- paste0(combined$units.e,'/',combined$units.a)
 
-combined <- combined[,c('iso','sector','fuel','units','variable','EF')]
+combined <- combined[which(apply(MARGIN = 1, X= combined[X_emf_years], FUN = function(x) !all(is.na(x)) )),
+                     c('iso','sector','fuel','units',X_emf_years)]
 
-# select years
-combined <- combined[which(combined$variable %in% X_years),]
-
-# remove Inf values
-combined <- combined[which(is.finite(combined$EF)) , ]
-# remove zero values
-combined <- combined[which(combined$EF>0) , ]
-
-#cast to wide
-gainsEMF30_all <- cast(combined, iso + sector + fuel + units ~ variable,
-                 value = 'EF')
-
-gainsEMF30_all <- gainsEMF30_all[,c('iso','sector','fuel','units',X_years)]
+gainsEMF30_all <- combined[,c('iso','sector','fuel','units',X_ceds_years)]
 
 
 # Remove coal_coke if SO2 emissions. EMF note only coal, and coal coke has similar EF's
@@ -342,11 +332,19 @@ if (em == 'SO2'){
 process_gainsEMF30 <- gainsEMF30_all[which(gainsEMF30_all$fuel=='process'),]
 gainsEMF30_comb <- gainsEMF30_all[gainsEMF30_all$fuel %!in% 'process',]
 
+# ---------------------------------------------------------------------------
+# 6. Diagnostics
+
+gains_diagnostics <- gainsEMF30_all
+# ratio  of the last year to the last inventory year (2008)
+gains_diagnostics$ratio <- gains_diagnostics$X2014/gains_diagnostics$X2008
+gains_diagnostics <- gains_diagnostics[which(gains_diagnostics$ratio > 1.5 | gains_diagnostics$ratio < .5),]
+
 
 # ---------------------------------------------------------------------------
-# 6. Output
+# 7. Output
 
-writeData(process_gainsEMF30, domain = "MED_OUT", fn = paste0('B.',em,'_NC_EF_GAINS_EMF30'))
+writeData(process_gainsEMF30, domain = "DIAG_OUT", fn = paste0('B.',em,'_NC_EF_GAINS_EMF30'))
 
 # For SO2, BC, OC, CH4, CO2 don't use global GAINS data, but write to diagnostic
 # for other species, write to intermediate-output to be used for base emission factors
