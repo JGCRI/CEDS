@@ -72,6 +72,9 @@ if( em == "CH4"  ){
     scripts <- c( scripts, "C1.2.add_NC_emissions_EDGAR.R" )
 }
 
+scripts <- c( scripts, 'C1.2.ECLIPSE_flaring_emissions_extension.R' )
+scripts <- c( scripts, 'C1.2.Fugitive-petr-and-gas_default_process_emissions.R' )
+
 # Run all child scripts for the given emissions type. The call to
 # invisible() prevents extraneous output from appearing in the console.
 # lapply calls source_child on each script in the list.
