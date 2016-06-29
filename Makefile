@@ -489,6 +489,8 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 	$(MOD_C)/C1.2.add_SO2_NC_emissions_all.R \
 	$(MOD_C)/C1.2.add_SO2_NC_emissions_FAO.R \
 	$(MOD_C)/C1.2.add_NC_emissions_EDGAR.R \
+	$(MOD_C)/C1.2.ECLIPSE_flaring_emissions_extension.R \
+	$(MOD_C)/C1.2.Fugitive-petr-and-gas_default_process_emissions.R \
 	$(MAPPINGS)/NC_EDGAR_sector_mapping.csv \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
