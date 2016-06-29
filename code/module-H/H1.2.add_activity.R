@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: H1.2.add_activity.R
 # Author: Rachel Hoesly
-# Date Last Updated: March 22, 2016
+# Date Last Updated: 28 June 2016
 # Program Purpose: To select and run the correct script(s) to extend CEDS activity data.
 # Input Files: None
 # Output Files: None
@@ -101,6 +101,7 @@ printLog('Running add_activity scripts to extend activity data')
                 'H1.2.add_activity_Bond_industrial_biomass.R',
                 'H1.2.add_activity_Bond_other_biomass.R',
                 "H1.2.add_activity_population.R",
+                "H1.2.add_activity_pulp_paper_consumption.R",
                 "H1.2.add_activity_CDIAC.R")
 
 
