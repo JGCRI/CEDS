@@ -386,7 +386,8 @@ $(MED_OUT)/A.NC_activity_energy.csv : \
 $(MED_OUT)/A.NC_activity_db.csv : \
 	$(MOD_A)/A5.1.base_NC_activity.R \
 	$(MOD_A)/A5.2.add_NC_activity_smelting.R \
-	$(MOD_A)/A5.2.add_NC_activity_pulp_paper.R \
+	$(MOD_A)/A5.2.add_NC_activity_pulp_paper_consumption.R \
+	$(MOD_A)/A5.2.add_NC_activity_pulp_paper_production.R \
 	$(MOD_A)/A5.2.add_NC_activity_gdp.R \
 	$(MOD_A)/A5.2.add_NC_activity_population.R \
 	$(MOD_A)/A5.2.add_NC_activity_energy.R \
@@ -403,13 +404,19 @@ $(MED_OUT)/A.NC_activity_db.csv : \
 	$(ACTIV)/Smelter-Feedstock-Sulfur.xlsx \
 	$(ACTIV)/Wood_Pulp_Consumption.xlsx \
 	$(ACTIV)/GDP.xlsx \
-	$(MED_OUT)/A.NC_activity_energy.csv
+	$(MED_OUT)/A.NC_activity_energy.csv \
+	#(ACTIV)/FAO_wood_pulp_activity.csv \
+	$(MED_OUT)/A.UN_pop_master.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 	Rscript $(word 4,$^) $(EM) --nosave --no-restore
 	Rscript $(word 5,$^) $(EM) --nosave --no-restore
 	Rscript $(word 6,$^) $(EM) --nosave --no-restore
+	Rscript $(word 7,$^) $(EM) --nosave --no-restore
+
+$(MED_OUT)/A.pulp_paper_consumption_full.csv : \
+	$(MED_OUT)/A.NC_activity_db.csv
 
 # aa5-2a
 # Converts activity database into CEDS Standard and combines
@@ -482,8 +489,6 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 	$(MOD_C)/C1.2.add_SO2_NC_emissions_all.R \
 	$(MOD_C)/C1.2.add_SO2_NC_emissions_FAO.R \
 	$(MOD_C)/C1.2.add_NC_emissions_EDGAR.R \
-	$(MOD_C)/C1.2.ECLIPSE_flaring_emissions_extension.R \
-	$(MOD_C)/C1.2.Fugitive-petr-and-gas_default_process_emissions.R \
 	$(MAPPINGS)/NC_EDGAR_sector_mapping.csv \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
@@ -691,10 +696,12 @@ $(MED_OUT)/H.$(EM)_total_activity_extended.csv : \
 	$(MOD_H)/H1.2.add_activity_Bond_other_biomass.R \
 	$(MOD_H)/H1.2.add_activity_total_natural_gas.R \
 	$(MOD_H)/H1.2.add_activity_total_petroleum.R \
+	$(MOD_H)/H1.2.add_activity_pulp_paper_consumption.R \
 	$(MED_OUT)/F.$(EM)_scaled_emissions.csv \
 	$(MED_OUT)/A.IEA_CEDS_coal_difference.csv \
 	$(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
+	$(MED_OUT)/A.pulp_paper_consumption_full.csv \
 	$(EXT_IN)/CEDS_historical_extension_drivers_activity.csv \
 	$(EXT_IN)/IEA_start_date.xlsx \
 	$(EXT_IN)/sector_percents_start.xlsx \
