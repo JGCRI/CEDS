@@ -227,7 +227,9 @@ default_efs_na <- default_efs[which(is.na(default_efs$X1960)),]
 base_efs <- default_efs_values[,c('iso','sector','fuel','units',X_emissions_years)]
   
 if( nrow( default_efs_na ) > 0 ) stop( paste(
-  'NA in default', em,'emissions. Please check B1.1.base_OTHER_comb_EF.R') )
+  'NA in default', em,'EFs. Please check B1.1.base_OTHER_comb_EF.R') )
+if ( any( base_efs[X_emissions_years] == Inf) ) stop( paste(
+  'Inf in default', em,'EFs. Please check B1.1.base_OTHER_comb_EF.R') )
 
 if( nrow( base_efs ) != nrow( activity_data )) stop( paste(
   'Not the same number of rows in activity data and new default emissions for ', em,'. Please check B1.1.base_OTHER_comb_EF.R') )
