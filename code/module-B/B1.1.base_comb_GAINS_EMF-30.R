@@ -304,6 +304,9 @@ combined <- combined[which(apply(MARGIN = 1, X= combined[X_emf_years], FUN = fun
 
 gainsEMF30_all <- combined[,c('iso','sector','fuel','units',X_ceds_years)]
 
+# check for NAs and I
+gainsEMF30_all <- replace(gainsEMF30_all, gainsEMF30_all==Inf, NA)
+gainsEMF30_all <- replace(gainsEMF30_all, gainsEMF30_all==NaN, NA)
 
 # Remove coal_coke if SO2 emissions. EMF note only coal, and coal coke has similar EF's
 # as other coals for other emission species, except SO2
