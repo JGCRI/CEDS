@@ -47,12 +47,14 @@ extension_drivers_all <- readData("EXT_IN", 'CEDS_historical_extension_drivers_a
 
 cdiac_fuel_map <- readData('EM_INV', domain_extension = "CDIAC/",  'CDIAC_fuel_map'  ) 
 cdiac <- readData( "MED_OUT" , 'E.CO2_CDIAC_inventory' )
+cdiac_solid_fuel_cumulative <- readData( "MED_OUT", "E.CO2_CDIAC_solid_fuel_cumulative" )
+
 
 # ---------------------------------------------------------------------------
 # 2. Check that all methods are addressed in script
 
 # Section in the script that correpsond to "extra_driver_info" in CEDS_historical_extension_drivers.csv
-script_methods <- c('fuels','Total_CO2','cement_production','solid_fuels','liquid_fuels', 'gas_fuels', 'liquid_and_gas_fuels')
+script_methods <- c('fuels','Total_CO2','cement_production','solid_fuels_cumulative','liquid_fuels', 'gas_fuels', 'liquid_and_gas_fuels')
 
 driver_info <- unique(extension_drivers_all[which( extension_drivers_all$driver_data_source %in% c( 'CDIAC') ), 
                                             'extra_driver_info'])
@@ -68,8 +70,11 @@ activity <- activity_all
 # ---------------------------------------------------------------------------
 # 3. Driver data processing
 
+# bind cumulative solid fuel to cdiac
+cdiac <- rbind( cdiac, cdiac_solid_fuel_cumulative )
+
 # cdiac
-cdiac_combustion <- cdiac[ which( cdiac$fuel %in% c("solid_fuels" , "liquid_fuels" , "gas_fuels",'liquid_and_gas_fuels') ) , ]
+cdiac_combustion <- cdiac[ which( cdiac$fuel %in% c("solid_fuels_cumulative" , "liquid_fuels" , "gas_fuels",'liquid_and_gas_fuels') ) , ]
 cdiac_cement <- cdiac[ which( cdiac$fuel %in% c("cement_production") ) , ]
 cdiac_total <- cdiac[ which( cdiac$fuel %in% c("Total_CO2") ) , ]
 
@@ -77,16 +82,16 @@ cdiac_total <- cdiac[ which( cdiac$fuel %in% c("Total_CO2") ) , ]
 
 # ---------------------------------------------------------------------------
 # 3. Extend Combustion Sectors 
-#    Driver: CDIAC-fuels, CDIAC-solid_fuels, CDIAC-solid_fuels, CDIAC-liquid_and_gas_fuels
+#    Driver: CDIAC-fuels, CDIAC-solid_fuels_cumulative, CDIAC-liquid_and_gas_fuels
 
-drivers <- extension_drivers[ which( extension_drivers$extra_driver_info %in% c('fuels','solid_fuels','liquid_fuels','gas_fuels','liquid_and_gas_fuels')), ]
+drivers <- extension_drivers[ which( extension_drivers$extra_driver_info %in% c('fuels','solid_fuels_cumulative','liquid_fuels','gas_fuels','liquid_and_gas_fuels')), ]
 year_intervals <- unique(paste(drivers$ext_start_year,drivers$ext_end_year,sep='-'))
 
 for (i in seq_along(year_intervals)) {
   
   interval <- year_intervals[i]
   
-  drivers <- extension_drivers[ which( extension_drivers$extra_driver_info %in% c('fuels','solid_fuels','liquid_fuels','gas_fuels','liquid_and_gas_fuels') &
+  drivers <- extension_drivers[ which( extension_drivers$extra_driver_info %in% c('fuels','solid_fuels_cumulative','liquid_fuels','gas_fuels','liquid_and_gas_fuels') &
                                        paste(extension_drivers$ext_start_year,extension_drivers$ext_end_year,sep='-') == interval ), ]
   
   ratio_year <- unique(drivers[,'ext_end_year'])+1
@@ -114,7 +119,7 @@ for (i in seq_along(year_intervals)) {
                                                              cdiac_fuel_map$ceds_fuel ) , 'cdiac_fuel']
   # add "CDIAC fuel" for process data driven by CDIAC fuels
   ceds_extention_ratios[which(ceds_extention_ratios$fuel == 'process' & ceds_extention_ratios$extra_driver_info == 'liquid_fuels'), 'CDIAC_fuel'] <- 'liquid_fuels'
-  ceds_extention_ratios[which(ceds_extention_ratios$fuel == 'process' & ceds_extention_ratios$extra_driver_info == 'solid_fuels'), 'CDIAC_fuel'] <- 'solid_fuels'
+  ceds_extention_ratios[which(ceds_extention_ratios$fuel == 'process' & ceds_extention_ratios$extra_driver_info == 'solid_fuels_cumulative'), 'CDIAC_fuel'] <- 'solid_fuels_cumulative'
   ceds_extention_ratios[which(ceds_extention_ratios$fuel == 'process' & ceds_extention_ratios$extra_driver_info == 'gas_fuels'), 'CDIAC_fuel'] <- 'gas_fuels'
   ceds_extention_ratios[which(ceds_extention_ratios$fuel == 'process' & ceds_extention_ratios$extra_driver_info == 'liquid_and_gas_fuels'), 'CDIAC_fuel'] <- 'liquid_and_gas_fuels'
   
