@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: E.CDIAC_emissions.R
-# Author(s): Rachel Hoesly
-# Date Last Updated: Feb 3, 2016
+# Author(s): Rachel Hoesly, Linh Vu
+# Date Last Updated: 28 June 2016
 # Program Purpose: To read in & reformat CDIAC emissions data.
 # Input Files: A.UN_pop_master.csv,CDIAC_national_1751_2011.csv, CDIAC_country_map.csv
 # Output Files: 
@@ -306,6 +306,15 @@ initialize( script_name, log_msg, headers )
   # cdiac_solid
   cdiac_solid_fuel <- cdiac_final[ which(cdiac_final$fuel == 'solid_fuels'), ]
   
+  # cdiac_solid cumulative
+  cdiac_solid_fuel_cumulative <- melt( cdiac_solid_fuel, id = c( "iso", "fuel" ) )
+  cdiac_solid_fuel_cumulative <- arrange( cdiac_solid_fuel_cumulative, iso, fuel, variable ) %>%
+    ddply( .(iso, fuel), function( df ){
+      df$value <- cumsum( df$value )
+      return( df )
+    })
+  cdiac_solid_fuel_cumulative <- cast( cdiac_solid_fuel_cumulative )
+  cdiac_solid_fuel_cumulative$fuel <- "solid_fuels_cumulative"
    
 # -----------------------------------------------------------------------------------------------------------
 # 8. Output
@@ -314,7 +323,8 @@ initialize( script_name, log_msg, headers )
   writeData(cdiac_cement, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_Cement" ), meta = F )
   writeData(cdiac_total, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_Total_CO2" ), meta = F )
   writeData(cdiac_solid_fuel, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_solid_fuel" ), meta = F )
-  
+  writeData(cdiac_solid_fuel_cumulative, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_solid_fuel_cumulative" ), meta = F )
+
   writeData(cdiac_region_fuel, domain = "DIAG_OUT", fn = paste0( "E.CO2_CDIAC_by_figure_region_CIDACfuel" ), meta = TRUE )
   writeData(cdiac_iso_fuel, domain = "DIAG_OUT", fn = paste0( "E.CO2_CDIAC_by_iso_CIDACfuel" ), meta = TRUE )
 
