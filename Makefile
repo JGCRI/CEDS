@@ -347,6 +347,9 @@ $(MED_OUT)/A.IEA_BP_energy_ext.csv : \
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 
+$(MED_OUT)/A.intl_shipping_en.csv : \
+	$(MED_OUT)/A.IEA_BP_energy_ext.csv
+
 # aa3-2
 # Write out difference between IEA and CEDS coal
 $(MED_OUT)/A.IEA_CEDS_coal_difference.csv : \
@@ -700,6 +703,7 @@ $(MED_OUT)/H.$(EM)_total_activity_extended.csv : \
 	$(MOD_H)/H1.2.add_activity_total_petroleum.R \
 	$(MOD_H)/H1.2.add_activity_pulp_paper_consumption.R \
 	$(MED_OUT)/F.$(EM)_scaled_emissions.csv \
+	$(MED_OUT)/A.intl_shipping_en.csv \
 	$(MED_OUT)/A.IEA_CEDS_coal_difference.csv \
 	$(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
