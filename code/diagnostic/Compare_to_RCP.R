@@ -205,7 +205,7 @@ global_long$year <- as.numeric(global_long$year)
 global <- rbind( global_ceds[,c('inv',x_rcp_years)],global_rcp[,c('inv',x_rcp_years)])
 
 #writeout
-writeData(global,'DIAG_OUT', paste0(em,'_Global_RCP_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
+writeData(global,'DIAG_OUT', paste0('RCP_',em,'_Global_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
 
 #Plot
 
@@ -220,7 +220,7 @@ plot <- ggplot(df, aes(x=year,y=total_emissions, color = inv)) +
   ggtitle( paste('Global',em,'Emissions') )+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
               
-ggsave( paste0('ceds-comparisons/',em,'_Global_RCP_Comparison.pdf') , width = 7, height = 4)
+ggsave( paste0('ceds-comparisons/RCP_',em,'_Global_Comparison.pdf') , width = 7, height = 4)
 
 # ---------------------------------------------------------------------------
 # 2.  Region Comparisons
@@ -246,7 +246,7 @@ region <- rbind( region_ceds[,c('inv','region',x_rcp_years)],region_rcp[,c('inv'
 region <- region [ with( region , order( region , inv ) ), ]
 
 #writeout
-writeData(region,'DIAG_OUT', paste0(em,'_region_RCP_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
+writeData(region,'DIAG_OUT', paste0('RCP_',em,'_region_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
 
 #Plot
 
@@ -275,7 +275,7 @@ plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region, shape=inv)
   labs(x='Year',y= paste(em,'Emissions [kt]'))+
   scale_y_continuous(limits = c(0,max ),labels = comma)
               
-ggsave( paste0('ceds-comparisons/',em,'_Regional_RCP_Comparison_', 
+ggsave( paste0('ceds-comparisons/RCP_',em,'_Regional_Comparison_', 
                paste(plot_regions,collapse ='-' ),
                '.pdf') , width = 7, height = 4)
 
@@ -292,11 +292,6 @@ for(i in 1:6){
   plot_df$region <- as.factor(plot_df$region)
   max <- 1.2*(max(plot_df$total_emissions))
   
-  if(em == 'SO2'){
-  if ( i %in% c(1)) max = 200000
-  if ( i %in% c(2,3,4)) max = 20000
-  if ( i %in% c(5,6)) max = 10000 }
-  
   plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region, shape=inv)) + 
     geom_point(data = subset(plot_df, inv =='RCP'),size=2,aes(x=year,y=total_emissions, color = region)) +
     geom_line(data = subset(plot_df, inv =='CEDS'),size=1,aes(x=year,y=total_emissions, color = region)) +
@@ -309,7 +304,7 @@ for(i in 1:6){
   plot_list[[i]]<-plot              
 }
 
-pdf(paste0('ceds-comparisons/',em,'_Regional_RCP_Comparison_All.pdf'),width=12,height=10,paper='special')
+pdf(paste0('ceds-comparisons/RCP_',em,'_Regional_Comparison_All.pdf'),width=12,height=10,paper='special')
 grid.arrange(plot_list[[1]],plot_list[[2]],
              plot_list[[3]],plot_list[[4]],
              plot_list[[5]],plot_list[[6]], ncol=2,
@@ -340,7 +335,7 @@ sector <- rbind( sector_ceds[,c('inv','sector',x_rcp_years)],sector_rcp[,c('inv'
 sector <- sector [ with( sector , order( sector , inv ) ), ]
 
 #writeout
-writeData(sector,'DIAG_OUT', paste0(em,'_sector_RCP_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
+writeData(sector,'DIAG_OUT', paste0('RCP_',em,'_sector_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
 
 #Plot
 
@@ -358,7 +353,7 @@ writeData(sector,'DIAG_OUT', paste0(em,'_sector_RCP_Comparison'),domain_extensio
     scale_shape_discrete(guide=FALSE)+
     scale_y_continuous(limits = c(0,max ),labels = comma)
   plot              
-  ggsave( paste0('ceds-comparisons/',em,'_sector_RCP_Comparison',
+  ggsave( paste0('ceds-comparisons/RCP_',em,'_sector_Comparison',
                  '.pdf') , width = 7, height = 4)
 
 
@@ -380,6 +375,6 @@ region_sector_both <- rbind( region_sector_ceds[,c( 'inv', 'region', 'sector', x
 region_sector_both <- region_sector_both [ with( region_sector_both , order( region , sector, inv ) ), ]
 
 #writeout
-writeData( region_sector_both,'DIAG_OUT', paste0(em,'_region_sector_RCP_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
+writeData( region_sector_both,'DIAG_OUT', paste0('RCP_',em,'_region_sector_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
 
 logStop()
