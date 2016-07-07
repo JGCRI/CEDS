@@ -315,7 +315,22 @@ initialize( script_name, log_msg, headers )
     })
   cdiac_solid_fuel_cumulative <- cast( cdiac_solid_fuel_cumulative )
   cdiac_solid_fuel_cumulative$fuel <- "solid_fuels_cumulative"
-   
+  
+  # cdiac global total for each categories 
+  cdiac_fuel_cats <- unique( cdiac_final$fuel ) 
+  cdiac_cats_total <- sapply( cdiac_fuel_cats, function( cdiac_fuel_cat ) {
+    temp_cat_data <- subset( cdiac_final, cdiac_final$fuel == cdiac_fuel_cat )
+    temp_cat_agg <- aggregate( temp_cat_data[ , X_cdiac_years ], by = list( temp_cat_data$fuel ), FUN = sum )
+    } )
+  cdiac_cats_total <- t( cdiac_cats_total )
+  cdiac_cats_total <- as.data.frame( cdiac_cats_total, row.names = F ) 
+  colnames( cdiac_cats_total )[ 1 ] <- 'fuel'
+  cdiac_cats_total$iso <- 'global'
+  cdiac_cats_total <- cdiac_cats_total[ , c( 'iso', 'fuel', X_cdiac_years ) ]  
+  # add the totals back to cdiac_final
+  cdiac_final <- rbind( cdiac_final, cdiac_cats_total ) 
+  cdiac_final <- cdiac_final[ order( cdiac_final$iso ), ]
+  
 # -----------------------------------------------------------------------------------------------------------
 # 8. Output
  
