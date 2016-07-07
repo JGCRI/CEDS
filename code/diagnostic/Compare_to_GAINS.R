@@ -35,7 +35,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NOx"
+if ( is.na( em ) ) em <- "CO"
 
 # Stop script if running for unsupported species
 if ( em %!in% c('SO2','NOx','NMVOC','BC','OC','CH4','CO','CO2') ) {
@@ -84,9 +84,9 @@ ctry_map <- readData(domain = 'MAPPINGS',  domain_extension = 'GAINS/', file_nam
 # ---------------------------------------------------------------------------
 # 2. Process GAINS
 
-gains <- gains_emissions[ which(gains_emissions$Sector %!in% c('Sum') &
-                                gains_emissions$Region %!in% c('Global')), 
+gains <- gains_emissions[ which(gains_emissions$Sector %in% c('Sum') ), 
                           c("Region" ,"Sector", "2000" ,  "2005" ,  "2010")]
+
 names(gains) <- c("Region" ,"Sector", "X2000" ,  "X2005" ,  "X2010")
 
 gains <- aggregate( gains[x_gains_years], by = list( Region = gains$Region) , sum )
@@ -110,7 +110,8 @@ not_gains_sectors <- c('1A3ai_International-aviation',
                         '7A_Fossil-fuel-fires',
                         '11A_Volcanoes',
                         '11B_Forest-fires',
-                        '11C_Other-natural')
+                        '11C_Other-natural',
+                       '5C_Waste-incineration')
 
 ceds <- ceds_emissions[ which( ceds_emissions$sector %!in% not_gains_sectors )
                         ,c('iso',x_ceds_years)]
@@ -132,7 +133,7 @@ global_long$year <- as.numeric(global_long$year)
 global <- cast(global_long, inv ~ year, value = 'total', fun.aggregate = sum)[c('inv',gains_years)]
 
 #writeout
-writeData(global,'DIAG_OUT', paste0(em,'_Global_GAINS_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
+writeData(global,'DIAG_OUT', paste0('GAINS_',em,'_Global_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
 
 #Plot
 df <- global_long[,c('inv','year','total')]
@@ -147,7 +148,7 @@ plot <- ggplot(df, aes(x=year,y=total, color = inv)) +
   ggtitle( paste('Global',em,'Emissions') )+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
 plot
-ggsave( paste0('../diagnostic-output/ceds-comparisons/',em,'_Global_gains_Comparison.pdf') , width = 7, height = 4)
+ggsave( paste0('../diagnostic-output/ceds-comparisons/GAINS_',em,'_Global_Comparison.pdf') , width = 7, height = 4)
 
 
 
@@ -156,6 +157,11 @@ ggsave( paste0('../diagnostic-output/ceds-comparisons/',em,'_Global_gains_Compar
 # 4. Graph Regional Comparison
 
 region_long <- global_long
+region_wide <- cast(region_long, Region + inv ~ year, value = 'total')
+region_wide <- region_wide[c( 'Region', 'inv', gains_years)]
+
+#write out table
+writeData(region_wide,'DIAG_OUT', paste0('GAINS_',em,'_Region_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
 
 regions_list <- region_long[which(region_long$year == '2000'),c('Region','total')]
 regions_list <- regions_list[order(-regions_list$total),]
@@ -174,11 +180,6 @@ for(i in 1:6){
   plot_df$region <- as.factor(plot_df$Region)
   max <- 1.2*(max(plot_df$total))
   
-  if(em == 'SO2'){
-    if ( i %in% c(1)) max = 200000
-    if ( i %in% c(2,3,4)) max = 20000
-    if ( i %in% c(5,6)) max = 10000 }
-  
   plot <- ggplot(plot_df, aes(x=year,y=total, color = region, shape=inv)) + 
     geom_point(data = subset(plot_df, inv =='GAINS'),size=2,aes(x=year,y=total, color = Region)) +
     geom_line(data = subset(plot_df, inv =='CEDS'),size=1,aes(x=year,y=total, color = Region)) +
@@ -191,7 +192,7 @@ for(i in 1:6){
   plot_list[[i]]<-plot              
 }
 
-pdf(paste0('../diagnostic-output/ceds-comparisons/',em,'_Regional_GAINS_Comparison_All.pdf'),width=12,height=10,paper='special')
+pdf(paste0('../diagnostic-output/ceds-comparisons/GAINS_',em,'_Regional_Comparison_All.pdf'),width=12,height=10,paper='special')
 grid.arrange(plot_list[[1]],plot_list[[2]],
              plot_list[[3]],plot_list[[4]],
              plot_list[[5]],plot_list[[6]], ncol=2,
