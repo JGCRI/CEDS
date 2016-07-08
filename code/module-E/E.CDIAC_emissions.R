@@ -243,12 +243,45 @@ initialize( script_name, log_msg, headers )
   add_zeros[X_cdiac_years] <- 0
   
   
-  cdiac_final <- rbind.fill(add_zeros,cdiac_split_final)
-  cdiac_final$units <- 'kt-C'
-  cdiac_final <- arrange_(cdiac_final, c('iso','fuel','units',X_cdiac_years))
+  cdiac_disaggregated <- rbind.fill(add_zeros,cdiac_split_final)
+  cdiac_disaggregated$units <- 'kt-C'
+  cdiac_disaggregated <- arrange_(cdiac_disaggregated, c('iso','fuel','units',X_cdiac_years))
   # -----------------------------------------------------------------------------------------------------------
-  # 6. Add liquid and gas fuels 
- 
+  # 6. Corrections
+  
+  cdiac_smooth <- cdiac_disaggregated 
+  
+  # CORRECTIONS-1950 discontinuity, linear interpolate between 1952 and last zero value
+  # make non zeros NA
+  cdiac_smooth[which( cdiac_smooth$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
+                       cdiac_smooth$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1951)] <- 
+    replace ( cdiac_smooth[which( cdiac_smooth$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
+                     cdiac_smooth$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1951)],
+              (cdiac_smooth[which( cdiac_smooth$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
+                                        cdiac_smooth$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1951)] ) != 0 , 
+               NA)
+  # linear interpolation
+  cdiac_smooth[which( cdiac_smooth$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
+                       cdiac_smooth$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1952)] <- 
+    interpolate_NAs(cdiac_smooth[which( cdiac_smooth$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
+                                         cdiac_smooth$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1952)])
+  
+  # -----------------------------------------------------------------------------------------------------------
+  # 7. Recalcuate total CO2 after corrections
+  cdiac_final <- cdiac_smooth
+  
+  cdiac_final <- cdiac_final[ which( cdiac_final$fuel %!in% 'Total_CO2'),]
+  cdiac_sum <- cdiac_final[ which( cdiac_final$fuel %in% c("solid_fuels","liquid_fuels","gas_fuels","cement_production",  
+                                                           "gas_flaring", "bunker_fuels")),]
+  total_CO2 <- aggregate( cdiac_final[X_cdiac_years],
+                          by = list(iso = cdiac_final$iso),
+                          FUN = sum)
+  total_CO2$fuel <- 'Total_CO2'
+  
+  cdiac_final <- rbind.fill(cdiac_final, total_CO2)
+  
+  # -----------------------------------------------------------------------------------------------------------
+  # 8. Add entry for "liquid and gas fuels" 
   
   cdiac_liquid_and_gas <- cdiac_final[which(cdiac_final$fuel %in% c( 'liquid_fuels','gas_fuels')),]
   cdiac_liquid_and_gas <- aggregate( cdiac_liquid_and_gas[X_cdiac_years],
@@ -261,27 +294,14 @@ initialize( script_name, log_msg, headers )
   cdiac_liquid_and_gas <- cdiac_liquid_and_gas[ ,c('iso','fuel','units', X_cdiac_years)]
   
   cdiac_final <- rbind(cdiac_final,cdiac_liquid_and_gas)
- 
-   # sort and organize
+  
+  # sort and organize
   cdiac_final <- cdiac_final[ ,c('iso','fuel',  X_cdiac_years)]
   cdiac_final <- cdiac_final[ with( cdiac_final, order( iso, fuel ) ), ]
   
-  # CORRECTIONS-1950 discontinuity, linear interpolate between 1952 and last zero value
-  # make non zeros NA
-  cdiac_final[which( cdiac_final$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
-                       cdiac_final$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1951)] <- 
-    replace ( cdiac_final[which( cdiac_final$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
-                     cdiac_final$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1951)],
-              (cdiac_final[which( cdiac_final$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
-                                        cdiac_final$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1951)] ) != 0 , 
-               NA)
-  # linear interpolation
-  cdiac_final[which( cdiac_final$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
-                       cdiac_final$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1952)] <- 
-    interpolate_NAs(cdiac_final[which( cdiac_final$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
-                                         cdiac_final$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1952)])
-# -----------------------------------------------------------------------------------------------------------
-# 7. Summary  
+  
+  # -----------------------------------------------------------------------------------------------------------
+  # 9. Summary  
   # non combustion 
   cdiac_cement <- cdiac_final[ which( cdiac_final$fuel %in% c("cement_production") ) , ]
   cdiac_total <- cdiac_final[ which( cdiac_final$fuel %in% c("Total_CO2") ) , ]
@@ -332,7 +352,7 @@ initialize( script_name, log_msg, headers )
   cdiac_final <- cdiac_final[ order( cdiac_final$iso ), ]
   
 # -----------------------------------------------------------------------------------------------------------
-# 8. Output
+# 10. Output
  
   writeData(cdiac_final, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_inventory" ), meta = F )
   writeData(cdiac_cement, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_Cement" ), meta = F )
