@@ -166,6 +166,7 @@ sector_map <- Map_sector[complete.cases(Map_sector[,c('CEDS','RCP')]),c('CEDS','
 # add region to ceds data
 ceds$Region <- complete_region_map[match(ceds$iso,tolower(complete_region_map$Code)),'Region']
 ceds[which(is.na(ceds$Region)),'Region']<- 'Not Mapped'
+ceds_iso <- ceds[,c('Region','sector','em','iso',x_years)]
 ceds <- ceds[,c('Region','sector','em',x_years)]
 
 # add sector to ceds data
@@ -376,5 +377,9 @@ region_sector_both <- region_sector_both [ with( region_sector_both , order( reg
 
 #writeout
 writeData( region_sector_both,'DIAG_OUT', paste0('RCP_',em,'_region_sector_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
+
+#Writeout total emissions by country with column that contains RCP region
+country_ceds <- aggregate(ceds_iso[x_years], by = list(iso = ceds_iso$iso, ceds_iso$Region ),FUN=sum )
+writeData( country_ceds,'DIAG_OUT', paste0(em,'_country-total'),domain_extension = 'ceds-comparisons/',meta=F)
 
 logStop()
