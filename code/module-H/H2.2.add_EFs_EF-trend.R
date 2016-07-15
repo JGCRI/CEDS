@@ -114,7 +114,7 @@ if (length(grep(pattern = "metadata", user_files_list )) > 0)
   user_files_list <- user_files_list[-grep(pattern = "metadata", user_files_list )]
 
 # select emission
-user_files_list <- user_files_list[c(grep(pattern = paste0( '\\.', em ), user_files_list ),
+user_files_list <- user_files_list[c(grep(pattern = paste0( '\\.', em, '_' ), user_files_list ),
                                      grep(pattern = paste0( '\\.', 'ALL' ), user_files_list ))]
 # select 'Emission-trend'
 user_files_list <- user_files_list[c(grep(pattern = 'EF-trend', user_files_list )) ]
