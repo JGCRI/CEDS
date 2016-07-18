@@ -197,7 +197,7 @@ initialize( script_name, log_msg, headers )
                                              dis_end_year = 1985,
                                              dis_start_year = 1926,
                                              disaggregate_iso = c('ant','abw'))
- # Netherland Antilites 
+ # Netherland Antillies 
   cdiac_NA_corrected <- disaggregate_country(original_data = cdiac_NAR_corrected,
                                              id_cols = c('iso','fuel'),
                                              trend_data = population,
@@ -260,12 +260,19 @@ initialize( script_name, log_msg, headers )
               (cdiac_smooth[which( cdiac_smooth$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
                                         cdiac_smooth$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1951)] ) != 0 , 
                NA)
-  # linear interpolation
-  cdiac_smooth[which( cdiac_smooth$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
-                       cdiac_smooth$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1952)] <- 
-    interpolate_NAs(cdiac_smooth[which( cdiac_smooth$iso %in% c('abw','arg','bhr','cuw','tto','irn','ven','brn','kwt') &
-                                         cdiac_smooth$fuel == 'liquid_fuels') , paste0('X',historical_pre_extension_year:1952)])
+  cdiac_smooth[which(is.na(cdiac_smooth$X1750)),'X1750'] <- 0
+
+   # Various corrections
+  cdiac_smooth[which( cdiac_smooth$iso == 'kwt'), paste0('X',1960:1969)] <- NA
+  cdiac_smooth[which( cdiac_smooth$iso == 'sau'), paste0('X',1947)] <- NA
+  cdiac_smooth[which( cdiac_smooth$iso == 'irn'), paste0('X',1953:1954)] <- NA  
+  cdiac_smooth[which( cdiac_smooth$iso == 'irq'), paste0('X',1949:1955)] <- NA 
   
+  cdiac_smooth[X_cdiac_years] <- interpolate_NAs(cdiac_smooth[, X_cdiac_years])
+  
+  cdiac_smooth[which( cdiac_smooth$iso == 'abw'),] <- replace(cdiac_smooth[which( cdiac_smooth$iso == 'abw'),], 
+                          is.na(cdiac_smooth[which( cdiac_smooth$iso == 'abw'),]),
+                          0)
   # -----------------------------------------------------------------------------------------------------------
   # 7. Recalcuate total CO2 after corrections
   cdiac_final <- cdiac_smooth
@@ -357,6 +364,7 @@ initialize( script_name, log_msg, headers )
   writeData(cdiac_final, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_inventory" ), meta = F )
   writeData(cdiac_cement, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_Cement" ), meta = F )
   writeData(cdiac_total, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_Total_CO2" ), meta = F )
+  writeData(cdiac_liquid_and_gas, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_liquid_and_gas" ), meta = F )
   writeData(cdiac_solid_fuel, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_solid_fuel" ), meta = F )
   writeData(cdiac_solid_fuel_cumulative, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_solid_fuel_cumulative" ), meta = F )
 
