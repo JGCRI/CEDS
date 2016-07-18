@@ -58,6 +58,12 @@ energy_data_activity <- energy_data[energy_data$fuel == 'process',]
 energy_data_activity <- energy_data_activity[,c('iso','sector','units', X_emissions_years)]
 names(energy_data_activity) <- c('iso','activity','units', X_emissions_years)
 
+# Remove negative values from refinery and natural gas
+energy_data_activity[which(energy_data_activity$activity == "refinery-and-natural-gas"),] <- 
+  replace(energy_data_activity[which(energy_data_activity$activity == "refinery-and-natural-gas"),],
+          energy_data_activity[which(energy_data_activity$activity == "refinery-and-natural-gas"),]<0,
+          0)
+
 # ------------------------------------------------------------------------------
 # 4. Create combustion activity database - Populate missing iso-sector-fuel combinations
 
