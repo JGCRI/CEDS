@@ -42,7 +42,7 @@
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "BC"
+if ( is.na( em ) ) em <- "NOx"
 em_lc <- tolower( em )
 
 library( "zoo" )
@@ -199,9 +199,12 @@ if( length ( check ) > 0 ) {
 }
 
 
+# Logic Check for negative emissions factors
+if (any(new_efs_corrected_user_added < 0) ) stop('There are negative EFs in', paste0( "C.", em, "_", "NC", "_EF" ))
+  
 # --------------------------------------------------------------------------------------------
 # 5. Output
-
+  
 writeData( new_efs_corrected_user_added, domain = "MED_OUT", fn = paste0( "C.", em, "_", "NC", "_EF" ) )
 
 logStop()

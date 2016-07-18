@@ -312,7 +312,7 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
 # source figure and comparison files to print figures
 source('../code/diagnostic/Figures.R') 
 source('../code/diagnostic/Compare_to_RCP.R')
- 
+source('../code/diagnostic/Compare_to_GAINS.R')
 
 logStop()
 
