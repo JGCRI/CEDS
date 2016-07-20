@@ -517,7 +517,8 @@ F.scaling <- function( ceds_data, inv_data, region,
       group_by( iso, scaling_sector ) %>%
       filter( all_count == min( all_count ) ) %>%     # most specific
       group_by( iso, scaling_sector ) %>%
-      filter( row_num == max( row_num ) )             # last row
+      filter( row_num == max( row_num ) ) %>%         # last row
+      data.frame()
     
     # Combine with single-year scale
     ext_year <- filter( ext_year, !is_range ) %>% rbind( ext_year_range )
