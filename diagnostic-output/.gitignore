@@ -4,6 +4,7 @@
 !.gitignore
 !summary-plots
 !ceds-comparisons
+!ceds-comparisons/sector-level
 !EMEP
 !README
 !country-sector
