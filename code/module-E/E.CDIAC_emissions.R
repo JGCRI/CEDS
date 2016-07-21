@@ -267,6 +267,7 @@ initialize( script_name, log_msg, headers )
   cdiac_smooth[which( cdiac_smooth$iso == 'sau'), paste0('X',1947)] <- NA
   cdiac_smooth[which( cdiac_smooth$iso == 'irn'), paste0('X',1953:1954)] <- NA  
   cdiac_smooth[which( cdiac_smooth$iso == 'irq'), paste0('X',1949:1955)] <- NA 
+  cdiac_smooth[which( cdiac_smooth$iso == 'mex'), paste0('X',1912:1938)] <- NA
   
   cdiac_smooth[X_cdiac_years] <- interpolate_NAs(cdiac_smooth[, X_cdiac_years])
   
