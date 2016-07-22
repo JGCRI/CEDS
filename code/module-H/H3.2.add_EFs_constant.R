@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: H2.2.add_EFs_constant.R
+# Program Name: H3.2.add_EFs_constant.R
 # Author: Rachel Hoesly
 # Program Purpose: 
 #               
@@ -26,7 +26,7 @@ PARAM_DIR <- "../code/parameters/"
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R",'ModH_extention_functions.R') # Additional function files may be required.
 log_msg <- "Extend EFs back to 1750 with constant values" # First message to be printed to the log
-script_name <- "H2.2.add_EFs_constant.R"
+script_name <- "H3.2.add_EFs_constant.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )

@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Program Name: H2.3.proc_EFs.R
+# Program Name: H3.3.proc_EFs.R
 # Author: Rachel Hoesly
 # Date Last Updated: March 22, 2016
 # Program Purpose: Process extendtion EFs database to finalize and sort CEDS EFs database.
@@ -27,7 +27,7 @@ PARAM_DIR <- "../code/parameters/"
 # provide logging, file support, and system functions - and start the script log.
 headers <- c() # Additional function files required.
 log_msg <- paste0( "Processing CEDS extention EFs database" ) # First message to be printed to the log
-script_name <- "H2.3.proc_EFs"
+script_name <- "H3.3.proc_EFs"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )

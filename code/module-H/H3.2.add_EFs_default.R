@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: H2.2.add_EFs_default.R.R
+# Program Name: H3.2.add_EFs_default.R.R
 # Author: Rachel Hoesly
 # Program Purpose: Extend Efs - or replace extended EFs - with default EFs
 # Input Files: 'H.EM_total_EFs_extended_db.csv, 'D.EM_default_total_EF.csv
@@ -27,7 +27,7 @@ PARAM_DIR <- "../code/parameters/"
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R",'ModH_extention_functions.R') # Additional function files may be required.
 log_msg <- "Replace selected EFs with defaults" # First message to be printed to the log
-script_name <- "H2.2.add_EFs_default.R.R"
+script_name <- "H3.2.add_EFs_default.R.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )

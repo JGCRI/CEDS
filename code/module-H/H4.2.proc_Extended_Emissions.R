@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Program Name: H4.1.proc_Extended_Emissions.R
+# Program Name: H4.2.proc_Extended_Emissions.R
 # Author: Rachel Hoesly
 # Date Last Updated: March 22, 2016
 # Program Purpose: Process extendtion EFs database to finalize and sort CEDS EFs database.
@@ -27,7 +27,7 @@ PARAM_DIR <- "../code/parameters/"
 # provide logging, file support, and system functions - and start the script log.
 headers <- c('data_functions.R') # Additional function files required.
 log_msg <- paste0( "Processing CEDS extention EFs database" ) # First message to be printed to the log
-script_name <- "H4.1.proc_Extended_Emissions.R"
+script_name <- "H4.2.proc_Extended_Emissions.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -42,7 +42,7 @@ if ( is.na( em ) ) em <- "SO2"
 # ---------------------------------------------------------------------------
 # 1. Load files
 
-EFs <- readData( 'MED_OUT',paste0('H.',em,'_total_EFs_extended_adjusted-sector') )
+EFs <- readData( 'MED_OUT',paste0('H.',em,'_total_EFs_extended_adjusted-pathway') )
 activity <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended') )
 
 # ---------------------------------------------------------------------------
@@ -68,7 +68,7 @@ if( em == 'SO2'){
   
   MODULE_H <- "../code/module-H/"
   source_child <- function( file_name ){ source( paste( MODULE_H, file_name, sep = "" ) ) }
-  source_child ('H4.2.add_emissions_SO2_other_transformation.R' )
+  source_child ('H4.3.add_emissions_SO2_other_transformation.R' )
   
   other_tranformation_emissions_calculated <- readData('MED_OUT', 'H.SO2_calculated_other_transformation_emissions')
   
