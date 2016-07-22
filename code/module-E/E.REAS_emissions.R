@@ -5,7 +5,8 @@
 # Program Purpose: To read in & reformat REAS emissions data.
 # Input Files: All REAS data
 # Output Files: E.em_REAS_inventory.csv
-# Notes: 
+# Notes: 1. added step 1.1 to manually remove mmr ncomb-industry-copper emissions:
+#           the copper emissions for mmr might be mixed with copper minning so being removed. 
 # TODO: 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
@@ -41,7 +42,7 @@ initialize( script_name, log_msg, headers )
 # Describes which emission species is being analyzed 
   args_from_makefile <- commandArgs( TRUE )
   em <<- args_from_makefile[1]
-  if ( is.na( em ) ) em <- "NH3"
+  if ( is.na( em ) ) em <- "SO2"
   
 # Stop script if running for unsupported emissions species
   if ( em %!in% c('BC','CH4','CO','CO2','NH3','N2O','NMVOC','NOx','OC','SO2') ) {
@@ -179,7 +180,11 @@ initialize( script_name, log_msg, headers )
    }
  
   # ------------------------------------------------------------------------------
-  # 5. Output
+  # 1.1 Additional step to remove mmr ncomb-industry-copper emissions -- see note(1)
+    reas_data_wide <- reas_data_wide[ !( reas_data_wide$iso == 'mmr' & reas_data_wide$sector == 'ncomb-industry-copper' ), ]
+
+  # ------------------------------------------------------------------------------
+  # 2. Output
   # Write Data: 
     writeData(reas_data_wide, domain = "MED_OUT", fn = paste0( "E.", em, "_REAS_inventory" ), meta = TRUE )
   
