@@ -1,8 +1,8 @@
 # ------------------------------------------------------------------------------
-# Program Name: H2.1.base_EFs.R
+# Program Name: H3.1.base_EFs.R
 # Author: Rachel Hoesly
 # Program Purpose: Create base database to extend EFs backward
-#               
+# Input Files: H.", em, "_total_EFs_adjusted-sector              
 # Output Files:
 # TODO:
 # ---------------------------------------------------------------------------
@@ -26,19 +26,19 @@ PARAM_DIR <- "../code/parameters/"
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R") # Additional function files may be required.
 log_msg <- "Creating database for CEDS EFs extention before 1960" # First message to be printed to the log
-script_name <- "H2.1.base_EFs.R"
+script_name <- "H3.1.base_EFs.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "OC"
+if ( is.na( em ) ) em <- "BC"
 
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-ceds_EFs <- readData( 'MED_OUT', paste0( 'F.',em,'_scaled_EF' ) , meta = F )  
+ceds_EFs <- readData( 'MED_OUT', paste0( "H.", em, "_total_EFs_adjusted-sector" ) , meta = F )  
 extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = F )
 extension_drivers_activity <- readData("EXT_IN", 'CEDS_historical_extension_drivers_activity', meta = F )
 

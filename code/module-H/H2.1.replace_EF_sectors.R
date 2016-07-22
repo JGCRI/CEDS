@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: H3.2.replace_EF_sectors.R
+# Program Name: H2.1.replace_EF_sectors.R
 # Author: Linh Vu
 # Date Last Modified: 30 Mar 2016
 # Program Purpose: Replace EF of one sector with another sector
@@ -27,14 +27,14 @@ PARAM_DIR <- "../code/parameters/"
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R" ) # Additional function files may be required.
 log_msg <- "Replace sector EFs" # First message to be printed to the log
-script_name <- "H3.2.replace_EF_sectors.R"
+script_name <- "H2.1.replace_EF_sectors.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NH3"
+if ( is.na( em ) ) em <- "BC"
 
 # ---------------------------------------------------------------------------
 # 1. Load input
@@ -42,7 +42,7 @@ if ( is.na( em ) ) em <- "NH3"
   library( "tools" )
 
 # Load data
-  ef_full <- readData( "MED_OUT", paste0( "H.", em, "_total_EFs_extended_adjusted-pathway" ) )
+  ef_full <- readData( 'MED_OUT', paste0( 'F.',em,'_scaled_EF' ) , meta = F ) 
   sector_map_list <- list.files( path = "extention/sector-change/", pattern = "*.csv" ) %>% file_path_sans_ext()
   sector_map_list <- sector_map_list[ grepl( em, sector_map_list )  & 
                                         !grepl( "metadata", sector_map_list ) ]
@@ -78,7 +78,7 @@ if ( length( sector_map_list ) > 0 ){
   
 # ---------------------------------------------------------------------------
 # 3. Output
-  writeData( ef_full_changed, "MED_OUT", paste0( "H.", em, "_total_EFs_extended_adjusted-sector" ) )
+  writeData( ef_full_changed, "MED_OUT", paste0( "H.", em, "_total_EFs_adjusted-sector" ) )
 
 
 logStop()
