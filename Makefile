@@ -720,7 +720,8 @@ $(MED_OUT)/H.$(EM)_total_activity_extended.csv : \
 
 $(MED_OUT)/H.$(EM)_total_EFs_adjusted-sector.csv : \
 	$(MOD_H)/H2.1.replace_EF_sectors.R \
-	$(MED_OUT)/F.$(EM)_scaled_EF.csv
+	$(MED_OUT)/F.$(EM)_scaled_EF.csv \
+	$(MED_OUT)/H.$(EM)_total_activity_extended.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/H.$(EM)_total_EFs_extended.csv : \
@@ -734,6 +735,7 @@ $(MED_OUT)/H.$(EM)_total_EFs_extended.csv : \
 	$(MOD_H)/H3.2.add_EFs_Emissions-trend.R \
 	$(EXT_IN)/CEDS_historical_extension_methods_EF.csv \
 	$(EXT_IN)/extention-data/A.Pig_Iron_Production.csv \
+	$(MED_OUT)/H.$(EM)_total_EFs_adjusted-sector.csv \
 	$(MED_OUT)/H.$(EM)_total_activity_extended.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
