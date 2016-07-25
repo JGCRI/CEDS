@@ -37,11 +37,17 @@
 # ------------------------------------------------------------------------------
 # 0.5 Initialize gridding setups
 
-    gridding_initialize( grid_resolution = 0.5,
-                         start_year = 1750,
-                         end_year = 1850, load_masks = T, load_seasonality_profile = T )
     output_dir <- filePath( 'MED_OUT', 'gridded-emissions/', extension = "" )
-    proxy_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy/")
+	proxy_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy/" )
+	proxy_backup_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy_backup/")
+    diagnostic_msg_dir <- filePath( 'DIAG_OUT', '', extension = "" )
+	mask_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "mask/")
+	seasonality_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "seasonality/" )
+    
+	gridding_initialize( grid_resolution = 0.5,
+                         start_year = 1851,
+                         end_year = 2014, load_masks = T, load_seasonality_profile = T )
+	
 # ------------------------------------------------------------------------------
 # 1. Define emission species and read in files
   

@@ -36,11 +36,11 @@
 
 # ------------------------------------------------------------------------------
 # 0.5 Initialize gridding setups
-
-    gridding_initialize( grid_resolution = 0.5,
-                         start_year = 1750,
-                         end_year = 1850, load_masks = T, load_seasonality_profile = T )
     output_dir <- filePath( 'MED_OUT', 'gridded-emissions/', extension="" )
+	
+    gridding_initialize( grid_resolution = 0.5,
+                         start_year = 1851,
+                         end_year = 2014, load_masks = T, load_seasonality_profile = T )
     
 # ------------------------------------------------------------------------------
 # 1. Define emission species and read in files
