@@ -27,7 +27,7 @@
 
 # Call standard script header function to read in universal header files - 
 # provides logging, file support, and system functions - and start the script log.
-    headers <- c( 'gridding_functions.R', 'data_functions.R' ) # Any additional function files required
+    headers <- c( 'gridding_functions.R', 'data_functions.R', 'nc_generation_functions.R' ) # Any additional function files required
     log_msg <- "CEDS emissions gridding" # First message to be printed to the log
     script_name <- "G1.1.Grid_emissions.R"
 
@@ -36,14 +36,18 @@
 
 # ------------------------------------------------------------------------------
 # 0.5 Initialize gridding setups
-
-    gridding_initialize( grid_resolution = 0.5,
-                         start_year = 1750,
-                         end_year = 1850, load_masks = T, load_seasonality_profile = T )
     output_dir <- filePath( 'MED_OUT', 'gridded-emissions/', extension = "" )
     total_grid_dir <- filePath( 'DIAG_OUT', 'total-emissions-grids/', extension = "" )
-    proxy_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy/")
-    
+    proxy_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy/" )
+    proxy_backup_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy_backup/")
+    diagnostic_msg_dir <- filePath( 'DIAG_OUT', '', extension = "" )
+    mask_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "mask/")
+    seasonality_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "seasonality/" )
+	  
+    gridding_initialize( grid_resolution = 0.5,
+                         start_year = 1851,
+                         end_year = 2014, load_masks = T, load_seasonality_profile = T )
+	
 # ------------------------------------------------------------------------------
 # 1. Define emission species and read in files
   

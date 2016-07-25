@@ -9,7 +9,9 @@
 # Notes: In section 3.2 the 1970 data are manually 'extended' using 1971 data, 
 #        the 2014 data are manually 'extended' using 2013 data.
 # 
-# TODO:
+# TODO: 1. About 70 countries in [em]_eclipse_flr_emissions.csv get picked out in the routine 
+#          because IEA/BP oil production data does not include those countries. Update when 
+#          a more comprehensive database of historical production is availiable.    
 #-------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
