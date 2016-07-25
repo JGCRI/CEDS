@@ -7,6 +7,8 @@
 # Output Files: E.em_REAS_inventory.csv
 # Notes: 1. added step 1.1 to manually remove mmr ncomb-industry-copper emissions:
 #           the copper emissions for mmr might be mixed with copper minning so being removed. 
+# Notes: 2. also removed metal process SO2 emissions since we have better estimates, largely
+#           from country reports
 # TODO: 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
@@ -182,6 +184,12 @@ initialize( script_name, log_msg, headers )
   # ------------------------------------------------------------------------------
   # 1.1 Additional step to remove mmr ncomb-industry-copper emissions -- see note(1)
     reas_data_wide <- reas_data_wide[ !( reas_data_wide$iso == 'mmr' & reas_data_wide$sector == 'ncomb-industry-copper' ), ]
+
+  # 1.2 Additional step to remove kaz metal processing emissions (particularly SO2) -- see note(2)
+    reas_data_wide <- reas_data_wide[ !( reas_data_wide$iso == 'kaz' & reas_data_wide$sector == 'ncomb-industry-copper' ), ]
+    reas_data_wide <- reas_data_wide[ !( reas_data_wide$iso == 'kaz' & reas_data_wide$sector == 'ncomb-industry-lead' ), ]
+    reas_data_wide <- reas_data_wide[ !( reas_data_wide$iso == 'kaz' & reas_data_wide$sector == 'ncomb-industry-zinc' ), ]
+    reas_data_wide <- reas_data_wide[ !( reas_data_wide$iso == 'kaz' & reas_data_wide$sector == 'ncomb-industry-aluminum_alumina' ), ]
 
   # ------------------------------------------------------------------------------
   # 2. Output
