@@ -36,14 +36,13 @@
 
 # ------------------------------------------------------------------------------
 # 0.5 Initialize gridding setups
-    
-	output_dir <- filePath( 'MED_OUT', 'gridded-emissions/', extension = "" )
+    output_dir <- filePath( 'MED_OUT', 'gridded-emissions/', extension = "" )
     total_grid_dir <- filePath( 'DIAG_OUT', 'total-emissions-grids/', extension = "" )
-	proxy_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy/" )
-	proxy_backup_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy_backup/")
+    proxy_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy/" )
+    proxy_backup_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "proxy_backup/")
     diagnostic_msg_dir <- filePath( 'DIAG_OUT', '', extension = "" )
-	mask_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "mask/")
-	seasonality_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "seasonality/" )
+    mask_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "mask/")
+    seasonality_dir <- filePath( "GRIDDING", "", extension="", domain_extension = "seasonality/" )
 	  
     gridding_initialize( grid_resolution = 0.5,
                          start_year = 1851,
