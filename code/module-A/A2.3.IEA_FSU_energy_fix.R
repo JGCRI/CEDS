@@ -93,6 +93,11 @@ end_BP_year <- 2013
   biomass_activity <- activity_data[which( activity_data$fuel == 'biomass'),]
   original_activity_other <- activity_data[which(activity_data$iso %!in% FSU),]
   original_activity_FSU <- activity_data[which(activity_data$iso %in% FSU),]
+   
+  # extract non-combustion activity data for FSU countries
+  # these data will be added backed to final activity data at the end of the script 
+  original_activity_FSU_nc <- original_activity_FSU[ which( original_activity_FSU$sector %!in% ceds_sector ), ]
+  
   activity <- original_activity_FSU
   
 
@@ -1202,7 +1207,11 @@ writeData( summary, 'DIAG_OUT', 'A.FSU_energy_corrected_summary', meta=F)
 # -------------------------------------------------------------------------------------------
 # X. Combine New FSU data and other energy data 
   
-Final_activity <- rbind ( original_activity_other, FSU_final)
+Final_activity <- rbind ( original_activity_other, FSU_final )
+
+# add non-combustion FSU activity back to final_activity 
+Final_activity <- rbind ( Final_activity, original_activity_FSU_nc ) 
+
 # Replace biomass with original data
 Final_activity[which( Final_activity$fuel == 'biomass'), X_IEA_years] <- 0
 Final_activity <- replaceValueColMatch(Final_activity, biomass_activity,
