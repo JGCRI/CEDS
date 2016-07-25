@@ -401,7 +401,7 @@ grid_one_country_subVOCs <- function( country, location_index, em_data, proxy, p
     proxy_cropped <-proxy_backup[ start_row : end_row, start_col : end_col ]
     
     # write out replacement message 
-    replacement_message_file <- paste0( proxy_substitution_msg_dir, 'proxy_replacement_list.txt' )
+    replacement_message_file <- paste0( diagnostic_msg_dir, 'proxy_replacement_list.txt' )
     
     # what if the backup proxy have all zero pattern 
     if ( sum( proxy_cropped * mask ) == 0 ) {
