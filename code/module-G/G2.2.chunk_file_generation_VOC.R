@@ -27,7 +27,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provides logging, file support, and system functions - and start the script log.
-headers <- c( 'gridding_functions.R', 'data_functions.R' ) # Any additional function files required
+headers <- c( 'gridding_functions.R', 'data_functions.R', 'nc_generation_functions.R' ) # Any additional function files required
 log_msg <- "Generates chunk NetCDF files for speciated VOCs." # First message to be printed to the log
 script_name <- "G2.2.chunk_file_generation_VOC.R"
 
