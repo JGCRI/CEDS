@@ -41,7 +41,7 @@ initialize( script_name, log_msg, headers )
 
 # ------------------------------------------------------------------------------
 # 1. Define parameters for inventory specific script
-inventory_data_file <- 'China/CEDS_MEIC_Emissions_2rdLevel_20160226'
+inventory_data_file <- 'China/CEDS_MEIC_Emissions_2rdLevel_20160226_plus'
 inv_data_folder <- "EM_INV"
 inv_name <- 'CHN' #for naming diagnostic files
 inv_years<-c(2008,2010,2012)
