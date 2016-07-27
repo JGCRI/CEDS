@@ -38,14 +38,14 @@ initialize( script_name, log_msg, headers )
 # 0.5 Initialize gridding setups
 
 grid_resolution <- 0.5
-start_year <- 1750
-end_year <- 1850
-chunk_years <- 50
+start_year <- 1851
+end_year <- 1899
+chunk_years <- 49
 VOC_chunk <- F
-CEDS_version_value <- '2016-06-18'
+CEDS_version_value <- '2016-07-26'
 
 # basic start year/end year check 
-if ( start_year %% chunk_years != 0 ) { stop( 'Start year must be a multiple of the chunk_years. ' ) }
+# if ( start_year %% chunk_years != 0 ) { stop( 'Start year must be a multiple of the chunk_years. ' ) }
 if ( end_year < start_year ) { stop( ' End year must not be earlier than start year. ') }
 
 # calculate chunk start years
