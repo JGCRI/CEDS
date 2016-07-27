@@ -28,6 +28,7 @@
 #       2. Add grid_all_years function as the lapply wraper of grid_one_year
 #       3. Extract the process of adding seasonality out of nc generation functions.  
 #       4. Update the VOC related functions to remove the for loop
+#       5. Added temperary fix for WST sector proxy in grid_one_country and grid_one_country_subVOCs
 # ----------------------------------------------------------------------------------------------------------------
 
 # Special Packages
@@ -101,6 +102,18 @@ grid_one_country <- function( country, location_index, em_data, proxy, proxy_bac
     # extract the proxy as the extent of the iso_mask
     proxy_cropped <- proxy[ start_row : end_row, start_col : end_col ] 
     }
+  
+  # temperary fix in TODO 5
+  if ( sector == 'WST' ) {
+    proxy <- proxy_backup
+    pop_density_cutoff <- 1000 / 2.59e+6
+    global_grid_area <- grid_area( grid_resolution, all_lon = T )
+    proxy <- proxy / global_grid_area
+    proxy <- ifelse( proxy > pop_density_cutoff, pop_density_cutoff, proxy )
+    proxy <- proxy * global_grid_area
+    proxy_cropped <- proxy[ start_row : end_row, start_col : end_col ] 
+    }
+  
   
   # retrieve the iso's emission for later distributing 
   emission_value <- em_data[ em_data$iso == country, 2 ]
@@ -414,6 +427,17 @@ grid_one_country_subVOCs <- function( country, location_index, em_data, proxy, p
     # extract the proxy as the extent of the iso_mask
     proxy_cropped <- proxy[ start_row : end_row, start_col : end_col ] 
     }  
+  
+  if ( sector == 'WST' ) {
+    proxy <- proxy_backup
+    pop_density_cutoff <- 1000 / 2.59e+6
+    global_grid_area <- grid_area( grid_resolution, all_lon = T )
+    proxy <- proxy / global_grid_area
+    proxy <- ifelse( proxy > pop_density_cutoff, pop_density_cutoff, proxy )
+    proxy <- proxy * global_grid_area
+    proxy_cropped <- proxy[ start_row : end_row, start_col : end_col ] 
+  }
+  
       
   # retrieve the iso's emission for later distributing 
   emission_value <- em_data[ em_data$iso == country, 2 ]
@@ -1039,7 +1063,10 @@ mask_avail_check <- function( emission_country_list, mask_country_list ){
   emission_country_list <- unique( emission_country_list)
   if ( ( FALSE %in% ( emission_country_list %in% mask_country_list ) ) == TRUE ) {
     country_drop_list <- emission_country_list[ which( !emission_country_list %in% mask_country_list )]
-  } 
+  } else {
+    country_drop_list <- c( )  
+  }
+  
   return( country_drop_list )
   
 }
