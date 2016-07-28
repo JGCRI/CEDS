@@ -38,9 +38,9 @@ initialize( script_name, log_msg, headers )
 # 0.5 Initialize gridding setups
 
 grid_resolution <- 0.5
-start_year <- 1851
-end_year <- 1899
-chunk_years <- 49
+start_year <- 1900
+end_year <- 2014
+chunk_years <- 50
 VOC_chunk <- F
 CEDS_version_value <- '2016-07-26'
 
