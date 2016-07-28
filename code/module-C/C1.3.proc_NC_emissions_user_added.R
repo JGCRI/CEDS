@@ -63,7 +63,7 @@ if (length(grep(pattern = "metadata", files_list )) > 0)
       files_list <- files_list[-grep(pattern = "metadata", files_list )]
 
 # select emission
-files_list <- files_list[grep(pattern = paste0( '\\.', em ), files_list )]
+files_list <- files_list[grep(pattern = paste0( '\\.', em, '_' ), files_list )]
 
 emissions_list <- lapply ( X = files_list, FUN = readData, 
                     domain = "DEFAULT_EF_IN" , 
