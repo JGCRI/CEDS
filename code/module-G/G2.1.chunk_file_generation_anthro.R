@@ -74,9 +74,10 @@ MODULE_G <- "../code/module-G/"
 for ( chunk_count_index in 1 : chunk_count ) {
   
   annual2chunk( em, grid_resolution, gridtype = 'anthro', 
-                       chunk_start_years, chunk_end_years, chunk_count_index, 
-                       input_dir, output_dir, 
-                       VOC_chunk, VOC_info = NULL, CEDS_version = CEDS_version_value ) 
+                chunk_start_years, chunk_end_years, chunk_count_index, 
+                input_dir, output_dir, 
+                VOC_chunk, VOC_info = NULL, CEDS_version = CEDS_version_value,
+                output_format = 'singleVar' ) 
   }
 
 
