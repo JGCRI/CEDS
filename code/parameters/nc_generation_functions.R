@@ -1651,6 +1651,11 @@ annual2chunk_AIR <- function( em, grid_resolution, gridtype = 'AIR_anthro', chun
   
   # generate nc file name
   ver_date <- paste0( paste0( 'v', CEDS_version ) )
+  ver_date_parts <- unlist( strsplit( CEDS_version, split = '-') )
+  source_date <- paste0( ver_date_parts[2], '-',ver_date_parts[3], '-', ver_date_parts[1] ) 
+  source_value <- paste0( 'CEDS ', source_date, ': Community Emissions Data System (CEDS) for Historical Emissions' )
+  source_id_value <- paste0( 'CEDS-', source_date )
+  variable_id_value <- paste0( em, '-em-', gsub( '_', '-', gridtype ) )
   nc_file_name <- paste0( output_dir, em, '-em-', gsub( '_', '-', gridtype ), 
                           '_input4MIPs_emissions_CMIP_CEDS-', ver_date,
                           '_gr', '_',  
@@ -1698,10 +1703,8 @@ annual2chunk_AIR <- function( em, grid_resolution, gridtype = 'AIR_anthro', chun
   ncatt_put( nc_new, 0, 'data_structure', 'grid' )
   ncatt_put( nc_new, 0, 'frequency', 'mon' )
   ncatt_put( nc_new, 0, 'realm', 'atmos' )
-  ncatt_put( nc_new, 0, 'source', paste0( 'CEDS ', 
-                                          as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%m-%d-%Y' ) ),
-                                          ': Community Emissions Data System (CEDS) for Historical Emissions' ) )
-  ncatt_put( nc_new, 0, 'source_id', paste0( 'CEDS-', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%m-%d-%Y' ) ) ) )
+  ncatt_put( nc_new, 0, 'source', source_value )
+  ncatt_put( nc_new, 0, 'source_id', source_id_value )
   ncatt_put( nc_new, 0, 'further_info_url', 'http://www.globalchange.umd.edu/ceds/' )
   #ncatt_put( nc_new, 0, 'license', 'FOR TESTING AND REVIEW ONLY' )
   ncatt_put( nc_new, 0, 'history', 
@@ -1729,7 +1732,7 @@ annual2chunk_AIR <- function( em, grid_resolution, gridtype = 'AIR_anthro', chun
   }
   
   ncatt_put( nc_new, 0, 'product', 'primary-emissions-data' )
-  ncatt_put( nc_new, 0, 'variable_id', paste0( em, '-em-anthro') )
+  ncatt_put( nc_new, 0, 'variable_id', variable_id_value )
   species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass'), stringsAsFactors = F )
   info_line <- species_info[ species_info$species == em, ]$info 
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
