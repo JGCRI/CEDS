@@ -1248,7 +1248,7 @@ createSingleVarnc <- function( ) {
                           chunk_end_years[ chunk_count_index ], '12','.nc' ) 
   
   # generate flat_var variable name 
-  flat_var_name <- paste0( em, '-em-', gsub( '_', '-', gridtype ) )
+  flat_var_name <- paste0( em, '_em_', gridtype )
   flat_var_longname <- flat_var_name
   variable_id_value <- flat_var_name
   if ( gridtype == 'SOLID_BIOFUEL_anthro' ) {
@@ -1257,7 +1257,7 @@ createSingleVarnc <- function( ) {
                             '_gr', '_',  
                             chunk_start_years[ chunk_count_index ], '01', '-', 
                             chunk_end_years[ chunk_count_index ], '12','.nc' ) 
-	flat_var_name <- paste0( em, '-em-', gsub( '_', '-', gridtype ) )
+	flat_var_name <- paste0( em, '_em_', gridtype )
     flat_var_longname <- flat_var_name
 	variable_id_value <- flat_var_name
 	}                        
@@ -1268,7 +1268,7 @@ createSingleVarnc <- function( ) {
                               '_gr', '_',  
                               chunk_start_years[ chunk_count_index ], '01', '-', 
                               chunk_end_years[ chunk_count_index ], '12','.nc' ) 
-	flat_var_name <- paste0( gsub( '_', '-', gridtype ), '-em-', 'speciated-VOC' )
+	flat_var_name <- paste0( gridtype, '_em_', 'speciated_VOC' )
     flat_var_longname <- flat_var_name  
 	variable_id_value <- flat_var_name
   }  
