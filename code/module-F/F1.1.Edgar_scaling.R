@@ -45,7 +45,7 @@ initialize( script_name, log_msg, headers )
 # 1. Define parameters for inventory specific script
 
   # Stop script if running for unsupported species
-  if ( em %!in% c('SO2','NOx','NMVOC','CO', 'CH4') ) {
+  if ( em %!in% c('SO2','NOx','NMVOC','CO', 'CH4', 'CO2') ) {
     stop (paste( 'Edgar scaling is not supported for emission species ', em, '. Remove from script
                  list in F1.1.inventory_scaling.R'))
   }

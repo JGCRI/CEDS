@@ -58,7 +58,8 @@ export EM = NONE
 
 activity : $(MED_OUT)/A.total_activity.csv \
 	$(EXT_DATA)/A.Pig_Iron_Production.csv \
-	$(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv
+	$(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv \
+	$(MED_OUT)/A.coal_heat_content.csv
 
 else
 
@@ -88,7 +89,7 @@ endif
 # modules. You may also wish to create a new .bat file
 # specifically to run the system with the new emissions type.
 
-all: SO2-emissions BC-emissions NOx-emissions CO-emissions NMVOC-emissions
+all: SO2-emissions BC-emissions NOx-emissions CO-emissions NMVOC-emissions CO2-emissions
 part1: SO2-emissions NOx-emissions NH3-emissions
 part2: CO-emissions NMVOC-emissions
 
@@ -161,6 +162,10 @@ clean-CH4 :
 clean-CO :
 	rm -fv $(MED_OUT)/*CO*.csv \
 	rm -fv $(EF_DATA)/non-combustion-emissions/C.CO*.csv
+
+clean-CO2 :
+	rm -fv $(MED_OUT)/*CO2*.csv \
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.CO2*.csv
 
 clean-NMVOC :
 	rm -fv $(MED_OUT)/*NMVOC*.csv \
@@ -304,6 +309,17 @@ $(MED_OUT)/A.IEA_en_stat_ctry_hist.csv : \
 	$(ENERGY_DATA)/OECD_E_Stat.csv \
 	$(ENERGY_DATA)/NonOECD_E_Stat.csv
 	Rscript $< $(EM) --nosave --no-restore
+
+# aa1-4
+# Write out IEA coal heat content
+$(MED_OUT)/A.coal_heat_content.csv : \
+	$(MOD_A)/A1.4.IEA_heat_content.R \
+	$(MAPPINGS)/Master_Country_List.csv \
+	$(EN_MAPPINGS)/IEA_product_fuel.csv \
+	$(ENERGY_DATA)/OECD_Conversion_Factors_Full.csv \
+	$(ENERGY_DATA)/NonOECD_Conversion_Factors_Full.csv
+	Rscript $< $(EM) --nosave --no-restore
+
 
 # aa2-1
 # Converts IEA energy data to CEDS standard format
@@ -455,6 +471,7 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(MOD_B)/B1.1.base_comb_EF.R \
 	$(MOD_B)/B1.2.add_comb_EF.R \
 	$(MOD_B)/B1.1.base_BCOC_comb_EF.R \
+	$(MOD_B)/B1.1.base_CO2_comb_EF.R \
 	$(MOD_B)/B1.1.base_OTHER_comb_EF.R \
 	$(MOD_B)/B1.1.base_comb_EF_control_percent.R \
 	$(MOD_B)/B1.1.base_SO2_comb_EF_parameters.R \
@@ -478,7 +495,10 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(MAPPINGS)/Bond/Bond_country_map.csv \
 	$(MAPPINGS)/Bond/Bond_fuel_map.csv \
 	$(MAPPINGS)/Bond/Bond_sector_map.csv \
-	$(INV_DATA)/160227_SPEW_BCOCemission.xlsx
+	$(INV_DATA)/160227_SPEW_BCOCemission.xlsx \
+	$(MED_OUT)/A.comb_activity.csv \
+	$(MED_OUT)/A.coal_heat_content.csv \
+	$(EF_DATA)/CO2_base_EF_CDIAC.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 
@@ -494,6 +514,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 	$(MOD_C)/C1.2.add_NC_emissions_EDGAR.R \
 	$(MOD_C)/C1.2.ECLIPSE_flaring_emissions_extension.R \
 	$(MOD_C)/C1.2.Fugitive-petr-and-gas_default_process_emissions.R \
+	$(MOD_C)/C1.2.add_CO2_NC_emissions_CDIAC.R \
 	$(MAPPINGS)/NC_EDGAR_sector_mapping.csv \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
@@ -504,7 +525,8 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 	$(PARAMS)/process_db_functions.R \
 	$(MAPPINGS)/sector_input_mapping.xlsx \
 	$(ACTIV)/Process_SO2_Emissions_to_2005.xlsx \
-	$(INV_DATA)/FAO_SO2_emissions.csv
+	$(INV_DATA)/FAO_SO2_emissions.csv \
+	$(MED_OUT)/E.CO2_CDIAC_inventory.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 
@@ -529,6 +551,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv : \
 	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US_inventory.csv \
+	$(MED_OUT)/E.$(EM)_US-EPA_inventory.csv \
 	$(MED_OUT)/A.UN_pop_master.csv \
 	$(ACTIV)/wastewater/UN_Percentage_WW_Treatment.xlsx \
 	$(ACTIV)/wastewater/OECD_Percentage_WW_Treatment.xlsx \
@@ -628,9 +651,14 @@ $(MED_OUT)/E.$(EM)_US_inventory.csv : \
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
- $(MED_OUT)/E.$(EM)_AUS_inventory.csv : \
-		$(MOD_E)/E.Australia_emissions.R
-		Rscript $< $(EM) --nosave --no-restore
+$(MED_OUT)/E.$(EM)_US-EPA_inventory.csv : \
+	$(MOD_E)/E.US-EPA_emissions.R
+	Rscript $< $(EM) --nosave --no-restore
+
+# ee1-2
+$(MED_OUT)/E.$(EM)_AUS_inventory.csv : \
+	$(MOD_E)/E.Australia_emissions.R
+	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
 $(MED_OUT)/E.$(EM)_TWN_inventory.csv : \
@@ -654,6 +682,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 	$(MOD_F)/F1.1.South_korea_scaling.R \
 	$(MOD_F)/F1.1.UNFCCC_scaling.R \
 	$(MOD_F)/F1.1.US_scaling.R \
+	$(MOD_F)/F1.1.US-EPA_scaling.R \
 	$(MOD_F)/F1.1.Australia_scaling.R \
 	$(MOD_F)/F1.1.Taiwan_scaling.R \
 	$(PARAMS)/emissions_scaling_functions.R \
@@ -667,6 +696,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv : \
 	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US_inventory.csv \
+	$(MED_OUT)/E.$(EM)_US-EPA_inventory.csv \
 	$(MED_OUT)/E.$(EM)_AUS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_TWN_inventory.csv \
 	$(SC_MAPPINGS)/Argentina_scaling_mapping.xlsx \

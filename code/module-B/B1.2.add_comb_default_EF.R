@@ -38,7 +38,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NOx"
+if ( is.na( em ) ) em <- "CO2"
 em_lc <- tolower( em )    
 
 # ---------------------------------------------------------------------------

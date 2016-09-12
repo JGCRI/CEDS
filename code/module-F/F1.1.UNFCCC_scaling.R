@@ -45,9 +45,9 @@
 # 1. Define parameters read in files
 
 # Stop script if running for unsupported species
-  if ( em %!in% c('SO2','CO','NMVOC','NOx') ) {
+  if ( em %!in% c('SO2','CO','NMVOC','NOx', 'CO2') ) {
     stop (paste( 'UNFCCC script is not supported for emission species ', em, '. Remove from script
-                 list in F1.1.inventory_scaling.R'))
+                 list in F1.inventory_scaling.R'))
   }
 
 # For each Module E script, define the following parameters:
@@ -62,11 +62,11 @@
                "est" , "fin" , "fra" , "gbr" , "grc" , "hrv" , "hun" , "irl" , "isl" , "ita" , "jpn",  
                "ltu" , "lva" , "mlt" , "nld" , "nor" , "nzl" , "prt" , "rou" , "svk" , "svn" , "swe" ,
                "tur" , "ukr" )
-# include only regions that aren't scaled elsewhere
+# include only regions that aren't scaled elsewhere for non-CO2 emissions
 # TODO: blr and ukr should only be used for specific years where is close to expert estimates, or to calibrate parameters off-line
 # TODO: why is grc not in EMEP?
 # Ukraine (ukr) energy reporting is inconsistent, instead have calibrated coal S% by hand. Check other emissions
-  region <- c( "blr" , "grc" , "nzl" )
+  if (em != "CO2") region <- c( "blr" , "grc" , "nzl" )
   inv_years<-c(1990:2012)
   
 # UNFCCC inventory is processed in E.UNFCCC_[em]_emissions.R script

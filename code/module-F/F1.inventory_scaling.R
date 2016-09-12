@@ -88,7 +88,7 @@ if ( is.na( em ) ) em <- "NH3"
   if ( em %in% c('CO','NH3','NMVOC','NOx','SO2') ) scripts <- c(scripts, 'F1.1.EMEP_NFR14_scaling.R')
   
   # UNFCCC
-  if ( em %in% c('SO2','CO','NMVOC','NOx') ) scripts <- c(scripts, 'F1.1.UNFCCC_scaling.R')
+  if ( em %in% c('SO2','CO','NMVOC','NOx', 'CO2') ) scripts <- c(scripts, 'F1.1.UNFCCC_scaling.R')
   
   # REAS
   if ( em %in% c('SO2','CO','NMVOC','NOx', 'NH3', 'CH4') ) scripts <- c(scripts, 'F1.1.REAS_scaling.R')
@@ -100,6 +100,9 @@ if ( is.na( em ) ) em <- "NH3"
   
   # USA
   if ( em %in% c('SO2','NOx','NMVOC','CO','NH3','PM10','PM25') ) scripts <- c(scripts, 'F1.1.US_scaling.R')
+  
+  # US EPA
+  if ( em %in% c( 'CO2' ) ) scripts <- c(scripts, 'F1.1.US-EPA_scaling.R')
 
   # China
   if ( em %in% c('SO2', 'NOx', 'NH3', 'NMVOC', 'CO' ) ) scripts <- c(scripts, 'F1.1.China_scaling.R')
@@ -118,6 +121,7 @@ if ( is.na( em ) ) em <- "NH3"
   
   # Australia
   if ( em %in% c('SO2', 'NOx', 'CO', 'NMVOC' ) ) scripts <- c(scripts, 'F1.1.Australia_scaling.R')
+  
   
 # ------------------------------------------------------------------------------------
 # 4. Run all scripts for the given emissions type

@@ -51,3 +51,5 @@ conversionFactor_biomass_kt_TJ <- 16  # Biomass - For kt to TJ (multiply by kt t
 
 conversionFactor_naturalgas_TJ_per_kt <- 44.2 #Natural Gas TJ/kt. (Divide TJ by heating value to get kt)
 #44.2 TJ/Gg- 2006 IPCC guidelines for National GHmG inventories Vol 2 - Energy, Ch 1 - Intro Table 1.2
+
+conversionFactor_C_CO2 <- 3.664  # multiply C to get CO2

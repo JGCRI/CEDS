@@ -58,7 +58,7 @@ if (em %in% c('SO2','NOx','NMVOC','BC','OC','CO','CH4','CO2'))
 scripts <- c(scripts,'B1.1.base_comb_EF_control_percent.R')
 
 # Set scripts to generate species-specific base emission factors
-if (em %in% c('SO2','NOx','NMVOC','BC','OC','CO','CH4','CO2','NH3')) {
+if (em %in% c('SO2','NOx','NMVOC','BC','OC','CO','CH4','CO2','NH3','CO2')) {
   
   if( em == "SO2" ){
     scripts <- c( scripts, "B1.1.base_SO2_comb_EF_parameters.R" )
@@ -68,8 +68,10 @@ if (em %in% c('SO2','NOx','NMVOC','BC','OC','CO','CH4','CO2','NH3')) {
     scripts <- c( scripts, "B1.1.base_BCOC_comb_EF.R" )
   } else if( em == "NH3" ){
     scripts <- c( scripts, "B1.1.base_NH3_comb_EF.R" )
+  } else if( em == "CO2" ) {
+    scripts <- c( scripts, "B1.1.base_CO2_comb_EF.R" )
   } else{
-  # B1.1.base_other_comb_EF.R processes GAINS EMF-30 efs for base emissions
+  # B1.1.base_OTHER_comb_EF.R processes GAINS EMF-30 efs for base emissions
   # other than SO2 and BC/OC, if emission species is SO2, BC, or OC, CO2, CH4
   # it only writes diagnostic output
   scripts <- c( scripts, "B1.1.base_OTHER_comb_EF.R") }

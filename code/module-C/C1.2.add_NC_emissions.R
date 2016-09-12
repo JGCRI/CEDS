@@ -68,12 +68,20 @@ if( em == "SO2" || em == "CO" || em == "NOx" || em == "NMVOC"  || em == "NH3" ){
 }
 
 # Note if using EDGAR 4.2 then also need to edit correction for end-year in C2.1.base_NC_EF.R
-if( em == "CH4"  ){
+if( em == "CH4" || em == "CO2" ){
     scripts <- c( scripts, "C1.2.add_NC_emissions_EDGAR.R" )
 }
 
-scripts <- c( scripts, 'C1.2.ECLIPSE_flaring_emissions_extension.R' )
-scripts <- c( scripts, 'C1.2.Fugitive-petr-and-gas_default_process_emissions.R' )
+# Add CDIAC for CO2
+if( em == "CO2" ){
+  scripts <- c( scripts, "C1.2.add_CO2_NC_emissions_CDIAC.R" )
+}
+
+if ( em != "CO2" ) {
+  scripts <- c( scripts, 'C1.2.ECLIPSE_flaring_emissions_extension.R' )
+  scripts <- c( scripts, 'C1.2.Fugitive-petr-and-gas_default_process_emissions.R' )  
+}
+
 
 # Run all child scripts for the given emissions type. The call to
 # invisible() prevents extraneous output from appearing in the console.
