@@ -49,9 +49,16 @@ fuel <- "process"
 id_cols <- c( "iso", "sector", "fuel", "units" )
 
 # Temporary assignment for script development
-# em <- "SO2"
+#em <- "CO2"
 
 EDGAR42_end_year = 2008
+
+# Define sectors that should not use EDGAR (also have to modify C2.1.base_NC_EF.R)
+excl_sectors <- c()
+if (em == "CO2") {
+  excl_sectors <- c( excl_sectors, "2A1_Cement-production", "3D_Soil-emissions" )
+}
+
 
 # ------------------------------------------------------------------------------
 # 2. Input
@@ -59,8 +66,11 @@ EDGAR42_end_year = 2008
 # Determine full file name and path
 fn <- c( paste0( "EDGAR", gsub( "[.]", "", vn ), "_", em  ), ".csv" )
 
-edgar <- readData( domain, fn[[ 1 ]], fn[[ 2 ]], domain_extension = domain_ext )
 NC_sector_map <- readData( "MAPPINGS", "NC_EDGAR_sector_mapping" )
+edgar <- readData( domain, fn[[ 1 ]], fn[[ 2 ]], domain_extension = domain_ext )
+
+
+
 
 # ------------------------------------------------------------------------------
 # 3. Reformatting
@@ -96,11 +106,24 @@ edgar <- edgar[ with( edgar, order( iso, sector, fuel ) ), ]
 # get rid of 2008 and 2009. Strange Values
 edgar <- edgar[,c('iso','sector','fuel','units', paste0('X',EDGAR_start_year:EDGAR42_end_year))]
 
+# leave out excluded sectors
+  edgar <- filter( edgar, sector %!in% excl_sectors )
+
+# make negative emissions zero
+  X_edgar_years <- names( edgar )[ grepl( "X", names( edgar )  ) ]
+  neg_rows <- apply( edgar[, X_edgar_years ], 1, function( row ) any( row < 0 ) )
+  edgar_neg <- edgar[ neg_rows, ]
+  edgar[ edgar < 0 ] <- 0
+
 # ------------------------------------------------------------------------------
 # 4. Output
 addToEmissionsDb( edgar, em = em, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
   
 writeData( edgar, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em ) )
- 
+
+if ( nrow( edgar_neg ) > 0 ) 
+  writeData( edgar_neg, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em, "_negative" ) )
+
+
 logStop()
 # END

@@ -65,7 +65,7 @@ if( em == "SO2" ){
 # Remove this for now. Script now overwrites previous control%, which is not what we want.
 # Script needs to read other control %s, and extend from there.
 #                'B1.2.add_SO2_recent_control_percent.R')
-  # adds script that calculates emission factors from SO2 parameters
+# adds script that calculates emission factors from SO2 parameters
   scripts <- c(scripts, 'B1.2.add_SO2_comb_S_content_ash.R',
                'B1.3.proc_SO2_comb_EF_S_content_ash.R')
 }
@@ -80,13 +80,13 @@ if( em == "BC" || em == "OC" ){
 # Default EFs
 scripts <- c(scripts,'B1.2.add_comb_default_EF.R')
 
-# Add control percent and processing script for all emission types
-scripts <- c(scripts,'B1.2.add_comb_control_percent.R' )
+# Add control percent and processing script for all emission types except CO2
+if ( em != 'CO2' ) scripts <- c(scripts,'B1.2.add_comb_control_percent.R' )
 
 # Add recent control percentage for SO2
 if ( em == 'SO2' ) { scripts <- c( scripts, 'B1.2.add_SO2_recent_control_percent.R' ) }
 
-scripts <- c( scripts, 'B1.3.proc_comb_EF_control_percent.R' )
+if ( em != 'CO2' ) scripts <- c( scripts, 'B1.3.proc_comb_EF_control_percent.R' )
 #-------------------------------------------------------------------------------------
 # 1. Call Scripts
 

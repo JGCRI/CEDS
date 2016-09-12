@@ -42,6 +42,7 @@ args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "NH3"
 
+
 # ------------------------------------------------------------------------------
 # 1. Read input
     waste_input <- readData( "EM_INV", "Global_Emissions_of_Pollutants_from_Open_Burning_of_Domestic_Waste", 
@@ -85,8 +86,8 @@ if ( is.na( em ) ) em <- "NH3"
 # Keep relevant emissions (TODO)
     waste_input <- select( waste_input, iso, `Sulfur Dioxide (SO2)`, `Nitrogen Oxides (NOx as NO)`, 
                            `Carbon Monoxide (CO)`, `NMOC (identified)`, BC, OC, 
-                           `Ammonia (NH3)`, `Methane (CH4)` )
-    em_names <- c( "SO2", "NOx", "CO", "NMVOC", "BC", "OC", "NH3", "CH4" )
+                           `Ammonia (NH3)`, `Methane (CH4)`, `Carbon Dioxide (CO2)` )
+    em_names <- c( "SO2", "NOx", "CO", "NMVOC", "BC", "OC", "NH3", "CH4", "CO2" )
     names( waste_input ) <- c( "iso", em_names )
     
 # Unit conversion
