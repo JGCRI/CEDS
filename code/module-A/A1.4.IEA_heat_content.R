@@ -1,4 +1,4 @@
-# Program Name: A.IEA_heat_content.R
+# Program Name: A1.4.IEA_heat_content.R
 # Author: Linh Vu
 # Date Last Updated: 26 Jul 2016
 # Program Purpose: Computes heat content from IEA Conversion Factors
@@ -30,7 +30,7 @@ PARAM_DIR <- "../code/parameters/"
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'data_functions.R', 'common_data.R' ) 
 log_msg <- "Calculating coal heat content from IEA conversion factors"  # First message to be printed to the log
-script_name <- 'A.compute_heat_content.R'
+script_name <- 'A1.4.IEA_heat_content.R'
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )

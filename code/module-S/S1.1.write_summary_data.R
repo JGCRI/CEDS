@@ -266,7 +266,7 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
         c( "year", "previous" ) 
       em_comp <- merge( em_current, em_last ) %>% 
         mutate( diff = current - previous,
-                change_percent = diff*100/previous )
+                change_percent = diff*100 / current )
       em_comp$change_percent[ em_comp$current == em_comp$previous ] <- 0
       
     # make df of where current-run and last-run differ by more than THRESHOLD_PERCENT 
