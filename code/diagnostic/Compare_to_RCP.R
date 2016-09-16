@@ -1,12 +1,16 @@
 # ------------------------------------------------------------------------------
 # Program Name: Compare_to_RCP.R
-# Author: Rachel Hoesly, Linh Vu
+# Author: Rachel Hoesly, Linh Vu, Leyang feng
 # Date Last Updated: 4 April 2016 
 # Program Purpose: Produces diagnostic summary figures of final emissions
 # Input Files: [em]_total_CEDS_emissions.csv
-#               
 # Output Files: figures in the diagnostic-output
-# TODO: 
+# Note: (1) the script uses 'cowplot' package to add footnotes for each pdf plot 
+#           except the pdf that contains multiple grobs. The package 'cowplot' is
+#           imported in section 0.5 than set the plot theme back to ggplot2 default.
+#           All codes related to the use of 'cowplot' are surrounded by ### comments 
+# TODO: (1) Remove the use of 'cowplot' when new version of ggplot2 is available ( > 2.1).
+#           The new ggplot2 will provide default method of adding captions. 
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
@@ -46,24 +50,35 @@ library('plyr')
 library('scales')
 library('gridExtra')
 
+### see note (1) for triple # comments 
+library( 'cowplot' )
+theme_set( theme_gray( ) ) # switch back to default ggplot2 theme
+### end 
+
+
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
 
 rcp_start_year <- 1850
 rcp_end_year <- 2000
-CEDS_start_year <- 1800
+CEDS_start_year <- 1850
 CEDS_end_year <- end_year
 
 rcp_years <- seq(from=rcp_start_year,to=rcp_end_year,by=10)
 x_rcp_years <- paste0('X',rcp_years)
 
+footnote_v1 <- 'This figure shows a "like with like" comparison between CEDS and RCP emissions. \nThese totals, therefore, do not include open burning (grassland and forest fires), fossil-fuel fires, \nagricultural waste burning on fields, international shipping, or aviation.'
+if ( em == 'OC' ) {
+  footnote_v1 <- 'This figure shows a "like with like" comparison between CEDS and RCP emissions. \nThese totals, therefore, do not include open burning (grassland and forest fires), fossil-fuel fires, \nagricultural waste burning on fields, international shipping, or aviation.\n(Note, OC emissions are in units of carbon, NOT total mass.)'
+}  
+
 # ---------------------------------------------------------------------------
 # 1. Load files
 
 Map_region_codes <- readData( "EM_INV", domain_extension = 'RCP/',"RCP Region Mapping", ".xlsx", sheet_selection = 'Reg Codes',
-                        meta=FALSE)
+                              meta=FALSE)
 Map_iso_codes <- readData( "EM_INV", domain_extension = 'RCP/',"RCP Region Mapping", ".xlsx", sheet_selection = 'EDGAR32 & IEA',
-                        meta=FALSE)
+                           meta=FALSE)
 Map_sector <- readData( "EM_INV", domain_extension = 'RCP/',"RCP_CEDS_sector_map",
                         meta=FALSE)
 
@@ -188,13 +203,8 @@ rcp <- RCP[which(RCP$Sector == 'Tot_Ant'),]
 rcp_awb <- RCP[which(RCP$Sector == 'AWB'),]
 rcp[,x_rcp_years] <- rcp[,x_rcp_years] - rcp_awb[,x_rcp_years]
 
-# Convert OC from mass units to carbon units
-if(em == 'OC'){
-rcp[,x_rcp_years] <- rcp[,x_rcp_years]/1.4
-}
-
 global_rcp <- aggregate(rcp[,x_rcp_years], 
-                         by = list(total= rcp$em ),FUN=sum )
+                        by = list(total= rcp$em ),FUN=sum )
 global_rcp$inv <- 'RCP'
 global_rcp_long <- melt(global_rcp, id.vars = c('total','inv'))
 
@@ -220,7 +230,12 @@ plot <- ggplot(df, aes(x=year,y=total_emissions, color = inv)) +
   scale_y_continuous(limits = c(0,max ),labels = comma)+
   ggtitle( paste('Global',em,'Emissions') )+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
-              
+
+### adding footnote -- see note (1) for triple # comments 
+footnote_added <- add_sub( plot, footnote_v1, size = 6 ) # add footnote 
+ggdraw( footnote_added )
+### end 
+
 ggsave( paste0('ceds-comparisons/RCP_',em,'_Global_Comparison.pdf') , width = 7, height = 4)
 
 # ---------------------------------------------------------------------------
@@ -260,26 +275,31 @@ regions_df_order <- data.frame(region=regions_list_order,
 #5 seperate graphs, saved individually
 for(i in 1:6){
   
-plot_regions <- regions_list_order[(i*6-5):(i*6)]
+  plot_regions <- regions_list_order[(i*6-5):(i*6)]
   
-plot_df <- region_long[which(region_long$region %in% plot_regions),c('inv','year','region','total_emissions')]
-plot_df$inv <- as.factor(plot_df$inv)
-plot_df$region <- as.factor(plot_df$region)
-max <- 1.2*(max(plot_df$total_emissions))
-
-plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region, shape=inv)) + 
-  geom_point(data = subset(plot_df, inv =='RCP'),size=2,aes(x=year,y=total_emissions, color = region)) +
-  geom_line(data = subset(plot_df, inv =='CEDS'),size=1,aes(x=year,y=total_emissions, color = region)) +
-  scale_x_continuous(breaks=seq(from=rcp_start_year,to=rcp_end_year,by=30))+
-  # guides(color=guide_legend(ncol=3))+
-  ggtitle( paste('Total',em,'Emissions by Region') )+
-  labs(x='Year',y= paste(em,'Emissions [kt]'))+
-  scale_y_continuous(limits = c(0,max ),labels = comma)
-              
-ggsave( paste0('ceds-comparisons/RCP_',em,'_Regional_Comparison_', 
-               paste(plot_regions,collapse ='-' ),
-               '.pdf') , width = 7, height = 4)
-
+  plot_df <- region_long[which(region_long$region %in% plot_regions),c('inv','year','region','total_emissions')]
+  plot_df$inv <- as.factor(plot_df$inv)
+  plot_df$region <- as.factor(plot_df$region)
+  max <- 1.2*(max(plot_df$total_emissions))
+  
+  plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region, shape=inv)) + 
+    geom_point(data = subset(plot_df, inv =='RCP'),size=2,aes(x=year,y=total_emissions, color = region)) +
+    geom_line(data = subset(plot_df, inv =='CEDS'),size=1,aes(x=year,y=total_emissions, color = region)) +
+    scale_x_continuous(breaks=seq(from=rcp_start_year,to=rcp_end_year,by=30))+
+    # guides(color=guide_legend(ncol=3))+
+    ggtitle( paste('Total',em,'Emissions by Region') )+
+    labs(x='Year',y= paste(em,'Emissions [kt]'))+
+    scale_y_continuous(limits = c(0,max ),labels = comma)
+  
+  ### adding footnote -- see note (1) for triple # comments 
+  footnote_added <- add_sub( plot, footnote_v1, size = 6 ) # add footnote 
+  ggdraw( footnote_added )
+  ### end 
+  
+  ggsave( paste0('ceds-comparisons/RCP_',em,'_Regional_Comparison_', 
+                 paste(plot_regions,collapse ='-' ),
+                 '.pdf') , width = 7, height = 4)
+  
 }
 
 #5 seperate graphs, saved individually
@@ -302,14 +322,17 @@ for(i in 1:6){
     labs(x='Year',y= paste(em,'Emissions [kt]'))+
     theme(legend.title=element_blank())
   plot
-  plot_list[[i]]<-plot              
+  plot_list[[i]]<-plot  
+  
 }
 
 pdf(paste0('ceds-comparisons/RCP_',em,'_Regional_Comparison_All.pdf'),width=12,height=10,paper='special')
+
 grid.arrange(plot_list[[1]],plot_list[[2]],
              plot_list[[3]],plot_list[[4]],
              plot_list[[5]],plot_list[[6]], ncol=2,
              top = paste('RCP vs CEDS - Regional',em,'Emissions'))
+
 dev.off()
 
 # ---------------------------------------------------------------------------
@@ -340,22 +363,27 @@ writeData(sector,'DIAG_OUT', paste0('RCP_',em,'_sector_Comparison'),domain_exten
 
 #Plot
 
-  plot_df <- sector_long
-  plot_df$inv <- as.factor(plot_df$inv)
-  plot_df$sector <- as.factor(plot_df$sector)
-  max <- 1.2*(max(plot_df$total_emissions))
-  
-  plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = sector, shape=inv)) + 
-    geom_point(data = subset(plot_df, inv =='RCP'),size=2,aes(x=year,y=total_emissions, color = sector)) +
-    geom_line(data = subset(plot_df, inv =='CEDS'),size=1,aes(x=year,y=total_emissions, color = sector)) +
-    scale_x_continuous(breaks=seq(from=rcp_start_year,to=rcp_end_year,by=30))+
-    ggtitle( paste('Global',em,'Emissions by Sector') )+
-    labs(x='Year',y= paste(em,'Emissions [kt]'))+
-    scale_shape_discrete(guide=FALSE)+
-    scale_y_continuous(limits = c(0,max ),labels = comma)
-  plot              
-  ggsave( paste0('ceds-comparisons/RCP_',em,'_sector_Comparison',
-                 '.pdf') , width = 7, height = 4)
+plot_df <- sector_long
+plot_df$inv <- as.factor(plot_df$inv)
+plot_df$sector <- as.factor(plot_df$sector)
+max <- 1.2*(max(plot_df$total_emissions))
+
+plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = sector, shape=inv)) + 
+  geom_point(data = subset(plot_df, inv =='RCP'),size=2,aes(x=year,y=total_emissions, color = sector)) +
+  geom_line(data = subset(plot_df, inv =='CEDS'),size=1,aes(x=year,y=total_emissions, color = sector)) +
+  scale_x_continuous(breaks=seq(from=rcp_start_year,to=rcp_end_year,by=30))+
+  ggtitle( paste('Global',em,'Emissions by Sector') )+
+  labs(x='Year',y= paste(em,'Emissions [kt]'))+
+  scale_shape_discrete(guide=FALSE)+
+  scale_y_continuous(limits = c(0,max ),labels = comma)
+plot 
+### adding footnote -- see note (1) for triple # comments 
+footnote_added <- add_sub( plot, footnote_v1, size = 6 ) 
+ggdraw( footnote_added )
+### end 
+
+ggsave( paste0('ceds-comparisons/RCP_',em,'_sector_Comparison',
+               '.pdf') , width = 7, height = 4)
 
 
 # ---------------------------------------------------------------------------
@@ -363,11 +391,11 @@ writeData(sector,'DIAG_OUT', paste0('RCP_',em,'_sector_Comparison'),domain_exten
 
 #Prime Data
 region_sector_ceds <- aggregate(ceds[x_years], 
-                         by = list(region = ceds$Region, sector = ceds$Sector ),FUN=sum )
+                                by = list(region = ceds$Region, sector = ceds$Sector ),FUN=sum )
 region_sector_ceds$inv <- 'CEDS'
 
 region_sector_rcp <- aggregate(RCP[,x_rcp_years], 
-                        by = list(region = RCP$Region, sector = RCP$Sector ),FUN=sum )
+                               by = list(region = RCP$Region, sector = RCP$Sector ),FUN=sum )
 region_sector_rcp$inv <- 'RCP'
 
 region_sector_both <- rbind( region_sector_ceds[,c( 'inv', 'region', 'sector', x_rcp_years )],
