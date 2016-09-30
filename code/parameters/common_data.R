@@ -39,6 +39,7 @@ X_bond_years <- paste0('X', bond_years)
 # CDIAC years
 cdiac_start_year <- 1750
 cdiac_end_year <- 2011
+cdiac_end_year_cement <- 2015
 
 
 

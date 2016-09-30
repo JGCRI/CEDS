@@ -57,7 +57,8 @@ initialize( script_name, log_msg, headers )
   IEA_product_fuel$product <- gsub(" \\(.*", "", IEA_product_fuel$product )
   
 # Select relevant flows
-  conversion_all <- filter( conversion_all, FLOW %in% c( "Average net calorific value", "NCV of imports" ) )
+  conversion_all <- filter( conversion_all, FLOW %in% c( "Average net calorific value" ) )
+  #conversion_all <- filter( conversion_all, FLOW %in% c( "Average net calorific value", "NCV of imports" ) )
   conversion_all$fuel <- IEA_product_fuel$fuel[ match( conversion_all$PRODUCT, IEA_product_fuel$product ) ]
 
 # Compute average heat content by fuel type and year for coal
