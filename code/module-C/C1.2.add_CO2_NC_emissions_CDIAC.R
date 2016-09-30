@@ -58,7 +58,7 @@ cdiac_fuel_sector <- c( "2A1_Cement-production" )
 
 # ------------------------------------------------------------------------------
 # 2. Put cdiac into iso-sector-fuel-units-years format
-X_cdiac_years <- paste0( "X", start_year:cdiac_end_year)
+X_cdiac_years <- paste0( "X", start_year:cdiac_end_year_cement)
 cdiac_added <- filter( cdiac, fuel %in% cdiac_fuel )
 cdiac_added$units <- "kt"
 cdiac_added$sector <- NA
