@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: global settings
-# Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Rachel Hoesly
-# Last Updated: 24 August 2015
+# Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Rachel Hoesly, Huong Nguyen
+# Last Updated: 07 October 2016
 
 # This file must be sourced by all CEDS R scripts, before any other sourced files.
 # Provides global variables and necessary system settings.
@@ -80,3 +80,34 @@ na_error <- 1
 
 # If true write value meta data in scaling module (FALSE to save time while test running)
 Write_value_metadata <- FALSE
+#
+
+#-----------------------------------------------------------------------------------------
+#Generate system-wise version_stamp 
+#The version_stamp indicates the current CEDS version, and it will be marked on 
+#diagnostic plots. If user has an specific version_stamp he/she wants to use, 
+#follow the instruction in the next comment  
+
+# User should uncomment the following line if he/she has a specific cedsUserVersionNumber to use
+## options(cedsUserVersionNumber = "v_07_26_2016")
+
+getcedsVersionNumber <- function( ) {
+  
+  # get the current date
+  version_date <- Sys.Date( )
+  
+  # retrieve the cedsUserVersionNumber from options() 
+  ceds_user_version_number <- getOption( "cedsUserVersionNumber" )
+  
+  # generate the version_stamp
+  if( is.null ( ceds_user_version_number ) == T ) {
+    version_stamp <- paste0("v", "_", format(version_date, format="%m_%d_%Y"))
+  } else {
+    version_stamp <- ceds_user_version_number
+  }
+  
+  return ( version_stamp )
+}
+
+# create system version stamp  
+version_stamp <- getcedsVersionNumber( )
