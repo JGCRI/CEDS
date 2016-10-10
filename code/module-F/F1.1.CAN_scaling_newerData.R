@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.CAN_scaling_newerData.R
-# Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly, Steve Smith
-# Date Last Modified: Dec 30, 2015
+# Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly, Steve Smith, Huong Nguyen
+# Date Last Modified: Sept 12, 2016
 # Program Purpose: To create scaling factors and update emissions estimate for
 # the CAN region from latest emissions working copy by using aggregate 
 # CAN trends inventory data. This file uses the newer format used since 2012.
@@ -34,7 +34,7 @@ PARAM_DIR <- "../code/parameters/"
 # Get emission species first so can name log appropriately
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[1]
-if ( is.na( em ) ) em <- "NOx"
+if ( is.na( em ) ) em <- "SO2"
   
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
@@ -65,9 +65,9 @@ initialize( script_name, log_msg, headers )
   mapping_method <- 'sector'
   inv_name <- 'CAN' #for naming diagnostic files
   region <- c( "can" ) 
-  inv_years<-c(1990:2013)
+  inv_years<-c(1990:2014)
   # Because this data comes read in as reversed.
-  inv_years_reversed<-c(2013:1990)
+  inv_years_reversed<-c(2014:1990)
 
   inventory_data_file <- paste0('E.',em,'_',inv_name,'_inventory')
   inv_data_folder <- 'MED_OUT'
