@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: Figures.R
-# Author: Rachel Hoesly
-# Date Last Updated: Oct 1 2015 
+# Author: Rachel Hoesly, Huong Nguyen
+# Date Last Updated: October 07 2016 
 # Program Purpose: Produces diagnostic summary figures of default and 
 #                  scaled emissions
 # Input Files: F.em_scaled_emissions, D.em_default_emissions
@@ -51,6 +51,7 @@ library('scales')
 
 PRINT_DEFAULTS <- FALSE
 PRINT_BIG_TABLES <- TRUE
+
 
 # ---------------------------------------------------------------------------
 # 1. Load files
@@ -260,7 +261,8 @@ df <- Regions
 
 plot <- ggplot(df, aes(x=year,y=Emissions, fill=Region)) + 
                geom_area(size=1) +
-        theme( plot.title = element_text(vjust=0.8), 
+        annotate("text", x = 2000, y = -80, label = version_stamp, size = 3) +
+        theme( plot.title = element_text(vjust=0.8),
                axis.title.x = element_text(vjust=0.3), axis.title.y = element_text(vjust=0.3), 
                legend.position=c( 0.12, 0.69 ) ) +
         theme( legend.background =element_rect(color="black"), legend.key = element_blank() ) +
@@ -282,12 +284,12 @@ if ( PRINT_DEFAULTS ){
 
 	df <- Regions
 	df <- df[-which(is.na(df$Region)),]
-	plot <- ggplot(df, aes(x=year,y=Emissions,
-							fill=Region)) + 
+	plot <- ggplot(df, aes(x=year,y=Emissions, fill=Region)) + 
 	  geom_area(size=1) +
+	  annotate("text", x = 2000 , y = -80, label = version_stamp, size = 3 ) +
 	  scale_x_continuous(breaks=seq(start,end, 20))+
 	  scale_y_continuous(labels = comma)+
-	  ggtitle( paste('Global Default',em,' Emissions') )+
+	  ggtitle( paste('Global Default',em,' Emissions ') ) +
 	  labs(x='Year',y= paste(em,'Emissions [kt]') )
 		ggsave( paste0('summary-plots/',em,'_regions.default.pdf') , width = 11, height = 6)
 }
@@ -301,7 +303,7 @@ df <- Regions
 plot <- ggplot(df, aes(x=year,y=Emissions,
                        color=Region)) + 
   geom_line(size=1) +
-  scale_x_continuous(breaks=seq(start,end, 20))+
+  annotate("text", x = 2000, y = -80, label = version_stamp, size = 3) + scale_x_continuous(breaks=seq(start,end, 20))+
   scale_y_continuous(labels = comma)+
   ggtitle( paste('Total Scaled',em,' Emissions') )+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
@@ -316,7 +318,8 @@ if ( PRINT_DEFAULTS ){
 	df <- Regions
 	df <- df[-which(is.na(df$Region)),]
 	plot <- ggplot(df, aes(x=year,y=Emissions,
-							color=Region)) + 
+							color=Region)) +
+	  annotate("text", x = 2000, y = -70, label = version_stamp, size = 3) +
 	  geom_line(size=1) +
 	  scale_x_continuous(breaks=seq(start,end, 20))+
 	  scale_y_continuous(labels = comma)+
@@ -335,6 +338,7 @@ Sectors<-ddply(TotalEmissions.long, .(agg_Sector,year),summarize,
 df <- Sectors
 plot <- ggplot(df, aes(x=year,y=Emissions, fill=agg_Sector)) + 
   geom_area(size=1) +
+  annotate("text", x = 2000, y = -80, label = version_stamp, size=3) +
   theme( plot.title = element_text(vjust=0.8), 
          axis.title.x = element_text(vjust=0.3), axis.title.y = element_text(vjust=0.3), 
          legend.position=c( 0.08, 0.78 ) ) +
@@ -352,6 +356,7 @@ writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled
 
 plot <- ggplot(df, aes(x=year,y=Emissions, color=agg_Sector)) + 
   geom_line(size=1) +
+  annotate("text", x = 2000, y = -80, label = version_stamp, size=3) +
   scale_x_continuous(breaks=seq(start,end, 20))+
   scale_y_continuous(labels = comma)+
   ggtitle(paste('Global Scaled', em ,'Emissions'))+
@@ -368,6 +373,7 @@ if ( PRINT_DEFAULTS ){
   plot <- ggplot(df, aes(x=year,y=Emissions,
                          fill=agg_Sector)) + 
     geom_area(size=1) +
+    annotate("text", x = 2000, y = -80, label = version_stamp, size = 3) +
     scale_x_continuous(breaks=seq(start,end, 20))+
     scale_y_continuous(labels = comma)+
     ggtitle(paste('Global Default', em ,'Emissions'))+
@@ -385,17 +391,17 @@ Fuels<-ddply(TotalEmissions.long, .(fuel,year),summarize,
              Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Fuels
-plot <- ggplot(df, aes(x=year,y=Emissions,
-                        fill=fuel)) + 
+plot <- ggplot(df, aes(x=year,y=Emissions, fill=fuel)) + 
   geom_area(size=1) +
+  annotate("text", x = 2000, y = -80, label = version_stamp, size = 3) +
   scale_x_continuous(breaks=seq(start,end, 20))+
   scale_y_continuous(labels = comma)+
   ggtitle(paste('Global Scaled', em ,'Emissions'))+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
-ggsave( paste0('summary-plots/',em,'_fuel.scaled.pdf'), width = 11, height = 6 )
+ggsave( paste0('summary-plots/',em,'_fuel.scaled_', version_stamp, ".pdf"), width = 11, height = 6 )
 #Convert to wide format for easier viewing
 data.wide <- cast(df, fuel ~ year, mean, value="Emissions")
-writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_fuel'), meta = FALSE )
+writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_fuel_', version_stamp), meta = FALSE )
 
 # Default
 if ( PRINT_DEFAULTS ){
@@ -403,16 +409,15 @@ Fuels<-ddply(DefaultEmissions.long, .(fuel,year),summarize,
              Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Fuels
-plot <- ggplot(df, aes(x=year,y=Emissions,
-                      fill=fuel)) + 
+plot <- ggplot(df, aes(x=year,y=Emissions, fill=fuel)) + 
   geom_area(size=1) +
+  annotate("text", x = 2000, y = -80, label = version_stamp, size = 3) +
   scale_x_continuous(breaks=seq(start,end, 20))+
   scale_y_continuous(labels = comma)+
   ggtitle(paste('Global Default', em ,'Emissions'))+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
 ggsave( paste0('summary-plots/',em,'_fuel.default.pdf'), width = 11, height = 6 )
 }
-
 
 # ---------------------------------------------------------------------------
 
