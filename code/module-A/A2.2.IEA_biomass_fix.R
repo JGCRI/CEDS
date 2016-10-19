@@ -48,23 +48,23 @@ initialize( script_name, log_msg, headers )
     loadPackage( "zoo" )
 
 # Read population
-    pop_master <- readData( "MED_OUT", "A.UN_pop_master", meta = F )
+    pop_master <- readData( "MED_OUT", "A.UN_pop_master" )
 
 # Read energy data
-    IEA_en <- readData( "MED_OUT", "A.en_stat_sector_fuel", meta = F )
-    Fern_biomass <- readData( "MED_OUT", "A.Fernandes_residential_biomass", meta = F )
+    IEA_en <- readData( "MED_OUT", "A.en_stat_sector_fuel" )
+    Fern_biomass <- readData( "MED_OUT", "A.Fernandes_residential_biomass" )
     Eur_biomass <- readData( "ENERGY_IN", "Europe_wooduse_Europe_TNO_4_Steve", ".xlsx", 
-                              sheet_selection = "Data", skip_rows = 2, meta = F )[ c( 1, 5 ) ]
+                              sheet_selection = "Data", skip_rows = 2 )[ c( 1, 5 ) ]
     EIA_biomass <- readData( "ENERGY_IN", "EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors", 
-                             ".xlsx", sheet_selection = "Annual Data", skip_rows = 10, meta = F )[ c( 1, 4 ) ]
+                             ".xlsx", sheet_selection = "Annual Data", skip_rows = 10 )[ c( 1, 4 ) ]
 
 # Read biomass double-counting correction
-    IEA_correction <- readData( "ENERGY_IN", "IEA_biomass_double_counting", ".xlsx", meta = F )
+    IEA_correction <- readData( "ENERGY_IN", "IEA_biomass_double_counting", ".xlsx" )
     
 # Read/define conversion factors
     # 2005 TJ/kt for USA and European countries
-    Master_Country_List <- readData( "MAPPINGS", "Master_Country_List", meta = F )
-    kt_to_TJ <- readData( "MED_OUT", "A.Fernandes_biomass_conversion", meta = F )
+    Master_Country_List <- readData( "MAPPINGS", "Master_Country_List" )
+    kt_to_TJ <- readData( "MED_OUT", "A.Fernandes_biomass_conversion" )
     kt_to_TJ$region <- Master_Country_List$Region[ match( kt_to_TJ$iso, Master_Country_List$iso ) ]
     kt_to_TJ <- select( kt_to_TJ, iso, units, region, X2005 ) %>%
       filter( iso == "usa" | grepl( "Europe", region ) )
@@ -653,11 +653,11 @@ initialize( script_name, log_msg, headers )
     IEA_res_unspec_out[ is.na( IEA_res_unspec_out ) ] <- ""
     
     writeData( IEA_en_adj, "MED_OUT", "A.en_biomass_fix" )
-    writeData( biomass_final_ext, "MED_OUT", "A.residential_biomass_full", meta = F )
+    writeData( biomass_final_ext, "MED_OUT", "A.residential_biomass_full" )
 
 # Diagnostics
-    writeData( biomass_IEA_final, "DIAG_OUT", "A.residential_biomass_IEA_ext", meta = F )
-    writeData( IEA_res_unspec_out, "DIAG_OUT", "A.IEA_biomass_double_counting", meta = F )
-    writeData( res_unspec_comp, "DIAG_OUT", "A.IEA_biomass_adjustment", meta =  F )
+    writeData( biomass_IEA_final, "DIAG_OUT", "A.residential_biomass_IEA_ext" )
+    writeData( IEA_res_unspec_out, "DIAG_OUT", "A.IEA_biomass_double_counting" )
+    writeData( res_unspec_comp, "DIAG_OUT", "A.IEA_biomass_adjustment" )
 
 logStop()
