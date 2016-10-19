@@ -59,11 +59,11 @@ initialize( script_name, log_msg, headers )
     library( "zoo" )
     library( "FAOSTAT" )
 
-    input <- readData( "ENERGY_IN", "Fernandes_Biofuels_9", ".xlsx", meta = F)[ 2:11 ]
-    Master_Country_List <- readData( "MAPPINGS", "Master_Country_List", meta = F )
+    input <- readData( "ENERGY_IN", "Fernandes_Biofuels_9", ".xlsx" )[ 2:11 ]
+    Master_Country_List <- readData( "MAPPINGS", "Master_Country_List" )
     
     # Read and process population data
-    pop_master <- readData( "MED_OUT", "A.UN_pop_master", meta = F ) %>%
+    pop_master <- readData( "MED_OUT", "A.UN_pop_master" ) %>%
       filter( scenario %in% c( "Estimates", "Medium fertility" ) ) %>%
       select( iso, year, pop, urban_share ) %>%
       unique()
@@ -71,11 +71,11 @@ initialize( script_name, log_msg, headers )
 
     # Energy-weight conversion factors by biomass type
     heat_content <- readData( "GEN_IN", "biomass_heat_content", ".xlsx", 
-                              sheet_selection = "main", meta = F ) %>%
+                              sheet_selection = "main" ) %>%
       select( fuel, heating_value, units )
     
     # Proxy country mapping for Fernandes
-    proxy_mapping <- readData( "MAPPINGS", "Fernandes_proxy_country_mapping", meta = F ) 
+    proxy_mapping <- readData( "MAPPINGS", "Fernandes_proxy_country_mapping" ) 
 
     # Define useful values
     # TODO: Move Fernandes_years to common_data.R?
