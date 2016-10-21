@@ -169,7 +169,7 @@
 # For 2013-2014, extend using average IEA underreport for 2010-2012
     avg <- filter( global_intl_ship_full, year %in% seq( 2010, 2012 ) ) %>%
       group_by( fuel ) %>% summarise( global_fuel = mean( global_fuel ) )
-    extended <- global_intl_ship_full$year %in% c( 2013, 2014 )
+    extended <- global_intl_ship_full$year %in% c( 2013, BP_years )
     global_intl_ship_full$global_fuel[ extended ] <- 
       avg$global_fuel[ match( global_intl_ship_full$fuel[ extended ], avg$fuel ) ]
     
