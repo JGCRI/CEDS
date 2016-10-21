@@ -93,7 +93,7 @@ if( em == 'OC') em_col <-  'OC_kt'
 
 X_bond_years_recent <- paste0('X',seq(2005,2010,5))
 X_bond_years <- paste0('X',seq(1850,2000,5))
-Xyears_full <- paste0( "X", 1850:2014 )
+Xyears_full <- paste0( "X", 1850:end_year )
 
 
 bond <- bcoc_historical
@@ -360,7 +360,7 @@ bond_process_extend <- interpolateValues(bond_process)
 bond_process_extend[ is.na( bond_process_extend ) ] <- 0
 
 # Bond stops at 2010. Copy 2010 values to 2011-2014
-bond_process_extend[, paste0( "X", 2011:2014 ) ] <- bond_process_extend$X2010
+bond_process_extend[, paste0( "X", 2011:end_year ) ] <- bond_process_extend$X2010
 
 # relabel fuel and process and add units
 bond_process_extend$fuel <- 'process'

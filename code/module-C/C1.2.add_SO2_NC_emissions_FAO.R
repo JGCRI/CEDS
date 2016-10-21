@@ -124,7 +124,7 @@ total_emiss$activity <- act
 total_emiss$units <- unit
 
 # Reorder columns
-order <- c("iso","activity", "units", paste0("X",1961:2014))
+order <- c("iso","activity", "units", paste0("X",1961:end_year))
 total_emiss <- total_emiss[,order]
 
 #--------------------------------------------------------------------------------
