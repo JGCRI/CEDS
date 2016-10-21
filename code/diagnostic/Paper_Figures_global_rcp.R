@@ -204,7 +204,7 @@ rcp[,x_rcp_years] <- rcp[,x_rcp_years] - rcp_awb[,x_rcp_years]
 #long format
 global_rcp <- aggregate(rcp[,x_rcp_years], 
                         by = list(em= rcp$em ),FUN=sum )
-global_rcp$inv <- 'RCP'
+global_rcp$inv <- 'CMIP5'
 global_rcp_long <- melt(global_rcp, id.vars = c('em','inv'))
 
 
@@ -224,7 +224,7 @@ max <- 1.1*(max(df$total_emissions))
 
 plot <- ggplot(df, aes(x=year,y=total_emissions,group=inv,shape=inv,linetype=inv)) + 
   geom_line(data = subset(df, inv=='CEDS'),size=1, color = 'black') +
-  geom_point(data = subset(df, inv=='RCP'),color='dodgerblue1') +
+  geom_point(data = subset(df, inv=='CMIP5'),color='dodgerblue1') +
   scale_x_continuous(limits = c(CEDS_start_year,2015 ),
                      breaks= seq(from=CEDS_start_year, to=rcp_end_year, by=50),
                      minor_breaks = seq(from=CEDS_start_year, to=rcp_end_year, by=25)) +
@@ -235,10 +235,10 @@ plot <- ggplot(df, aes(x=year,y=total_emissions,group=inv,shape=inv,linetype=inv
         panel.grid.minor = element_line(colour="gray95"),
         panel.grid.major = element_line(colour="gray88"))+
   scale_linetype_manual(name= 'Inventory',
-                        breaks = c('CEDS','RCP'),
+                        breaks = c('CEDS','CMIP5'),
                         values = c('solid','blank'))+
   scale_shape_manual(name= 'Inventory',
-                     breaks = c('CEDS','RCP'),
+                     breaks = c('CEDS','CMIP5'),
                      values = c(NA,19))
 plot
 
@@ -256,7 +256,7 @@ df2$total_emissions <- df2$total_emissions/1000
 
 plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
   geom_area( data= df2, aes(x=year,y=total_emissions, fill = sector),  alpha = .7)+
-  geom_point(data = subset(df, inv=='RCP'), aes(x=year,y=total_emissions, shape = inv)) + 
+  geom_point(data = subset(df, inv=='CMIP5'), aes(x=year,y=total_emissions, shape = inv)) + 
   scale_x_continuous(limits = c(CEDS_start_year,2015 ),
                      breaks= seq(from=CEDS_start_year, to=rcp_end_year, by=50),
                      minor_breaks = seq(from=CEDS_start_year, to=rcp_end_year, by=25)) +
@@ -269,7 +269,7 @@ plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) +
         panel.grid.major = element_line(colour="gray88"))+
   scale_fill_discrete(name = 'CEDS Sector')+
   scale_shape_manual(name= 'Inventory',
-                     breaks = c('RCP'),
+                     breaks = c('CMIP5'),
                      values = c(19))
 plot  
 
@@ -311,12 +311,12 @@ grid.arrange(total_stacked_sector_nolegend_list[[1]],total_stacked_sector_nolege
              ncol=4)
 dev.off()
 # 3x3
-# pdf(paste0('../diagnostic-output/paper-figures/Paper_Figures_RCP_Comparison_stacked_sector 3x3_legend.pdf'),width=9.5,height=9.5,paper='special')
-# grid.arrange(total_stacked_sector_nolegend_list[[1]],total_stacked_sector_nolegend_list[[2]],total_stacked_sector_nolegend_list[[3]],
-#              total_stacked_sector_nolegend_list[[4]],total_stacked_sector_nolegend_list[[5]],total_stacked_sector_nolegend_list[[6]],
-#              total_stacked_sector_nolegend_list[[7]],leg,
-#              ncol=3)
-# dev.off()
+pdf(paste0('../diagnostic-output/paper-figures/Paper_Figures_RCP_Comparison_stacked_sector 3x3_legend.pdf'),width=9.5,height=9.5,paper='special')
+grid.arrange(total_stacked_sector_nolegend_list[[1]],total_stacked_sector_nolegend_list[[2]],total_stacked_sector_nolegend_list[[3]],
+             total_stacked_sector_nolegend_list[[4]],total_stacked_sector_nolegend_list[[5]],total_stacked_sector_nolegend_list[[6]],
+             total_stacked_sector_nolegend_list[[7]],leg,
+             ncol=3)
+dev.off()
 
 
 
