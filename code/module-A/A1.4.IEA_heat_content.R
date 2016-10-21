@@ -40,7 +40,8 @@ initialize( script_name, log_msg, headers )
 # 1. Input
   conversion_OECD <- readData( "ENERGY_IN", "OECD_Conversion_Factors_Full" )
   conversion_NonOECD <- readData( "ENERGY_IN", "NonOECD_Conversion_Factors_Full" )
-
+  activity_data <- readData( "MED_OUT", "A.comb_activity" )
+  
   IEA_product_fuel <- readData( "MAPPINGS", "IEA_product_fuel", domain_extension = "energy/" )
   MCL <- readData( "MAPPINGS", "Master_Country_List" )
 
@@ -49,11 +50,12 @@ initialize( script_name, log_msg, headers )
 # Combine into one df, convert to numeric  
   conversion_all <- bind_rows( conversion_OECD, conversion_NonOECD )
   conversion_all$X2014E <- NULL
+  conversion_all[ paste0('X', BP_years) ] <- conversion_all$X2014
   conversion_all[, X_emissions_years ] <- suppressWarnings( lapply( conversion_all[, X_emissions_years ], 
                                                               function(x){ as.numeric(as.character(x)) }))
 
 # Clean up mapping
-  IEA_product_fuel$product <- gsub(" \\([kt/TJ].*", "", IEA_product_fuel$product )
+  IEA_product_fuel$product <- gsub(" \\(.*", "", IEA_product_fuel$product )
   
 # Select relevant flows
   conversion_all <- filter( conversion_all, FLOW %in% c( "Average net calorific value" ) )

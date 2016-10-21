@@ -54,12 +54,19 @@
 # read in the en_stat_sector_fuel.csv to extract IEA crude oil production data  
     en_stat_sector_fuel <- readData( 'MED_OUT', file_name = 'A.en_stat_sector_fuel' )
 # read in the BP 
-    BP_energy_data <- readData( 'ENERGY_IN', file_name = 'BP_energy_data', extension = ".xlsx", sheet_selection = 5, skip_rows = 2 ) # Oil Production - Tonnes 
+    BP_energy_data <- readData( 'ENERGY_IN', file_name = 'BP_energy_data', extension = ".xlsx", 
+                                sheet_selection = 5, skip_rows = 2 ) # Oil Production - Tonnes 
 # read in master country list 
     mcl <- readData( 'MAPPINGS', 'Master_Country_List' )
 # read in the population data
     pop <- readData( "MED_OUT", "A.UN_pop_master" , meta = F )
-       
+# read in new BP data
+    BP_energy_data_2016 <- readData( 'ENERGY_IN', file_name = 'BP_energy_data_2016', extension = ".xlsx", sheet_selection = 5, 
+                                     skip_rows = 2 ) # Oil Production - Tonnes 
+# read in new BP country mapping
+    BP_2016_ctry_mapping <- readData( "MAPPINGS", "BP_2016_iso_mapping", ".xlsx" )
+    
+           
 # ------------------------------------------------------------------------------
 # 2. Pre-processing
 # all years list 
@@ -175,17 +182,58 @@
     flaring_eclipse <- rbind( flaring_flrbpiso, flaring_flrieaiso )
     flaring_eclipse <- flaring_eclipse[ order( flaring_eclipse$iso ), ]
     
+# ------------------------------------------------------------------------------
+# 3. Extend Oil Production set to 2015 using new BP data
+# The old BP data uses different aggregation/country names than the new BP data
+# which extends to 2015. To retain the same histrical set for CMIP6 release, use the old
+# combined IEA/BP Oil production set to 2014 from above (which used old BP data) and 
+# use the new BP set to extend it to 2015
+
+# mapping file 
+    BP_2016_ctry_mapping <- unique(BP_2016_ctry_mapping)
+# process, match BP data with iso    
+    BP_data_2016 <- BP_energy_data_2016[ , 1 : ( ncol( BP_energy_data_2016 ) - 2 ) ]
+    colnames( BP_data_2016 ) <- c( 'BPName_2016_Oil', paste0('X',1965:2015) ) 
+    BP_data_2016 <- BP_data_2016[ , c( 'BPName_2016_Oil', paste0('X',2010:2015) ) ]
+    BP_data_2016_iso <- merge(BP_data_2016,BP_2016_ctry_mapping, 
+                              all.x=T, all.y=F)[,c('iso','BPName_2016_Oil', paste0('X',2010:2015))]
+
+     
+    BP_data_2016_iso[ BP_data_2016_iso == 'n/a' ] <- 
+    BP_data_2016_iso[, paste0('X',2010:2015) ] <- sapply( BP_data_2016_iso[ , paste0('X',2010:2015) ], as.numeric )
+    BP_data_2016_iso[, paste0('X',2010:2015) ] <- BP_data_2016_iso[, paste0('X',2010:2015) ] * 0.001 # convert the unit tonnes to kt    
     
+    BP_data_2016_iso <- na.omit(BP_data_2016_iso)
+    BP_data_2016_iso <-BP_data_2016_iso[ order( BP_data_2016_iso$iso ), ]   
+
+# extend flaring_eclipse with BP_data_2016_iso to 2015
+
+    flaring_bp_iea_ext  <- extend_data_on_trend_range(driver_trend = BP_data_2016_iso, 
+                                           input_data = flaring_bp_iea, 
+                                           start = 2015, end = 2015,
+                                           ratio_start_year = 2012,
+                                           expand = F,
+                                           range = 3,
+                                           id_match.driver = c('iso'),
+                                           id_match.input = c('iso'))[,c('iso', paste0('X',1965:2015))]
+    
+    flaring_bp_iea_ext <- flaring_bp_iea_ext[ order( flaring_bp_iea_ext$iso ), ]
+      
 # ------------------------------------------------------------------------------
 # 3. Extending
 # method: The ECLIPSE flaring only has data for year 1990, 2000, 2010 while the BP/IEA crude oild production has 
 #         time series data from 1965 to 2014. The extending procedure first calculates ratios between 
 #         ECLIPSE data and BP/IEA data for avaliable years ( 1990, 2000, 2010 ), then extends the ratios to 
 #         all years( 1965 - 2014 ) using linear method and multiply the ratios to BP/IEA data to have 
-#         full time series data of ECLIPSE flaring.      
-    flaring_ratio <- data.frame( iso = flaring_eclipse$iso, X1990 = ( flaring_eclipse$X1990 / flaring_bp_iea$X1990 ), 
-                                    X2000 = ( flaring_eclipse$X2000 / flaring_bp_iea$X2000 ), 
-                                    X2010 = ( flaring_eclipse$X2010 / flaring_bp_iea$X2010 ), stringsAsFactors = F )
+#         full time series data of ECLIPSE flaring.   
+    
+    if('X2015' %!in% extend_Xyears ) extend_Xyears <- c(extend_Xyears, 'X2015')
+    if(2015 %!in% extend_years ) extend_years <- c(extend_years, 2015)
+    
+    
+    flaring_ratio <- data.frame( iso = flaring_eclipse$iso, X1990 = ( flaring_eclipse$X1990 / flaring_bp_iea_ext$X1990 ), 
+                                    X2000 = ( flaring_eclipse$X2000 / flaring_bp_iea_ext$X2000 ), 
+                                    X2010 = ( flaring_eclipse$X2010 / flaring_bp_iea_ext$X2010 ), stringsAsFactors = F )
     flaring_ratio[ is.na( flaring_ratio ) ] <- 0
     temp_matrix <- data.matrix(  flaring_ratio[ , c( 'X1990', 'X2000', 'X2010' ) ] )
     temp_matrix[ is.infinite( temp_matrix ) ] <- 0
@@ -202,7 +250,8 @@
       extended_ratios <- linear_reg$coefficients[[ 2 ]] * extend_years + linear_reg$coefficients[[ 1 ]]
       flaring_extended_ratios <- rbind( flaring_extended_ratios, extended_ratios )
     }
-    flaring_extended <- flaring_bp_iea[ , extend_Xyears ] * flaring_extended_ratios
+    
+    flaring_extended <- flaring_bp_iea_ext[ , extend_Xyears ] * flaring_extended_ratios
     flaring_extended[ flaring_extended < 0 ] <- 0 
     flaring_extended <- cbind( flaring_ratio$iso, flaring_extended )
     colnames(  flaring_extended ) <- c( 'iso', extend_Xyears )

@@ -43,17 +43,19 @@
 # ------------------------------------------------------------------------------
 # 1. Read in files
 
+    bp_energy_data_file_name <- "BP_energy_data_2016"
+    
     iea_data_full <- readData( "MED_OUT", "A.en_biomass_fsu_fix" )
     bp_energy_data <- readData( "ENERGY_IN","BP_energy_data", ".xlsx")
-    ctry_mapping <- readData( "MAPPINGS", "Master_Country_List" )
+    ctry_mapping <- readData( "MAPPINGS", "BP_2016_iso_mapping", ".xlsx" )
     fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
 
     # Read in BP energy data and print out sheet name as a diagnostic    
-    bp_oil_full  <- readData( "ENERGY_IN","BP_energy_data", ".xlsx", sheet_selection = 7 ) # Oil Consumption- Tonnes
+    bp_oil_full  <- readData( "ENERGY_IN", bp_energy_data_file_name, ".xlsx", sheet_selection = 7 ) # Oil Consumption- Tonnes
     printLog( c("Read in BP data sheet: ", names( bp_oil_full )[[1]]) )
-    bp_gas_full  <- readData( "ENERGY_IN","BP_energy_data", ".xlsx", sheet_selection = 24 ) # Gas Consumption – tonnes
+    bp_gas_full  <- readData( "ENERGY_IN", bp_energy_data_file_name, ".xlsx", sheet_selection = 24 ) # Gas Consumption – tonnes
     printLog( c("Read in BP data sheet: ", names( bp_gas_full )[[1]]) )
-    bp_coal_full <- readData( "ENERGY_IN","BP_energy_data", ".xlsx", sheet_selection = 33 ) # Coal Consumption -  Mtoe
+    bp_coal_full <- readData( "ENERGY_IN", bp_energy_data_file_name, ".xlsx", sheet_selection = 33 ) # Coal Consumption -  Mtoe
     printLog( c("Read in BP data sheet: ", names( bp_coal_full )[[1]]) )
     
 # Check that correct sheets were read
@@ -63,6 +65,8 @@
     sectorCheck( iea_data_full )
     fuelCheck( iea_data_full )
 
+
+    
 # -----------------------------------------------------------------------------------------
 # 2. Define some useful functions
 
@@ -95,16 +99,16 @@
 # ------------------------------------------------------------------------------
 
     printLog( "Matching BP and IEA data" )
-
+printLog("here")
 # Input the years of interest
     ext_years <- c( IEA_end_year, BP_years ) # Years used to extendForward data
     X_ext_years <- paste0( "X", ext_years )
-    
+
 # Account for differences in naming and regional associations. Also remove 
 #   blank rows, titles, etc. in BP data 
     bp_data_full <- list( bp_oil_full, bp_gas_full, bp_coal_full )
     names( bp_data_full ) <- c( "bp_oil", "bp_gas", "bp_coal" )
-    
+
         # CHECK WHETHER THESE ARE STILL TREATED AS ENTRIES IN A LIST- ERRORS IN 3.2
     bp_data_clean <- list()
     bp_data <- list()
@@ -112,16 +116,16 @@
     for ( i in 1:length( bp_data_full ) ) {
     # Remove rows without relevant data
         bp_data_clean[[i]] <- bp_data_full[[i]][ bp_data_full[[i]][, 1] %in% 
-                                                 ctry_mapping$BPName, ]
+                                                 ctry_mapping$BPName_2016, ]
            
     # Fix names of columns; they get messed up because BP has useless rows
     #   at the top of their files and R makes the top row the name of the column
-        names( bp_data_clean[[i]] ) <- c( "BPName", paste0( "X", 
+        names( bp_data_clean[[i]] ) <- c( "BPName_2016", paste0( "X", 
             bp_data_full[[i]][ 2, 2:ncol(bp_data_full[[i]]) ] ) )
             
     # Take only the years used for calcs and the column with BP ctry names
         bp_data[[i]] <- subset( bp_data_clean[[i]], T, 
-                                c( "BPName", X_ext_years ) )
+                                c( "BPName_2016", X_ext_years ) )
         
     # Account for BP notation. The symbol "-" means 0 Mtoe, "^" means <0.05 Mtoe
     # NOTE: Actual values for countries with "^" not given for coal consumption
@@ -153,7 +157,7 @@
 #   IEA's individual countries.
 
 # Combine needed IEA and BP data, matching by country 
-    iea_data_bpname <- addCols( iea_data, ctry_mapping, "BPName", "iso" )
+    iea_data_BPName_2016 <- addCols( iea_data, ctry_mapping, "BPName_2016", "iso" )
     bp_drivers   <- list( oil_fuels, gas_fuels, coal_fuels )
     iea_data_agg <- list()
     iea_bp_data  <- list()
@@ -162,12 +166,12 @@
     # Aggregate over different IEA fuel types of the same BP category (eg sum 
     #   over coal, soft coal, and hard coal in the IEA data, and match that 
     #   sum to the general coal category in BP data)
-        iea_data_agg[[i]] <- subset( iea_data_bpname, iea_data_bpname$fuel %in%
-            bp_drivers[[i]], c( "iso", "sector", "fuel", "end_year", "BPName" ) )
+        iea_data_agg[[i]] <- subset( iea_data_BPName_2016, iea_data_BPName_2016$fuel %in%
+            bp_drivers[[i]], c( "iso", "sector", "fuel", "end_year", "BPName_2016" ) )
     # Add the corresponding BP data. Match by region to eventually calculate 
     #   emissions factors for each region
         iea_bp_data[[i]] <- addCols( iea_data_agg[[i]], bp_data[[i]], 
-                                     X_ext_years, "BPName" )
+                                     X_ext_years, "BPName_2016" )
     }   
 
 # ------------------------------------------------------------------------------
@@ -265,14 +269,14 @@
     
 # Make coal data numeric. It's read in as char for some reason
     for ( i in 1:length(ext_years) ) {
-        bp_data[[3]] <- subset( bp_data[[3]], T, c( "BPName", X_ext_years ) )
+        bp_data[[3]] <- subset( bp_data[[3]], T, c( "BPName_2016", X_ext_years ) )
         bp_data[[3]][, i+1] <- as.numeric( bp_data[[3]][, i+1] )
     }
  
     iea_trends <- list()
     bp_trends  <- list()
     iea_bp_trends <- list()
-    iea_trends_bpname <- list()
+    iea_trends_BPName_2016 <- list()
     trend_error <- list()
 
     for ( i in 1:length( bp_data_full ) ) {    
@@ -286,18 +290,18 @@
         #iea_trends[[i]][ is.nan.data.frame( iea_trends[[i]] ) ] <- 1
         names( iea_trends[[i]] ) <- c( "iso", X_ext_years )
     # Find BP global trends
-        bp_trends[[i]] <- subset( bp_data[[i]], T, c( "BPName", X_ext_years ) )
+        bp_trends[[i]] <- subset( bp_data[[i]], T, c( "BPName_2016", X_ext_years ) )
         bp_trends[[i]][, X_ext_years ] <- as.numeric( unlist( 
             bp_trends[[i]][, X_ext_years ] ) ) / 
                 as.numeric( bp_trends[[i]][, X_IEA_end_year ] )
        # bp_trends[[i]][ is.nan.data.frame( bp_trends[[i]] ) ] <- 1
-        names( bp_trends[[i]] ) <- c( "BPName", paste0( "BP", ext_years ) )
+        names( bp_trends[[i]] ) <- c( "BPName_2016", paste0( "BP", ext_years ) )
 
     # Match IEA and BP trends by country
-        iea_trends_bpname[[i]] <- addCols( iea_trends[[i]], ctry_mapping, 
-            "BPName", "iso" )
-        iea_bp_trends[[i]] <- addCols( iea_trends_bpname[[i]], bp_trends[[i]], 
-            paste0( "BP", ext_years ), "BPName" )    
+        iea_trends_BPName_2016[[i]] <- addCols( iea_trends[[i]], ctry_mapping, 
+            "BPName_2016", "iso" )
+        iea_bp_trends[[i]] <- addCols( iea_trends_BPName_2016[[i]], bp_trends[[i]], 
+            paste0( "BP", ext_years ), "BPName_2016" )    
         iea_bp_trends[[i]][ is.nan.data.frame( iea_bp_trends[[i]] ) ] <- 0
         iea_bp_trends[[i]][ iea_bp_trends[[i]][, X_IEA_end_year ] == 0 & 
             iea_bp_trends[[i]][, paste0( "BP", end_year ) ] == 0, 

@@ -44,7 +44,7 @@ gains_ef_db <- readData( 'DIAG_OUT', paste0( 'B.', em, '_comb_EF_GAINS_EMF30' ) 
 # 2. Recent year ( after 2010 ) %control calculation 
 
 # define recent years 
-recent_years <- as.character( 2010 : 2014 )
+recent_years <- as.character( 2010 : end_year )
 
 # extract emissions for recent years 
 gains_recent <- gains_ef_db[ , paste0( 'X', recent_years ) ]

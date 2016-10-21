@@ -8,7 +8,7 @@ IEA_end_year  <- 2013  # Latest year of IEA data; used to compare BP and IEA
 X_IEA_end_year  <- paste0( "X", IEA_end_year  )
 
 #The set of years for the BP data extendForwards further, and is used to augment the IEA.
-BP_years <- 2014 #The years for which there is only BP data
+BP_years <- c(2014,2015)  #The years for which there is only BP data
 X_BP_years <- paste0("X", BP_years)
 
 #Edgar year
@@ -21,7 +21,7 @@ X_emissions_years <- paste0( "X", emissions_years)
 
 start_year = 1960
 X_start_year = paste0("X",start_year)
-end_year = 2014
+end_year = max(BP_years)
 X_end_year = paste0("X",end_year)
 
 # historical extension using CDIAC and RCP
@@ -40,8 +40,6 @@ X_bond_years <- paste0('X', bond_years)
 cdiac_start_year <- 1750
 cdiac_end_year <- 2011
 cdiac_end_year_cement <- 2015
-
-
 
 #---------------------------------
 # Conversion Factors
