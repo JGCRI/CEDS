@@ -46,7 +46,7 @@
     bp_energy_data_file_name <- "BP_energy_data_2016"
     
     iea_data_full <- readData( "MED_OUT", "A.en_biomass_fsu_fix" )
-    bp_energy_data <- readData( "ENERGY_IN","BP_energy_data", ".xlsx")
+    bp_energy_data <- readData( "ENERGY_IN",bp_energy_data_file_name, ".xlsx")
     ctry_mapping <- readData( "MAPPINGS", "BP_2016_iso_mapping", ".xlsx" )
     fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
 
