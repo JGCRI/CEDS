@@ -567,7 +567,7 @@
     
     
 # 4e. Create final dataset
-    pop_master_final <- select( pop_master_HYDE_d, iso, UN_code, country, scenario, 
+    pop_master_all <- select( pop_master_HYDE_d, iso, UN_code, country, scenario, 
                                 year, pop, urban_share ) %>%
       arrange( iso, scenario, year )
     
@@ -575,10 +575,24 @@
 #     any( is.na( pop_master_final$pop ) )          # should be F
 #     any( is.na( pop_master_final$urban_share ) )  # should be F
 
-    pop_master_final[ is.na( pop_master_final ) ] <- ""
+    pop_master_all[ is.na( pop_master_all ) ] <- ""
 
 # ------------------------------------------------------------------------------
-# 5. Write output
+# 5. Check population dataframe with end year
+    
+# make sure only "Estimates" exist in dataframe for emission years
+    estimates <- filter(pop_master_all, year %in% historical_pre_extension_year:end_year,
+                                        scenario == "Estimates" )
+    projections <- filter(pop_master_all, year > end_year )
+# combine historical estimates and future scenarios    
+    pop_master_final <- rbind(estimates, projections)
+    
+    pop_master_final <- select( pop_master_final, iso, UN_code, country, scenario, 
+                              year, pop, urban_share ) %>%
+      arrange( iso, scenario, year )
+    
+# ------------------------------------------------------------------------------
+# 6. Write output
     writeData( pop_master_final, "MED_OUT", "A.UN_pop_master" )
     
 # Write diagnostics
