@@ -1,6 +1,6 @@
 # Program Name: B1.1.base_CO2_comb_EF.R
 # Author: Linh Vu
-# Date Last Updated: 27 Jul 2016 
+# Date Last Updated: 25 Oct 2016 
 # Program Purpose: Generate base emission factors for CO2
 # Input Files: A.coal_heat_content.csv, CO2_base_EF_CDIAC.csv, A.comb_activity.csv
 #     Master_Country_List.csv, IEA_product_fuel.csv
@@ -49,7 +49,8 @@ if ( em %!in% c('CO2') ) {
 # ---------------------------------------------------------------------------
 # 1. Load Data
   coal_heat_content <- readData( "MED_OUT", "A.coal_heat_content" )
-  cdiac_EF <- readData( "DEFAULT_EF_IN", "CO2_base_EF_CDIAC" )
+  #cdiac_EF <- readData( "DEFAULT_EF_IN", "CO2_base_EF_CDIAC" )
+  default_ef <- readData( "DEFAULT_EF_IN", "CO2_base_EF", ".xlsx", sheet_selection = "main" )
   activity_data <- readData( "MED_OUT", "A.comb_activity" )
   
   MCL <- readData( "MAPPINGS", "Master_Country_List" )
@@ -66,53 +67,53 @@ if ( em %!in% c('CO2') ) {
   coal_heat_content$units[ coal_heat_content$units == "kJ/kg" ] <- "kJ/kt"
   
 # Convert gas_fuels EF from kt/TJ to kt/kt
-  cdiac_EF$EF[ cdiac_EF$cdiac_fuel == "gas_fuels" & cdiac_EF$units == "kt/TJ" ] <-
-    cdiac_EF$EF[ cdiac_EF$cdiac_fuel == "gas_fuels" & cdiac_EF$units == "kt/TJ" ] * 
+  default_ef$EF[ default_ef$cdiac_fuel %in% "gas_fuels" ] <-
+    default_ef$EF[ default_ef$cdiac_fuel %in% "gas_fuels" ] * 
     conversionFactor_naturalgas_TJ_per_kt  # kt/TJ * TJ/kt = kt/kt
-  cdiac_EF$units[ cdiac_EF$cdiac_fuel == "gas_fuels" & cdiac_EF$units == "kt/TJ" ] <- "kt/kt"
+  default_ef$units[ default_ef$cdiac_fuel %in% "gas_fuels" ] <- "kt CO2/kt"
   
 # Convert solid_fuels EF from kt/kJ to kt/kt, using country/type/year-specific coal heat content
-  if ( any( coal_heat_content$units != "kJ/kt" ) | any( cdiac_EF$units[ cdiac_EF$cdiac_fuel == "solid_fuels" ] != "kt/kJ" ) )
+  if ( any( coal_heat_content$units != "kJ/kt" ) | any( default_ef$units[ default_ef$cdiac_fuel %in% "solid_fuels" ] != "kt CO2/kJ" ) )
     stop( "Units mismatched. Check that coal heat content is kJ/kt and CDIAC solid fuels EF is kt/kJ." )
-  solid_fuels_EF <- coal_heat_content
-  solid_fuels_EF[, X_emissions_years ] <- solid_fuels_EF[, X_emissions_years ] * cdiac_EF$EF[ cdiac_EF$cdiac_fuel == "solid_fuels" ]
-  solid_fuels_EF$units <- "kt/kt"
+  solid_fuels_ef <- coal_heat_content
+  solid_fuels_ef[, X_emissions_years ] <- solid_fuels_ef[, X_emissions_years ] * default_ef$EF[ default_ef$cdiac_fuel %in% "solid_fuels" ]
+  solid_fuels_ef$units <- "kt CO2/kt"
 
 # ---------------------------------------------------------------------------
 # 3. Make EF df for all iso+sector+fuel
 # Blank EF template
-  EF_data <- activity_data
-  EF_data[, X_emissions_years ] <- NA
-  EF_data$cdiac_fuel <- IEA_product_fuel$cdiac_fuel[ match( EF_data$fuel, IEA_product_fuel$fuel ) ]
+  ef_data <- activity_data
+  ef_data[, X_emissions_years ] <- NA
+  ef_data$cdiac_fuel <- IEA_product_fuel$cdiac_fuel[ match( ef_data$fuel, IEA_product_fuel$fuel ) ]
   
 # Add solid_fuels EF
-  EF_data[, X_emissions_years ] <- solid_fuels_EF[ match( 
-    paste( EF_data$iso, EF_data$fuel ), paste( solid_fuels_EF$iso, solid_fuels_EF$fuel ) ),
+  ef_data[, X_emissions_years ] <- solid_fuels_ef[ match( 
+    paste( ef_data$iso, ef_data$fuel ), paste( solid_fuels_ef$iso, solid_fuels_ef$fuel ) ),
     X_emissions_years ]
   
 # Add liquid_fuels EF
-  EF_data[ EF_data$cdiac_fuel == "liquid_fuels", X_emissions_years ] <- cdiac_EF$EF[ cdiac_EF$cdiac_fuel == "liquid_fuels" ]
+  ef_data[ ef_data$cdiac_fuel == "liquid_fuels", X_emissions_years ] <- default_ef$EF[ default_ef$cdiac_fuel %in% "liquid_fuels" ]
   
 # Add gas_fuels EF
-  EF_data[ EF_data$cdiac_fuel == "gas_fuels", X_emissions_years ] <- cdiac_EF$EF[ cdiac_EF$cdiac_fuel == "gas_fuels" ]
+  ef_data[ ef_data$cdiac_fuel == "gas_fuels", X_emissions_years ] <- default_ef$EF[ default_ef$cdiac_fuel %in% "gas_fuels" ]
   
-# # Add bunker_fuels EF 
-# # Note CDIAC bunker_fuels EF is liquid bunker fuels
-#   EF_data$cdiac_fuel[ EF_data$sector %in% bunker_sectors
-#                       & EF_data$cdiac_fuel == "liquid_fuels" ] <- "bunker_fuels"
-#   EF_data[ EF_data$cdiac_fuel == "bunker_fuels", X_emissions_years ] <- cdiac_EF$EF[ cdiac_EF$cdiac_fuel == "bunker_fuels" ]
-  
+# Add EF for specific fuel types: coal coke and petroleum fuels
+  ef_data[ ef_data$fuel == "coal_coke", X_emissions_years ] <- default_ef$EF[ default_ef$ceds_fuel %in% "coal_coke" ]
+  ef_data[ ef_data$fuel == "heavy_oil", X_emissions_years ] <- default_ef$EF[ default_ef$ceds_fuel %in% "heavy_oil" ]
+  ef_data[ ef_data$fuel == "diesel_oil", X_emissions_years ] <- default_ef$EF[ default_ef$ceds_fuel %in% "diesel_oil" ]
+  ef_data[ ef_data$fuel == "light_oil", X_emissions_years ] <- default_ef$EF[ default_ef$ceds_fuel %in% "light_oil" ]
+  ef_data[ ef_data$fuel == "diesel_oil" & ef_data$sector %in% bunker_sectors, X_emissions_years ] <- 
+    default_ef$EF[ default_ef$ceds_fuel %in% "diesel_oil (aviation)" ]
   
 # Final processing
-  EF_data[ is.na( EF_data ) ] <- 0
-  EF_data[, X_emissions_years ] <- EF_data[, X_emissions_years ] * conversionFactor_C_CO2  # C to CO2
-  EF_data$units <- "kt/kt"
-  EF_data <- EF_data[, c( "iso", "sector", "fuel", "units", X_emissions_years ) ]
-  EF_data <- arrange( EF_data, iso, sector, fuel )
+  ef_data[ is.na( ef_data ) ] <- 0
+  ef_data$units <- "kt/kt"  # kt CO2/kt
+  ef_data <- ef_data[, c( "iso", "sector", "fuel", "units", X_emissions_years ) ]
+  ef_data <- arrange( ef_data, iso, sector, fuel )
 
 # ---------------------------------------------------------------------------
 # 4. Output
-  writeData( EF_data, "MED_OUT", paste0( "B.", em, "_comb_EF_db" ) )
+  writeData( ef_data, "MED_OUT", paste0( "B.", em, "_comb_EF_db" ) )
   
   logStop()
   

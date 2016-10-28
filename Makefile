@@ -498,7 +498,7 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(INV_DATA)/160227_SPEW_BCOCemission.xlsx \
 	$(MED_OUT)/A.comb_activity.csv \
 	$(MED_OUT)/A.coal_heat_content.csv \
-	$(EF_DATA)/CO2_base_EF_CDIAC.csv
+	$(EF_DATA)/CO2_base_EF.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 
