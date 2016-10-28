@@ -216,7 +216,8 @@ global_long$year <- as.numeric(global_long$year)
 
 global <- rbind( global_ceds[,c('inv',x_rcp_years)],global_rcp[,c('inv',x_rcp_years)])
 
-#Plot - only totals
+######
+#Plot - only totals - no stacked sectors
 df <- global_long[,c('inv','year','total_emissions')]
 df$inv <- as.factor(df$inv)
 df$total_emissions <- df$total_emissions/1000
@@ -230,7 +231,7 @@ plot <- ggplot(df, aes(x=year,y=total_emissions,group=inv,shape=inv,linetype=inv
                      minor_breaks = seq(from=CEDS_start_year, to=rcp_end_year, by=25)) +
   scale_y_continuous(limits = c(0,max ),labels = comma)+
   ggtitle( em )+
-  labs(x= "" , y= 'Emissions [Tg/yr]' )+
+  labs(x= "" , y= paste(em ,'Emissions [Tg/yr]' )) +
   theme(panel.background=element_blank(),
         panel.grid.minor = element_line(colour="gray95"),
         panel.grid.major = element_line(colour="gray88"))+
@@ -244,6 +245,7 @@ plot
 
 total_comparison_list[[h]] <- plot
 
+#########
 # Plot - totals with sector stack
 
 df <- global_long[,c('inv','year','total_emissions')]
@@ -255,18 +257,19 @@ df2 <- sector_ceds_long
 df2$total_emissions <- df2$total_emissions/1000
 
 plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
-  geom_area( data= df2, aes(x=year,y=total_emissions, fill = sector),  alpha = .7)+
+  geom_area( data= df2, aes(x=year,y=total_emissions, fill = sector),  alpha = .68)+
   geom_point(data = subset(df, inv=='CMIP5'), aes(x=year,y=total_emissions, shape = inv)) + 
   scale_x_continuous(limits = c(CEDS_start_year,2015 ),
                      breaks= seq(from=CEDS_start_year, to=rcp_end_year, by=50),
                      minor_breaks = seq(from=CEDS_start_year, to=rcp_end_year, by=25)) +
   scale_y_continuous(limits = c(0,max ),labels = comma)+
   ggtitle( em )+
-  labs(x= "" , y= 'Emissions [Tg/yr]' )+
+  labs(x= "" , y= paste(em ,'Emissions [Tg/yr]' ) )+
   theme(#legend.position="none",
         panel.background=element_blank(),
-        panel.grid.minor = element_line(colour="gray95"),
-        panel.grid.major = element_line(colour="gray88"))+
+        panel.grid.minor = element_line(colour="gray96", size = .4),
+        panel.grid.major = element_line(colour="gray90", size = .3),
+        panel.border = element_rect(colour="gray75", fill = NA, size = .8) )+
   scale_fill_discrete(name = 'CEDS Sector')+
   scale_shape_manual(name= 'Inventory',
                      breaks = c('CMIP5'),
