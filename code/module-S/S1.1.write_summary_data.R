@@ -35,7 +35,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "CO"
 
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
@@ -200,7 +200,7 @@ if ( WRITE_CEDS_SECTORS ) {
   }
   
 # If no summary file exists, write out current-run files and exit
-if ( length( list.files( "../final-emissions/current-versions/", pattern = paste0( "_", em ) ) ) == 0 ) {
+if ( length( list.files( "../final-emissions/current-versions/", pattern = paste0( "_", em, "_" ) ) ) == 0 ) {
   writeSummary()
 
 # Else compare current-run and last-run emissions summary
@@ -209,7 +209,7 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
   
   # move last-run files to a temp folder [em]_last-run
   dir.create( paste0( "../final-emissions/", em, "_last-run" ), showWarnings = F )
-  fl <- list.files( "../final-emissions/current-versions/", pattern = paste0( "_", em ), full.names = T )
+  fl <- list.files( "../final-emissions/current-versions/", pattern = paste0( "_", em, "_" ), full.names = T )
   moveFileList( fl, paste0( "../final-emissions/", em, "_last-run/" ) )
 
   # write out current-run
@@ -231,17 +231,17 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
   } else if ( identical( em_current, em_last ) ) {
     warning( paste( base_fn, "did not change from last run." ) )
     unlink( dir( "../final-emissions/current-versions/", 
-                 pattern = paste0( "_", em ), full.names = T ) )  
-    fl <- list.files( paste0( "../final-emissions/", em, "_last-run/" ), pattern = paste0( "_", em ), full.names = T )
+                 pattern = paste0( "_", em, "_" ), full.names = T ) )  
+    fl <- list.files( paste0( "../final-emissions/", em, "_last-run/" ), pattern = paste0( "_", em, "_" ), full.names = T )
     moveFileList( fl, "../final-emissions/current-versions/" )
 
   # else run comparison diagnostics
   } else {
     # delete relevant emissions from previous-versions and diagnostics
       unlink( dir( "../final-emissions/previous-versions/", 
-                   pattern = paste0( "_", em ), full.names = T ) )
+                   pattern = paste0( "_", em, "_" ), full.names = T ) )
       unlink( dir( "../final-emissions/diagnostics/", 
-                   pattern = paste0( "_", em ), full.names = T ) )
+                   pattern = paste0( "_", em, "_" ), full.names = T ) )
       
     # move content of last-run to previous-versions
       fl <- list.files( paste0( "../final-emissions/", em, "_last-run" ), full.names = T )
