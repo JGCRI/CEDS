@@ -128,10 +128,8 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
   time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
   
   # generate nc file name
-  ceds_version <- 'v'
-  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
-  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
-  nc_file_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.nc' ) 
+  # object version stamp is from global environment
+  nc_file_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', grid_resolution, '_', version_stamp, '.nc' ) 
   
   # generate the var_list 
   var_list_expression <- c()
@@ -222,10 +220,8 @@ final_monthly_nc_output <- function( output_dir, grid_resolution, year, em_speci
                                month = rep( 1 : 12, length( sector_list ) ),
                                global_total = checksum_total_emission_list,
                                unit = 'kt' )
-  ceds_version <- 'v'
-  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
-  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
-  summary_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
+							   
+  summary_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', grid_resolution, '_', version_stamp, '.csv' )
   write.csv( summary_table, file = summary_name, row.names = F )
 }
 # -------------------------------------------------
@@ -311,10 +307,7 @@ final_monthly_nc_output_air <- function( output_dir, grid_resolution, year, em_s
   time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
   
   # generate nc file name
-  ceds_version <- 'v'
-  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
-  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
-  nc_file_name <- paste0( output_dir, 'CEDS_', em_species, '_', sector, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.nc' ) 
+  nc_file_name <- paste0( output_dir, 'CEDS_', em_species, '_', sector, '_anthro_', year, '_', grid_resolution, '_', version_stamp, '.nc' ) 
   
   # generate the var_list 
   variable_list <- list( AIR, lat_bnds, lon_bnds, time_bnds )
@@ -410,10 +403,8 @@ final_monthly_nc_output_air <- function( output_dir, grid_resolution, year, em_s
                                month = rep( 1 : 12 ),
                                global_total = checksum_total_emission_list,
                                unit = 'kt' )
-  ceds_version <- 'v'
-  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
-  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
-  summary_name <- paste0( output_dir, 'CEDS_', em_species, '_', sector, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
+
+  summary_name <- paste0( output_dir, 'CEDS_', em_species, '_', sector, '_anthro_', year, '_', grid_resolution, '_', version_stamp, '.csv' )
   write.csv( summary_table, file = summary_name, row.names = F )
 }
 # -------------------------------------------------
@@ -536,13 +527,10 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
   time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
   
   # generate nc file name
-  ceds_version <- 'v'
-  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
-  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
   VOC_species_name <- VOC_names$VOC_name[ which( VOC_names$VOC_id %in% VOC ) ] # retrieve the VOC real name 
   VOC_species_name <- substring( VOC_species_name, 1, 10 ) # cutoff at 10 characters
   nc_file_name <- paste0( output_dir, 'CEDS_', VOC, '-', VOC_species_name, 
-                          '_anthro_', year, '_', grid_resolution, '_', ver_date, '.nc' ) 
+                          '_anthro_', year, '_', grid_resolution, '_', version_stamp, '.nc' ) 
   
   # generate the var_list 
   var_list_expression <- c()
@@ -629,7 +617,7 @@ final_monthly_nc_output_subVOCs <- function( output_dir, grid_resolution, year, 
                                month = rep( 1 : 12, length( sector_list ) ),
                                global_total = checksum_total_emission_list,
                                unit = 'kt' )
-  summary_name <- paste0( output_dir, 'CEDS_', VOC, '-', VOC_species_name, '_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
+  summary_name <- paste0( output_dir, 'CEDS_', VOC, '-', VOC_species_name, '_anthro_', year, '_', grid_resolution, '_', version_stamp, '.csv' )
   write.csv( summary_table, file = summary_name, row.names = F )
 
   }
@@ -689,10 +677,7 @@ annual_total_emission_nc_output <- function( output_dir, grid_resolution, year, 
   lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
   
   # generate nc file name
-  ceds_version <- 'v'
-  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
-  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
-  nc_file_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', 'TOTAL', '_', grid_resolution, '_', ver_date, '.nc' ) 
+  nc_file_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', 'TOTAL', '_', grid_resolution, '_', version_stamp, '.nc' ) 
   
   # generate the var_list 
   variable_list <- list( total_emission, lat_bnds, lon_bnds ) 
@@ -766,10 +751,8 @@ annual_total_emission_nc_output <- function( output_dir, grid_resolution, year, 
   summary_table <- data.frame( year = year, species = em_species,  
                                global_total = total_sum_in_kt,
                                unit = 'kt' )
-  ceds_version <- 'v'
-  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
-  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
-  summary_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', 'TOTAL', '_', grid_resolution, '_', ver_date, '.csv' )
+
+  summary_name <- paste0( output_dir, 'CEDS_', em_species, '_anthro_', year, '_', 'TOTAL', '_', grid_resolution, '_', version_stamp, '.csv' )
   write.csv( summary_table, file = summary_name, row.names = F )
 }
 # -------------------------------------------------
@@ -838,9 +821,8 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
   RCO_em_global_final <- temp_array
   checksum_total_emission_list <- c( checksum_total_emission_list, checksum_total_emission_each_month_list )
   checksum_sector_list <- c( checksum_sector_list, rep( 'RCO', 12 ) )
-  
-############################################################################################################
     
+	
   data_list <- paste0( sector_list, '_em_global_final')
   
   lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
@@ -882,10 +864,7 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
   time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
   
   # generate nc file name
-  ceds_version <- 'v'
-  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
-  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
-  nc_file_name <- paste0( output_dir, 'CEDS_', em_species, '_SOLID_BIOFUEL_anthro_', year, '_', grid_resolution, '_', ver_date, '.nc' ) 
+  nc_file_name <- paste0( output_dir, 'CEDS_', em_species, '_SOLID_BIOFUEL_anthro_', year, '_', grid_resolution, '_', version_stamp, '.nc' ) 
   
   # generate the var_list 
   var_list_expression <- c()
@@ -969,8 +948,6 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
   
   # close nc_new
   nc_close( nc_new)
-
-#########################################################################################################################
     
   # additional section: write a summary and check text
 
@@ -979,10 +956,8 @@ final_monthly_nc_output_biomass <- function( output_dir, grid_resolution, year, 
                                month = rep( 1 : 12, length( sector_list ) ),
                                global_total = checksum_total_emission_list,
                                unit = 'kt' )
-  ceds_version <- 'v'
-  date_parts <- unlist( strsplit( as.character( Sys.Date() ), split = '-' ) ) 
-  ver_date <- paste( ceds_version, date_parts[ 2 ], date_parts[ 3 ], date_parts[ 1 ], sep = '_' )
-  summary_name <- paste0( output_dir, 'CEDS_', em_species, '_SOLID_BIOFUEL_anthro_', year, '_', grid_resolution, '_', ver_date, '.csv' )
+
+  summary_name <- paste0( output_dir, 'CEDS_', em_species, '_SOLID_BIOFUEL_anthro_', year, '_', grid_resolution, '_', version_stamp, '.csv' )
   write.csv( summary_table, file = summary_name, row.names = F )
 }
 
