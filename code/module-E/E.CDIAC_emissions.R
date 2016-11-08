@@ -487,12 +487,12 @@ initialize( script_name, log_msg, headers )
 # -----------------------------------------------------------------------------------------------------------
 # 11. Output
  
-  writeData(cdiac_final, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_inventory" ), meta = F )
-  writeData(cdiac_cement, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_Cement" ), meta = F )
-  writeData(cdiac_total, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_Total_CO2" ), meta = F )
-  writeData(cdiac_liquid_and_gas, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_liquid_and_gas" ), meta = F )
-  writeData(cdiac_solid_fuel, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_solid_fuel" ), meta = F )
-  writeData(cdiac_solid_fuel_cumulative, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_solid_fuel_cumulative" ), meta = F )
+  writeData(cdiac_final, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_inventory" ), meta = T )
+  writeData(cdiac_cement, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_Cement" ), meta = T )
+  writeData(cdiac_total, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_Total_CO2" ), meta = T )
+  writeData(cdiac_liquid_and_gas, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_liquid_and_gas" ), meta = T )
+  writeData(cdiac_solid_fuel, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_solid_fuel" ), meta = T )
+  writeData(cdiac_solid_fuel_cumulative, domain = "MED_OUT", fn = paste0( "E.CO2_CDIAC_solid_fuel_cumulative" ), meta = T )
 
   writeData(cdiac_region_fuel, domain = "DIAG_OUT", fn = "E.CO2_CDIAC_by_figure_region_CDIAC_fuel", meta = TRUE )
   writeData(cdiac_iso_fuel, domain = "DIAG_OUT", fn = "E.CO2_CDIAC_by_iso_CDIAC_fuel", meta = TRUE )
