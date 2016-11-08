@@ -38,9 +38,9 @@ if ( is.na( em ) ) em <- "BC"
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-ceds_EFs <- readData( 'MED_OUT', paste0( "H.", em, "_total_EFs_adjusted-sector" ) , meta = F )  
-extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = F )
-extension_drivers_activity <- readData("EXT_IN", 'CEDS_historical_extension_drivers_activity', meta = F )
+ceds_EFs <- readData( 'MED_OUT', paste0( "H.", em, "_total_EFs_adjusted-sector" )  )  
+extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF' )
+extension_drivers_activity <- readData("EXT_IN", 'CEDS_historical_extension_drivers_activity' )
 
 # ---------------------------------------------------------------------------
 # 2. Check EF methods

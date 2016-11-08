@@ -42,7 +42,7 @@ if ( is.na( em ) ) em <- "BC"
   library( "tools" )
 
 # Load data
-  ef_full <- readData( 'MED_OUT', paste0( 'F.',em,'_scaled_EF' ) , meta = F ) 
+  ef_full <- readData( 'MED_OUT', paste0( 'F.',em,'_scaled_EF' ) ) 
   sector_map_list <- list.files( path = "extention/sector-change/", pattern = "*.csv" ) %>% file_path_sans_ext()
   sector_map_list <- sector_map_list[ grepl( em, sector_map_list )  & 
                                         !grepl( "metadata", sector_map_list ) ]
