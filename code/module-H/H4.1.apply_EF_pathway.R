@@ -1,6 +1,6 @@
-# Program Name: H3.1.apply_EF_pathway.R
+# Program Name: H4.1.apply_EF_pathway.R
 # Author: Linh Vu
-# Date Last Updated: 5 April 2016
+# Date Last Updated: 8 Nov 2016
 # Program Purpose: Apply minimum/maximum EF pathway to extended EF
 # Input Files: H.[em]_total_EFs_extended.csv, Master_Country_List.csv
 # Output Files: H.[em]_total_EFs_extended_adjusted-pathway.csv 
@@ -27,7 +27,7 @@ PARAM_DIR <- "../code/parameters/"
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'data_functions.R', 'timeframe_functions.R', 'common_data.R') 
 log_msg <- "Apply emissions factor pathway"
-script_name <- "H3.1.apply_EF_pathway.R"
+script_name <- "H4.1.apply_EF_pathway.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -39,7 +39,6 @@ if ( is.na( em ) ) em <- "NOx"
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
     library( "tools" )
-    library( "zoo" )
 
 # ---------------------------------------------------------------------------
 # 1. Read input
@@ -95,11 +94,11 @@ if( length( fl ) > 0 ){
 # Recast into more convenient format
     pathway_full_long <- melt( pathway_full, id = id_cols )
     names( pathway_full_long )[ names( pathway_full_long ) %in% c( "variable", "value" ) ] <- c( "year", "pathway_val" )
-    pathway_id_cols <- select( pathway_full_long, -method, -pathway_val ) %>% unique()
+    pathway_id_cols <- select( pathway_full_long, -pathway_type, -pathway_val ) %>% unique()
     
-    pathway_min <- filter( pathway_full_long, method == "minimum" )
+    pathway_min <- filter( pathway_full_long, pathway_type == "minimum" )
     names( pathway_min )[ names( pathway_min ) == "pathway_val" ] <- "min_ef"
-    pathway_max <- filter( pathway_full_long, method == "maximum")
+    pathway_max <- filter( pathway_full_long, pathway_type == "maximum")
     names( pathway_max )[ names( pathway_max ) == "pathway_val" ] <- "max_ef"
     
     pathway_full_long <- merge( pathway_id_cols, pathway_min, all = T ) %>%
