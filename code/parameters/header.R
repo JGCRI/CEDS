@@ -16,7 +16,7 @@
 sourceFunctions <- function( file_name ){ source( paste0( PARAM_DIR, file_name) ) }
 addDep <- function( file_name ){ addDependency( paste0 ( PARAM_DIR, file_name ) ) }
 
-initialize <- function( script_name, log_msg, headers, common_data = TRUE ){
+initialize <- function( script_name, log_msg, headers, common_data = TRUE, clear_metadata = TRUE){
     
     # Include common_data.R by default
     if( common_data && ( ! "common_data.R" %in% headers ) ){ headers <- c( headers, "common_data.R" ) }
@@ -27,7 +27,9 @@ initialize <- function( script_name, log_msg, headers, common_data = TRUE ){
 
     invisible( lapply( headers, sourceFunctions ) )
 	logStart( script_name )
-    clearMeta()
+    if ( clear_metadata ) {
+    	clearMeta()
+    }
     invisible( lapply( headers, addDep ) )
     printLog( log_msg )
 
