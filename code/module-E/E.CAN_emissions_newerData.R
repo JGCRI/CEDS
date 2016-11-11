@@ -44,7 +44,8 @@ initialize( script_name, log_msg, headers )
 
 # ------------------------------------------------------------------------------
 # 1. Define parameters for inventory specific script
-inventory_data_file <- paste0('Canada/ape_results_e_',em,'_2014')
+inventory_data_file <- paste0('ape_results_e_',em,'_2014')
+subfolder_name <- 'Canada/'
 inv_data_folder <- "EM_INV"
 inv_name <- 'CAN' #for naming diagnostic files
 inv_years<-c(1990:2014)
@@ -53,13 +54,13 @@ inv_years_reversed<-c(2014:1990)
 
 # ------------------------------------------------------------------------------
 # 1.5 Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
-file_path <- filePath( inv_data_folder, inventory_data_file, extension = ".xlsx" )
+file_path <- filePath( inv_data_folder, inventory_data_file, extension = ".xlsx", domain_extension = subfolder_name )
 
 # Process given emission if inventory data exists
 if ( file.exists( file_path ) ){
   # Import Sheet
   sheet_name <- "Sheet1"
-  inv_data_sheet <- readData( inv_data_folder, inventory_data_file , ".xlsx", 
+  inv_data_sheet <- readData( inv_data_folder, domain_extension = subfolder_name, inventory_data_file , ".xlsx", 
                               sheet_selection = sheet_name ) 
   # Clean rows and columns to standard format
   inv_data_sheet <- inv_data_sheet[-1:-7,]
