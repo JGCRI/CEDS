@@ -41,8 +41,9 @@ initialize( script_name, log_msg, headers )
 
 # ------------------------------------------------------------------------------
 # 1. Define parameters for inventory specific script
-inventory_data_file <- 'China/CEDS_MEIC_Emissions_2rdLevel_20160226_plus'
+inventory_data_file <- 'CEDS_MEIC_Emissions_2rdLevel_20160226_plus'
 inv_data_folder <- "EM_INV"
+subfolder_name <- 'China/'
 inv_name <- 'CHN' #for naming diagnostic files
 inv_years<-c(2008,2010,2012)
 
@@ -53,13 +54,13 @@ inv_years<-c(2008,2010,2012)
   # Import Sheets containing 2008,2010,2012 data.
   sheet_name <- "2008"
   inv_data_sheet_eight <- readData( inv_data_folder, inventory_data_file , ".xlsx", 
-                                    sheet_selection = sheet_name )
+                                    sheet_selection = sheet_name, domain_extension = subfolder_name  )
   sheet_name <- "2010"
   inv_data_sheet_ten <- readData( inv_data_folder, inventory_data_file , ".xlsx", 
-                                  sheet_selection = sheet_name )
+                                  sheet_selection = sheet_name, domain_extension = subfolder_name )
   sheet_name <- "2012"
   inv_data_sheet_twelve <- readData( inv_data_folder, inventory_data_file , ".xlsx", 
-                                     sheet_selection = sheet_name )
+                                     sheet_selection = sheet_name, domain_extension = subfolder_name )
   
 # Process given emission if inventory data exists
 # Here assuming data for specific emission species either do not exist or exist

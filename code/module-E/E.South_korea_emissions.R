@@ -61,17 +61,18 @@ if ( em %!in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ) {
 # -------------------------------------------
 # Translation File in case we want to translate something thats already been translated.
 # 
-#translation_file <- 'Korea/Korea-Translation'
+#translation_file <- 'Korea-Translation'
 #sheet_name <- "Sector"
 #translation <- readData( inv_data_folder, translation_file , ".xlsx", 
-#                            sheet_selection = sheet_name )
+#                            domain_extension = subfolder_name, sheet_selection = sheet_name )
 # -----
 inv_data_folder <- "EM_INV"
 inv_years<-c(1999:2012)
 
-inventory_filename <- 'Korea/Air pollutants_South Korea_1999_2012_Korean font'
+inventory_filename <- 'Air pollutants_South Korea_1999_2012_Korean font'
+subfolder_name <- 'Korea/'
 sheet_name2 <- "1999"
-Inventory_data <- readData( inv_data_folder, inventory_filename , ".xlsx", 
+Inventory_data <- readData( inv_data_folder, domain_extension = subfolder_name, inventory_filename , ".xlsx", 
                             sheet_selection = sheet_name2,  skip_rows = 3)
 
 
@@ -86,7 +87,7 @@ for(year in 2000:2012){
 	old_names <- colnames(inv_data_sheet)
 	sheet_name2 <- as.character(year)
 	Inventory_data <- readData( inv_data_folder, inventory_filename , ".xlsx", 
-						 sheet_selection = sheet_name2, skip_rows = 3 )
+						 domain_extension = subfolder_name, sheet_selection = sheet_name2, skip_rows = 3 )
 
 	colnames(Inventory_data) <- c(paste0("X",1:10), colnames(Inventory_data[11:ncol(Inventory_data)]))
 	Inventory_data <- Inventory_data[, c(paste0("X", 1:10), em_temp)]
