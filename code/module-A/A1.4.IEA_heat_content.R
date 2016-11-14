@@ -1,6 +1,6 @@
 # Program Name: A1.4.IEA_heat_content.R
 # Author: Linh Vu
-# Date Last Updated: 26 Jul 2016
+# Date Last Updated: 7 Nov 2016
 # Program Purpose: Computes heat content from IEA Conversion Factors
 #   by country, year and fuel type. Currently doing this for coal.
 # Input Files: OECD_Conversion_Factors_Full.csv, NonOECD_Conversion_Factors_Full.csv,
@@ -55,18 +55,30 @@ initialize( script_name, log_msg, headers )
 # Clean up mapping
   IEA_product_fuel$product <- gsub(" \\([kt/TJ].*", "", IEA_product_fuel$product )
   
-# Select relevant flows
+# Select relevant flow
   conversion_all <- filter( conversion_all, FLOW %in% c( "Average net calorific value" ) )
-  #conversion_all <- filter( conversion_all, FLOW %in% c( "Average net calorific value", "NCV of imports" ) )
-  conversion_all$fuel <- IEA_product_fuel$fuel[ match( conversion_all$PRODUCT, IEA_product_fuel$product ) ]
 
-# Compute average heat content by fuel type and year for coal
-  hc_coal <- filter( conversion_all, fuel %in% c( "hard_coal", "brown_coal", "coal_coke" ) ) %>%
-    select( -FLOW, -PRODUCT ) %>%
-    group_by( COUNTRY, fuel ) %>%
-    summarise_each( funs( mean(., na.rm = T ) ) ) %>%
-    data.frame()
-
+# Select representative products for each fuel type: 
+# -- coal_coke: "Coking coal"
+# -- hard_coal: "Hard coal (if no detail)"; "Other bituminous coal"
+# -- brown_coal: "Brown coal (if no detail)"; "Lignite" (or "Sub-bituminous coal" if Lignite not available)
+  coal_coke_products <- c( "Coking coal" )
+  hard_coal_products <- c( "Hard coal (if no detail)", "Other bituminous coal" )
+  brown_coal_products <- c( "Brown coal (if no detail)", "Lignite", "Sub-bituminous coal" )
+  conversion_coal <- filter( conversion_all, PRODUCT %in% c( coal_coke_products, hard_coal_products, brown_coal_products ) )
+  conversion_coal$fuel[ conversion_coal$PRODUCT  %in% coal_coke_products ] <- "coal_coke"
+  conversion_coal$fuel[ conversion_coal$PRODUCT  %in% hard_coal_products ] <- "hard_coal"
+  conversion_coal$fuel[ conversion_coal$PRODUCT  %in% brown_coal_products ] <- "brown_coal"
+  
+# For brown coal, keep "Sub-bituminous coal" only if "Lignite" NA for all years
+  ctry_no_lignite <- filter( conversion_coal, PRODUCT == "Lignite" )
+  ctry_no_lignite <- ctry_no_lignite[ rowSums( is.na( ctry_no_lignite ) ) == length( X_emissions_years ), ]
+  conversion_coal <- filter( conversion_coal, PRODUCT != "Sub-bituminous coal" | COUNTRY %in% ctry_no_lignite$COUNTRY )
+  
+# Compute average heat content by fuel type
+  hc_coal <- select( conversion_coal, -FLOW, -PRODUCT ) %>% group_by( COUNTRY, fuel ) %>%
+    summarise_each( funs( mean(., na.rm = T ) ) ) %>% data.frame()
+    
 # Map to MCL countries  
   hc_coal_all <- merge( hc_coal, select( MCL, iso, COUNTRY = IEAName ) )
   hc_coal_all$units <- "kJ/kg"
@@ -86,7 +98,7 @@ initialize( script_name, log_msg, headers )
     summarise( value = length( value ) ) %>%
     filter( value != 1 )
   for ( i in seq_along( dup_long[[1]] ) ) {
-    warning( paste( "Duplicates:", dup_long$iso[[i]], dup_long$fuel[[i]], dup_long$variable[[i]] ) )
+    stop( paste( "Duplicates:", dup_long$iso[[i]], dup_long$fuel[[i]], dup_long$variable[[i]] ) )
   }
     
 # Remaining iso+fuel duplicates seem mostly composite/broken up countries that cover
