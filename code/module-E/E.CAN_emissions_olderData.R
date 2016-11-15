@@ -57,8 +57,8 @@ initialize( script_name, log_msg, headers )
   if( sheet_name == 'SO2') sheet_name <- 'SOx'
   if( sheet_name == 'NMVOC') sheet_name <- 'VOC'
   
-  inv_data_sheet <- readData( inv_data_folder, domain_extension = "Canada/", 
-                              domain_extension = subfolder_name, inventory_data_file , ".xlsx" ) 
+  inv_data_sheet <- readData( inv_data_folder, domain_extension = subfolder_name, 
+                              inventory_data_file , ".xlsx" ) 
   
 # Process given emission if inventory data exists
 if ( sheet_name %in% names( inv_data_sheet ) ){
