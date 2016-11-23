@@ -49,7 +49,6 @@ if ( em %!in% c('CO2') ) {
 # ---------------------------------------------------------------------------
 # 1. Load Data
   coal_heat_content <- readData( "MED_OUT", "A.coal_heat_content" )
-  #cdiac_EF <- readData( "DEFAULT_EF_IN", "CO2_base_EF_CDIAC" )
   default_ef <- readData( "DEFAULT_EF_IN", "CO2_base_EF", ".xlsx", sheet_selection = "main" )
   activity_data <- readData( "MED_OUT", "A.comb_activity" )
   
@@ -110,10 +109,17 @@ if ( em %!in% c('CO2') ) {
   ef_data$units <- "kt/kt"  # kt CO2/kt
   ef_data <- ef_data[, c( "iso", "sector", "fuel", "units", X_emissions_years ) ]
   ef_data <- arrange( ef_data, iso, sector, fuel )
+  
+# Diagnostic output: country-specific EF for non-bunker sectors  
+  ef_non_bunker <- filter( ef_data, sector %!in% bunker_sectors ) %>% select( -sector ) %>% unique()
+  if( any( duplicated( ef_non_bunker[ c( "iso", "fuel", "units" ) ] ) ) )
+    warning( "There are duplicates in non-bunker sector CO2 EFs.")
+  
 
 # ---------------------------------------------------------------------------
 # 4. Output
   writeData( ef_data, "MED_OUT", paste0( "B.", em, "_comb_EF_db" ) )
+  writeData( ef_non_bunker, "DIAG_OUT", paste0( "B.", em, "_comb_EF_non-bunker" ) )
   
   logStop()
   
