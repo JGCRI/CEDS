@@ -783,7 +783,8 @@ $(MED_OUT)/$(EM)_total_CEDS_emissions.csv : \
 	$(MOD_H)/H4.2.proc_Extended_Emissions.R \
 	$(MED_OUT)/H.$(EM)_total_EFs_extended_adjusted-pathway.csv \
 	$(MED_OUT)/H.$(EM)_total_activity_extended.csv \
-	$(MOD_H)/H4.3.add_emissions_SO2_other_transformation.R
+	$(MOD_H)/H4.3.add_emissions_SO2_other_transformation.R \
+	$(MOD_H)/H4.3.add_emissions_CO2_other_transformation.R
 	Rscript $< $(EM) --nosave --no-restore
 
 $(FINAL_OUT)/current-versions/CEDS_$(EM)_emissions_by_country_sector_%.csv : \
