@@ -50,7 +50,8 @@ initialize( script_name, log_msg, headers )
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-inventory_data_file <- 'Taiwan/Taiwan_emissions'
+inventory_data_file <- 'Taiwan_emissions'
+subfolder_name <- 'Taiwan/'
 inv_data_folder <- "EM_INV"
 sector_fuel_mapping <- 'TWN_scaling_mapping'
 mapping_method <- 'sector'
@@ -71,13 +72,13 @@ if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) {
 # Import Sheets containing 2008,2010,2012 data.
 sheet_name <- "2003"
 inv_data_sheet_two <- readData( inv_data_folder, inventory_data_file , ".xlsx", skip = 1, 
-                                 sheet_selection = sheet_name )
+                                 sheet_selection = sheet_name, domain_extension = subfolder_name )
 sheet_name <- "2006"
 inv_data_sheet_three <- readData( inv_data_folder, inventory_data_file , ".xlsx", skip = 1, 
-                                  sheet_selection = sheet_name )
+                                  sheet_selection = sheet_name, domain_extension = subfolder_name )
 sheet_name <- "2010"
 inv_data_sheet_four <- readData( inv_data_folder, inventory_data_file , ".xlsx", skip = 1, 
-                                  sheet_selection = sheet_name )
+                                  sheet_selection = sheet_name, domain_extension = subfolder_name )
 # kepp desired columns
 keep_columns <- c( 'sector', 'sub-sector1', 'sub-sector2', 'SOx', 'NOx', 'NMHC', 'CO' )
 col_names <- c( 'sector', 'subsector_l1', 'subsector_l2', 'SO2', 'NOx', 'NMVOC', 'CO')

@@ -48,20 +48,23 @@ if (em_temp == "NMVOC"){
 }
 
 inv_data_folder <- "EM_INV"
+subfolder_name <- 'Argentina/'
 inv_name <- 'ARG' #for naming diagnostic files
 inv_years<-c(1990:1999, 2001:2009, 2011)
 
 # -------------------------------------------
 # 1.5. Reading in translation file and the first sheet of Argentina Inventory
 
-translation_file <- 'Argentina/Argentina_Translation'
+translation_file <- 'Argentina_Translation'
 sheet_name <- "Sheet1"
-translation <- readData( inv_data_folder, translation_file , ".xlsx", 
-                            sheet_selection = sheet_name )
+translation <- readData( inv_data_folder, translation_file, ".xlsx", 
+                            domain_extension = subfolder_name, 
+                            sheet_selection = sheet_name, meta = F )
 
-attempt_file <- 'Argentina/Argentina Inventario 1990-2012-ipcc1996'
+attempt_file <- 'Argentina Inventario 1990-2012-ipcc1996'
 sheet_name2 <- "Inventario 1990"
 attempt <- readData( inv_data_folder, attempt_file , ".xlsx", 
+                     domain_extension = subfolder_name, 
                      sheet_selection = sheet_name2,  skip_rows = 2)
 
 # Renaming sector column, removing NA sectors and translating sector names from Spanish to English.
@@ -86,9 +89,10 @@ if ( em_temp %in% names( attempt ) ){
     # Reading data sheet in. 
     attempt <- 0
     old_names <- colnames(inv_data_sheet)
-    attempt_file <- 'Argentina/Argentina Inventario 1990-2012-ipcc1996'
+    attempt_file <- 'Argentina Inventario 1990-2012-ipcc1996'
     sheet_name2 <- paste("Inventario", as.character(year))
     attempt <- readData( inv_data_folder, attempt_file , ".xlsx", 
+                         domain_extension = subfolder_name, 
                          sheet_selection = sheet_name2, skip_rows = 2 )
     
     # Translating sectors from Spanish to English. Removing NA rows from sector list.

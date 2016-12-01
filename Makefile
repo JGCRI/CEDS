@@ -89,7 +89,7 @@ endif
 # modules. You may also wish to create a new .bat file
 # specifically to run the system with the new emissions type.
 
-all: SO2-emissions BC-emissions NOx-emissions CO-emissions NMVOC-emissions CO2-emissions
+all: SO2-emissions BC-emissions NOx-emissions CO-emissions NMVOC-emissions CO2-emissions NH3-emissions
 part1: SO2-emissions NOx-emissions NH3-emissions
 part2: CO-emissions NMVOC-emissions
 
@@ -495,7 +495,7 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(MAPPINGS)/Bond/Bond_country_map.csv \
 	$(MAPPINGS)/Bond/Bond_fuel_map.csv \
 	$(MAPPINGS)/Bond/Bond_sector_map.csv \
-	$(INV_DATA)/160227_SPEW_BCOCemission.xlsx \
+	$(INV_DATA)/Bond-BCOC/160227_SPEW_BCOCemission.xlsx \
 	$(MED_OUT)/A.comb_activity.csv \
 	$(MED_OUT)/A.coal_heat_content.csv \
 	$(EF_DATA)/CO2_base_EF.xlsx

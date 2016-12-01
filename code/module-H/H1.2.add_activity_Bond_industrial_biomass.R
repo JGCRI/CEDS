@@ -40,7 +40,7 @@ if ( is.na( em ) ) em <- "SO2"
 
 activity_all <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended_db') , meta=F)
 
-bond_historical <- readData( "EM_INV" ,"160227_SPEW_BCOCemission", ".xlsx", meta = F )
+bond_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/" ,"160227_SPEW_BCOCemission", ".xlsx", meta = T )
 iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_country_map", meta = F )
 fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_fuel_map", meta = F )
 

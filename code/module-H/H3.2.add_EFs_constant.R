@@ -38,8 +38,8 @@ if ( is.na( em ) ) em <- "NH3"
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-ceds_EFs <- readData( 'MED_OUT', paste0('H.',em,'_total_EFs_extended_db') , meta = F )  
-extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = F )
+ceds_EFs <- readData( 'MED_OUT', paste0('H.',em,'_total_EFs_extended_db')  )  
+extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF' )
 
 # ---------------------------------------------------------------------------
 # 1. Constant Extention
@@ -73,7 +73,7 @@ for ( i in seq_along(intervals) ){
 # ---------------------------------------------------------------------------
 # 4. Output
 
-writeData( ceds_EF_extended, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'), meta = F)
+writeData( ceds_EF_extended, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'))
 
 logStop()
 

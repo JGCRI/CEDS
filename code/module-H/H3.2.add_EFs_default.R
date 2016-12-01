@@ -39,9 +39,9 @@ if ( is.na( em ) ) em <- "OC"
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-ceds_EFs <- readData( 'MED_OUT', paste0('H.',em,'_total_EFs_extended_db') , meta = F )  
-default_EFs <- readData( 'MED_OUT' , paste0('D.',em,'_default_total_EF'), meta = F )
-extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = F )
+ceds_EFs <- readData( 'MED_OUT', paste0('H.',em,'_total_EFs_extended_db') )  
+default_EFs <- readData( 'MED_OUT' , paste0('D.',em,'_default_total_EF') )
+extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF' )
 
 # expand default_EFs
 default_EFs [ paste0('X',1750:1959)] <- default_EFs[ 'X1960']
@@ -83,7 +83,7 @@ for (i in seq_along(year_intervals$start_year)) {
 # ---------------------------------------------------------------------------
 # 4. Output
 
-writeData( ceds_EFs, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'), meta = F)
+writeData( ceds_EFs, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'))
 }
 }
 

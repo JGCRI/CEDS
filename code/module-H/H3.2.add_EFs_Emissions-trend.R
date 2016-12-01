@@ -38,11 +38,11 @@ if ( is.na( em ) ) em <- "SO2"
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-activity <- readData("MED_OUT", paste0('H.',em,'_total_activity_extended') , meta = F )
-extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = F )
-MCL <- readData("MAPPINGS",'Master_Country_List', meta = F )
+activity <- readData("MED_OUT", paste0('H.',em,'_total_activity_extended') , meta = T )
+extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = T )
+MCL <- readData("MAPPINGS",'Master_Country_List', meta = T )
 # read in population data used for later extention of drivers_method_data_list
-pop <- readData( "MED_OUT", "A.UN_pop_master" , meta = F )
+pop <- readData( "MED_OUT", "A.UN_pop_master" , meta = T )
 
 final_iso <- unique(MCL[which(MCL$final_data_flag == 1),'iso'])
 

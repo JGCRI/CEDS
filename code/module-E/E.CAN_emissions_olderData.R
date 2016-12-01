@@ -43,8 +43,9 @@ initialize( script_name, log_msg, headers )
 
 # ------------------------------------------------------------------------------
 # 1. Define parameters for inventory specific script
-  inventory_data_file <- 'Canada/1985-2011_CAC_Trends_Feb2013_ENG'
+  inventory_data_file <- '1985-2011_CAC_Trends_Feb2013_ENG'
   inv_data_folder <- "EM_INV"
+  subfolder_name <- 'Canada/'
   inv_name <- 'CAN_to2011' #for naming diagnostic files
   inv_years<-c(1985:2011)
 
@@ -56,7 +57,8 @@ initialize( script_name, log_msg, headers )
   if( sheet_name == 'SO2') sheet_name <- 'SOx'
   if( sheet_name == 'NMVOC') sheet_name <- 'VOC'
   
-  inv_data_sheet <- readData( inv_data_folder, inventory_data_file , ".xlsx" ) 
+  inv_data_sheet <- readData( inv_data_folder, domain_extension = subfolder_name, 
+                              inventory_data_file , ".xlsx" ) 
   
 # Process given emission if inventory data exists
 if ( sheet_name %in% names( inv_data_sheet ) ){

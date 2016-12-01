@@ -38,8 +38,8 @@ if ( is.na( em ) ) em <- "OC"
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-ceds_EFs <- readData( 'MED_OUT', paste0('H.',em,'_total_EFs_extended_db') , meta = F )  
-extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = F )
+ceds_EFs <- readData( 'MED_OUT', paste0('H.',em,'_total_EFs_extended_db') , meta = T )  
+extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = T )
 
 # ---------------------------------------------------------------------------
 # 2. Select relavent driver-methods
@@ -155,6 +155,6 @@ for (i in seq_along(order_user_data_list) ){
 # ---------------------------------------------------------------------------
 # 4. Output
 
-writeData( new_EFs, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'), meta = F)
+writeData( new_EFs, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'), meta = T)
 
 logStop()

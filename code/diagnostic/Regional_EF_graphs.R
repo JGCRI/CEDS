@@ -64,18 +64,20 @@ if ( PRINT_EMISSIONS ) {
 
 }
 #-----
-Default_EFs <- Default_EFs[ which( Default_EFs$sector %in% analysis_sectors & 
-								  Default_EFs$fuel %in% analysis_fuels ), ]
+if ( GRAPH_DEFAULTS ) {
+	Default_EFs <- Default_EFs[ which( Default_EFs$sector %in% analysis_sectors & 
+									  Default_EFs$fuel %in% analysis_fuels ), ]
 
-Default_EFs$Region <- Diagnostic_Country_List[match(Default_EFs$iso,Diagnostic_Country_List$iso),'Region']
-Default_EFs$Country <- Diagnostic_Country_List[match(Default_EFs$iso,Diagnostic_Country_List$iso),'Country_Name']
+	Default_EFs$Region <- Diagnostic_Country_List[match(Default_EFs$iso,Diagnostic_Country_List$iso),'Region']
+	Default_EFs$Country <- Diagnostic_Country_List[match(Default_EFs$iso,Diagnostic_Country_List$iso),'Country_Name']
+}
 
 # ---------------------------------------------------------------------------
 # 0.2. Write Tables
 if ( PRINT_GENERAL_TABLES ) {
 	writeData( Scaled_EFs, "DIAG_OUT", paste0(EF_directory, em ,'_selected_scaled_EFs'), meta = FALSE )
 
-	writeData( Default_EFs, "DIAG_OUT", paste0(EF_directory, em ,'_selected_default_EFs'), meta = FALSE )
+	if ( GRAPH_DEFAULTS ) writeData( Default_EFs, "DIAG_OUT", paste0(EF_directory, em ,'_selected_default_EFs'), meta = FALSE )
 
 	if ( PRINT_EMISSIONS ){
 	  writeData( Scaled_Emissions, "DIAG_OUT", paste0(EF_directory, em ,'_selected_scaled_emissions'), meta = FALSE )
@@ -199,28 +201,32 @@ for( Sector in 1:length( analysis_sectors ) ){
 		median_EFs$iso <- "median"
 		median_EFs$Country <- "na"
 		
-		Marker_Country_EFs <- rbind( EFs_long, min_EF, max_EFs, median_EFs )
+		Marker_Country_EFs <- rbind.fill( EFs_long, min_EF, max_EFs, median_EFs )
 		Marker_Country_EFs <- cast( Marker_Country_EFs, iso+Country ~ year, mean, value="mean")
 		
 		File_name <- paste0( EF_directory, em, "_", analysis_sectors[ Sector ], "_", analysis_fuels[ Fuel ], "_marker_country_EFs" )
 		writeData( Marker_Country_EFs, "DIAG_OUT", File_name, meta = FALSE )
  
-		# Process Default EFs and add to the plot
-		Marker_Default_EFs <- Default_EFs[  which( Default_EFs$sector %in% analysis_sectors[ Sector ] & 
-												   Default_EFs$fuel %in% analysis_fuels[ Fuel ] &
-												   Default_EFs$iso %in% Marker_Countries ) ,]
-		Marker_Default_EFs <- Marker_Default_EFs[ c( 'iso', 'Country', x_years ) ]
-		Marker_Default_EFs_long <- melt( Marker_Default_EFs, id.vars = c('Country', 'iso' ) )
-		Marker_Default_EFs_long$year <- as.numeric( gsub( "X","",Marker_Default_EFs_long$variable ) )
-		Marker_Default_EFs_long$type <- "Default"
-		Marker_Default_EFs_long$Earliest_Year <- 1970
+		User_Line_Types <- c("solid" )
+		if ( GRAPH_DEFAULTS ) {
+  		# Process Default EFs and add to the plot
+  		Marker_Default_EFs <- Default_EFs[  which( Default_EFs$sector %in% analysis_sectors[ Sector ] & 
+  												   Default_EFs$fuel %in% analysis_fuels[ Fuel ] &
+  												   Default_EFs$iso %in% Marker_Countries ) ,]
+  		Marker_Default_EFs <- Marker_Default_EFs[ c( 'iso', 'Country', x_years ) ]
+  		Marker_Default_EFs_long <- melt( Marker_Default_EFs, id.vars = c('Country', 'iso' ) )
+  		Marker_Default_EFs_long$year <- as.numeric( gsub( "X","",Marker_Default_EFs_long$variable ) )
+  		Marker_Default_EFs_long$type <- "Default"
+  		Marker_Default_EFs_long$Earliest_Year <- 1970
 	
-		EFs_long <- rbind( EFs_long, Marker_Default_EFs_long )
-								
+		  EFs_long <- rbind.fill( EFs_long, Marker_Default_EFs_long )
+		  User_Line_Types <- c("dotted", "solid" )
+    }
+    
 		plot <- ggplot(EFs_long, aes(x=year,y=value, color = Country )) +
 		  geom_line( size=1, aes(x=year,y=value, color = Country, linetype = type )) +
 		  scale_x_continuous(breaks=c( 1970,1980,1990,2000,2010, 2015 ))+
-		  scale_linetype_manual( values=c( "dotted", "solid" ) ) +
+		  scale_linetype_manual( values = User_Line_Types ) +
 		  guides( size = "legend", linetype = "none" ) +
 		  scale_y_continuous(limits = c( 0, Y_Axis_Max ), labels = comma )+
 		  scale_shape_discrete(guide=FALSE)+
@@ -267,7 +273,7 @@ Inventory_countries <- Diagnostic_Country_List[!(is.na( Diagnostic_Country_List$
   
 # Read in scaled and default EFs
 All_Scaled_EFs  <- readData('MED_OUT', paste0('F.',em,'_scaled_EF'))
-All_Default_EFs <- readData('MED_OUT', paste0('D.',em,'_default_total_EF'))
+if ( GRAPH_DEFAULTS ) All_Default_EFs <- readData('MED_OUT', paste0('D.',em,'_default_total_EF'))
 
 if ( PRINT_EMISSIONS ) Scaled_Emissions <- readData('MED_OUT', paste0( 'F.', em, '_scaled_emissions' ) )
 
@@ -279,7 +285,7 @@ setwd('../diagnostic-output')
 for ( DataSet in 1:4 ) {
 
 	Scaled_EFs <- All_Scaled_EFs
-	Default_EFs <- All_Default_EFs
+	if ( GRAPH_DEFAULTS ) Default_EFs <- All_Default_EFs
 	
 	if ( DataSet == 1 ) {
 		analysis_sectors <- c( "1A4b_Residential" )
@@ -292,7 +298,7 @@ for ( DataSet in 1:4 ) {
 		analysis_fuels <- c( "diesel_oil", "hard_coal" )
 	} else if ( DataSet == 4 ) {
 		analysis_sectors <- c( "1A1a_Electricity-public", "1A2g_Ind-Comb-other" )
-		analysis_fuels <- c(  "diesel_oil", "heavy_oil", "hard_coal", "brown_coal", "natural_gas" )
+		analysis_fuels <- c( "biomass", "diesel_oil", "heavy_oil", "hard_coal", "brown_coal", "natural_gas" )
 	}
 	
 	if( em == "NH3" ) {

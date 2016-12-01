@@ -45,7 +45,7 @@ ceds_extension_fuels <- c('natural_gas') # the ceds fuels in the fuel category
 # ---------------------------------------------------------------------------
 # 1. Load files
 
-activity <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended_db') , meta = F)
+activity <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended_db') )
 
 ceds_ext_sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_ext_map", ".xlsx", sheet_selection = 'CEDS_to_ext',meta = F )
 
