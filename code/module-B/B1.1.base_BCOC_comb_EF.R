@@ -79,8 +79,8 @@ sector_level_map <- readData( "MAPPINGS", "Master_Sector_Level_map", meta = F )
 MCL <- readData( "MAPPINGS", "Master_Country_List" )
 MSLevel <- readData( "MAPPINGS", "Master_Sector_Level_map" )
 
-bcoc_historical <- readData( "EM_INV" ,"160227_SPEW_BCOCemission", 
-                             ".xlsx", meta = F )
+bcoc_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/" ,"160227_SPEW_BCOCemission", 
+                             ".xlsx", meta = T )
 sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_map", meta = F )
 iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_country_map", meta = F )
 fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_fuel_map", meta = F )

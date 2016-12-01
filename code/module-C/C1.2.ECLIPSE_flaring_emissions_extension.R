@@ -58,7 +58,7 @@
 # read in master country list 
     mcl <- readData( 'MAPPINGS', 'Master_Country_List' )
 # read in the population data
-    pop <- readData( "MED_OUT", "A.UN_pop_master" , meta = F )
+    pop <- readData( "MED_OUT", "A.UN_pop_master" )
        
 # ------------------------------------------------------------------------------
 # 2. Pre-processing

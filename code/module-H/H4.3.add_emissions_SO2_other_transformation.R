@@ -29,7 +29,7 @@ log_msg <- "Extending SO2 emissions for 1A1bc-Other-transformation" # First mess
 script_name <- "H4.3.add_emissions_SO2_other_transformation.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
-initialize( script_name, log_msg, headers )
+initialize( script_name, log_msg, headers, clear_metadata = FALSE )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
