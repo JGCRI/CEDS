@@ -8,6 +8,9 @@ IEA_end_year  <- 2013  # Latest year of IEA data; used to compare BP and IEA
 X_IEA_end_year  <- paste0( "X", IEA_end_year  )
 
 #The set of years for the BP data extendForwards further, and is used to augment the IEA.
+# In this branch, IEA is extended to 2014 with the 2015 BP data and extended to 2015 using
+# the 2016 data to keep 2014 estimates consistent with the CMIP6 release
+# these variables are overwritten in the 2 BP scripts
 BP_years <- c(2014,2015)  #The years for which there is only BP data
 X_BP_years <- paste0("X", BP_years)
 
