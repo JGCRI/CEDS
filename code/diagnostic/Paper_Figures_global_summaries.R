@@ -696,7 +696,7 @@ grid.arrange(total_comparison_nolegend_list[[1]],total_comparison_nolegend_list[
 dev.off()
 
 # Stacked Sector 
-pdf(paste0('../diagnostic-output/paper-figures/Paper_Figures_RCP_Comparison_stacked_sector 3x3_legend.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Paper/Paper_Figures_RCP_Comparison_stacked_sector 3x3_legend.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
 grid.arrange(total_stacked_sector_nolegend_list[[1]],total_stacked_sector_nolegend_list[[2]],total_stacked_sector_nolegend_list[[3]],
              total_stacked_sector_nolegend_list[[4]],total_stacked_sector_nolegend_list[[5]],total_stacked_sector_nolegend_list[[6]],
              total_stacked_sector_nolegend_list[[7]],total_stacked_sector_nolegend_list[[8]],
@@ -706,14 +706,14 @@ dev.off()
 
 # Line Sector
 leg <- leg <- g_legend(total_line_sector_list[[1]])
-pdf(paste0('../diagnostic-output/paper-figures/Paper_Line_sector 3x3_legend.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Line_sector 3x3_legend.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
 grid.arrange(total_line_sector_nolegend_list[[1]],total_line_sector_nolegend_list[[2]],total_line_sector_nolegend_list[[3]],
              total_line_sector_nolegend_list[[4]],total_line_sector_nolegend_list[[5]],total_line_sector_nolegend_list[[6]],
              total_line_sector_nolegend_list[[7]],total_line_sector_nolegend_list[[8]],leg,
              ncol=3)
 dev.off()
 # Stacked Region
-pdf(paste0('../diagnostic-output/paper-figures/Paper_Figures_RCP_Comparison_stacked_region 3x3_legend.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Paper/Paper_Figures_RCP_Comparison_stacked_region 3x3_legend.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
 grid.arrange(total_stacked_region_nolegend_list[[1]],total_stacked_region_nolegend_list[[2]],total_stacked_region_nolegend_list[[3]],
              total_stacked_region_nolegend_list[[4]],total_stacked_region_nolegend_list[[5]],total_stacked_region_nolegend_list[[6]],
              total_stacked_region_nolegend_list[[7]],total_stacked_region_nolegend_list[[8]],
@@ -723,7 +723,7 @@ dev.off()
 
 # Line Region
 leg <- leg <- g_legend(total_line_region_list[[1]])
-pdf(paste0('../diagnostic-output/paper-figures/Paper_Line_region 3x3_legend.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Line_region 3x3_legend.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
 grid.arrange(total_line_region_nolegend_list[[1]],total_line_region_nolegend_list[[2]],total_line_region_nolegend_list[[3]],
              total_line_region_nolegend_list[[4]],total_line_region_nolegend_list[[5]],total_line_region_nolegend_list[[6]],
              total_line_region_nolegend_list[[7]],total_line_region_nolegend_list[[8]],leg,
@@ -732,7 +732,7 @@ dev.off()
 
 # Stacked fuel
 
-pdf(paste0('../diagnostic-output/paper-figures/Paper_Figures_RCP_Comparison_stacked_fuel 3x3_legend.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_RCP_Comparison_stacked_fuel 3x3_legend.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
 grid.arrange(total_stacked_fuel_nolegend_list[[1]],total_stacked_fuel_nolegend_list[[2]],total_stacked_fuel_nolegend_list[[3]],
              total_stacked_fuel_nolegend_list[[4]],total_stacked_fuel_nolegend_list[[5]],total_stacked_fuel_nolegend_list[[6]],
              total_stacked_fuel_nolegend_list[[7]],total_stacked_fuel_nolegend_list[[8]],
@@ -742,7 +742,7 @@ dev.off()
 
 # Line Fuel
 leg <- leg <- g_legend(total_line_fuel_list[[1]])
-pdf(paste0('../diagnostic-output/paper-figures/Paper_Line_fuel 3x3_legend.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Line_fuel 3x3_legend.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
 grid.arrange(total_line_fuel_nolegend_list[[1]],total_line_fuel_nolegend_list[[2]],total_line_fuel_nolegend_list[[3]],
              total_line_fuel_nolegend_list[[4]],total_line_fuel_nolegend_list[[5]],total_line_fuel_nolegend_list[[6]],
              total_line_fuel_nolegend_list[[7]],total_line_fuel_nolegend_list[[8]],leg,
