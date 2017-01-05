@@ -1,0 +1,122 @@
+---
+title: "Historical (1750 – 2014) anthropogenic emissions of reactive gases and aerosols from the Community Emission Data System (CEDS) - Supplemental Figures and Tables"
+author: "Rachel Hoesly et. al."
+date: "January 2017"
+output:
+  pdf_document:
+    fig_caption: yes
+geometry: margin=.75in
+header-includes: \usepackage{float}
+                 \usepackage{placeins}
+                 \usepackage{caption}
+---
+
+<!-- This is an R markdown file that uses knitr to compile the pdf. Most of the code below uses Latex to control "floats" (basically how it lays out figures). The line "\FloatBarrier" after every section, forces the figures/floats to print, so they don't end up at the end of the document. -->
+
+\graphicspath{ {../../diagnostic-output/paper-figures/Supplement/} }
+
+\tableofcontents
+\listoffigures
+<!-- \listoftables -->
+
+\newpage
+
+<!-- \section{CEDS Country, Sector, and Fuel definitions } -->
+
+<!-- \FloatBarrier -->
+\section{Global Emissions by Sector, Fuel, and Region}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.6\paperheight]{Paper_Figures_RCP_Comparison_stacked_fuel 3x3_legend.pdf}
+  \caption{CEDS emissions estimates by aggregate fuel compared to Lamarque et al. (2010) (dots) and CDIAC for CO2. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields. Format is similar to Figures 2 and 3 in the the main text.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Paper_Line_sector 3x3_legend.pdf}
+  \caption{Global CEDS emissions estimates by aggregate sector, showing the same data as Figure 2 in the main text as a line graph. Figure does not include aviation emissions. }
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Paper_Line_region 3x3_legend.pdf}
+  \caption{Global CEDS emissions estimates by aggregate sector, showing the same data as Figure 3 in the main text as a line graph. Figure does not include aviation emissions.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Paper_Line_fuel 3x3_legend.pdf}
+  \caption{Global CEDS emissions estimates by aggregate sector, showing the same data as Figure S1 in the main text as a line graph. Figure does not include aviation emissions.}
+  \label{fig:non:float}
+\end{figure}
+
+\FloatBarrier
+\section{Regional Figures by Sector }
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Regional_summaries_Africa.pdf}
+  \caption{Africa: CEDS emissions by aggregate sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Regional_summaries_China.pdf}
+  \caption{China: CEDS emissions by aggregate sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Regional_summaries_Europe.pdf}
+  \caption{Europe: CEDS emissions by aggregate sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Regional_summaries_Former Soviet Union.pdf}
+  \caption{Former Soviet Union: CEDS emissions by aggregate sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Regional_summaries_Latin America.pdf}
+  \caption{Latin America: CEDS emissions by aggregate sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Regional_summaries_North America.pdf}
+  \caption{North America: CEDS emissions by aggregate sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Regional_summaries_OtherAsia.pdf}
+  \caption{Other Asia/Pacific: CEDS emissions by aggregate sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Regional_summaries_Shipping.pdf}
+  \caption{Global Shipping: CEDS emissions by aggregate sector}
+  \label{fig:non:float}
+\end{figure}
+
+\FloatBarrier
+\section{Comparisons to Other Inventories}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Paper_Figure_other_inventories 3x3_legend.pdf}
+  \caption{Like with like comparison of global CEDS emissions with EDGAR, GAINS, CMIP5, and CDIAC (for CO2 only)}
+\end{figure}
+
+\FloatBarrier
