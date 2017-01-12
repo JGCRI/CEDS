@@ -219,6 +219,11 @@ for(i in 1:6){
     theme(legend.title=element_blank())
   plot
   
+  df_out <- cast(plot_df, region+inv~year, value = 'total_emissions')
+  
+  writeData(df_out, 'DIAG_OUT', paste0(em,'_Regional_Comparison_CDIAC-', 
+                           paste(plot_regions,collapse ='-' )), meta = F)
+  
   ggsave( paste0('../diagnostic-output/ceds-comparisons/CDIAC_',em,'_Regional_Comparison_', 
                  paste(plot_regions,collapse ='-' ),
                  '.pdf') , width = 7, height = 4)
