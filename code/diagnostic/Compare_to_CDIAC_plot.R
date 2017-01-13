@@ -162,8 +162,7 @@ ggsave( '../diagnostic-output/CO2_CEDS_vs_CDIAC_global_ratio.pdf',
 
 
 # ---------------------------------------------------------------------------
-# Do not plot regional comparisons
-# if (T) {
+
   
 # ---------------------------------------------------------------------------
 # Plot by RCP regions
@@ -201,12 +200,14 @@ regions_list_order <- unique(regions_list$region)
 
 
 #5 seperate graphs, saved individually
+df_all_regions <- data.frame()
 for(i in 1:6){
   plot_regions <- regions_list_order[(i*6-5):(i*6)]
   
   plot_df <- region_long[which(region_long$region %in% plot_regions),c('inv','year','region','total_emissions')]
   plot_df$inv <- as.factor(plot_df$inv)
   plot_df$region <- as.factor(plot_df$region)
+  plot_df$total_emissions <-plot_df$total_emissions/1000 
   max <- 1.2*(max(plot_df$total_emissions))
   
   plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region, shape=inv)) + 
@@ -215,20 +216,27 @@ for(i in 1:6){
     scale_x_continuous(breaks=seq(from=1850,to=cdiac_end_year,by=30))+
     scale_y_continuous(limits = c(0,max ),labels = comma)+
     scale_shape_discrete(guide=FALSE)+
-    labs(x='Year',y= paste(em,'Emissions [kt]'))+
+    labs(x='Year',y= paste(em,'Emissions [Tg]'))+
     theme(legend.title=element_blank())
   plot
   
-  df_out <- cast(plot_df, region+inv~year, value = 'total_emissions')
+  # calculate difference and arrange table
+  df_temp <- as.data.frame(cast(plot_df, region+year~inv, value = 'total_emissions'))
+  df_temp$diff <- df_temp$ceds - df_temp$cdiac
+  df_temp <- melt(df_temp, measure.vars = c("cdiac", "ceds","diff"))
+  names(df_temp)[which(names(df_temp) == 'variable')] <- 'inv'
   
-  writeData(df_out, 'DIAG_OUT', paste0(em,'_Regional_Comparison_CDIAC-', 
+  df_out <- cast(df_temp, region+inv~year, value = 'total_emissions')
+  
+  writeData(df_out, 'DIAG_OUT', paste0('CO2_Regional_Comparison_CDIAC-', 
                            paste(plot_regions,collapse ='-' )), meta = F)
+  df_all_regions <- rbind.fill(df_all_regions,df_out)
   
   ggsave( paste0('../diagnostic-output/ceds-comparisons/CDIAC_',em,'_Regional_Comparison_', 
                  paste(plot_regions,collapse ='-' ),
                  '.pdf') , width = 7, height = 4)
 }
-
+ writeData(df_all_regions, 'DIAG_OUT', '/ceds-comparisons/CO2_Regional_Comparison_CDIAC-all', meta = F)
 
 #5 seperate graphs, saved together
 plot_list <- list()
