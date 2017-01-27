@@ -526,7 +526,7 @@ plot <- ggplot( df, aes(x=year,y=total_emissions,
 # Line Fuel
 plot_nolegend_list <- lapply(plot_list, function(x) x + theme(legend.position="none"))
 leg <- leg <- g_legend(plot_list[[1]])
-pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figure_other_inventories 3x3_legend.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figure_other_inventories.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
 grid.arrange(plot_nolegend_list[[1]],plot_nolegend_list[[2]],plot_nolegend_list[[3]],
              plot_nolegend_list[[4]],plot_nolegend_list[[5]],plot_nolegend_list[[6]],
              plot_nolegend_list[[7]],plot_nolegend_list[[8]],leg,

@@ -67,15 +67,15 @@ g_legend<-function(a.gplot){
 # 0.5. Script Options
 
 # years
-rcp_start_year <- 1850
+rcp_start_year <- 1990
 rcp_end_year <- 2000
-CEDS_start_year <- 1750
+CEDS_start_year <- 1990
 CEDS_end_year <- 2014
 
 X_plot_years <- paste0('X',min(rcp_start_year,CEDS_start_year):max(rcp_end_year,CEDS_end_year))
 
-major <- 50
-minor <- 25
+major <- 10
+minor <- 5
 
 rcp_years <- seq(from=rcp_start_year,to=rcp_end_year,by=10)
 x_rcp_years <- paste0('X',rcp_years)
@@ -478,7 +478,7 @@ Sector_plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) +
 if( em != 'CO2'){
 plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
   geom_area( data= df2, aes(x=year,y=total_emissions, fill = sector), alpha = .7,
-             position = 'stack', linetype = 1, size = .05 ,colour="grey40")+
+             position = 'stack', linetype = 1, size =.07 ,colour="grey40")+
   geom_point(data = subset(df,Inventory=='CMIP5'), aes(x=year,y=total_emissions, shape = Inventory)) +
   scale_x_continuous(limits = c(CEDS_start_year,CEDS_end_year ),
                      breaks= seq(from=CEDS_start_year, to=CEDS_end_year, by=major),
@@ -514,7 +514,7 @@ if( em == 'CO2'){
   
   plot <- ggplot(data= df, aes(x=year,y=total_emissions, linetype = Inventory, shape = Inventory)) + 
     geom_area( data= df2, aes(x=year,y=total_emissions, fill = sector),  alpha = .7,
-               position = 'stack', linetype = 1, size = .05 ,colour="grey40")+
+               position = 'stack', linetype = 1, size =.07 ,colour="grey40")+
     geom_line(data = subset(df, Inventory == 'CDIAC'), aes(x=year,y=total_emissions, linetype = Inventory)) +
     geom_point(data = subset(df, Inventory == 'CMIP5'), aes(x=year,y=total_emissions), shape = 32) +
     scale_x_continuous(limits = c(CEDS_start_year,CEDS_end_year ),
@@ -569,7 +569,7 @@ df2$Inventory <- NA
 if( em != 'CO2'){
   plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
     geom_area( data= df2, aes(x=year,y=total_emissions, fill = region), alpha = .7,
-               position = 'stack', linetype = 1, size = .05 ,colour="grey40")+
+               position = 'stack', linetype = 1, size =.07 ,colour="grey40")+
     geom_point(data = df, aes(x=year,y=total_emissions, shape = Inventory)) +
     scale_x_continuous(limits = c(CEDS_start_year,CEDS_end_year ),
                        breaks= seq(from=CEDS_start_year, to=CEDS_end_year, by=major),
@@ -598,7 +598,7 @@ if( em == 'CO2'){
   
   plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
     geom_area( data= df2, aes(x=year,y=total_emissions, fill = region), alpha = .7,
-               position = 'stack', linetype = 1, size = .05 ,colour="grey40")+
+               position = 'stack', linetype = 1, size =.07 ,colour="grey40")+
     geom_line(data = df, aes(x=year,y=total_emissions, linetype = Inventory)) +
     scale_x_continuous(limits = c(CEDS_start_year,CEDS_end_year ),
                        breaks= seq(from=CEDS_start_year, to=CEDS_end_year, by=major),
@@ -654,7 +654,7 @@ df2$Inventory <- NA
 if( em != 'CO2'){
   plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
     geom_area( data= df2, aes(x=year,y=total_emissions, fill = fuel), alpha = .7,
-               position = 'stack', linetype = 1, size = .05 ,colour="grey40")+
+               position = 'stack', linetype = 1, size =.07 ,colour="grey40")+
     geom_point(data = df, aes(x=year,y=total_emissions, shape = Inventory)) +
     scale_x_continuous(limits = c(CEDS_start_year,CEDS_end_year ),
                        breaks= seq(from=CEDS_start_year, to=CEDS_end_year, by=major),
@@ -683,7 +683,7 @@ if( em == 'CO2'){
   
   plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
     geom_area( data= df2, aes(x=year,y=total_emissions, fill = fuel), alpha = .7,
-               position = 'stack', linetype = 1, size = .05 ,colour="grey40")+
+               position = 'stack', linetype = 1, size =.07 ,colour="grey40")+
     geom_line(data = df, aes(x=year,y=total_emissions, linetype = Inventory)) +
     scale_x_continuous(limits = c(CEDS_start_year,CEDS_end_year ),
                        breaks= seq(from=CEDS_start_year, to=CEDS_end_year, by=major),
@@ -741,7 +741,7 @@ Region_plot_lend <- g_legend(Region_plot)
 Fuel_plot_lend <- g_legend(Fuel_plot)
 
 # Stacked Sector 
-pdf(paste0('../diagnostic-output/paper-figures/Paper/Paper_Figures_sector_stacked.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Supplement/Recent_Paper_Figures_sector_stacked.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
 grid.arrange(total_stacked_sector_nolegend_list[[1]],total_stacked_sector_nolegend_list[[2]],total_stacked_sector_nolegend_list[[3]],
              total_stacked_sector_nolegend_list[[4]],total_stacked_sector_nolegend_list[[5]],total_stacked_sector_nolegend_list[[6]],
              total_stacked_sector_nolegend_list[[7]],total_stacked_sector_nolegend_list[[8]],
@@ -750,14 +750,14 @@ grid.arrange(total_stacked_sector_nolegend_list[[1]],total_stacked_sector_nolege
 dev.off()
 
 # Line Sector
-pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_sector_line.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Supplement/Recent_Paper_Figures_sector_line.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
 grid.arrange(total_line_sector_nolegend_list[[1]],total_line_sector_nolegend_list[[2]],total_line_sector_nolegend_list[[3]],
              total_line_sector_nolegend_list[[4]],total_line_sector_nolegend_list[[5]],total_line_sector_nolegend_list[[6]],
              total_line_sector_nolegend_list[[7]],total_line_sector_nolegend_list[[8]],Sector_plot_lend,
              ncol=3)
 dev.off()
 # Stacked Region
-pdf(paste0('../diagnostic-output/paper-figures/Paper/Paper_Figures_region_stacked.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Supplement/Recent_Paper_Figures_region_stacked.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
 grid.arrange(total_stacked_region_nolegend_list[[1]],total_stacked_region_nolegend_list[[2]],total_stacked_region_nolegend_list[[3]],
              total_stacked_region_nolegend_list[[4]],total_stacked_region_nolegend_list[[5]],total_stacked_region_nolegend_list[[6]],
              total_stacked_region_nolegend_list[[7]],total_stacked_region_nolegend_list[[8]],
@@ -767,7 +767,7 @@ dev.off()
 
 # Line Region
 leg <- leg <- g_legend(total_line_region_list[[1]])
-pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_region_line.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Supplement/Recent_Paper_Figures_region_line.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
 grid.arrange(total_line_region_nolegend_list[[1]],total_line_region_nolegend_list[[2]],total_line_region_nolegend_list[[3]],
              total_line_region_nolegend_list[[4]],total_line_region_nolegend_list[[5]],total_line_region_nolegend_list[[6]],
              total_line_region_nolegend_list[[7]],total_line_region_nolegend_list[[8]],leg,
@@ -775,7 +775,7 @@ grid.arrange(total_line_region_nolegend_list[[1]],total_line_region_nolegend_lis
 dev.off()
 
 # Stacked fuel
-pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_fuel_stacked.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Supplement/Recent_Paper_Figures_fuel_stacked.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
 grid.arrange(total_stacked_fuel_nolegend_list[[1]],total_stacked_fuel_nolegend_list[[2]],total_stacked_fuel_nolegend_list[[3]],
              total_stacked_fuel_nolegend_list[[4]],total_stacked_fuel_nolegend_list[[5]],total_stacked_fuel_nolegend_list[[6]],
              total_stacked_fuel_nolegend_list[[7]],total_stacked_fuel_nolegend_list[[8]],
@@ -785,7 +785,7 @@ dev.off()
 
 # Line Fuel
 leg <- leg <- g_legend(total_line_fuel_list[[1]])
-pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_fuel_line.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Supplement/Recent_Paper_Figures_fuel_line.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
 grid.arrange(total_line_fuel_nolegend_list[[1]],total_line_fuel_nolegend_list[[2]],total_line_fuel_nolegend_list[[3]],
              total_line_fuel_nolegend_list[[4]],total_line_fuel_nolegend_list[[5]],total_line_fuel_nolegend_list[[6]],
              total_line_fuel_nolegend_list[[7]],total_line_fuel_nolegend_list[[8]],leg,

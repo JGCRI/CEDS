@@ -64,12 +64,12 @@ source('../code/diagnostic/Paper_Figures_plot_colors.R')
 em_list <- c('SO2','NOx','CO','OC','BC','NH3','NMVOC','CO2')
 
 # Create Plot Lists
-start <- 1750
+start <- 1990
 end <- 2014
 plot_years <- start:end
 X_plot_years <- paste0('X',start:end)
-major_break <- 50
-minor_break <- 25
+major_break <- 10
+minor_break <- 5
 
 em_plot_list <- list()
 em_plot_list_nolegend <- list()
@@ -204,8 +204,8 @@ for( h in seq_along(em_list)){
 # loop for region
 for(k in seq_along(regions)){
 leg <- g_legend( sector_legend_plot )
-file_name <- paste0('../diagnostic-output/paper-figures/Supplement/Regional_summaries_',regions[k],'.pdf')
-if(regions[[k]] == "Other Asia/Pacific") file_name <- paste0('../diagnostic-output/paper-figures/Supplement/Regional_summaries_OtherAsia.pdf')
+file_name <- paste0('../diagnostic-output/paper-figures/Supplement/Recent_Regional_summaries_',regions[k],'.pdf')
+if(regions[[k]] == "Other Asia/Pacific") file_name <- paste0('../diagnostic-output/paper-figures/Supplement/Recent_Regional_summaries_OtherAsia.pdf')
 
 pdf( file_name ,width=9.5,height=9.5,paper='special', onefile=F)
 grid.arrange(em_plot_list_nolegend[[1]][[k]],em_plot_list_nolegend[[2]][[k]],em_plot_list_nolegend[[3]][[k]],
