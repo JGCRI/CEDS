@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
-# Program Name: Compare_to_RCP.R
+# Program Name: Paper_Figres_Compare_to_RCP.R
 # Author: Rachel Hoesly, Linh Vu, Leyang Feng, Huong Nguyen
-# Date Last Updated: 03 November, 2016 
+# Date Last Updated: 17 January 
 # Program Purpose: Produces comparison - diagnostic files and plots between CEDS and
 #                  RCP. Comparison by global totals, regions, sectors
 #                  Like with like comparison does not include 
@@ -49,10 +49,6 @@ script_name <- "Compare_to_RCP.R"
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
-args_from_makefile <- commandArgs( TRUE )
-em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "BC"
-
 # Load Packages
 
 library('ggplot2')
@@ -64,6 +60,13 @@ library('gridExtra')
 library( 'cowplot' )
 theme_set( theme_gray( ) ) # switch back to default ggplot2 theme
 ### end 
+
+# function from stack exchange
+g_legend<-function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)}
 
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
@@ -77,8 +80,21 @@ CEDS_end_year <- end_year
 rcp_years <- seq(from=rcp_start_year,to=rcp_end_year,by=10)
 x_rcp_years <- paste0('X',rcp_years)
 
-# footnotes
 
+# ---------------------------------------------------------------------------
+# Start Emissions Loop
+em_list <- c('SO2','NOx','BC','OC','NH3','CO','NMVOC')
+
+# Create Plot Lists
+global_sector_plot_list <- list()
+top_region_plot_list <- list()
+
+for( h in seq_along(em_list)){ 
+  wd <- getwd()
+  if( wd != "/Users/hoes919/Documents/CEDS/input") stop('working directiory')
+  em <- em_list[h]
+  
+# footnotes
 footnote_v1 <- 'This figure shows a "like with like" comparison between CEDS and RCP emissions. \nThese totals, therefore, do not include open burning (grassland and forest fires), fossil-fuel fires, \nagricultural waste burning on fields, or aviation.'
 if ( em == 'OC' ) {
   footnote_v1 <- 'This figure shows a "like with like" comparison between CEDS and RCP emissions. \nThese totals, therefore, do not include open burning (grassland and forest fires), fossil-fuel fires, \nagricultural waste burning on fields, or aviation.\n(Note, OC emissions are in units of carbon, NOT total mass.)'
@@ -96,8 +112,6 @@ Map_iso_codes <- readData( "EM_INV", domain_extension = 'RCP/',"RCP Region Mappi
                            meta=FALSE)
 Map_sector <- readData( "EM_INV", domain_extension = 'RCP/',"RCP_CEDS_sector_map",
                         meta=FALSE)
-
-
 Master_Country_List <- readData('MAPPINGS', 'Master_Country_List')
 
 Total_Emissions <- readData('MED_OUT', paste0(em,'_total_CEDS_emissions'))
@@ -142,7 +156,6 @@ if ( has_ship ) {
   
 }
 
-
 # ---------------------------------------------------------------------------
 # 2. Load and process RCP files
 # set wd to REAS folder  
@@ -177,8 +190,7 @@ unlink(dir.name,recursive = TRUE)
 
 setwd('../')
 setwd('../')
-setwd('../diagnostic-output')
-
+getwd()
 # ---------------------------------------------------------------------------
 # 3. Process RCP Emissions Data
 # ---------------------------------------------------------------------------
@@ -264,86 +276,6 @@ ceds_comparable <- CEDS[-which(CEDS$sector %in% ceds_remove_sectors),]
 ceds_comparable_global <- CEDS [-which(CEDS$sector %in% ceds_remove_sectors_global),]
 
 # ---------------------------------------------------------------------------
-# 6.  Global Comparisons
-
-#Aggregate CEDS
-global_ceds <- aggregate(ceds_comparable_global[x_years], 
-                         by = list(em = ceds_comparable_global$em ),
-                         FUN=sum )
-
-global_ceds$Inventory <- 'CEDS'
-global_ceds_long <- melt(global_ceds, id.vars = c('em','Inventory'))
-
-#Aggregate RCP
-rcp_agg <- aggregate(rcp_comparable[,x_rcp_years], 
-                        by = list(em = rcp_comparable$em ),
-                        FUN=sum )
-rcp_agg$Inventory <- 'RCP'
-global_rcp_long <- melt(rcp_agg, id.vars = c('em','Inventory'))
-
-# Add ship emissions to global RCP
-if ( has_ship ) {
-  # some cleaning up for selected rcp shipping emissions 
-  rcp_ship_emissions_long <- rcp_ship_emissions[ , c( "year", em ) ]
-  colnames( rcp_ship_emissions_long ) <- c( 'variable', 'value' )
-  rcp_ship_emissions_long$variable <- paste0( 'X', rcp_ship_emissions_long$variable )
-  rcp_ship_emissions_long$Inventory <- "RCP"
-  rcp_ship_emissions_long$em <- em
-  rcp_ship_emissions_long <- rcp_ship_emissions_long[, c( "em", "Inventory", "variable", "value" ) ]
-  # add rcp shipping emissions back to rcp emissions 
-  global_rcp_long <- merge( global_rcp_long, rcp_ship_emissions_long, by = c( "em", "Inventory", "variable" )  )
-  global_rcp_long$value <- global_rcp_long$value.x + global_rcp_long$value.y
-  global_rcp_long <- global_rcp_long[ , c( "em", "Inventory", "variable", "value" ) ]
-}
-
-global_rcp <- cast( global_rcp_long )
-
-# Combine
-global <- rbind( global_ceds[ ,c( 'em', 'Inventory', x_rcp_years ) ], global_rcp[ ,c( 'em', 'Inventory', x_rcp_years ) ] )
-
-global_long <- rbind( global_ceds_long, global_rcp_long )
-names( global_long ) <- c( 'em', 'Inventory', 'year', 'total_emissions' )
-global_long <- global_long[ ,c( 'Inventory', 'year', 'total_emissions' ) ]
-global_long$year <- gsub( 'X', "", global_long$year )
-global_long$year <- as.numeric( global_long$year )
-global_long$Inventory <- as.factor( global_long$Inventory )
-
-#writeout
-writeData(global,'DIAG_OUT', paste0('RCP_',em,'_Global_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
-
-# Global Plot
-# Prime Data
-df <- global_long
-df$total_emissions <- global_long$total_emissions/1000 #convert from Gg to Tg
-max <- 1.2 * ( max( df$total_emissions ) )
-
-plot <- ggplot(df, aes(x=year,y=total_emissions,group=Inventory,shape=Inventory,linetype=Inventory)) + 
-  geom_line(data = subset(df, Inventory=='CEDS'),size=1, color = 'black') +
-  geom_point(data = subset(df, Inventory=='RCP'),color='dodgerblue1') +
-  scale_x_continuous(limits = c(CEDS_start_year,2015 ),
-                     breaks= seq(from=CEDS_start_year, to=rcp_end_year, by=50),
-                     minor_breaks = seq(from=CEDS_start_year, to=rcp_end_year, by=25)) +
-  scale_y_continuous(limits = c(0,max ),labels = comma)+
-  ggtitle( em )+
-  labs(x= "" , y= 'Emissions [Tg/yr]' )+
-  theme(panel.background=element_blank(),
-        panel.grid.minor = element_line(colour="gray95"),
-        panel.grid.major = element_line(colour="gray88"))+
-  scale_linetype_manual(name= 'Inventory',
-                        breaks = c('CEDS','RCP'),
-                        values = c('solid','blank'))+
-  scale_shape_manual(name= 'Inventory',
-                     breaks = c('CEDS','RCP'),
-                     values = c(NA,19))
-
-### adding footnote -- see note (1) for triple # comments 
-footnote_added <- add_sub( plot, footnote_v1, size = 6 ) # add footnote 
-ggdraw( footnote_added )
-### end 
-
-ggsave( paste0('ceds-comparisons/RCP_',em,'_Global_Comparison.pdf') , width = 7, height = 4)
-
-# ---------------------------------------------------------------------------
 # 7.  Region Comparisons
 
 #Prime CEDS Data
@@ -354,7 +286,7 @@ region_ceds_long <- melt(region_ceds, id.vars = c('region','Inventory'))
 
 #Prime RCP Data
 region_rcp <- aggregate(rcp_comparable[x_rcp_years], 
-                         by = list(region = rcp_comparable$Region ),FUN=sum )
+                        by = list(region = rcp_comparable$Region ),FUN=sum )
 region_rcp$Inventory <- 'RCP'
 region_rcp_long <- melt(region_rcp, id.vars = c('region','Inventory'))
 
@@ -367,9 +299,6 @@ region_long$year <- as.numeric(region_long$year)
 region <- rbind( region_ceds[,c('Inventory','region',x_rcp_years)],region_rcp[,c('Inventory','region',x_rcp_years)])
 region <- region [ with( region , order( region , Inventory ) ), ]
 
-#writeout
-writeData(region,'DIAG_OUT', paste0('RCP_',em,'_region_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
-
 #Plot Regions
 # Create order of plots
 regions_list <- region_long[,c('region','total_emissions')]
@@ -377,13 +306,9 @@ regions_list <- regions_list[order(-regions_list$total_emissions),]
 regions_list_order <- unique(regions_list$region)
 regions_df_order <- data.frame(region=regions_list_order,
                                group= unlist(lapply(X=1:6,FUN=rep, times=7))[1:41])
+# only the top emitters
 
-#5 seperate graphs, Save individually and together
-plot_list <- list()
-for(i in 1:6){
-  
-  plot_regions <- regions_list_order[(i*6-5):(i*6)]
-  
+  plot_regions <- c('China+','USA','Russia+','India','Western Africa')
   plot_df <- region_long[which(region_long$region %in% plot_regions),c('Inventory','year','region','total_emissions')]
   plot_df$Inventory <- as.factor(plot_df$Inventory)
   plot_df$region <- as.factor(plot_df$region)
@@ -400,26 +325,15 @@ for(i in 1:6){
           panel.grid.minor = element_line(colour="gray95"),
           panel.grid.major = element_line(colour="gray88"))+
     scale_y_continuous(limits = c(0,max ),labels = comma)+
+    scale_color_discrete(name = 'Region')+
     scale_shape_manual(name= 'Inventory',
                        breaks = c('CEDS','RCP'),
                        values = c(46,19))+
     scale_linetype_manual(name= 'Inventory',
-                       breaks = c('CEDS','RCP'),
-                       values = c('solid','blank'))
-  plot_list[[i]]<-plot
-  
-  ggsave( paste0('ceds-comparisons/RCP_',em,'_Regional_Comparison_', 
-                 paste(plot_regions,collapse ='-' ),
-                 '.pdf') , width = 7, height = 4)
-  
-}
+                          breaks = c('CEDS','RCP'),
+                          values = c('solid','blank'))
+  top_region_plot_list[[h]] <- plot
 
-pdf(paste0('ceds-comparisons/RCP_',em,'_Regional_Comparison_All.pdf'),width=12,height=10,paper='special')
-grid.arrange(plot_list[[1]],plot_list[[2]],
-             plot_list[[3]],plot_list[[4]],
-             plot_list[[5]],plot_list[[6]], ncol=2,
-             top = paste('RCP vs CEDS - Regional',em,'Emissions'))
-dev.off()
 
 # ---------------------------------------------------------------------------
 # 8.  Sector Comparisons
@@ -445,9 +359,6 @@ sector_long$year <- as.numeric(sector_long$year)
 sector <- rbind( sector_ceds[,c('Inventory','sector',x_rcp_years)],sector_rcp[,c('Inventory','sector',x_rcp_years)])
 sector <- sector [ with( sector , order( sector , Inventory ) ), ]
 
-#writeout
-writeData(sector,'DIAG_OUT', paste0('RCP_',em,'_sector_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
-
 #Plot
 
 plot_df <- sector_long
@@ -472,32 +383,31 @@ plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = sector,
   scale_linetype_manual(name= 'Inventory',
                         breaks = c('CEDS','RCP'),
                         values = c('solid','blank'))
+global_sector_plot_list[[h]] <- plot
 
-ggsave( paste0('ceds-comparisons/RCP_',em,'_sector_Comparison',
-               '.pdf') , width = 7, height = 4)
+} 
+# End emissions loop
 
 # ---------------------------------------------------------------------------
 # 9.  Region and Sector Comparisons (tables only)
 
-#Prime Data
-region_sector_ceds <- aggregate(ceds_comparable[x_years], 
-                                by = list(region = ceds_comparable$Region, 
-                                          sector = ceds_comparable$RCP_Sector ),FUN=sum )
-region_sector_ceds$Inventory <- 'CEDS'
+legend <- g_legend(top_region_plot_list[[1]])
+top_region_plot_list <- lapply(top_region_plot_list, function(x) x + theme(legend.position="none"))
+pdf(paste0('../diagnostic-output/paper-figures/Supplement/CMIP5_Region_Comparison.pdf'),width=12,height=10,paper='special')
+grid.arrange(top_region_plot_list[[1]],top_region_plot_list[[2]],top_region_plot_list[[3]],
+             top_region_plot_list[[4]],top_region_plot_list[[5]],top_region_plot_list[[6]],
+             top_region_plot_list[[7]],legend, 
+             ncol=3,top = 'CMIP5 vs CEDS - Top Emitting Regions', bottom = footnote_v1)
+dev.off()
 
-region_sector_rcp <- aggregate(rcp_comparable[,x_rcp_years], 
-                               by = list(region = rcp_comparable$Region, 
-                                         sector = rcp_comparable$Sector ),FUN=sum )
-region_sector_rcp$Inventory <- 'RCP'
-
-region_sector_both <- rbind( region_sector_ceds[,c( 'Inventory', 'region', 'sector', x_rcp_years )],
-                             region_sector_rcp[,c( 'Inventory', 'region', 'sector', x_rcp_years )])
-
-region_sector_both <- region_sector_both [ with( region_sector_both , order( region , sector, Inventory ) ), ]
-
-#writeout
-writeData( region_sector_both,'DIAG_OUT', paste0('RCP_',em,'_region_sector_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
-
+legend <- g_legend(global_sector_plot_list[[1]])
+global_sector_plot_list <- lapply(global_sector_plot_list, function(x) x + theme(legend.position="none"))
+pdf(paste0('../diagnostic-output/paper-figures/Supplement/CMIP5_Sector_Comparison.pdf'),width=12,height=10,paper='special')
+grid.arrange(global_sector_plot_list[[1]],global_sector_plot_list[[2]],global_sector_plot_list[[3]],
+             global_sector_plot_list[[4]],global_sector_plot_list[[5]],global_sector_plot_list[[6]],
+             global_sector_plot_list[[7]],legend, 
+             ncol=3,top = 'CMIP5 vs CEDS - Global Emissions by Sector')
+dev.off()
 
 # ---------------------------------------------------------------------------
 # 10. End
