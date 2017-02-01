@@ -40,12 +40,18 @@ initialize( script_name, log_msg, headers )
 # Call Scripts
 
 source('../code/diagnostic/Paper_Figures_compare_RCP_GAINS_EDGAR.R')
+source('../code/diagnostic/Paper_Figures_BC_residential_biomass.R')
+
 source('../code/diagnostic/Paper_Figures_global_summaries.R')
-# source('../code/diagnostic/Paper_Figures_Regional_EF_graphs.R')
 source('../code/diagnostic/Paper_Figures_regional_summaries.R')
 source('../code/diagnostic/Paper_Figures_sector_summaries.R')
-source('../code/diagnostic/Paper_Figures_BC_residential_biomass.R')
-source('../code/diagnostic/Paper_Figures_emission_ratios.R')
+
+source('../code/diagnostic/Paper_Figures_global_summaries_recent.R')
+source('../code/diagnostic/Paper_Figures_regional_recent.R')
+source('../code/diagnostic/Paper_Figures_sector_recent.R')
+
+# source('../code/diagnostic/Paper_Figures_Regional_EF_graphs.R')
+
 
 # ---------------------------------------------------------------------------
 logStop()

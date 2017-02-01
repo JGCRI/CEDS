@@ -281,8 +281,8 @@ CEDS$em <- em
 # rename other process emissions to tanker loading
 CEDS[which(CEDS$sector == '2L_Other-process-emissions'),'sector'] <- '1A3di_International-shipping'
 
-# rename international shipping to global
-CEDS[which(CEDS$sector %in% c('1A3ai_International-aviation','1A3di_International-shipping')),'iso'] <- 'global'
+# rename international shipping, international air, and domestic air to global
+CEDS[which(CEDS$sector %in% c('1A3ai_International-aviation','1A3di_International-shipping','1A3aii_Domestic-aviation')),'iso'] <- 'global'
 
 # add sector
 CEDS$agg_Sector <- MSLevel[match(CEDS$sector,MSLevel$working_sectors_v1),'Figure_sector']

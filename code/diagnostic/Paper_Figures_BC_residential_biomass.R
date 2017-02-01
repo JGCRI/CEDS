@@ -58,6 +58,8 @@ MSLevel <- readData('MAPPINGS', 'Master_Sector_Level_map')
 pop_master <- readData('MED_OUT', 'A.UN_pop_master')
 BC_em <- readData('MED_OUT', 'BC_total_CEDS_emissions')
 
+source('../code/diagnostic/Paper_Figures_plot_colors.R')
+
 # ---------------------------------------------------------------------------
 # 1. Plot Settings
 
@@ -85,13 +87,14 @@ population$region <- Master_Country_List[match(population$iso,Master_Country_Lis
 population_region <- aggregate(population$pop, 
                                by = list(year = population$year,
                                          region = population$region), sum)
+
 # emissions data
 plot_em <- BC_em[which(BC_em$sector %in% residential_sectors),]
 plot_em <- BC_em[which(BC_em$fuel %in% 'biomass'),]
 plot_em$region <- Master_Country_List[match(plot_em$iso,Master_Country_List$iso),'Paper_Figure_Region']
-plot_em <- plot_em[which(plot_em$region %!in% 'Shipping/Air'),]
 em_region <- aggregate(plot_em[paste0('X',plot_years)], 
                        by = list(region = plot_em$region), sum)
+em_region <- em_region[which(em_region$region != 'International'),]
 em_region<- melt(em_region)
 em_region$variable <- as.numeric(gsub(pattern = 'X',replacement = "", x = em_region$variable))
 names(em_region) <- c('region','year','x')
@@ -114,7 +117,9 @@ emissions_plot <- ggplot(data = em_region, aes(x=year,y=x, color = region) ) +
         panel.grid.minor = element_line(colour="gray95"),
         panel.grid.major = element_line(colour="gray88"),
         panel.border = element_rect(colour = "grey80", fill=NA, size=.8))+
-  scale_color_discrete(name = 'Region')
+  scale_color_manual(name = 'Region',
+                     breaks = region_colors[which(region_colors != 'International'),'region'],
+                     values = region_colors[which(region_colors != 'International'),'color'])
 
 population_region$x <- population_region$x/1000
 max <- max(population_region$x)
@@ -130,13 +135,17 @@ population_plot <- ggplot(data = population_region, aes(x=year,y=x, color = regi
         panel.grid.minor = element_line(colour="gray95"),
         panel.grid.major = element_line(colour="gray88"),
         panel.border = element_rect(colour = "grey80", fill=NA, size=.8))+
-  scale_color_discrete(name = 'Region')
+  scale_color_manual(name = 'Region',
+                     breaks = region_colors[which(region_colors != 'International'),'region'],
+                     values = region_colors[which(region_colors != 'International'),'color'])
+
 population_plot
+emissions_plot
 
 
 
-file_name <- paste0('../diagnostic-output/paper-figures/Supplement/Residential_biomass.pdf')
-pdf( file_name ,width=8,height=4,paper='special', onefile=T)
+file_name <- paste0('../diagnostic-output/paper-figures/Paper/Residential_biomass.pdf')
+pdf( file_name ,width=9,height=3.5,paper='special', onefile=T)
 grid.arrange(emissions_plot+ theme(legend.position="none"),
              population_plot+ theme(legend.position="none"), 
              g_legend(population_plot),ncol = 3, widths= c(1,1,.5))

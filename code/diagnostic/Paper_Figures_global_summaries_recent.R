@@ -282,7 +282,7 @@ CEDS$em <- em
 CEDS[which(CEDS$sector == '2L_Other-process-emissions'),'sector'] <- '1A3di_International-shipping'
 
 # rename international shipping to global
-CEDS[which(CEDS$sector %in% c('1A3ai_International-aviation','1A3di_International-shipping')),'iso'] <- 'global'
+CEDS[which(CEDS$sector %in% c('1A3ai_International-aviation','1A3di_International-shipping','1A3aii_Domestic-aviation')),'iso'] <- 'global'
 
 # add sector
 CEDS$agg_Sector <- MSLevel[match(CEDS$sector,MSLevel$working_sectors_v1),'Figure_sector']
@@ -757,7 +757,7 @@ grid.arrange(total_line_sector_nolegend_list[[1]],total_line_sector_nolegend_lis
              ncol=3)
 dev.off()
 # Stacked Region
-pdf(paste0('../diagnostic-output/paper-figures/Supplement/Recent_Paper_Figures_region_stacked.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Paper/Recent_Paper_Figures_region_stacked.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
 grid.arrange(total_stacked_region_nolegend_list[[1]],total_stacked_region_nolegend_list[[2]],total_stacked_region_nolegend_list[[3]],
              total_stacked_region_nolegend_list[[4]],total_stacked_region_nolegend_list[[5]],total_stacked_region_nolegend_list[[6]],
              total_stacked_region_nolegend_list[[7]],total_stacked_region_nolegend_list[[8]],
