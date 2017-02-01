@@ -397,7 +397,7 @@ pdf(paste0('../diagnostic-output/paper-figures/Supplement/CMIP5_Region_Compariso
 grid.arrange(top_region_plot_list[[1]],top_region_plot_list[[2]],top_region_plot_list[[3]],
              top_region_plot_list[[4]],top_region_plot_list[[5]],top_region_plot_list[[6]],
              top_region_plot_list[[7]],legend, 
-             ncol=3,top = 'CMIP5 vs CEDS - Top Emitting Regions', bottom = footnote_v1)
+             ncol=3,top = 'CMIP5 vs CEDS - Top Emitting Regions')
 dev.off()
 
 legend <- g_legend(global_sector_plot_list[[1]])
