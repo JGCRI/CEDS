@@ -1,5 +1,8 @@
 ---
-title: "Historical (1750 – 2014) anthropogenic emissions of reactive gases and aerosols from the Community Emission Data System (CEDS) - Supplemental Figures and Tables"
+title: "Supplemental Figures and Tables"
+
+subtitle: "Historical (1750 – 2014) anthropogenic emissions of reactive gases and aerosols from the  \nCommunity Emission Data System (CEDS)  \nSubmitted to Geoscientific Model Development (GMD),  http://www.geosci-model-dev.net/special_issue590.html"
+
 author:
 - Rachel M. Hoesly
 - Steven J. Smith
@@ -112,23 +115,23 @@ header-includes: \usepackage{float}
  & 1A2g\textunderscore Ind-Comb-other  \\
  & 2A1\textunderscore Cement-production  \\
  & 2A2\textunderscore Lime-production  \\
- & 2A6\textunderscore Other-minerals  \\
+ & 2Ax\textunderscore Other-minerals  \\
  & 2B\textunderscore Chemical-industry  \\
  & 2C\textunderscore Metal-production  \\
  & 2H\textunderscore Pulp-and-paper-food-beverage-wood  \\
- & 2L\textunderscore Other-process-emissions  \\
  \hline
 \multirow{2}{4cm}{Residential, Commercial, Other (RCO)} &  1A4b\textunderscore Residential \\ 
  & 1A4a\textunderscore Commercial-institutional  \\ 
  & 1A4c\textunderscore Agriculture-forestry-fishing  \\
  & 1A5\textunderscore Other-unspecified \\
  \hline
- Shipping & 1A3di\textunderscore International-shipping \\
+ \multirow{2}{4cm}{Shipping} & 1A3di\textunderscore International-shipping  \\
+ & 1A3di\textunderscore Oil\textunderscore tanker\textunderscore loading \\
  \hline
 \multirow{2}{4cm}{Solvents} &  2D\textunderscore Degreasing-Cleaning \\ 
  & 2D\textunderscore Paint-application  \\ 
- & 2D3\textunderscore Chemical-products-manufacture-processing  \\
- & 2D3\textunderscore Other-product-use \\
+ & 2D\textunderscore Chemical-products-manufacture-processing  \\
+ & 2D\textunderscore Other-product-use \\
 \hline
 \multirow{2}{4cm}{Transportation} & 1A3b\textunderscore Road  \\
  & 1A3c\textunderscore Rail \\
@@ -240,7 +243,7 @@ North America & Canada & United States & Puerto Rico & \\
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=0.6\paperheight]{Paper_Figures_fuel_stacked.pdf}
-  \caption{CEDS emissions estimates by aggregate fuel compared to Lamarque et al. (2010) (dots) and CDIAC for CO2. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields. Format is similar to Figures 2 and 3 in the the main text. "Process" notes non-combustion emissions.}
+  \caption{CEDS emissions estimates by aggregate fuel compared to Lamarque et al. (2010) (dots) and CDIAC for CO2. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields. Format is similar to Figures 2 and 3 in the the main text. "Process" notes CEDS non-combustion emissions (see §2.3.2).}
 \end{figure}
 
 \begin{figure}[!ht]
@@ -277,7 +280,7 @@ North America & Canada & United States & Puerto Rico & \\
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=0.6\paperheight]{Recent_Paper_Figures_fuel_stacked.pdf}
-  \caption{CEDS emissions estimates by aggregate fuel compared to Lamarque et al. (2010) (dots) and CDIAC for CO2, showing the same data as Figure S1 over 1990 - 2014. Format is similar to Figures 5 in the the main text. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields. "Process" notes non-combustion emissions.}
+  \caption{CEDS emissions estimates by aggregate fuel compared to Lamarque et al. (2010) (dots) and CDIAC for CO2, showing the same data as Figure S1 over 1990 - 2014. Format is similar to Figures 5 in the the main text. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields. "Process" denotes  CEDS non-combustion emissions (see §2.3.2).}
 \end{figure}
 
 \begin{figure}[!ht]
