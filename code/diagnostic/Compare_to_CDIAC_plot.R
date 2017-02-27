@@ -90,7 +90,7 @@ ceds$fuel[ ceds$sector %in% bunker_sectors &
 ceds <- filter( ceds, iso %in% cdiac$iso, fuel %in% cdiac$fuel | fuel_ref == "process" )
 ceds$fuel[ is.na( ceds$fuel ) ] <- "other_process"
 ceds$fuel_ref <- NULL
-
+# ceds <- ceds[-which(ceds$sector == '7A_Fossil-fuel-fires'),]
 
 # Aggregate ceds by fuel
 ceds <- select( ceds, -sector, -units ) %>%
@@ -176,6 +176,8 @@ complete_region_map$Region <- gsub(" [(]Republic of Korea[)]","",complete_region
 complete_region_map$Region <- gsub(" [(]Democratic People's Republic of Korea[)]","",complete_region_map$Region)
 complete_region_map[which(complete_region_map$Code == 'GRL'),'Region'] <- 'Greenland'
 complete_region_map$Region <- gsub(" $","", complete_region_map$Region, perl=T)
+
+complete_region_map[which( complete_region_map$Region %in% c('Russia+','Ukraine+')),'Region'] <- 'FSU'
 
 
 # Drop bunker sectors. Aggregate by RCP Region
@@ -318,6 +320,65 @@ writeData( region_long, "DIAG_OUT", "/CO2_CEDS_vs_CDIAC_by_RCP_region", meta=F )
 writeData( region_long_figure, "DIAG_OUT", "/CO2_CEDS_vs_CDIAC_by_figure_region", meta=F )
 
 # }
+# 
+
+# ---------------------------------------------------------------------------
+# cdiac comparison by region
+MCL <- readData( "MAPPINGS", "Master_Country_List" )
+
+FSU <- unique( MCL[which(MCL$Figure_Region == 'FSU'),'iso'] )
+FSU_iso <- FSU[which( FSU %!in% 'ussr')]
+
+cmp_ctry <- group_by( cmp_ctry_fuel, iso, year ) %>%
+  summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) ) %>%
+  mutate( diff = cdiac-ceds,
+          diff_pc = round((diff/ceds)*100) )
+
+compare <- cmp_ctry
+
+compare[which(compare$iso %in% FSU_iso),'iso'] <- 'FSU'
+compare <- compare %>% group_by(iso,year) %>% 
+  summarise_if(is.numeric,sum) %>% 
+  select(iso, year, diff) %>% 
+  mutate(year = as.numeric(gsub('X',"",year))) %>% 
+  filter(year >1900)
+
+#5 seperate graphs, saved together
+plot_list <- list()
+
+# Plot
+regions_list <- compare[,c('iso','diff')]
+regions_list <- regions_list[order(-abs(regions_list$diff)),]
+regions_list_order <- unique(regions_list$iso)
+
+for(i in 1:6){
+  
+  plot_regions <- regions_list_order[(i*6-5):(i*6)]
+  plot_df <- compare[which(compare$iso %in% plot_regions),c('year','iso','diff')]
+  max <- 1.2*(max(plot_df$diff))
+  min <- 1.2*(min(plot_df$diff))
+  
+  plot <- ggplot(plot_df, aes(x=year,y=diff, color = iso)) + 
+    geom_line()+
+    scale_x_continuous(breaks=seq(from=1900,to=cdiac_end_year,by=20))+
+    scale_y_continuous(limits = c(min,max ),labels = comma)+
+    scale_shape_discrete(guide=FALSE)+
+    labs(x='Year',y= paste(em,'Emissions [kt]'))+
+    theme(legend.title=element_blank())
+  plot
+  ggsave(paste0('../diagnostic-output/ceds-comparisons/CDIAC_',em,'_Regional_Comparison_',i,'.pdf'),
+          width=6, height=4)
+  plot_list[[i]]<-plot              
+}
+
+pdf(paste0('../diagnostic-output/ceds-comparisons/CDIAC_',em,'_Regional_Comparison_All_diff.pdf'),width=12,height=10,paper='special')
+grid.arrange(plot_list[[1]],plot_list[[2]],
+             plot_list[[3]],plot_list[[4]],
+             plot_list[[5]],plot_list[[6]], ncol=2,
+             top = paste('CDIAC-CEDS : Regional',em,'Differences'))
+dev.off()
+
+
 
 # ---------------------------------------------------------------------------
 # Output
