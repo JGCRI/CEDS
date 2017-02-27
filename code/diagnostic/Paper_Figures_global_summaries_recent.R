@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: Paper_Figures_global_summaries.R
+# Program Name: Paper_Figures_global_summaries_recent.R
 # Author: Rachel Hoesly, Linh Vu, Leyang Feng, Huong Nguyen
 # Date Last Updated: 28 October, 2016 
 # Program Purpose: Produces comparison - diagnostic files and plots between CEDS and
@@ -44,7 +44,7 @@ PARAM_DIR <- "../code/parameters/"
 headers <- c( "data_functions.R", "analysis_functions.R",'process_db_functions.R',
               'common_data.R', 'IO_functions.R', 'data_functions.R', 'timeframe_functions.R') # Additional function files may be required.
 log_msg <- "Processing Paper and Supplement Figures for all emission species" # First message to be printed to the log
-script_name <- "Paper_Figures_global_summaries.R"
+script_name <- "Paper_Figures_global_summaries_recent.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -166,35 +166,44 @@ if (em == 'CO2') unit <- '[Tg CO2/year]'
 
 # Non Comparable Sectors
 rcp_remove_sectors <- c('AWB','Tot_Ant')
-ceds_remove_sectors <- c("1A3ai_International-aviation",
-                         "1A3di_International-shipping",
-                         '1A3aii_Domestic-aviation',
-                         '7A_Fossil-fuel-fires',
-                         '3F_Agricultural-residue-burning-on-fields',
-                         '11A_Volcanoes', 
-                         '11B_Forest-fires', 
-                         '11C_Other-natural', 
-                         '6B_Other-not-in-total')
 
 # if current em does not have ship emissions
 # for the RCP shipping emissions data Historicalshipemissions_IPCC_FINAL_Jan09_updated_1850.xlsx 
 # it doesn't contain data for NH3
+# CDIAC contains both shipping and aviation fuel use
+
 has_ship <- em %!in% c("NH3", 'CO2')
 
-if ( has_ship ) {
-  ceds_remove_sectors_global <- c("1A3ai_International-aviation",
-                                  '1A3aii_Domestic-aviation',
-                                  '7A_Fossil-fuel-fires',
-                                  '3F_Agricultural-residue-burning-on-fields',
-                                  '11A_Volcanoes', 
-                                  '11B_Forest-fires', 
-                                  '11C_Other-natural', 
-                                  '6B_Other-not-in-total')
+if ( em %!in% c("NH3", 'CO2') ) { # RCP has shipping, but no aviation fuel us
+  ceds_remove_sectors <- c("1A3ai_International-aviation",
+                           '1A3aii_Domestic-aviation',
+                           '7A_Fossil-fuel-fires',
+                           '3F_Agricultural-residue-burning-on-fields',
+                           '11A_Volcanoes', 
+                           '11B_Forest-fires', 
+                           '11C_Other-natural', 
+                           '6B_Other-not-in-total')
+}else if (em == 'NH3'){# RCP has no shipping for NH3, no aviation fuel us
+  ceds_remove_sectors <- c("1A3ai_International-aviation",
+                           "1A3di_International-shipping",
+                           '1A3aii_Domestic-aviation',
+                           '7A_Fossil-fuel-fires',
+                           '3F_Agricultural-residue-burning-on-fields',
+                           '11A_Volcanoes', 
+                           '11B_Forest-fires', 
+                           '11C_Other-natural', 
+                           '6B_Other-not-in-total')
   
-} else {
-  ceds_remove_sectors_global <- ceds_remove_sectors
-  
+} else if (em == 'CO2'){ # CDIAC contains both aviation and fuel use
+  ceds_remove_sectors <- c('7A_Fossil-fuel-fires',
+                           '3F_Agricultural-residue-burning-on-fields',
+                           '11A_Volcanoes', 
+                           '11B_Forest-fires', 
+                           '11C_Other-natural', 
+                           '6B_Other-not-in-total') 
 }
+
+ceds_remove_sectors_global <- ceds_remove_sectors
 
 # ---------------------------------------------------------------------------
 # 2. Load and process RCP files
