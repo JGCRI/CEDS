@@ -3,6 +3,7 @@
 # Date Last Updated: 23 Nov 2016 
 # Program Purpose: Compute CO2 other transformation coal:
 #     CO2_Conversion = CO2_Coal_Total - CO2_Coal_Combustion - CO2_Coal_NEuse
+#                      - CO2_
 #   using coal consumption and default EF.
 # Input Files: A.IEA_en_stat_ctry_hist.csv, CO2_total_CEDS_emissions.csv, 
 #   H.Extended_coal_by_fuel.csv, H.Extended_other_tranformation_coal.csv
@@ -209,7 +210,14 @@ if( em != 'CO2') {
     select( -sector ) %>% group_by( iso, fuel, units ) %>%
     summarise_each( funs( sum(., na.rm = T ) ) ) %>% 
     arrange( iso, fuel, units ) %>% data.frame()
-
+  
+# ---------------------------------------------------------------------------
+  # 5. Compute CO2_Coal_Combustion = CO2 from Coal from CEDS combustion emission sectors
+  CO2_Coal_Combustion <- filter( CO2_total_CEDS_emissions, sector %in% ceds_comb_sectors, fuel %in% ceds_coal_fuels ) %>%
+    select( -sector ) %>% group_by( iso, fuel, units ) %>%
+    summarise_each( funs( sum(., na.rm = T ) ) ) %>% 
+    arrange( iso, fuel, units ) %>% data.frame()
+  
 # ---------------------------------------------------------------------------
 # 6. Compute CO2_Conversion = CO2_Coal_Total - CO2_Coal_Combustion - CO2_Coal_NEuse
 # Aggregate all coal flows by iso
@@ -241,11 +249,38 @@ if( em != 'CO2') {
   diag_subzero[ is.na( diag_subzero ) ] <- ""
   CO2_Conversion[ CO2_Conversion < 0 ] <- 0
 
-# Clean up
+# Clean up after aggregation
   CO2_Conversion$fuel <- "process"
   CO2_Conversion$sector <- "1A1bc_Other-transformation"
   CO2_Conversion <- CO2_Conversion[ c( "iso", "sector", "fuel", "units", X_extended_years ) ]
 
+# ---------------------------------------------------------------------------
+# 7. Subtract Edgar 1B1 fugitive solid fuel emissions and 2c scaled ceds values
+  
+  # aggregate 1B1 and 2C by iso
+  CEDS_1B1and2c <- CO2_total_CEDS_emissions[which(CO2_total_CEDS_emissions$sector %in%
+                                                    c('1B1_Fugitive-solid-fuels','2C_Metal-production')),]
+  CO2_1B1and2c <- aggregate(CEDS_1B1and2c[X_extended_years],
+                            by = list(iso = CEDS_1B1and2c$iso), sum)
+
+  # add zeros for gum and srb
+  fill_in_countries <- data.frame(mat.or.vec(2,(length(X_extended_years))))
+  fill_in_countries <- cbind(c("gum","srb (kosovo)"),fill_in_countries)
+  names(fill_in_countries) <- c('iso',X_extended_years)
+
+  CO2_1B1and2c <- rbind(CO2_1B1and2c,fill_in_countries)
+  CO2_1B1and2c <- arrange(CO2_1B1and2c,iso)
+
+  # Check that all 3 dfs have same ID columns
+  if( any( CO2_1B1and2c$iso !=
+           CO2_Conversion$iso ) ) {
+    stop( "ID columns do not match.")
+  }
+
+  # subtract 1B1 and 2c from conversion
+  CO2_Conversion_1B1and2c <- CO2_Conversion
+  CO2_Conversion_1B1and2c[X_extended_years] <- CO2_Conversion_1B1and2c[X_extended_years] - CO2_1B1and2c[X_extended_years]
+  
 # ---------------------------------------------------------------------------
 # Diagnostic: Extract flows for all countries and some big countries
 # Function to extract relevant flows given iso
@@ -290,7 +325,8 @@ if( em != 'CO2') {
 
 # ---------------------------------------------------------------------------
 # 7. Output
-  writeData( CO2_Conversion, "MED_OUT", "H.CO2_calculated_other_transformation_emissions" )
+  writeData( CO2_Conversion, "MED_OUT", "H.CO2_calculated_other_transformation_emissions_before_1B1and2c_correction" )
+  writeData( CO2_Conversion_1B1and2c, "DIAG_OUT", "H.CO2_calculated_other_transformation_emissions" )
   writeData( CO2_Coal_Total, "DIAG_OUT", "H.CO2_Coal_Total" )
   writeData( CO2_Coal_NEuse, "DIAG_OUT", "H.CO2_Coal_NEuse" )
   writeData( CO2_Coal_Combustion, "DIAG_OUT", "H.CO2_Coal_Combustion" )
