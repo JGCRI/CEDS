@@ -120,7 +120,7 @@ if( em != 'CO2') {
 # Combine IEA and CEDS coal. Use CEDS for 1750-1970 and IEA for 1971-2013
 # Copy 2013 values to 2014. Make all NA zero
   total_coal <- merge( CEDS_total_coal, IEA_total_coal, all.x = T )
-  total_coal$X2014 <- total_coal$X2013
+  total_coal[paste0('X',BP_years)] <- total_coal[paste0('X',IEA_end_year)]
   total_coal[ is.na( total_coal ) ] <- 0
 
 # # Diagnostic: Compare CEDS and IEA values at replacement year
@@ -158,7 +158,7 @@ if( em != 'CO2') {
   IEA_neuse_coal$units <- "kt"
   
 # Extend 2013 value to 2014
-  IEA_neuse_coal$X2014 <- IEA_neuse_coal$X2013
+  IEA_neuse_coal[paste0('X',BP_years)] <- IEA_neuse_coal[paste0('X',IEA_end_year)]
   
 # # To determine what year has most values (2007)  
 #   df <- IEA_neuse_coal
