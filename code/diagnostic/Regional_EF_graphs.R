@@ -32,7 +32,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NOx"
+if ( is.na( em ) ) em <- "CO"
 
 # ---------------------------------------------------------------------------
 # 0.1 Load Packages
@@ -227,16 +227,24 @@ for( Sector in 1:length( analysis_sectors ) ){
 		  geom_line( size=1, aes(x=year,y=value, color = Country, linetype = type )) +
 		  scale_x_continuous(breaks=c( 1970,1980,1990,2000,2010, 2015 ))+
 		  scale_linetype_manual( values = User_Line_Types ) +
-		  guides( size = "legend", linetype = "none" ) +
+		  guides( size = "legend", linetype = "none" ,
+		          color=guide_legend(ncol=2)) +
 		  scale_y_continuous(limits = c( 0, Y_Axis_Max ), labels = comma )+
 		  scale_shape_discrete(guide=FALSE)+
 		  labs(x='Year',y= paste(em,' Emission Factor [g/g]'))+
-		  theme(legend.title=element_blank())
+		  theme(legend.title=element_blank())+
+		  theme(panel.background=element_blank(),
+		        panel.grid.minor = element_line(colour="gray95"),
+		        panel.grid.major = element_line(colour="gray88"),
+		        panel.border = element_rect(colour = "grey80", fill=NA, size=.8))
 		plot
- 
+
 		File_name <- paste0( EF_directory, em, "_", analysis_sectors[ Sector ], "_", analysis_fuels[ Fuel ], "-Bounding_EFs.pdf" )
-		ggsave( File_name , width = 5, height = 3 )
-	 
+		
+		if (File_name == paste0( EF_directory,'CO_1A3b_Road_light_oil-Bounding_EFs')) ggsave( './paper-figures/Paper/CO_EF.pdf' , width = 7, height = 3 )
+		  
+		  ggsave( File_name , width = 6, height = 3 )
+
     }
     
   } # End of fuel loop
