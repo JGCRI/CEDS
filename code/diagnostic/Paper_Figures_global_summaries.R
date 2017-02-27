@@ -166,23 +166,16 @@ if (em == 'CO2') unit <- '[Tg CO2/year]'
 
 # Non Comparable Sectors
 rcp_remove_sectors <- c('AWB','Tot_Ant')
-ceds_remove_sectors <- c("1A3ai_International-aviation",
-                         "1A3di_International-shipping",
-                         '1A3aii_Domestic-aviation',
-                         '7A_Fossil-fuel-fires',
-                         '3F_Agricultural-residue-burning-on-fields',
-                         '11A_Volcanoes', 
-                         '11B_Forest-fires', 
-                         '11C_Other-natural', 
-                         '6B_Other-not-in-total')
 
 # if current em does not have ship emissions
 # for the RCP shipping emissions data Historicalshipemissions_IPCC_FINAL_Jan09_updated_1850.xlsx 
 # it doesn't contain data for NH3
+# CDIAC contains both shipping and aviation fuel use
+
 has_ship <- em %!in% c("NH3", 'CO2')
 
-if ( has_ship ) {
-  ceds_remove_sectors_global <- c("1A3ai_International-aviation",
+if ( em %!in% c("NH3", 'CO2') ) { # RCP has shipping, but no aviation fuel us
+  ceds_remove_sectors <- c("1A3ai_International-aviation",
                                   '1A3aii_Domestic-aviation',
                                   '7A_Fossil-fuel-fires',
                                   '3F_Agricultural-residue-burning-on-fields',
@@ -190,11 +183,27 @@ if ( has_ship ) {
                                   '11B_Forest-fires', 
                                   '11C_Other-natural', 
                                   '6B_Other-not-in-total')
+}else if (em == 'NH3'){# RCP has no shipping for NH3, no aviation fuel us
+  ceds_remove_sectors <- c("1A3ai_International-aviation",
+                           "1A3di_International-shipping",
+                           '1A3aii_Domestic-aviation',
+                           '7A_Fossil-fuel-fires',
+                           '3F_Agricultural-residue-burning-on-fields',
+                           '11A_Volcanoes', 
+                           '11B_Forest-fires', 
+                           '11C_Other-natural', 
+                           '6B_Other-not-in-total')
   
-} else {
-  ceds_remove_sectors_global <- ceds_remove_sectors
-  
+} else if (em == 'CO2'){ # CDIAC contains both aviation and fuel use
+  ceds_remove_sectors <- c('7A_Fossil-fuel-fires',
+                           '3F_Agricultural-residue-burning-on-fields',
+                           '11A_Volcanoes', 
+                           '11B_Forest-fires', 
+                           '11C_Other-natural', 
+                           '6B_Other-not-in-total') 
 }
+
+ceds_remove_sectors_global <- ceds_remove_sectors
 
 # ---------------------------------------------------------------------------
 # 2. Load and process RCP files
@@ -267,6 +276,8 @@ RCP$Region <- gsub(" $","", RCP$Region, perl=T)
 
 # Remove sectors not comparable with CEDS. Recalculated totals
 RCP <- RCP[,c('em','Region','Sector',x_rcp_years)]
+
+writeData(RCP, 'MED_OUT', 'RCP_no_shipping')
 }
 # ---------------------------------------------------------------------------
 # 4. Load and Process CEDS Emissions Data 
