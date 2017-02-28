@@ -326,7 +326,7 @@ if( em != 'CO2') {
 # ---------------------------------------------------------------------------
 # 7. Output
   writeData( CO2_Conversion, "MED_OUT", "H.CO2_calculated_other_transformation_emissions_before_1B1and2c_correction" )
-  writeData( CO2_Conversion_1B1and2c, "DIAG_OUT", "H.CO2_calculated_other_transformation_emissions" )
+  writeData( CO2_Conversion_1B1and2c, "MED_OUT", "H.CO2_calculated_other_transformation_emissions" )
   writeData( CO2_Coal_Total, "DIAG_OUT", "H.CO2_Coal_Total" )
   writeData( CO2_Coal_NEuse, "DIAG_OUT", "H.CO2_Coal_NEuse" )
   writeData( CO2_Coal_Combustion, "DIAG_OUT", "H.CO2_Coal_Combustion" )
