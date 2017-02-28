@@ -41,16 +41,22 @@
 # Define emissions species variable
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "SO2"
+    if ( is.na( em ) ) em <- "CO"
   
     MODULE_C <- "../code/module-C/"
 
 # read in the extended flaring data 
     flaring <- readData( "MED_OUT", file_name = paste0( 'C.', em, '_ECLIPSE_flaring_emissions_extended' ) )
-# read in the EDGAR JRC PEGASOS data 
+# for non-methane read in the EDGAR JRC PEGASOS data 
+if ( em != 'CH4' )    
     EDGAR_raw <- readData( 'EM_INV', domain_extension = "EDGAR/", file_name = paste0( 'JRC_PEGASOS_', em, '_TS_REF' ), 
                            extension = ".xlsx", sheet_selection = 1, skip_rows = 8 )
-
+# for methane read in the EDGAR 4.2 and Edgar fast track
+    if ( em == 'CH4' ) {
+    EDGAR_raw <- readData( "EM_INV", file_name = '/EDGAR/EDGAR42_CH4' )
+    EDGAR_FT_raw <- readData( "EM_INV", file_name = '/EDGAR/v42FT_CH4_2000_2010' ,
+                              extension = ".xlsx", sheet_selection = 1, skip_rows = 9 , headers = T) }
+    
 # ------------------------------------------------------------------------------
 # 2. Pre-processing
 
@@ -59,11 +65,24 @@
     
 # extract year_list in flaring data 
     flaring_Xyear <- colnames( flaring )[ grep( 'X', colnames( flaring ) ) ]
-    
+
 # extract year_list in edgar data 
-    edgar_year <- colnames( EDGAR_raw )[ c( grep( '19', colnames( EDGAR_raw ) ), grep( '20', colnames( EDGAR_raw ) ) ) ]
-    edgar_Xyear <- paste0( 'X', edgar_year )
-    
+  edgar_year <- colnames( EDGAR_raw )[ c( grep( '19', colnames( EDGAR_raw ) ), grep( '20', colnames( EDGAR_raw ) ) ) ]
+  if ( em != 'CH4' ) edgar_Xyear <- paste0( 'X', edgar_year )
+  if ( em == 'CH4' ) {edgar_Xyear <- edgar_year
+  edgar_year <- as.numeric(sub('X',"",edgar_year))}
+        
+# if methane, process EDGAR FT and combine with edgar
+if ( em == 'CH4' ){
+  edgarFT_year <- colnames( EDGAR_FT_raw )[ c( grep( '19', colnames( EDGAR_FT_raw ) ), grep( '20', colnames( EDGAR_FT_raw ) ) ) ]
+  edgarFT_Xyear <- paste0 ( 'X' , edgarFT_year )
+  edgarFT <- EDGAR_FT_raw
+  names(edgarFT)[ which( names( edgarFT ) %in% edgarFT_year ) ] <- edgarFT_Xyear
+  FT_ext_year <- edgarFT_Xyear[ which ( edgarFT_Xyear %!in% edgar_Xyear ) ]
+  EDGAR_raw <- left_join(EDGAR_raw, edgarFT[ c( 'ISO_A3' , 'IPCC' , FT_ext_year ) ])
+  edgar_Xyear <- c(edgar_Xyear, FT_ext_year)
+}
+
 # extract years that are not in edgar data 
     edgar_missing_Xyear <- all_Xyear[ which( all_Xyear %!in% edgar_Xyear ) ]
     
@@ -72,11 +91,13 @@
     dummy_layout[ , all_Xyear ] <- 0
     
 # cleaning edgar data
-    edgar <- EDGAR_raw[ , c('ISO_A3', 'IPCC', 'IPCC_description', edgar_year ) ]
+    if ( em != 'CH4' ) edgar <- EDGAR_raw[ , c('ISO_A3', 'IPCC', 'IPCC_description', edgar_year ) ]
+    if ( em == 'CH4' ) edgar <- EDGAR_raw[ , c('ISO_A3', 'IPCC', 'IPCC_description', edgar_Xyear ) ]
     edgar$ISO_A3 <- tolower( edgar$ISO_A3 )
     colnames( edgar ) <- c( 'iso', 'sector', 'sector_description', edgar_Xyear )
+
     # extend edgar to flaring years using edgar 2010 data 
-    edgar[ , edgar_missing_Xyear ] <- edgar$X2010
+    edgar[ , edgar_missing_Xyear ] <- edgar[ last(edgar_Xyear) ]
     edgar <- edgar[ edgar$sector == '1B2', ]
     edgar <- edgar[ !is.na( edgar$iso ), ]
     edgar[ is.na( edgar ) ] <- 0 
