@@ -1028,7 +1028,7 @@ F.scaling <- function( ceds_data, inv_data, region,
           }}
         # Constant Extrapolation
         else if( ext_method_default[i,'post_ext_method'] == 'constant'){
-          post_scaling_ext_line[1,] <-t(na.fill(t(post_scaling_ext_line[1,]), "extend"))
+          post_scaling_ext_line[1,] <-t(na.locf(t(post_scaling_ext_line[1,])))
           # Add meta notes          
           if(meta==TRUE){
             year <- X_post_scaling_ext_years
