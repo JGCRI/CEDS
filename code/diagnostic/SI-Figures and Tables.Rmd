@@ -560,7 +560,37 @@ North America & Canada & United States & Puerto Rico & \\
   \caption{CEDS versus CMIP5: Like with like comparison of global emissions by aggregate sector. These figures do not include open burning (grassland or forest fires), fossil-fuel fires, agricultural waste burning on fields, or aviation.}
 \end{figure}
 
+<!-- New Section ---------------------------------------------------------- -->
+\FloatBarrier
+\section{I. Global Emission Summaries for Select Years}
+\fancyhead[RO,RE]{I. Global Emission Summaries for Select Years}
+\addcontentsline{lof}{section}{I. Global Emission Summaries for Select Years}
 
-
+\addcontentsline{lof}{figure}{Table S3   Global Emissions Estimates for 1990, 2000, and 2010.}
+\begin{table}[!ht]
+\caption{Global Emissions Estimates for 1990, 2000, and 2010.}
+\footnotesize
+\begin{center}
+\begin{tabular}{ | c | c | c | c | c | } 
+\hline
+Emissions Species & Units & 1990 & 2000 & 2010 \\
+\hline
+BC & kt C/year & 5,898 & 5,808 & 7,755 \\
+\hline
+OC & kt C/year & 13,245 & 14,595 & 18,755 \\
+\hline
+NOx & kt NOx/year & 112,879 & 122,103 & 140,651 \\
+\hline
+SO2 & kt SO2/year & 131,926 & 109,131 & 114,082 \\
+\hline
+CO & kt CO/year & 639,591 & 598,356 & 616,991 \\
+\hline
+NH3 & kt NH3/year & 48,928 & 51,112 & 58,383 \\
+\hline
+NMVOC & kt NMVOC/year & 144,884 & 140,749 & 160,887 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
 
 
