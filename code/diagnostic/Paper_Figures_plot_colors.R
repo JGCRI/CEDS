@@ -45,13 +45,21 @@ Master_Fuel_list <- readData('MAPPINGS','Master_Fuel_Sector_List','.xlsx')[[2]]
 # ---------------------------------------------------------------------------
 # 1. Format Plot Color Data frames
 
+# order regions
 regions <- unique(Master_Country_List$Paper_Figure_Region)
 regions <- regions[order(regions)]
+if( 'International' %in% regions ) regions <- regions[which(regions != 'International')]
+regions <- c(regions, 'International')
+
+# order sectors
 sectors <- unique(MSLevel$Figure_sector)
 sectors <- sectors[which(!is.na(sectors))]
 sectors <- sectors[order(sectors)]
 
+# order fuels
 fuels <- unique(Master_Fuel_list$fuel)
+fuels <- fuels[which(!is.na(fuels))]
+fuels <- fuels[order(fuels)]
 
 n_sectors <- length(sectors)
 n_regions <- length(regions)
@@ -70,14 +78,26 @@ n_fuels <- length(fuels)
 
 palette <- c( "#73e600", # yellow green "#7CAE00"
               "#00BE67", # green
-              "#00dee6", # teal "#00BFC4"
-              "#00A9FF", # blue
-              "#0066ff", # dark blue,
-              "#C77CFF", # purple
-              "#ff80d9", # pink "#FF61CF"
-              "#f75f55", # red #F8766D
-              "#ff8000", #orange
-              "#666666" )# black
+              "#80d4ff", # light blue
+              "#0052cc", # dark blue,
+              "#d966ff", # pink/purple
+              "#f75555", # red #F8766D
+              "#ff8c1a", #orange
+              "#ffe11a", #yellow
+              "#999999" , #light grey
+              "#990033" ,  # wine
+              "#333333" )  # dark grey
+ 
+# palette <- c("#E69F00", 
+#                              "#56B4E9", 
+#                              "#009E73", 
+#                              "#F0E442", 
+#                              "#0072B2", 
+#                              "#D55E00", 
+#                              "#CC79A7",
+#                              "#999999","#333333") #grey and black
+
+
 
 region_colors <- data.frame('region' = regions,
                             'color' = palette[1:n_regions], stringsAsFactors = F)
