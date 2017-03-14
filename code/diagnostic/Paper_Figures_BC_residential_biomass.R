@@ -103,28 +103,28 @@ names(em_region) <- c('region','year','x')
 # 2. Plot
 
 # population
-
+em_region$x <- em_region$x/1000
 max <- max(em_region$x)
 emissions_plot <- ggplot(data = em_region, aes(x=year,y=x, color = region) ) + 
-  geom_line(size=1, alpha = 0.5) +
+  geom_line(size=1, alpha = 0.8) +
   scale_x_continuous(limits = c(start,end ),
                      breaks= seq(from=start, to=end, by=major_break),
                      minor_breaks = seq(from=start, to=end, by=minor_break)) +
   scale_y_continuous(limits = c(0,max ),labels = comma)+
   ggtitle( 'BC Residential Biomass Emissions' ) +
-  labs(x= "" , y= paste('BC Emissions [Gg]' ))+
+  labs(x= "" , y= paste('BC Emissions [Tg C/year]' ))+
   theme(panel.background=element_blank(),
         panel.grid.minor = element_line(colour="gray95"),
         panel.grid.major = element_line(colour="gray88"),
         panel.border = element_rect(colour = "grey80", fill=NA, size=.8))+
   scale_color_manual(name = 'Region',
-                     breaks = region_colors[which(region_colors != 'International'),'region'],
-                     values = region_colors[which(region_colors != 'International'),'color'])
+                     breaks = region_colors$region,
+                     values = region_colors$color)
 
 population_region$x <- population_region$x/1000
 max <- max(population_region$x)
 population_plot <- ggplot(data = population_region, aes(x=year,y=x, color = region) ) + 
-  geom_line(size=1, alpha = 0.5) +
+  geom_line(size=1, alpha = 0.8) +
   scale_x_continuous(limits = c(start,end ),
                      breaks= seq(from=start, to=end, by=major_break),
                      minor_breaks = seq(from=start, to=end, by=minor_break)) +
@@ -136,9 +136,8 @@ population_plot <- ggplot(data = population_region, aes(x=year,y=x, color = regi
         panel.grid.major = element_line(colour="gray88"),
         panel.border = element_rect(colour = "grey80", fill=NA, size=.8))+
   scale_color_manual(name = 'Region',
-                     breaks = region_colors[which(region_colors != 'International'),'region'],
-                     values = region_colors[which(region_colors != 'International'),'color'])
-
+                     breaks = region_colors$region,
+                     values = region_colors$color)
 population_plot
 emissions_plot
 
