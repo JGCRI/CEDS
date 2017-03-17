@@ -133,20 +133,20 @@ cmp_ctry_wide <- cast( cmp_ctry, iso~year, value = "diff_pc" )
 
 
 # ---------------------------------------------------------------------------
-# Make plots: CEDS vs CDIAC, with and without Germany
+# Make plots: CEDS vs CDIAC, with and without CHina
 cmp_global_all <- group_by( cmp_ctry_fuel, year ) %>%
   summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) ) %>%
   mutate( ceds_over_cdiac_all = ceds/cdiac )
 cmp_global_all$ceds_over_cdiac_all[ cmp_global_all$cdiac == cmp_global_all$ceds ] <- 1
 
-cmp_global_no_deu <- filter( cmp_ctry_fuel, iso != "deu" ) %>%
+cmp_global_no_chn <- filter( cmp_ctry_fuel, iso != "chn" ) %>%
   group_by( year ) %>%
   summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) ) %>%
-  mutate( ceds_over_cdiac_no_deu = ceds/cdiac )
-cmp_global_no_deu$ceds_over_cdiac_no_deu[ cmp_global_no_deu$cdiac == cmp_global_no_deu$ceds ] <- 1
+  mutate( ceds_over_cdiac_no_chn = ceds/cdiac )
+cmp_global_no_chn$ceds_over_cdiac_no_chn[ cmp_global_no_chn$cdiac == cmp_global_no_chn$ceds ] <- 1
 
 cmp_global_both <- merge( select( cmp_global_all, year, ceds_over_cdiac_all ),
-                          select( cmp_global_no_deu, year, ceds_over_cdiac_no_deu ) )
+                          select( cmp_global_no_chn, year, ceds_over_cdiac_no_chn ) )
 cmp_global_both <- melt( cmp_global_both, id="year" )
 names( cmp_global_both ) <- c( "year", "flow", "ceds_over_cdiac" )
 cmp_global_both$year <- substr(cmp_global_both$year, 2, 5)
@@ -339,9 +339,11 @@ compare <- cmp_ctry
 compare[which(compare$iso %in% FSU_iso),'iso'] <- 'FSU'
 compare <- compare %>% group_by(iso,year) %>% 
   summarise_if(is.numeric,sum) %>% 
-  select(iso, year, diff) %>% 
+  # select(iso, year, diff) %>% 
   mutate(year = as.numeric(gsub('X',"",year))) %>% 
   filter(year >1900)
+
+writeData(compare, 'DIAG_OUT', 'CO2_CEDS_vs_CDIAC_country_comparison')
 
 #5 seperate graphs, saved together
 plot_list <- list()
@@ -365,10 +367,12 @@ for(i in 1:6){
     scale_shape_discrete(guide=FALSE)+
     labs(x='Year',y= paste(em,'Emissions [kt]'))+
     theme(legend.title=element_blank())
-  plot
+  plot_list[[i]]<-plot
+  plot + ggtitle(paste('CDIAC-CEDS : Regional',em,'Differences'))
+  
   ggsave(paste0('../diagnostic-output/ceds-comparisons/CDIAC_',em,'_Regional_Comparison_',i,'.pdf'),
           width=6, height=4)
-  plot_list[[i]]<-plot              
+             
 }
 
 pdf(paste0('../diagnostic-output/ceds-comparisons/CDIAC_',em,'_Regional_Comparison_All_diff.pdf'),width=12,height=10,paper='special')
