@@ -93,6 +93,11 @@ edgar$sector <- NC_sector_map$ceds_sector[ match( edgar$edgar_sector, NC_sector_
 # TAKE FROM MASTER SECTOR LIST INSTEAD
 edgar$units <- NC_sector_map$units[ match( edgar$sector, NC_sector_map$ceds_sector ) ]
 
+# CO2-fossil fuel fires (kuwaiti oil fires) - fill NAs with zero
+edgar[which(edgar$sector == '7A_Fossil-fuel-fires' & edgar$iso == 'kwt'),] <- 
+  replace(edgar[which(edgar$sector == '7A_Fossil-fuel-fires' & edgar$iso == 'kwt'),], 
+          is.na(edgar[which(edgar$sector == '7A_Fossil-fuel-fires' & edgar$iso == 'kwt'),]), 0)
+
 # Remove rows with NA values- interferes with database functions
 edgar <- na.omit( edgar )
 
