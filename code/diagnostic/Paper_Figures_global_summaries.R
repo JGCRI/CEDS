@@ -478,6 +478,8 @@ df$sector <- 'none'
 df2 <- sector_ceds_long
 df2$total_emissions <- df2$total_emissions/1000
 df2$Inventory <- NA
+df2$sector <- factor(df2$sector , levels = sectors )
+df2 <- df2 %>% arrange(sector)
 
 # Legend Plot
 Sector_plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
@@ -576,6 +578,8 @@ max <- 1.1*(max(df$total_emissions))
 df2 <- region_ceds_long
 df2$total_emissions <- df2$total_emissions/1000
 df2$Inventory <- NA
+df2$region <- factor(df2$region , levels = regions )
+df2 <- df2 %>% arrange(region)
 
 if( em != 'CO2'){
   plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
@@ -661,6 +665,8 @@ max <- 1.1*(max(df$total_emissions))
 df2 <- fuel_ceds_long
 df2$total_emissions <- df2$total_emissions/1000
 df2$Inventory <- NA
+df2$fuel <- factor(df2$fuel , levels = fuels )
+df2 <- df2 %>% arrange(fuel)
 
 if( em != 'CO2'){
   plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
@@ -752,7 +758,7 @@ Region_plot_lend <- g_legend(Region_plot)
 Fuel_plot_lend <- g_legend(Fuel_plot)
 
 # Stacked Sector 
-pdf(paste0('../diagnostic-output/paper-figures/Paper/Paper_Figures_sector_stacked.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Paper/Paper_Figures_sector_stacked.pdf'),width=9.5,height=8.5,paper='special', onefile=F)
 grid.arrange(total_stacked_sector_nolegend_list[[1]],total_stacked_sector_nolegend_list[[2]],total_stacked_sector_nolegend_list[[3]],
              total_stacked_sector_nolegend_list[[4]],total_stacked_sector_nolegend_list[[5]],total_stacked_sector_nolegend_list[[6]],
              total_stacked_sector_nolegend_list[[7]],total_stacked_sector_nolegend_list[[8]],
@@ -761,14 +767,14 @@ grid.arrange(total_stacked_sector_nolegend_list[[1]],total_stacked_sector_nolege
 dev.off()
 
 # Line Sector
-pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_sector_line.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_sector_line.pdf'),width=9.5,height=8.5,paper='special', onefile=F)
 grid.arrange(total_line_sector_nolegend_list[[1]],total_line_sector_nolegend_list[[2]],total_line_sector_nolegend_list[[3]],
              total_line_sector_nolegend_list[[4]],total_line_sector_nolegend_list[[5]],total_line_sector_nolegend_list[[6]],
              total_line_sector_nolegend_list[[7]],total_line_sector_nolegend_list[[8]],Sector_plot_lend,
              ncol=3)
 dev.off()
 # Stacked Region
-pdf(paste0('../diagnostic-output/paper-figures/Paper/Paper_Figures_region_stacked.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Paper/Paper_Figures_region_stacked.pdf'),width=9.5,height=8.5,paper='special', onefile=F)
 grid.arrange(total_stacked_region_nolegend_list[[1]],total_stacked_region_nolegend_list[[2]],total_stacked_region_nolegend_list[[3]],
              total_stacked_region_nolegend_list[[4]],total_stacked_region_nolegend_list[[5]],total_stacked_region_nolegend_list[[6]],
              total_stacked_region_nolegend_list[[7]],total_stacked_region_nolegend_list[[8]],
@@ -778,7 +784,7 @@ dev.off()
 
 # Line Region
 leg <- leg <- g_legend(total_line_region_list[[1]])
-pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_region_line.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_region_line.pdf'),width=9.5,height=8.5,paper='special', onefile=F)
 grid.arrange(total_line_region_nolegend_list[[1]],total_line_region_nolegend_list[[2]],total_line_region_nolegend_list[[3]],
              total_line_region_nolegend_list[[4]],total_line_region_nolegend_list[[5]],total_line_region_nolegend_list[[6]],
              total_line_region_nolegend_list[[7]],total_line_region_nolegend_list[[8]],leg,
@@ -786,7 +792,7 @@ grid.arrange(total_line_region_nolegend_list[[1]],total_line_region_nolegend_lis
 dev.off()
 
 # Stacked fuel
-pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_fuel_stacked.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_fuel_stacked.pdf'),width=9.5,height=8.5,paper='special', onefile=F)
 grid.arrange(total_stacked_fuel_nolegend_list[[1]],total_stacked_fuel_nolegend_list[[2]],total_stacked_fuel_nolegend_list[[3]],
              total_stacked_fuel_nolegend_list[[4]],total_stacked_fuel_nolegend_list[[5]],total_stacked_fuel_nolegend_list[[6]],
              total_stacked_fuel_nolegend_list[[7]],total_stacked_fuel_nolegend_list[[8]],
@@ -796,7 +802,7 @@ dev.off()
 
 # Line Fuel
 leg <- leg <- g_legend(total_line_fuel_list[[1]])
-pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_fuel_line.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_fuel_line.pdf'),width=9.5,height=8.5,paper='special', onefile=F)
 grid.arrange(total_line_fuel_nolegend_list[[1]],total_line_fuel_nolegend_list[[2]],total_line_fuel_nolegend_list[[3]],
              total_line_fuel_nolegend_list[[4]],total_line_fuel_nolegend_list[[5]],total_line_fuel_nolegend_list[[6]],
              total_line_fuel_nolegend_list[[7]],total_line_fuel_nolegend_list[[8]],leg,

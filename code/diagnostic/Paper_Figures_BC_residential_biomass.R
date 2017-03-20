@@ -104,6 +104,7 @@ names(em_region) <- c('region','year','x')
 
 # population
 em_region$x <- em_region$x/1000
+em_region$region <- factor( em_region$region, levels = regions)
 max <- max(em_region$x)
 emissions_plot <- ggplot(data = em_region, aes(x=year,y=x, color = region) ) + 
   geom_line(size=1, alpha = 0.8) +
@@ -122,6 +123,8 @@ emissions_plot <- ggplot(data = em_region, aes(x=year,y=x, color = region) ) +
                      values = region_colors$color)
 
 population_region$x <- population_region$x/1000
+population_region$region <- factor( population_region$region, levels = regions)
+
 max <- max(population_region$x)
 population_plot <- ggplot(data = population_region, aes(x=year,y=x, color = region) ) + 
   geom_line(size=1, alpha = 0.8) +

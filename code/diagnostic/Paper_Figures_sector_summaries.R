@@ -130,9 +130,12 @@ for( h in seq_along(em_list)){
   # unit conversion for emissions results (Gg to Tg)
   df <- sector_region_ceds_long
   df$emissions <- df$emissions/1000
- 
+  df$region <- factor(df$region , levels = regions )
+  df <- df %>% arrange(region)
+  
   # Produce legend with all data
   df_color <- region_colors
+  df_color$region <- factor(df_color$region , levels = regions )
   df_color$value <- 1
   region_legend_plot <- ggplot(df_color, aes(region, value, color = region))+
     geom_point(size = 7, shape = 15)+
