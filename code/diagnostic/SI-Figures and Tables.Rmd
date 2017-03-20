@@ -441,8 +441,8 @@ North America & Canada & United States & Puerto Rico & \\
 
 \begin{figure}[!ht]
   \centering
-  \includegraphics[width=6.5in]{Sector_summaries_Energy.pdf}
-  \caption{Recent CEDS Emissions: Energy emissions by Region}
+  \includegraphics[width=6.5in]{Sector_summaries_Energy_Transf_Ext.pdf}
+  \caption{Recent CEDS Emissions: Energy, Transformation, and Extraction emissions by Region}
   \label{fig:non:float}
 \end{figure}
 
@@ -496,8 +496,8 @@ North America & Canada & United States & Puerto Rico & \\
 
 \begin{figure}[!ht]
   \centering
-  \includegraphics[width=6.5in]{Recent_Sector_summaries_Energy.pdf}
-  \caption{Recent CEDS Emissions: Energy emissions by Region}
+  \includegraphics[width=6.5in]{Recent_Sector_summaries_Energy_Transf_Ext.pdf}
+  \caption{Recent CEDS Emissions: Energy, Transformation, and Extraction emissions by Region}
   \label{fig:non:float}
 \end{figure}
 

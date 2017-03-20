@@ -46,20 +46,27 @@ Master_Fuel_list <- readData('MAPPINGS','Master_Fuel_Sector_List','.xlsx')[[2]]
 # 1. Format Plot Color Data frames
 
 # order regions
-regions <- unique(Master_Country_List$Paper_Figure_Region)
-regions <- regions[order(regions)]
-if( 'International' %in% regions ) regions <- regions[which(regions != 'International')]
-regions <- c(regions, 'International')
+# regions <- unique(Master_Country_List$Paper_Figure_Region)
+# regions <- regions[order(regions)]
+# if( 'International' %in% regions ) regions <- regions[which(regions != 'International')]
+# regions <- c(regions, 'International')
+regions <- c( "China","Other Asia/Pacific","North America","Europe", 
+              "Latin America", "Africa" ,"Former Soviet Union","International")
 
-# order sectors
-sectors <- unique(MSLevel$Figure_sector)
-sectors <- sectors[which(!is.na(sectors))]
-sectors <- sectors[order(sectors)]
+# # order sectors
+# sectors <- unique(MSLevel$Figure_sector)
+# sectors <- sectors[which(!is.na(sectors))]
+# sectors <- sectors[order(sectors)]
+sectors <- c( "Energy Transf/Ext" , "Industry"  ,"RCO" , "Transportation" ,
+              "Agriculture" , "Solvents" , "Waste", "Air" , "Shipping")
 
 # order fuels
-fuels <- unique(Master_Fuel_list$fuel)
-fuels <- fuels[which(!is.na(fuels))]
-fuels <- fuels[order(fuels)]
+# fuels <- unique(Master_Fuel_list$fuel)
+# fuels <- fuels[which(!is.na(fuels))]
+# fuels <- fuels[order(fuels)]
+fuels <- c(  "heavy_oil" , "light_oil" , "diesel_oil",  "biomass" ,"natural_gas" ,
+              "hard_coal", "brown_coal" ,"coal_coke" ,
+             "process" )
 
 n_sectors <- length(sectors)
 n_regions <- length(regions)
@@ -76,37 +83,37 @@ n_fuels <- length(fuels)
 #               "#73e600", # yellow green "#7CAE00"
 #               "#666666" )# black
 
-palette <- c( "#73e600", # yellow green "#7CAE00"
-              "#00BE67", # green
-              "#80d4ff", # light blue
-              "#0052cc", # dark blue,
-              "#d966ff", # pink/purple
-              "#f75555", # red #F8766D
-              "#ff8c1a", #orange
-              "#ffe11a", #yellow
-              "#999999" , #light grey
-              "#990033" ,  # wine
-              "#333333" )  # dark grey
- 
+palette <- as.data.frame( matrix (c( "#73e600", "yellow green",
+                                    "#00BE67", "green",
+                                    "#80d4ff", "light blue",
+                                    "#0052cc", "dark blue",
+                                    "#d966ff", "pink/purple",
+                                    "#f75555", "red",
+                                    "#ff8c1a", "orange",
+                                    "#ffe11a", "yellow",
+                                    "#999999" , "light grey",
+                                    "#990033" , "wine",
+                                    "#333333" , "dark grey") , ncol = 2,  byrow = T ) , stringsAsFactors = F) 
+names(palette) <- c('color', 'description') 
+
 # palette <- c("#E69F00", 
-#                              "#56B4E9", 
-#                              "#009E73", 
-#                              "#F0E442", 
-#                              "#0072B2", 
-#                              "#D55E00", 
-#                              "#CC79A7",
-#                              "#999999","#333333") #grey and black
+#              "#56B4E9", 
+#              "#009E73", 
+#              "#F0E442", 
+#              "#0072B2", 
+#              "#D55E00", 
+#              "#CC79A7",
+#              "#999999",
+#              "#333333") #grey and black
 
+region_colors <- palette[1:n_regions,]
+region_colors$region <- regions
 
+sector_colors <- palette[1:n_sectors,]
+sector_colors$sector <- sectors
 
-region_colors <- data.frame('region' = regions,
-                            'color' = palette[1:n_regions], stringsAsFactors = F)
-
-sector_colors <- data.frame('sector' = sectors,
-                            'color' = palette[1:n_sectors], stringsAsFactors = F)
-
-fuel_colors <- data.frame('fuel' = fuels,
-                            'color' = palette[1:n_fuels], stringsAsFactors = F)
+fuel_colors <- palette[1:n_fuels,]
+fuel_colors$fuels <- fuels
 
 # ---------------------------------------------------------------------------
 # End
