@@ -35,8 +35,6 @@ script_name <- 'A1.4.IEA_heat_content.R'
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
-library(zoo)
-library(tidyr)
 # ---------------------------------------------------------------------------
 # 1. Input
   conversion_OECD <- readData( "ENERGY_IN", "OECD_Conversion_Factors_Full" )
