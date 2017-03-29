@@ -2,10 +2,10 @@
 # Program Name: E.Australia_emission.R
 # Author(s): Leyang Feng
 # Date Last Updated: March 28, 2016
-# Program Purpose: To read in and reformat Australia NEI data.
-# Input Files: [em]_Australia_UNFCCC_and_NEI.xlsx
+# Program Purpose: To read in and reformat Australia NPI data.
+# Input Files: [em]_Australia_UNFCCC_and_NPI.xlsx
 # Output Files: E.[EM]_Australia_inventory.csv
-# Notes: Only process Australia NEI data for year 2000, 2006, 2012
+# Notes: Only process Australia NPI data for year 2000, 2006, 2012
 # TODO: 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
@@ -50,7 +50,7 @@ initialize( script_name, log_msg, headers )
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-inventory_data_file <- paste0( 'Australia/', em, '_Australia_UNFCCC_and_NEI' )
+inventory_data_file <- paste0( 'Australia/', em, '_Australia_UNFCCC_and_NPI' )
 inv_data_folder <- "EM_INV"
 sector_fuel_mapping <- 'Australia_scaling_mapping'
 mapping_method <- 'sector'
