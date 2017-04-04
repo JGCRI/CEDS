@@ -61,7 +61,7 @@ if( em != 'CO2') {
   coal_ef <- readData( "DIAG_OUT", "B.CO2_comb_EF_non-bunker" )
   IEA_product_fuel <- readData( "MAPPINGS", "/energy/IEA_product_fuel" )
   MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
-  iea_start <- readData('EXT_IN','iea_start_date', ".xlsx", sheet_selection = "coal")
+  iea_start <- readData('EXT_IN','IEA_start_date', ".xlsx", sheet_selection = "coal")
   
 # Define values
   ceds_coal_fuels <- c( "brown_coal", "coal_coke", "hard_coal" )
