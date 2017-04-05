@@ -41,11 +41,12 @@ if ( is.na( em ) ) em <- "NH3"
 
 activity_all <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended_db') , meta = F)
 
-bond_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/" ,"160227_SPEW_BCOCemission", ".xlsx", meta = T )
-iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_country_map", meta = F )
-fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_fuel_map", meta = F )
-sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_ext_map", ".xlsx", sheet_selection = 'Bond_to_ext',meta = F )
-ext_sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_ext_map", ".xlsx", sheet_selection = 'CEDS_to_ext',meta = F )
+bcoc_historical <- readData( "EM_INV", "CD.SPEW_bcoc_historical", 
+                             domain_extension = "Bond-BCOC/", meta = T )
+sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "CD.SPEW_sector_map", meta = F )
+iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "CD.SPEW_iso_map", meta = F )
+fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "CD.SPEW_fuel_map", meta = F )
+ext_sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "CD.SPEW_ext_map", meta = F )
 
 bond_percent_1850 <- readData( 'EXT_IN', 'Bond_sector_extention_percents_1850')
 
