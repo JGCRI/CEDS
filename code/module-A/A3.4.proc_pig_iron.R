@@ -1,9 +1,9 @@
 # ------------------------------------------------------------------------------
 # Program Name: A3.4.proc_pig_iron.R
-# Author: Linh Vu
-# Date Last Updated: 14 April 2016
+# Author: Linh Vu, Ben Goldstein
+# Date Last Updated: 5 April 2017
 # Program Purpose: Process pig iron production
-# Input Files:  Blast_furnace_iron_production_1850-2014.xlsx, 
+# Input Files:  CD.SPEW_pig_iron.csv, CD.SPEW_pre_pig_iron.csv, 
 #               Pig_Iron_Production_US.csv, Pig_Iron_Production_Mitchell.csv, 
 #               A.UN_pop_master.csv
 # Output Files: A.Pig_Iron_Production.csv, A.Pig_Iron_Production_full.csv
@@ -32,12 +32,11 @@ initialize( script_name, log_msg, headers )
 # ---------------------------------------------------------------------------
 # 1. Read input
 # 'Data' tab only runs to 1890, so read 1850-1890 from tab 'SPEW_Pig_iron_production'
-    spew <- readData( "ACTIVITY_IN", "Blast_furnace_iron_production_1850-2014", ".xlsx", 
-                      sheet_selection = "Data", domain_extension = "metals/", 
-                      skip = 2 )[ 1:60, 3:128 ]
-    spew_pre <- readData( "ACTIVITY_IN", "Blast_furnace_iron_production_1850-2014", ".xlsx", 
-                    sheet_selection = "SPEW_Pig_iron_production", domain_extension = "metals/", 
-                    to_numeric = F )[ 2:10 ]
+    spew <- readData( "ACTIVITY_IN", "CD.SPEW_pig_iron", domain_extension = "metals/", 
+                      sheet_selection = "CD.SPEW_pig_iron")
+    spew_pre <- readData( "ACTIVITY_IN", "CD.SPEW_pre_pig_iron", domain_extension = "metals/", 
+                    sheet_selection = "CD.SPEW_pre_pig_iron")
+    
     us <- readData( "ACTIVITY_IN", "Pig_Iron_Production_US", domain_extension = "metals/" )
     mitchell <- readData( "ACTIVITY_IN", "Pig_Iron_Production_Mitchell", domain_extension = "metals/" )
     
@@ -182,7 +181,7 @@ initialize( script_name, log_msg, headers )
     
 # ---------------------------------------------------------------------------
 # 3. Output
-    writeData( driver, "EXT_IN", "A.Pig_Iron_Production", domain_extension = "extention-data/" )
-    writeData( all_wide_out, "DIAG_OUT", "A.Pig_Iron_Production_full", meta = F )
+    writeData( driver, "EXT_IN", "CD.Pig_Iron_Production", domain_extension = "extention-data/" )
+    writeData( all_wide_out, "DIAG_OUT", "CD.Pig_Iron_Production_full", meta = F )
 
 logStop()
