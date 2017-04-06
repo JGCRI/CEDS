@@ -30,7 +30,7 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "process_db_functions.R", 
-              'interpolation_extension_functions.R' ) # Additional function files required.
+              'interpolation_extention_functions.R' ) # Additional function files required.
 log_msg <- "Integration of process emissions data" # First message to be printed to the log
 script_name <- "C1.3.proc_NC_emissions_user_added.R"
 
@@ -116,7 +116,7 @@ if ( !exists( "emissions" ) ) emissions <- data.frame( iso = character(0),
 
 if( nrow(emissions)>0 ){
   printLog(paste('Adding new data to process emissions for', em))
-  addToDb_overwrite(new_data = emissions, em = em, module = 'C',file_extension = 'NC_emissions') 
+  addToDb_overwrite(new_data = emissions, em = em, module = 'C',file_extention = 'NC_emissions') 
 }else{
   printLog(paste('No data to be added to existing emissions database for ', em))}
 

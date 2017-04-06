@@ -25,7 +25,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R","process_db_functions.R", "ModH_extension_functions.R") # Additional function files may be required.
+headers <- c( "data_functions.R","process_db_functions.R", "ModH_extention_functions.R") # Additional function files may be required.
 log_msg <- "Extending petroleum data with bond and IEA" # First message to be printed to the log
 script_name <- "H1.2.add_activity_total_petroleum.R"
 
@@ -165,7 +165,7 @@ final_activity <- H.add_to_database()
 # ---------------------------------------------------------------------------
 # 12.Diagnostic
 
-summed_total <- rbind.fill( final_iso_fuel_sector_full_extension , other_transformation_fuel)
+summed_total <- rbind.fill( final_iso_fuel_sector_full_extention , other_transformation_fuel)
 summed_total <- aggregate( summed_total[ paste0('X',extension_start_year:extension_end_year)],
                            by = list(fuel = summed_total$fuel),
                            FUN = sum, na.rm=T)
@@ -181,7 +181,7 @@ writeData( all_other_tranformation , 'DIAG_OUT', paste0('H.Extended_other_tranfo
 writeData(final_iso_fuel, 'DIAG_OUT', paste0('H.Extended_by_fuel_', extension_fuel_category) , meta = F)
 writeData(all_iso_fuel, 'DIAG_OUT', paste0('H.Extended_by_fuel_full_', extension_fuel_category) , meta = F)
 writeData(final_iso_fuel_sector_calculated, 'DIAG_OUT', paste0('H.Extended_by_sector_fuel_calculated_', extension_fuel_category) , meta = F)
-writeData(final_iso_fuel_sector_full_extension, 'DIAG_OUT', paste0('H.Extended_by_sector_fuel_full_extension_', extension_fuel_category) , meta = F)
+writeData(final_iso_fuel_sector_full_extention, 'DIAG_OUT', paste0('H.Extended_by_sector_fuel_full_extention_', extension_fuel_category) , meta = F)
 writeData(summed_total, 'DIAG_OUT', paste0('H.Extended_dissagregated_by_sector_fuel_aggregated_', extension_fuel_category), meta = F) 
 
 if( !( (nrow(activity) == nrow(final_activity)) & (ncol(activity) == ncol(final_activity)) ) ){

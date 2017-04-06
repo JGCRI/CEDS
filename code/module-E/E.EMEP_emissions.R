@@ -26,7 +26,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R", "analysis_functions.R", 'interpolation_extension_functions.R') # Any additional function files required
+headers <- c( "data_functions.R", "analysis_functions.R", 'interpolation_extention_functions.R') # Any additional function files required
 log_msg <- "Initial reformatting of the EMEP Emissions" # First message to be printed to the log
 script_name <- "E.EMEP_emissions.R"
 

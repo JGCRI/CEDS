@@ -25,7 +25,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R",'ModH_extension_functions.R') # Additional function files may be required.
+headers <- c( "data_functions.R",'ModH_extention_functions.R') # Additional function files may be required.
 log_msg <- "Replace selected EFs with defaults" # First message to be printed to the log
 script_name <- "H3.2.add_EFs_default.R.R"
 
@@ -72,7 +72,7 @@ for (i in seq_along(year_intervals$start_year)) {
                                     paste( interval_driver $sector, interval_driver $fuel ,sep = '-')) , 
                            c('iso','sector','fuel',paste0('X',year_intervals[i,"start_year"]:year_intervals[i,"end_year"]) )]  
   
-  # add to final extension template
+  # add to final extention template
   ceds_EFs <- replaceValueColMatch(ceds_EFs, defaults,
                                    x.ColName = paste0('X',year_intervals[i,"start_year"]:year_intervals[i,"end_year"]),
                                    match.x = c('iso','sector','fuel'),

@@ -41,7 +41,7 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "timeframe_functions.R", 
-              "interpolation_extension_functions.R") # Additional function files required.
+              "interpolation_extention_functions.R") # Additional function files required.
 log_msg <- "IEA energy balances by all countries and historical years" # First message to be printed to the log
 script_name <- "A1.3.IEA_downscale_ctry.R"
 

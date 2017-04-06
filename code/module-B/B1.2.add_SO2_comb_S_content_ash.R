@@ -28,7 +28,7 @@
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
   headers <- c( "data_functions.R", "analysis_functions.R",'process_db_functions.R',
-                'common_data.R', 'interpolation_extension_functions.R') # Additional function files may be required.
+                'common_data.R', 'interpolation_extention_functions.R') # Additional function files may be required.
   log_msg <- "Adding data files of EF parameters (sulfur and ash ret) to SO2 EF parameter databases"
   
   # First message to be printed to the log
@@ -85,9 +85,9 @@
 # ---------------------------------------------------------------------------
 # 2. Add to existing parameter Dbs
 
-  addToDb_overwrite(new_data = s_content, em = 'SO2', file_extension = 'S_Content_db')
+  addToDb_overwrite(new_data = s_content, em = 'SO2', file_extention = 'S_Content_db')
   
-  addToDb_overwrite(new_data = ash_ret, em = 'SO2', file_extension = 'AshRet_db')
+  addToDb_overwrite(new_data = ash_ret, em = 'SO2', file_extention = 'AshRet_db')
   
   logStop()
 # END

@@ -25,7 +25,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R",'ModH_extension_functions.R') # Additional function files may be required.
+headers <- c( "data_functions.R",'ModH_extention_functions.R') # Additional function files may be required.
 log_msg <- "Converging EFs to given values" # First message to be printed to the log
 script_name <- "H3.2.add_EFs_EF-converge.R"
 
@@ -48,7 +48,7 @@ ceds_EFs <- readData( 'MED_OUT', paste0('H.',em,'_total_EFs_extended_db') , meta
 extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = T )
 
 if( em == 'CO'){
-  CO_converge <- readData( domain = 'EXT_IN', domain_extension = 'extension-data/', file_name = 'regional_biomass_CO_converge')
+  CO_converge <- readData( domain = 'EXT_IN', domain_extension = 'extention-data/', file_name = 'regional_biomass_CO_converge')
 }
 
 # ---------------------------------------------------------------------------
@@ -86,7 +86,7 @@ for ( i in seq_along(drivers_EFconverge$sector)){
   selected_EFs[paste0('X',drivers[1,'start_year']: (drivers[1,'end_year'])) ] <- 
     t(na.locf(t(selected_EFs[ paste0('X',drivers[1,'start_year']: (drivers[1,'end_year'])) ]),fromLast = T))
   
-  # add to final extension template
+  # add to final extention template
   #TODO: would it be more efficient to do this at once instead of one at a time? 
   ceds_EFs <- replaceValueColMatch(ceds_EFs, selected_EFs,
                                    x.ColName = paste0('X',drivers[1,'start_year']: (drivers[1,'end_year'])) ,

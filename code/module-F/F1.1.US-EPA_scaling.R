@@ -35,7 +35,7 @@ if ( is.na( em ) ) em <- "CO2"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R", "analysis_functions.R",
-              "interpolation_extension_functions.R" ) # Additional function files required.
+              "interpolation_extention_functions.R" ) # Additional function files required.
 log_msg <- "US-EPA inventory scaling" # First message to be printed to the log
 script_name <- paste0(em,"-F1.1.US-EPA_scaling.R")
 

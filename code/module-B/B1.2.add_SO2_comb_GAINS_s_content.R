@@ -28,7 +28,7 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'timeframe_functions.R', "data_functions.R", "analysis_functions.R",
-              "process_db_functions.R", 'interpolation_extension_functions.R' ) # Additional function files may be required.
+              "process_db_functions.R", 'interpolation_extention_functions.R' ) # Additional function files may be required.
 log_msg <- "Processing GAINS ash_retention data" # First message to be printed to the log
 script_name <- "B1.2.add_SO2_GAINS_s_content.R"
 

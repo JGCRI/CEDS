@@ -64,21 +64,21 @@ pp <- pp_consumption[, c( pp_id_cols, paste0("X", historical_pre_extension_year:
 # 4. Extend Data
   ratio_year <- unique(drivers[,'ext_end_year'])
   ext_start_year <- unique(drivers[,'ext_start_year'])
-  extension_years <- paste0('X',ext_start_year:ratio_year)
+  extention_years <- paste0('X',ext_start_year:ratio_year)
 
   # select extension data for current method
   sectors <- drivers[, c('sector','fuel') ]
   sectors <- paste(sectors$sector,sectors$fuel,sep='-')
   
   # select ceds data to extend
-  ceds_extension <- activity[ which( paste(activity$sector, activity$fuel, sep="-") %in% sectors  ) , ]
+  ceds_extention <- activity[ which( paste(activity$sector, activity$fuel, sep="-") %in% sectors  ) , ]
   
   # add pulp and paper
-  ceds_extension[extension_years] <- pp[match(ceds_extension$iso, pp$iso)  , extension_years ]
+  ceds_extention[extention_years] <- pp[match(ceds_extention$iso, pp$iso)  , extention_years ]
   
   # add to final activity
-  activity <- replaceValueColMatch(activity, ceds_extension,
-                                   x.ColName = extension_years,
+  activity <- replaceValueColMatch(activity, ceds_extention,
+                                   x.ColName = extention_years,
                                    match.x = c('iso','sector','fuel'),
                                    addEntries = FALSE)
 

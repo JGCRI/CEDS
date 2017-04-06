@@ -28,7 +28,7 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'process_db_functions.R','data_functions.R',
-              'interpolation_extension_functions.R','common_data.R') 
+              'interpolation_extention_functions.R','common_data.R') 
 #                 Additional function files may be required.
 log_msg <- "Adding additional emission factors" # First message to be printed to the log
 script_name <- "B1.2.add_comb_default_EF.R"
@@ -82,7 +82,7 @@ EF$units <- 'kt/kt'
 if( length(EF_list)>0 ){
   printLog(paste('Adding new data to existing emission factor data base for', em))
   writeData( EF, 'DIAG_OUT', paste0('B.',em,'_comb_User_Added_EF'))
-  addToDb_overwrite(new_data = EF, em = em, file_extension = 'comb_EF_db') 
+  addToDb_overwrite(new_data = EF, em = em, file_extention = 'comb_EF_db') 
   }else{
   printLog(paste('No data to be added to existing EF database for ', em))}
 

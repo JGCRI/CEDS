@@ -30,7 +30,7 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "process_db_functions.R", 
-              'interpolation_extension_functions.R' ) # Additional function files required.
+              'interpolation_extention_functions.R' ) # Additional function files required.
 log_msg <- "Integration of inventory process emissions data with insturctions from user" # First message to be printed to the log
 script_name <- "C1.3.proc_NC_emissions_user_added_inventories.R"
 
