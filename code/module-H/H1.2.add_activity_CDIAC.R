@@ -96,59 +96,59 @@ for (i in seq_along(year_intervals)) {
   
   ratio_year <- unique(drivers[,'ext_end_year'])+1
   ext_start_year <- unique(drivers[,'ext_start_year'])
-  extention_years <- paste0('X',ext_start_year:unique(drivers[,'ext_end_year']))
+  extension_years <- paste0('X',ext_start_year:unique(drivers[,'ext_end_year']))
   
   # select extension data for current method
   sectors <- drivers[, c('sector','fuel') ]
   sectors <- paste(sectors$sector,sectors$fuel,sep='-')
   
   # select ceds data to extend
-  ceds_extention_ratios <- activity[ which( paste(activity$sector, activity$fuel, sep="-") 
+  ceds_extension_ratios <- activity[ which( paste(activity$sector, activity$fuel, sep="-") 
                                                        %in% sectors  ) , ]
   # add "extra_driver_info" - CDIA driver
-  ceds_extention_ratios$extra_driver_info <- drivers[ match( paste(ceds_extention_ratios$sector, ceds_extention_ratios$fuel, sep="-") ,
+  ceds_extension_ratios$extra_driver_info <- drivers[ match( paste(ceds_extension_ratios$sector, ceds_extension_ratios$fuel, sep="-") ,
                                                              paste(drivers$sector, drivers$fuel, sep="-")) , 'extra_driver_info']
   
   #extended data template
-  ceds_extention_ratios <- ceds_extention_ratios[,c('iso','sector','fuel','extra_driver_info',paste0('X',ratio_year))]
-  names(ceds_extention_ratios)[which(names(ceds_extention_ratios) == paste0('X',ratio_year))] <- 'CEDS_ratio_year'
+  ceds_extension_ratios <- ceds_extension_ratios[,c('iso','sector','fuel','extra_driver_info',paste0('X',ratio_year))]
+  names(ceds_extension_ratios)[which(names(ceds_extension_ratios) == paste0('X',ratio_year))] <- 'CEDS_ratio_year'
   
   
   # add Driver data - map to CDIAC fuel and ratio year
-  ceds_extention_ratios$CDIAC_fuel <- cdiac_fuel_map[ match( ceds_extention_ratios$fuel , 
+  ceds_extension_ratios$CDIAC_fuel <- cdiac_fuel_map[ match( ceds_extension_ratios$fuel , 
                                                              cdiac_fuel_map$ceds_fuel ) , 'cdiac_fuel']
   # add "CDIAC fuel" for process data driven by CDIAC fuels
-  ceds_extention_ratios[which(ceds_extention_ratios$fuel == 'process' & ceds_extention_ratios$extra_driver_info == 'liquid_fuels'), 'CDIAC_fuel'] <- 'liquid_fuels'
-  ceds_extention_ratios[which(ceds_extention_ratios$fuel == 'process' & ceds_extention_ratios$extra_driver_info == 'solid_fuels_cumulative'), 'CDIAC_fuel'] <- 'solid_fuels_cumulative'
-  ceds_extention_ratios[which(ceds_extention_ratios$fuel == 'process' & ceds_extention_ratios$extra_driver_info == 'gas_fuels'), 'CDIAC_fuel'] <- 'gas_fuels'
-  ceds_extention_ratios[which(ceds_extention_ratios$fuel == 'process' & ceds_extention_ratios$extra_driver_info == 'liquid_and_gas_fuels'), 'CDIAC_fuel'] <- 'liquid_and_gas_fuels'
+  ceds_extension_ratios[which(ceds_extension_ratios$fuel == 'process' & ceds_extension_ratios$extra_driver_info == 'liquid_fuels'), 'CDIAC_fuel'] <- 'liquid_fuels'
+  ceds_extension_ratios[which(ceds_extension_ratios$fuel == 'process' & ceds_extension_ratios$extra_driver_info == 'solid_fuels_cumulative'), 'CDIAC_fuel'] <- 'solid_fuels_cumulative'
+  ceds_extension_ratios[which(ceds_extension_ratios$fuel == 'process' & ceds_extension_ratios$extra_driver_info == 'gas_fuels'), 'CDIAC_fuel'] <- 'gas_fuels'
+  ceds_extension_ratios[which(ceds_extension_ratios$fuel == 'process' & ceds_extension_ratios$extra_driver_info == 'liquid_and_gas_fuels'), 'CDIAC_fuel'] <- 'liquid_and_gas_fuels'
   
   # add driver ratio year
-  ceds_extention_ratios <- merge(ceds_extention_ratios, cdiac_combustion[,c("iso","fuel", paste0('X',ratio_year))],
+  ceds_extension_ratios <- merge(ceds_extension_ratios, cdiac_combustion[,c("iso","fuel", paste0('X',ratio_year))],
                                  by.x = c('iso', 'CDIAC_fuel'),
                                  by.y = c("iso","fuel"),
                                  all.x = TRUE, all.y = FALSE)
-  names(ceds_extention_ratios)[which(names(ceds_extention_ratios) == paste0('X',ratio_year))] <- 'CDIAC_ratio_year'
+  names(ceds_extension_ratios)[which(names(ceds_extension_ratios) == paste0('X',ratio_year))] <- 'CDIAC_ratio_year'
   
   # calculate ratio
-  ceds_extention_ratios$ratio <- ceds_extention_ratios$CEDS_ratio_year/ceds_extention_ratios$CDIAC_ratio_year
+  ceds_extension_ratios$ratio <- ceds_extension_ratios$CEDS_ratio_year/ceds_extension_ratios$CDIAC_ratio_year
   # make all infinite ratios zero
-  ceds_extention_ratios[!is.finite(ceds_extention_ratios$ratio) , 'ratio'] <- 0
+  ceds_extension_ratios[!is.finite(ceds_extension_ratios$ratio) , 'ratio'] <- 0
   
   # add driver data and use ratio to calculate extended value
-  ceds_extended <- ceds_extention_ratios[,c('iso','fuel','sector',"CDIAC_fuel",'ratio')]
-  ceds_extended[, extention_years] <- NA
+  ceds_extended <- ceds_extension_ratios[,c('iso','fuel','sector',"CDIAC_fuel",'ratio')]
+  ceds_extended[, extension_years] <- NA
   ceds_extended <- replaceValueColMatch(ceds_extended , cdiac_combustion,
-                                        x.ColName = extention_years ,
+                                        x.ColName = extension_years ,
                                         match.x = c('iso', 'CDIAC_fuel'),
                                         match.y = c("iso","fuel"),
                                         addEntries = FALSE)
-  ceds_extended[ extention_years ] <- ceds_extended$ratio * ceds_extended[ extention_years ]
+  ceds_extended[ extension_years ] <- ceds_extended$ratio * ceds_extended[ extension_years ]
   ceds_extended[is.na(ceds_extended)] <- 0
   
-  # add to final extention template
+  # add to final extension template
   activity <- replaceValueColMatch(activity, ceds_extended,
-                                              x.ColName = extention_years,
+                                              x.ColName = extension_years,
                                               match.x = c('iso','sector','fuel'),
                                               addEntries = FALSE)
   

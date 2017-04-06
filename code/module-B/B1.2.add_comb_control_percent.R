@@ -28,7 +28,7 @@
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
   headers <- c( 'process_db_functions.R','data_functions.R',
-                'interpolation_extention_functions.R','common_data.R') 
+                'interpolation_extension_functions.R','common_data.R') 
 #                 Additional function files may be required.
   log_msg <- "Adding control percent data to data base" # First message to be printed to the log
   script_name <- "B1.2.add_comb_control_percent.R"
@@ -85,7 +85,7 @@
   
   if( length(control_percent_list)>0 ){
     printLog(paste('Adding new data to existing control percent data base for', em))
-    addToDb_overwrite(new_data = control_percent, em = em, file_extention = 'ControlFrac_db') 
+    addToDb_overwrite(new_data = control_percent, em = em, file_extension = 'ControlFrac_db') 
     }else{
     printLog(paste('No data to be added to existing control percent data base for ', em))}
   
