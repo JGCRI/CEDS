@@ -39,7 +39,7 @@ if ( is.na( em ) ) em <- "NOx"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R", "analysis_functions.R",
-              "interpolation_extention_functions.R" ) # Additional function files required.
+              "interpolation_extension_functions.R" ) # Additional function files required.
 log_msg <- "Modifying emissions factors from EMEP Level 1 inventory data" # First message to be printed to the log
 script_name <- paste0(em,"-F1.1.EMEP_NFR14_scaling.R")
 

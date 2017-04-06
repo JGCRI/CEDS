@@ -27,7 +27,7 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'process_db_functions.R','data_functions.R',
-              'interpolation_extention_functions.R','common_data.R') 
+              'interpolation_extension_functions.R','common_data.R') 
 #                 Additional function files may be required.
 log_msg <- "Adding control percent data to data base" # First message to be printed to the log
 script_name <- "gains EMF summary.R"

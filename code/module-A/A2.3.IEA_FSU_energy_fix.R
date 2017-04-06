@@ -34,7 +34,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( 'data_functions.R','interpolation_extention_functions.R' ) # Additional function files required.
+headers <- c( 'data_functions.R','interpolation_extension_functions.R' ) # Additional function files required.
 log_msg <- "Fix Former Soviet Union Data" # First message to be printed to the log
 script_name <- "A2.3.IEA_FSU_energy_fix.R"
 
@@ -120,7 +120,7 @@ end_BP_year <- 2013
 
   
 # -------------------------------------------------------------------------------------------
-# 3. Make any hard code changes to activity data before manipulation/extention
+# 3. Make any hard code changes to activity data before manipulation/extension
 #    Aggregate Data for use later in code
   
 #-----------------------------------------------------------------------------------------#
