@@ -20,8 +20,8 @@ INV_DATA = input/emissions-inventories
 MED_OUT = intermediate-output
 DIAG_OUT = diagnostic-output
 FINAL_OUT = final-emissions
-EXT_IN = input/extension
-EXT_DATA = input/extension/extension-data
+EXT_IN = input/extention
+EXT_DATA = input/extention/extention-data
 LOGS = code/logs
 DOCS = documentation
 
@@ -122,13 +122,13 @@ clean-io :
 
 clean-modA :
 	rm -fv $(MED_OUT)/A*.csv \
-	rm -fv $(EXT_IN)/extension-data/A.*.csv
+	rm -fv $(EXT_IN)/extention-data/A.*.csv
 
 clean-modB :
 	rm -fv $(MED_OUT)/B*.csv \
 	rm -fv $(EF_PARAMETERS)/B.*.csv \
 	rm -fv $(EF_DATA)/non-combustion-emissions/B.*.csv \
-	rm -fv $(EXT_IN)/extension-data/B.*.csv
+	rm -fv $(EXT_IN)/extention-data/B.*.csv
 
 clean-modC :
 	rm -fv $(MED_OUT)/C*.csv \
@@ -145,7 +145,7 @@ clean-modF :
 
 clean-modH :
 	rm -fv $(MED_OUT)/H*.csv \
-	rm -fv $(EXT_IN)/extension-data/H*.csv
+	rm -fv $(EXT_IN)/extention-data/H*.csv
 
 clean-SO2 :
 	rm -fv $(MED_OUT)/*SO2*.csv \
@@ -489,7 +489,7 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(PARAMS)/timeframe_functions.R \
 	$(PARAMS)/process_db_functions.R \
 	$(PARAMS)/analysis_functions.R \
-	$(PARAMS)/interpolation_extension_functions.R \
+	$(PARAMS)/interpolation_extention_functions.R \
 	$(EF_DATA)/SO2_base_EF.csv \
 	$(MED_OUT)/A.comb_activity.csv \
 	$(MAPPINGS)/Bond/Bond_country_map.csv \
@@ -764,7 +764,7 @@ $(MED_OUT)/H.$(EM)_total_EFs_extended.csv : \
 	$(MOD_H)/H3.2.add_EFs_EF-trend.R \
 	$(MOD_H)/H3.2.add_EFs_Emissions-trend.R \
 	$(EXT_IN)/CEDS_historical_extension_methods_EF.csv \
-	$(EXT_IN)/extension-data/A.Pig_Iron_Production.csv \
+	$(EXT_IN)/extention-data/A.Pig_Iron_Production.csv \
 	$(MED_OUT)/H.$(EM)_total_EFs_adjusted-sector.csv \
 	$(MED_OUT)/H.$(EM)_total_activity_extended.csv
 	Rscript $< $(EM) --nosave --no-restore

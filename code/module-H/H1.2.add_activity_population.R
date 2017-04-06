@@ -67,7 +67,7 @@ population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_yea
 
   ratio_year <- unique(drivers[,'ext_end_year'])
   ext_start_year <- unique(drivers[,'ext_start_year'])
-  extension_years <- paste0('X',ext_start_year:ratio_year)
+  extention_years <- paste0('X',ext_start_year:ratio_year)
 
 
   # select extension data for current method
@@ -75,14 +75,14 @@ population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_yea
   sectors <- paste(sectors$sector,sectors$fuel,sep='-')
   
   # select ceds data to extend
-  ceds_extension <- activity[ which( paste(activity$sector, activity$fuel, sep="-") %in% sectors  ) , ]
+  ceds_extention <- activity[ which( paste(activity$sector, activity$fuel, sep="-") %in% sectors  ) , ]
   
   # add population
-  ceds_extension[extension_years] <- population[match(ceds_extension$iso, population$iso)  , extension_years ]
+  ceds_extention[extention_years] <- population[match(ceds_extention$iso, population$iso)  , extention_years ]
   
   # add to final activity
-  activity <- replaceValueColMatch(activity, ceds_extension,
-                                   x.ColName = extension_years,
+  activity <- replaceValueColMatch(activity, ceds_extention,
+                                   x.ColName = extention_years,
                                    match.x = c('iso','sector','fuel'),
                                    addEntries = FALSE)
 

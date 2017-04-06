@@ -25,7 +25,7 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R") # Additional function files may be required.
-log_msg <- "Creating database for CEDS EFs extension before 1960" # First message to be printed to the log
+log_msg <- "Creating database for CEDS EFs extention before 1960" # First message to be printed to the log
 script_name <- "H3.1.base_EFs.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )

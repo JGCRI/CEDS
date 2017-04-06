@@ -24,8 +24,8 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R",'ModH_extension_functions.R') # Additional function files may be required.
-log_msg <- "Creating database for CEDS EFs extension before 1960" # First message to be printed to the log
+headers <- c( "data_functions.R",'ModH_extention_functions.R') # Additional function files may be required.
+log_msg <- "Creating database for CEDS EFs extention before 1960" # First message to be printed to the log
 script_name <- "H3.2.add_EFs_Emissions-trend.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
@@ -41,7 +41,7 @@ if ( is.na( em ) ) em <- "SO2"
 activity <- readData("MED_OUT", paste0('H.',em,'_total_activity_extended') , meta = T )
 extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = T )
 MCL <- readData("MAPPINGS",'Master_Country_List', meta = T )
-# read in population data used for later extension of drivers_method_data_list
+# read in population data used for later extention of drivers_method_data_list
 pop <- readData( "MED_OUT", "A.UN_pop_master" , meta = T )
 
 final_iso <- unique(MCL[which(MCL$final_data_flag == 1),'iso'])
@@ -57,12 +57,12 @@ drivers <-  select_EF_drivers(trend)
 # 3. Import data files from driver-method-file
 
 # import files
-drivers_method_files <- unique(drivers[,c("file_name","domain","domain_extension" )])
+drivers_method_files <- unique(drivers[,c("file_name","domain","domain_extention" )])
 drivers_method_data_list <- list()
 for(i in seq_along(drivers_method_files$file_name) ){
-  if( is.na(drivers_method_files[i,"domain_extension"]) ) {
+  if( is.na(drivers_method_files[i,"domain_extention"]) ) {
       x <- readData( domain = drivers_method_files[i,'domain'], file_name = drivers_method_files[i,"file_name"]) } else{
-      x <- readData( domain = drivers_method_files[i,'domain'], file_name = drivers_method_files[i,"file_name"], domain_extension = drivers_method_files[i,"domain_extension"])}
+      x <- readData( domain = drivers_method_files[i,'domain'], file_name = drivers_method_files[i,"file_name"], domain_extension = drivers_method_files[i,"domain_extention"])}
       drivers_method_data_list[[i]] <- x
     }
 names(drivers_method_data_list) <- drivers_method_files$file_name
@@ -126,7 +126,7 @@ names( drivers_method_data_extended_list ) <- drivers$file_name
 # # ---------------------------------------------------------------------------
 # # 4. Import files from user drop folder
 # 
-# user_files_list <- list.files(path =  './extension/extension-data', 
+# user_files_list <- list.files(path =  './extention/extention-data', 
 #                          pattern = '*.csv')
 # user_files_list <- file_path_sans_ext( user_files_list )
 # 
@@ -143,7 +143,7 @@ names( drivers_method_data_extended_list ) <- drivers$file_name
 # 
 # user_data_list <- lapply ( X = user_files_list, FUN = readData, 
 #                            domain = "EXT_IN" , 
-#                            domain_extension = "extension-data/")
+#                            domain_extension = "extention-data/")
 # names(user_data_list ) <- user_files_list 
 # 
 # user_data <- do.call(rbind.fill, user_data_list)
@@ -191,7 +191,7 @@ EF_trends <- emissions_trends
 EF_trends[years] <- emissions_trends[years]/activity_trends[ years ]
 EF_trends[years] <- replace ( EF_trends[ years] , EF_trends[ years]=='NaN' , 0 ) 
 
-writeData( EF_trends, domain = "EXT_IN" , domain_extension = "extension-data/", 
+writeData( EF_trends, domain = "EXT_IN" , domain_extension = "extention-data/", 
            fn = paste0('H.',em,'_',
                        drivers[i,'sector'],'-',drivers[i,'fuel'],'-',drivers[i,'file_name'],
                        '_EF-trend'), meta = F)

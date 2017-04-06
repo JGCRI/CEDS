@@ -37,7 +37,7 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R", "process_db_functions.R", 
-              "interpolation_extension_functions.R" ) # Additional function files required.
+              "interpolation_extention_functions.R" ) # Additional function files required.
 log_msg <- "Produce OC BC emissions factors from SPEW data" # First message to be printed to the log
 script_name <- "B1.1.base_BCOC_comb_EF.R"
 
@@ -371,7 +371,7 @@ bond_process_extend <- bond_process_extend[ , c( 'iso','sector','fuel','units',X
 # 7. Write output
 
 writeData( final_out , "MED_OUT", paste0( "B.",em,"_comb_EF_db" ) )
-writeData( final_full, "EXT_IN", paste0( "B.",em,"_SPEW_comb_EF" ), domain_extension = "extension-data/" )
+writeData( final_full, "EXT_IN", paste0( "B.",em,"_SPEW_comb_EF" ), domain_extension = "extention-data/" )
 writeData( bond_process_extend , "DEFAULT_EF_IN", domain_extension = 'non-combustion-emissions/', 
            fn = paste0( "B.",em,"_SPEW_NC_em" ) , meta = F)
 

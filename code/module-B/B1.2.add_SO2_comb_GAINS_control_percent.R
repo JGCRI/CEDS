@@ -33,7 +33,7 @@ PARAM_DIR <- "../code/parameters/"
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R",'process_db_functions.R',
               'common_data.R', 'IO_functions.R', 'data_functions.R', 'timeframe_functions.R',
-              'interpolation_extension_functions.R') # Additional function files may be required.
+              'interpolation_extention_functions.R') # Additional function files may be required.
 log_msg <- "Aggregating EU GAINS Data" # First message to be printed to the log
 script_name <- "B1.2.add_SO2_GAINS_ControlFrac.R"
 
@@ -235,7 +235,7 @@ control_percent <- cast(combined[,c('iso','sector','fuel','units','years','contr
 
 # -------------------------------------------------------------------------------
 # 4. Prepare for automated addition to ContFrac_db in other mod B scripts.
-#  Define extension options.
+#  Define extention options.
 
 # Split eastern and western europe
 
