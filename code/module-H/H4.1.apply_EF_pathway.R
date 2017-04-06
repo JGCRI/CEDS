@@ -46,7 +46,7 @@ if ( is.na( em ) ) em <- "NOx"
     ef <- readData( "MED_OUT" , paste0( "H.", em, "_total_EFs_extended" ) )
 
 # Read EF pathway for selected emission
-    fl <- list.files( path = "./extention/EF-pathway", pattern = "EF_pathway.csv" )
+    fl <- list.files( path = "./extension/EF-pathway", pattern = "EF_pathway.csv" )
     fl <- file_path_sans_ext( fl )
     fl <- fl[ grepl( em, fl ) ]
     if (em == "OC" )

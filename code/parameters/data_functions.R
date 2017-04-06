@@ -512,7 +512,7 @@ calculate_shares <- function(input_data,
 # -----------------------------------------------------------------------------
 # extend_data_on_trend
 # Brief:     extends data based on trend of other data
-# Details:   for general use in modH, not cdiac extention.   
+# Details:   for general use in modH, not cdiac extension.   
 # Dependencies: 
 # Author(s):    
 # Params:    
@@ -540,51 +540,51 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
   ratio_years <- paste0('X',c(end+1,end+2,end+3,end+4,end+5))
   ext_start_year <- start
   ext_end_year <- end
-  extention_years <- paste0('X',ext_start_year:ext_end_year)
+  extension_years <- paste0('X',ext_start_year:ext_end_year)
   
   # select extension data for current method
   driver_lines <- driver_trend[, c('iso','sector','fuel') ]
   driver_lines <- unique(paste(driver_lines$iso,driver_lines$sector,driver_lines$fuel,sep='-'))
   
   # select ceds data to extend
-  ceds_extention_ratios <- input_data[ which( paste(input_data$iso,input_data$sector, input_data$fuel, sep="-") %in% driver_lines  ) , ]
+  ceds_extension_ratios <- input_data[ which( paste(input_data$iso,input_data$sector, input_data$fuel, sep="-") %in% driver_lines  ) , ]
   
   #extended data template
-  ceds_extention_ratios <- ceds_extention_ratios[,c('iso','sector','fuel',ratio_years)]
+  ceds_extension_ratios <- ceds_extension_ratios[,c('iso','sector','fuel',ratio_years)]
   
   # add Driver identifyer ratio year
-  ceds_extention_ratios <- merge(ceds_extention_ratios, driver_trend[,c("iso", 'sector','fuel', ratio_years)],
+  ceds_extension_ratios <- merge(ceds_extension_ratios, driver_trend[,c("iso", 'sector','fuel', ratio_years)],
                                  by.x = c('iso', 'sector','fuel'),
                                  by.y = c("iso", 'sector','fuel'),
                                  all.x = TRUE, all.y = FALSE)
   
-  ceds_extention_ratios[ ratio_years ] <- ceds_extention_ratios[ paste0(ratio_years,'.x')]/ceds_extention_ratios[ paste0(ratio_years,'.y')]
-  ceds_extention_ratios <- replace(ceds_extention_ratios, ceds_extention_ratios == 'NaN', 0)
-  ceds_extention_ratios <- replace(ceds_extention_ratios, is.na(ceds_extention_ratios), 0) 
+  ceds_extension_ratios[ ratio_years ] <- ceds_extension_ratios[ paste0(ratio_years,'.x')]/ceds_extension_ratios[ paste0(ratio_years,'.y')]
+  ceds_extension_ratios <- replace(ceds_extension_ratios, ceds_extension_ratios == 'NaN', 0)
+  ceds_extension_ratios <- replace(ceds_extension_ratios, is.na(ceds_extension_ratios), 0) 
   
-  ceds_extention_ratios$ratio <-  rowMeans(ceds_extention_ratios[ ratio_years ])
+  ceds_extension_ratios$ratio <-  rowMeans(ceds_extension_ratios[ ratio_years ])
 
   # Ratio Diagnostics
-  if(diagnostics == T) writeData(ceds_extention_ratios , "DIAG_OUT", 
-                                 paste0('ceds_extention_ratios_',unique(driver_trend$sector)[1],'_',unique(driver_trend$fuel)[1],'_',start,'-',end),
+  if(diagnostics == T) writeData(ceds_extension_ratios , "DIAG_OUT", 
+                                 paste0('ceds_extension_ratios_',unique(driver_trend$sector)[1],'_',unique(driver_trend$fuel)[1],'_',start,'-',end),
                                  meta=F)
 
   # add driver data and use ratio to calculate extended value
-  ceds_extended <- ceds_extention_ratios[,c('iso','fuel','sector','ratio')]
-  ceds_extended [ extention_years ] <- NA
+  ceds_extended <- ceds_extension_ratios[,c('iso','fuel','sector','ratio')]
+  ceds_extended [ extension_years ] <- NA
   ceds_extended <- replaceValueColMatch(ceds_extended, driver_trend,
-                                        x.ColName = extention_years,
+                                        x.ColName = extension_years,
                                         match.x = c('iso','sector','fuel'),
                                         addEntries = FALSE)
   
   ceds_extended[is.na(ceds_extended)] <- 0
   
   # calculate extended data
-  ceds_extended[ extention_years ] <- ceds_extended$ratio * ceds_extended[ extention_years ]
+  ceds_extended[ extension_years ] <- ceds_extended$ratio * ceds_extended[ extension_years ]
   
-  # add to final extention template
+  # add to final extension template
   input_data <- replaceValueColMatch(input_data, ceds_extended,
-                                     x.ColName = extention_years,
+                                     x.ColName = extension_years,
                                      match.x = c('iso','sector','fuel'),
                                      addEntries = FALSE)
   
@@ -600,8 +600,8 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
 # Params:    
 # driver_trend - trend by which to extend input data
 # input_data - data to be extended 
-# start - start of extention range (earliest year to be extended)  
-# end - end of extention range (lastest year to be extended) 
+# start - start of extension range (earliest year to be extended)  
+# end - end of extension range (lastest year to be extended) 
 # expand = T, if input data has "all" or "all-combustion" for fuel, then is expands the data
 # range = 5 - the length of the range of ratio years (calculates the average ratio)
 # ratio_start_year - earliest year of ratio years, defaults to the the year following extendtion end year
