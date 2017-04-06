@@ -24,7 +24,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R",'ModH_extention_functions.R') # Additional function files may be required.
+headers <- c( "data_functions.R",'ModH_extension_functions.R') # Additional function files may be required.
 log_msg <- "Extend EFs back to 1750 with constant values" # First message to be printed to the log
 script_name <- "H3.2.add_EFs_constant.R"
 
@@ -42,7 +42,7 @@ ceds_EFs <- readData( 'MED_OUT', paste0('H.',em,'_total_EFs_extended_db')  )
 extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF' )
 
 # ---------------------------------------------------------------------------
-# 1. Constant Extention
+# 1. Constant extension
 
 trend <- 'constant'
 
@@ -50,7 +50,7 @@ drivers <-  select_EF_drivers(trend)
 
 
 # ---------------------------------------------------------------------------
-# 1. Constant Extention
+# 1. Constant extension
 
 ceds_EF_extended <- ceds_EFs
 

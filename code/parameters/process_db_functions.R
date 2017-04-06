@@ -476,7 +476,7 @@ addToEmissionsDb_overwrite <- function( df, em, type ){
 # addToDb_overwrite
 # Brief:            Adds data to a database by overwriting existing values for iso/sector/fuel/year
 #                   combinations in supplied data frame.
-# Details:          Reads in specified database (noted by input called file_extention) and
+# Details:          Reads in specified database (noted by input called file_extension) and
 #                   replaces/overwrites values for iso-sector-fuel-combinations with values in 
 #                   input dataframe. Replaces values using match function (finds first match). 
 #                   If addEntries == FALSE, then the database is the same size and sort as
@@ -498,9 +498,9 @@ addToEmissionsDb_overwrite <- function( df, em, type ){
 # Return:           none
 # Input files:      B.[em]_xxxxx_db.csv, common_data.R
 # Output files:     B.[em]_xxxxx_db.csv
-# example:          addToDb_overwrite(new_data = s_content, em = 'SO2', file_extention = 'S_Content_db')
+# example:          addToDb_overwrite(new_data = s_content, em = 'SO2', file_extension = 'S_Content_db')
 
-addToDb_overwrite <- function( new_data, em, file_extention, module = 'B',
+addToDb_overwrite <- function( new_data, em, file_extension, module = 'B',
                                addEntries = FALSE ){
   printLog ("Adding new data to database")
   
@@ -511,7 +511,7 @@ addToDb_overwrite <- function( new_data, em, file_extention, module = 'B',
   source( paste( PARAM_DIR, "timeframe_functions.R", sep = "" ) )
   source( paste( PARAM_DIR, "data_functions.R", sep = "" ) )
   
-  original_db <- readData( "MED_OUT", paste0( module,".", em, "_", file_extention ) )
+  original_db <- readData( "MED_OUT", paste0( module,".", em, "_", file_extension ) )
   n.observations <- nrow(original_db)
   
   # Check units
@@ -575,6 +575,6 @@ addToDb_overwrite <- function( new_data, em, file_extention, module = 'B',
   if ( n.observations != nrow(results)) stop("Outbut Database is not the same length as original DB. Duplicates in addToDb_overwrite.")
   
   # Output
-  writeData( results, domain = "MED_OUT", fn = paste0( module,".", em, "_", file_extention))
+  writeData( results, domain = "MED_OUT", fn = paste0( module,".", em, "_", file_extension))
   }
 
