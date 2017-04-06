@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Program Name: interpolation_extention_functions.R
+# Program Name: interpolation_extension_functions.R
 # Author's Name: Rachel Hoesly
 # Date Last Modified: Nov 20, 2015
 # Program Purpose: Header file containing generalized functions designed to
@@ -335,7 +335,7 @@ extendValues <- function(ext_data,
   
   # run through interpolation first
   ext_data <- interpolateValues( ext_data )
-  # expand extention data
+  # expand extension data
   ext_data <- expandAll( ext_data )
 
   
@@ -489,7 +489,7 @@ extendValues <- function(ext_data,
     names(ext_data_extended) <- X_years_all
     ext_data_extended <- cbind(ext_data[,c(id.names.NoUnits)], ext_data_extended)
     
-    #Extention loop
+    #extension loop
     
     for (i in seq_along(ext_data_extended[,1])){
       # Interpolated inventory data
