@@ -56,11 +56,16 @@ if( em != 'CO2') {
 # ---------------------------------------------------------------------------
 # 1. Input
   A.IEA_en_stat_ctry_hist <- readData( "MED_OUT", "A.IEA_en_stat_ctry_hist" )
+  A.en_stat_sector_fuel <-readData( "MED_OUT", "A.en_stat_sector_fuel" )
   H.Extended_coal_by_fuel <- readData( "DIAG_OUT", "H.Extended_coal_by_fuel" )
   H.Extended_other_tranformation_coal <- readData( "DIAG_OUT", "H.Extended_other_tranformation_coal" )
   CO2_total_CEDS_emissions <- readData( "MED_OUT", paste0( 'H.', em,'_total_CEDS_emissions_before_other_transformation_replacement') )
   coal_ef <- readData( "DIAG_OUT", "B.CO2_comb_EF_non-bunker" )
   IEA_product_fuel <- readData( "MAPPINGS", "/energy/IEA_product_fuel" )
+  emission_coefficient <- readData( "DEFAULT_EF_IN", "CO2_base_EF", ".xlsx", 
+                                    sheet_selection = "Emission_Coefficient" )
+  fraction_oxidized <- readData( "DEFAULT_EF_IN", "CO2_base_EF", ".xlsx", 
+                                 sheet_selection = "Fraction_Oxidized" )
   MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
   
 # Define values
@@ -84,6 +89,34 @@ if( em != 'CO2') {
 # Add CEDS fuel column to A.IEA_en_stat_ctry_hist
   A.IEA_en_stat_ctry_hist$fuel <- IEA_product_fuel$fuel[ match( 
     A.IEA_en_stat_ctry_hist$PRODUCT, IEA_product_fuel$product ) ]
+  
+# Unit conversion of Natural gas from kt CO2/TJ to kt CO2/Kt 
+  emission_coefficient$Emission_Coefficient[emission_coefficient$fuel %in% "natural_gas"] <- 
+    (emission_coefficient$Emission_Coefficient[emission_coefficient$fuel=="natural_gas"] * 
+    conversionFactor_naturalgas_TJ_per_kt)
+  emission_coefficient$units[ emission_coefficient$fuel %in% "natural_gas" ] <- "kt CO2/kt"
+  
+# Calculate CO2 Emmission from coal gas products; gas_works_gas, blast_furnace_gas,coke_oven_gas and other_recovered_gases
+  #secify the coal gases
+  coal_gas_sectors <- c("blast_furnace_gas", "other_recovered_gases","coke_oven_gas", "gas_works_gas")
+  
+# retrieve IEA consumption data for each coal gas in coal_gas_sectors above
+  IEA_en_coalgas_data <- A.en_stat_sector_fuel
+  IEA_en_coalgas_data <-  IEA_en_coalgas_data[IEA_en_coalgas_data$sector %in% coal_gas_sectors, ]
+  
+# calulate the Natural gas coeficient 
+  #obtain natural gas's oxidation fraction
+  default_ng_fraction_oxidized <- fraction_oxidized$Fraction_Oxidized[fraction_oxidized$fuel=="natural_gas" & fraction_oxidized$iso == "default"]
+  
+  #obtain natural gas's emission coeficient 
+  default_em_coeficient  <- emission_coefficient$Emission_Coefficient[emission_coefficient$fuel=="natural_gas"
+                                                              & emission_coefficient$sector=="default"]
+  #compute the natural gas emission coeficient 
+  ng_em_coeficient <- (default_em_coeficient * default_ng_fraction_oxidized)
+  
+# Calc CO2 emission treating all coal gases as natural gases (NG)
+  c_coalgases_as_ng <- IEA_en_coalgas_data
+  c_coalgases_as_ng[X_IEA_years] <- (IEA_en_coalgas_data[X_IEA_years] * ng_em_coeficient)
   
 # Add fuel column to H.Extended_other_tranformation_coal. Assumes all coal
 # is hard coal
