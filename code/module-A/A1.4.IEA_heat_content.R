@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 # Program Name: A1.4.IEA_heat_content.R
 # Author: Linh Vu
 # Date Last Updated: 7 Nov 2016
@@ -359,5 +358,4 @@ hc_coal <- replace(hc_coal,hc_coal == 0, NA)
   # if (nrow( dup_long ) > 0)
   #   writeData( dup_long, "DIAG_OUT", "A.coal_heat_content_duplicates" )
 
->>>>>>> Stashed changes
 logStop()
