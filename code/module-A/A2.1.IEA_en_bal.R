@@ -177,7 +177,7 @@
                                              addEntries = FALSE)
   
   # Data that doesn't map to a CEDS sector/fuel and extra columns
-  DroppedData<-rbind.fill(DroppedData, A.IEA_en_stat_processA.IEA_en_stat_process[!complete.cases(A.IEA_en_stat_process[,c('sector','fuel')])
+  DroppedData<-rbind.fill(DroppedData, A.IEA_en_stat_process[!complete.cases(A.IEA_en_stat_process[,c('sector','fuel')])
                                                                                   && A.IEA_process_coal$fuel != "process" , ])
   
   #Drop A.IEA_en_stat_process data that doesn't map to a CEDS sector/fuel and extra columns
