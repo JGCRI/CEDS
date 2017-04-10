@@ -30,7 +30,7 @@
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( "data_functions.R",'interpolation_extention_functions.R', "timeframe_functions.R") # Additional function files required.
+    headers <- c( "data_functions.R",'interpolation_extension_functions.R', "timeframe_functions.R") # Additional function files required.
     log_msg <- "Generation of process emissions factors" # First message to be printed to the log
     script_name <- "C2.1.base_NC_EF.R"
     
