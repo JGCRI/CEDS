@@ -45,7 +45,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R", "analysis_functions.R", "interpolation_extention_functions.R", 
+headers <- c( "data_functions.R", "analysis_functions.R", "interpolation_extension_functions.R", 
               "timeframe_functions.R" ) # Additional function files required.
 log_msg <- "Process wastewater treatment % to produce NH3 NC emissions and EF" # First message to be printed to the log
 script_name <- "C1.3.proc_NC_user_added_wastewater.R"

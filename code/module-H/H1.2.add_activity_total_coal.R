@@ -25,7 +25,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R","process_db_functions.R", "ModH_extention_functions.R") # Additional function files may be required.
+headers <- c( "data_functions.R","process_db_functions.R", "ModH_extension_functions.R") # Additional function files may be required.
 log_msg <- "Extending Coal data with bond and IEA" # First message to be printed to the log
 script_name <- "H1.2.add_activity_total_coal.R"
 
@@ -47,7 +47,7 @@ fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_fuel_map", 
 sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_ext_map", ".xlsx", sheet_selection = 'Bond_to_ext',meta = F )
 ext_sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_ext_map", ".xlsx", sheet_selection = 'CEDS_to_ext',meta = F )
 
-bond_percent_1850 <- readData( 'EXT_IN', 'Bond_sector_extention_percents_1850')
+bond_percent_1850 <- readData( 'EXT_IN', 'Bond_sector_extension_percents_1850')
 
 iea_other_coal <- readData( 'MED_OUT','A.IEA_CEDS_coal_difference' )
 iea_start_year <- readData( 'ENERGY_IN' , 'IEA_iso_start_data')
@@ -140,7 +140,7 @@ all_countries <- unique(activity$iso)
                                                      start = 1750, end = start_years[i])
   }
 
-#some small countries don't have cdiac or have zero values through extention. 
+#some small countries don't have cdiac or have zero values through extension. 
   ceds_total_coal_extended[ is.na( ceds_total_coal_extended ) ] <- 0
 
 # ---------------------------------------------------------------------------
@@ -151,10 +151,10 @@ all_countries <- unique(activity$iso)
 # calculate multiplier = bond value/cdiac extended value
 bond_multiplier <- as.data.frame(bond_total_coal)
   #template
-cdiac_extention_values <- bond_total_coal[,c('iso','X1850')]
-cdiac_extention_values[bond_years] <- ceds_total_coal_extended[match(cdiac_extention_values$iso,ceds_total_coal_extended$iso),bond_years]
+cdiac_extension_values <- bond_total_coal[,c('iso','X1850')]
+cdiac_extension_values[bond_years] <- ceds_total_coal_extended[match(cdiac_extension_values$iso,ceds_total_coal_extended$iso),bond_years]
   # calculate
-bond_multiplier[bond_years] <- bond_multiplier[bond_years] / cdiac_extention_values[bond_years]
+bond_multiplier[bond_years] <- bond_multiplier[bond_years] / cdiac_extension_values[bond_years]
   # correct unreal values
 bond_multiplier[bond_years] <- replace( bond_multiplier[bond_years],bond_multiplier[bond_years] == Inf, 1)  
 bond_multiplier[bond_years] <- replace( bond_multiplier[bond_years],bond_multiplier[bond_years] == NA, 1) 

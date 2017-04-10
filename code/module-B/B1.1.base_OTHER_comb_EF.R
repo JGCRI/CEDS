@@ -34,7 +34,7 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'process_db_functions.R','data_functions.R',
-              'interpolation_extention_functions.R','common_data.R', 'analysis_functions.R') 
+              'interpolation_extension_functions.R','common_data.R', 'analysis_functions.R') 
 #                 Additional function files may be required.
 log_msg <- "Processing GAINS EMF-30 data. Using as base comb EF where appropriate" 
 # First message to be printed to the log

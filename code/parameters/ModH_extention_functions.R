@@ -1176,7 +1176,7 @@
     final_values[is.na(final_values)] <- 0 
     
     out <- list(dissaggregate_final,final_values)
-    names(out) <- c('final_iso_fuel_sector_calculated','final_iso_fuel_sector_full_extention')
+    names(out) <- c('final_iso_fuel_sector_calculated','final_iso_fuel_sector_full_extension')
     
     return( out )
   }
@@ -1196,7 +1196,7 @@
   
   H.add_to_database <- function(a.extension_start_year = extension_start_year,
                                 a.extension_end_year = extension_end_year,
-                                a.final_iso_fuel_sector = final_iso_fuel_sector_full_extention,
+                                a.final_iso_fuel_sector = final_iso_fuel_sector_full_extension,
                                 a.iea_start_year = iea_start_year,
                                 a.activity = activity,
                                 a.ceds_extension_fuels = ceds_extension_fuels){
