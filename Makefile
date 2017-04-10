@@ -658,6 +658,11 @@ $(MED_OUT)/E.$(EM)_US-EPA_inventory.csv : \
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
+$(MED_OUT)/E.$(EM)_US-GHG_inventory.csv : \
+	$(MOD_E)/E.US-GHG_emissions.R
+	Rscript $< $(EM) --nosave --no-restore
+
+# ee1-2
 $(MED_OUT)/E.$(EM)_AUS_inventory.csv : \
 	$(MOD_E)/E.Australia_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
