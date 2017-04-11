@@ -57,7 +57,6 @@ if( em != 'CO2') {
 # 1. Input
   A.IEA_en_stat_ctry_hist <- readData( "MED_OUT", "A.IEA_en_stat_ctry_hist" )
   A.en_stat_sector_fuel <-readData( "MED_OUT", "A.en_stat_sector_fuel" )
-  H.Extended_coal_by_fuel <- readData( "DIAG_OUT", "H.Extended_coal_by_fuel" )
   H.Extended_coal_by_fuel_all <- readData( "DIAG_OUT", "H.Extended_coal_by_fuel_all" )
   CO2_total_CEDS_emissions <- readData( "MED_OUT", paste0( 'H.', em,'_total_CEDS_emissions_before_other_transformation_replacement') )
   coal_ef <- readData( "DIAG_OUT", "B.CO2_comb_EF_non-bunker" )
@@ -68,6 +67,7 @@ if( em != 'CO2') {
                                  sheet_selection = "Fraction_Oxidized" )
   MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
   iea_start <- readData('EXT_IN','iea_start_date', ".xlsx", sheet_selection = "coal")
+  H.Extended_total_coal <- readData( "DIAG_OUT", "H.Extended_total_coal" )
   
 # Define values
   ceds_coal_fuels <- c( "brown_coal", "coal_coke", "hard_coal" )
@@ -119,6 +119,58 @@ if( em != 'CO2') {
   c_coalgases_as_ng <- IEA_en_coalgas_data
   c_coalgases_as_ng[X_IEA_years] <- (IEA_en_coalgas_data[X_IEA_years] * ng_em_coeficient)
 
+#-----------------------------------------------------------------------------------------
+  #Extend CO2 coalgas emmissions forward and backwards 
+  driver_trend <- H.Extended_total_coal
+  input_data <- c_coalgases_as_ng
+  forward_ext_end_year <- paste0('X',2014)
+  backward_ext_start_year <- 1750
+  backward_ext_end_year <- 1959
+  x_back_extension_years <- paste0('X',backward_ext_start_year:backward_ext_end_year)
+  ratio_years <- paste0('X', c((backward_ext_end_year+1),(backward_ext_end_year+2),(backward_ext_end_year+3)
+                               ,(backward_ext_end_year+4),(backward_ext_end_year+5)))
+  
+  #linearly extended data template to 2014
+  input_data[forward_ext_end_year] <- input_data[X_IEA_end_year]
+  
+  # select CEDS coalgas data to extend
+  ceds_extension_ratios <- input_data[ which(input_data$iso %in% driver_trend$iso) , ]
+  ceds_extension_ratios <- ceds_extension_ratios[,c('iso','sector','fuel',ratio_years)]
+  
+  # add Driver identifyer ratio year
+  ceds_extension_ratios <- merge(ceds_extension_ratios, driver_trend[,c("iso", ratio_years)],
+                                 by.x = c('iso'),
+                                 by.y = c("iso"),
+                                 all.x = TRUE, all.y = FALSE)
+  
+  # calculate ratio
+  ceds_extension_ratios[ratio_years] <- ceds_extension_ratios[ paste0(ratio_years,'.x')]/ceds_extension_ratios[ paste0(ratio_years,'.y')]
+  
+  # make all infinite ratios zero
+  ceds_extension_ratios <- replace(ceds_extension_ratios, ceds_extension_ratios == 'NaN', 0)
+  ceds_extension_ratios <- replace(ceds_extension_ratios, is.na(ceds_extension_ratios), 0)
+  
+  ceds_extension_ratios$ratio <-  rowMeans(ceds_extension_ratios[ratio_years])
+  
+  # add driver data and use ratio to calculate extended value
+  CO2_Coal_Extension <- ceds_extension_ratios[,c('iso','fuel','sector','ratio')]
+  CO2_Coal_Extension[x_back_extension_years] <- NA
+  
+  # add to final extension template
+  CO2_Coal_Extension <- replaceValueColMatch(CO2_Coal_Extension, driver_trend,
+                                             x.ColName = x_back_extension_years,
+                                             match.x = c('iso'),
+                                             addEntries = FALSE)
+  #replace NA's with zeros 
+  CO2_Coal_Extension[is.na(CO2_Coal_Extension)] <- 0
+  
+  # calculate extended data
+  CO2_Coal_Extension[ x_back_extension_years ] <- CO2_Coal_Extension$ratio * CO2_Coal_Extension[ x_back_extension_years ]
+  
+  #final template
+  CO2_Coal_Extension <- cbind.data.frame(CO2_Coal_Extension,input_data[X_IEA_years],input_data[forward_ext_end_year] )
+  
+  
 # ---------------------------------------------------------------------------
 # 3. Compute CO2_Coal_Total = 
 # Mass Balance - Total CO2 emissions from Coal = Primary Energy Coal*EF +
@@ -425,6 +477,9 @@ if( em != 'CO2') {
   writeData( CO2_Coal_NEuse, "DIAG_OUT", "H.CO2_Coal_NEuse" )
   writeData( CO2_Coal_Combustion, "DIAG_OUT", "H.CO2_Coal_Combustion" )
   writeData( CO2_components_other_tranformation, "DIAG_OUT", "H.CO2_components_other_tranformation" )
+  writeData( c_coalgases_as_ng, "DIAG_OUT", "H.C_coalgases_as_ng" )
+  writeData( CO2_Coal_Extension, "MED_OUT", "H.C_coalgases_as_ng_extension" )
+  
   #writeData( diag_coal_total_repl_cmp, "DIAG_OUT", "H.CO2_conversion_total_coal_replacement_year_comp" )
   writeData( diag_flows, "DIAG_OUT", "H.CO2_conversion_selected_flows" )
   
