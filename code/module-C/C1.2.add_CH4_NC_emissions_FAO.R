@@ -63,17 +63,13 @@ FAO <- FAO_API %>%
        left_join(MCL[c('iso','FAO_Country_Code')], by = c('FAOST_CODE' = 'FAO_Country_Code')) %>% 
        select(-FAOST_CODE) %>% 
        melt(id.vars = c('iso','Year')) %>% 
-       mutate(value = as.numeric(value)) %>% 
+       mutate(value = as.numeric(as.character(value))) %>% 
        mutate(variable = gsub('X','',variable)) %>% 
        mutate(variable = gsub('\\.','-',variable)) %>% 
-       filter(!is.na(iso)) %>% 
+       filter(!is.na(iso), Year %in% extended_years) %>% 
        mutate(Year = paste0('X',Year)) %>% unique %>% 
        cast(iso+variable~Year) %>% 
        dplyr::rename(sector = variable)
-
-FAO_rice <- FAO %>% filter(sector == "3D_Rice-Cultivation")      
-FAO_manure <- FAO %>% filter(sector == "3B_Manure-management")  
-FAO_enteric <- FAO %>% filter(sector == "3E_Enteric-fermentation")
 
 # -----------------------------------------------------------------------------
 # 4. Country Splitting
@@ -135,8 +131,7 @@ FAO_enteric <- FAO %>% filter(sector == "3E_Enteric-fermentation")
 # -----------------------------------------------------------------------------
 # 5. Final Processing
   
-  # remove projected FAO years
-  FAO_out <- FAO_scg %>% select(-X2030, -X2050)
+  FAO_out <- FAO_scg 
   # carry foward last value to end year
   FAO_last <- max( as.numeric ( gsub('X','',names ( FAO_out ) ) ), na.rm = T )
   years <- paste0('X',1961:end_year)
