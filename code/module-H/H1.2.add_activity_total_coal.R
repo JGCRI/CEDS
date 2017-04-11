@@ -34,7 +34,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NH3"
+if ( is.na( em ) ) em <- "CO2"
 
 # ---------------------------------------------------------------------------
 # 1. Load files
@@ -105,12 +105,15 @@ all_countries <- unique(activity$iso)
 # ---------------------------------------------------------------------------
 # 3. CEDS Data processing
 
+# Extend IEA other coal to last CEDS year (extend last IEA year constantly)
+  iea_other_coal[ X_BP_years ] <- iea_other_coal[ X_IEA_end_year ]
+  
 # CEDS Reported coal
-  ceds_total_coal <- activity_all[which( activity_all$fuel %in% c('hard_coal', 'brown_coal','coal_coke')),
-                                c('iso', paste0('X',1960:2010))]
+  ceds_total_coal <- activity_all[ which( activity_all$fuel %in% c( 'hard_coal', 'brown_coal' , 'coal_coke' ) ) ,
+                                c('iso', paste0( 'X' , 1960:end_year ) ) ]
 # Add other coal to ceds total coal
-  ceds_total_coal <- rbind.fill( ceds_total_coal , iea_other_coal[c('iso',paste0('X',1960:2010))] )
-  ceds_total_coal <- aggregate( ceds_total_coal[paste0('X',1960:2010)],
+  ceds_total_coal <- rbind.fill( ceds_total_coal , iea_other_coal[c('iso',paste0( 'X' , 1960 : end_year ) ) ] )
+  ceds_total_coal <- aggregate( ceds_total_coal[paste0('X',1960:end_year)],
                                 by = list( iso = ceds_total_coal$iso) ,
                                 FUN = sum)
 # Make NA values where IEA data exists  
@@ -126,9 +129,9 @@ all_countries <- unique(activity$iso)
   ceds_total_coal[ paste0("X",1750:1959) ] <- NA
   ceds_total_coal$fuel <- 'solid_fuels'
   ceds_total_coal$sector <- 'all'
-  ceds_total_coal <- ceds_total_coal[  ,c('iso','sector','fuel',paste0("X",1750:2010)) ]
+  ceds_total_coal <- ceds_total_coal[  ,c('iso','sector','fuel',paste0("X",1750:end_year)) ]
   cdiac_solid_fuel$sector <- 'all'
-  cdiac_solid_fuel <- cdiac_solid_fuel[  ,c('iso','sector','fuel',paste0("X",1750:2010)) ]
+  cdiac_solid_fuel <- cdiac_solid_fuel[  ,c('iso','sector','fuel',paste0("X",1750:end_year)) ]
 
 # loop over different start dates
   ceds_total_coal_extended <- ceds_total_coal
@@ -185,13 +188,13 @@ printLog('Disaggregating total coal into fuel types')
 
 # Calculate Ceds fuel % (by iso) in start_year
 ceds_coal_fuel <- activity_all[which( activity_all$fuel %in% c('hard_coal', 'brown_coal','coal_coke')),
-                                c('iso', 'sector','fuel', paste0('X',1960:2010))]
-ceds_coal_fuel <- rbind.fill( ceds_coal_fuel , iea_other_coal[c('iso','sector','fuel',paste0('X',1960:2010))] )
-ceds_coal_fuel <- aggregate( ceds_coal_fuel[paste0('X',1960:2010)],
+                                c('iso', 'sector','fuel', paste0('X',1960:end_year))]
+ceds_coal_fuel <- rbind.fill( ceds_coal_fuel , iea_other_coal[c('iso','sector','fuel',paste0('X',1960:end_year))] )
+ceds_coal_fuel <- aggregate( ceds_coal_fuel[paste0('X',1960:end_year)],
                             by = list(iso = ceds_coal_fuel$iso,
                                       fuel = ceds_coal_fuel$fuel) ,
                             FUN = sum )
-ceds_coal <- aggregate( ceds_coal_fuel[paste0('X',1960:2010)],
+ceds_coal <- aggregate( ceds_coal_fuel[paste0('X',1960:end_year)],
                        by = list(iso = ceds_coal_fuel$iso) ,
                        FUN = sum )
 
@@ -231,9 +234,34 @@ coal_extended_dissagregate_by_fuel_full[paste0('X', 1750:1970)] <-
                     coal_extended_dissagregate_by_fuel[match(paste(template$iso,template$fuel),
                                                               paste(coal_extended_dissagregate_by_fuel$iso,coal_extended_dissagregate_by_fuel$fuel) ),
                                                                 paste0('X', 1750:1970) ]
+# combine extended disagregate fuel (1750 - 1970) with CEDS coal fuels (1970 - 2015)
+template <- data.frame( iso = rep( all_countries , each = 4),
+                        fuel = rep( x=c('hard_coal','brown_coal','coal_coke','coal'), times = length(all_countries) ), stringsAsFactors = F )
+# template[ paste0('X', 1750:end_year)] <- 0
+# coal_extended_fuel_all <- template
+
+coal_extended_fuel_all_list <- list()
+for( i in seq_along(start_years) ){
+  # define countries with start year i
+  countries <- iea_start_year[ which( iea_start_year$start_year == start_years[i]),'iso']
+  extension <- template[ which( template$iso %in% countries ), ]
+  
+  # Fill in Extension
+  extension <- left_join( extension ,  coal_extended_dissagregate_by_fuel_full[ c('iso','fuel', paste0('X',1750:(start_years[i]-1) ) ) ] )
+  # Fill in Modern data
+  extension <- left_join( extension ,  ceds_coal_fuel[ c('iso','fuel', paste0('X',start_years[i]:end_year ) ) ] )
+  
+  coal_extended_fuel_all_list[[i]] <- extension
+}
+extended_coal_by_fuel  <- do.call("rbind", coal_extended_fuel_all_list) %>% 
+  mutate(units = 'kt') %>% 
+  select(iso,fuel,units,contains('X'))
+extended_combustion_coal_by_fuel <- extended_coal_by_fuel %>% 
+  filter(fuel != 'coal')
 
 # seperate coal by fuel into other tranformation coal and combustion coal
-other_transformation_coal <- coal_extended_dissagregate_by_fuel_full[which(coal_extended_dissagregate_by_fuel_full$fuel %in% 'coal'),c('iso','fuel', paste0('X',1750:1970))]
+other_transformation_coal <- extended_coal_by_fuel[ which( extended_coal_by_fuel$fuel %in% 'coal' ) , c('iso','fuel', X_extended_years ) ]
+# older file, check differences
 combustion_coal_by_fuel <- coal_extended_dissagregate_by_fuel_full[which(coal_extended_dissagregate_by_fuel_full$fuel %!in% 'coal'),]
 
 
@@ -628,8 +656,9 @@ printLog('Disaggregating coal to ceds sectors')
 # 7. Write to database
 
   writeData(final_ceds_total_coal, 'DIAG_OUT', 'H.Extended_total_coal')
-  writeData( all_other_tranformation_coal , 'DIAG_OUT', 'H.Extended_other_tranformation_coal')
-  writeData(combustion_coal_by_fuel, 'DIAG_OUT', 'H.Extended_coal_by_fuel')
+  writeData( all_other_tranformation_coal , 'MED_OUT', 'H.Extended_other_tranformation_coal')
+  writeData(extended_combustion_coal_by_fuel, 'MED_OUT', 'H.Extended_coal_by_fuel_combustion')
+  writeData(extended_coal_by_fuel, 'DIAG_OUT', 'H.Extended_coal_by_fuel_all')
   writeData(final_coal, 'DIAG_OUT', 'H.Extended_coal_by_sector_fuel')
   writeData(summed_coal_total, 'DIAG_OUT', 'H.Extended_coal_dissagregated_by_sector_fuel_aggregated') 
   
