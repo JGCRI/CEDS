@@ -69,7 +69,12 @@ if( em == "SO2" || em == "CO" || em == "NOx" || em == "NMVOC"  || em == "NH3" ){
 
 # Note if using EDGAR 4.2 then also need to edit correction for end-year in C2.1.base_NC_EF.R
 if( em == "CH4" || em == "CO2" ){
-    scripts <- c( scripts, "C1.2.add_NC_emissions_EDGAR.R" , "C1.2.add_CH4_NC_emissions_FAO.R")
+    scripts <- c( scripts, "C1.2.add_NC_emissions_EDGAR.R" )
+}
+
+# Add FAO Agriculture methane data
+if( em == "CH4" ){
+  scripts <- c( scripts, "C1.2.add_CH4_NC_emissions_FAO.R")
 }
 
 # Add CDIAC for CO2
