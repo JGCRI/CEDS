@@ -205,10 +205,6 @@ if( em != 'CO2') {
     return(extended_CO2_Coalgases) 
   }
 
-  # extend CO2 coal gases using Total Coal data 
-  #CO2_Coalgases_as_ng_for_total_coal <- extend_CO2_Coalgases_fun(H.Extended_total_coal , CO2_Coalgases_as_ng , 
-  #                                               backward_ext_start_year<-1750 , backward_ext_end_year<-1959)
-  
   # Extend CO2 coal gases using Total Natural_Gas Data 
   CO2_Coalgases_as_ng_for_total_natural_gas <- extend_CO2_Coalgases_fun(H.Extended_total_natural_gas , CO2_Coalgases_as_ng , 
                                                   backward_ext_start_year<-1850 , backward_ext_end_year<-1959)
@@ -412,9 +408,7 @@ if( em != 'CO2') {
     summarise_each( funs( sum(., na.rm = T ) ) ) %>% arrange( iso ) %>% data.frame()
   CO2_Coal_NEuse_agg <- select( CO2_Coal_NEuse, -fuel ) %>% group_by( iso, units ) %>%
     summarise_each( funs( sum(., na.rm = T ) ) ) %>% arrange( iso ) %>% data.frame()
-  CO2_Coalgases_as_ng_for_total_coal_agg <- select( CO2_Coalgases_as_ng_for_total_coal, -fuel ) %>% 
-    group_by( iso, units ) %>% summarise_each( funs( sum(., na.rm = T ) ) ) %>% arrange( iso ) %>% data.frame()
-  CO2_Coalgases_as_ng_agg <- select( CO2_Coalgases_as_ng_for_total_natural_gas, -fuel ) %>% 
+  CO2_Coalgases_as_ng_for_total_natural_gas_agg <- select( CO2_Coalgases_as_ng_for_total_natural_gas, -fuel ) %>% 
     group_by( iso, units ) %>% summarise_each( funs( sum(., na.rm = T ) ) ) %>% arrange( iso ) %>% data.frame()
   
 # Check that all 4 dfs have same ID columns  
@@ -432,9 +426,9 @@ if( em != 'CO2') {
   CO2_Conversion <- CO2_Coal_Total_agg
   CO2_Conversion[, X_extended_years ] <- CO2_Coal_Total_agg[, X_extended_years] - 
     CO2_Coal_Combustion_agg[, X_extended_years] - CO2_Coal_NEuse_agg[, X_extended_years]
-  CO2_Conversion[which(CO2_Conversion$iso  %in%  CO2_Coalgases_as_ng_agg$iso), X_extended_years] <- 
-    CO2_Conversion[which(CO2_Conversion$iso  %in%  CO2_Coalgases_as_ng_agg$iso), X_extended_years] - 
-    CO2_Coalgases_as_ng_agg[which(CO2_Coalgases_as_ng_agg$iso %in% CO2_Conversion$iso ), X_extended_years]
+  CO2_Conversion[which(CO2_Conversion$iso  %in%  CO2_Coalgases_as_ng_for_total_natural_gas_agg$iso), X_extended_years] <- 
+    CO2_Conversion[which(CO2_Conversion$iso  %in%  CO2_Coalgases_as_ng_for_total_natural_gas_agg$iso), X_extended_years] - 
+    CO2_Coalgases_as_ng_for_total_natural_gas_agg[which(CO2_Coalgases_as_ng_for_total_natural_gas_agg$iso %in% CO2_Conversion$iso ), X_extended_years]
   
 # Make negative values zero. Keep diagnostics of negative values
   diag_subzero <- melt( CO2_Conversion, id=c( "iso", "units" ) ) %>%
