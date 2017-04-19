@@ -1,4 +1,4 @@
-﻿#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Program Name: F1.1.REAS_scaling.R
 # Authors' Names: Patrick O'Rourke, Rachel Hoesly
 # Date Last Modified: December 26th, 2015
