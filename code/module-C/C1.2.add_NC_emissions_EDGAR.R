@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: C.1.2.add_NC_emissions_EDGAR.R
-# Author(s): Jon Seibert
-# Date Last Modified: 5 January 2016
+# Author(s): Jon Seibert, Rachel Hoesly
+# Date Last Modified: 20 April 2017
 # Program Purpose: To reformat the non-combustion sections of the EDGAR default emissions
 #                      data and add it to the database for the relevant emissions species.
 # Input Files: 
@@ -139,7 +139,9 @@ if ( em == 'CH4' ){
   # process BP data for extension
   bp <- Master_Country_List %>% 
     select(iso, BPName) %>%
-    filter(!is.na(BPName)) %>% 
+    filter(!is.na(BPName), BPName != 'ussr') %>%
+    unique() %>% 
+    filter(!duplicated(iso)) %>% 
     unique() %>% 
     left_join( BP_energy_data, by = 'BPName') %>% 
     gather(year, value, -iso,-BPName) %>% 
@@ -151,12 +153,12 @@ if ( em == 'CH4' ){
     select(-BPName)
   
   fugitive_solid_extended <- extend_data_on_trend_range(driver_trend = bp, 
-                                     input_data = fugitive_solid, 
-                                     start = 2009, end = 2014,
-                                     ratio_start_year = (2003),
-                                     expand = T,
-                                     range = 4,
-                                     id_match.driver = c('iso'))
+                                                        input_data = fugitive_solid, 
+                                                        start = 2009, end = 2014,
+                                                        ratio_start_year = 2007,
+                                                        expand = T,
+                                                        range = 2,
+                                                        id_match.driver = c('iso'))
   fugitive_solid_extended <- fugitive_solid_extended[ , c('iso','sector','fuel','units',paste0('X',1971:2014) ) ] 
   
 }
