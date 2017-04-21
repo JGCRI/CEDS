@@ -1,4 +1,4 @@
-﻿#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Program Name: F1.1.UNFCCC_scaling.R
 # Authors' Names: Rachel Hoesly
 # Date Last Modified: Oct 26, 2015
@@ -56,6 +56,7 @@
 #   the inventory (as a vector of iso codes)
   
   sector_fuel_mapping <- 'UNFCCC_scaling_mapping'
+  if( em == 'CH4')  sector_fuel_mapping <- 'UNFCCC_scaling_mapping_CH4'
   mapping_method <- 'sector'
   inv_name <- 'UNFCCC'
   region <- c( "aus" , "aut" , "bel" , "bgr" , "blr" , "che" , "cyp" , "cze" , "deu" , "dnk" , "esp",
