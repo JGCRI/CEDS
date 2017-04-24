@@ -1,12 +1,12 @@
 # Program Name: H4.3.add_emissions_CO2_other_transformation.R
-# Author: Linh Vu
-# Date Last Updated: 23 Nov 2016 
+# Author: Linh Vu, Presley Muwan
+# Date Last Updated: 13 Apr 2017 
 # Program Purpose: Compute CO2 other transformation coal:
 #     CO2_Conversion = CO2_Coal_Total - CO2_Coal_Combustion - CO2_Coal_NEuse
-#                      - CO2_
+#                      - CO2_1b1and2c
 #   using coal consumption and default EF.
 # Input Files: A.IEA_en_stat_ctry_hist.csv, CO2_total_CEDS_emissions.csv, 
-#   H.Extended_coal_by_fuel.csv, H.Extended_other_tranformation_coal.csv
+#   H.Extended_coal_by_fuel_combustion.csv, H.Extended_other_tranformation_coal.csv
 #   H.CO2_total_CEDS_emissions_before_other_transformation_replacement.csv,
 #   B.CO2_comb_EF_non-bunker.csv, IEA_product_fuel.csv, Master_Fuel_Sector_List.csv
 # Output Files: H.CO2_calculated_other_transformation_emissions.csv
@@ -34,7 +34,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( 'data_functions.R' ) 
+headers <- c( 'data_functions.R') 
 log_msg <- "Calculating CO2 emissions conversion for 1A1bc-Other-transformation coal" 
 script_name <- 'H4.3.add_emissions_CO2_other_transformation.R'
 
@@ -56,12 +56,19 @@ if( em != 'CO2') {
 # ---------------------------------------------------------------------------
 # 1. Input
   A.IEA_en_stat_ctry_hist <- readData( "MED_OUT", "A.IEA_en_stat_ctry_hist" )
-  H.Extended_coal_by_fuel <- readData( "DIAG_OUT", "H.Extended_coal_by_fuel" )
-  H.Extended_other_tranformation_coal <- readData( "DIAG_OUT", "H.Extended_other_tranformation_coal" )
+  A.en_stat_sector_fuel <-readData( "MED_OUT", "A.en_stat_sector_fuel" )
+  H.Extended_coal_by_fuel_all <- readData( "DIAG_OUT", "H.Extended_coal_by_fuel_all" )
   CO2_total_CEDS_emissions <- readData( "MED_OUT", paste0( 'H.', em,'_total_CEDS_emissions_before_other_transformation_replacement') )
   coal_ef <- readData( "DIAG_OUT", "B.CO2_comb_EF_non-bunker" )
   IEA_product_fuel <- readData( "MAPPINGS", "/energy/IEA_product_fuel" )
+  emission_coefficient <- readData( "DEFAULT_EF_IN", "CO2_base_EF", ".xlsx", 
+                                    sheet_selection = "Emission_Coefficient" )
+  fraction_oxidized <- readData( "DEFAULT_EF_IN", "CO2_base_EF", ".xlsx", 
+                                 sheet_selection = "Fraction_Oxidized" )
   MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
+  iea_start <- readData('EXT_IN','iea_start_date', ".xlsx", sheet_selection = "coal")
+  H.Extended_total_coal <- readData( "DIAG_OUT", "H.Extended_total_coal" )
+  H.Extended_total_natural_gas <- readData( "DIAG_OUT", "H.Extended_total_natural_gas" )
   
 # Define values
   ceds_coal_fuels <- c( "brown_coal", "coal_coke", "hard_coal" )
@@ -85,51 +92,225 @@ if( em != 'CO2') {
   A.IEA_en_stat_ctry_hist$fuel <- IEA_product_fuel$fuel[ match( 
     A.IEA_en_stat_ctry_hist$PRODUCT, IEA_product_fuel$product ) ]
   
-# Add fuel column to H.Extended_other_tranformation_coal. Assumes all coal
-# is hard coal
-# TODO: Eventually disaggregate
-  H.Extended_other_tranformation_coal$fuel <- "hard_coal"
+# Unit conversion of Natural gas from kt CO2/TJ to kt CO2/Kt 
+  emission_coefficient$Emission_Coefficient[emission_coefficient$fuel %in% "natural_gas"] <- 
+    (emission_coefficient$Emission_Coefficient[emission_coefficient$fuel=="natural_gas"] * 
+    conversionFactor_naturalgas_TJ_per_kt)
+  emission_coefficient$units[ emission_coefficient$fuel %in% "natural_gas" ] <- "kt CO2/kt"
+  
+# Calculate CO2 Emmission from coal gas products; gas_works_gas, blast_furnace_gas,coke_oven_gas and other_recovered_gases
+  #secify the coal gases
+  coal_gas_sectors <- c("blast_furnace_gas", "other_recovered_gases","coke_oven_gas", "gas_works_gas")
+  
+# retrieve IEA consumption data for each coal gas in coal_gas_sectors above
+  IEA_en_coalgas_data <- A.en_stat_sector_fuel
+  IEA_en_coalgas_data <-  IEA_en_coalgas_data[IEA_en_coalgas_data$sector %in% coal_gas_sectors, ]
+  
+# calulate the Natural gas coeficient 
+  #obtain natural gas's oxidation fraction
+  default_ng_fraction_oxidized <- fraction_oxidized$Fraction_Oxidized[fraction_oxidized$fuel=="natural_gas" & fraction_oxidized$iso == "default"]
+  
+  #obtain natural gas's emission coeficient 
+  default_em_coeficient  <- emission_coefficient$Emission_Coefficient[emission_coefficient$fuel=="natural_gas"
+                                                              & emission_coefficient$sector=="default"]
+  #compute the natural gas emission coeficient 
+  ng_em_coeficient <- (default_em_coeficient * default_ng_fraction_oxidized)
+  
+# Calc CO2 emission treating all coal gases as natural gases (NG)
+  CO2_Coalgases_as_ng <- IEA_en_coalgas_data
+  CO2_Coalgases_as_ng[X_IEA_years] <- (IEA_en_coalgas_data[X_IEA_years] * ng_em_coeficient)
 
+#-----------------------------------------------------------------------------------------
+#Extend CO2 coalgas emmissions forward and backwards 
+  
+  # -----------------------------------------------------------------------------
+  # extend_CO2_Coalgases_fun
+  # Brief:        extends CO2 Coalgas data based on trend of H.Extended_total_coal data        
+  # Details:      Calculates the average ratio of input:trend data in specified ratio years. 
+  #               and uses it to CO2 extend data to the specified range of years  
+  # Dependencies: None
+  # Author(s):    Presley Muwan
+  # Params:       driver_trend
+  #               input_data
+  #               backward_ext_start_year
+  #               backward_ext_end_year
+  #   msg:        String to be printed to the script log [required]
+  # Return:       extended_CO2_Coalgases:dataframe 
+  # Input Files:  None
+  # Output Files: None
+  
+  extend_CO2_Coalgases_fun <- function(driver_trend , input_data, backward_ext_start_year, backward_ext_end_year){
+    
+    #----------------------------------
+    #DEBUG
+    #driver_trend <- H.Extended_total_coal
+    #input_data <- CO2_Coalgases_as_ng
+    #backward_ext_start_year <- 1750
+    #backward_ext_end_year <- 1959
+    
+    X_back_extension_years <- paste0('X',backward_ext_start_year:backward_ext_end_year)
+    
+    ratio_years <- paste0('X', c((backward_ext_end_year+1),(backward_ext_end_year+2),(backward_ext_end_year+3)
+                                 ,(backward_ext_end_year+4),(backward_ext_end_year+5)))
+    
+    #linearly extended data template to 2014, from 2013
+    input_data[X_BP_years] <- input_data[X_IEA_end_year]
+    
+    # select CEDS coalgas data to extend
+    ceds_extension_ratios <- input_data[ which(input_data$iso %in% driver_trend$iso) , ]
+    ceds_extension_ratios <- ceds_extension_ratios[,c('iso','sector','fuel',ratio_years)]
+    
+    # add Driver identifyer ratio year
+    ceds_extension_ratios <- merge(ceds_extension_ratios, driver_trend[,c("iso", ratio_years)],
+                                   by.x = c('iso'),
+                                   by.y = c("iso"),
+                                   all.x = TRUE, all.y = FALSE)
+    
+    # calculate ratio
+    ceds_extension_ratios[ratio_years] <- ceds_extension_ratios[ paste0(ratio_years,'.x')]/ceds_extension_ratios[ paste0(ratio_years,'.y')]
+    
+    # make all infinite ratios zero
+    ceds_extension_ratios <- replace(ceds_extension_ratios, ceds_extension_ratios == 'NaN', 0)
+    ceds_extension_ratios <- replace(ceds_extension_ratios, is.na(ceds_extension_ratios), 0)
+    
+    ceds_extension_ratios$ratio <-  rowMeans(ceds_extension_ratios[ratio_years])
+    
+    # add driver data and use ratio to calculate extended value
+    CO2_Coal_Extension <- ceds_extension_ratios[,c('iso','fuel','sector','ratio')]
+    CO2_Coal_Extension[X_back_extension_years] <- NA
+    
+    # add to final extension template
+    CO2_Coal_Extension <- replaceValueColMatch(CO2_Coal_Extension, driver_trend,
+                                               x.ColName = X_back_extension_years,
+                                               match.x = c('iso'),
+                                               addEntries = FALSE)
+    #replace NA's with zeros 
+    CO2_Coal_Extension[is.na(CO2_Coal_Extension)] <- 0
+    
+    # calculate extended data
+    CO2_Coal_Extension[ X_back_extension_years ] <- CO2_Coal_Extension$ratio * CO2_Coal_Extension[ X_back_extension_years ]
+    CO2_Coal_Extension$units <- 'kt'
+    CO2_Coal_Extension <- CO2_Coal_Extension[c('iso','fuel','units',X_back_extension_years)]
+    input_data[,X_back_extension_years] <- 0
+    input_data[input_data$iso == CO2_Coal_Extension$iso , X_back_extension_years] <-
+      CO2_Coal_Extension[input_data$iso == CO2_Coal_Extension$iso , X_back_extension_years]
+    
+    #final template
+    input_data[,X_back_extension_years] <- 0
+    input_data[input_data$iso == CO2_Coal_Extension$iso , X_back_extension_years] <- 
+      CO2_Coal_Extension[input_data$iso == CO2_Coal_Extension$iso , X_back_extension_years]
+    input_data <- input_data[c('iso','fuel','units',X_back_extension_years, X_IEA_years, X_BP_years)]
+    extended_CO2_Coalgases <- input_data
+    
+    return(extended_CO2_Coalgases) 
+  }
+
+  # Extend CO2 coal gases using Total Natural_Gas Data 
+  CO2_Coalgases_as_ng_for_total_natural_gas <- extend_CO2_Coalgases_fun(H.Extended_total_natural_gas , CO2_Coalgases_as_ng , 
+                                                  backward_ext_start_year<-1850 , backward_ext_end_year<-1959)
+  
+  #Add colums for  1750-1849 into CO2_Coalgases_as_ng_for_total_natural_gas
+  X_NG_Excluded_Cols <- paste0('X', c(1750:1849))
+  CO2_Coalgases_as_ng_for_total_natural_gas[ , X_NG_Excluded_Cols] <- 0
+  CO2_Coalgases_as_ng_for_total_natural_gas <- CO2_Coalgases_as_ng_for_total_natural_gas[c('iso','fuel','units', X_extended_years)]
+  
 # ---------------------------------------------------------------------------
 # 3. Compute CO2_Coal_Total = 
-#   1750-1970: CO2 from CEDS extended coal  
-#   1971-2013: CO2 from IEA DOMSUP brown coal + IEA DOMSUP hard coal + IEA IMPORTS coal coke
-#   2014: CO2 from 2013 IEA coal
-# TODO: Extend to 2014 using BP
-  COAL_TOTAL_REPLACEMENT_YEAR <- 1970
-  X_coal_total_CEDS_years <- paste0( "X", historical_pre_extension_year:( COAL_TOTAL_REPLACEMENT_YEAR ) )
-  X_coal_total_IEA_years <- paste0( "X", (COAL_TOTAL_REPLACEMENT_YEAR+1):IEA_end_year )
+# Mass Balance - Total CO2 emissions from Coal = Primary Energy Coal*EF +
+# Secondary Energy Coal (import - exports , Coal Coke)* EF
+  # Add other transformation to combustion coal as "hard coal"
+  # Calculate Net coal coke from IEA (Imports - Exports) and extended ceds coke 
+  # (production + imports - exports)
+
+# a. Add other transformation coal as hard coal
+  # H.Extended_coal_by_fuel_all
+  extended_coal <- H.Extended_coal_by_fuel_all
+  extended_coal[which(extended_coal$fuel == 'coal'),'fuel'] <- 'hard_coal'
+  extended_coal$units <- "kt"
+  extended_coal <- extended_coal[ c( "iso", "fuel", "units", X_extended_years ) ]
+  extended_coal <- group_by( extended_coal, iso, fuel, units ) %>%
+    summarise_each( funs( sum(., na.rm = T ) ) ) %>% data.frame()
+
+# a. Extend Coal Coke (imports - exports) with extended coal coke (production + imports - exports)
+  # extended total coal coke value
+  extended_coke <- H.Extended_coal_by_fuel_all %>% filter(fuel == 'coal_coke') %>% 
+    mutate(value = 'ceds_coke') %>% 
+    arrange(iso)
   
-# a. First compute total coal consumption  
-# Compute IEA coal consumption (1960-2013)
-  IEA_total_coal <- bind_rows( filter( A.IEA_en_stat_ctry_hist, FLOW=="DOMSUP", fuel %in% c( "hard_coal", "brown_coal" ) ),
-                               filter( A.IEA_en_stat_ctry_hist, FLOW=="IMPORTS", fuel=="coal_coke" ) ) %>%
+  # calculate IEA coke (imports - exports)
+  IEA_coke <- filter( A.IEA_en_stat_ctry_hist, FLOW %in% c("IMPORTS", "EXPORTS"), fuel=="coal_coke" ) %>%
     select( -FLOW, -PRODUCT ) %>% group_by( iso, fuel ) %>%
-    summarise_each( funs( sum(., na.rm = T ) ) ) %>% data.frame()
-  IEA_total_coal$units <- "kt"
-  IEA_total_coal <- IEA_total_coal[ c( "iso", "fuel", "units", X_coal_total_IEA_years ) ]
+    summarise_each( funs( sum(., na.rm = T ) ) ) %>% data.frame() %>% mutate(value = 'iea_coke')
+  # add countries with zero data
+  zero_coke_countries <- unique( extended_coke$iso[ extended_coke$iso %!in% IEA_coke$iso ] )
+  add_zero_coke_countries <- data.frame( iso = zero_coke_countries, fuel = 'coal_coke', value = 'iea_coke' )
+  add_zero_coke_countries[ X_IEA_years ] <- 0
+  IEA_coke <- rbind(IEA_coke, add_zero_coke_countries) %>% arrange(iso)
+  
+  if ( any( extended_coke$iso != IEA_coke$iso ) ) { stop('Rows do not match for ') }
+  
+  # define function to extend coke value for a specific iea start date
+  
+  extend_coke_fun <- function(start_year){
+  
+  historical_ratio_years <- c( paste0('X',start_year) ,paste0('X',start_year+1),paste0('X',start_year+2) )
+  recent_ratio_years <- c(paste0('X',IEA_end_year), paste0('X',IEA_end_year-1), paste0('X',IEA_end_year-2))
+  
+  countries <- iea_start[which(iea_start$start_year == start_year),'iso']
+  # ceds extended coal
+  ceds <- filter(extended_coke, iso %in% countries ) %>% 
+   select_('iso', .dots = c(historical_ratio_years , recent_ratio_years ) ) 
+ 
+  ceds$ceds_total <- rowMeans(ceds[ historical_ratio_years] )
+  ceds$ceds_total_recent <- rowMeans(ceds[ recent_ratio_years ] )
+  
+  # iea calculated coke (imports - exports)
+  iea <- filter(IEA_coke, iso %in% countries ) %>%
+    select_('iso', .dots = c(historical_ratio_years , recent_ratio_years )  )
 
-# Compute CEDS extended coal consumption (1750-1970) by summing
-# H.Extended_coal_by_fuel and H.Extended_other_tranformation_coal.
-  CEDS_total_coal <- bind_rows( H.Extended_coal_by_fuel, H.Extended_other_tranformation_coal )
-  CEDS_total_coal$units <- "kt"
-  CEDS_total_coal <- CEDS_total_coal[ c( "iso", "fuel", "units", X_coal_total_CEDS_years ) ]
-  CEDS_total_coal <- group_by( CEDS_total_coal, iso, fuel, units ) %>%
-    summarise_each( funs( sum(., na.rm = T ) ) ) %>% data.frame()
+  iea$iea_total <- rowMeans(iea[ historical_ratio_years] )
+  iea$iea_total_recent <- rowMeans(iea[ recent_ratio_years ] )
+  
+  # calculate coke ratio of total extended coal (ceds)
+  ratio <- left_join ( select(ceds, iso, ceds_total, ceds_total_recent) , select( iea, iso, iea_total, iea_total_recent ) )  %>%
+    mutate( ratio = iea_total/ceds_total) %>% 
+    mutate( ratio_recent = iea_total_recent/ceds_total_recent)
+  
+  ratio$ratio[!is.finite(ratio$ratio)] <- 0
+  ratio$ratio_recent[!is.finite(ratio$ratio_recent)] <- 0
+  
+  # multiply ratio to get extended iea coke (imports - exports)
+  IEA_coke_extended <- filter( IEA_coke, iso %in% countries)
+  IEA_coke_years <- names(IEA_coke)[grep('X',names(IEA_coke))]
+  
+  all_ext_years <- X_extended_years[X_extended_years %!in%  IEA_coke_years]
+  historical_ext_years <- paste0('X',1750:(start_year-1))
+  forward_ext_years <- paste0('X',BP_years)
+  
+  IEA_coke_extended[ all_ext_years ] <- NA
+  
+  IEA_coke_extended[ historical_ext_years ] <- replicate(ratio$ratio, n = length(historical_ext_years)) * extended_coke[ which( extended_coke$iso %in% countries) , historical_ext_years ]
+  if( length(BP_years) == 1 ) IEA_coke_extended[ forward_ext_years ] <- as.vector(replicate(ratio$ratio_recent, n = length(forward_ext_years))) * extended_coke[ which( extended_coke$iso %in% countries) , forward_ext_years ]
+  if( length(BP_years) > 1 ) IEA_coke_extended[ forward_ext_years ] <- replicate(ratio$ratio_recent, n = length(forward_ext_years)) * extended_coke[ which( extended_coke$iso %in% countries) , forward_ext_years ]
+  
+  return(IEA_coke_extended)                                                                                                               
+}
+  
+  # extend IEA coke back to 1750
+  iea_extended_coke_list <-  lapply(FUN = extend_coke_fun, X = unique(iea_start$start_year) ) 
+  iea_extended_coke <- do.call( rbind, iea_extended_coke_list) %>% 
+                          mutate( units = 'kt')
+  iea_extended_coke <- iea_extended_coke[ c('iso','fuel', X_extended_years ) ] %>% mutate(units = 'kt') %>% arrange(iso)
 
-# Combine IEA and CEDS coal. Use CEDS for 1750-1970 and IEA for 1971-2013
-# Copy 2013 values to 2014. Make all NA zero
-  total_coal <- merge( CEDS_total_coal, IEA_total_coal, all.x = T )
-  total_coal[paste0('X',BP_years)] <- total_coal[paste0('X',IEA_end_year)]
-  total_coal[ is.na( total_coal ) ] <- 0
+  # Make new data frame for energy data for calculating total CO2
+  
+  total_coal <- rbind( iea_extended_coke , 
+                        filter(extended_coal, fuel != 'coal_coke') ) %>% 
+                 arrange(iso, fuel)
 
-# # Diagnostic: Compare CEDS and IEA values at replacement year
-#   diag_coal_total_repl_cmp <- filter( total_coal_long, year == paste0( "X", COAL_TOTAL_REPLACEMENT_YEAR ) ) %>%
-#     mutate( diff = CEDS_value - IEA_value, diff_pc = diff*100/IEA_value ) 
-#   diag_coal_total_repl_cmp$diff_pc[ diag_coal_total_repl_cmp$IEA_value == diag_coal_total_repl_cmp$CEDS_value ] <- 0
-    
-# b. Compute CO2 emissions from total coal consumption and EF
-  total_coal_long <- melt( total_coal, id = c( "iso", "fuel", "units" ) ) %>%
+# c. Compute CO2 emissions from total coal consumption and EF
+
+  total_coal_long <- melt( total_coal , id = c( "iso", "fuel", "units" ) ) %>%
     select( iso, fuel, year=variable, total_value=value ) %>% data.frame()
   CO2_Coal_Total <- merge( total_coal_long, coal_ef_ext_long, all.x = T ) %>%
     mutate( em = total_value * coal_EF )
@@ -219,7 +400,7 @@ if( em != 'CO2') {
     arrange( iso, fuel, units ) %>% data.frame()
   
 # ---------------------------------------------------------------------------
-# 6. Compute CO2_Conversion = CO2_Coal_Total - CO2_Coal_Combustion - CO2_Coal_NEuse
+# 6. Compute CO2_Conversion = CO2_Coal_Total - CO2_Coal_Combustion - CO2_Coal_NEuse - CO2_Coalgases_as_ng_for_total_natural_gas
 # Aggregate all coal flows by iso
   CO2_Coal_Total_agg <- select( CO2_Coal_Total, -fuel ) %>% group_by( iso, units ) %>%
     summarise_each( funs( sum(., na.rm = T ) ) ) %>% arrange( iso ) %>% data.frame()
@@ -227,8 +408,10 @@ if( em != 'CO2') {
     summarise_each( funs( sum(., na.rm = T ) ) ) %>% arrange( iso ) %>% data.frame()
   CO2_Coal_NEuse_agg <- select( CO2_Coal_NEuse, -fuel ) %>% group_by( iso, units ) %>%
     summarise_each( funs( sum(., na.rm = T ) ) ) %>% arrange( iso ) %>% data.frame()
+  CO2_Coalgases_as_ng_for_total_natural_gas_agg <- select( CO2_Coalgases_as_ng_for_total_natural_gas, -fuel ) %>% 
+    group_by( iso, units ) %>% summarise_each( funs( sum(., na.rm = T ) ) ) %>% arrange( iso ) %>% data.frame()
   
-# Check that all 3 dfs have same ID columns  
+# Check that all 4 dfs have same ID columns  
   if( any( paste( CO2_Coal_Total$iso, CO2_Coal_Total$units ) != 
            paste( CO2_Coal_Combustion$iso, CO2_Coal_Combustion$units ) ) | 
       any( paste( CO2_Coal_Combustion$iso, CO2_Coal_Combustion$units ) != 
@@ -238,10 +421,14 @@ if( em != 'CO2') {
     stop( "ID columns do not match.")
   }
   
+  
 # Compute CO2_Conversion from aggregated flows 
   CO2_Conversion <- CO2_Coal_Total_agg
   CO2_Conversion[, X_extended_years ] <- CO2_Coal_Total_agg[, X_extended_years] - 
     CO2_Coal_Combustion_agg[, X_extended_years] - CO2_Coal_NEuse_agg[, X_extended_years]
+  CO2_Conversion[which(CO2_Conversion$iso  %in%  CO2_Coalgases_as_ng_for_total_natural_gas_agg$iso), X_extended_years] <- 
+    CO2_Conversion[which(CO2_Conversion$iso  %in%  CO2_Coalgases_as_ng_for_total_natural_gas_agg$iso), X_extended_years] - 
+    CO2_Coalgases_as_ng_for_total_natural_gas_agg[which(CO2_Coalgases_as_ng_for_total_natural_gas_agg$iso %in% CO2_Conversion$iso ), X_extended_years]
   
 # Make negative values zero. Keep diagnostics of negative values
   diag_subzero <- melt( CO2_Conversion, id=c( "iso", "units" ) ) %>%
@@ -323,6 +510,14 @@ if( em != 'CO2') {
   diag_flows <- bind_rows( global, deu, usa )
   
 
+  # combine components of CO2-other transformation for diagnostics
+  CO2_components_other_tranformation <- rbind.fill( 
+    CO2_Coal_Total %>% mutate(value = paste0('Total_',fuel)) %>% select(-fuel),
+    CO2_Coal_Combustion %>% mutate(value = paste0('combustion_',fuel)) %>% select(-fuel) ,
+    CO2_Coal_NEuse %>% mutate(value = paste0('NEuse_',fuel)) %>% select(-fuel),
+    CO2_1B1and2c %>% mutate(value = '1B1and2c'),
+    CO2_Conversion_1B1and2c %>% mutate(value = 'final_emissions') ) %>% select(iso,value,units,contains('X'))
+  
 # ---------------------------------------------------------------------------
 # 7. Output
   writeData( CO2_Conversion, "MED_OUT", "H.CO2_calculated_other_transformation_emissions_before_1B1and2c_correction" )
@@ -330,6 +525,9 @@ if( em != 'CO2') {
   writeData( CO2_Coal_Total, "DIAG_OUT", "H.CO2_Coal_Total" )
   writeData( CO2_Coal_NEuse, "DIAG_OUT", "H.CO2_Coal_NEuse" )
   writeData( CO2_Coal_Combustion, "DIAG_OUT", "H.CO2_Coal_Combustion" )
+  writeData( CO2_components_other_tranformation, "DIAG_OUT", "H.CO2_components_other_tranformation" )
+  writeData( CO2_Coalgases_as_ng_for_total_natural_gas, "DIAG_OUT", "H.CO2_Coalgases_as_ng_for_total_natural_gas" )
+  
   #writeData( diag_coal_total_repl_cmp, "DIAG_OUT", "H.CO2_conversion_total_coal_replacement_year_comp" )
   writeData( diag_flows, "DIAG_OUT", "H.CO2_conversion_selected_flows" )
   

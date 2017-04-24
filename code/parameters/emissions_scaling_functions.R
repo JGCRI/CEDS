@@ -17,7 +17,7 @@
 # Special Packages
 
 loadPackage('zoo')
-source('../code/parameters/interpolation_extention_functions.R')
+source('../code/parameters/interpolation_extension_functions.R')
 source('../code/parameters/data_functions.R')
 # ------------------------------------------------------------------------------
 # F.initializeMeta
@@ -725,7 +725,7 @@ F.scaling <- function( ceds_data, inv_data, region,
   if( nrow(ext_method_default)  != nrow(scaling) |
      !identical(scaling$iso,ext_method_default$iso) |
      !identical(scaling$iso,ext_year_default$iso) ){stop('In F.scaling, scaling factor
-           data frame and default extention methods do not match.')}  
+           data frame and default extension methods do not match.')}  
     
   }
   

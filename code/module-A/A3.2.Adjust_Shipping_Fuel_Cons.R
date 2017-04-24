@@ -41,7 +41,7 @@
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "data_functions.R", "analysis_functions.R", "process_db_functions.R", 
-                  "timeframe_functions.R", "interpolation_extention_functions.R", 
+                  "timeframe_functions.R", "interpolation_extension_functions.R", 
                   "common_data.R" ) # Additional function files required.
     log_msg <- "Add under-counted shipping emissions to global region" # First message to be printed to the log
     script_name <- "A3.2.Adjust_Shipping_Fuel_Cons.R"
