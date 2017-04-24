@@ -34,7 +34,7 @@ if ( is.na( em ) ) em <- "NH3"
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
   headers <- c( "data_functions.R" ,"emissions_scaling_functions.R" , "analysis_functions.R", 
-                "interpolation_extention_functions.R") # Additional function files required.
+                "interpolation_extension_functions.R") # Additional function files required.
   log_msg <- paste0( "Calling inventory emission scaling stripts" ) # First message to be printed to the log
   script_name <- paste0(em,"-F1.1.inventory_scaling.R")
   

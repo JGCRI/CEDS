@@ -181,7 +181,8 @@ initialize( script_name, log_msg, headers )
     
 # ---------------------------------------------------------------------------
 # 3. Output
-    writeData( driver, "EXT_IN", "CD.Pig_Iron_Production", domain_extension = "extention-data/" )
-    writeData( all_wide_out, "DIAG_OUT", "CD.Pig_Iron_Production_full", meta = F )
+
+    writeData( driver, "EXT_IN", "A.Pig_Iron_Production", domain_extension = "extension-data/" )
+    writeData( all_wide_out, "DIAG_OUT", "A.Pig_Iron_Production_full", meta = F )
 
 logStop()
