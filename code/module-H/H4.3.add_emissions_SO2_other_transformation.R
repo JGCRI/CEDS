@@ -24,7 +24,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R",'ModH_extention_functions.R') # Additional function files may be required.
+headers <- c( "data_functions.R",'ModH_extension_functions.R') # Additional function files may be required.
 log_msg <- "Extending SO2 emissions for 1A1bc-Other-transformation" # First message to be printed to the log
 script_name <- "H4.3.add_emissions_SO2_other_transformation.R"
 

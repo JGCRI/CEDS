@@ -34,7 +34,7 @@
   # Call standard script header function to read in universal header files - 
   # provide logging, file support, and system functions - and start the script log.
   headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R", "analysis_functions.R",
-                "interpolation_extention_functions.R") # Additional function files required.
+                "interpolation_extension_functions.R") # Additional function files required.
   log_msg <- "Modifying emissions factors from UNFCCC inventory data" # First message to be printed to the log
   script_name <- paste0(em,"-F1.1.UNFCCC_scaling.R")
   
@@ -56,6 +56,7 @@
 #   the inventory (as a vector of iso codes)
   
   sector_fuel_mapping <- 'UNFCCC_scaling_mapping'
+  if( em == 'CH4')  sector_fuel_mapping <- 'UNFCCC_scaling_mapping_CH4'
   mapping_method <- 'sector'
   inv_name <- 'UNFCCC'
   region <- c( "aus" , "aut" , "bel" , "bgr" , "blr" , "che" , "cyp" , "cze" , "deu" , "dnk" , "esp",
