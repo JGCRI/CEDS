@@ -55,7 +55,6 @@ iea_start_year <- readData( 'ENERGY_IN' , 'IEA_iso_start_data')
 cdiac_solid_fuel <- readData( 'MED_OUT' , 'E.CO2_CDIAC_solid_fuel')
 
 solid_fuel_correction <- readData('EXT_IN', 'solid_fuel_correction_values')
-
 # ---------------------------------------------------------------------------
 # 2. Define Variables, select options
 
