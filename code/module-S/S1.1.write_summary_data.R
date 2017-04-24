@@ -172,8 +172,8 @@ if ( WRITE_CEDS_SECTORS ) {
 # Compare emissions summary from the current run and the last run. If values 
 # change over a threshold, move last-run files to previous-versions, write out 
 # current-run files, and write out comparison diagnostics.
-  FILENAME_POSTSCRIPT <- paste( "_v", substr( Sys.Date(), 6, 7 ), substr( Sys.Date(), 9, 10 ), 
-                                substr( Sys.Date(), 1, 4 ), sep = "_" )  # "_v_mm_dd_yyyy"
+  FILENAME_POSTSCRIPT <- paste( "_v", substr( Sys.Date(), 1, 4 ), substr( Sys.Date(), 6, 7 ), 
+                                substr( Sys.Date(), 9, 10 ), sep = "_" )  # "_v_yyyy_mm_dd"
 
 # Create output folders (if not already exist) and define values
   dir.create( "../final-emissions/current-versions", showWarnings = F )
