@@ -47,7 +47,7 @@ fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_fuel_map", 
 sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_ext_map", ".xlsx", sheet_selection = 'Bond_to_ext',meta = F )
 ext_sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_ext_map", ".xlsx", sheet_selection = 'CEDS_to_ext',meta = F )
 
-bond_percent_1850 <- readData( 'EXT_IN', 'Bond_sector_extension_percents_1850')
+bond_percent_1850 <- readData( 'EXT_IN', 'Bond_sector_extention_percents_1850')
 
 iea_other_coal <- readData( 'MED_OUT','A.IEA_CEDS_coal_difference' )
 iea_start_year <- readData( 'ENERGY_IN' , 'IEA_iso_start_data')
