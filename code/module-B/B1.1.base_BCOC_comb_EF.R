@@ -1,12 +1,11 @@
 #------------------------------------------------------------------------------
 # Program Name: B1.1.base_BCOC_comb_EF.R
-# Author: Rachel Hoesly, Linh Vu, Ben Goldstein
-# Date Last Updated: 5 April 2017
+# Author: Rachel Hoesly, Linh Vu
+# Date Last Updated: 21 April 2016
 # Program Purpose: 1. Produce OC emissions factors from SPEW (i.e. Bond) data.
 #              
-# Input Files: CD.SPEW_bcoc_historical.csv, CD.SPEW_sector_map.csv,
-#              CD.SPEW_iso_map.csv, CD.SPEW_fuel_map.csv, A.comb_activity.csv
-#
+# Input Files: Bond_ctry_mapping.csv, Bond_fuel_mapping.csv, Bond_sector_mapping.csv,
+#              A.comb_activity.csv 
 # Output Files: B.[em]_comb_EF_db.csv, B.[em]_SPEW_comb_EF.csv, B.[em]_SPEW_NC_em.csv
 # Notes: 1. Emission factors (ef) are calculated as emissions divided by consumption.
 #           Missing (zero or NA) ef are replaced using the following rules, in order:
@@ -80,11 +79,11 @@ sector_level_map <- readData( "MAPPINGS", "Master_Sector_Level_map", meta = F )
 MCL <- readData( "MAPPINGS", "Master_Country_List" )
 MSLevel <- readData( "MAPPINGS", "Master_Sector_Level_map" )
 
-bcoc_historical <- readData( "EM_INV", "CD.SPEW_bcoc_historical", 
-                             domain_extension = "Bond-BCOC/", meta = T )
-sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "CD.SPEW_sector_map", meta = F )
-iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "CD.SPEW_iso_map", meta = F )
-fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "CD.SPEW_fuel_map", meta = F )
+bcoc_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/" ,"160227_SPEW_BCOCemission", 
+                             ".xlsx", meta = T )
+sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_map", meta = F )
+iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_country_map", meta = F )
+fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_fuel_map", meta = F )
 
 # ------------------------------------------------------------------------------
 # 2. Bond EFs
