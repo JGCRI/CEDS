@@ -25,7 +25,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R","process_db_functions.R", "ModH_extention_functions.R") # Additional function files may be required.
+headers <- c( "data_functions.R","process_db_functions.R", "ModH_extension_functions.R") # Additional function files may be required.
 log_msg <- "Extending coal and biomass activity_data before 1960 with CDIAC-Bond data" # First message to be printed to the log
 script_name <- "H1.2.add_activity_Bond_industrial_biomass.R"
 
@@ -289,7 +289,7 @@ for ( i in seq_along((start_years))){
 # ---------------------------------------------------------------------------
 # 6. Extend 1750 to 1750 with Population
 
-# set up extention data (population)
+# set up extension data (population)
   extension_data_1960 <- dissagregate_biomass_1960[,c('iso','sector','fuel')]
   extension_data_1960[ paste0('X',1750:1900) ] <- population[match(extension_data_1960$iso, population$iso), paste0('X',1750:1900)]
   

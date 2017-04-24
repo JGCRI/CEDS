@@ -72,6 +72,11 @@ if( em == "CH4" || em == "CO2" ){
     scripts <- c( scripts, "C1.2.add_NC_emissions_EDGAR.R" )
 }
 
+# Add FAO Agriculture methane data
+if( em == "CH4" ){
+  scripts <- c( scripts, "C1.2.add_CH4_NC_emissions_FAO.R")
+}
+
 # Add CDIAC for CO2
 if( em == "CO2" ){
   scripts <- c( scripts, "C1.2.add_CO2_NC_emissions_CDIAC.R" )

@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: C.1.2.add_NC_emissions_EDGAR.R
-# Author(s): Jon Seibert
-# Date Last Modified: 5 January 2016
+# Author(s): Jon Seibert, Rachel Hoesly
+# Date Last Modified: 20 April 2017
 # Program Purpose: To reformat the non-combustion sections of the EDGAR default emissions
 #                      data and add it to the database for the relevant emissions species.
 # Input Files: 
@@ -36,9 +36,14 @@
     initialize( script_name, log_msg, headers )    
   
 # ------------------------------------------------------------------------------
-# 1. Settings ( "em" already set to correct species by parent script )
+# 1. Settings 
 
-# EDGAR data version number
+# Define emissions species variable
+  args_from_makefile <- commandArgs( TRUE )
+  em <- args_from_makefile[ 1 ]
+  if ( is.na( em ) ) em <- "CH4"    
+
+  # EDGAR data version number
 vn <- "4.2"
 
 # Input domain
@@ -69,9 +74,14 @@ fn <- c( paste0( "EDGAR", gsub( "[.]", "", vn ), "_", em  ), ".csv" )
 NC_sector_map <- readData( "MAPPINGS", "NC_EDGAR_sector_mapping" )
 edgar <- readData( domain, fn[[ 1 ]], fn[[ 2 ]], domain_extension = domain_ext )
 
+if ( em == 'CH4' ){
+  BP_energy_data <- readData( 'ENERGY_IN', file_name = 'BP_energy_data', extension = ".xlsx", 
+                              sheet_selection = 'Coal Production - Tonnes', skip_rows = 2 )  
+  names(BP_energy_data)[1] <- 'BPName'
 
+}
 
-
+Master_Country_List <- readData("MAPPINGS", 'Master_Country_List')
 # ------------------------------------------------------------------------------
 # 3. Reformatting
 
@@ -115,10 +125,54 @@ edgar <- edgar[,c('iso','sector','fuel','units', paste0('X',EDGAR_start_year:EDG
   edgar_neg <- edgar[ neg_rows, ]
   edgar[ edgar < 0 ] <- 0
 
+# filter isos in Master Country List
+  edgar <- edgar %>% filter(iso %in% Master_Country_List$iso)
 # ------------------------------------------------------------------------------
-# 4. Output
-addToEmissionsDb( edgar, em = em, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
+# 4. Extend Fugitive Solid Fuels for methane
+
+if ( em == 'CH4' ){
   
+  # seperate fugitive solid fuels and other emissions  
+  fugitive_solid <- edgar %>% filter(sector == '1B1_Fugitive-solid-fuels')
+  edgar <- edgar %>% filter(sector != '1B1_Fugitive-solid-fuels')
+ 
+  # process BP data for extension
+  bp <- Master_Country_List %>% 
+    select(iso, BPName) %>%
+    filter(!is.na(BPName), BPName != 'ussr') %>%
+    unique() %>% 
+    filter(!duplicated(iso)) %>% 
+    unique() %>% 
+    left_join( BP_energy_data, by = 'BPName') %>% 
+    gather(year, value, -iso,-BPName) %>% 
+    mutate(year = as.numeric(year)) %>% 
+    filter(!is.na(year), !is.na(value)) %>% 
+    mutate(year = paste0('X',year)) %>% 
+    mutate(value = as.numeric(value)) %>% 
+    spread(year, value) %>% 
+    select(-BPName)
+  
+  fugitive_solid_extended <- extend_data_on_trend_range(driver_trend = bp, 
+                                                        input_data = fugitive_solid, 
+                                                        start = 2009, end = 2014,
+                                                        ratio_start_year = 2007,
+                                                        expand = T,
+                                                        range = 2,
+                                                        id_match.driver = c('iso'))
+  fugitive_solid_extended <- fugitive_solid_extended[ , c('iso','sector','fuel','units',paste0('X',1971:2014) ) ] 
+  
+}
+  
+# ------------------------------------------------------------------------------
+# 5. Output
+
+if ( em == 'CH4'){
+
+  writeData( fugitive_solid_extended,  domain = "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/", 
+             fn = paste0( "C.",em, "_EDGAR_NC_Emissions_fugitive_solid_fuels" ) )
+
+}  
+addToEmissionsDb( edgar, em = em, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
 writeData( edgar, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em ) )
 
 if ( nrow( edgar_neg ) > 0 ) 
