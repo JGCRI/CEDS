@@ -45,7 +45,6 @@ fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_fuel_map", 
 sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_map", meta = F )
 iea_start_year <- readData( 'ENERGY_IN' , 'IEA_iso_start_data', meta = F )
 un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' )
-un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' )
 
 # ---------------------------------------------------------------------------
 # 2. Select sectors, script options
