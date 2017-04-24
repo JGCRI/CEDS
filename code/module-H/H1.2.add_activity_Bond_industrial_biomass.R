@@ -1,9 +1,8 @@
 # ------------------------------------------------------------------------------
 # Program Name: H1.2.add_activity_Bond_industrial_biomass.R
-# Author: Rachel Hoesly, Ben Goldstein
+# Author: Rachel Hoesly
 # Program Purpose: Extend Industrial Biomass with bond data. Transition from ceds to bond values
-# Last updated: 5 April 2017
-#
+#               
 # Output Files:'H.',em,'_total_activity_extended_db'
 # TODO: 
 # ---------------------------------------------------------------------------
@@ -41,10 +40,9 @@ if ( is.na( em ) ) em <- "SO2"
 
 activity_all <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended_db') , meta=F)
 
-bcoc_historical <- readData( "EM_INV", "CD.SPEW_bcoc_historical", 
-                             domain_extension = "Bond-BCOC/", meta = T )
-iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "CD.SPEW_iso_map", meta = F )
-fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "CD.SPEW_fuel_map", meta = F )
+bond_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/" ,"160227_SPEW_BCOCemission", ".xlsx", meta = T )
+iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_country_map", meta = F )
+fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_fuel_map", meta = F )
 
 iea_start_year <- readData( 'ENERGY_IN' , 'IEA_iso_start_data', meta = F )
 
