@@ -73,7 +73,7 @@ year_intervals <- unique(paste(extension_drivers$ext_start_year,extension_driver
 if ( length( year_intervals) > 1 ) stop( 'Fernandas residential biomass script cannot handle multiple time intervals, please check activity drivers.')
 
 
-  # add to final extention template
+  # add to final extension template
   activity <- replaceValueColMatch(activity, biomass,
                                               x.ColName = paste0('X',extension_drivers$ext_start_year[1]:extension_drivers$ext_end_year[1]),
                                               match.x = c('iso','sector','fuel'),

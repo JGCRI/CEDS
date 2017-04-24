@@ -48,6 +48,7 @@
     IEA_flow_sector <- readData( "EN_MAPPINGS", "IEA_flow_sector" )
     IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )[,c('product','fuel')]
     IEA_process_sectors <- readData( "EN_MAPPINGS", "IEA_process_sectors" )
+    IEA_process_coal_sectors <-readData( "EN_MAPPINGS", "IEA_process_coal")
     MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
     IEA_energy_balance_factor <- readData( "ENERGY_IN", "IEA_energy_balance_factor" )
 
@@ -169,11 +170,26 @@
                                match.x = c('FLOW','PRODUCT'), match.y = c('FLOW','PRODUCT'),
                                addEntries = FALSE)
   
-  # Drop data that doesn't map to a CEDS sector/fuel and extra columns
-  DroppedData<-rbind.fill(DroppedData, A.IEA_en_stat_process[!complete.cases(A.IEA_en_stat_process[,c('sector','fuel')]), ])
+  #assign coal processes to sector/fuel
+  A.IEA_process_coal <- replaceValueColMatch(A.IEA_en_stat_ctry_hist_units,IEA_process_coal_sectors,
+                                             x.ColName = c('sector','fuel'), y.ColName = c('activity','fuel'),
+                                             match.x = c('FLOW','PRODUCT'), match.y = c('FLOW','PRODUCT'),
+                                             addEntries = FALSE)
+  
+  # Data that doesn't map to a CEDS sector/fuel and extra columns
+  DroppedData<-rbind.fill(DroppedData, A.IEA_en_stat_process[!complete.cases(A.IEA_en_stat_process[,c('sector','fuel')])
+                                                                                  && A.IEA_process_coal$fuel != "process" , ])
+  
+  #Drop A.IEA_en_stat_process data that doesn't map to a CEDS sector/fuel and extra columns
   A.IEA_en_stat_process <- A.IEA_en_stat_process[ , c('iso','sector','fuel','units', X_IEA_years)]
   A.IEA_en_stat_process <- A.IEA_en_stat_process[complete.cases(A.IEA_en_stat_process),]
   
+  # Drop A.IEA_process_coal data that doesn't map to a CEDS sector/fuel, extra columns and non-coal process records 
+  A.IEA_process_coal <- A.IEA_process_coal[complete.cases(A.IEA_process_coal) & A.IEA_process_coal$fuel == "process",]
+  A.IEA_process_coal <- A.IEA_process_coal[ , c('iso','sector','fuel','units', X_IEA_years)]
+  
+  #bind the process_coal data frame and the en_start_process data frames 
+  A.IEA_en_stat_process <- rbind(A.IEA_en_stat_process, A.IEA_process_coal)
 # ------------------------------------------------------------------------------
 # 3. Other Data Cleaning and aggregation by CEDS fuel
 

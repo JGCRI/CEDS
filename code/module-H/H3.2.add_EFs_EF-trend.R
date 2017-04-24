@@ -24,7 +24,7 @@ PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R",'ModH_extention_functions.R') # Additional function files may be required.
+headers <- c( "data_functions.R",'ModH_extension_functions.R') # Additional function files may be required.
 log_msg <- "Extending emissions factors 1960 using EF trend" # First message to be printed to the log
 script_name <- "H3.2.add_EFs_EF-trend.R"
 
@@ -55,12 +55,12 @@ drivers <-  select_EF_drivers(trend)
 if ( nrow(drivers ) > 0){
 
 # Import Driver Data from driver file  
-drivers_method_files <- unique(drivers[,c('start_year','end_year',"file_name","domain","domain_extention" )])
+drivers_method_files <- unique(drivers[,c('start_year','end_year',"file_name","domain","domain_extension" )])
 drivers_method_data_list <- list()
 for(i in seq_along(drivers_method_files$file_name) ){
-  if( is.na(drivers_method_files[i,"domain_extention"]) ) {
+  if( is.na(drivers_method_files[i,"domain_extension"]) ) {
     x <- readData( domain = drivers_method_files[i,'domain'], file_name = drivers_method_files[i,"file_name"]) } else{
-      x <- readData( domain = drivers_method_files[i,'domain'], file_name = drivers_method_files[i,"file_name"], domain_extension = drivers_method_files[i,"domain_extention"])}
+      x <- readData( domain = drivers_method_files[i,'domain'], file_name = drivers_method_files[i,"file_name"], domain_extension = drivers_method_files[i,"domain_extension"])}
   drivers_method_data_list[[i]] <- x
 }
 names(drivers_method_data_list) <- drivers_method_files$file_name
@@ -98,14 +98,14 @@ sector_list <- unique( drivers_method_data_extended$sector )
 
 for ( sector in sector_list ){
   temp_data <- drivers_method_data_extended[ drivers_method_data_extended$sector == sector, ]
-  writeData( temp_data, 'EXT_IN', domain_extension = 'extention-data/', paste0('H.',em,'_user_defined_data_EF-trend_', sector ) )
+  writeData( temp_data, 'EXT_IN', domain_extension = 'extension-data/', paste0('H.',em,'_user_defined_data_EF-trend_', sector ) )
 }
 } 
 
 # ---------------------------------------------------------------------------
 # 4. Import files from user drop folder
 
-user_files_list <- list.files(path =  './extention/extention-data', 
+user_files_list <- list.files(path =  './extension/extension-data', 
                               pattern = '*.csv')
 user_files_list <- file_path_sans_ext( user_files_list )
 
@@ -122,7 +122,7 @@ user_files_list <- user_files_list[c(grep(pattern = 'EF-trend', user_files_list 
 
 user_data_list <- lapply ( X = user_files_list, FUN = readData, 
                            domain = "EXT_IN" , 
-                           domain_extension = "extention-data/")
+                           domain_extension = "extension-data/")
 names(user_data_list ) <- user_files_list 
 
 user_data <- do.call(rbind.fill, user_data_list)
