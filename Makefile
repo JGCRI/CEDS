@@ -328,6 +328,7 @@ $(MED_OUT)/A.en_stat_sector_fuel.csv : \
 	$(MOD_A)/A2.1.IEA_en_bal.R \
 	$(MED_OUT)/A.IEA_en_stat_ctry_hist.csv \
 	$(EN_MAPPINGS)/IEA_flow_sector.csv \
+	$(EN_MAPPINGS)/IEA_process_sectors.csv \
 	$(EN_MAPPINGS)/IEA_product_fuel.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(MED_OUT)/A.Fernandes_biomass_conversion.csv \
