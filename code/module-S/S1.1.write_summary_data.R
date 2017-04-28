@@ -41,6 +41,7 @@ if ( is.na( em ) ) em <- "SO2"
 # 0.5. Script Options
 
 write_years <- 1750:end_year
+if( em == 'CH4') write_years <- 1970:end_year
 
 # Define functions to move a list of files (full path name)
 moveFile <- function( fn, new_dir ) {
