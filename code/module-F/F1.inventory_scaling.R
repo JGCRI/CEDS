@@ -103,6 +103,9 @@ if ( is.na( em ) ) em <- "NH3"
   
   # US EPA
   if ( em %in% c( 'CO2' ) ) scripts <- c(scripts, 'F1.1.US-EPA_scaling.R')
+  
+  # US GHG
+  if ( em %in% c( 'CH4' ) ) scripts <- c(scripts, 'F1.1.US-GHG_scaling.R')
 
   # China
   if ( em %in% c('SO2', 'NOx', 'NH3', 'NMVOC', 'CO' ) ) scripts <- c(scripts, 'F1.1.China_scaling.R')

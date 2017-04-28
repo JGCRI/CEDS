@@ -42,7 +42,7 @@ initialize( script_name, log_msg, headers )
 
 inventory_data_file <- 'USA/US_GHG_inventory'
 inv_data_folder <- "EM_INV"
-inv_name <- 'US_GHG' #for naming diagnostic files
+inv_name <- 'US-GHG' #for naming diagnostic files
 inv_years<-c(1990:2014)
 
 # ------------------------------------------------------------------------------
