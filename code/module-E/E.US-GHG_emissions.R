@@ -77,7 +77,12 @@ if ( em %in% ghg_em ){
   inv_data[paste0('X', inv_years)] <- apply(X=inv_data[paste0('X', inv_years)],2,as.numeric)
 #replace NAs with 0
   inv_data <- replace(inv_data, is.na(inv_data), 0) 
-   
+
+# add region
+  inv_data$iso <- 'usa'
+  inv_data$units <- 'kt'
+  inv_data <- inv_data[ c('iso','sector','units', paste0('X', inv_years))]
+  
 # Write out blank df if no inventory data exists for given emission
 } else  {
   inv_data <- data.frame()
