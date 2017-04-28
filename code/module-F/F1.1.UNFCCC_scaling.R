@@ -29,7 +29,7 @@
  # Get emission species first so can name log appropriately
  args_from_makefile <- commandArgs( TRUE )
  em <- args_from_makefile[1]
- if ( is.na( em ) ) em <- "NOx"
+ if ( is.na( em ) ) em <- "CH4"
   
   # Call standard script header function to read in universal header files - 
   # provide logging, file support, and system functions - and start the script log.
@@ -45,7 +45,7 @@
 # 1. Define parameters read in files
 
 # Stop script if running for unsupported species
-  if ( em %!in% c('SO2','CO','NMVOC','NOx', 'CO2') ) {
+  if ( em %!in% c('SO2','CO','NMVOC','NOx', 'CO2', 'CH4') ) {
     stop (paste( 'UNFCCC script is not supported for emission species ', em, '. Remove from script
                  list in F1.inventory_scaling.R'))
   }
@@ -67,7 +67,7 @@
 # TODO: blr and ukr should only be used for specific years where is close to expert estimates, or to calibrate parameters off-line
 # TODO: why is grc not in EMEP?
 # Ukraine (ukr) energy reporting is inconsistent, instead have calibrated coal S% by hand. Check other emissions
-  if (em != "CO2") region <- c( "blr" , "grc" , "nzl" )
+  if (em %!in% c("CO2",'CH4')) region <- c( "blr" , "grc" , "nzl" )
   inv_years<-c(1990:2012)
   
 # UNFCCC inventory is processed in E.UNFCCC_[em]_emissions.R script
