@@ -273,7 +273,8 @@ if( length( UNFCCC ) > 0 ){ # If there is data to process for this emissions spe
 	if( em == 'CH4'){
 	  UNFCCCdf_convert <- UNFCCCdf %>% 
 	    filter(unit == 'Gg CO2 equivalent') %>% 
-	    mutate_if(is.numeric, funs(./21)) #100 yr GWP
+	    mutate_if(is.numeric, funs(./21)) %>%  #100 yr GWP
+	    mutate(units = 'kt')
 	  
 	  UNFCCCdf <- UNFCCCdf %>% 
 	    filter(unit != 'Gg CO2 equivalent')
