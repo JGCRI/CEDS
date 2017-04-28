@@ -88,7 +88,7 @@ if ( is.na( em ) ) em <- "NH3"
   if ( em %in% c('CO','NH3','NMVOC','NOx','SO2') ) scripts <- c(scripts, 'F1.1.EMEP_NFR14_scaling.R')
   
   # UNFCCC
-  if ( em %in% c('SO2','CO','NMVOC','NOx', 'CO2') ) scripts <- c(scripts, 'F1.1.UNFCCC_scaling.R')
+  if ( em %in% c('SO2','CO','NMVOC','NOx', 'CO2', 'CH4') ) scripts <- c(scripts, 'F1.1.UNFCCC_scaling.R')
   
   # REAS
   if ( em %in% c('SO2','CO','NMVOC','NOx', 'NH3', 'CH4') ) scripts <- c(scripts, 'F1.1.REAS_scaling.R')
