@@ -554,6 +554,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv : \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US-EPA_inventory.csv \
+	$(MED_OUT)/E.$(EM)_US-GHG_inventory.csv \
 	$(MED_OUT)/A.UN_pop_master.csv \
 	$(ACTIV)/wastewater/UN_Percentage_WW_Treatment.xlsx \
 	$(ACTIV)/wastewater/OECD_Percentage_WW_Treatment.xlsx \
