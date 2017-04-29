@@ -285,10 +285,16 @@ if( length( UNFCCC ) > 0 ){ # If there is data to process for this emissions spe
 	
 	
 	# ------------------------------------------------------------------------------
-	# 3. Removed "Bad" Data
+	# 3. Remove "Bad" Data
 
-	# Remove Canada, Russian Fed, Luxembourg, and Poland
-	remove_iso <- c( 'can','rus','pol','lux' )
+	 if (em %in% c('CO2', 'CH4') )  {
+	   # TODO: the df manipulation after this block fails if only 'rus' is in list below since rus is not in current data.
+	   # TODO: fix to be more robust
+	   remove_iso <- c( 'rus', 'lux' )
+	} else {
+    	# Remove Canada, Russian Fed, Luxembourg, and Poland if air pollutant emissions
+	    remove_iso <- c( 'can','rus','pol','lux' )
+	}
 	UNFCCC <- UNFCCCdf[ -which( UNFCCCdf$iso %in% remove_iso ), ]
 
 	# Drop Lines With Only NA Values
