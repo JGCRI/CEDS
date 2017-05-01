@@ -37,7 +37,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CH4"
+if ( is.na( em ) ) em <- "CO2"
 
 # -----------------------------------------------------------------------------------------------------------
 # 0.5 Settings/Load Files
@@ -201,6 +201,11 @@ if( file.exists( file_path ) ){
     
     # Retrieve full list of internal files ( used to determine sectors )
     file_list <- listZippedFiles( file_path, FALSE )
+    # CO2 files read in as different names (not sure why) - should check later
+    if(em == 'CO2'){ # Presley to check later 
+      if( length(grep('CO2/',file_list)) == 0 ){  
+        file_list <- paste0('CO2/',file_list)
+    }}
     
     #call check_uniqueID_and_specie() function to perform the 2-way specie & id check
     check_uniqueID_and_species_mismatch(UNFCCC, file_list)
