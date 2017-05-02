@@ -75,7 +75,7 @@ generate_final_grids_nc <- function( int_grids_list,
   RCO_month_em <- data.frame( em = em, sector = 'RCO', year = year, month = 1 : 12, units = 'kt', 
                               value = RCORC_month_em$value + RCOO_month_em$value, stringsAsFactors = F )
   total_month_em <- rbind( AGR_month_em, ENE_month_em, IND_month_em, TRA_month_em, 
-                           SLV_month_em, WST_month_em, SHP_month_em, RCORC_month_em, RCOO_month_em )
+                           SLV_month_em, WST_month_em, SHP_month_em, RCO_month_em )
   
   # NetCDF generation starts here
   fin_sector_list <- c( 'AGR', 'ENE', 'IND', 'TRA', 'SLV', 'WST', 'SHP', 'RCO' )
@@ -195,7 +195,7 @@ generate_final_grids_nc <- function( int_grids_list,
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2 ), ' Tg/year' ) )
   
   # species information 
-  species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2' ), stringsAsFactors = F )
+  species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4' ), stringsAsFactors = F )
   info_line <- species_info[ species_info$species == em, ]$info 
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
   

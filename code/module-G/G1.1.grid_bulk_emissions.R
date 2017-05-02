@@ -46,7 +46,7 @@
 	  final_emissions_dir <- filePath( "FIN_OUT", "", extension = "", domain_extension = "current-versions/" )
 	  
     gridding_initialize( grid_resolution = 0.5,
-                         start_year = 2001,
+                         start_year = 1750,
                          end_year = 2014, 
                          load_masks = T, 
                          load_seasonality_profile = T )
@@ -123,10 +123,40 @@
       generate_annual_total_emissions_grids_nc( total_grid_dir, int_grids_list, grid_resolution, year, em ) 
         
     }
+# -----------------------------------------------------------------------------
+# 4. Checksum 
+    ceds_gridding_mapping_fin <- ceds_gridding_mapping[ , c( 'CEDS_int_gridding_sector_short', 'CEDS_final_gridding_sector_short' ) ]
+    ceds_gridding_mapping_fin <- unique( ceds_gridding_mapping_fin )
+    gridding_emissions_fin <- merge( gridding_emissions, ceds_gridding_mapping_fin, 
+                                     by.x = 'sector', by.y = 'CEDS_int_gridding_sector_short', all.x = T )
+    gridding_emissions_fin <- aggregate( gridding_emissions_fin[ paste0( 'X', year_list ) ], 
+                                         by = list( gridding_emissions_fin$CEDS_final_gridding_sector_short ),
+                                         FUN = sum )
+    colnames( gridding_emissions_fin ) <- c( 'sector', paste0( 'X', year_list ) )
+    gridding_emissions_fin <- gridding_emissions_fin[ order( gridding_emissions_fin$sector ), ]
 
+    checksum_file_list <- list.files( path = output_dir, pattern = paste0( '_', em, '_' ) )
+    checksum_file_list <- grep( '.csv', checksum_file_list, fixed = T, value = T )
+    checksum_res_list <- lapply( checksum_file_list, function( file_name ) { 
+      temp_csv <- read.csv( paste0( output_dir, file_name  ) )
+      } )
+    checksum_df <- do.call( 'rbind', checksum_res_list )
+    checksum_df <- aggregate( checksum_df$value, by = list( checksum_df$sector, checksum_df$year ), FUN = sum  )
+    colnames( checksum_df ) <- c( 'sector', 'year', 'value' )
+    checksum_df <- cast( checksum_df, sector ~ year )
+    colnames( checksum_df ) <- c( 'sector', paste0( 'X', year_list ) )
+    checksum_df <- checksum_df[ order( checksum_df$sector ), ]
+    
+    diag_diff_df <- cbind( checksum_df$sector, abs( gridding_emissions_fin[ paste0( 'X', year_list ) ] - checksum_df[ paste0( 'X', year_list ) ] ) )
+    diag_per_df <- cbind( checksum_df$sector, ( diag_diff_df[ paste0( 'X', year_list ) ] / gridding_emissions_fin[ paste0( 'X', year_list ) ] ) * 100 )
+    diag_per_df[ is.na( diag_per_df ) ] <- NA
     
 # -----------------------------------------------------------------------------
-# 4. Stop 
+# 5. Write-out and Stop 
+    out_name <- paste0( 'G.', em, '_bulk_emissions_checksum_comparison_diff' )
+    writeData( diag_diff_df, "DIAG_OUT", out_name )
+    out_name <- paste0( 'G.', em, '_bulk_emissions_checksum_comparison_per' )
+    writeData( diag_per_df, "DIAG_OUT", out_name )
     
 # Every script should finish with this line:
 logStop()  
