@@ -1,0 +1,135 @@
+# ------------------------------------------------------------------------------
+# Program Name: G1.1.grid_bulk_emissions.R
+# Author(s): Leyang Feng
+# Date Last Updated: May 1, 2017
+# Program Purpose: Grid aggregated emissions into NetCDF grids for bulk emissions (excluding AIR)
+# Input Files: 
+# Output Files: 
+# Notes: 
+# TODO: 
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# 0. Read in global settings and headers
+
+# Set working directory to the CEDS "input" directory and define PARAM_DIR as the
+# location of the CEDS "parameters" directory, relative to the new working directory.
+    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
+    for ( i in 1:length( dirs ) ) {
+      setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
+      wd <- grep( 'CEDS/input', list.dirs(), value = T )
+      if ( length( wd ) > 0 ) {
+        setwd( wd[ 1 ] )
+        break
+      }
+    }
+    PARAM_DIR <- "../code/parameters/"
+
+# Call standard script header function to read in universal header files - 
+# provides logging, file support, and system functions - and start the script log.
+    headers <- c( 'gridding_functions.R', 'data_functions.R', 'nc_generation_functions.R' ) # Any additional function files required
+    log_msg <- "Gridding anthropogenic emissions (excluding AIR) " # First message to be printed to the log
+    script_name <- "G1.1.grid_bulk_emissions.R"
+
+    source( paste0( PARAM_DIR, "header.R" ) )
+    initialize( script_name, log_msg, headers )
+
+# ------------------------------------------------------------------------------
+# 0.5 Initialize gridding setups
+    output_dir <- filePath( 'MED_OUT', 'gridded-emissions/', extension = "" )
+    total_grid_dir <- filePath( 'DIAG_OUT', 'total-emissions-grids/', extension = "" )
+    proxy_dir <- filePath( "GRIDDING", "", extension = "", domain_extension = "proxy/" )
+    proxy_backup_dir <- filePath( "GRIDDING", "", extension = "", domain_extension = "proxy_backup/")
+    #diagnostic_msg_dir <- filePath( 'DIAG_OUT', '', extension = "" )
+    mask_dir <- filePath( "GRIDDING", "", extension = "", domain_extension = "mask/")
+    seasonality_dir <- filePath( "GRIDDING", "", extension = "", domain_extension = "seasonality/" )
+	  final_emissions_dir <- filePath( "FIN_OUT", "", extension = "", domain_extension = "current-versions/" )
+	  
+    gridding_initialize( grid_resolution = 0.5,
+                         start_year = 2001,
+                         end_year = 2014, 
+                         load_masks = T, 
+                         load_seasonality_profile = T )
+	
+# ------------------------------------------------------------------------------
+# 1. Define emission species and read in files
+  
+# Define emissions species variable
+    args_from_makefile <- commandArgs( TRUE )
+    em <- args_from_makefile[ 1 ]
+    if ( is.na( em ) ) em <- "SO2"
+    em_lc <- tolower( em ) 
+  
+    MODULE_G <- "../code/module-G/"
+    
+# read in the emission data
+    target_filename <- list.files( final_emissions_dir,
+                                   pattern = paste0( ".*_", em, '_emissions_by_country_CEDS_sector.*' ) )
+    target_filename <- substr( target_filename, 1, ( nchar( target_filename ) - 4 ) )
+    emissions <- readData( "FIN_OUT", domain_extension = "current-versions/", target_filename )
+
+# read in some mapping files 
+# read in the region location index, which indicates the location of each region mask in the 'world' matrix 
+    location_index <- readData( "GRIDDING", domain_extension = "gridding_mappings/", file_name =  "country_location_index_05" ) 
+# read in the CEDS gridding sector mapping
+    ceds_gridding_mapping <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'CEDS_sector_to_gridding_sector_mapping' )
+# read in the proxy mapping 
+    proxy_mapping <- readData( domain = "GRIDDING", domain_extension = "gridding_mappings/", 'proxy_mapping' )
+# read in the seasonality mapping 
+    seasonality_mapping <- readData( domain = "GRIDDING", domain_extension = "gridding_mappings/", 'seasonality_mapping' )
+# read in the proxy substitution mapping 
+    proxy_substitution_mapping <- readData( domain = 'GRIDDING', domain_extension = "gridding_mappings/", 'proxy_subsititution_mapping' )
+# read in CEDS final gridding sector name list 
+    sector_name_mapping <- readData( domain = 'GRIDDING', domain_extension = "gridding_mappings/", 'CEDS_gridding_sectors' )
+    sector_name_mapping <- unique( sector_name_mapping[ , c( "CEDS_fin_sector", "CEDS_fin_sector_short" ) ] )
+    
+# ------------------------------------------------------------------------------
+# 2. Pre-processing
+# Convert the emission data from CEDS working sectors to CEDS level 1 gridding sector 
+    ceds_gridding_mapping_int <- ceds_gridding_mapping[ , c( 'CEDS_working_sector', 'CEDS_int_gridding_sector_short' ) ]
+    gridding_emissions <- merge( emissions, ceds_gridding_mapping_int, by.x = 'sector', by.y = 'CEDS_working_sector' )
+    # drop non-matched sectors
+    gridding_emissions <- gridding_emissions[ !is.na( gridding_emissions$CEDS_int_gridding_sector_short ), ]
+    # aggregate the emissions at gridding sectors 
+    gridding_emissions <- aggregate( gridding_emissions[ , paste0( 'X', year_list ) ], 
+                                     by = list( gridding_emissions$iso, gridding_emissions$CEDS_int_gridding_sector_short ),
+                                     FUN = sum )
+    # change column names
+    colnames( gridding_emissions ) <- c( 'iso', 'sector', paste0( 'X', year_list ) ) 
+    # remove AIR sector in data
+    gridding_emissions <- gridding_emissions[ !gridding_emissions$sector == 'AIR', ]
+    
+# ------------------------------------------------------------------------------
+# 3. Gridding and writing output data 
+    # For now, the gridding routine uses nested for loops to go through every years
+    # gases and sectors. May consider to take away for loop for sectors and keep year loops 
+    # for future parallelization 
+    for ( year in year_list ) {
+      
+      int_grids_list <- grid_one_year( em, 
+                                       year, 
+                                       grid_resolution,
+                                       gridding_emissions, 
+                                       location_index, 
+                                       proxy_mapping, 
+                                       proxy_substitution_mapping )
+      generate_final_grids_nc( int_grids_list,
+                               output_dir, 
+                               grid_resolution, 
+                               year, 
+                               em, 
+                               sector_name_mapping,
+                               seasonality_mapping )
+      generate_annual_total_emissions_grids_nc( total_grid_dir, int_grids_list, grid_resolution, year, em ) 
+        
+    }
+
+    
+# -----------------------------------------------------------------------------
+# 4. Stop 
+    
+# Every script should finish with this line:
+logStop()  
+
+    
+    
