@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
-# Program Name: G2.1.chunk_file_generation_anthro.R
+# Program Name: G2.1.chunk_bulk_emissions.R
 # Author(s): Leyang Feng
-# Date Last Updated: 10 June 2016
+# Date Last Updated: May 3 2017
 # Program Purpose:      
 # Input Files: 
 # Output Files: 
@@ -28,8 +28,8 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provides logging, file support, and system functions - and start the script log.
 headers <- c( 'gridding_functions.R', 'data_functions.R', 'nc_generation_functions.R' ) # Any additional function files required
-log_msg <- "Generates chunk NetCDF files for bulk emissions: anthro" # First message to be printed to the log
-script_name <- "G2.1.chunk_file_generation_anthro.R"
+log_msg <- "Generates chunk NetCDF files for bulk emissions" # First message to be printed to the log
+script_name <- "G2.1.chunk_bulk_emissions.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -38,11 +38,10 @@ initialize( script_name, log_msg, headers )
 # 0.5 Initialize gridding setups
 
 grid_resolution <- 0.5
-start_year <- 1900
-end_year <- 2014
+start_year <- 1750
+end_year <- 1850
 chunk_years <- 50
-VOC_chunk <- F
-CEDS_version_value <- '2016-07-26'
+CEDS_gridding_version <- '2017-05-01'
 
 # basic start year/end year check 
 # if ( start_year %% chunk_years != 0 ) { stop( 'Start year must be a multiple of the chunk_years. ' ) }
@@ -73,11 +72,14 @@ MODULE_G <- "../code/module-G/"
 
 for ( chunk_count_index in 1 : chunk_count ) {
   
-  annual2chunk( em, grid_resolution, gridtype = 'anthro', 
-                chunk_start_years, chunk_end_years, chunk_count_index, 
-                input_dir, output_dir, 
-                VOC_chunk, VOC_info = NULL, CEDS_version = CEDS_version_value,
-                output_format = 'singleVar' ) 
+  singleVarChunking_bulkemissions( em, 
+                                   grid_resolution, 
+                                   chunk_start_years, 
+                                   chunk_end_years, 
+                                   chunk_count_index, 
+                                   input_dir, 
+                                   output_dir, 
+                                   gridding_version = CEDS_gridding_version )
   }
 
 
