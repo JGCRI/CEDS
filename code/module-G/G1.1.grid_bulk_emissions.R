@@ -40,7 +40,6 @@
     total_grid_dir <- filePath( 'DIAG_OUT', 'total-emissions-grids/', extension = "" )
     proxy_dir <- filePath( "GRIDDING", "", extension = "", domain_extension = "proxy/" )
     proxy_backup_dir <- filePath( "GRIDDING", "", extension = "", domain_extension = "proxy_backup/")
-    #diagnostic_msg_dir <- filePath( 'DIAG_OUT', '', extension = "" )
     mask_dir <- filePath( "GRIDDING", "", extension = "", domain_extension = "mask/")
     seasonality_dir <- filePath( "GRIDDING", "", extension = "", domain_extension = "seasonality/" )
 	  final_emissions_dir <- filePath( "FIN_OUT", "", extension = "", domain_extension = "current-versions/" )
