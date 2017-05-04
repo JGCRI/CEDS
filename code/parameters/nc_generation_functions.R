@@ -261,16 +261,16 @@ singleVarChunking_bulkemissions <- function( em,
     # close the nc file 
     nc_close( nc_temp )
     # append the data to storage array 
-    AGR_array <- c( AGR_array, AGR_temp_data )
-    ENE_array <- c( ENE_array, ENE_temp_data )
-    IND_array <- c( IND_array, IND_temp_data )
-    TRA_array <- c( TRA_array, TRA_temp_data )
-    RCO_array <- c( RCO_array, RCO_temp_data )
-    SLV_array <- c( SLV_array, SLV_temp_data )
-    WST_array <- c( WST_array, WST_temp_data )
-    SHP_array <- c( SHP_array, SHP_temp_data )
-    time_array <- c( time_array, time_temp_data )
-    time_bnds_array <- c( time_bnds_array, time_bnds_temp_data )
+    AGR_array <- c( AGR_array, AGR_fin_block )
+    ENE_array <- c( ENE_array, ENE_fin_block )
+    IND_array <- c( IND_array, IND_fin_block )
+    TRA_array <- c( TRA_array, TRA_fin_block )
+    RCO_array <- c( RCO_array, RCO_fin_block )
+    SLV_array <- c( SLV_array, SLV_fin_block )
+    WST_array <- c( WST_array, WST_fin_block )
+    SHP_array <- c( SHP_array, SHP_fin_block )
+    time_array <- c( time_array, time_fin_block )
+    time_bnds_array <- c( time_bnds_array, time_bnds_fin_block )
   }
 
   # extract values of global_total_emission attribute from first year and last year 
