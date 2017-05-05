@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
-# Program Name: G2.4.chunk_file_generation_SOLID_BIOFUEL.R
+# Program Name: G2.4.chunk_solidbiofuel_emissions.R
 # Author(s): Leyang Feng
-# Date Last Updated: 10 June 2016
+# Date Last Updated: May 4 2017
 # Program Purpose:      
 # Input Files: 
 # Output Files: 
@@ -28,8 +28,8 @@ PARAM_DIR <- "../code/parameters/"
 # Call standard script header function to read in universal header files - 
 # provides logging, file support, and system functions - and start the script log.
 headers <- c( 'gridding_functions.R', 'data_functions.R', 'nc_generation_functions.R' ) # Any additional function files required
-log_msg <- "Generates chunk NetCDF files for bulk emissions: SOLID_BIOFUEL." # First message to be printed to the log
-script_name <- "G2.4.chunk_file_generation_SOLID_BIOFUEL.R"
+log_msg <- "Generates chunk NetCDF files for subVOC emissions" # First message to be printed to the log
+script_name <- "G2.2.chunk_subVOC_emissions.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -38,11 +38,10 @@ initialize( script_name, log_msg, headers )
 # 0.5 Initialize gridding setups
 
 grid_resolution <- 0.5
-start_year <- 1900
+start_year <- 2010 
 end_year <- 2014
 chunk_years <- 50
-VOC_chunk <- F
-CEDS_version_value <- '2016-07-26'
+CEDS_gridding_version <- '2017-05-01'
 
 # basic start year/end year check 
 # if ( start_year %% chunk_years != 0 ) { stop( 'Start year must be a multiple of the chunk_years. ' ) }
@@ -67,18 +66,20 @@ output_dir <- filePath( 'FIN_OUT', 'gridded-emissions/', extension = "" )
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "SO2"
-em_lc <- tolower( em ) 
 
 MODULE_G <- "../code/module-G/"
 
 for ( chunk_count_index in 1 : chunk_count ) {
   
-  annual2chunk( em, grid_resolution, gridtype = 'SOLID_BIOFUEL_anthro', 
-                chunk_start_years, chunk_end_years, chunk_count_index, 
-                input_dir, output_dir, 
-                VOC_chunk, VOC_info = NULL, CEDS_version = CEDS_version_value,
-                output_format = 'singleVar' ) 
-}
+  singleVarChunking_solidbiofuelemissions( em, 
+                                           grid_resolution, 
+                                           chunk_start_years, 
+                                           chunk_end_years, 
+                                           chunk_count_index, 
+                                           input_dir, 
+                                           output_dir, 
+                                           gridding_version = CEDS_gridding_version )
+  }
 
 
 # -----------------------------------------------------------------------------
@@ -86,3 +87,6 @@ for ( chunk_count_index in 1 : chunk_count ) {
 
 # Every script should finish with this line:
 logStop()  
+
+
+
