@@ -781,6 +781,9 @@ disaggregate_country <- function(original_data,
   # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   # 1. Prepare data, check inputs
 
+  # replace NAs with zero in original_data
+  original_data <- replace(original_data,is.na(original_data), 0)
+  
   # Define id_cols if not user Defines
   if ( all( id_cols == T) ) id_cols <- names(original_data)[-grep('X', names(original_data))]
 
