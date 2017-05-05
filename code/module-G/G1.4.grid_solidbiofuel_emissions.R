@@ -45,7 +45,7 @@
 	  final_emissions_dir <- filePath( "FIN_OUT", "", extension = "", domain_extension = "current-versions/" )
 	  
     gridding_initialize( grid_resolution = 0.5,
-                         start_year = 2010,
+                         start_year = 1750,
                          end_year = 2014, 
                          load_masks = T, 
                          load_seasonality_profile = T )
