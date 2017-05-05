@@ -134,7 +134,7 @@
     colnames( gridding_emissions_fin ) <- c( 'sector', paste0( 'X', year_list ) )
     gridding_emissions_fin <- gridding_emissions_fin[ order( gridding_emissions_fin$sector ), ]
 
-    checksum_file_list <- list.files( path = output_dir, pattern = paste0( '_', em, '_' ) )
+    checksum_file_list <- list.files( path = output_dir, pattern = paste0( '_', em, '_anthro' ) )
     checksum_file_list <- grep( '.csv', checksum_file_list, fixed = T, value = T )
     checksum_res_list <- lapply( checksum_file_list, function( file_name ) { 
       temp_csv <- read.csv( paste0( output_dir, file_name  ) )
