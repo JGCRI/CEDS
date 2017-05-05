@@ -374,7 +374,7 @@ grid_one_year_air <- function( em,
   emissions_value <- unlist( gridding_emissions_xyear[ current_x_year ] )
   
   if ( emissions_value <= 0 ) { 
-    AIR_global_em_spatial <- array( 0, dim = dim( proxy ) ) 
+    AIR_global_em_spatial <- array( 0, dim = c( 180 / grid_resolution, 360 / grid_resolution, 25 ) ) 
   } else {
       proxy <- get_proxy( em, year, 'AIR', proxy_mapping, proxy_type = 'primary' )
       proxy_norm <- proxy / sum( proxy )
