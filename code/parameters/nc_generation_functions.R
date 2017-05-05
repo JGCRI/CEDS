@@ -906,10 +906,6 @@ singleVarChunking_subVOCemissions <- function( VOC_em,
     ncatt_put( nc_new, 0, paste0( 'global_total_emission_', year_1st ),  MD_global_total_emission_1st_year )
   } 
   # some other metadata
-  ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes.' )
-  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4' ), stringsAsFactors = F )
-  info_line <- reporting_info[ reporting_info$em == em, 'info' ] 
-  ncatt_put( nc_new, 0, 'reporting_unit', info_line )
   ncatt_put( nc_new, 0, 'VOC_name', VOC_name )
   ncatt_put( nc_new, 0, 'molecular_weight', VOC_mw, prec = 'float' )
   ncatt_put( nc_new, 0, 'molecular_weight_unit', 'g mole-1' )
