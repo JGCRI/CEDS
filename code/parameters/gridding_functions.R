@@ -344,6 +344,50 @@ grid_one_year <- function( em,
   return( sector_grids_list )
 }
 
+# ------------------------------------------------------------------------------
+# grid_one_year_air
+# Brief: Generates one year's gridded emission for given sector list 
+# Dependencies: grid_all_sectors 
+# Author: Leyang Feng
+# parameters: em_species - the emission species passed by user
+#             year - the emission year passed by user
+#             em_data - the pre-processed emission data in the gridding routine 
+#             location_index - location index table, contains matrix index information for the country in global extent
+#             sector_list - the sector list passed by user
+#             grid_resolution - grid resolution  
+#             mass - passing to inner layer function. output in mass(kt) if TRUE, otherwise the output is in flux(kg m-2 s-1) 
+# return: sector_em_global_list - a list contains one year's gridded emission for given sector list 
+# input files: null
+# output: null 
+grid_one_year_air <- function( em, 
+                               year, 
+                               grid_resolution,
+                               gridding_emissions, 
+                               proxy_mapping ) { 
+  
+  current_x_year <- paste0( 'X', year )
+  gridding_emissions_xyear <- gridding_emissions[ c( 'iso', 'sector', current_x_year ) ]
+  
+  global_grid_area <- grid_area( grid_resolution, all_lon = T )
+  flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
+  
+  emissions_value <- unlist( gridding_emissions_xyear[ current_x_year ] )
+  
+  if ( emissions_value <= 0 ) { 
+    AIR_global_em_spatial <- array( 0, dim = dim( proxy ) ) 
+  } else {
+      proxy <- get_proxy( em, year, 'AIR', proxy_mapping, proxy_type = 'primary' )
+      proxy_norm <- proxy / sum( proxy )
+      AIR_global_em_spatial <- proxy_norm * emissions_value
+      
+      # convert to flux
+      flux_factor_array <- array( rep( as.vector( flux_factor ), dim( AIR_global_em_spatial )[ 3 ]), dim = dim( AIR_global_em_spatial ) )
+      AIR_global_em_spatial <- AIR_global_em_spatial * flux_factor_array 
+  }
+
+  return( AIR_global_em_spatial )
+}
+
 # ==============================================================================
 # proxy functions
 # ------------------------------------------------------------------------------
@@ -416,6 +460,12 @@ add_seasonality <- function( annual_flux, em, sector, year, days_in_month, grid_
       storage_array[ , , i ] <- annual_flux * sea_fracs[ , , i ] * 12
     }
   }
+  if ( sector == 'AIR' ) { 
+    storage_array <- array( dim = dim( sea_fracs ) ) 
+    for ( i in month_list ) { 
+      storage_array[ , , , i ] <- annual_flux * sea_fracs[ , , , i ] * 12
+    }
+  }
   if ( sector %in% c( 'AGR', 'ENE', 'IND', 'TRA', 'RCORC', 'RCOO', 'SLV', 'WST' ) ) { 
     sea_adj <- 365 / apply( sea_fracs * month_array * 12, c( 1, 2 ), sum ) 
     for ( i in month_list ) { 
@@ -437,7 +487,7 @@ add_seasonality <- function( annual_flux, em, sector, year, days_in_month, grid_
 # return:  
 # input files: null
 # output: null
-sum_monthly_em <- function( proc_grid, em, sector, year, days_in_month, global_grid_area, seasonality_mapping ) { 
+sum_monthly_em <- function( fin_grid, em, sector, year, days_in_month, global_grid_area, seasonality_mapping ) { 
   
   file_name <- seasonality_mapping[ seasonality_mapping$em == em & seasonality_mapping$sector == sector & seasonality_mapping$year == year, 'seasonality_file' ]
   
@@ -455,8 +505,19 @@ sum_monthly_em <- function( proc_grid, em, sector, year, days_in_month, global_g
   
   if ( sector == 'SHP' ) { 
     monthly_em_list <- lapply( month_list, function( i ) { 
-      month_flux <- proc_grid[ , , i ]
+      month_flux <- fin_grid[ , , i ]
       month_mass <- month_flux * global_grid_area * ( 365 * 24 * 60 * 60 / 12 ) 
+      month_mass_value <- sum( month_mass, na.rm = T )
+      month_mass_value <- month_mass_value * 0.000001 # from kg to kt
+      out_df <- data.frame( em = em, sector = sector, year = year, month = i, units = 'kt', value = month_mass_value, stringsAsFactors = F  )
+      } )
+    monthly_em <- do.call( 'rbind', monthly_em_list )
+  }
+  if ( sector == 'AIR' ) { 
+    monthly_em_list <- lapply( month_list, function( i ) { 
+      month_flux <- fin_grid[ , , , i ]
+      flux2mass_factor <- array( rep( as.vector( global_grid_area ), dim( month_flux )[ 3 ] ), dim = dim( month_flux ) ) * ( 365 * 24 * 60 * 60 / 12 ) 
+      month_mass <- month_flux * flux2mass_factor
       month_mass_value <- sum( month_mass, na.rm = T )
       month_mass_value <- month_mass_value * 0.000001 # from kg to kt
       out_df <- data.frame( em = em, sector = sector, year = year, month = i, units = 'kt', value = month_mass_value, stringsAsFactors = F  )
@@ -466,7 +527,7 @@ sum_monthly_em <- function( proc_grid, em, sector, year, days_in_month, global_g
   if ( sector %in% c( 'AGR', 'ENE', 'IND', 'TRA', 'RCORC', 'RCOO', 'SLV', 'WST' ) ) { 
     sea_adj <- 365 / apply( sea_fracs * month_array * 12, c( 1, 2 ), sum ) 
     monthly_em_list <- lapply( 1 : 12, function( i ) { 
-      month_flux <- proc_grid[ , , i ]
+      month_flux <- fin_grid[ , , i ]
       month_mass <- month_flux * global_grid_area * ( 365 * 24 * 60 * 60 / 12 ) / sea_adj
       month_mass_value <- sum( month_mass, na.rm = T )
       month_mass_value <- month_mass_value * 0.000001 # from kg to kt
