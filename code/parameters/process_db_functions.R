@@ -415,6 +415,9 @@ addToEmissionsDb_overwrite <- function( df, em, type ){
     # or if the missing years are within the normal range and
     # not at either end, do not attempt to extendForward the data.
     # Doing so results in incorrect years.
+    ext_forward <- T
+    ext_backward <- T
+    
     if( start_year == X_start ){ ext_backward <- FALSE }
     if( end_year == X_end ){ ext_forward <- FALSE }
     
