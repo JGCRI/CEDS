@@ -1622,10 +1622,14 @@ singleVarChunking_aircraftemissions <- function( em,
   MD_dataset_version_number_value <- gridding_version 
   
   # define nc variables  
-  AIR_var <- ncvar_def( AIR_var_name, data_unit, dim_list, missval = missing_value, longname = AIR_var_longname, compression = 5 )
+  for ( i in seq_along( time ) ) {
+    ncvar_put( nc_new, AIR_var, AIR_array[ , , , i ], start = c( 1, 1, 1, i ), count = c( -1, -1, -1, 1 ) )
+  }
   lon_bnds <- ncvar_def( 'lon_bnds', '', list( bndsdim, londim ), prec = 'double' )
   lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
   time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
+  rm( filename_patterns, AIR_fin_block, fin_grid_list, time_fin_block, time_bnds_fin_block )
+  gc( )  
   
   # generate the var_list
   variable_list <- list( AIR_var, lat_bnds, lon_bnds, time_bnds ) 
