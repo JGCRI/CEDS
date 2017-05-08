@@ -1994,7 +1994,7 @@ generate_monthly_total_emissions_grids_nc <- function( output_dir,
   ncatt_put( nc_new, 0, 'mip_era', 'CMIP6' )
   ncatt_put( nc_new, 0, 'target_mip', 'CMIP' )
 
-  global_total_emission <- sum( monthly_em$value ) * 0.001
+  global_total_emission <- sum( total_month_em$value ) * 0.001
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2 ), ' Tg/year' ) )
   # species information 
   reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4' ), stringsAsFactors = F )
