@@ -113,13 +113,23 @@
                                        proxy_mapping, 
                                        proxy_substitution_mapping )
       generate_final_grids_nc( int_grids_list,
-                               output_dir, 
-                               grid_resolution, 
-                               year, 
-                               em, 
+                               output_dir,
+                               grid_resolution,
+                               year,
+                               em,
                                sector_name_mapping,
                                seasonality_mapping )
-      generate_annual_total_emissions_grids_nc( total_grid_dir, int_grids_list, grid_resolution, year, em ) 
+      generate_annual_total_emissions_grids_nc( total_grid_dir,
+                                                int_grids_list,
+                                                grid_resolution,
+                                                year,
+                                                em )
+      generate_monthly_total_emissions_grids_nc( total_grid_dir, 
+                                                 int_grids_list, 
+                                                 grid_resolution, 
+                                                 year, 
+                                                 em,
+                                                 seasonality_mapping )
         
     }
 # -----------------------------------------------------------------------------
