@@ -1259,8 +1259,6 @@ singleVarChunking_subVOCemissions <- function( VOC_em,
   nc_close( nc_new )
 }
 
-
-
 # -------------------------------------------------
 # singleVarChunking_solidbiofuelemissions
 # Brief: 
@@ -1514,7 +1512,6 @@ singleVarChunking_solidbiofuelemissions <- function( em,
   nc_close( nc_new )
 }
 
-
 # -------------------------------------------------
 # singleVarChunking_aircraftemissions
 # Brief: 
@@ -1628,9 +1625,7 @@ singleVarChunking_aircraftemissions <- function( em,
   MD_dataset_version_number_value <- gridding_version 
   
   # define nc variables  
-  for ( i in seq_along( time ) ) {
-    ncvar_put( nc_new, AIR_var, AIR_array[ , , , i ], start = c( 1, 1, 1, i ), count = c( -1, -1, -1, 1 ) )
-  }
+  AIR_var <- ncvar_def( AIR_var_name, data_unit, dim_list, missval = missing_value, longname = AIR_var_longname, compression = 5 )
   lon_bnds <- ncvar_def( 'lon_bnds', '', list( bndsdim, londim ), prec = 'double' )
   lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
   time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
@@ -1644,7 +1639,9 @@ singleVarChunking_aircraftemissions <- function( em,
   nc_new <- nc_create( nc_file_name, variable_list, force_v4 = T )
   
   # put nc variables into the nc file
-  ncvar_put( nc_new, AIR_var, AIR_array )
+  for ( i in seq_along( time ) ) {
+    ncvar_put( nc_new, AIR_var, AIR_array[ , , , i ], start = c( 1, 1, 1, i ), count = c( -1, -1, -1, 1 ) )
+  }
   ncvar_put( nc_new, lon_bnds, t( lon_bnds_data ) )
   ncvar_put( nc_new, lat_bnds, t( lat_bnds_data ) )
   ncvar_put( nc_new, time_bnds, time_bnds_data )
