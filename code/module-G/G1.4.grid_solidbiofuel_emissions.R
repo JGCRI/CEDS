@@ -36,6 +36,15 @@
 
 # ------------------------------------------------------------------------------
 # 0.5 Initialize gridding setups
+
+    # Define emissions species variable
+    args_from_makefile <- commandArgs( TRUE )
+    em <- args_from_makefile[ 1 ]
+    if ( is.na( em ) ) em <- "SO2"
+    em_lc <- tolower( em ) 
+  
+    MODULE_G <- "../code/module-G/"
+	
     output_dir <- filePath( 'MED_OUT', 'gridded-emissions/', extension = "" )
     total_grid_dir <- filePath( 'DIAG_OUT', 'total-emissions-grids/', extension = "" )
     proxy_dir <- filePath( "GRIDDING", "", extension = "", domain_extension = "proxy/" )
@@ -51,15 +60,7 @@
                          load_seasonality_profile = T )
 	
 # ------------------------------------------------------------------------------
-# 1. Define emission species and read in files
-  
-# Define emissions species variable
-    args_from_makefile <- commandArgs( TRUE )
-    em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "SO2"
-    em_lc <- tolower( em ) 
-  
-    MODULE_G <- "../code/module-G/"
+# 1. Read in files
     
 # read in the emission data
     emissions <- readData( "MED_OUT", paste0( em, '_total_CEDS_emissions'  ) )

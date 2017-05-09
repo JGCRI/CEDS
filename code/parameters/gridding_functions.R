@@ -632,6 +632,7 @@ gridding_initialize <- function( grid_resolution = 0.5,
   printLog( paste0( 'Processing resolution: ', grid_resolution ) )
   
   start_year <- start_year
+  if ( em == 'CH4' ) { start_year <- 1970 }
   end_year <- end_year
   year_list <<- seq( start_year, end_year )
   printLog( paste0( 'Gridding from year ', start_year, ' to year ', end_year ) )
