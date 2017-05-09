@@ -38,8 +38,8 @@ initialize( script_name, log_msg, headers )
 # 0.5 Initialize gridding setups
 
 grid_resolution <- 0.5
-start_year <- 2010 
-end_year <- 2014
+start_year <- 1750
+end_year <- 1850
 chunk_years <- 50
 CEDS_gridding_version <- '2017-05-01'
 
