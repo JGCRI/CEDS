@@ -1417,7 +1417,7 @@ singleVarChunking_solidbiofuelemissions <- function( em,
   
   # generate flat_var variable name 
   flat_var_name <- paste0( em, '_em_SOLID_BIOFUEL' ) 
-  flat_var_longname <- paste0( em, ' SOLID BIOFUEL Anthropogenic Emissions' )
+  flat_var_longname <- paste0( em, ' SOLID BIOFUEL Anthropogenic Emissions - Supplemental Data' )
   MD_variable_id_value <- flat_var_name
   
   # define unit and missing value 
@@ -1503,7 +1503,7 @@ singleVarChunking_solidbiofuelemissions <- function( em,
     ncatt_put( nc_new, 0, paste0( 'global_total_emission_', year_1st ),  MD_global_total_emission_1st_year )
   } 
   # some other metadata
-  ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes.' )
+  ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes. Supplemental data, emissions in this data file are already included in the primary data file. See README.' )
   reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4' ), stringsAsFactors = F )
   info_line <- reporting_info[ reporting_info$em == em, 'info' ] 
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
