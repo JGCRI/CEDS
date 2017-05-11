@@ -86,7 +86,7 @@
     
     gridding_emissions <- emissions[ emissions$fuel == 'biomass', ]
     gridding_emissions$fuel <- NULL
-    gridding_emissions <- merge( emissions, ceds_gridding_mapping_int, by.x = 'sector', by.y = 'CEDS_working_sector' )
+    gridding_emissions <- merge( gridding_emissions, ceds_gridding_mapping_int, by.x = 'sector', by.y = 'CEDS_working_sector' )
     # drop non-matched sectors
     gridding_emissions <- gridding_emissions[ !is.na( gridding_emissions$CEDS_int_gridding_sector_short ), ]
     # aggregate the emissions at gridding sectors 
