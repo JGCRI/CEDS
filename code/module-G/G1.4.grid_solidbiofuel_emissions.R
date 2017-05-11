@@ -1,8 +1,8 @@
 # ------------------------------------------------------------------------------
-# Program Name: G1.1.grid_bulk_emissions.R
+# Program Name: G1.4.grid_solidbiofuel_emissions.R
 # Author(s): Leyang Feng
 # Date Last Updated: May 1, 2017
-# Program Purpose: Grid aggregated emissions into NetCDF grids for bulk emissions (excluding AIR)
+# Program Purpose: Grid aggregated biomass emissions into NetCDF grids for bulk emissions (excluding AIR)
 # Input Files: 
 # Output Files: 
 # Notes: 
@@ -28,8 +28,8 @@
 # Call standard script header function to read in universal header files - 
 # provides logging, file support, and system functions - and start the script log.
     headers <- c( 'gridding_functions.R', 'data_functions.R', 'nc_generation_functions.R' ) # Any additional function files required
-    log_msg <- "Gridding anthropogenic emissions (excluding AIR) " # First message to be printed to the log
-    script_name <- "G1.1.grid_bulk_emissions.R"
+    log_msg <- "Gridding anthropogenic biomass emissions (excluding AIR) " # First message to be printed to the log
+    script_name <- "G1.4.grid_solidbiofuel_emissions.R"
 
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
@@ -130,12 +130,19 @@
                                          by = list( gridding_emissions_fin$CEDS_final_gridding_sector_short ),
                                          FUN = sum )
     colnames( gridding_emissions_fin ) <- c( 'sector', paste0( 'X', year_list ) )
+    # manually add in all 0 lines foe AGR, SLV, and WST because they do have emissions from fuel biomass
+    temp_matrix <- matrix( 0, 3, length( year_list ) )
+    temp_df <- data.frame( temp_matrix )
+    temp_df$sector <- c( 'AGR', 'SLV', 'WST' )
+    colnames( temp_df ) <- c( paste0( 'X', year_list ), 'sector' )
+    temp_df <- temp_df[ ,c( 'sector', paste0( 'X', year_list ) ) ]
+    gridding_emissions_fin <- rbind( gridding_emissions_fin, temp_df)
     gridding_emissions_fin <- gridding_emissions_fin[ order( gridding_emissions_fin$sector ), ]
-
+    
     checksum_file_list <- list.files( path = output_dir, pattern = paste0( '_', em, '_solidbiofuel_anthro_' ) )
     checksum_file_list <- grep( '.csv', checksum_file_list, fixed = T, value = T )
     checksum_res_list <- lapply( checksum_file_list, function( file_name ) { 
-      temp_csv <- read.csv( paste0( output_dir, file_name  ) )
+      temp_csv <- read.csv( paste0( output_dir, file_name  ), stringsAsFactors = F )
       } )
     checksum_df <- do.call( 'rbind', checksum_res_list )
     checksum_df <- aggregate( checksum_df$value, by = list( checksum_df$sector, checksum_df$year ), FUN = sum  )
