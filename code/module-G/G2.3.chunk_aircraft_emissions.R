@@ -2,9 +2,9 @@
 # Program Name: G2.4.chunk_aircraft_emissions.R
 # Author(s): Leyang Feng
 # Date Last Updated: May 4 2017
-# Program Purpose:      
-# Input Files: 
-# Output Files: 
+# Program Purpose: Generate multi-year emissions chunks for aircraft emissions.      
+# Input Files: CEDS_[em]_AIR_anthro_[year]_0.5_[CEDS_version].nc
+# Output Files: FIN_OUT: [em]-em-AIR-anthro_input4MIPs_emissions_CMIP_CEDS-[CEDS_grid_version]_gn_[time_range].nc
 # Notes: 
 # TODO: 
 # ------------------------------------------------------------------------------

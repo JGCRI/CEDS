@@ -2,9 +2,9 @@
 # Program Name: G2.4.chunk_solidbiofuel_emissions.R
 # Author(s): Leyang Feng
 # Date Last Updated: May 4 2017
-# Program Purpose:      
-# Input Files: 
-# Output Files: 
+# Program Purpose: Generate multi-year emissions chunks for solid biofuel emissions.
+# Input Files: CEDS_[em]_solidbiofuel_anthro_[year]_0.5_[CEDS_version].nc
+# Output Files: FIN_OUT: [em]-em-SOLID-BIOFUEL-anthro_input4MIPs_emissions_CMIP_CEDS-[CEDS_grid_version]_supplement-data_gn_[time_range].nc
 # Notes: 
 # TODO: 
 # ------------------------------------------------------------------------------

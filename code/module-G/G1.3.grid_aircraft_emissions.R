@@ -3,8 +3,9 @@
 # Author(s): Leyang Feng
 # Date Last Updated: May 5, 2017
 # Program Purpose: Grid aggregated emissions into NetCDF grids for aircraft emissions 
-# Input Files: 
-# Output Files: 
+# Input Files: CEDS_[em]_emissions_by_country_CEDS_sector_[CEDS_version].csv
+# Output Files: MED_OUT: CEDS_[em]_AIR_anthro_[year]_0.5_[CEDS_version].nc; CEDS_[em]_AIR_anthro_[year]_0.5_[CEDS_version].csv
+#               DIAG_OUT: G.[em]_AIR_emissions_checksum_comparison_diff.csv; G.[em]_AIR_emissions_checksum_comparison_per.csv
 # Notes: 
 # TODO: 
 # ------------------------------------------------------------------------------

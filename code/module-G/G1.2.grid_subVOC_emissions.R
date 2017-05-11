@@ -3,8 +3,9 @@
 # Author(s): Leyang Feng
 # Date Last Updated: May 4, 2017
 # Program Purpose: Grid aggregated emissions into NetCDF grids for subVOCs
-# Input Files: 
-# Output Files: 
+# Input Files: CEDS_NMVOC_emissions_by_country_CEDS_sector_[CEDS_version].csv
+# Output Files: MED_OUT: CEDS_[VOCID]_anthro_[year]_0.5_[CEDS_version].nc; CEDS_[VOCID]_anthro_[year]_0.5_[CEDS_version].csv
+#               DIAG_OUT: G.[VOCID]_bulk_emissions_checksum_comparison_per.csv; G.[VOCID]_bulk_emissions_checksum_comparison_diff.csv
 # Notes: 
 # TODO: 
 # ------------------------------------------------------------------------------

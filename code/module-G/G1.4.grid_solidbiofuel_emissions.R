@@ -3,8 +3,9 @@
 # Author(s): Leyang Feng
 # Date Last Updated: May 1, 2017
 # Program Purpose: Grid aggregated biomass emissions into NetCDF grids for bulk emissions (excluding AIR)
-# Input Files: 
-# Output Files: 
+# Input Files: [em]_total_CEDS_emissions.csv
+# Output Files: MED_OUT: CEDS_[em]_solidbiofuel_anthro_[year]_0.5_[CEDS_version].nc; CEDS_[em]_solidbiofuel_anthro_[year]_0.5_[CEDS_version].csv
+#               DIAG_OUT: G.[em]_solidfuel_emissions_checksum_comparison_diff.csv; G.[em]_solidfuel_emissions_checksum_comparison_per.csv
 # Notes: 
 # TODO: 
 # ------------------------------------------------------------------------------
