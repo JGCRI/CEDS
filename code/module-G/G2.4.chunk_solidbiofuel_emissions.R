@@ -69,6 +69,8 @@ if ( is.na( em ) ) em <- "SO2"
 
 MODULE_G <- "../code/module-G/"
 
+printLog( paste0( 'Start ', em, ' grids chunking from ', start_year, ' to ', end_year ) )
+
 for ( chunk_count_index in 1 : chunk_count ) {
   
   singleVarChunking_solidbiofuelemissions( em, 

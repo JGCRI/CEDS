@@ -72,6 +72,8 @@ if ( is.na( VOC_em ) ) VOC_em <- "VOC01"
 
 MODULE_G <- "../code/module-G/"
 
+printLog( paste0( 'Start ', VOC_em, ' grids chunking from ', start_year, ' to ', end_year ) )
+
 for ( chunk_count_index in 1 : chunk_count ) {
   
   singleVarChunking_subVOCemissions( VOC_em, 
