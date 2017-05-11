@@ -427,16 +427,50 @@ generate_final_grids_nc_solidbiofuel <- function( int_grids_list,
   flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
   days_in_month <- c( 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 )
   
-  # 1
-  AGR_proc_grid <- int_grids_list$AGR_int_grid
-  ENE_proc_grid <- int_grids_list$ELEC_int_grid + int_grids_list$ETRN_int_grid + int_grids_list$FFFI_int_grid + int_grids_list$FLR_int_grid
-  IND_proc_grid <- int_grids_list$INDC_int_grid + int_grids_list$INPU_int_grid
-  TRA_proc_grid <- int_grids_list$NRTR_int_grid + int_grids_list$ROAD_int_grid
-  RCORC_proc_grid <- int_grids_list$RCORC_int_grid
-  RCOO_proc_grid <- int_grids_list$RCOO_int_grid
-  SLV_proc_grid <- int_grids_list$SLV_int_grid
-  WST_proc_grid <- int_grids_list$WST_int_grid
-  SHP_proc_grid <- int_grids_list$SHP_int_grid + int_grids_list$TANK_int_grid
+# 1
+  all_zero_grid <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
+  
+  AGR_int_grid <- int_grids_list$AGR_int_grid
+  ELEC_int_grid <- int_grids_list$ELEC_int_grid
+  ETRN_int_grid <- int_grids_list$ETRN_int_grid
+  FFFI_int_grid <- int_grids_list$FFFI_int_grid
+  FLR_int_grid <- int_grids_list$FLR_int_grid
+  INDC_int_grid <- int_grids_list$INDC_int_grid
+  INPU_int_grid<- int_grids_list$INPU_int_grid
+  NRTR_int_grid <- int_grids_list$NRTR_int_grid
+  ROAD_int_grid <- int_grids_list$ROAD_int_grid
+  RCORC_int_grid <- int_grids_list$RCORC_int_grid
+  RCOO_int_grid <- int_grids_list$RCOO_int_grid
+  SLV_int_grid <- int_grids_list$SLV_int_grid
+  WST_int_grid <- int_grids_list$WST_int_grid
+  SHP_int_grid <- int_grids_list$SHP_int_grid
+  TANK_int_grid <- int_grids_list$TANK_int_grid
+  
+  if( is.null( AGR_int_grid  ) ) { AGR_int_grid   <- all_zero_grid }
+  if( is.null( ELEC_int_grid ) ) { ELEC_int_grid  <- all_zero_grid } 
+  if( is.null( ETRN_int_grid ) ) { ETRN_int_grid  <- all_zero_grid }
+  if( is.null( FFFI_int_grid ) ) { FFFI_int_grid  <- all_zero_grid }
+  if( is.null( FLR_int_grid  ) ) { FLR_int_grid   <- all_zero_grid }
+  if( is.null( INDC_int_grid ) ) { INDC_int_grid  <- all_zero_grid }
+  if( is.null( INPU_int_grid ) ) { INPU_int_grid  <- all_zero_grid }
+  if( is.null( NRTR_int_grid ) ) { NRTR_int_grid  <- all_zero_grid }
+  if( is.null( ROAD_int_grid ) ) { ROAD_int_grid  <- all_zero_grid }
+  if( is.null( RCORC_int_grid) ) { RCORC_int_grid <- all_zero_grid }
+  if( is.null( RCOO_int_grid ) ) { RCOO_int_grid  <- all_zero_grid }
+  if( is.null( SLV_int_grid  ) ) { SLV_int_grid   <- all_zero_grid }
+  if( is.null( WST_int_grid  ) ) { WST_int_grid   <- all_zero_grid }
+  if( is.null( SHP_int_grid  ) ) { SHP_int_grid   <- all_zero_grid }
+  if( is.null( TANK_int_grid ) ) { TANK_int_grid  <- all_zero_grid }
+  
+  AGR_proc_grid <- AGR_int_grid
+  ENE_proc_grid <- ELEC_int_grid + ETRN_int_grid + FFFI_int_grid + FLR_int_grid
+  IND_proc_grid <- INDC_int_grid + INPU_int_grid
+  TRA_proc_grid <- NRTR_int_grid + ROAD_int_grid
+  RCORC_proc_grid <- RCORC_int_grid
+  RCOO_proc_grid <- RCOO_int_grid
+  SLV_proc_grid <- SLV_int_grid
+  WST_proc_grid <- WST_int_grid
+  SHP_proc_grid <- SHP_int_grid + TANK_int_grid
   
   # 2
   AGR_fin_grid <- add_seasonality( AGR_proc_grid, em, 'AGR', year, days_in_month, grid_resolution, seasonality_mapping ) 
