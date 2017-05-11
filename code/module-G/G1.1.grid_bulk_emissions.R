@@ -3,8 +3,12 @@
 # Author(s): Leyang Feng
 # Date Last Updated: May 1, 2017
 # Program Purpose: Grid aggregated emissions into NetCDF grids for bulk emissions (excluding AIR)
-# Input Files: 
-# Output Files: 
+# Input Files: MED_OUT: CEDS_[em]_emissions_by_country_CEDS_sector_[CEDS_version].csv
+# Output Files: INT_OUT: CEDS_[em]_anthro_[year]_0.5_[CEDS_version].nc; CEDS_[em]_anthro_[year]_0.5_[CEDS_version].csv
+#               DIAG_OUT: CEDS_[em]_anthro_[year]_TOTAL_0.5_[CEDS_version].nc; CEDS_[em]_anthro_[year]_TOTAL_0.5_[CEDS_version].csv
+#                         CEDS_[em]_anthro_[year]_TOTAL_monthly_[CEDS_version].nc; CEDS_[em]_anthro_[year]_TOTAL_monthly_[CEDS_version].csv
+#                         G.[em]_bulk_emissions_checksum_comparison_diff.csv
+#                         G.[em]_bulk_emissions_checksum_comparison_per.csv
 # Notes: 
 # TODO: 
 # ------------------------------------------------------------------------------

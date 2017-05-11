@@ -2,9 +2,9 @@
 # Program Name: G2.2.chunk_subVOC_emissions.R
 # Author(s): Leyang Feng
 # Date Last Updated: May 4 2017
-# Program Purpose:      
-# Input Files: 
-# Output Files: 
+# Program Purpose: Generate multi-year emissions chunks for subVOC emissions.        
+# Input Files: CEDS_[VOCID]_anthro_[year]_0.5_[CEDS_version].nc
+# Output Files: FIN_OUT: [VOCID]-acids-em-speciated-VOC-anthro_input4MIPs_emissions_CMIP_CEDS-[CEDS_grid_version]_supplement-data_gn_[time_range].nc
 # Notes: 
 # TODO: 
 # ------------------------------------------------------------------------------
