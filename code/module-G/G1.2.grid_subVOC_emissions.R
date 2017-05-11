@@ -28,7 +28,7 @@
 # Call standard script header function to read in universal header files - 
 # provides logging, file support, and system functions - and start the script log.
     headers <- c( 'gridding_functions.R', 'data_functions.R', 'nc_generation_functions.R' ) # Any additional function files required
-    log_msg <- "VOC speciation gridding" # First message to be printed to the log
+    log_msg <- "VOC speciation gridding "  # First message to be printed to the log
     script_name <- "G1.2.grid_subVOC_emissions.R"
 
     source( paste0( PARAM_DIR, "header.R" ) )
@@ -113,6 +113,8 @@
     # For now, the gridding routine uses nested for loops to go through every years
     # gases and sectors. May consider to take away for loop for sectors and keep year loops 
     # for future parallelization 
+    printLog( paste0( 'Start ', VOC_em, ' gridding for each year ' ) )
+    
     for ( year in year_list ) {
       
       int_grids_list <- grid_one_year( em, 
@@ -134,6 +136,8 @@
     }
 # -----------------------------------------------------------------------------
 # 4. Checksum 
+    printLog( 'Start checksum check' )
+    
     ceds_gridding_mapping_fin <- ceds_gridding_mapping[ , c( 'CEDS_int_gridding_sector_short', 'CEDS_final_gridding_sector_short' ) ]
     ceds_gridding_mapping_fin <- unique( ceds_gridding_mapping_fin )
     gridding_emissions_fin <- merge( gridding_emissions, ceds_gridding_mapping_fin, 

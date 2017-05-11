@@ -103,6 +103,8 @@
     # For now, the gridding routine uses nested for loops to go through every years
     # gases and sectors. May consider to take away for loop for sectors and keep year loops 
     # for future parallelization 
+    printLog( paste0( 'Start ', em, ' gridding for each year ' ) )
+    
     for ( year in year_list ) {
       
       int_grids_list <- grid_one_year( em, 
@@ -134,6 +136,8 @@
     }
 # -----------------------------------------------------------------------------
 # 4. Checksum 
+    printLog( 'Start checksum check' )
+    
     ceds_gridding_mapping_fin <- ceds_gridding_mapping[ , c( 'CEDS_int_gridding_sector_short', 'CEDS_final_gridding_sector_short' ) ]
     ceds_gridding_mapping_fin <- unique( ceds_gridding_mapping_fin )
     gridding_emissions_fin <- merge( gridding_emissions, ceds_gridding_mapping_fin, 
