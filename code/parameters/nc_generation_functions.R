@@ -931,18 +931,20 @@ singleVarChunking_bulkemissions <- function( em,
   filename_version_tag <- paste0( 'CEDS-', gridding_version ) 
   MD_source_value <- paste0( filename_version_tag, ': Community Emissions Data System (CEDS) for Historical Emissions' )
   MD_source_id_value <- filename_version_tag
+  FN_source_id_value <- MD_source_id_value
+  FN_variable_id_value <- paste0( em, '-em-anthro' )
   nc_file_name <- paste0( output_dir, 
-                          em, 
-                          '-em-anthro_input4MIPs_emissions_CMIP_', 
-                          filename_version_tag,
+                          FN_variable_id_value,
+                          '_input4MIPs_emissions_CMIP_', 
+                          FN_source_id_value,
                           '_gn_',  
                           chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12',
                           '.nc' ) 
   
   # generate flat_var variable name 
-  flat_var_name <- paste0( em, '_em_anthro' ) 
+  MD_variable_id_value <- paste0( em, '_em_anthro' ) # identical with FN_variable_id_value except the '-'
+  flat_var_name <- MD_variable_id_value 
   flat_var_longname <- paste0( em, ' Anthropogenic Emissions' )
-  MD_variable_id_value <- flat_var_name
   
   # define unit and missing value 
   data_unit <- 'kg m-2 s-1'  
@@ -1184,23 +1186,25 @@ singleVarChunking_subVOCemissions <- function( VOC_em,
   # generate nc file name
   filename_version_tag <- paste0( 'CEDS-', gridding_version ) 
   MD_source_value <- paste0( filename_version_tag, ': Community Emissions Data System (CEDS) for Historical Emissions' )
-  MD_source_id_value <- filename_version_tag
+  MD_source_id_value <- paste0( filename_version_tag, '-supplemental-data' )
+  FN_source_id_value <- MD_source_id_value
   VOC_name <- VOC_names[ VOC_names$VOC_id == VOC_em, 'VOC_name' ]
   VOC_name_10_dig <- substr( VOC_name, 1, 10 )
+  VOC_name_10_dig <- gsub( '_', '-', VOC_name_10_dig, fixed = T )
   VOC_mw <- VOC_names[ VOC_names$VOC_id == VOC_em, 'molecular.weight' ]
+  FN_variable_id_value <- paste0( VOC_em, '-', VOC_name_10_dig, '-em-speciated-VOC-anthro' )
   nc_file_name <- paste0( output_dir, 
-                          paste0( VOC_em, '-', VOC_name_10_dig ), 
-                          '-em-speciated-VOC-anthro_input4MIPs_emissions_CMIP_', 
-                          filename_version_tag,
-                          '_supplement-data',
+                          FN_variable_id_value,
+                          '_input4MIPs_emissions_CMIP_', 
+                          FN_source_id_value,
                           '_gn_',  
                           chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12',
                           '.nc' ) 
   
   # generate flat_var variable name 
-  flat_var_name <- paste0( VOC_em, '_em_speciated_VOC' ) 
+  MD_variable_id_value <- gsub( '-', '_', FN_variable_id_value, fixed = T )
+  flat_var_name <- MD_variable_id_value
   flat_var_longname <- paste0( VOC_em, ' ', VOC_name, ' Anthropogenic Emissions' )
-  MD_variable_id_value <- flat_var_name
   
   # define unit and missing value 
   data_unit <- 'kg m-2 s-1'  
@@ -1439,20 +1443,22 @@ singleVarChunking_solidbiofuelemissions <- function( em,
   # generate nc file name
   filename_version_tag <- paste0( 'CEDS-', gridding_version ) 
   MD_source_value <- paste0( filename_version_tag, ': Community Emissions Data System (CEDS) for Historical Emissions' )
-  MD_source_id_value <- filename_version_tag
+  MD_source_id_value <- paste0( filename_version_tag, '-supplemental-data' )
+  FN_source_id_value <- MD_source_id_value
+  FN_variable_id_value <- paste0( em, '-em-SOLID-BIOFUEL-anthro' )
   nc_file_name <- paste0( output_dir, 
-                          em, 
-                          '-em-SOLID-BIOFUEL-anthro_input4MIPs_emissions_CMIP_', 
-                          filename_version_tag,
-                          '_supplement-data',
+                          FN_variable_id_value,
+                          '_input4MIPs_emissions_CMIP_', 
+                          FN_source_id_value,
                           '_gn_',  
                           chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12',
                           '.nc' ) 
   
   # generate flat_var variable name 
-  flat_var_name <- paste0( em, '_em_SOLID_BIOFUEL' ) 
+  MD_variable_id_value <- paste0( em, '_em_SOLID_BIOFUEL_anthro' )
+  flat_var_name <- MD_variable_id_value
   flat_var_longname <- paste0( em, ' SOLID BIOFUEL Anthropogenic Emissions - Supplemental Data' )
-  MD_variable_id_value <- flat_var_name
+
   
   # define unit and missing value 
   data_unit <- 'kg m-2 s-1'  
@@ -1640,18 +1646,21 @@ singleVarChunking_aircraftemissions <- function( em,
   filename_version_tag <- paste0( 'CEDS-', gridding_version ) 
   MD_source_value <- paste0( filename_version_tag, ': Community Emissions Data System (CEDS) for Historical Emissions' )
   MD_source_id_value <- filename_version_tag
+  FN_source_id_value <- MD_source_id_value
+  FN_variable_id_value <- paste0( em, '-em-AIR-anthro' )
   nc_file_name <- paste0( output_dir, 
-                          em, 
-                          '-em-AIR-anthro_input4MIPs_emissions_CMIP_', 
-                          filename_version_tag,
+                          FN_variable_id_value,
+                          '_input4MIPs_emissions_CMIP_', 
+                          FN_source_id_value,
                           '_gn_',  
                           chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12',
                           '.nc' ) 
   
   # generate flat_var variable name 
-  AIR_var_name <- paste0( em, '_em_AIR' ) 
+  MD_variable_id_value <- paste0( em, '_em_AIR_anthro' )
+  AIR_var_name <- MD_variable_id_value
   AIR_var_longname <- paste0( em, ' Aircraft Anthropogenic Emissions' )
-  MD_variable_id_value <- AIR_var_name
+
   
   # define unit and missing value 
   data_unit <- 'kg m-2 s-1'  
