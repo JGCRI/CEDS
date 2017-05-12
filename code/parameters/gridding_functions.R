@@ -5,30 +5,24 @@
 # Program Purpose: Core functions for emissions gridding routine
 # Note: 1. Brief introduction of how things work in gridding routine:
 #          There are three steps for gridding, (1) the emissions are gridded at country level
-#          then aggregated to form a global grids. The core functions for this step are grid_one_country,
-#          grid_all_countries and aggregate_all_regions. 
+#          then aggregated to form a global grids. The core functions for this step are grid_one_iso and aggregate_all_isos. 
 #          (2) Then the first step is repeated for all sectors. The core function for this 
-#          step is grid_one_sector and it's wraper grid_all_sectors.
+#          step is grid_one_sector and its wraper grid_all_sectors.
 #          (3) Then the list contains global grids for all sectors is returned by grid_one_year
 #          The nested relationship of three steps's core functions is as below
 #            grid_one_year
 #              |----- grid_all_sectors (grid_one_sector)
-#                                                |----------- grid_all_countries (grid_one_country)
-#                                                |----------- aggregate_all_countries
+#                                                |----------- grid_all_isos (grid_one_iso)
+#                                                |----------- aggregate_all_isos
 #       2. The variations of grid_one_xxx functions ( such as grid_one_country_subVOCs, grid_one_year_air ) 
-#          serves specific gridding tasks. They might be specific to CEDS project.  
+#          serves specific gridding tasks.  
 #       3. Functions in this script are categrized into different classes serving different purposes:
 #          core gridding functions - gridding functions for general routine
 #          specified gridding functions - gridding functions for specific gridding tasks. 
 #          proxy functions - proxy related functions that serve core/specified gridding functions 
 #          seasonality functions - seasonality related functions that serve core/specified gridding functions 
 #          other supporting functions
-#          mask related functions 
-# TODO: 1. The use of the words 'country' and 'region' are mixed. Change all 'region's into 'country'.
-#       2. Add grid_all_years function as the lapply wraper of grid_one_year
-#       3. Extract the process of adding seasonality out of nc generation functions.  
-#       4. Update the VOC related functions to remove the for loop
-#       5. Added temperary fix for WST sector proxy in grid_one_country and grid_one_country_subVOCs
+# TODO: 
 # ----------------------------------------------------------------------------------------------------------------
 
 # Special Packages
@@ -39,31 +33,32 @@ loadPackage( 'geosphere' )
 # ==============================================================================
 # core gridding functions
 # ------------------------------------------------------------------------------
-# grid_one_country
-# Brief: Generates a country's emission spatial distribution using proxy.
+# grid_one_iso
+# Brief: Generates a iso's emission spatial distribution using proxy.
 #        The emissions are gridded in following steps: 
-#        (1) Bounding information is retrived using country name from location_index table
-#            ( bounding information: the country's bounding box in terms of upper left corner and lower right corner 
+#        (1) Bounding information is retrived using iso from location_index table
+#            ( bounding information: the iso's bounding box in terms of upper left corner and lower right corner 
 #                                    matrix indeces in global extent )
-#        (2) Retrieve the proxy substitution flag using country name from proxy_replace_flag passed by upper layer function.
+#        (2) Retrieve the proxy substitution flag from proxy subsitution mapping.
 #            If proxy substitution flag is TRUE then use backup proxy instead of proxy
 #        (3) The proxy and proxy_backup (in global extent) passed by upper layer function is cropped using bounding information.
-#        (4) Apply weighted country mask to cropped proxy to make proxy only contains data for the country and boundary weighted. 
+#        (4) Apply weighted iso mask to cropped proxy to make proxy only contains data for the iso and boundary weighted. 
 #        (5) Normalize the weighted proxy
-#        (6) Apply emission statistics over normalized proxy to get emission spatial distribution for the country
+#        (6) Apply emission statistics over normalized proxy to get emission spatial distribution for the iso
 #        (7) Return the spatial distribution (matrix)  
 # Dependencies: 
 # Author: Leyang Feng
-# parameters: country - the country that its gridded emission is desired.  
-#             location_index - location index table, contains matrix index information for the country in global extent
-#             em_data - emission data processed by upper layer function ( grid_one_sector )
-#             proxy - spatial proxy used for gridding ( passed by upper layer function )
-#             proxy_backup - Backup spatial proxy used for gridding when proxy_replace_flag = T
-#             year - The current gridding year.   
-#             sector - The current gridding secotr.
-#             em_species - The current emission species. 
-#             proxy_replace_flag - Indicator of which proxy to use. Default is F so the proxy is used, otherwise use proxy_backup 
-# return: em_spatial - a matrix 
+# parameters: iso - the iso that its gridded emission is desired  
+#             em - the current gridding emission species
+#             sector - the current gridding secotr
+#             year - the current gridding year
+#             grid_resolution - the current gridding resolution 
+#             gridding_emissions_sector - the emission data from gridding, passed by upper layer function 
+#             location_index - mapping file contains iso matrix indices
+#             proxy_substitution_mapping - mapping file contains proxy substitution flags
+#             proxy - proxy used for gridding, passed by upper layer function
+#             proxy_backup - backup proxy used for gridding, passed by upper layer function
+# return: em_spatial_global - matrix, the emission spatial distribution for the iso
 # input files: null
 # output: null
 grid_one_iso <- function( iso, 
@@ -109,18 +104,19 @@ grid_one_iso <- function( iso,
 
 # ------------------------------------------------------------------------------
 # aggregare_all_isos
-# Brief: Aggregates all country's emission into global grid.
+# Brief: Aggregates all iso's emission into one global grid.
 #        The aggregating is in following steps:
 #        (1) Create an empty temoplate grid as global extent using grid_resolution
-#        (2) For each countries emission spatial distribution, retrieve the country's bounding information and 
-#            add the country's grid into template grid
+#        (2) For each iso's emission spatial distribution, retrieve the iso's bounding information and 
+#            add the iso's grid into template grid
 #        (3) Rename the template grid and return 
 # Dependencies: 
 # Author: Leyang Feng
-# parameters: region_em_spatial_list - passed by grid_all_countries function.  
+# parameters: iso_list - a list of isos need to be aggregated
+#             iso_em_spatial_list - the list of emission spatial distributions for all isos.   
 #             location_index - location index table, contains matrix index information for the country in global extent
-#             grid_resolution - passed by upper layer function.  
-#             mass - passed by upper layer function. Output in mass(kt) if TRUE, otherwise the output is in flux(kg m-2 s-1) 
+#             grid_resolution - gridding resolution  
+#             flux_factor - factor used for converting from mass to flux, passed by upper layer function  
 # return: em_spatial_global  - global emission spatial distribution for given sector.   
 # input files: null
 # output: null
@@ -132,7 +128,7 @@ aggregate_all_isos <- function( iso_list, iso_em_spatial_list, location_index, g
   # aggregating
   for ( iso in iso_list ) {
     
-	  info_line <- location_index[ location_index$iso == iso, ]
+	info_line <- location_index[ location_index$iso == iso, ]
     start_row <- info_line$start_row
     end_row <- info_line$end_row
     start_col <- info_line$start_col
@@ -153,35 +149,37 @@ aggregate_all_isos <- function( iso_list, iso_em_spatial_list, location_index, g
 # ------------------------------------------------------------------------------
 # grid_one_sector
 # Brief: Generates a global grid for a given sector. 
-#        The function is divided into two different routine by a if statement:
-#          if the given scetor is not 'SHP', the function processes in following steps:
-#            (1) Retrieve proxy by using combination of emission species, year, and sector
-#            (2) Retrieve backup proxy by using year and type (default 'population' )
-#            (3) Process emission data passed by the upper layer function
-#            (4) do a mask availibility check for countries appeared in the emission data
-#            (5) Drop the countries in the emission data but not having a country mask
-#            (6) Run proxy_substitution_check and pass the result to grid_all_countries function
-#            (7) Generate country_list and pass to grid_all_countries and do the gridding
-#            (8) Do the aggregating
-#            (9) Return the global grid to upper layer function
-#          if the given sector is 'SHP', the funtion processes in following steps:
-#               ( the gridding for sector 'SHP' is not by country so needes different routine )
-#            (1) Load proxy using combination of emission species, year, and sector 
-#            (2) Load the global_mask
-#            (3) Apply the global_mask and normalize the proxy 
-#            (4) Apply pre-processed emission statistics to normalized proxy 
-#            (5) Return the global grid to upper layer function  
-# Dependencies: get_proxy, get_backup_proxy, mask_avail_check, proxy_substitution_check, grid_all_countries,
-#               aggregate_all_countries
+#        The function contains sevral different gridding stradagy for differnet sectors after a few common steps. 
+#        (1) extract sectoral gridding emissions 
+#        (2) load proxy and proxy_backup
+#         if sector is 'SHP':
+#           (1) extract the emission value
+#           (2) load the mask (global_mask in this case)
+#           (3) normlize proxy 
+#           (4) apply the emission value onto the normlized proxy 
+#           (5) convert into flux from mass
+#         if sector is 'TANK':
+#            do the same thing as 'SHP'
+#         if sector is 'WST':
+#            (1) process the proxy (fixed to population -- see get_proxy()) as rural population
+#            (2) extract iso_list 
+#            (3) call grid_one_iso for iso_list
+#            (4) call aggregate_all_isos to get global grid 
+#         for rest sectors: 
+#            (1) extract iso_list 
+#            (2) call grid_one_iso for iso_list
+#            (3) call aggregate_all_isos to get global grid 
+# Dependencies: get_proxy, grid_one_iso, aggregate_all_isos
 # Author: Leyang Feng
-# parameters: sector - the emission sector passed by upper layer function 
-#             em_species - the emission species passed by upper layer function   
-#             year - the year passed by upper layer function 
-#             location_index - the country location index table 
-#             grid_resolution - grid resolution 
-#             em_data - the emission data pre-processed and passed by upper layer function 
-#             mass - parameter passing to inner layer function aggregate_all_countries   
-# return: a globa;l grid for given sector 
+# parameters: sector - the current gridding sector
+#             em - the current gridding emission species   
+#             grid_resolution - gridding resolution 
+#             year - the current gridding year
+#             gridding_emissions_xyear - the emission data used for gridding, passed by upper layer function  
+#             location_index - location index table, contains matrix index information for the country in global extent
+#             proxy_mapping - proxy mapping file 
+#             proxy_substitution_mapping - proxy substitution mapping file    
+# return: global_em_spatial - a global grid for given sector 
 # input files: null
 # output: null 
 
@@ -277,9 +275,9 @@ grid_one_sector <- function( sector,
 # Brief: lapply wraper for grid_one_countriy 
 # Dependencies: grid_one_sector
 # Author: Leyang Feng
-# parameters: sector_list - a list of sectors.    
-#             see grid_one_country for descriptions of other parameters
-# return: sector_em_global_list - a list contains global grids (matrix) for each sector in the sector_list
+# parameters: sector_list - the sectors in the gridding emissions
+#             rest see the grid_one_sector
+# return: res_list - a list contains grid for each sector
 # input files: null
 # output: null
 grid_all_sectors <- function( sector_list, 
@@ -306,17 +304,16 @@ grid_all_sectors <- function( sector_list,
 
 # ------------------------------------------------------------------------------
 # grid_one_year
-# Brief: Generates one year's gridded emission for given sector list 
+# Brief: Generates one year's gridded emission
 # Dependencies: grid_all_sectors 
 # Author: Leyang Feng
-# parameters: em_species - the emission species passed by user
-#             year - the emission year passed by user
-#             em_data - the pre-processed emission data in the gridding routine 
+# parameters: em - the current gridding emission species
+#             year - the vurrent gridding year
+#             grid_resolution - gridding resolution 
 #             location_index - location index table, contains matrix index information for the country in global extent
-#             sector_list - the sector list passed by user
-#             grid_resolution - grid resolution  
-#             mass - passing to inner layer function. output in mass(kt) if TRUE, otherwise the output is in flux(kg m-2 s-1) 
-# return: sector_em_global_list - a list contains one year's gridded emission for given sector list 
+#             proxy_mapping - proxy mapping file 
+#             proxy_substitution_mapping - proxy substitution mapping file 
+# return: sector_grids_list - a list contains one year's gridded emission for each sector
 # input files: null
 # output: null 
 grid_one_year <- function( em, 
@@ -346,17 +343,15 @@ grid_one_year <- function( em,
 
 # ------------------------------------------------------------------------------
 # grid_one_year_air
-# Brief: Generates one year's gridded emission for given sector list 
-# Dependencies: grid_all_sectors 
+# Brief: Generates one year's gridded emission for sector AIR 
+# Dependencies: get_proxy 
 # Author: Leyang Feng
-# parameters: em_species - the emission species passed by user
-#             year - the emission year passed by user
-#             em_data - the pre-processed emission data in the gridding routine 
-#             location_index - location index table, contains matrix index information for the country in global extent
-#             sector_list - the sector list passed by user
-#             grid_resolution - grid resolution  
-#             mass - passing to inner layer function. output in mass(kt) if TRUE, otherwise the output is in flux(kg m-2 s-1) 
-# return: sector_em_global_list - a list contains one year's gridded emission for given sector list 
+# parameters: em - the current gridding emission species
+#             year - the current gridding year
+#             grid_resolution - gridding resolution  
+#             gridding_emissions - emissions df used for gridding
+#             proxy_mapping - proxy mapping file
+# return: AIR_global_em_spatial - a 3D array of distributed aircraft emissions
 # input files: null
 # output: null 
 grid_one_year_air <- function( em, 
@@ -392,15 +387,17 @@ grid_one_year_air <- function( em,
 # proxy functions
 # ------------------------------------------------------------------------------
 # get_proxy
-# Brief: Loads proxy a emission species, year, and sector combination 
+# Brief: loads proxy for a emission species, year, and sector combination 
 #        The function first find the proper proxy file for a emission species, year, sector combination
 #        then read the proxy file from disk and load into current environment.  
 #        Proxy mapping should be loaded into environment before calling the function 
 # Dependencies: 
 # Author: Leyang Feng
-# parameters: em_species - emission species
-#             year - the emission year 
-#             em_data - the emission data pre-processed in the routine  
+# parameters: em - the current gridding emission species
+#             year - the current gridding year
+#             sector - the current gridding sector  
+#             proxy_mapping - proxy mapping file 
+#             proxy_type - the type of proxy wanted to be load; valid options are 'promary' or another charactor
 # return: proxy - the desired proxy 
 # input files: null
 # output: null
@@ -427,14 +424,20 @@ get_proxy <- function( em, year, sector, proxy_mapping, proxy_type = 'primary' )
 }
 
 # ==============================================================================
-# seasonalityfunctions
+# seasonality functions
 # ------------------------------------------------------------------------------
 # add_seasonality
-# Brief: 
+# Brief: add seasoanlity to annual flux grids; different stradegies are adapted for different sectors 
 # Dependencies: 
 # Author: Leyang Feng
-# parameters: 
-# return:  
+# parameters: annual_flux - the annual flux matrix that needs to add seasonality  
+#             em - the current gridding emission species
+#             sector - the current gridding sector
+#             year - the current gridding year
+#             days_in_month - days in month in a year, passed by upper layer function
+#             grid_resolution - gridding resolution 
+#             seasonality_mapping - seasonality mapping file 
+# return: monthly_array - flux grids for each month 
 # input files: null
 # output: null
 add_seasonality <- function( annual_flux, em, sector, year, days_in_month, grid_resolution, seasonality_mapping ) { 
@@ -479,12 +482,18 @@ add_seasonality <- function( annual_flux, em, sector, year, days_in_month, grid_
 }
 
 # ------------------------------------------------------------------------------
-# add_seasonality
-# Brief: 
+# sum_monthly_em
+# Brief: calculate monthly emissions in kt from emission flux grids with seasonality; different stradegies are adapted for different sectors 
 # Dependencies: 
 # Author: Leyang Feng
-# parameters: 
-# return:  
+# parameters: fin_grid - flux grid with seasonality 
+#             em - the current gridding emission species
+#             sector - the current gridding sector
+#             year - the current gridding sector 
+#             days_in_month - days in month in a year, passed by upper layer function
+#             global_grid_area - grid area matrix, passed by upper layer function
+#             seasonality_mapping - seasonality mapping file 
+# return: monthly_em - a data frame of monthly emissions value in kt
 # input files: null
 # output: null
 sum_monthly_em <- function( fin_grid, em, sector, year, days_in_month, global_grid_area, seasonality_mapping ) { 
@@ -655,14 +664,5 @@ gridding_initialize <- function( grid_resolution = 0.5,
     printLog( 'Seasonality profile initialized' )
     }
 }
-
-
-
-
-
-
-
-
-
 
 
