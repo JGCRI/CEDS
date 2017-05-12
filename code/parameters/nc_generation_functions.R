@@ -17,13 +17,20 @@ loadPackage( 'geosphere' )
 # Annual grids generation functions
 # -------------------------------------------------
 # generate_final_grids_nc
-# Brief: 
+# Brief: generate annual nc grids for bulk emissions
 # Dependencies: 
 # Author: Leyang Feng
-# parameters:   
-# return:  
-# input files: 
-# output: 
+# parameters: int_grids_list - the list contains intermediate grids 
+#             output_dir - the output dir
+#             grid_resolution - the gridding resolution 
+#             year - the current gridding year 
+#             em - the gridding emission species
+#             sector_name_mapping - the mapping contains final sectors short names and long names 
+#             seasonality_mapping  - the seasonality mapping file   
+# return: null 
+# input files: null
+# output: CEDS_[em]_anthro_[year]_0.5_[CEDS_version].nc
+#         CEDS_[em]_anthro_[year]_0.5_[CEDS_version].csv
 generate_final_grids_nc <- function( int_grids_list,
                                      output_dir, 
                                      grid_resolution, 
@@ -32,12 +39,12 @@ generate_final_grids_nc <- function( int_grids_list,
                                      sector_name_mapping,
                                      seasonality_mapping ) {
   
-  # 0 
+  # 0 set up basics
   global_grid_area <- grid_area( grid_resolution, all_lon = T )
   flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
   days_in_month <- c( 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 )
   
-  # 1
+  # 1 extract int grids in the list
   AGR_proc_grid <- int_grids_list$AGR_int_grid
   ENE_proc_grid <- int_grids_list$ELEC_int_grid + int_grids_list$ETRN_int_grid + int_grids_list$FFFI_int_grid + int_grids_list$FLR_int_grid
   IND_proc_grid <- int_grids_list$INDC_int_grid + int_grids_list$INPU_int_grid
@@ -48,7 +55,7 @@ generate_final_grids_nc <- function( int_grids_list,
   WST_proc_grid <- int_grids_list$WST_int_grid
   SHP_proc_grid <- int_grids_list$SHP_int_grid + int_grids_list$TANK_int_grid
   
-  # 2
+  # 2 add seasonality for each final grids
   AGR_fin_grid <- add_seasonality( AGR_proc_grid, em, 'AGR', year, days_in_month, grid_resolution, seasonality_mapping ) 
   ENE_fin_grid <- add_seasonality( ENE_proc_grid, em, 'ENE', year, days_in_month, grid_resolution, seasonality_mapping ) 
   IND_fin_grid <- add_seasonality( IND_proc_grid, em, 'IND', year, days_in_month, grid_resolution, seasonality_mapping ) 
@@ -61,7 +68,7 @@ generate_final_grids_nc <- function( int_grids_list,
   
   RCO_fin_grid <- RCORC_fin_grid + RCOO_fin_grid
   
-  # 3
+  # 3 calculate checksum values 
   AGR_month_em <- sum_monthly_em( AGR_fin_grid, em, 'AGR', year, days_in_month, global_grid_area, seasonality_mapping )
   ENE_month_em <- sum_monthly_em( ENE_fin_grid, em, 'ENE', year, days_in_month, global_grid_area, seasonality_mapping )
   IND_month_em <- sum_monthly_em( IND_fin_grid, em, 'IND', year, days_in_month, global_grid_area, seasonality_mapping )
@@ -209,13 +216,22 @@ generate_final_grids_nc <- function( int_grids_list,
 
 # -------------------------------------------------
 # generate_final_grids_nc_subVOC
-# Brief: 
+# Brief: generate annual nc grids for subVOC emissions
 # Dependencies: 
 # Author: Leyang Feng
-# parameters:   
-# return:  
-# input files: 
-# output: 
+# parameters: int_grids_list - the list contains intermediate grids 
+#             output_dir - the output dir
+#             grid_resolution - the gridding resolution 
+#             year - the current gridding year 
+#             em - the gridding emission species NMVOC
+#             VOC_em - VOC ID
+#             VOC_names - VOC name mapping file 
+#             sector_name_mapping - the mapping contains final sectors short names and long names 
+#             seasonality_mapping  - the seasonality mapping file   
+# return: null
+# input files: null
+# output: CEDS_[VOCID]_anthro_[year]_0.5_[CEDS_version].nc 
+#         CEDS_[VOCID]_anthro_[year]_0.5_[CEDS_version].csv
 generate_final_grids_nc_subVOC <- function( int_grids_list,
                                             output_dir, 
                                             grid_resolution, 
@@ -407,13 +423,20 @@ generate_final_grids_nc_subVOC <- function( int_grids_list,
 
 # -------------------------------------------------
 # generate_final_grids_nc_solidbiofuel
-# Brief: 
+# Brief: generate annual nc grids for solid biofuel emissions
 # Dependencies: 
 # Author: Leyang Feng
-# parameters:   
-# return:  
+# parameters: int_grids_list - the list contains intermediate grids 
+#             output_dir - the output dir
+#             grid_resolution - the gridding resolution 
+#             year - the current gridding year 
+#             em - the gridding emission species
+#             sector_name_mapping - the mapping contains final sectors short names and long names 
+#             seasonality_mapping  - the seasonality mapping file     
+# return: null
 # input files: 
-# output: 
+# output: CEDS_[em]_solidbiofuel_anthro_[year]_0.5_[CEDS_version].nc
+#         CEDS_[em]_solidbiofuel_anthro_[year]_0.5_[CEDS_version].csv 
 generate_final_grids_nc_solidbiofuel <- function( int_grids_list,
                                                   output_dir, 
                                                   grid_resolution, 
@@ -633,10 +656,15 @@ generate_final_grids_nc_solidbiofuel <- function( int_grids_list,
 
 # -------------------------------------------------
 # generate_final_grids_nc_aircraft
-# Brief: 
+# Brief: generate annual nc grids for aircraft emissions
 # Dependencies: 
 # Author: Leyang Feng
-# parameters:   
+# parameters: AIR_em_global - aircraft annual grid   
+#             output_dir - the output dir
+#             grid_resolution - the gridding resolution 
+#             year - the current gridding year 
+#             em - the gridding emission species
+#             sector_name_mapping - the mapping contains final sectors short names 
 # return:  
 # input files: 
 # output: 
@@ -786,13 +814,20 @@ generate_final_grids_nc_aircraft <- function( AIR_em_global,
 # Chunk grids generation functions
 # -------------------------------------------------
 # singleVarChunking_bulkemissions
-# Brief: 
+# Brief: generate multi-year emissions chunks for bulk emissions   
 # Dependencies: 
 # Author: Leyang Feng
-# parameters: 
-# return: 
-# input files: 
-# output: 
+# parameters: em 
+#             grid_resolution  
+#             chunk_start_years - a list of start years for each chunk 
+#             chunk_end_years - a list of start years for each chunk 
+#             chunk_count_index - the index of the chunk
+#             input_dir 
+#             output_dir  
+#             gridding_version - CEDS gridding version 
+# return: null
+# input files: null 
+# output: [em]-em-anthro_input4MIPs_emissions_CMIP_CEDS-[CEDS_grid_version]_gn_[time_range].nc
 singleVarChunking_bulkemissions <- function( em, 
                                              grid_resolution, 
                                              chunk_start_years, 
@@ -1041,13 +1076,21 @@ singleVarChunking_bulkemissions <- function( em,
 
 # -------------------------------------------------
 # singleVarChunking_subVOCemissions
-# Brief: 
+# Brief: generate multi-year emissions chunks for subVOC emissions   
 # Dependencies: 
 # Author: Leyang Feng
-# parameters: 
+# parameters: VOC_em - VOC id 
+#             grid_resolution  
+#             chunk_start_years - a list of start years for each chunk 
+#             chunk_end_years - a list of start years for each chunk 
+#             chunk_count_index - the index of the chunk
+#             input_dir 
+#             output_dir  
+#             gridding_version - CEDS gridding version
+#             VOC_names - VOC name mapping file   
 # return: 
 # input files: 
-# output: 
+# output: [VOCID]-acids-em-speciated-VOC-anthro_input4MIPs_emissions_CMIP_CEDS-[CEDS_grid_version]_supplement-data_gn_[time_range].nc
 singleVarChunking_subVOCemissions <- function( VOC_em, 
                                                grid_resolution, 
                                                chunk_start_years, 
@@ -1299,13 +1342,20 @@ singleVarChunking_subVOCemissions <- function( VOC_em,
 
 # -------------------------------------------------
 # singleVarChunking_solidbiofuelemissions
-# Brief: 
+# Brief: generate multi-year emissions chunks for solid biofuel emissions 
 # Dependencies: 
 # Author: Leyang Feng
-# parameters: 
-# return: 
-# input files: 
-# output: 
+# parameters: em 
+#             grid_resolution  
+#             chunk_start_years - a list of start years for each chunk 
+#             chunk_end_years - a list of start years for each chunk 
+#             chunk_count_index - the index of the chunk
+#             input_dir 
+#             output_dir  
+#             gridding_version - CEDS gridding version  
+# return: null
+# input files: null
+# output: [em]-em-SOLID-BIOFUEL-anthro_input4MIPs_emissions_CMIP_CEDS-[CEDS_grid_version]_supplement-data_gn_[time_range].nc
 singleVarChunking_solidbiofuelemissions <- function( em, 
                                                      grid_resolution, 
                                                      chunk_start_years, 
@@ -1554,13 +1604,20 @@ singleVarChunking_solidbiofuelemissions <- function( em,
 
 # -------------------------------------------------
 # singleVarChunking_aircraftemissions
-# Brief: 
+# Brief: generate multi-year emissions chunks for aircraft emissions 
 # Dependencies: 
 # Author: Leyang Feng
-# parameters: 
-# return: 
-# input files: 
-# output: 
+# parameters: em 
+#             grid_resolution  
+#             chunk_start_years - a list of start years for each chunk 
+#             chunk_end_years - a list of start years for each chunk 
+#             chunk_count_index - the index of the chunk
+#             input_dir 
+#             output_dir  
+#             gridding_version - CEDS gridding version 
+# return: null
+# input files: null
+# output: [em]-em-AIR-anthro_input4MIPs_emissions_CMIP_CEDS-[CEDS_grid_version]_gn_[time_range].nc
 singleVarChunking_aircraftemissions <- function( em, 
                                                  grid_resolution, 
                                                  chunk_start_years, 
@@ -1758,13 +1815,19 @@ singleVarChunking_aircraftemissions <- function( em,
 # Diagnostic grids generation functions
 # -------------------------------------------------
 # generate_annual_total_emissions_grids_nc
-# Brief: generate a fliped matrix by a given matrix
+# Brief: generate total emissions grids without seasonality 
 # Dependencies: 
 # Author: Leyang Feng
-# parameters: x - the matrix to be fliped  
-# return: a fliped matrix 
-# input files: 
-# output: 
+# parameters: output_dir
+#             int_grids_list - the list contains intermediate grids  
+#             grid_resolution 
+#             year 
+#             em 
+# return: null
+# input files: null
+# output: CEDS_[em]_anthro_[year]_TOTAL_0.5_[CEDS_version].nc
+#         CEDS_[em]_anthro_[year]_TOTAL_0.5_[CEDS_version].csv
+
 generate_annual_total_emissions_grids_nc <- function( output_dir, int_grids_list, grid_resolution, year, em ) {
   
   # 0 set up some basics for later use
@@ -1883,15 +1946,22 @@ generate_annual_total_emissions_grids_nc <- function( output_dir, int_grids_list
   summary_name <- paste0( output_dir, 'CEDS_', em, '_anthro_', year, '_', 'TOTAL', '_', grid_resolution, '_', version_stamp, '.csv' )
   write.csv( summary_table, file = summary_name, row.names = F )
 }
+
 # -------------------------------------------------
 # generate_monthly_total_emissions_grids_nc
-# Brief: generate a fliped matrix by a given matrix
+# Brief: generate total emissions grids with seasonality 
 # Dependencies: 
 # Author: Leyang Feng
-# parameters: x - the matrix to be fliped  
-# return: a fliped matrix 
-# input files: 
-# output: 
+# parameters: output_dir
+#             int_grids_list - the list contains intermediate grids  
+#             grid_resolution 
+#             year 
+#             em 
+#             seasoanlity_mapping - seasonality mapping file 
+# return: null 
+# input files: null
+# output: CEDS_[em]_anthro_[year]_TOTAL_monthly_[CEDS_version].nc
+#         CEDS_[em]_anthro_[year]_TOTAL_monthly_[CEDS_version].csv
 generate_monthly_total_emissions_grids_nc <- function( output_dir, 
                                                       int_grids_list, 
                                                       grid_resolution, 
