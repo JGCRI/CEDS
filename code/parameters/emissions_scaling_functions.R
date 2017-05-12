@@ -1228,12 +1228,19 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
   meta_old_changed <- meta[ meta$iso %in% unique(meta_notes$iso),]
   
   printLog ("Merging meta notes")
+  
+  meta_old_changed$comment[which(meta_old_changed$comment == 'default')] <- ""
+  
+  meta_new <- left_join (meta_new, meta_old_changed, by = c("iso", "year", "sector"))
+  meta_new$new_comment <- paste0(meta_new$comment, meta_new$new_comment, "; ")
  
   meta_combined <- replaceValueColMatch(x=meta_old_changed,
                        y=meta_new,
                        x.ColName = 'comment', y.ColName = 'new_comment',
                        match.x = c('iso', 'sector','year'),
                        addEntries=FALSE)
+  names(meta_combined) <- c('iso','sector','fuel','year','comment')
+  meta_combined$comment[which(meta_combined$comment == '')] <- 'default' 
   
 #   meta_combined <- merge(meta_new, meta_old_changed, all.y = TRUE)
 #   meta_combined[which(is.na(meta_combined$new_comment)),'new_comment'] <- 
@@ -1242,17 +1249,16 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
 #   meta_combined <- meta_combined[,c('iso','sector','fuel','year','new_comment')]
 #   names(meta_combined) <- c('iso','sector','fuel','year','comment')
  
-  names(meta_combined) <- c('iso','sector','fuel','year','comment')
   new_meta_out <- rbind(meta_combined, meta_old_unchanged)
   
   # order meta and new_meta_out for concatenation, then concatenate
-  new_meta_out <- new_meta_out[order(new_meta_out$iso,new_meta_out$year,new_meta_out$sector),]
-  meta <- meta[order(meta$iso,meta$year,meta$sector),]
-  new_meta_out$comment[which(meta$comment != 'default')] <- paste(meta$comment[which(
-      meta$comment != 'default')], new_meta_out$comment[which(
-      meta$comment != 'default')], sep="; ")
+  # new_meta_out <- new_meta_out[order(new_meta_out$iso,new_meta_out$year,new_meta_out$sector),]
+  # meta <- meta[order(meta$iso,meta$year,meta$sector),]
   
-  printLog('Casting meta to wide format')
+  # new_meta_out$comment[which(meta$comment != 'default')] <- paste(meta$comment[which(
+  #     meta$comment != 'default')], new_meta_out$comment[which(
+  #     meta$comment != 'default')], sep="; ")
+  
   printLog('Casting meta to wide format')
 
   new_meta_out <- cast(new_meta_out, iso+sector+fuel~year, value = 'comment') 
