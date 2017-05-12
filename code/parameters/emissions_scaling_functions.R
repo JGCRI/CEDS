@@ -240,12 +240,13 @@ F.scalingToCeds <- function( scalingData , dataFormat ,valueCol , valueLab = val
   # Disaggregate from scaling sectors to CEDS sectors and create CEDS scaling that
   #   is matched to the CEDS rows from the input
   #Format - 'long' or 'wide'. Long format has 'year' column and a value column, 
-  wide.names <- names(scalingData)
-  wide.names <- wide.names[-which(wide.names == 'iso')]
-  X_years <- names(scalingData)[grep('X',names(scalingData))]
-  wide.names <- wide.names[-which(wide.names %in% X_years)]
-     if (dataFormat == 'wide'){
-     by_ceds <- merge(scalingData,
+
+  if (dataFormat == 'wide'){
+    wide.names <- names(scalingData)
+    wide.names <- wide.names[-which(wide.names == 'iso')]
+    X_years <- names(scalingData)[grep('X',names(scalingData))]
+    wide.names <- wide.names[-which(wide.names %in% X_years)]
+    by_ceds <- merge(scalingData,
                       unique(scaling_map[complete.cases(scaling_map),
                                          c(scaling_name,ceds_matchcol_name)]),
                       all = TRUE,
@@ -254,11 +255,12 @@ F.scalingToCeds <- function( scalingData , dataFormat ,valueCol , valueLab = val
      by_ceds <- by_ceds[ , c('iso',wide.names,X_years)]
      names(by_ceds) <- c('iso',wide.names,X_years) 
    }else if (dataFormat == 'long'){
+     scaling_map_sectors <- unique(scaling_map[, c(scaling_name,ceds_matchcol_name)])
+     scaling_map_sectors <- scaling_map_sectors[which(complete.cases(scaling_map_sectors)), ]
+     
   names(scalingData)[which(names(scalingData)==method_col)] <- scaling_name
-  by_ceds <- merge(scalingData,
-                   unique(scaling_map[complete.cases(scaling_map),
-                                      c(scaling_name,ceds_matchcol_name)]),
-                   all = TRUE)
+  by_ceds <- by_ceds <- merge(scalingData, scaling_map_sectors,
+                              all = TRUE)
   by_ceds <- by_ceds[ , c('iso',ceds_matchcol_name,'year',valueCol)]
   names(by_ceds) <- c('iso',method_col,'year',valueLab) }
   
@@ -1196,7 +1198,7 @@ F.applyScale <- function(scaling_factors){
 }
 
 # ---------------------------------------------------------------------------------
-# F.update-value_metadata
+# F.update_value_metadata
 # Brief: update meta comments and rewrites meta data files
 # Details: input, meta comments in scaling aggregation
 # Dependencies: CEDS_header.R, F.invAggregate(), F.cedsAggregate
@@ -1211,7 +1213,7 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
   
   if( type %!in% c('EF','emissions')) stop('Invalid emission type. Cannot update scaled value metadata')
   
-  # read in previsou value-meta data
+  # read in previous value-meta data
   meta <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
   meta <- melt(meta, id.vars = c('iso','sector','fuel'))
   names(meta) <- c("iso","sector","fuel","year","comment" )
@@ -1240,12 +1242,23 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
 #   meta_combined <- meta_combined[,c('iso','sector','fuel','year','new_comment')]
 #   names(meta_combined) <- c('iso','sector','fuel','year','comment')
  
+  names(meta_combined) <- c('iso','sector','fuel','year','comment')
   new_meta_out <- rbind(meta_combined, meta_old_unchanged)
+  
+  # order meta and new_meta_out for concatenation, then concatenate
+  new_meta_out <- new_meta_out[order(new_meta_out$iso,new_meta_out$year,new_meta_out$sector),]
+  meta <- meta[order(meta$iso,meta$year,meta$sector),]
+  new_meta_out$comment[which(meta$comment != 'default')] <- paste(meta$comment[which(
+      meta$comment != 'default')], new_meta_out$comment[which(
+      meta$comment != 'default')], sep="; ")
+  
   printLog('Casting meta to wide format')
+  printLog('Casting meta to wide format')
+
   new_meta_out <- cast(new_meta_out, iso+sector+fuel~year, value = 'comment') 
   
   writeData( new_meta_out, domain = 'MED_OUT', 
-			 fn =paste0( "F.", em, "_", "scaled_",type,"-value_metadata") )  
+			 fn =paste0( "F.", em, "_", "scaled_",type,"-value_metadata"), meta = FALSE )  
 }
 
 # ---------------------------------------------------------------------------------
