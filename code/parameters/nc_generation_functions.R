@@ -284,7 +284,7 @@ generate_final_grids_nc_subVOC <- function( int_grids_list,
   RCORC_month_em <- sum_monthly_em( RCORC_fin_grid, em, 'RCORC', year, days_in_month, global_grid_area, seasonality_mapping )
   RCOO_month_em <- sum_monthly_em( RCOO_fin_grid, em, 'RCOO', year, days_in_month, global_grid_area, seasonality_mapping )
   
-  RCO_month_em <- data.frame( em = em, sector = 'RCO', year = year, month = 1 : 12, units = 'kt', 
+  RCO_month_em <- data.frame( em = VOC_em, sector = 'RCO', year = year, month = 1 : 12, units = 'kt', 
                               value = RCORC_month_em$value + RCOO_month_em$value, stringsAsFactors = F )
   total_month_em <- rbind( AGR_month_em, ENE_month_em, IND_month_em, TRA_month_em, 
                            SLV_month_em, WST_month_em, SHP_month_em, RCO_month_em )
