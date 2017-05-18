@@ -454,25 +454,23 @@ add_seasonality <- function( annual_flux, em, sector, year, days_in_month, grid_
   
   month_list <- 1 : 12 
   common_dim <- c( 180 / grid_resolution, 360 / grid_resolution, length( month_list ) )
-  month_array <- array( unlist( lapply( days_in_month, rep, 360 * 720 ) ) , dim = common_dim )
+  month_array <- array( unlist( lapply( days_in_month, rep, ( 180 / grid_resolution * 360 / grid_resolution ) ) ) , dim = common_dim )
+  month_array_air <- array( unlist( lapply( days_in_month, rep, ( 180 / grid_resolution * 360 / grid_resolution * 25 ) ) ) , dim = dim( sea_fracs ) )
   
   storage_array <- array( dim = common_dim ) 
   
-  if ( sector == 'SHP' ) { 
-    for ( i in month_list ) { 
-      storage_array[ , , i ] <- annual_flux * sea_fracs[ , , i ] * 12
-    }
-  }
   if ( sector == 'AIR' ) { 
     storage_array <- array( dim = dim( sea_fracs ) ) 
+    sea_adj <- 365 / apply( sea_fracs * month_array_air * 12, c( 1, 2, 3 ), sum ) 
     for ( i in month_list ) { 
-      storage_array[ , , , i ] <- annual_flux * sea_fracs[ , , , i ] * 12
+      storage_array[ , , , i ] <- annual_flux * sea_fracs[ , , , i ] * 12 * sea_adj
     }
   }
-  if ( sector %in% c( 'AGR', 'ENE', 'IND', 'TRA', 'RCORC', 'RCOO', 'SLV', 'WST' ) ) { 
+  if ( sector %in% c( 'AGR', 'ENE', 'IND', 'TRA', 'RCORC', 'RCOO', 'SLV', 'WST', 'SHP' ) ) { 
     sea_adj <- 365 / apply( sea_fracs * month_array * 12, c( 1, 2 ), sum ) 
+    delta <- 1 / ( sea_adj / 365 * 12 * apply( sea_fracs * month_array, c( 1, 2 ), sum ) )
     for ( i in month_list ) { 
-      storage_array[ , , i ] <- annual_flux * sea_fracs[ , , i ] * 12 * sea_adj
+      storage_array[ , , i ] <- delta * annual_flux * sea_fracs[ , , i ] * 12 * sea_adj
     }
   }
   
@@ -512,20 +510,10 @@ sum_monthly_em <- function( fin_grid, em, sector, year, days_in_month, global_gr
   common_dim <- c( 180 / grid_resolution, 360 / grid_resolution, length( month_list ) )
   month_array <- array( unlist( lapply( days_in_month, rep, 360 * 720 ) ) , dim = common_dim )
   
-  if ( sector == 'SHP' ) { 
-    monthly_em_list <- lapply( month_list, function( i ) { 
-      month_flux <- fin_grid[ , , i ]
-      month_mass <- month_flux * global_grid_area * ( 365 * 24 * 60 * 60 / 12 ) 
-      month_mass_value <- sum( month_mass, na.rm = T )
-      month_mass_value <- month_mass_value * 0.000001 # from kg to kt
-      out_df <- data.frame( em = em, sector = sector, year = year, month = i, units = 'kt', value = month_mass_value, stringsAsFactors = F  )
-      } )
-    monthly_em <- do.call( 'rbind', monthly_em_list )
-  }
   if ( sector == 'AIR' ) { 
     monthly_em_list <- lapply( month_list, function( i ) { 
       month_flux <- fin_grid[ , , , i ]
-      flux2mass_factor <- array( rep( as.vector( global_grid_area ), dim( month_flux )[ 3 ] ), dim = dim( month_flux ) ) * ( 365 * 24 * 60 * 60 / 12 ) 
+      flux2mass_factor <- array( rep( as.vector( global_grid_area ), dim( month_flux )[ 3 ] ), dim = dim( month_flux ) ) * days_in_month[ i ] * 24 * 60 * 60
       month_mass <- month_flux * flux2mass_factor
       month_mass_value <- sum( month_mass, na.rm = T )
       month_mass_value <- month_mass_value * 0.000001 # from kg to kt
@@ -533,11 +521,11 @@ sum_monthly_em <- function( fin_grid, em, sector, year, days_in_month, global_gr
       } )
     monthly_em <- do.call( 'rbind', monthly_em_list )
   }
-  if ( sector %in% c( 'AGR', 'ENE', 'IND', 'TRA', 'RCORC', 'RCOO', 'SLV', 'WST' ) ) { 
+  if ( sector %in% c( 'AGR', 'ENE', 'IND', 'TRA', 'RCORC', 'RCOO', 'SLV', 'WST', 'SHP' ) ) { 
     sea_adj <- 365 / apply( sea_fracs * month_array * 12, c( 1, 2 ), sum ) 
     monthly_em_list <- lapply( 1 : 12, function( i ) { 
       month_flux <- fin_grid[ , , i ]
-      month_mass <- month_flux * global_grid_area * ( 365 * 24 * 60 * 60 / 12 ) / sea_adj
+      month_mass <- month_flux * global_grid_area * days_in_month[ i ] * 24 * 60 * 60
       month_mass_value <- sum( month_mass, na.rm = T )
       month_mass_value <- month_mass_value * 0.000001 # from kg to kt
       out_df <- data.frame( em = em, sector = sector, year = year, month = i, units = 'kt', value = month_mass_value, stringsAsFactors = F  )
