@@ -41,7 +41,7 @@ grid_resolution <- 0.5
 start_year <- 1750 
 end_year <- 1850
 chunk_years <- 50
-CEDS_gridding_version <- '2017-05-01'
+CEDS_gridding_version <- '2017-05-18'
 
 # basic start year/end year check 
 # if ( start_year %% chunk_years != 0 ) { stop( 'Start year must be a multiple of the chunk_years. ' ) }
