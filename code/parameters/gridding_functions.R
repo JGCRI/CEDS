@@ -454,8 +454,12 @@ add_seasonality <- function( annual_flux, em, sector, year, days_in_month, grid_
   
   month_list <- 1 : 12 
   common_dim <- c( 180 / grid_resolution, 360 / grid_resolution, length( month_list ) )
+  
+  if ( sector == 'AIR' ) { 
+  month_array_air <- array( unlist( lapply( days_in_month, rep, ( 180 / grid_resolution * 360 / grid_resolution * 25 ) ) ) , dim = dim( sea_fracs ) )  
+  } else { 
   month_array <- array( unlist( lapply( days_in_month, rep, ( 180 / grid_resolution * 360 / grid_resolution ) ) ) , dim = common_dim )
-  month_array_air <- array( unlist( lapply( days_in_month, rep, ( 180 / grid_resolution * 360 / grid_resolution * 25 ) ) ) , dim = dim( sea_fracs ) )
+  }
   
   storage_array <- array( dim = common_dim ) 
   
