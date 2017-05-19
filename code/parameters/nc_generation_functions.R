@@ -1072,6 +1072,12 @@ singleVarChunking_bulkemissions <- function( em,
   # close nc_new
   nc_close( nc_new )
 
+  # additional checksum output
+  fin_csv_list <- gsub( '.nc', '.csv', fin_grid_list, fixed = T )
+  checksum_df_list <- lapply( paste0( input_dir, '/', fin_csv_list ), read.csv, stringsAsFactors = F )
+  checksum_df <- do.call( 'rbind', checksum_df_list )
+  checksum_file_name <- gsub( '.nc', '.csv', nc_file_name, fixed = T )
+  write.csv( checksum_df, checksum_file_name, row.names = F )
 }
 
 # -------------------------------------------------
@@ -1338,6 +1344,14 @@ singleVarChunking_subVOCemissions <- function( VOC_em,
   
   # close nc_new
   nc_close( nc_new )
+  
+  # additional checksum output
+  fin_csv_list <- gsub( '.nc', '.csv', fin_grid_list, fixed = T )
+  checksum_df_list <- lapply( paste0( input_dir, '/', fin_csv_list ), read.csv, stringsAsFactors = F )
+  checksum_df <- do.call( 'rbind', checksum_df_list )
+  checksum_df$em <- VOC_em
+  checksum_file_name <- gsub( '.nc', '.csv', nc_file_name, fixed = T )
+  write.csv( checksum_df, checksum_file_name, row.names = F )
 }
 
 # -------------------------------------------------
@@ -1600,6 +1614,13 @@ singleVarChunking_solidbiofuelemissions <- function( em,
 
   # close nc_new
   nc_close( nc_new )
+  
+  # additional checksum output
+  fin_csv_list <- gsub( '.nc', '.csv', fin_grid_list, fixed = T )
+  checksum_df_list <- lapply( paste0( input_dir, '/', fin_csv_list ), read.csv, stringsAsFactors = F )
+  checksum_df <- do.call( 'rbind', checksum_df_list )
+  checksum_file_name <- gsub( '.nc', '.csv', nc_file_name, fixed = T )
+  write.csv( checksum_df, checksum_file_name, row.names = F )
 }
 
 # -------------------------------------------------
@@ -1729,7 +1750,7 @@ singleVarChunking_aircraftemissions <- function( em,
   lon_bnds <- ncvar_def( 'lon_bnds', '', list( bndsdim, londim ), prec = 'double' )
   lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
   time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
-  rm( filename_patterns, AIR_fin_block, fin_grid_list, time_fin_block, time_bnds_fin_block )
+  rm( filename_patterns, AIR_fin_block, time_fin_block, time_bnds_fin_block )
   gc( )  
   
   # generate the var_list
@@ -1809,6 +1830,13 @@ singleVarChunking_aircraftemissions <- function( em,
 
   # close nc_new
   nc_close( nc_new )
+  
+  # additional checksum output
+  fin_csv_list <- gsub( '.nc', '.csv', fin_grid_list, fixed = T )
+  checksum_df_list <- lapply( paste0( input_dir, '/', fin_csv_list ), read.csv, stringsAsFactors = F )
+  checksum_df <- do.call( 'rbind', checksum_df_list )
+  checksum_file_name <- gsub( '.nc', '.csv', nc_file_name, fixed = T )
+  write.csv( checksum_df, checksum_file_name, row.names = F )
 }
 
 # =====================================================================
