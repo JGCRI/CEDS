@@ -1198,6 +1198,98 @@ F.applyScale <- function(scaling_factors){
 }
 
 # ---------------------------------------------------------------------------------
+# F.create_EF_value_meta_heatmap
+# Brief: Takes the value metadata from a scaling process and generates a heatmap display.
+# Dependencies: CEDS_header.R, F.update_value_metadata, xlsx package
+# Author: Ben Goldstein
+# parameters: meta_notes, the metavalue notes; 
+#
+# return: null
+# input files: meta_notes
+# output files: "F.", em, "_", "scaled_",type,"-value_metadata_heatmap"
+
+F.create_EF_value_meta_heatmap <- function (type, meta_notes = NULL) {
+  printLog("*********")
+  
+  if ( is.null( meta_notes ) ) {
+    # meta_notes <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
+    meta_notes <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
+    meta_notes <- melt(meta_notes, id.vars = c('iso','sector','fuel'))
+    names(meta_notes) <- c("iso","sector","fuel","year","comment" )
+    meta_notes$comment <- as.character(meta_notes$comment)
+  }
+  
+  # load the required library, xlsx
+  library(xlsx)
+  
+  printLog("Clipping to final scaling factors")
+  # remove the semicolon from the end of all non-default entries
+  indices <- which(meta_notes$comment != 'default')
+  meta_notes$comment <- as.character(meta_notes$comment)
+  meta_notes$comment[indices] <- substr(meta_notes$comment[indices], 0, nchar(meta_notes$comment[indices]) - 2)
+  
+  # create "meta_split" which holds only the final scaling factor
+  meta_split <- meta_notes
+  meta_split$comment  <- sub( ".*; ", "", meta_split$comment )
+  meta_split <- meta_split[1:5000, ]
+  
+  
+  # cast meta_split and color_style to wide 
+  printLog("Casting heatmap to wide form")
+  meta_out <- cast(meta_split, iso+sector+fuel~year, value = 'comment') 
+  
+
+  printLog("Initializing metaval heatmap .xlsx file")
+  # Initialize the to-be-formatted Excel spreadsheet
+  sheetname <- "heatmap"
+  filepath <-  paste0( "F.", em, "_", "scaled_",type,"_metaval_heatmap.xlsx")
+  write.xlsx(meta_out, filepath, sheetName=sheetname)
+  file <- filepath
+  
+  year_cols <- grep ( "X", colnames( meta_out ) )
+  num_years <- length(year_cols)
+  
+  printLog("Coloring cells")
+  printLog(num_years)
+  
+  # Load the workbook, extract cells, and apply appropriate formatting
+  workbook <- loadWorkbook(file)
+  sheets <- getSheets(workbook)
+  sheet <- sheets[[sheetname]]
+  rows <- getRows(sheet, rowIndex=2:(nrow(meta_out)+1))
+  cells <- getCells(rows, colIndex = 5:(num_years + 5)) 
+
+  lapply(cells, F.choose_color_value, wb = workbook)
+  
+  printLog(paste0("Writing ", "F.", em, "_", "scaled_",type,"_metaval_heatmap.xlsx"))
+  saveWorkbook(workbook, file)
+
+  printLog("*********")
+  
+}
+
+F.choose_color_value <- function (cell, wb) {
+  val <- as.character(getCellValue(cell))
+  tfill <- Fill("white")
+  
+  # determine color based on which inventory it was scaled to 
+  if (grepl("EDGAR", val)) {
+    tfill$backgroundColor <- "#70d4ff"
+  } else if (grepl("REAS", val)) {
+    tfill$backgroundColor <- "#ffbe70"
+  }
+  
+  # determine pattern based on if it's pre- or post- scaled
+  if (grepl("pre-extended", val)) {
+    tfill$pattern <- "THIN_FORWARD_DIAG"
+  } else if (grepl("post-extended", val)) {
+    tfill$pattern <- "THIN_VERT_BANDS"
+  }
+  
+  setCellStyle( cell, CellStyle( wb, fill=tfill ) )
+}
+
+# ---------------------------------------------------------------------------------
 # F.update_value_metadata
 # Brief: update meta comments and rewrites meta data files
 # Details: input, meta comments in scaling aggregation
@@ -1207,7 +1299,7 @@ F.applyScale <- function(scaling_factors){
 #   
 # return: null
 # input files: meta_notes - new meta notes in scaling aggregation
-# output files: NULL
+# output files: "F.", em, "_", "scaled_",type,"-value_metadata"
 
 F.update_value_metadata <- function(type, meta_notes = meta_notes ){
   
@@ -1250,7 +1342,7 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
 #   names(meta_combined) <- c('iso','sector','fuel','year','comment')
  
   new_meta_out <- rbind(meta_combined, meta_old_unchanged)
-  
+  # F.create_EF_value_meta_heatmap( type, new_meta_out )
   # order meta and new_meta_out for concatenation, then concatenate
   # new_meta_out <- new_meta_out[order(new_meta_out$iso,new_meta_out$year,new_meta_out$sector),]
   # meta <- meta[order(meta$iso,meta$year,meta$sector),]
