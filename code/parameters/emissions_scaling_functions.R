@@ -1208,9 +1208,8 @@ F.applyScale <- function(scaling_factors){
 # input files: meta_notes
 # output files: "F.", em, "_", "scaled_",type,"-value_metadata_heatmap"
 
-F.create_EF_value_meta_heatmap <- function (type, meta_notes = NULL) {
-  printLog("*********")
-  
+F.create_EF_value_meta_heatmap <- function (type, meta_notes = NULL, iso = NULL, sector = NULL) {
+
   if ( is.null( meta_notes ) ) {
     # meta_notes <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
     meta_notes <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
@@ -1230,9 +1229,20 @@ F.create_EF_value_meta_heatmap <- function (type, meta_notes = NULL) {
   
   # create "meta_split" which holds only the final scaling factor
   meta_split <- meta_notes
-  meta_split$comment  <- sub( ".*; ", "", meta_split$comment )
-  meta_split <- meta_split[1:5000, ]
   
+  filename <- em
+
+  if (!is.null(iso)) {
+    meta_split <- meta_split[ which( meta_split$iso == iso), ]
+    filename <- paste0( filename, "_", iso)
+  }
+  
+  if (!is.null(sector)) {
+    meta_split <- meta_split[ which( meta_split$sector == sector), ]
+    filename <- paste0( filename, "_", sector)
+  }
+  
+  meta_split$comment  <- sub( ".*; ", "", meta_split$comment )
   
   # cast meta_split and color_style to wide 
   printLog("Casting heatmap to wide form")
@@ -1242,7 +1252,7 @@ F.create_EF_value_meta_heatmap <- function (type, meta_notes = NULL) {
   printLog("Initializing metaval heatmap .xlsx file")
   # Initialize the to-be-formatted Excel spreadsheet
   sheetname <- "heatmap"
-  filepath <-  paste0( "F.", em, "_", "scaled_",type,"_metaval_heatmap.xlsx")
+  filepath <-  paste0( "F.", filename, "_", "scaled_",type,"_metaval_heatmap.xlsx")
   write.xlsx(meta_out, filepath, sheetName=sheetname)
   file <- filepath
   
@@ -1257,34 +1267,78 @@ F.create_EF_value_meta_heatmap <- function (type, meta_notes = NULL) {
   sheets <- getSheets(workbook)
   sheet <- sheets[[sheetname]]
   rows <- getRows(sheet, rowIndex=2:(nrow(meta_out)+1))
-  cells <- getCells(rows, colIndex = 5:(num_years + 5)) 
+  cells <- getCells(rows, colIndex = 3:(num_years + 5)) 
 
   lapply(cells, F.choose_color_value, wb = workbook)
+  
+  setColumnWidth(sheet, 5:(num_years+5), 3)
   
   printLog(paste0("Writing ", "F.", em, "_", "scaled_",type,"_metaval_heatmap.xlsx"))
   saveWorkbook(workbook, file)
 
-  printLog("*********")
-  
 }
 
 F.choose_color_value <- function (cell, wb) {
   val <- as.character(getCellValue(cell))
-  tfill <- Fill("white")
-  
-  # determine color based on which inventory it was scaled to 
-  if (grepl("EDGAR", val)) {
-    tfill$backgroundColor <- "#70d4ff"
-  } else if (grepl("REAS", val)) {
-    tfill$backgroundColor <- "#ffbe70"
-  }
-  
+  tfill <- Fill(backgroundColor = "white", foregroundColor = "white", pattern = "SOLID_FOREGROUND")
+
   # determine pattern based on if it's pre- or post- scaled
   if (grepl("pre-extended", val)) {
     tfill$pattern <- "THIN_FORWARD_DIAG"
   } else if (grepl("post-extended", val)) {
     tfill$pattern <- "THIN_VERT_BANDS"
   }
+  
+  # determine color based on which inventory it was scaled to 
+  if (grepl("EDGAR", val)) {
+    tfill$foregroundColor <- "#73e600"
+    setCellValue(cell, "EDGAR")
+  } else if (grepl("REAS", val)) {
+    tfill$foregroundColor <- "#00BE67"
+    setCellValue(cell, "REAS")
+  } else if (grepl("PEGASOS", val)) {
+    tfill$foregroundColor <- "#80d4ff"
+    setCellValue(cell, "PEGASOS_EDGAR")
+  } else if (grepl("EMEP_NFR09", val)) {
+    tfill$foregroundColor <- "#0052cc"
+    setCellValue(cell, "EMEP_NFR09")
+  } else if (grepl("EMEP_NFR14", val)) {
+    tfill$foregroundColor <- "#d966ff"
+    setCellValue(cell, "EMEP_NFR14")
+  } else if (grepl("UNFCCC", val)) {
+    tfill$foregroundColor <- "#f75555"
+    setCellValue(cell, "UNFCCC")
+  } else if (grepl("REAS", val)) {
+    tfill$foregroundColor <- "#ff8c1a"
+    setCellValue(cell, "REAS")
+  } else if (grepl("CAN_to2011", val)) {
+    tfill$foregroundColor <- "#ffe11a"
+    setCellValue(cell, "CAN_to2011")
+  } else if (grepl("CAN", val)) {
+    tfill$foregroundColor <- "#999999"
+    setCellValue(cell, "CAN")
+  } else if (grepl("US-EPA", val)) {
+    tfill$foregroundColor <- "#990033"
+    setCellValue(cell, "US-EPA")
+  } else if (grepl("US", val)) {
+    tfill$foregroundColor <- "#333333"
+    setCellValue(cell, "US")
+  } else if (grepl("CHN", val)) {
+    tfill$foregroundColor <- "#fcde1e"
+    setCellValue(cell, "China")
+  } else if (grepl("ARG", val)) {
+    tfill$foregroundColor <- "#1de0cc"
+    setCellValue(cell, "Argentina")
+  } else if (grepl("Japan", val)) {
+    tfill$foregroundColor <- "#ff8484"
+    setCellValue(cell, "Japan")
+  } else if (grepl("SKorea", val)) {
+    tfill$foregroundColor <- "#1d3d84"
+    setCellValue(cell, "S. Korea")
+  } else if (grepl("AUS", val)) {
+    tfill$foregroundColor <- "#990606"
+    setCellValue(cell, "Australia")
+  } 
   
   setCellStyle( cell, CellStyle( wb, fill=tfill ) )
 }
