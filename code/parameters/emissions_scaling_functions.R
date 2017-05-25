@@ -240,13 +240,12 @@ F.scalingToCeds <- function( scalingData , dataFormat ,valueCol , valueLab = val
   # Disaggregate from scaling sectors to CEDS sectors and create CEDS scaling that
   #   is matched to the CEDS rows from the input
   #Format - 'long' or 'wide'. Long format has 'year' column and a value column, 
-
-  if (dataFormat == 'wide'){
-    wide.names <- names(scalingData)
-    wide.names <- wide.names[-which(wide.names == 'iso')]
-    X_years <- names(scalingData)[grep('X',names(scalingData))]
-    wide.names <- wide.names[-which(wide.names %in% X_years)]
-    by_ceds <- merge(scalingData,
+  wide.names <- names(scalingData)
+  wide.names <- wide.names[-which(wide.names == 'iso')]
+  X_years <- names(scalingData)[grep('X',names(scalingData))]
+  wide.names <- wide.names[-which(wide.names %in% X_years)]
+     if (dataFormat == 'wide'){
+     by_ceds <- merge(scalingData,
                       unique(scaling_map[complete.cases(scaling_map),
                                          c(scaling_name,ceds_matchcol_name)]),
                       all = TRUE,
@@ -255,12 +254,11 @@ F.scalingToCeds <- function( scalingData , dataFormat ,valueCol , valueLab = val
      by_ceds <- by_ceds[ , c('iso',wide.names,X_years)]
      names(by_ceds) <- c('iso',wide.names,X_years) 
    }else if (dataFormat == 'long'){
-     scaling_map_sectors <- unique(scaling_map[, c(scaling_name,ceds_matchcol_name)])
-     scaling_map_sectors <- scaling_map_sectors[which(complete.cases(scaling_map_sectors)), ]
-     
   names(scalingData)[which(names(scalingData)==method_col)] <- scaling_name
-  by_ceds <- by_ceds <- merge(scalingData, scaling_map_sectors,
-                              all = TRUE)
+  by_ceds <- merge(scalingData,
+                   unique(scaling_map[complete.cases(scaling_map),
+                                      c(scaling_name,ceds_matchcol_name)]),
+                   all = TRUE)
   by_ceds <- by_ceds[ , c('iso',ceds_matchcol_name,'year',valueCol)]
   names(by_ceds) <- c('iso',method_col,'year',valueLab) }
   
@@ -1198,153 +1196,7 @@ F.applyScale <- function(scaling_factors){
 }
 
 # ---------------------------------------------------------------------------------
-# F.create_EF_value_meta_heatmap
-# Brief: Takes the value metadata from a scaling process and generates a heatmap display.
-# Dependencies: CEDS_header.R, F.update_value_metadata, xlsx package
-# Author: Ben Goldstein
-# parameters: meta_notes, the metavalue notes; 
-#
-# return: null
-# input files: meta_notes
-# output files: "F.", em, "_", "scaled_",type,"-value_metadata_heatmap"
-
-F.create_EF_value_meta_heatmap <- function (type, meta_notes = NULL, iso = NULL, sector = NULL) {
-
-  if ( is.null( meta_notes ) ) {
-    # meta_notes <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
-    meta_notes <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
-    meta_notes <- melt(meta_notes, id.vars = c('iso','sector','fuel'))
-    names(meta_notes) <- c("iso","sector","fuel","year","comment" )
-    meta_notes$comment <- as.character(meta_notes$comment)
-  }
-  
-  # load the required library, xlsx
-  library(xlsx)
-  
-  printLog("Clipping to final scaling factors")
-  # remove the semicolon from the end of all non-default entries
-  indices <- which(meta_notes$comment != 'default')
-  meta_notes$comment <- as.character(meta_notes$comment)
-  meta_notes$comment[indices] <- substr(meta_notes$comment[indices], 0, nchar(meta_notes$comment[indices]) - 2)
-  
-  # create "meta_split" which holds only the final scaling factor
-  meta_split <- meta_notes
-  
-  filename <- em
-
-  if (!is.null(iso)) {
-    meta_split <- meta_split[ which( meta_split$iso == iso), ]
-    filename <- paste0( filename, "_", iso)
-  }
-  
-  if (!is.null(sector)) {
-    meta_split <- meta_split[ which( meta_split$sector == sector), ]
-    filename <- paste0( filename, "_", sector)
-  }
-  
-  meta_split$comment  <- sub( ".*; ", "", meta_split$comment )
-  
-  # cast meta_split and color_style to wide 
-  printLog("Casting heatmap to wide form")
-  meta_out <- cast(meta_split, iso+sector+fuel~year, value = 'comment') 
-  
-
-  printLog("Initializing metaval heatmap .xlsx file")
-  # Initialize the to-be-formatted Excel spreadsheet
-  sheetname <- "heatmap"
-  filepath <-  paste0( "F.", filename, "_", "scaled_",type,"_metaval_heatmap.xlsx")
-  write.xlsx(meta_out, filepath, sheetName=sheetname)
-  file <- filepath
-  
-  year_cols <- grep ( "X", colnames( meta_out ) )
-  num_years <- length(year_cols)
-  
-  printLog("Coloring cells")
-  printLog(num_years)
-  
-  # Load the workbook, extract cells, and apply appropriate formatting
-  workbook <- loadWorkbook(file)
-  sheets <- getSheets(workbook)
-  sheet <- sheets[[sheetname]]
-  rows <- getRows(sheet, rowIndex=2:(nrow(meta_out)+1))
-  cells <- getCells(rows, colIndex = 3:(num_years + 5)) 
-
-  lapply(cells, F.choose_color_value, wb = workbook)
-  
-  setColumnWidth(sheet, 5:(num_years+5), 3)
-  
-  printLog(paste0("Writing ", "F.", em, "_", "scaled_",type,"_metaval_heatmap.xlsx"))
-  saveWorkbook(workbook, file)
-
-}
-
-F.choose_color_value <- function (cell, wb) {
-  val <- as.character(getCellValue(cell))
-  tfill <- Fill(backgroundColor = "white", foregroundColor = "white", pattern = "SOLID_FOREGROUND")
-
-  # determine pattern based on if it's pre- or post- scaled
-  if (grepl("pre-extended", val)) {
-    tfill$pattern <- "THIN_FORWARD_DIAG"
-  } else if (grepl("post-extended", val)) {
-    tfill$pattern <- "THIN_VERT_BANDS"
-  }
-  
-  # determine color based on which inventory it was scaled to 
-  if (grepl("EDGAR", val)) {
-    tfill$foregroundColor <- "#73e600"
-    setCellValue(cell, "EDGAR")
-  } else if (grepl("REAS", val)) {
-    tfill$foregroundColor <- "#00BE67"
-    setCellValue(cell, "REAS")
-  } else if (grepl("PEGASOS", val)) {
-    tfill$foregroundColor <- "#80d4ff"
-    setCellValue(cell, "PEGASOS_EDGAR")
-  } else if (grepl("EMEP_NFR09", val)) {
-    tfill$foregroundColor <- "#0052cc"
-    setCellValue(cell, "EMEP_NFR09")
-  } else if (grepl("EMEP_NFR14", val)) {
-    tfill$foregroundColor <- "#d966ff"
-    setCellValue(cell, "EMEP_NFR14")
-  } else if (grepl("UNFCCC", val)) {
-    tfill$foregroundColor <- "#f75555"
-    setCellValue(cell, "UNFCCC")
-  } else if (grepl("REAS", val)) {
-    tfill$foregroundColor <- "#ff8c1a"
-    setCellValue(cell, "REAS")
-  } else if (grepl("CAN_to2011", val)) {
-    tfill$foregroundColor <- "#ffe11a"
-    setCellValue(cell, "CAN_to2011")
-  } else if (grepl("CAN", val)) {
-    tfill$foregroundColor <- "#999999"
-    setCellValue(cell, "CAN")
-  } else if (grepl("US-EPA", val)) {
-    tfill$foregroundColor <- "#990033"
-    setCellValue(cell, "US-EPA")
-  } else if (grepl("US", val)) {
-    tfill$foregroundColor <- "#333333"
-    setCellValue(cell, "US")
-  } else if (grepl("CHN", val)) {
-    tfill$foregroundColor <- "#fcde1e"
-    setCellValue(cell, "China")
-  } else if (grepl("ARG", val)) {
-    tfill$foregroundColor <- "#1de0cc"
-    setCellValue(cell, "Argentina")
-  } else if (grepl("Japan", val)) {
-    tfill$foregroundColor <- "#ff8484"
-    setCellValue(cell, "Japan")
-  } else if (grepl("SKorea", val)) {
-    tfill$foregroundColor <- "#1d3d84"
-    setCellValue(cell, "S. Korea")
-  } else if (grepl("AUS", val)) {
-    tfill$foregroundColor <- "#990606"
-    setCellValue(cell, "Australia")
-  } 
-  
-  setCellStyle( cell, CellStyle( wb, fill=tfill ) )
-}
-
-# ---------------------------------------------------------------------------------
-# F.update_value_metadata
+# F.update-value_metadata
 # Brief: update meta comments and rewrites meta data files
 # Details: input, meta comments in scaling aggregation
 # Dependencies: CEDS_header.R, F.invAggregate(), F.cedsAggregate
@@ -1353,13 +1205,13 @@ F.choose_color_value <- function (cell, wb) {
 #   
 # return: null
 # input files: meta_notes - new meta notes in scaling aggregation
-# output files: "F.", em, "_", "scaled_",type,"-value_metadata"
+# output files: NULL
 
 F.update_value_metadata <- function(type, meta_notes = meta_notes ){
   
   if( type %!in% c('EF','emissions')) stop('Invalid emission type. Cannot update scaled value metadata')
   
-  # read in previous value-meta data
+  # read in previsou value-meta data
   meta <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
   meta <- melt(meta, id.vars = c('iso','sector','fuel'))
   names(meta) <- c("iso","sector","fuel","year","comment" )
@@ -1374,19 +1226,12 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
   meta_old_changed <- meta[ meta$iso %in% unique(meta_notes$iso),]
   
   printLog ("Merging meta notes")
-  
-  meta_old_changed$comment[which(meta_old_changed$comment == 'default')] <- ""
-  
-  meta_new <- left_join (meta_new, meta_old_changed, by = c("iso", "year", "sector"))
-  meta_new$new_comment <- paste0(meta_new$comment, meta_new$new_comment, "; ")
  
   meta_combined <- replaceValueColMatch(x=meta_old_changed,
                        y=meta_new,
                        x.ColName = 'comment', y.ColName = 'new_comment',
                        match.x = c('iso', 'sector','year'),
                        addEntries=FALSE)
-  names(meta_combined) <- c('iso','sector','fuel','year','comment')
-  meta_combined$comment[which(meta_combined$comment == '')] <- 'default' 
   
 #   meta_combined <- merge(meta_new, meta_old_changed, all.y = TRUE)
 #   meta_combined[which(is.na(meta_combined$new_comment)),'new_comment'] <- 
@@ -1396,21 +1241,11 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
 #   names(meta_combined) <- c('iso','sector','fuel','year','comment')
  
   new_meta_out <- rbind(meta_combined, meta_old_unchanged)
-  # F.create_EF_value_meta_heatmap( type, new_meta_out )
-  # order meta and new_meta_out for concatenation, then concatenate
-  # new_meta_out <- new_meta_out[order(new_meta_out$iso,new_meta_out$year,new_meta_out$sector),]
-  # meta <- meta[order(meta$iso,meta$year,meta$sector),]
-  
-  # new_meta_out$comment[which(meta$comment != 'default')] <- paste(meta$comment[which(
-  #     meta$comment != 'default')], new_meta_out$comment[which(
-  #     meta$comment != 'default')], sep="; ")
-  
   printLog('Casting meta to wide format')
-
   new_meta_out <- cast(new_meta_out, iso+sector+fuel~year, value = 'comment') 
   
   writeData( new_meta_out, domain = 'MED_OUT', 
-			 fn =paste0( "F.", em, "_", "scaled_",type,"-value_metadata"), meta = FALSE )  
+			 fn =paste0( "F.", em, "_", "scaled_",type,"-value_metadata") )  
 }
 
 # ---------------------------------------------------------------------------------
