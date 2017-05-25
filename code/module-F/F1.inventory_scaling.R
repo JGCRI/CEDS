@@ -122,15 +122,11 @@ if ( is.na( em ) ) em <- "NH3"
   # Australia
   if ( em %in% c('SO2', 'NOx', 'CO', 'NMVOC' ) ) scripts <- c(scripts, 'F1.1.Australia_scaling.R')
   
+  
 # ------------------------------------------------------------------------------------
 # 4. Run all scripts for the given emissions type
 
   invisible( lapply( scripts, source_child ) )
  
-# ------------------------------------------------------------------------------------
-# 5. Create value metadata heatmaps
-  F.create_EF_value_meta_heatmap("EF", iso = "ago")
-  
-  
   logStop()
 # END
