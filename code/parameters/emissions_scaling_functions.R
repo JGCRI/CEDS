@@ -1196,6 +1196,99 @@ F.applyScale <- function(scaling_factors){
 }
 
 # ---------------------------------------------------------------------------------
+# F.create_EF_value_meta_heatmap
+# Brief: Takes the value metadata from a scaling process and generates a heatmap display.
+# Dependencies: CEDS_header.R, F.update_value_metadata, xlsx package
+# Author: Ben Goldstein
+# parameters: meta_notes, the metavalue notes; 
+#
+# return: null
+# input files: meta_notes
+# output files: "F.", em, "_", "scaled_",type,"-value_metadata_heatmap"
+
+F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso = NULL, sector = NULL) {
+  
+  if ( is.null( meta_notes ) ) {
+    # meta_notes <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
+    meta_notes <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
+    meta_notes <- melt(meta_notes, id.vars = c('iso','sector','fuel'))
+    names(meta_notes) <- c("iso","sector","fuel","year","comment" )
+    meta_notes$comment <- as.character(meta_notes$comment)
+  }
+  
+  printLog("Clipping to final scaling factors")
+  # remove the semicolon from the end of all non-default entries
+  indices <- which(meta_notes$comment != 'default')
+  meta_notes$comment <- as.character(meta_notes$comment)
+  meta_notes$comment[indices] <- substr(meta_notes$comment[indices], 0, nchar(meta_notes$comment[indices]) - 2)
+  
+  # create "meta_split" which holds only the final scaling factor
+  meta_split <- meta_notes
+  
+  filename <- em
+  
+  if (!is.null(iso)) {
+    meta_split <- meta_split[ which( meta_split$iso == iso), ]
+    filename <- paste0( filename, "_", iso)
+  }
+  
+  if (!is.null(sector)) {
+    meta_split <- meta_split[ which( meta_split$sector == sector), ]
+    filename <- paste0( filename, "_", sector)
+  }
+  
+  meta_split$comment  <- sub( ".*; ", "", meta_split$comment )
+  meta_split$comment <- as.character(meta_split$comment)
+
+  meta <- F.reclass_metavalue(meta_split)
+  meta$year <- as.numeric( substr(as.character(meta$year), 2, 5) )
+  
+  
+  
+  plot_title <- paste0("Sectoral factors for emission ",em,": ",countryName)
+  
+  p <- ggplot( meta, aes(year, sector)) + 
+       geom_raster(aes(fill = meta$value, alpha = meta$prepost)) +
+       coord_fixed(ratio = 1) +
+       theme(panel.background=element_blank(),
+            panel.grid.minor = element_line(colour="gray95"),
+            panel.grid.major = element_line(colour="gray88"),
+            panel.border = element_rect(colour = "grey80", fill=NA, size=.8))
+
+}
+
+F.reclass_metavalue <- function (meta) {
+  meta$value <- 'Default'
+  meta$prepost <- 'Matched to inventory'
+  
+  # determine pattern based on if it's pre- or post- scaled
+  meta$prepost[grep("pre-extended", meta$comment)] <- "Pre- or post-extended"
+  meta$prepost[grep("post-extended", meta$comment)] <- "Pre- or post-extended"
+
+  meta$value[grep("PEGASOS", meta$comment)] <- ("EDGAR 4.3-PEGASOS")
+  meta$value[grep("EMEP_NFR09", meta$comment)] <- ("EMEP_NFR09")
+  meta$value[grep("REAS", meta$comment)] <- ("REAS 2.1")
+  meta$value[grep("EMEP_NFR14", meta$comment)] <- ("EMEP_NFR14")
+  meta$value[grep("UNFCCC", meta$comment)] <- ("UNFCCC, 2015")
+  meta$value[grep("CAN_to2011", meta$comment)] <- ("Environment Cana, 2013")
+  meta$value[grep("CAN", meta$comment)] <- ("Environment and Climate Change Canada, 2016")
+  meta$value[grep("US-EPA", meta$comment)] <- ("US EPA, 2016")
+  meta$value[grep("US", meta$comment)] <- ("US")
+  meta$value[grep("CHN", meta$comment)] <- ("Li et al., 2017")
+  meta$value[grep("TWN", meta$comment)] <- ("TEPA, 2016")
+  meta$value[grep("ARG", meta$comment)] <- ("Argentina UNFCCC submission, 2016")
+  meta$value[grep("Japan", meta$comment)] <- ("Kurokawa et. al, 2013")
+  meta$value[grep("SKorea", meta$comment)] <- ("South Korea National Institute of Environmental Research, 2016")
+  meta$value[grep("Australia", meta$comment)] <- ("Australian Department of the Environment, 2016")
+  meta$value[grep("EDGAR", meta$comment)] <- ("EDGAR 4.2")
+  
+  return(meta)
+}
+
+# ---------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------
 # F.update-value_metadata
 # Brief: update meta comments and rewrites meta data files
 # Details: input, meta comments in scaling aggregation
