@@ -127,6 +127,8 @@ if ( is.na( em ) ) em <- "NH3"
 # 4. Run all scripts for the given emissions type
 
   invisible( lapply( scripts, source_child ) )
- 
+  
+  F.create_EF_value_meta_heatmap(iso="chn")
+  
   logStop()
 # END

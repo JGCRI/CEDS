@@ -1386,7 +1386,7 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
   
   # Paste old notes onto new ones, except those cells with 0 emissions
   meta_new <- left_join (meta_new, meta_old_changed, by = c("iso", "year", "sector"))
-  nonzero_indices <- which(meta_new$comment != 0)
+  nonzero_indices <- which(meta_new$comment != "0")
   meta_new$new_comment[nonzero_indices] <- paste0(meta_new$comment[nonzero_indices], meta_new$new_comment[nonzero_indices], "; ")
   
   # "comment" gets the value of "new comment", and unused columns from left_join are tossed
