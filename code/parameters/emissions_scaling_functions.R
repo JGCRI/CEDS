@@ -1217,6 +1217,9 @@ F.applyScale <- function(scaling_factors){
 
 F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso = NULL, sector = NULL) {
   
+  country_map <- readData("MAPPINGS", "Master_Country_List")
+  countryName <- country_map$Country_Name[country_map$iso == iso]
+  
   if ( is.null( meta_notes ) ) {
     # meta_notes <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
     meta_notes <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
@@ -1252,10 +1255,27 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
   meta <- F.reclass_metavalue(meta_split)
   meta$year <- as.numeric( substr(as.character(meta$year), 2, 5) )
   
-  country_map <- readData("MAPPINGS", "Master_Country_List")
-  countryName <- country_map$Country_Name[country_map$iso == iso]
-  
   plot_title <- paste0("Sectoral factors for emission ",em,": ",countryName)
+  
+  inventory_colors <- c( "Default" = "#cccccc",
+            "Zero emissions" = "#eeeeee",
+            "EDGAR 4.3-PEGASOS" = "#026fff",
+            "EMEP_NFR09" = "#00BE67",
+            "REAS 2.1" = "#d966ff",
+            "EMEP_NFR14" = "#73e600",
+            "UNFCCC, 2015" = "#f75555",
+            "Environment Canada, 2013" = "#ff8c1a",
+            "Environment and Climate Change Canada, 2016" = "#ffe11a",
+            "US EPA, 2016" = "#990033",
+            "US" = "#1d3d84",
+            "Li et al., 2017" = "#fcde1e",
+            "TEPA, 2016" = "#1de0cc",
+            "Argentina UNFCCC submission, 2016" = "#ff8484",
+            "Kurokawa et. al, 2013" = "#990606",
+            "South Korea National Institute of Environmental Research, 2016" = "#875c1d",
+            "Australian Department of the Environment, 2016" = "#1c661b",
+            "EDGAR 4.2" = "#80d4ff"
+            )
   
   p <- ggplot( meta, aes(year, sector)) + 
        geom_raster(aes(fill = meta$value, alpha = meta$prepost)) +
@@ -1267,7 +1287,8 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
        labs(fill="Inventory", alpha="Extension") +
        theme(text = element_text(size=8),
              axis.text.y = element_text(size = 6,angle=20, hjust=1)) +
-       scale_x_continuous(breaks = round(seq(min(meta$year), max(meta$year), by = 10),1))
+       scale_x_continuous(breaks = round(seq(min(meta$year), max(meta$year), by = 10),1)) +
+       scale_fill_manual(values = inventory_colors)
 
   ggsave( plot=p, paste0("../diagnostic-output/F.",em,"_",iso,"_value_metadata_heatmap.png"), 
           device = "png", width=8.0, height=5.0)
@@ -1286,7 +1307,7 @@ F.reclass_metavalue <- function (meta) {
   meta$value[grep("REAS", meta$comment)] <- ("REAS 2.1")
   meta$value[grep("EMEP_NFR14", meta$comment)] <- ("EMEP_NFR14")
   meta$value[grep("UNFCCC", meta$comment)] <- ("UNFCCC, 2015")
-  meta$value[grep("CAN_to2011", meta$comment)] <- ("Environment Cana, 2013")
+  meta$value[grep("CAN_to2011", meta$comment)] <- ("Environment Canada, 2013")
   meta$value[grep("CAN", meta$comment)] <- ("Environment and Climate Change Canada, 2016")
   meta$value[grep("US-EPA", meta$comment)] <- ("US EPA, 2016")
   meta$value[grep("US", meta$comment)] <- ("US")
@@ -1298,6 +1319,7 @@ F.reclass_metavalue <- function (meta) {
   meta$value[grep("Australia", meta$comment)] <- ("Australian Department of the Environment, 2016")
   meta$value[grep("EDGAR", meta$comment)] <- ("EDGAR 4.2")
   meta$value[grep("0", meta$comment)] <- ("Zero emissions")
+  meta$prepost[grep("0", meta$comment)] <- ("Matched to inventory")
   
   return(meta)
 }
