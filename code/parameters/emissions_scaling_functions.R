@@ -34,10 +34,18 @@ F.initializeMeta <- function(input) {
   
   # Create default meta data for scaling
   meta <- input[,c('iso','sector','fuel',X_emissions_years)]
-  meta[X_emissions_years] <- 'default'
   
+  # Melt meta data 
+  meta_notes <- melt(meta, id.vars = c('iso','sector','fuel'))
+  
+  # Set all non-zero values to default (retaining zeros)
+  meta_notes$value[which(meta_notes$value != 0)] <- "default"
+  
+  # Cast meta_notes back to wide form
+  meta_out <- cast(meta_notes, iso+sector+fuel~variable, value = 'value') 
+
   # writeData( meta, 'MED_OUT', paste0( 'F.', em, '_scaled_emissions-value_metadata' ) )
-  writeData( meta, 'MED_OUT', paste0( "F.", em, "_", "scaled_EF-value_metadata" ) ) 
+  writeData( meta_out, 'MED_OUT', paste0( "F.", em, "_", "scaled_EF-value_metadata" ) ) 
   
 }
 
@@ -1243,7 +1251,8 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
   meta <- F.reclass_metavalue(meta_split)
   meta$year <- as.numeric( substr(as.character(meta$year), 2, 5) )
   
-  
+  country_map <- readData("MAPPINGS", "Master_Country_List")
+  countryName <- country_map$Country_Name[country_map$iso == iso]
   
   plot_title <- paste0("Sectoral factors for emission ",em,": ",countryName)
   
@@ -1251,10 +1260,16 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
        geom_raster(aes(fill = meta$value, alpha = meta$prepost)) +
        coord_fixed(ratio = 1) +
        theme(panel.background=element_blank(),
-            panel.grid.minor = element_line(colour="gray95"),
-            panel.grid.major = element_line(colour="gray88"),
-            panel.border = element_rect(colour = "grey80", fill=NA, size=.8))
+            panel.border = element_rect(colour = "grey80", fill=NA, size=.8))+
+       scale_alpha_discrete(range = c(1, 0.4)) +
+       ylab("CEDS Sector") + xlab("") + ggtitle(plot_title) +
+       labs(fill="Inventory", alpha="Extension") +
+       theme(text = element_text(size=8),
+             axis.text.y = element_text(size = 6,angle=20, hjust=1)) +
+       scale_x_continuous(breaks = round(seq(min(meta$year), max(meta$year), by = 10),1))
 
+  ggsave( plot=p, paste0("../diagnostic-output/F.",em,"_",iso,"_value_metadata_heatmap.png"), 
+          device = "png", width=8.0, height=5.0)
 }
 
 F.reclass_metavalue <- function (meta) {
@@ -1264,7 +1279,7 @@ F.reclass_metavalue <- function (meta) {
   # determine pattern based on if it's pre- or post- scaled
   meta$prepost[grep("pre-extended", meta$comment)] <- "Pre- or post-extended"
   meta$prepost[grep("post-extended", meta$comment)] <- "Pre- or post-extended"
-
+  
   meta$value[grep("PEGASOS", meta$comment)] <- ("EDGAR 4.3-PEGASOS")
   meta$value[grep("EMEP_NFR09", meta$comment)] <- ("EMEP_NFR09")
   meta$value[grep("REAS", meta$comment)] <- ("REAS 2.1")
@@ -1281,6 +1296,7 @@ F.reclass_metavalue <- function (meta) {
   meta$value[grep("SKorea", meta$comment)] <- ("South Korea National Institute of Environmental Research, 2016")
   meta$value[grep("Australia", meta$comment)] <- ("Australian Department of the Environment, 2016")
   meta$value[grep("EDGAR", meta$comment)] <- ("EDGAR 4.2")
+  meta$value[grep("0", meta$comment)] <- ("Zero emissions")
   
   return(meta)
 }
@@ -1289,7 +1305,7 @@ F.reclass_metavalue <- function (meta) {
 
 
 # ---------------------------------------------------------------------------------
-# F.update-value_metadata
+# F.update_value_metadata
 # Brief: update meta comments and rewrites meta data files
 # Details: input, meta comments in scaling aggregation
 # Dependencies: CEDS_header.R, F.invAggregate(), F.cedsAggregate
