@@ -248,13 +248,14 @@ F.scalingToCeds <- function( scalingData , dataFormat ,valueCol , valueLab = val
   # Disaggregate from scaling sectors to CEDS sectors and create CEDS scaling that
   #   is matched to the CEDS rows from the input
   #Format - 'long' or 'wide'. Long format has 'year' column and a value column, 
-  wide.names <- names(scalingData)
-  wide.names <- wide.names[-which(wide.names == 'iso')]
-  X_years <- names(scalingData)[grep('X',names(scalingData))]
-  wide.names <- wide.names[-which(wide.names %in% X_years)]
-     if (dataFormat == 'wide'){
-     by_ceds <- merge(scalingData,
-                      unique(scaling_map[complete.cases(scaling_map),
+  
+  if (dataFormat == 'wide'){
+    wide.names <- names(scalingData)
+    wide.names <- wide.names[-which(wide.names == 'iso')]
+    X_years <- names(scalingData)[grep('X',names(scalingData))]
+    wide.names <- wide.names[-which(wide.names %in% X_years)]
+    by_ceds <- merge(scalingData,
+                     unique(scaling_map[complete.cases(scaling_map),
                                          c(scaling_name,ceds_matchcol_name)]),
                       all = TRUE,
                       by.x = c(wide.names),
@@ -262,11 +263,11 @@ F.scalingToCeds <- function( scalingData , dataFormat ,valueCol , valueLab = val
      by_ceds <- by_ceds[ , c('iso',wide.names,X_years)]
      names(by_ceds) <- c('iso',wide.names,X_years) 
    }else if (dataFormat == 'long'){
-  names(scalingData)[which(names(scalingData)==method_col)] <- scaling_name
-  by_ceds <- merge(scalingData,
-                   unique(scaling_map[complete.cases(scaling_map),
-                                      c(scaling_name,ceds_matchcol_name)]),
-                   all = TRUE)
+     scaling_map_sectors <- unique(scaling_map[, c(scaling_name,ceds_matchcol_name)])
+     scaling_map_sectors <- scaling_map_sectors[which(complete.cases(scaling_map_sectors)), ]
+     names(scalingData)[which(names(scalingData)==method_col)] <- scaling_name
+  by_ceds <- by_ceds <- merge(scalingData, scaling_map_sectors,
+                              all = TRUE)
   by_ceds <- by_ceds[ , c('iso',ceds_matchcol_name,'year',valueCol)]
   names(by_ceds) <- c('iso',method_col,'year',valueLab) }
   
@@ -1329,27 +1330,40 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
   # aggregate scaling factor meta data to ceds 
   printLog ("Aggregating meta notes")
   meta_new <- F.scalingToCeds(meta_notes, dataFormat = 'long','comment','new_comment')
+  writeData(meta_new, "TEST2", domain="MED_OUT")
   meta_new <- meta_new[complete.cases(meta_new),]
   
   meta_old_unchanged <- meta[ meta$iso %!in% unique(meta_notes$iso),]
   meta_old_changed <- meta[ meta$iso %in% unique(meta_notes$iso),]
   
   printLog ("Merging meta notes")
- 
+  
+  meta_old_changed$comment[which(meta_old_changed$comment == 'default')] <- ""
+  
+  writeData(meta_old_changed, "TEST1", domain="MED_OUT")
+  
+  
+  meta_new <- left_join (meta_new, meta_old_changed, by = c("iso", "year", "sector"))
+  meta_new$new_comment <- paste0(meta_new$comment, meta_new$new_comment, "; ")
+  
   meta_combined <- replaceValueColMatch(x=meta_old_changed,
                        y=meta_new,
                        x.ColName = 'comment', y.ColName = 'new_comment',
                        match.x = c('iso', 'sector','year'),
                        addEntries=FALSE)
+  names(meta_combined) <- c('iso','sector','fuel','year','comment')
+  meta_combined$comment[which(meta_combined$comment == '')] <- 'default' 
   
-#   meta_combined <- merge(meta_new, meta_old_changed, all.y = TRUE)
-#   meta_combined[which(is.na(meta_combined$new_comment)),'new_comment'] <- 
-#   meta_combined[which(is.na(meta_combined$new_comment)),'comment']
-#   
-#   meta_combined <- meta_combined[,c('iso','sector','fuel','year','new_comment')]
-#   names(meta_combined) <- c('iso','sector','fuel','year','comment')
- 
   new_meta_out <- rbind(meta_combined, meta_old_unchanged)
+  
+  new_meta_out <- new_meta_out[order(new_meta_out$iso,new_meta_out$year,new_meta_out$sector),]
+  meta <- meta[order(meta$iso,meta$year,meta$sector),]
+  
+  new_meta_out$comment[which(meta$comment != 'default' && meta$comment != '0')] <- 
+                        paste(meta$comment[which(
+                                    meta$comment != 'default')], new_meta_out$comment[which(
+                                    meta$comment != 'default')], sep="; ")
+  
   printLog('Casting meta to wide format')
   new_meta_out <- cast(new_meta_out, iso+sector+fuel~year, value = 'comment') 
   
