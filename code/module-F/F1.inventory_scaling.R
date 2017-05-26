@@ -69,7 +69,7 @@ if ( is.na( em ) ) em <- "NH3"
   writeData(emissions, domain = "MED_OUT", fn = paste0( "F.", em, "_scaled_emissions" ), meta = TRUE )
 
 # Create base value_metadata file
-  F.initializeMeta(EF)
+  F.initializeMeta(emissions)
   
 # ------------------------------------------------------------------------------------
 # 3. Call scaling scripts for various species
