@@ -167,8 +167,10 @@ sector_map <- Map_sector[complete.cases(Map_sector[,c('CEDS','RCP')]),c('CEDS','
 # 2. Map CEDS total emissions to aggregate regions and sectors, get CEDS totals
 #    for each sector/region combo
 
+CEDS_CH4_emissions <- Total_emissions
 
-CEDS_CH4_emissions <- Total_emissions  
+# Remove non-comparable sectors
+CEDS_CH4_emissions <- CEDS_CH4_emissions[ CEDS_CH4_emissions$sector %!in% ceds_remove_sectors, ]
 
 # Map RCP sectors to CEDS sectors
 CEDS_CH4_emissions$RCP_Sector <- sector_map[match(CEDS_CH4_emissions$sector,sector_map$CEDS),'RCP']
@@ -183,8 +185,7 @@ CEDS_1970_emissions$Name[ which(CEDS_1970_emissions$iso == "kor") ] <- "South Ko
 CEDS_1970_emissions$Name[ which(CEDS_1970_emissions$iso == "prk") ] <- "North Korea"
 CEDS_1970_emissions$Name[ which(CEDS_1970_emissions$iso == "twn") ] <- "Taiwan"
 
-
-CEDS_1970_emissions <- left_join(CEDS_1970_emissions, complete_region_map[c("Name", "Region", "Sub-region code")], by = c("Name"))
+CEDS_1970_emissions <- left_join(CEDS_1970_emissions, complete_region_map[c("Name", "Region", "Sub-region code")])
 colnames(CEDS_1970_emissions) <- c("iso", "sector", "fuel", "units", "CEDS_1970_emissions", "RCP_Sector", 
                                "Name", "RCP_Region", "RCP_Sub-region")
 
@@ -196,9 +197,12 @@ CEDS_1970_emissions <- CEDS_1970_emissions[ which( !is.na(CEDS_1970_emissions$RC
 # 3. Extract RCP regional/sectoral data and cast by year
 
 # Extract all rows that contain data from 1970 or earlier
-RCP_sectors <- c("ENE", "IND", "TRA", "DOM", "SLV", "AGR", "AWB", "WST")
+RCP_sectors <- c("ENE", "IND", "TRA", "DOM", "SLV", "AGR", "WST")
 RCP <- RCP[!is.na(RCP$Tot_Ant),]
 RCP <- RCP[which(RCP$year <= 1970),]
+
+#Remove a non-comparable sector
+RCP <- RCP[, -which(names(RCP) == "AWB")]
 
 # Clean up anomalous 'Asia-"Stan"' non-equivalent region name
 RCP$Region_Name[grep("Stan", RCP$Region_Name)] <- "Asia-Stan"
@@ -210,6 +214,7 @@ X_RCP_years <- paste0("X", RCP_years)
 # Melt the RCP data down from sectoral columns and re-cast by year
 RCP_to_melt <- RCP[,c("Region_Name", "year", RCP_sectors)]
 RCP_melt <- gather( RCP_to_melt, RCP_Sector, value, -Region_Name, -year )
+RCP_melt <- RCP_melt[ which( RCP_melt$RCP_Sector != "AWB" ), ] # AWB is a non-comparable sector
 RCP_melt$year <- paste0("X",RCP$year)
 RCP_cast_to_year <- spread(RCP_melt, year, value)
 colnames(RCP_cast_to_year)[1] <- "RCP_Region"
