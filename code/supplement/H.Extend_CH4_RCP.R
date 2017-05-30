@@ -158,6 +158,8 @@ complete_region_map$Name[grep("United States", complete_region_map$Name)] <- "Un
 complete_region_map$Name[grep("Korea, Dem", complete_region_map$Name)] <- "North Korea"
 complete_region_map$Name[grep("Korea, Rep", complete_region_map$Name)] <- "South Korea"
 complete_region_map$Name[grep("Taiw", complete_region_map$Name)] <- "Taiwan"
+complete_region_map$Code <- sapply(complete_region_map$Code, tolower)
+colnames(complete_region_map)[ which( colnames(complete_region_map) == "Code" )] <- "iso"
 
 # Create sector map for CEDS to RCP
 sector_map <- Map_sector[complete.cases(Map_sector[,c('CEDS','RCP')]),c('CEDS','RCP')]
@@ -185,12 +187,13 @@ CEDS_1970_emissions$Name[ which(CEDS_1970_emissions$iso == "kor") ] <- "South Ko
 CEDS_1970_emissions$Name[ which(CEDS_1970_emissions$iso == "prk") ] <- "North Korea"
 CEDS_1970_emissions$Name[ which(CEDS_1970_emissions$iso == "twn") ] <- "Taiwan"
 
-CEDS_1970_emissions <- left_join(CEDS_1970_emissions, complete_region_map[c("Name", "Region", "Sub-region code")])
+CEDS_1970_emissions <- left_join(CEDS_1970_emissions, complete_region_map[c("iso", "Region", "Sub-region code")], by="iso")
 colnames(CEDS_1970_emissions) <- c("iso", "sector", "fuel", "units", "CEDS_1970_emissions", "RCP_Sector", 
                                "Name", "RCP_Region", "RCP_Sub-region")
 
 # Remove rows that have NAs for sector or region (disconsider CEDS sectors and isos that weren't in RCP)
 CEDS_1970_emissions <- CEDS_1970_emissions[ which( !is.na(CEDS_1970_emissions$RCP_Sector)),]
+eliminated <- CEDS_1970_emissions[ which( is.na(CEDS_1970_emissions$RCP_Region)),]
 CEDS_1970_emissions <- CEDS_1970_emissions[ which( !is.na(CEDS_1970_emissions$RCP_Region)),]
 
 # ---------------------------------------------------------------------------
