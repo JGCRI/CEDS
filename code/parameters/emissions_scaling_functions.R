@@ -1412,6 +1412,9 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
                                     meta$comment != 'default')], new_meta_out$comment[which(
                                     meta$comment != 'default')], sep="; ")
   
+  # Any comment beginning with a 0 can be replaced by a 0.
+  new_meta_out$comment[which( substr( new_meta_out$comment, 1, 1 ) == '0' )] <- 0
+  
   # Cast data to wide format and write to output
   printLog('Casting meta to wide format')
   new_meta_out <- cast(new_meta_out, iso+sector+fuel~year, value = 'comment') 
