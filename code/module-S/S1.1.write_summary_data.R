@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: S1.1.write_summary_data.R 
-# Author: Rachel Hoesly, Steve Smith, Linh Vu
-# Date Last Updated: 18 April 2016
+# Author: Rachel Hoesly, Steve Smith, Linh Vu, Presley Muwan
+# Date Last Updated: 31 May 2017
 # Program Purpose: Produces summary output
 #               
 # Output Files: data in final-emissions folder
@@ -21,6 +21,8 @@ for ( i in 1:length( dirs ) ) {
     
   }
 }
+
+
 PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
@@ -37,6 +39,9 @@ args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "CO"
 
+#load xlsx library
+library("xlsx")
+
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
 
@@ -51,6 +56,162 @@ moveFile <- function( fn, new_dir ) {
 moveFileList <- function( fn_list, new_dir ) {
   lapply( fn_list, function( fn ) moveFile( fn, new_dir ) )
 }
+
+
+# -----------------------------------------------------------------------------------
+# format_xlsx_numeric_data
+# Brief:    This function formats numeric data cells of an xlsx workbook
+# Details: This function formats the numeric values of an xlsx cell to use comma seperator
+#           for values greater than 1000, and hides the decimal places of values greater than 1.
+#           For values less than 1, it formats their decimal places to 2. 
+# Dependencies: None
+# Author(s): Presley Muwan  
+# Params:   workbook - the xlsl file to be formatted (use loadworkbook(filepath) function from xlsx package
+#                       to extract the xlsl workbook)
+#           sheetName - name of the sheet, within the workbook, whose cells will be formated
+#           rowIndex  - Index (indices) of the row(s) to be formatted
+#           columnIndext - index (indices) of the column(s) to be formatted
+#        
+# Return: xlsx_workbook  
+# Input Files:  none
+# Output Files: none
+format_xlsx_numeric_data <- function (workbook, sheetName, rowIndex, columnIndext){
+  
+  #style to use for cells whose value is greater than one
+  comma_seperator_style <- CellStyle(workbook, dataFormat = DataFormat("#,###"))
+  
+  #style to use for celss whose value is less than one
+  decimal_style <- CellStyle(workbook, dataFormat = DataFormat("0.00"))
+  
+  #get the sheet from the workbook (xlsx file)
+  sheet <- getSheets(workbook)[[sheetName]]
+  
+  #get the rows and rows' cells, along with their values 
+  rows <- getRows(sheet, rowIndex)
+  cells <- getCells(rows,columnIndext)
+  cell_values <- lapply(cells, getCellValue)
+  
+  #variables to hold index of cells whose value are greater than one,
+  #and less than one, respectively
+  cells_greater_than_one <- '<1'
+  cell_less_than_one <- ">1"
+  
+  #seperate the cells based on their values and store then in their respective
+  #vectors 
+ # cells_greater_than_one  <- lapply(names(cell_values), function(index){
+ #                           cell_value <- as.numeric(cell_values[index])
+ #                           if(cell_value > 1) return(index)} )
+
+ #cell_less_than_one  <- lapply(names(cell_values), function(index){
+ #                             cell_value <- as.numeric(cell_values[index])
+ #                              if(cell_value < 1 & cell_value > 0) return(index)} )
+ for (index in names(cell_values)) {
+     cell_value <- as.numeric(cell_values[index])
+     if (cell_value >= 1  & !is.na(cell_value)) {
+        cells_greater_than_one <- c(cells_greater_than_one, index)
+     }else if(cell_value < 1 & cell_value > 0 & !is.na(cell_value)){
+        cell_less_than_one  <- c(cell_less_than_one, index)
+     }    
+  }#for ends 
+  
+  #remove the value at the first index of each vector
+  cells_greater_than_one <- cells_greater_than_one[-1]
+  cell_less_than_one <- cell_less_than_one[-1]
+  
+  #apply the formatting style to the cells 
+  lapply(names(cells[cells_greater_than_one]),
+         function(cell_index)setCellStyle(cells[[cell_index]],comma_seperator_style))
+  lapply(names(cells[cell_less_than_one]),
+         function(cell_index)setCellStyle(cells[[cell_index]],decimal_style))
+  
+  #return the workbook
+  return(workbook)
+}#format_xlsx_data() Ends 
+
+
+# -----------------------------------------------------------------------------------
+# create_tab_of_global_emission_by_sector
+# Brief:  This function creates data tabs (or sheets) containing emission by ceds sector
+#         within an xlsx file    
+# Details: The tab (sheet) created has the name "year" (specified by the parameter). 
+#          The tabe is formated to have emission species as columns names and CEDS sectors 
+#          as row names 
+# Dependencies: None
+# Author(s): Presley Muwan  
+# Params:   year - the year from which data is extracted to create the tab (or sheet)
+#           Em_by_CEDS_Sector_tabs - Long formated data frame will emission data arranged 
+#                                    for all CEDS sector and all years 
+#        
+# Return: none  
+# Input Files:  global_emissions_by_CEDS_sector.xlsx - if it exist
+# Output Files: global_emissions_by_CEDS_sector.xlsx 
+create_tab_of_global_emission_by_sector <- function(year ,Em_by_CEDS_Sector_tabs){
+  year <- "X1800"
+  emission_tab <- Em_by_CEDS_Sector_long[which(Em_by_CEDS_Sector_long$year == year),]
+
+  #get emission type
+  emission <- unique(emission_tab$em)
+  
+  #get the tab (sheet) name (year)
+  tab_name <- gsub("x", "", year, ignore.case = T) 
+  
+  #re-arrange dataframe columns
+  names(emission_tab) <- c( "sector", "em","units","year", emission )
+  
+  #remove the 'em' and the 'year' column
+  emission_tab <- select(emission_tab, -em, -year, -units)
+  
+  #------------------------if file exist ------------------------#
+  #check if file exist
+  global_em_workbook_path <- "../final-emissions/diagnostics/global_emissions_by_CEDS_sector.xlsx"
+  if(file.exists(global_em_workbook_path)){
+    
+    #retrieve excel file and extract its sheets
+    global_em_workbook <- loadWorkbook(global_em_workbook_path)
+    sheets <- getSheets(global_em_workbook)
+    
+    #append data to existing sheet
+    if(tab_name %in% names(sheets)){
+      
+      #read the global_em_by_CEDS_sector file
+      #IMPORTANT: Using the readData function resulted to and error; "Error during wrapup: Couldn't find 'xl/worksheets/sheet1.xml"
+      #global_em_by_CEDS_sector <- readData( domain = "FIN_OUT", file_name = 'global_emissions_by_CEDS_sector',
+      #                                    domain_extension = "diagnostics/", extension = ".xlsx", sheet_selection = tab_name )
+      printLog("Reading ", global_em_workbook_path)
+      global_em_by_CEDS_sector <- read.xlsx(file = global_em_workbook_path, sheetName = tab_name)
+      
+      #remove old emission data and replace with the current one
+      if(em %in% colnames(global_em_by_CEDS_sector)){
+        global_em_by_CEDS_sector <-
+          select(global_em_by_CEDS_sector, -contains(em))
+      }#if ends 
+      
+      #add new column to exisiting data 
+      emission_tab <- full_join(global_em_by_CEDS_sector, emission_tab, by = c("sector")) %>% mutate(units = "kt")
+      em_species <- names(emission_tab)[(names(emission_tab) %!in% c("sector", "units"))]
+      emission_tab <- emission_tab[c(c("sector", "units", em_species))]
+      
+      #delete the sheet for this year (to prevent conflicting error when writing new data)
+      removeSheet(global_em_workbook, sheetName = tab_name)
+      saveWorkbook(global_em_workbook,global_em_workbook_path)
+      
+    }#if Ends 
+    
+  }#if Ends 
+  
+  #write out the data 
+  printLog("Writing ",global_em_workbook_path )
+  write.xlsx(emission_tab,global_em_workbook_path, sheetName=tab_name, append=T, row.names = F)
+  
+  #format data; remove decimal points and use comma sperator 
+  global_em_workbook <- loadWorkbook(global_em_workbook_path)
+  global_em_workbook  <- format_xlsx_numeric_data(global_em_workbook, tab_name, 
+                                                rowIndex = 2:(nrow(emission_tab)+1),
+                                                columnIndext = 3:ncol(emission_tab))
+  saveWorkbook(global_em_workbook, global_em_workbook_path)
+  
+}#create_tab_of_global_emission_by_sector() Ends 
+
 
 # Option to also write out data by CEDS sectors
 WRITE_CEDS_SECTORS = TRUE
@@ -165,7 +326,50 @@ if ( WRITE_CEDS_SECTORS ) {
 	#Sort
 	Em_by_CEDS_Sector <- Em_by_CEDS_Sector[ with( Em_by_CEDS_Sector, order( sector ) ), ]
 
-}
+	#define the interval years 
+	all_years <- c(paste0("X",1750+(50*(0:4))), paste0("X",c(1950+(10*(1:6)),2014)))
+	
+	Em_by_CEDS_Sector_long <- melt( Em_by_CEDS_Sector, id = c("sector", "em", "units"), variable_name = "year" )
+	
+	#create  global_emission_by_sector xlsx workbook with tabs 
+	lapply(all_years, FUN = create_tab_of_global_emission_by_sector, Em_by_CEDS_Sector_long)
+	
+	#Global Emmission by specie 
+	global_total_emission <- aggregate(final_emissions[X_write_years],
+	                                   by=list(em= final_emissions$em,
+	                                           units=final_emissions$units),sum )
+	
+	#Read global_total_emission_for_species file (if it exist) and append the new specie record to it
+	global_total_emission_for_species_path <- "../final-emissions/diagnostics/global_total_emission_for_species.xlsx"
+	sheet <- "global_total_emission"
+	if(file.exists(global_total_emission_for_species_path)){
+	 
+	  global_total_emission_for_species <- readData( domain = "FIN_OUT", file_name = 'global_total_emission_for_species',
+	                                                domain_extension = "diagnostics/" ,extension = ".xlsx", sheet_selection = sheet )
+	  #remove sheet to avoid write-coanflict
+	  global_em_workbook <- loadWorkbook(global_total_emission_for_species_path)
+	  removeSheet(global_em_workbook, sheetName = sheet)
+	  saveWorkbook(global_em_workbook,global_total_emission_for_species_path)
+	  
+	  #remove existing specie row
+	  global_total_emission_for_species <- global_total_emission_for_species[which(global_total_emission_for_species$em != em),]
+	  #add the em specie's record to the data frame
+	  global_total_emission <- dplyr::bind_rows(global_total_emission_for_species, global_total_emission)
+	}#if Ends 
+	
+	#write out global_total_emission data 
+	printLog("Writing ",global_total_emission_for_species_path )
+	write.xlsx(global_total_emission,global_total_emission_for_species_path, sheetName= sheet, append=F, row.names = F)
+	
+	#format global_total_emission_for_species; remove decimal points and use comma sperator for values greateer than 1
+	#For values less than 1, show only two decimal places 
+	global_total_emission_wb <- loadWorkbook(global_total_emission_for_species_path)
+	global_total_emission_wb  <- format_xlsx_numeric_data(global_total_emission_wb, sheet, 
+	                                                    rowIndex = 2:(nrow(global_total_emission)+1),
+	                                                    columnIndext = 3:ncol(global_total_emission))
+	saveWorkbook(global_total_emission_wb, global_total_emission_for_species_path)
+	
+}#if Ends 
 
 # ---------------------------------------------------------------------------
 # 3. Write summary and diagnostics outputs
