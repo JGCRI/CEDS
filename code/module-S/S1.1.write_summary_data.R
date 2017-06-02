@@ -62,8 +62,7 @@ moveFileList <- function( fn_list, new_dir ) {
 # format_xlsx_numeric_data
 # Brief:    This function formats numeric data cells of an xlsx workbook
 # Details: This function formats the numeric values of an xlsx cell to use comma seperator
-#           for values greater than 1000, and hides the decimal places of values greater than 1.
-#           For values less than 1, it formats their decimal places to 2. 
+#           for values greater than 1000, and hides the decimal places of values greater than 0. 
 # Dependencies: None
 # Author(s): Presley Muwan  
 # Params:   workbook - the xlsl file to be formatted (use loadworkbook(filepath) function from xlsx package
