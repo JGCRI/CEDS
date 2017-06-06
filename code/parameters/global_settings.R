@@ -90,7 +90,7 @@ Write_value_metadata <- FALSE
 #follow the instruction in the next comment  
 
 # User should uncomment the following line if he/she has a specific cedsUserVersionNumber to use
-## options(cedsUserVersionNumber = "v_07_26_2016")
+## options(cedsUserVersionNumber = "v_YYYY_MM_DD")
 
 getcedsVersionNumber <- function( ) {
   
@@ -102,7 +102,7 @@ getcedsVersionNumber <- function( ) {
   
   # generate the version_stamp
   if( is.null ( ceds_user_version_number ) == T ) {
-    version_stamp <- paste0("v", "_", format(version_date, format="%m_%d_%Y"))
+    version_stamp <- paste0("v", "_", format(version_date, format="%Y_%m_%d"))
   } else {
     version_stamp <- ceds_user_version_number
   }
