@@ -1,15 +1,17 @@
-CEDS_level_1_grids,CEDS_level_1_grids_abr,CEDS_level_2_grids,CEDS_level_2_grids_abr,CEDS_level_3_grids,CEDS_level_3_grids_abr
-Agriculture,AGR,Agriculture,AGR,Agriculture,AGR
-Electricity and heat production,ELEC,Electricity and heat production,ELEC,Energy Sector,ENE
-Fossil Fuel Fires,FFFI,Fossil Fuel Fires,FFFI,Energy Sector,ENE
-Fuel Production and Transformation,ETRN,Fuel Production and Transformation,ETRN,Energy Sector,ENE
-Industrial combustion,INDC,Industrial combustion,INDC,Industrial Sector,IND
-Industrial process and product use,INPU,Industrial process and product use,INPU,Industrial Sector,IND
-Non-road Transportation,NRTR,Non-road Transportation,NRTR,Transportation Sector,TRA
-"Residential, Commercial, Other - Residential, Commercial",RCORC,"Residential, Commercial, Other",RCO,"Residential, Commercial, Other",RCO
-"Residential, Commercial, Other - Other",RCOO,"Residential, Commercial, Other",RCO,"Residential, Commercial, Other",RCO
-Road transportation,ROAD,Road transportation,ROAD,Transportation Sector,TRA
-Solvents production and application,SLV,Solvents production and application,SLV,Solvents production and application,SLV
-Waste,WST,Waste,WST,Waste,WST
-International Shipping,SHP,International Shipping,SHP,International Shipping,SHP
-Oil and Gas Fugitive/Flaring,FLR,Oil and Gas Fugitive/Flaring,FLR,Energy Sector,ENE
+CEDS_int_sector,CEDS_int_sector_short,CEDS_fin_sector,CEDS_fin_sector_short
+Agriculture,AGR,Agriculture,AGR
+Electricity and Heat Production,ELEC,Energy Sector,ENE
+Fossil Fuel Fires,FFFI,Energy Sector,ENE
+Fuel Production and Transformation,ETRN,Energy Sector,ENE
+Industrial Combustion,INDC,Industrial Sector,IND
+Industrial Process and Product Use,INPU,Industrial Sector,IND
+Non-road Transportation,NRTR,Transportation Sector,TRA
+"Residential, Commercial, Other - Residential, Commercial",RCORC,"Residential, Commercial, Other",RCO
+"Residential, Commercial, Other - Other",RCOO,"Residential, Commercial, Other",RCO
+Road Transportation,ROAD,Transportation Sector,TRA
+Solvents Production and Application,SLV,Solvents Production and Application,SLV
+Waste,WST,Waste,WST
+International Shipping,SHP,International Shipping,SHP
+Oil and Gas Fugitive/Flaring,FLR,Energy Sector,ENE
+International Shipping - Tanker Loading,TANK,International Shipping,SHP
+Aircraft,AIR,Aircraft,AIR
