@@ -74,7 +74,7 @@
  
 # -----------------------------------------------------------------------------------------
 # 3. Compute IEA shipping fuel
-# Total IEA shipping = fishing + international shipping + domestic aviation    
+# Total IEA shipping = fishing + international shipping + domestic navigation    
 # For purposes here, treat all coal as hard coal
   
     iea_data$fuel <- IEA_product_fuel$fuel[ match( iea_data$PRODUCT, IEA_product_fuel$product ) ]
@@ -217,7 +217,7 @@
     ship_out <- group_by( ship_out, iso, sector, fuel, units ) %>%
       summarise_each( fun = "max" )
 
-#Seperate for output
+#Separate for output
     global_shipping <- ship_out[which(ship_out$iso == 'global'),]
     else_shipping <- ship_out[which(ship_out$iso != 'global'),]
     
