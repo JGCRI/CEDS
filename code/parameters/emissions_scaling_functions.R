@@ -45,7 +45,7 @@ F.initializeMeta <- function(input) {
   meta_out <- cast(meta_notes, iso+sector+fuel~variable, value = 'value') 
 
   # writeData( meta, 'MED_OUT', paste0( 'F.', em, '_scaled_emissions-value_metadata' ) )
-  writeData( meta_out, 'MED_OUT', paste0( "F.", em, "_", "scaled_EF-value_metadata" ) ) 
+  writeData( meta_out, 'MED_OUT', paste0( "F.", em, "_", "scaled_EF-value_metadata" ), meta = F ) 
   
 }
 
@@ -1420,7 +1420,7 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
   new_meta_out <- cast(new_meta_out, iso+sector+fuel~year, value = 'comment') 
   
   writeData( new_meta_out, domain = 'MED_OUT', 
-			 fn =paste0( "F.", em, "_", "scaled_",type,"-value_metadata") )  
+			 fn =paste0( "F.", em, "_", "scaled_",type,"-value_metadata"), meta = F )  
 }
 
 # ---------------------------------------------------------------------------------
