@@ -736,7 +736,7 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
 # return:       all_metadata
 # input files:  metadata file, e.g. 'example-metadata.csv'
 # output files: null
-readMetaData <- function( meta_domain="none", file_name="none", file_extension = "cvs", meta_name = 'none', meta_domain_ext = "" ) {
+readMetaData <- function( meta_domain="none", file_name="none", file_extension = "csv", meta_name = 'none', meta_domain_ext = "" ) {
 
     # # DEBUG
     # meta_domain <- "MED_OUT"
