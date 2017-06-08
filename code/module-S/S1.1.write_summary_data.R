@@ -44,7 +44,7 @@ library("xlsx")
 
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
-
+ceds_website <- "http://www.globalchange.umd.edu/ceds/"
 write_years <- 1750:end_year
 
 # Define functions to move a list of files (full path name)
@@ -58,11 +58,12 @@ moveFileList <- function( fn_list, new_dir ) {
 }
 
 
+
 # -----------------------------------------------------------------------------------
 # format_xlsx_numeric_data
 # Brief:    This function formats numeric data cells of an xlsx workbook
 # Details: This function formats the numeric values of an xlsx cell to use comma seperator
-#           for values greater than 1000, and hides the decimal places of values greater than 0. 
+#           for values all values greater than 0. And grays out values equall 0. 
 # Dependencies: None
 # Author(s): Presley Muwan  
 # Params:   workbook - the xlsl file to be formatted (use loadworkbook(filepath) function from xlsx package
@@ -93,26 +94,26 @@ format_xlsx_numeric_data <- function (workbook, sheetName, rowIndex, columnIndex
   # variables to hold index of cells whose value are greater than one,
   # and less than one, respectively
   cells_greater_than_one <- '<1'
-  cell_less_than_one <- ">1"
+  cell_with_zero <- ">1"
   
   # seperate the cells based on their values and store then in their respective vectors 
   for ( index in names(cell_values) ) {
-     cell_value <- as.numeric(cell_values[index])
-     if ( cell_value > 0  & !is.na(cell_value) ) {
-        cells_greater_than_one <- c(cells_greater_than_one, index)
-     }else if( cell_value == 0 & !is.na(cell_value) ){
-        cell_less_than_one  <- c( cell_less_than_one, index )
-     }#else if    
+    
+    cell_value <- as.numeric(cell_values[index])
+    
+    if( cell_value == 0 & !is.na(cell_value) ){
+      cell_with_zero  <- c( cell_with_zero, index )
+    }else cells_greater_than_one <- c(cells_greater_than_one, index)
   }#for ends 
   
   # remove the value at the first index of each vector
   cells_greater_than_one <- cells_greater_than_one[-1]
-  cell_less_than_one <- cell_less_than_one[-1]
+  cell_with_zero <- cell_with_zero[-1]
   
   # apply the formatting style to the cells 
   lapply(names(cells[cells_greater_than_one]),
          function( cell_index) xlsx::setCellStyle(cells[[cell_index]],comma_seperator_style) )
-  lapply(names( cells[cell_less_than_one] ),
+  lapply(names( cells[cell_with_zero] ),
          function( cell_index ) xlsx::setCellStyle(cells[[cell_index]], highlight_zoro_style) )
   
   #return the workbook
@@ -140,7 +141,7 @@ create_tab_of_global_emission_by_sector <- function( year , Em_by_CEDS_Sector_ta
   
   #select dataset only for this year
   emission_tab <- Em_by_CEDS_Sector_long[ which(Em_by_CEDS_Sector_long$year == year ),]
-
+  
   #get emission type
   emission <- unique( emission_tab$em )
   
@@ -160,7 +161,7 @@ create_tab_of_global_emission_by_sector <- function( year , Em_by_CEDS_Sector_ta
     
     #retrieve excel file and extract its sheets
     global_em_workbook <- xlsx::loadWorkbook(global_em_workbook_path)
-    sheets <- getSheets(global_em_workbook)
+    sheets <- xlsx::getSheets(global_em_workbook)
     
     #append data to existing sheet
     if( tab_name %in% names(sheets) ){
@@ -174,12 +175,12 @@ create_tab_of_global_emission_by_sector <- function( year , Em_by_CEDS_Sector_ta
       
       #remove old emission data and replace with the current one
       if( em %in% colnames(global_em_by_CEDS_sector) ){
-          global_em_by_CEDS_sector <- select( global_em_by_CEDS_sector, -contains(em) )
+        global_em_by_CEDS_sector <- select( global_em_by_CEDS_sector, -contains(em) )
       }#if ends 
       
       #add new column to exisiting data 
       emission_tab <- full_join( global_em_by_CEDS_sector, emission_tab, by = c("sector") ) %>% 
-                      mutate( units = "kt" ) #add the "unit" column and initialize it with "kt"
+        mutate( units = "kt" ) #add the "unit" column and initialize it with "kt"
       
       em_species <- names(emission_tab)[(names(emission_tab) %!in% c("sector", "units"))]
       emission_tab <- emission_tab[ c( c("sector", "units", em_species) ) ]
@@ -204,6 +205,48 @@ create_tab_of_global_emission_by_sector <- function( year , Em_by_CEDS_Sector_ta
   xlsx::saveWorkbook( global_em_workbook, global_em_workbook_path )
   
 }#create_tab_of_global_emission_by_sector() Ends 
+
+
+
+# -----------------------------------------------------------------------------------
+# update_readme_sheet
+# Brief:  this function adds a README sheet to a workbook   
+# Details: The README Sheet contains the version number of the latest run and CEDS url website
+# Dependencies: None
+# Author(s): Presley Muwan  
+# Params:   workbook - the targeted excel file
+#           CEDS_version - The version of the current run
+#           website - CEDS web url
+#        
+# Return: Excel workbook  
+# Input Files:  any excel workbook
+# Output Files: 
+update_readme_sheet <- function(workbook, website, CEDS_version){
+  
+  #add a "README" tab to global_total_emission_wb
+  old_sheets <- xlsx::getSheets(workbook)
+  
+  #initialize CEDS_version column 
+  ceds_version_df <- data.frame(CEDS_Version = c(CEDS_version))
+  
+  #Initialize website data 
+  ceds_web_df <- data.frame(Project_Website = c(website))
+  
+  #check if tab exist
+  if(names(old_sheets) %!in% c("README")){
+    #create new sheet
+    readme_sheet <-  xlsx::createSheet(global_total_emission_wb, "README")
+    
+  }else readme_sheet <-  xlsx::getSheets(global_total_emission_wb, "README")
+  
+  #add it if it does not exist 
+  xlsx::addDataFrame(ceds_web_df, readme_sheet, startColumn = 2)
+  xlsx::addDataFrame(ceds_version_df, readme_sheet)
+  
+  return(workbook)
+  
+}#updata_readme_sheet() Ends 
+
 
 
 # Option to also write out data by CEDS sectors
@@ -327,19 +370,22 @@ if ( WRITE_CEDS_SECTORS ) {
 	#create  global_emission_by_sector xlsx workbook with tabs 
 	lapply(all_years, FUN = create_tab_of_global_emission_by_sector, Em_by_CEDS_Sector_long)
 	
+	
 	#freeze row names (sector column) and years (column headers)
 	global_em_wb_sheets <- c(paste0("",1750+(50*(0:4))), paste0("",c(1950+(10*(1:6)),2014)))
 	global_em_workbook_path <- "../final-emissions/diagnostics/global_emissions_by_CEDS_sector.xlsx"
-	global_em_workbook <- XLConnect::loadWorkbook(global_em_workbook_path)
+	global_em_workbook <- xlsx::loadWorkbook(global_em_workbook_path)
+	
 	lapply(global_em_wb_sheets, function(sheet){
-	  XLConnect::createFreezePane(global_em_workbook, sheet,2, 2 )
-	  XLConnect::setColumnWidth( global_em_workbook,sheet,1, width = -1 )
-	  XLConnect::saveWorkbook(global_em_workbook, global_em_workbook_path )})
+	  sheet_to_freeze <- xlsx::getSheets(global_em_workbook)[[sheet]]
+	  xlsx::createFreezePane(sheet_to_freeze, colSplit = 3, rowSplit = 2, startRow = 2, startColumn = 3)
+	  xlsx::setColumnWidth(sheet_to_freeze, colIndex = 1, colWidth = 50)
+	  xlsx::saveWorkbook(global_em_workbook, global_em_workbook_path)})
 	
 	#Global Emmission by specie 
 	global_total_emission <- aggregate( final_emissions[X_write_years],
 	                                    by=list(em= final_emissions$em,
-	                                    units=final_emissions$units),sum )
+	                                            units=final_emissions$units),sum )
 	
 	#remove 'X' from  global_total_emission header 
 	xColumnYears <- names(global_total_emission)[names( global_total_emission ) %!in% c( "em","units" )]
@@ -350,10 +396,10 @@ if ( WRITE_CEDS_SECTORS ) {
 	global_total_emission_for_species_path <- "../final-emissions/diagnostics/global_total_emission_for_species.xlsx"
 	global_em_for_species_sheet <- "global_total_emission"
 	if( file.exists( global_total_emission_for_species_path ) ){
-	 
+	  
 	  global_total_emission_for_species <- readData( domain = "FIN_OUT", file_name = 'global_total_emission_for_species',
-	                                                domain_extension = "diagnostics/" ,extension = ".xlsx", 
-	                                                sheet_selection = global_em_for_species_sheet )
+	                                                 domain_extension = "diagnostics/" ,extension = ".xlsx", 
+	                                                 sheet_selection = global_em_for_species_sheet )
 	  #remove sheet to avoid write-coanflict
 	  global_em_workbook <- loadWorkbook( global_total_emission_for_species_path )
 	  removeSheet( global_em_workbook, sheetName = global_em_for_species_sheet )
@@ -372,20 +418,24 @@ if ( WRITE_CEDS_SECTORS ) {
 	write.xlsx(global_total_emission,global_total_emission_for_species_path, 
 	           sheetName= global_em_for_species_sheet, append=F, row.names = F )
 	
-	#freeze row names (sector column) and years (column headers)
-	global_total_emission_wb <- XLConnect::loadWorkbook(global_total_emission_for_species_path)
-	XLConnect::createFreezePane( global_total_emission_wb, global_em_for_species_sheet,2, 2 )
-	XLConnect::saveWorkbook( global_total_emission_wb, global_total_emission_for_species_path )
-	
 	#format global_total_emission_for_species; remove decimal points and use comma sperator for values greateer than 1
 	#For values less than 1, show only two decimal places 
-	global_total_emission_wb <- loadWorkbook(global_total_emission_for_species_path)
+	global_total_emission_wb <- xlsx::loadWorkbook(global_total_emission_for_species_path)
 	global_total_emission_wb  <- format_xlsx_numeric_data( global_total_emission_wb, global_em_for_species_sheet, 
 	                                                       rowIndex = 2:(nrow(global_total_emission)+1),
 	                                                       columnIndext = 3:ncol(global_total_emission) )
+	
+	#freeze row names (sector column) and years (column headers)
+	sheet_to_freeze <- xlsx::getSheets(global_total_emission_wb)[[global_em_for_species_sheet]]
+	xlsx::createFreezePane(sheet_to_freeze, colSplit = 3, rowSplit = 2 , startRow = 2, startColumn = 3)
+	#xlsx::setColumnWidth(sheet_to_freeze, colIndex = 1, colWidth = 25)
+	
+	#update workbooks 'README' data 
+	global_total_emission_wb <- update_readme_sheet(global_total_emission_wb, ceds_website, version_stamp )
+	
 	#safe global_total_emission_wb
-	saveWorkbook( global_total_emission_wb, global_total_emission_for_species_path )
-
+	xlsx::saveWorkbook( global_total_emission_wb, global_total_emission_for_species_path )
+	
 }#if Ends 
 
 # ---------------------------------------------------------------------------
