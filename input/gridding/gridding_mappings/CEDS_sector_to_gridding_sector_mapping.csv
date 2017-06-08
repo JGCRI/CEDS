@@ -21,6 +21,7 @@ CEDS_working_sector,CEDS_int_gridding_sector,CEDS_int_gridding_sector_short,CEDS
 1A3b_Road,Road transportation,ROAD,Transportation Sector,TRA
 1A3c_Rail,Non-road Transportation,NRTR,Transportation Sector,TRA
 1A3di_International-shipping,International shipping,SHP,International shipping,SHP
+1A3di_Oil_Tanker_Loading,Tanker Loading,TANK,International Shipping,SHP
 1A3dii_Domestic-navigation,Non-road Transportation,NRTR,Transportation Sector,TRA
 1A3eii_Other-transp,Non-road Transportation,NRTR,Transportation Sector,TRA
 1A4a_Commercial-institutional,"Residential, Commercial, Other - Residential, Commercial",RCORC,"Residential, Commercial, Other",RCO
@@ -40,7 +41,7 @@ CEDS_working_sector,CEDS_int_gridding_sector,CEDS_int_gridding_sector_short,CEDS
 2D_Paint-application,Solvents production and application,SLV,Solvents production and application,SLV
 2D3_Chemical-products-manufacture-processing,Solvents production and application,SLV,Solvents production and application,SLV
 2H_Pulp-and-paper-food-beverage-wood,Industrial process and product use,INPU,Industrial Sector,IND
-2L_Other-process-emissions,Tanker Loading,TANK,International Shipping,SHP
+2L_Other-process-emissions,Industrial process and product use,INPU,Industrial Sector,IND
 3B_Manure-management,Agriculture,AGR,Agriculture,AGR
 3D_Soil-emissions,Agriculture,AGR,Agriculture,AGR
 3I_Agriculture-other,Agriculture,AGR,Agriculture,AGR
