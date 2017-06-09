@@ -1232,23 +1232,24 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
   if ( is.null( meta_notes ) ) {
     meta_notes <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
     meta_notes <- melt(meta_notes, id.vars = c('iso','sector','fuel'))
-    names(meta_notes) <- c("iso","sector","fuel","year","comment" )
+    names( meta_notes ) <- c( "iso", "sector", "fuel", "year", "comment" )
     meta_notes$comment <- as.character(meta_notes$comment)
   }
   
   printLog("Clipping to final scaling comments")
   
   # remove the semicolon from the end of all non-default entries
-  indices <- which(meta_notes$comment != 'default')
+  indices <- grepl( ";", meta_notes$comment )
   meta_notes$comment <- as.character(meta_notes$comment)
-  meta_notes$comment[indices] <- substr(meta_notes$comment[indices], 0, nchar(meta_notes$comment[indices]) - 2)
+  meta_notes$comment[ indices ] <- substr(meta_notes$comment[indices], 0, nchar(meta_notes$comment[indices]) - 2)
   
   # create "meta_split" which will hold only the final scaling factor
   meta_split <- meta_notes
   meta_split <- meta_split[ which( meta_split$iso == iso), ]
   
   # Discard all value metadata notes that occur before the final semicolon
-  meta_split$comment  <- sub( ".*; ", "", meta_split$comment )
+  indices <- grepl( ";", meta_split$comment )
+  meta_split$comment[indices]  <- sub( ".*; ", "", meta_split$comment[indices] )
   meta_split$comment <- as.character(meta_split$comment)
 
   # Reclassify the notes for display purposes
@@ -1386,12 +1387,18 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
   
   # Paste old notes onto new ones, except those cells with 0 emissions
   meta_new <- left_join (meta_new, meta_old_changed, by = c("iso", "year", "sector"))
-  nonzero_indices <- which(meta_new$comment != "0")
-  meta_new$new_comment[nonzero_indices] <- paste0(meta_new$comment[nonzero_indices], meta_new$new_comment[nonzero_indices], "; ")
+  
+  # identify all indices which arent zeros, blank, or duplicates
+  valid_indices <- which( meta_new$comment != "0" & 
+                          trimws( meta_new$new_comment ) != "" & 
+                          !grepl( meta_new$new_comment, meta_new$comment ) )
+
+  meta_new$new_comment[valid_indices] <- paste0( meta_new$comment[ valid_indices ], 
+                                                meta_new$new_comment[ valid_indices ], "; " )
   
   # "comment" gets the value of "new comment", and unused columns from left_join are tossed
-  meta_combined <- replaceValueColMatch(x=meta_old_changed,
-                       y=meta_new,
+  meta_combined <- replaceValueColMatch( x = meta_old_changed,
+                       y = meta_new,
                        x.ColName = 'comment', y.ColName = 'new_comment',
                        match.x = c('iso', 'sector','year'),
                        addEntries=FALSE)
@@ -1407,11 +1414,6 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
   new_meta_out <- new_meta_out[order(new_meta_out$iso,new_meta_out$year,new_meta_out$sector),]
   meta <- meta[order(meta$iso,meta$year,meta$sector),]
   
-  new_meta_out$comment[which(meta$comment != 'default')] <- 
-                        paste(meta$comment[which(
-                                    meta$comment != 'default')], new_meta_out$comment[which(
-                                    meta$comment != 'default')], sep="; ")
-  
   # Any comment beginning with a 0 can be replaced by a 0.
   new_meta_out$comment[which( substr( new_meta_out$comment, 1, 1 ) == '0' )] <- 0
   
@@ -1421,6 +1423,7 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
   
   writeData( new_meta_out, domain = 'MED_OUT', 
 			 fn =paste0( "F.", em, "_", "scaled_",type,"-value_metadata"), meta = F )  
+  printLog( "Finished with value-metadata" )
 }
 
 # ---------------------------------------------------------------------------------
