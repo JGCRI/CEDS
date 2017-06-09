@@ -128,7 +128,5 @@ if ( is.na( em ) ) em <- "NH3"
 
   invisible( lapply( scripts, source_child ) )
   
-  F.create_EF_value_meta_heatmap(iso="chn")
-  
   logStop()
 # END

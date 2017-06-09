@@ -1217,7 +1217,7 @@ F.applyScale <- function(scaling_factors){
 # input files: "F.", em, "_", "scaled_",type,"-value_metadata"
 # output files: "F.", em, "_", iso, "_value_metadata_heatmap"
 
-F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso = NULL) {
+F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso = NULL, sectors = 'all') {
   
   # Read in the country-to-sector maps for plot title and to ensure the iso is valid
   country_map <- readData("MAPPINGS", "Master_Country_List")
@@ -1246,6 +1246,11 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
   # create "meta_split" which will hold only the final scaling factor
   meta_split <- meta_notes
   meta_split <- meta_split[ which( meta_split$iso == iso), ]
+  
+  if (sectors != 'all') {
+    meta_split <- meta_split[ which( meta_split$sector %in% sectors), ]
+  }
+  
   
   # Discard all value metadata notes that occur before the final semicolon
   indices <- grepl( ";", meta_split$comment )
@@ -1278,13 +1283,15 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
             "Kurokawa et. al, 2013" = "#990606",
             "South Korea National Institute of Environmental Research, 2016" = "#875c1d",
             "Australian Department of the Environment, 2016" = "#1c661b",
-            "EDGAR 4.2" = "#80d4ff"
-            )
+            "EDGAR 4.2" = "#80d4ff" )
+  
+  if ( length( sectors ) < 30 ) fig_ratio <- 2
+  else fig_ratio <- 1
   
   # Create a formatted ggplot and save to output
   p <- ggplot( meta_classified, aes(year, sector)) + 
        geom_raster(aes(fill = meta_classified$value, alpha = meta_classified$prepost)) +
-       coord_fixed(ratio = 1) +
+       coord_fixed(ratio = fig_ratio) +
        theme(panel.background=element_blank(),
             panel.border = element_rect(colour = "grey80", fill=NA, size=.8))+
        scale_alpha_discrete(range = c(1, 0.4)) +
