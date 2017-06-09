@@ -1331,7 +1331,7 @@ F.reclass_metavalue <- function (meta) {
   meta$prepost[grep("post-extended", meta$comment)] <- "Pre- or post-extended"
   
   # determine the scaling inventory
-  meta$value[grep("PEGASOS", meta$comment)] <- ("EDGAR 4.3-PEGASOS")
+  meta$value[grep("_PG", meta$comment)] <- ("EDGAR 4.3-PEGASOS")
   meta$value[grep("EMEP_NFR09", meta$comment)] <- ("EMEP_NFR09")
   meta$value[grep("REAS", meta$comment)] <- ("REAS 2.1")
   meta$value[grep("EMEP_NFR14", meta$comment)] <- ("EMEP_NFR14")
@@ -1395,13 +1395,15 @@ F.update_value_metadata <- function(type, meta_notes = meta_notes ){
   # Paste old notes onto new ones, except those cells with 0 emissions
   meta_new <- left_join (meta_new, meta_old_changed, by = c("iso", "year", "sector"))
   
+  meta_new$new_comment <- paste0(meta_new$new_comment, "; ")
+  
   # identify all indices which arent zeros, blank, or duplicates
   valid_indices <- which( meta_new$comment != "0" & 
                           trimws( meta_new$new_comment ) != "" & 
                           !grepl( meta_new$new_comment, meta_new$comment ) )
 
   meta_new$new_comment[valid_indices] <- paste0( meta_new$comment[ valid_indices ], 
-                                                meta_new$new_comment[ valid_indices ], "; " )
+                                                meta_new$new_comment[ valid_indices ] )
   
   # "comment" gets the value of "new comment", and unused columns from left_join are tossed
   meta_combined <- replaceValueColMatch( x = meta_old_changed,

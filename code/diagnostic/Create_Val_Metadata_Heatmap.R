@@ -57,7 +57,7 @@ if ( is.na( em ) ) em <- "CO2"
     #              "2L_Other-process-emissions" )
 
 # ---------------------------------------------------------------------------
-# 1. Exectue function
+# 2. Exectue function
     
     F.create_EF_value_meta_heatmap(iso = run_iso, sectors = run_sectors)
 
