@@ -13,31 +13,31 @@
 # 0. Read in global settings and headers
 
 # Set working directory
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-    
-  }
-}
-PARAM_DIR <- "../code/parameters/"
+    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
+    for ( i in 1:length( dirs ) ) {
+      setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
+      wd <- grep( 'CEDS/input', list.dirs(), value = T )
+      if ( length(wd) > 0 ) {
+        setwd( wd[1] )
+        break
+        
+      }
+    }
+    PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R",'common_data.R', 
-              'IO_functions.R', 'emissions_scaling_functions.R') # Additional function files may be required.
-log_msg <- "Create value metadata heatmap" # First message to be printed to the log
-script_name <- "Create_Val_Metadata_Heatmap.R"
+    headers <- c( "data_functions.R",'common_data.R', 
+                  'IO_functions.R', 'emissions_scaling_functions.R') # Additional function files may be required.
+    log_msg <- "Create value metadata heatmap" # First message to be printed to the log
+    script_name <- "Create_Val_Metadata_Heatmap.R"
+    
+    source( paste0( PARAM_DIR, "header.R" ) )
+    initialize( script_name, log_msg, headers )
 
-source( paste0( PARAM_DIR, "header.R" ) )
-initialize( script_name, log_msg, headers )
-
-args_from_makefile <- commandArgs( TRUE )
-em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NH3"
+    args_from_makefile <- commandArgs( TRUE )
+    em <- args_from_makefile[ 1 ]
+    if ( is.na( em ) ) em <- "NH3"
 
 
 # ---------------------------------------------------------------------------

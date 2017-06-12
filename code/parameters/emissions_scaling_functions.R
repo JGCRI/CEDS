@@ -1295,9 +1295,9 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
             "Australian Department of the Environment, 2016" = "#1c661b",
             "EDGAR 4.2" = "#80d4ff" )
   
-
+  options( warn = -1 )
   # Create a formatted ggplot and save to output
-  p <- ggplot( meta_classified, aes(year, y=fct_rev(reorder(sector,sector)))) + 
+  p <- ggplot( meta_classified, aes(year, y=fct_rev(reorder(sector,sector)))) +
        geom_raster(aes(fill = meta_classified$value, alpha = meta_classified$prepost)) +
        coord_fixed(ratio = fig_ratio) +
        theme(panel.background=element_blank(),
@@ -1309,8 +1309,9 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
              axis.text.y = element_text(size = 6,angle=20, hjust=1)) +
        scale_x_continuous(breaks = round(seq(min(meta_classified$year), max(meta_classified$year), by = 10),1)) +
        scale_fill_manual(values = inventory_colors)
+  options(warn = 0)
 
-  ggsave( plot=p, paste0("../diagnostic-output/value-meta-heatmaps/",em,"_",iso,"_value_metadata_heatmap.pdf"), 
+  ggsave( plot=p, paste0("../diagnostic-output/value-meta-heatmaps/",em,"_",iso,"_value_metadata_heatmap.pdf"),
           device = "pdf", width=8.0, height=5.0)
 }
 
