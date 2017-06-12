@@ -1240,6 +1240,8 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
     meta_notes$comment <- as.character(meta_notes$comment)
   }
   
+  library("forcats")
+  
   printLog("Clipping to final scaling comments")
   
   # create "meta_split" which will hold only the final scaling factor
