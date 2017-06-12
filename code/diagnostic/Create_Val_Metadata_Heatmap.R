@@ -37,7 +37,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO2"
+if ( is.na( em ) ) em <- "NH3"
 
 
 # ---------------------------------------------------------------------------
@@ -45,8 +45,14 @@ if ( is.na( em ) ) em <- "CO2"
 #    Choose parameters for this run. Define the country and the desired sectors
 #    (use "all" to plot all sectors)
     
-    run_iso = 'aut'
-    run_sectors = 'all'
+    run_isos <- c('usa', 'per', 'chn', 'can', 'jpn', 'gum')
+    # run_isos <- c('aus')
+    run_sectors <- 'all'
+    
+    value_metadata <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_EF-value_metadata" ), meta = FALSE, to_numeric=FALSE)
+    value_metadata <- melt(value_metadata, id.vars = c('iso','sector','fuel'))
+    names( value_metadata ) <- c( "iso", "sector", "fuel", "year", "comment" )
+    value_metadata$comment <- as.character(value_metadata$comment)
 # Example setting specific sectors:
     # run_sectors = c( "2C_Metal-production",
     #              "2D_Degreasing-Cleaning",
@@ -59,7 +65,9 @@ if ( is.na( em ) ) em <- "CO2"
 # ---------------------------------------------------------------------------
 # 2. Exectue function
     
-    F.create_EF_value_meta_heatmap(iso = run_iso, sectors = run_sectors)
+    for (run_iso in run_isos) {
+        F.create_EF_value_meta_heatmap( meta_notes = value_metadata, iso = run_iso, sectors = run_sectors )
+    }
 
 
 
