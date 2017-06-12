@@ -1217,15 +1217,19 @@ F.applyScale <- function(scaling_factors){
 # input files: "F.", em, "_", "scaled_",type,"-value_metadata"
 # output files: "F.", em, "_", iso, "_value_metadata_heatmap"
 
-F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso = NULL, sectors = 'all') {
+F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso = NULL, sectors = 'all', country_map = NULL) {
   
   # Read in the country-to-sector maps for plot title and to ensure the iso is valid
-  country_map <- readData("MAPPINGS", "Master_Country_List")
+  if ( is.null( country_map ) ) {
+      country_map <- readData("MAPPINGS", "Master_Country_List")
+  }
+  
   countryName <- country_map$Country_Name[country_map$iso == iso]
   
   if ( is.null(iso) || iso %!in% country_map$iso ) {
     stop( paste0( "Invalid iso '", iso, "' specified in F.create_EF_value_meta_heatmap." ) )
   }
+  printLog( paste0("Creating the value metadata heatmap for ", iso) )
   
   # If meta_notes were not specified, they will be read in from the default output file for
   # writing value metadata, then melted to long form for individual cell processing.
@@ -1238,19 +1242,24 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
   
   printLog("Clipping to final scaling comments")
   
-  # remove the semicolon from the end of all non-default entries
-  indices <- grepl( ";", meta_notes$comment )
-  meta_notes$comment <- as.character(meta_notes$comment)
-  meta_notes$comment[ indices ] <- substr(meta_notes$comment[indices], 0, nchar(meta_notes$comment[indices]) - 2)
-  
   # create "meta_split" which will hold only the final scaling factor
   meta_split <- meta_notes
   meta_split <- meta_split[ which( meta_split$iso == iso), ]
   
+  # remove the semicolon from the end of all non-default entries
+  indices <- grepl( ";", meta_split$comment )
+  meta_split$comment <- as.character(meta_split$comment)
+  meta_split$comment[ indices ] <- substr(meta_split$comment[indices], 0, nchar(meta_split$comment[indices]) - 2)
+  
+  # Identify the number of sectors that are being plotted; if not all, remove some
+  fig_ratio <- 1
   if (sectors != 'all') {
     meta_split <- meta_split[ which( meta_split$sector %in% sectors), ]
+    fig_ratio <- 2
   }
   
+  sectors_to_remove <- c("11A_Volcanoes", "11B_Forest-fires", "11C_Other-natural")
+  meta_split <- meta_split[ which( meta_split$sector %!in% sectors_to_remove), ]
   
   # Discard all value metadata notes that occur before the final semicolon
   indices <- grepl( ";", meta_split$comment )
@@ -1263,11 +1272,12 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
   # Remove the X from year values so it can be used as a continuous variable in plot
   meta_classified$year <- as.numeric( substr(as.character(meta_classified$year), 2, 5) )
   
+  printLog( paste0( "Creating and writing scaling comments" ) )
   plot_title <- paste0("Sectoral factors for emission ",em,": ",countryName)
   
   # A list containing the color associated with each inventory value
   inventory_colors <- c( "Default" = "#cccccc",
-            "Zero emissions" = "#eeeeee",
+            "Zero emissions" = "#ffffff",
             "EDGAR 4.3-PEGASOS" = "#026fff",
             "EMEP_NFR09" = "#00BE67",
             "REAS 2.1" = "#d966ff",
@@ -1285,11 +1295,9 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
             "Australian Department of the Environment, 2016" = "#1c661b",
             "EDGAR 4.2" = "#80d4ff" )
   
-  if ( length( sectors ) < 30 ) fig_ratio <- 2
-  else fig_ratio <- 1
-  
+
   # Create a formatted ggplot and save to output
-  p <- ggplot( meta_classified, aes(year, sector)) + 
+  p <- ggplot( meta_classified, aes(year, y=fct_rev(reorder(sector,sector)))) + 
        geom_raster(aes(fill = meta_classified$value, alpha = meta_classified$prepost)) +
        coord_fixed(ratio = fig_ratio) +
        theme(panel.background=element_blank(),
@@ -1302,8 +1310,8 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
        scale_x_continuous(breaks = round(seq(min(meta_classified$year), max(meta_classified$year), by = 10),1)) +
        scale_fill_manual(values = inventory_colors)
 
-  ggsave( plot=p, paste0("../diagnostic-output/F.",em,"_",iso,"_value_metadata_heatmap.png"), 
-          device = "png", width=8.0, height=5.0)
+  ggsave( plot=p, paste0("../diagnostic-output/value-meta-heatmaps/",em,"_",iso,"_value_metadata_heatmap.pdf"), 
+          device = "pdf", width=8.0, height=5.0)
 }
 
 # ---------------------------------------------------------------------------------
@@ -1347,8 +1355,8 @@ F.reclass_metavalue <- function (meta) {
   meta$value[grep("SKorea", meta$comment)] <- ("South Korea National Institute of Environmental Research, 2016")
   meta$value[grep("Australia", meta$comment)] <- ("Australian Department of the Environment, 2016")
   meta$value[grep("EDGAR", meta$comment)] <- ("EDGAR 4.2")
-  meta$value[grep("0", meta$comment)] <- ("Zero emissions")
-  meta$prepost[grep("0", meta$comment)] <- ("Matched to inventory")
+  meta$value[ which( meta$comment == '0') ] <- ("Zero emissions")
+  meta$prepost[ which( meta$comment == '0') ] <- ("Matched to inventory")
   
   return(meta)
 }
