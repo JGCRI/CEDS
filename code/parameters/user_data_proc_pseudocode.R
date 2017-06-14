@@ -20,7 +20,7 @@
 # processUserDefinedData()
     
     processUserDefinedData <- function( filename, interpolation_instructions,
-                                        MSL = NULL, MCL = NULL, MFL = NULL) {
+                                        MSL = NULL, MCL = NULL, MFL = NULL, comb_or_NC = NULL) {
         
     # Read in the data frame
         dataframe <- readData( paste0( "user-defined-energy/", filename), domain = "EXT_IN")
@@ -44,7 +44,7 @@
         
         if (is.null(MSL)) {
             MSL <- readData("Master_Sector_Level_map", domain = "MAPPINGS")
-            colnames( MSL )[ which( colnames( MSL ) == 'detailed_sectors' ) ] <- 'CEDS_sector' 
+            colnames( MSL )[ which( colnames( MSL ) == 'working_sectors_v1' ) ] <- 'CEDS_sector' 
         }
         if (is.null(MCL)) MCL <- readData("Master_Country_List", domain = "MAPPINGS")
         if (is.null(MFL)) MFL <- readData("Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",

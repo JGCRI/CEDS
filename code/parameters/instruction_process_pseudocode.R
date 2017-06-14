@@ -19,6 +19,9 @@
     # Get a list of all the files in the directory
         files_present <- list.files(USER_DOM)
         instruction_files <- files_present[ grep("-instructions", files_present) ]
+        comb_or_NC <- readData("Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
+                                                        sheet_selection = "Sectors")
+        comb_sectors_only <- comb_or_NC$sector[ which( comb_or_NC$type == "comb") ]
         
     # For each file in the instructions folder, read it in and collect important info:
     #    Name of the file minus "-instructions" tells us what data it's connected to
@@ -34,6 +37,14 @@
     
             use_instructions <- readData( paste0( "user-defined-energy/", data_file, "-instructions"), domain = "EXT_IN", extension = '.xlsx',
                                           sheet_selection = "Trend_instructions")
+            
+            if ("CEDS_sector" %in% colnames(use_instructions)) {
+                all_rows <- nrow(use_instructions)
+                use_instructions <- use_instructions[ which ( use_instructions$CEDS_sector %in% comb_sectors_only ), ]
+                if (nrow(use_instructions) != all_rows) {
+                    warning(paste0(all_rows-nrow(use_instructions)," instruction line(s) were rejected as non-combustion sectors"))
+                }
+            }
             
             if ( is.null( all_instructions ) ) {
                 all_instructions <- use_instructions
