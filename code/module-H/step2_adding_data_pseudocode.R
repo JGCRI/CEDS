@@ -231,10 +231,18 @@
             all_activity_data[ which( all_activity_data$iso %in% data_changed$iso &
                                       all_activity_data$agg_fuel %in% data_changed$agg_fuel &
                                       all_activity_data$CEDS_sector %in% data_changed$CEDS_sector), Xyears] <-
-                      data_changed[, Xyears]
+                      data_changed[, Xyears]  ### We will maybe not re-add this data into the main dataframe... discuss later
             
         } else if ( agg_level == 1 ) {
             
+        # We have to do all the things we did at level 4 on the highest 
+        # level, and then use those operations to calculate factors by which
+        # we will adjust all lower-level cells. First let's create that
+        # highest-level dataset.
+            
+            grouping_cols <- c("iso", "agg_fuel")
+            data_to_use[, Xyears][is.na(data_to_use[, Xyears])] <- 0  ### I'm replacing NAs with 0s here. Is this allowed? Or is this a false representation of how we want to do sums?
+            aggregated_data_unchanged <- ddply( data_to_use, grouping_cols, function(x) colSums(x[Xyears]) ) ### Also, I'm trying to normalize across different units here... hmm. I think maybe we exclude process? You know what? We might not even need to normalize on level 1. We might have to do trickle-down only.
           
             
         }
