@@ -42,10 +42,18 @@ if ( is.na( em ) ) em <- "NH3"
 # ---------------------------------------------------------------------------
 # 0.5 Define functions
     
-    createSinglePlot <- function( identifier, meta_classified, id_type = "Region" ) {
 
+    g_legend <- function(a.gplot) {
+        tmp <- ggplot_gtable( ggplot_build( a.gplot ) )
+        leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+        legend <- tmp$grobs[[leg]]
+        return(legend)}
+
+
+    createSinglePlot <- function( identifier, meta_classified, id_type = "Region" ) {
+        
         inventory_colors <- c( "Default" = "#cccccc",
-                               "Zero emissions" = "#ffffff",
+                               "Zero emissions" = "#000000",
                                "EDGAR 4.3-PEGASOS" = "#026fff",
                                "EMEP_NFR09" = "#00BE67",
                                "REAS 2.1" = "#d966ff",
@@ -62,22 +70,41 @@ if ( is.na( em ) ) em <- "NH3"
                                "South Korea National Institute of Environmental Research, 2016" = "#875c1d",
                                "Australian Department of the Environment, 2016" = "#1c661b",
                                "EDGAR 4.2" = "#80d4ff" )
-        
+
         if (id_type == "Region") {    
             meta_this_region <- meta_classified[ which(meta_classified$Region == identifier), c("year","value","prepost") ]
             
-            regional_counts <- meta_this_region %>% count( year, value, prepost )
             
-            regional_counts$year <- substr(regional_counts$year, 2, 5) %>% as.numeric()
+            regional_counts <- meta_this_region %>% 
+                                    count( year, value, prepost )
+            colnames(regional_counts)[2] <- "val"
             
-            plot_title = paste0("EF Scaling inventory frequency for region ", identifier)
+            regional_counts$year <- substr(regional_counts$year, 2, 5) %>% 
+                                          as.numeric()
+            
+            first_years <- group_by(regional_counts, val, prepost) %>%
+                              summarise(year = min(year) - 1) %>%
+                              filter(year > 1960) %>%
+                              mutate(n = 0)
+            last_years <- group_by(regional_counts, val, prepost) %>%
+                              summarise(year = max(year) + 1) %>%
+                              filter(year < 2014) %>%
+                              mutate(n = 0)
+            
+            regional_counts <- rbind(first_years, last_years, regional_counts)
             
             p <- ggplot(regional_counts, aes( year, n ) ) + 
-                 geom_area(aes(fill = value, alpha = prepost), position = 'stack') +
+                 geom_area(aes(fill = val, alpha = prepost), position = 'stack') +
                  theme(legend.position="none") +
                  scale_fill_manual(values = inventory_colors) +
-                 xlab("") + ylab("") + ggtitle(plot_title) +        
-                 theme(text = element_text(size=8), axis.text.y = element_text(size = 6,angle=20, hjust=1))
+                 theme(axis.title.y=element_blank(),
+                   axis.text.y=element_blank(),
+                   axis.ticks.y=element_blank(), axis.title.x = element_blank(),
+                   panel.background=element_blank(),
+                   panel.border = element_rect(colour = "grey80", fill=NA, size=.8)) +
+                 ggtitle(identifier) +       
+                 scale_alpha_discrete(range = c(1, 0.4)) +
+                 theme(text = element_text(size=4))
             
             list_of_plots <- c(list_of_plots, p)
             
@@ -146,14 +173,33 @@ if ( is.na( em ) ) em <- "NH3"
         }
         
         
+        all_counts <- meta_for_plots %>% 
+          count( year, value, prepost )
+        
+        plot_for_legend <- ggplot(all_counts, aes( year, n ) ) + 
+          geom_area(aes(fill = value, alpha = prepost), position = 'stack') +
+          scale_fill_manual(values = inventory_colors) +
+          theme( legend.position="bottom",
+                axis.title.y=element_blank(),
+                axis.text.y=element_blank(),
+                axis.ticks.y=element_blank(), axis.title.x = element_blank(),
+                panel.background=element_blank(),
+                panel.border = element_rect(colour = "grey80", fill=NA, size=.8)) +
+          ggtitle("Don't use this plot") +       
+          scale_alpha_discrete(range = c(1, 0.4)) +
+          theme(text = element_text(size=4))
+        
+        inventory_legend <- g_legend(plot_for_legend)
       
         n <- length(list_of_plots)
         nCol <- floor(sqrt(n))
-        arranged_grid <- do.call("grid.arrange", c(list_of_plots, ncol=nCol))
+
+        arranged_plots <- grid.arrange( arrangeGrob( grobs=list_of_plots),
+                                        inventory_legend, heights=c(10,1))
         
-        ggsave("TestOutput.png", arranged_grid)
+        ggsave("TestOutput.png", arranged_plots)
         
-        return( meta_classified )
+        treturn( meta_classified )
     }
 
 # ---------------------------------------------------------------------------
