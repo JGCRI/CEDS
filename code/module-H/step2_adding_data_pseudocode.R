@@ -70,10 +70,14 @@
 # 1. Read in data
 
     MSL <- readData("Master_Sector_Level_map", domain = "MAPPINGS")
-    colnames( MSL )[ which( colnames( MSL ) == 'detailed_sectors' ) ] <- 'CEDS_sector' 
+    colnames( MSL )[ which( colnames( MSL ) == 'working_sectors_v1' ) ] <- 'CEDS_sector' 
     MCL <- readData("Master_Country_List", domain = "MAPPINGS")
     MFL <- readData("Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
                     sheet_selection = "Fuels")
+    comb_or_NC <- readData("Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
+                           sheet_selection = "Sectors")
+    comb_sectors_only <- comb_or_NC$sector[ which( comb_or_NC$type == "comb") ]
+    
 
 # Gather default activity data
     default_activity <- readData( 'MED_OUT', paste0('H.', em, '_total_activity_extended_db' ) , meta = F) ### Eventually this will not require an emissions species.
@@ -83,8 +87,9 @@
 
 # ------------------------------------------------------------------------------------
 # 2. Collect user-defined inputs and begin processing data loop
-    
-    all_activity_data <- default_activity_mapped
+
+# This script only operates on combustion emissions, so reduce the data to that form
+    all_activity_data <- default_activity_mapped[ which(default_activity_mapped$CEDS_sector %in% comb_sectors_only ), ]
     
 # Read instructions files and create a procedure list
     instructions <- readInUserInstructions()
@@ -145,19 +150,16 @@
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
         } else if (agg_level == 3) {
             data_to_use <- all_activity_data[ which( all_activity_data$iso == instructions$iso[1] &
-                                                     all_activity_data$CEDS_sector == instructions$CEDS_sector
+                                                     all_activity_data$agg_sector == instructions$agg_sector[1] &
+                                                     all_activity_data$agg_fuel == MFL$aggregated_fuel[which( instructions$CEDS_fuel[1] == MFL$fuel)]
                                                      ), c( colnames( all_activity_data[ which( !isXYear( 
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
-        } else if (agg_level == 2) {
+        } else if (agg_level == 2 || agg_level == 1) {
             data_to_use <- all_activity_data[ which( all_activity_data$iso == instructions$iso[1] &
-                                                     all_activity_data$agg_sector == instructions$agg_sector
+                                                     all_activity_data$agg_fuel == instructions$agg_fuel[1]
                                                      ), c( colnames( all_activity_data[ which( !isXYear( 
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
-        } else if (agg_level == 1) {
-            data_to_use <- all_activity_data[ which( all_activity_data$iso == instructions$iso[1] ), 
-                                              c( colnames( all_activity_data[ which( !isXYear( 
-                                                 colnames(all_activity_data) ) ) ] ), Xyears ) ]          
-        }
+        } 
         
     # We have all cells that we need to operate on. Cells that are part of 
     # the aggregate group need to be adjusted based on the current percent 
@@ -241,17 +243,28 @@
         # highest-level dataset.
             
             grouping_cols <- c("iso", "agg_fuel")
-            data_to_use[, Xyears][is.na(data_to_use[, Xyears])] <- 0  ### I'm replacing NAs with 0s here. Is this allowed? Or is this a false representation of how we want to do sums?
-            aggregated_data_unchanged <- ddply( data_to_use, grouping_cols, function(x) colSums(x[Xyears]) ) ### Also, I'm trying to normalize across different units here... hmm. I think maybe we exclude process? You know what? We might not even need to normalize on level 1. We might have to do trickle-down only.
-          
+            data_to_use[, Xyears][is.na(data_to_use[, Xyears])] <- 0  
+            
+            yearly_totals_unchanged <- colSums( data_to_use[ , Xyears ] )
+            
+            adjustment_factors <- user_dataframe[, Xyears] / yearly_totals_unchanged
+            adjustment_factors[ 2:nrow( data_to_use ), ] <- adjustment_factors
+            
+            data_changed <- data_to_use
+            data_changed[, Xyears] <- data_changed[, Xyears] * adjustment_factors
+            
+            if (any(round(colSums(data_changed[, Xyears]), 3) != round(colSums(user_dataframe_subset[,Xyears]), 3))) {
+                stop( "Data were not scaled properly, don't match user-defined data" )
+            }
+            
+            all_activity_data[ which( all_activity_data$iso %in% data_changed$iso &
+                                        all_activity_data$agg_fuel %in% data_changed$agg_fuel &
+                                        all_activity_data$CEDS_sector %in% data_changed$CEDS_sector), Xyears] <-
+              data_changed[, Xyears]  ### We will maybe not re-add this data into the main dataframe... discuss later
+            
+            
             
         }
-        
-        
-        
-        
-        
-        
         
         
         
@@ -261,7 +274,7 @@
     }
 
     
-    
+     
     
 
 
