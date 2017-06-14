@@ -1219,17 +1219,21 @@ F.applyScale <- function(scaling_factors){
 
 F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso = NULL, sectors = 'all', country_map = NULL) {
   
+  if ( !is.vector(iso) ) {
+    iso <- c( iso )
+  }
+  
   # Read in the country-to-sector maps for plot title and to ensure the iso is valid
   if ( is.null( country_map ) ) {
       country_map <- readData("MAPPINGS", "Master_Country_List")
   }
   
-  countryName <- country_map$Country_Name[country_map$iso == iso]
+  countryName <- paste( country_map$Country_Name[country_map$iso %in% iso], collapse = ', ' )
   
   if ( is.null(iso) || iso %!in% country_map$iso ) {
     stop( paste0( "Invalid iso '", iso, "' specified in F.create_EF_value_meta_heatmap." ) )
   }
-  printLog( paste0("Creating the value metadata heatmap for ", iso) )
+  printLog( paste0("Creating the value metadata heatmap for ", countryName) )
   
   # If meta_notes were not specified, they will be read in from the default output file for
   # writing value metadata, then melted to long form for individual cell processing.
@@ -1245,8 +1249,9 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
   printLog("Clipping to final scaling comments")
   
   # create "meta_split" which will hold only the final scaling factor
+  
   meta_split <- meta_notes
-  meta_split <- meta_split[ which( meta_split$iso == iso), ]
+  # meta_split <- meta_split[ which( meta_split$iso %in% iso), ]
   
   # remove the semicolon from the end of all non-default entries
   indices <- grepl( ";", meta_split$comment )
@@ -1297,9 +1302,11 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
             "Australian Department of the Environment, 2016" = "#1c661b",
             "EDGAR 4.2" = "#80d4ff" )
   
+  meta_classified$isosector <- paste0(meta_classified$iso, meta_classified$sector)
+  
   options( warn = -1 )
   # Create a formatted ggplot and save to output
-  p <- ggplot( meta_classified, aes(year, y=fct_rev(reorder(sector,sector)))) +
+  p <- ggplot( meta_classified, aes(year, y=fct_rev(reorder(isosector,isosector)))) +
        geom_raster(aes(fill = meta_classified$value, alpha = meta_classified$prepost)) +
        coord_fixed(ratio = fig_ratio) +
        theme(panel.background=element_blank(),
@@ -1311,10 +1318,10 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
              axis.text.y = element_text(size = 6,angle=20, hjust=1)) +
        scale_x_continuous(breaks = round(seq(min(meta_classified$year), max(meta_classified$year), by = 10),1)) +
        scale_fill_manual(values = inventory_colors)
-  options(warn = 0)
 
-  ggsave( plot=p, paste0("../diagnostic-output/value-meta-heatmaps/",em,"_",iso,"_value_metadata_heatmap.pdf"),
+  ggsave( plot=p, paste0("../diagnostic-output/value-meta-heatmaps/",em,"_",paste0(iso, collapse = ''),"_value_metadata_heatmap.pdf"),
           device = "pdf", width=8.0, height=5.0)
+  options(warn = 0)
 }
 
 # ---------------------------------------------------------------------------------

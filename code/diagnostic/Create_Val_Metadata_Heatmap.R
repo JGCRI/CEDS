@@ -39,13 +39,12 @@
     em <- args_from_makefile[ 1 ]
     if ( is.na( em ) ) em <- "NH3"
 
-
 # ---------------------------------------------------------------------------
 # 1. Set parameters
 #    Choose parameters for this run. Define the country and the desired sectors
 #    (use "all" to plot all sectors)
     
-    run_isos <- c('usa', 'per', 'chn', 'can', 'jpn', 'gum')
+    run_isos <- c( 'rus' )
     # run_isos <- c('aus')
     run_sectors <- 'all'
     
@@ -66,7 +65,7 @@
 # 2. Exectue function
     
     for (run_iso in run_isos) {
-        F.create_EF_value_meta_heatmap( meta_notes = value_metadata, iso = run_iso, sectors = run_sectors )
+        F.create_EF_value_meta_heatmap( meta_notes = value_metadata, iso = run_isos, sectors = run_sectors )
     }
 
 
