@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: Create_Val_Metadata_Heatmap.R
 # Author: Ben Goldstein
-# Date Last Updated: 9 June 2017
+# Date Last Updated: 14 June 2017
 # Program Purpose: Uses the F.create_EF_value_meta_heatmap to create a heatmap
 #                  diagnostic of the value metadata for a single country.
 # Input Files: F.[em]_scaled_EF-value_metadata.csv
