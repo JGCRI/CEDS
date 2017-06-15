@@ -1217,112 +1217,121 @@ F.applyScale <- function(scaling_factors){
 # input files: "F.", em, "_", "scaled_",type,"-value_metadata"
 # output files: "F.", em, "_", iso, "_value_metadata_heatmap"
 
-F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso = NULL, sectors = 'all', country_map = NULL) {
-  
-  if ( !is.vector(iso) ) {
-    iso <- c( iso )
-  }
-  
-  # Read in the country-to-sector maps for plot title and to ensure the iso is valid
-  if ( is.null( country_map ) ) {
-      country_map <- readData("MAPPINGS", "Master_Country_List")
-  }
-  
-  countryName <- paste( country_map$Country_Name[country_map$iso %in% iso], collapse = ', ' )
-  
-  if ( is.null(iso) || iso %!in% country_map$iso ) {
-    stop( paste0( "Invalid iso '", iso, "' specified in F.create_EF_value_meta_heatmap." ) )
-  }
-  printLog( paste0("Creating the value metadata heatmap for ", countryName) )
-  
-  # If meta_notes were not specified, they will be read in from the default output file for
-  # writing value metadata, then melted to long form for individual cell processing.
-  if ( is.null( meta_notes ) ) {
-    meta_notes <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
-    meta_notes <- melt(meta_notes, id.vars = c('iso','sector','fuel'))
-    names( meta_notes ) <- c( "iso", "sector", "fuel", "year", "comment" )
-    meta_notes$comment <- as.character(meta_notes$comment)
-  }
-  
-  library("forcats")
-  
-  printLog("Clipping to final scaling comments")
-  
-  # create "meta_split" which will hold only the final scaling factor
-  
-  meta_split <- meta_notes
-  # meta_split <- meta_split[ which( meta_split$iso %in% iso), ]
-  
-  # remove the semicolon from the end of all non-default entries
-  indices <- grepl( ";", meta_split$comment )
-  meta_split$comment <- as.character(meta_split$comment)
-  meta_split$comment[ indices ] <- substr(meta_split$comment[indices], 0, nchar(meta_split$comment[indices]) - 2)
-  
-  # Identify the number of sectors that are being plotted; if not all, remove some
-  fig_ratio <- 1
-  if (sectors != 'all') {
-    meta_split <- meta_split[ which( meta_split$sector %in% sectors), ]
-    fig_ratio <- 2
-  }
-  
-  sectors_to_remove <- c("11A_Volcanoes", "11B_Forest-fires", "11C_Other-natural")
-  meta_split <- meta_split[ which( meta_split$sector %!in% sectors_to_remove), ]
-  
-  # Discard all value metadata notes that occur before the final semicolon
-  indices <- grepl( ";", meta_split$comment )
-  meta_split$comment[indices]  <- sub( ".*; ", "", meta_split$comment[indices] )
-  meta_split$comment <- as.character(meta_split$comment)
+    F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso = NULL, sectors = 'all', country_map = NULL) {
+      
+    # Vectorize iso if it isn't a vector already (in the case of multiple isos
+    #   being passed)
+        if ( !is.vector(iso) ) {
+            iso <- c( iso )
+        }
+      
+    # Read in the country-to-sector maps and extract the name of the country we
+    #   want, for a) plot title and b) to ensure the iso is valid
+        if ( is.null( country_map ) ) {
+            country_map <- readData("MAPPINGS", "Master_Country_List")
+        }
+        
+        # If the iso is not valid, break
+        if ( is.null(iso) || iso %!in% country_map$iso ) {
+          stop( paste0( "Invalid iso '", iso, "' specified in F.create_EF_value_meta_heatmap." ) )
+        }
+        
+        countryName <- paste( country_map$Country_Name[country_map$iso %in% iso], collapse = ', ' )
+    
+    # Print to log which country we're dealing with
+        printLog( paste0("Creating the value metadata heatmap for ", countryName) )
+        
+    # If meta_notes were not specified, they will be read in from the default
+    # output file for writing value metadata, then melted to long form for
+    # individual cell processing.
+        if ( is.null( meta_notes ) ) {
+          meta_notes <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
+          meta_notes <- melt(meta_notes, id.vars = c('iso','sector','fuel'))
+          names( meta_notes ) <- c( "iso", "sector", "fuel", "year", "comment" )
+          meta_notes$comment <- as.character(meta_notes$comment)
+        }
+    
+    # Forcats library is needed for reordering sectors ### Is this necessary?/Should it be somewhere else?
+        library("forcats")
+        
+        printLog("Clipping to final scaling comments")
+        
+    # create "meta_split" which will hold only the final scaling factor
+        meta_split <- meta_notes
 
-  # Reclassify the notes for display purposes
-  meta_classified <- F.reclass_metavalue(meta_split)
-  
-  # Remove the X from year values so it can be used as a continuous variable in plot
-  meta_classified$year <- as.numeric( substr(as.character(meta_classified$year), 2, 5) )
-  
-  printLog( paste0( "Creating and writing scaling comments" ) )
-  plot_title <- paste0("Sectoral factors for emission ",em,": ",countryName)
-  
-  # A list containing the color associated with each inventory value
-  inventory_colors <- c( "Default" = "#cccccc",
-            "Zero emissions" = "#ffffff",
-            "EDGAR 4.3-PEGASOS" = "#026fff",
-            "EMEP_NFR09" = "#00BE67",
-            "REAS 2.1" = "#d966ff",
-            "EMEP_NFR14" = "#73e600",
-            "UNFCCC, 2015" = "#f75555",
-            "Environment Canada, 2013" = "#ff8c1a",
-            "Environment and Climate Change Canada, 2016" = "#ffe11a",
-            "US EPA, 2016" = "#990033",
-            "US" = "#1d3d84",
-            "Li et al., 2017" = "#fcde1e",
-            "TEPA, 2016" = "#1de0cc",
-            "Argentina UNFCCC submission, 2016" = "#ff8484",
-            "Kurokawa et. al, 2013" = "#990606",
-            "South Korea National Institute of Environmental Research, 2016" = "#875c1d",
-            "Australian Department of the Environment, 2016" = "#1c661b",
-            "EDGAR 4.2" = "#80d4ff" )
-  
-  meta_classified$isosector <- paste0(meta_classified$iso, meta_classified$sector)
-  
-  options( warn = -1 )
-  # Create a formatted ggplot and save to output
-  p <- ggplot( meta_classified, aes(year, y=fct_rev(reorder(isosector,isosector)))) +
-       geom_raster(aes(fill = meta_classified$value, alpha = meta_classified$prepost)) +
-       coord_fixed(ratio = fig_ratio) +
-       theme(panel.background=element_blank(),
-            panel.border = element_rect(colour = "grey80", fill=NA, size=.8))+
-       scale_alpha_discrete(range = c(1, 0.4)) +
-       ylab("CEDS Sector") + xlab("") + ggtitle(plot_title) +
-       labs(fill="Inventory", alpha="Extension") +
-       theme(text = element_text(size=8),
-             axis.text.y = element_text(size = 6,angle=20, hjust=1)) +
-       scale_x_continuous(breaks = round(seq(min(meta_classified$year), max(meta_classified$year), by = 10),1)) +
-       scale_fill_manual(values = inventory_colors)
-
-  ggsave( plot=p, paste0("../diagnostic-output/value-meta-heatmaps/",em,"_",paste0(iso, collapse = ''),"_value_metadata_heatmap.pdf"),
-          device = "pdf", width=8.0, height=5.0)
-  options(warn = 0)
-}
+    # remove the semicolon from the end of all non-default entries
+        indices <- grepl( ";", meta_split$comment )
+        meta_split$comment <- as.character(meta_split$comment)
+        meta_split$comment[ indices ] <- substr(meta_split$comment[indices], 0, nchar(meta_split$comment[indices]) - 2)
+        
+    # Identify the number of sectors that are being plotted; if not all,
+    #   remove whichever aren't specified
+        fig_ratio <- 1
+        if (sectors != 'all') {
+          meta_split <- meta_split[ which( meta_split$sector %in% sectors), ]
+          fig_ratio <- 2
+        }
+      
+    # If they weren't removed already, we can discard the three sectors that
+    #   aren't actually in CEDS
+        sectors_to_remove <- c("11A_Volcanoes", "11B_Forest-fires", "11C_Other-natural")
+        meta_split <- meta_split[ which( meta_split$sector %!in% sectors_to_remove), ]
+        
+    # Discard all value metadata notes that occur before the final semicolon
+        indices <- grepl( ";", meta_split$comment )
+        meta_split$comment[indices]  <- sub( ".*; ", "", meta_split$comment[indices] )
+        meta_split$comment <- as.character(meta_split$comment)
+      
+    # Reclassify the notes for display purposes
+        meta_classified <- F.reclass_metavalue(meta_split)
+        
+    # Remove the X from year values so it can be used as a continuous variable in plot
+        meta_classified$year <- as.numeric( substr(as.character(meta_classified$year), 2, 5) )
+        
+        printLog( paste0( "Creating and writing scaling comments" ) )
+        plot_title <- paste0("Sectoral factors for emission ",em,": ",countryName)
+        
+    # A list containing the color associated with each inventory value
+        inventory_colors <- c( "Default" = "#cccccc",
+                  "Zero emissions" = "#ffffff",
+                  "EDGAR 4.3-PEGASOS" = "#026fff",
+                  "EMEP_NFR09" = "#00BE67",
+                  "REAS 2.1" = "#d966ff",
+                  "EMEP_NFR14" = "#73e600",
+                  "UNFCCC, 2015" = "#f75555",
+                  "Environment Canada, 2013" = "#ff8c1a",
+                  "Environment and Climate Change Canada, 2016" = "#ffe11a",
+                  "US EPA, 2016" = "#990033",
+                  "US" = "#1d3d84",
+                  "Li et al., 2017" = "#fcde1e",
+                  "TEPA, 2016" = "#1de0cc",
+                  "Argentina UNFCCC submission, 2016" = "#ff8484",
+                  "Kurokawa et. al, 2013" = "#990606",
+                  "South Korea National Institute of Environmental Research, 2016" = "#875c1d",
+                  "Australian Department of the Environment, 2016" = "#1c661b",
+                  "EDGAR 4.2" = "#80d4ff" )
+    
+        meta_classified$isosector <- paste0( meta_classified$iso, meta_classified$sector )
+        
+        options( warn = -1 )
+    # Create a formatted ggplot and save to output
+        p <- ggplot( meta_classified, aes(year, y=fct_rev(reorder(isosector,isosector)))) +
+             geom_raster(aes(fill = meta_classified$value, alpha = meta_classified$prepost)) +
+             coord_fixed(ratio = fig_ratio) +
+             theme(panel.background=element_blank(),
+                  panel.border = element_rect(colour = "grey80", fill=NA, size=.8))+
+             scale_alpha_discrete(range = c(1, 0.4)) +
+             ylab("CEDS Sector") + xlab("") + ggtitle(plot_title) +
+             labs(fill="Inventory", alpha="Extension") +
+             theme(text = element_text(size=8),
+                   axis.text.y = element_text(size = 6,angle=20, hjust=1)) +
+             scale_x_continuous(breaks = round(seq(min(meta_classified$year), max(meta_classified$year), by = 10),1)) +
+             scale_fill_manual(values = inventory_colors)
+      
+        ggsave( plot=p, paste0("../diagnostic-output/value-meta-heatmaps/",em,"_",paste0(iso, collapse = ''),"_value_metadata_heatmap.pdf"),
+                device = "pdf", width=8.0, height=5.0)
+        options( warn = 0 )
+    }
 
 # ---------------------------------------------------------------------------------
 # F.reclass_metavalue
@@ -1338,39 +1347,38 @@ F.create_EF_value_meta_heatmap <- function (type = "EF", meta_notes = NULL, iso 
 # input files: none
 # output files: none
 
-F.reclass_metavalue <- function (meta) {
-  # Initialize value and prepost columns to defaults. These store the inventory
-  # and the extension type for each scaling note.
-  meta$value <- 'Default'
-  meta$prepost <- 'Matched to inventory'
-  
-  # determine if it's pre- or post- scaled
-  meta$prepost[grep("pre-extended", meta$comment)] <- "Pre- or post-extended"
-  meta$prepost[grep("post-extended", meta$comment)] <- "Pre- or post-extended"
-  
-  # determine the scaling inventory
-  meta$value[grep("_PG", meta$comment)] <- ("EDGAR 4.3-PEGASOS")
-  meta$value[grep("EMEP_NFR09", meta$comment)] <- ("EMEP_NFR09")
-  meta$value[grep("REAS", meta$comment)] <- ("REAS 2.1")
-  meta$value[grep("EMEP_NFR14", meta$comment)] <- ("EMEP_NFR14")
-  meta$value[grep("UNFCCC", meta$comment)] <- ("UNFCCC, 2015")
-  meta$value[grep("CAN_to2011", meta$comment)] <- ("Environment Canada, 2013")
-  meta$value[grep("CAN", meta$comment)] <- ("Environment and Climate Change Canada, 2016")
-  meta$value[grep("US-EPA", meta$comment)] <- ("US EPA, 2016")
-  meta$value[grep("US", meta$comment)] <- ("US")
-  meta$value[grep("CHN", meta$comment)] <- ("Li et al., 2017")
-  meta$value[grep("TWN", meta$comment)] <- ("TEPA, 2016")
-  meta$value[grep("ARG", meta$comment)] <- ("Argentina UNFCCC submission, 2016")
-  meta$value[grep("Japan", meta$comment)] <- ("Kurokawa et. al, 2013")
-  meta$value[grep("SKorea", meta$comment)] <- ("South Korea National Institute of Environmental Research, 2016")
-  meta$value[grep("Australia", meta$comment)] <- ("Australian Department of the Environment, 2016")
-  meta$value[grep("EDGAR", meta$comment)] <- ("EDGAR 4.2")
-  meta$value[ which( meta$comment == '0') ] <- ("Zero emissions")
-  meta$prepost[ which( meta$comment == '0') ] <- ("Matched to inventory")
-  
-  return(meta)
-}
-
+    F.reclass_metavalue <- function (meta) {
+    # Initialize value and prepost columns to defaults. These store the inventory
+    # and the extension type for each scaling note.
+        meta$value <- 'Default'
+        meta$prepost <- 'Matched to inventory'
+      
+    # determine if it's pre- or post- scaled
+        meta$prepost[grep("pre-extended", meta$comment)] <- "Pre- or post-extended"
+        meta$prepost[grep("post-extended", meta$comment)] <- "Pre- or post-extended"
+      
+    # determine the scaling inventory
+        meta$value[grep("_PG", meta$comment)] <- ("EDGAR 4.3-PEGASOS")
+        meta$value[grep("EMEP_NFR09", meta$comment)] <- ("EMEP_NFR09")
+        meta$value[grep("REAS", meta$comment)] <- ("REAS 2.1")
+        meta$value[grep("EMEP_NFR14", meta$comment)] <- ("EMEP_NFR14")
+        meta$value[grep("UNFCCC", meta$comment)] <- ("UNFCCC, 2015")
+        meta$value[grep("CAN_to2011", meta$comment)] <- ("Environment Canada, 2013")
+        meta$value[grep("CAN", meta$comment)] <- ("Environment and Climate Change Canada, 2016")
+        meta$value[grep("US-EPA", meta$comment)] <- ("US EPA, 2016")
+        meta$value[grep("US", meta$comment)] <- ("US")
+        meta$value[grep("CHN", meta$comment)] <- ("Li et al., 2017")
+        meta$value[grep("TWN", meta$comment)] <- ("TEPA, 2016")
+        meta$value[grep("ARG", meta$comment)] <- ("Argentina UNFCCC submission, 2016")
+        meta$value[grep("Japan", meta$comment)] <- ("Kurokawa et. al, 2013")
+        meta$value[grep("SKorea", meta$comment)] <- ("South Korea National Institute of Environmental Research, 2016")
+        meta$value[grep("Australia", meta$comment)] <- ("Australian Department of the Environment, 2016")
+        meta$value[grep("EDGAR", meta$comment)] <- ("EDGAR 4.2")
+        meta$value[ which( meta$comment == '0') ] <- ("Zero emissions")
+        meta$prepost[ which( meta$comment == '0') ] <- ("Matched to inventory")
+        
+        return(meta)
+    }
 # ---------------------------------------------------------------------------------
 
 
@@ -1386,72 +1394,72 @@ F.reclass_metavalue <- function (meta) {
 # input files: meta_notes - new meta notes in scaling aggregation
 # output files: NULL
 
-F.update_value_metadata <- function(type, meta_notes = meta_notes ){
-  
-  if( type %!in% c('EF','emissions')) stop('Invalid emission type. Cannot update scaled value metadata')
-  
-  # read in previous value-metadata and melt to long form
-  meta <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
-  meta <- melt(meta, id.vars = c('iso','sector','fuel'))
-  names(meta) <- c("iso","sector","fuel","year","comment" )
-  meta$comment <- as.character(meta$comment)
-  
-  # aggregate scaling factor metadata to ceds sectors
-  printLog ("Aggregating meta notes")
-  meta_new <- F.scalingToCeds(meta_notes, dataFormat = 'long','comment','new_comment')
-  meta_new <- meta_new[complete.cases(meta_new),]
-  
-  # separate cells that were updated by this inventory vs cells that were not
-  meta_old_unchanged <- meta[ meta$iso %!in% unique(meta_notes$iso),]
-  meta_old_changed <- meta[ meta$iso %in% unique(meta_notes$iso),]
-  
-  printLog ("Merging meta notes")
-  
-  # empty cells which were default and now are not
-  meta_old_changed$comment[which(meta_old_changed$comment == 'default')] <- ""
-  
-  # Paste old notes onto new ones, except those cells with 0 emissions
-  meta_new <- left_join (meta_new, meta_old_changed, by = c("iso", "year", "sector"))
-  
-  meta_new$new_comment <- paste0(meta_new$new_comment, "; ")
-  
-  # identify all indices which arent zeros, blank, or duplicates
-  valid_indices <- which( meta_new$comment != "0" & 
-                          trimws( meta_new$new_comment ) != "" & 
-                          !grepl( meta_new$new_comment, meta_new$comment ) )
-
-  meta_new$new_comment[valid_indices] <- paste0( meta_new$comment[ valid_indices ], 
-                                                meta_new$new_comment[ valid_indices ] )
-  
-  # "comment" gets the value of "new comment", and unused columns from left_join are tossed
-  meta_combined <- replaceValueColMatch( x = meta_old_changed,
-                       y = meta_new,
-                       x.ColName = 'comment', y.ColName = 'new_comment',
-                       match.x = c('iso', 'sector','year'),
-                       addEntries=FALSE)
-  names(meta_combined) <- c('iso','sector','fuel','year','comment')
-  
-  # cells that were blanked are returned to default
-  meta_combined$comment[which(meta_combined$comment == '')] <- 'default' 
-  
-  # unchanged data and changed data are combined into one dataset
-  new_meta_out <- rbind(meta_combined, meta_old_unchanged)
-  
-  # unchanged data and changed data are combined into one dataset
-  new_meta_out <- new_meta_out[order(new_meta_out$iso,new_meta_out$year,new_meta_out$sector),]
-  meta <- meta[order(meta$iso,meta$year,meta$sector),]
-  
-  # Any comment beginning with a 0 can be replaced by a 0.
-  new_meta_out$comment[which( substr( new_meta_out$comment, 1, 1 ) == '0' )] <- 0
-  
-  # Cast data to wide format and write to output
-  printLog('Casting meta to wide format')
-  new_meta_out <- cast(new_meta_out, iso+sector+fuel~year, value = 'comment') 
-  
-  writeData( new_meta_out, domain = 'MED_OUT', 
-			 fn =paste0( "F.", em, "_", "scaled_",type,"-value_metadata"), meta = F )  
-  printLog( "Finished with value-metadata" )
-}
+    F.update_value_metadata <- function(type, meta_notes = meta_notes ){
+      
+        if( type %!in% c('EF','emissions')) stop('Invalid emission type. Cannot update scaled value metadata')
+      
+    # read in previous value-metadata and melt to long form
+        meta <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_",type,"-value_metadata" ), meta = FALSE, to_numeric=FALSE)
+        meta <- melt(meta, id.vars = c('iso','sector','fuel'))
+        names(meta) <- c("iso","sector","fuel","year","comment" )
+        meta$comment <- as.character(meta$comment)
+      
+    # aggregate scaling factor metadata to ceds sectors
+        printLog ("Aggregating meta notes")
+        meta_new <- F.scalingToCeds(meta_notes, dataFormat = 'long','comment','new_comment')
+        meta_new <- meta_new[complete.cases(meta_new),]
+      
+    # separate cells that were updated by this inventory vs cells that were not
+        meta_old_unchanged <- meta[ meta$iso %!in% unique(meta_notes$iso),]
+        meta_old_changed <- meta[ meta$iso %in% unique(meta_notes$iso),]
+        
+        printLog ("Merging meta notes")
+        
+    # empty cells which were default and now are not
+        meta_old_changed$comment[which(meta_old_changed$comment == 'default')] <- ""
+      
+    # Paste old notes onto new ones, except those cells with 0 emissions
+        meta_new <- left_join (meta_new, meta_old_changed, by = c("iso", "year", "sector"))
+      
+        meta_new$new_comment <- paste0(meta_new$new_comment, "; ")
+      
+    # identify all indices which arent zeros, blank, or duplicates
+        valid_indices <- which( meta_new$comment != "0" & 
+                                trimws( meta_new$new_comment ) != "" & 
+                                !grepl( meta_new$new_comment, meta_new$comment ) )
+      
+        meta_new$new_comment[valid_indices] <- paste0( meta_new$comment[ valid_indices ], 
+                                                      meta_new$new_comment[ valid_indices ] )
+      
+    # "comment" gets the value of "new comment", and unused columns from left_join are tossed
+        meta_combined <- replaceValueColMatch( x = meta_old_changed,
+                             y = meta_new,
+                             x.ColName = 'comment', y.ColName = 'new_comment',
+                             match.x = c('iso', 'sector','year'),
+                             addEntries=FALSE)
+        names(meta_combined) <- c('iso','sector','fuel','year','comment')
+      
+    # cells that were blanked are returned to default
+        meta_combined$comment[which(meta_combined$comment == '')] <- 'default' 
+      
+    # unchanged data and changed data are combined into one dataset
+        new_meta_out <- rbind(meta_combined, meta_old_unchanged)
+      
+    # unchanged data and changed data are combined into one dataset
+        new_meta_out <- new_meta_out[order(new_meta_out$iso,new_meta_out$year,new_meta_out$sector),]
+        meta <- meta[order(meta$iso,meta$year,meta$sector),]
+        
+    # Any comment beginning with a 0 can be replaced by a 0.
+        new_meta_out$comment[which( substr( new_meta_out$comment, 1, 1 ) == '0' )] <- 0
+      
+    # Cast data to wide format and write to output
+        printLog('Casting meta to wide format')
+        new_meta_out <- cast(new_meta_out, iso+sector+fuel~year, value = 'comment') 
+        
+        writeData( new_meta_out, domain = 'MED_OUT', 
+      			 fn =paste0( "F.", em, "_", "scaled_",type,"-value_metadata"), meta = F )  
+        printLog( "Finished with value-metadata" )
+    }
 
 # ---------------------------------------------------------------------------------
 # F.write
