@@ -13,155 +13,140 @@
 # 0. Read in global settings and headers
 
 # Set working directory
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-    
-  }
-}
-PARAM_DIR <- "../code/parameters/"
+    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
+    for ( i in 1:length( dirs ) ) {
+        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
+        wd <- grep( 'CEDS/input', list.dirs(), value = T )
+        if ( length(wd) > 0 ) {
+            setwd( wd[1] )
+            break
+        }
+    }
+    PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R",'common_data.R', 
-              'IO_functions.R', 'emissions_scaling_functions.R') # Additional function files may be required.
-log_msg <- "Create value metadata heatmap" # First message to be printed to the log
-script_name <- "Create_Val_Metadata_Heatmap.R"
+    headers <- c( "data_functions.R",'common_data.R', 
+                  'IO_functions.R', 'emissions_scaling_functions.R') # Additional function files may be required.
+    log_msg <- "Create value metadata heatmap" # First message to be printed to the log
+    script_name <- "Create_Val_Metadata_Heatmap.R"
 
-source( paste0( PARAM_DIR, "header.R" ) )
-initialize( script_name, log_msg, headers )
+    source( paste0( PARAM_DIR, "header.R" ) )
+    initialize( script_name, log_msg, headers )
 
-args_from_makefile <- commandArgs( TRUE )
-em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NH3"
+    args_from_makefile <- commandArgs( TRUE )
+    em <- args_from_makefile[ 1 ]
+    if ( is.na( em ) ) em <- "NH3"
 
 # ---------------------------------------------------------------------------
 # 0.5 Define functions
     
 
-    g_legend <- function(a.gplot) {
+    g_legend <- function( a.gplot ) {
         tmp <- ggplot_gtable( ggplot_build( a.gplot ) )
-        leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+        leg <- which( sapply( tmp$grobs, function(x) x$name ) == "guide-box" )
         legend <- tmp$grobs[[leg]]
-        return(legend)}
+        return( legend) 
+    }
 
 
     createSinglePlot <- function( identifier, meta_classified, id_type = "Region", inventory_colors ) {
         
         p <- NULL
-        if (id_type == "Region" && identifier != "Global") {    
-            meta_this_region <- meta_classified[ which(meta_classified$Region == identifier), c("year","value","prepost") ]
+        if ( id_type == "Region" && identifier != "Global" ) {    
+            meta_this_region <- meta_classified[ which(meta_classified$Region == identifier ), 
+                                                 c( "year", "value", "prepost" ) ]
             
             
             regional_counts <- meta_this_region %>% 
                                     count( year, value, prepost )
-            colnames(regional_counts)[2] <- "val"
+
+            regional_counts$year <- substr( regional_counts$year, 2, 5 ) %>% 
+                                      as.numeric()
             
-            regional_counts$year <- substr(regional_counts$year, 2, 5) %>% 
-                                          as.numeric()
-            
-            first_years <- group_by(regional_counts, val, prepost) %>%
-                              summarise(year = min(year) - 1) %>%
-                              filter(year > 1960) %>%
-                              mutate(n = 0)
-            last_years <- group_by(regional_counts, val, prepost) %>%
-                              summarise(year = max(year) + 1) %>%
-                              filter(year < 2014) %>%
-                              mutate(n = 0)
-            
-            regional_counts <- rbind(first_years, last_years, regional_counts)
-            
-            p <- ggplot(regional_counts, aes( year, n ) ) + 
-                 geom_col(aes(fill = val, alpha = prepost), position = 'stack', width = 1) +
-                 theme(legend.position="none") +
-                 scale_fill_manual(values = inventory_colors) +
-                 theme(axis.title.y=element_blank(),
-                   axis.text.y=element_blank(),
-                   axis.ticks.y=element_blank(), axis.title.x = element_blank(),
-                   panel.background=element_blank(),
-                   panel.border = element_rect(colour = "grey80", fill=NA, size=.8)) +
-                 ggtitle(identifier) +       
-                 scale_alpha_discrete(range = c(1, 0.4)) +
-                 theme(text = element_text(size=6))
+            p <- ggplot( regional_counts, aes( year, n ) ) + 
+                 geom_col( aes( fill = value, alpha = prepost ), 
+                           position = 'stack', width = 1 ) +
+                 theme( legend.position = "none" ) +
+                 scale_fill_manual( values = inventory_colors ) +
+                 theme( axis.title.y = element_blank(),
+                        axis.text.y = element_blank(),
+                        axis.ticks.y = element_blank(), 
+                        axis.title.x = element_blank(),
+                        panel.background = element_blank(),
+                        panel.border = element_rect( colour = "grey80", 
+                                                     fill = NA, size = .8 ) ) +
+                 ggtitle( identifier ) +       
+                 scale_alpha_discrete( range = c( 1, 0.4 ) ) +
+                 theme( text = element_text( size = 6 ) )
             
 
-        } else if (id_type == "Sector") {
-            meta_this_sector <- meta_classified[ which(meta_classified$Figure_sector == identifier), c("year","value","prepost") ]
+        } else if ( id_type == "Sector" ) {
+            meta_this_sector <- meta_classified[ which( meta_classified$Figure_sector == identifier ), 
+                                                 c( "year", "value", "prepost" ) ]
             
             sectoral_counts <- meta_this_sector %>% 
                                 count( year, value, prepost )
-            colnames(sectoral_counts)[2] <- "val"
-            
-            sectoral_counts$year <- substr(sectoral_counts$year, 2, 5) %>% 
+
+            sectoral_counts$year <- substr( sectoral_counts$year, 2, 5 ) %>% 
                                       as.numeric()
             
-            first_years <- group_by(sectoral_counts, val, prepost) %>%
-              summarise(year = min(year) - 1) %>%
-              filter(year > 1960) %>%
-              mutate(n = 0)
-            last_years <- group_by(sectoral_counts, val, prepost) %>%
-              summarise(year = max(year) + 1) %>%
-              filter(year < 2014) %>%
-              mutate(n = 0)
-            
-            sectoral_counts <- rbind(first_years, last_years, sectoral_counts)
-            
-            p <- ggplot(sectoral_counts, aes( year, n ) ) + 
-              geom_col(aes(fill = val, alpha = prepost), position = 'stack', width = 1) +
-              theme(legend.position="none") +
-              scale_fill_manual(values = inventory_colors) +
-              theme(axis.title.y=element_blank(),
-                    axis.text.y=element_blank(),
-                    axis.ticks.y=element_blank(), axis.title.x = element_blank(),
-                    panel.background=element_blank(),
-                    panel.border = element_rect(colour = "grey80", fill=NA, size=.8)) +
-              ggtitle(identifier) +       
-              scale_alpha_discrete(range = c(1, 0.4)) +
-              theme(text = element_text(size=6))
+            p <- ggplot( sectoral_counts, aes( year, n ) ) + 
+              geom_col( aes( fill = value, alpha = prepost ), 
+                        position = 'stack', width = 1) +
+              theme( legend.position = "none" ) +
+              scale_fill_manual( values = inventory_colors ) +
+              theme( axis.title.y = element_blank(),
+                     axis.text.y = element_blank(),
+                     axis.ticks.y = element_blank(), 
+                     axis.title.x = element_blank(),
+                     panel.background = element_blank(),
+                     panel.border = element_rect( colour = "grey80", 
+                                                  fill = NA, size = .8 ) ) +
+              ggtitle( identifier ) +       
+              scale_alpha_discrete( range = c( 1, 0.4 ) ) +
+              theme( text = element_text( size = 6 ) )
             
         }
       
-      return(p)
+      return( p )
         
     }
 
     createMasterValMetaHeatmap <- function( meta_notes, country_map, sector_map, map_by = "Sector" ) {
         
-        mapped_meta_notes <- left_join( meta_notes, country_map[ ,c('iso','Region')] )
+        mapped_meta_notes <- left_join( meta_notes, country_map[ , c( 'iso', 'Region' ) ] )
         all_regions <- unique( mapped_meta_notes$Region )
-        all_regions <- all_regions[which(all_regions != "Global")]
+        all_regions <- all_regions[ which( all_regions != "Global" ) ]
         
-        print(colnames(mapped_meta_notes))
-        sector_map <- sector_map[ ,c('working_sectors_v1', 'Figure_sector') ]
+        print( colnames( mapped_meta_notes ) )
+        sector_map <- sector_map[ , c( 'working_sectors_v1', 'Figure_sector' ) ]
         colnames( sector_map )[1] <- "sector"
         mapped_meta_notes <- left_join( mapped_meta_notes, sector_map )
         all_sectors <- unique( mapped_meta_notes$Figure_sector )
-        all_sectors <- all_sectors[!is.na(all_sectors)]
+        all_sectors <- all_sectors[ !is.na( all_sectors ) ]
         
         meta_split <- mapped_meta_notes
 
         # remove the semicolon from the end of all non-default entries
         indices <- grepl( ";", meta_split$comment )
-        meta_split$comment <- as.character(meta_split$comment)
-        meta_split$comment[ indices ] <- substr(meta_split$comment[indices], 0, nchar(meta_split$comment[indices]) - 2)
+        meta_split$comment <- as.character( meta_split$comment )
+        meta_split$comment[ indices ] <- substr( meta_split$comment[ indices ], 0, 
+                                                 nchar( meta_split$comment[ indices ] ) - 2 )
         
-        sectors_to_remove <- c("11A_Volcanoes", "11B_Forest-fires", "11C_Other-natural")
+        sectors_to_remove <- c( "11A_Volcanoes", "11B_Forest-fires", "11C_Other-natural" )
         meta_split <- meta_split[ which( meta_split$sector %!in% sectors_to_remove), ]
         
         # Discard all value metadata notes that occur before the final semicolon
         indices <- grepl( ";", meta_split$comment )
-        meta_split$comment[indices]  <- sub( ".*; ", "", meta_split$comment[indices] )
-        meta_split$comment <- as.character(meta_split$comment)
+        meta_split$comment[ indices ]  <- sub( ".*; ", "", meta_split$comment[ indices ] )
+        meta_split$comment <- as.character( meta_split$comment )
         
         # Reclassify the notes for display purposes
-        printLog("Reclassifying value metadata")
+        printLog( "Reclassifying value metadata" )
         meta_classified <- F.reclass_metavalue( meta_split )
         
-        meta_for_plots <- meta_classified[, c("Region","Figure_sector","year","value","prepost")]
+        meta_for_plots <- meta_classified[ , c( "Region", "Figure_sector", "year", "value", "prepost" ) ]
         # meta_classified <- meta_classified[ which(!is.na(meta_classified$Figure_sector)), ]
         # meta_classified <- meta_classified[ which(!is.na(meta_classified$Region)), ]
         
@@ -186,68 +171,62 @@ if ( is.na( em ) ) em <- "NH3"
         
         list_of_plots <- list()
         
-        if (map_by == "Sector") {
+        if ( map_by == "Sector" ) {
             list_of_plots <- lapply( all_sectors, 
                                      createSinglePlot, 
                                      meta_classified = meta_for_plots, 
-                                     id_type="Sector",
-                                     inventory_colors = inventory_colors)
-        } else if (map_by == "Region") {
+                                     id_type = "Sector",
+                                     inventory_colors = inventory_colors )
+        } else if ( map_by == "Region" ) {
             list_of_plots <- lapply( all_regions, 
                                      createSinglePlot, 
                                      meta_classified = meta_for_plots, 
-                                     id_type="Region",
-                                     inventory_colors = inventory_colors)
+                                     id_type = "Region",
+                                     inventory_colors = inventory_colors )
         }
 
         all_counts <- meta_for_plots %>% 
-          count( year, value, prepost )
+                          count( year, value, prepost )
         
         plot_for_legend <- ggplot(all_counts, aes( year, n ) ) + 
           geom_area(aes(fill = value, alpha = prepost), position = 'stack') +
           scale_fill_manual(values = inventory_colors) +
-          theme( 
-                # legend.position="bottom",
-                axis.title.y=element_blank(),
-                axis.text.y=element_blank(),
-                axis.ticks.y=element_blank(), axis.title.x = element_blank(),
-                panel.background=element_blank(),
-                panel.border = element_rect(colour = "grey80", fill=NA, size=.8)) +
           labs(fill="Inventory", alpha="Extension") +
           ggtitle("Don't use this plot") +       
           scale_alpha_discrete(range = c(1, 0.4)) +
           theme(text = element_text(size=4))
         
-        inventory_legend <- g_legend(plot_for_legend)
+        inventory_legend <- g_legend( plot_for_legend )
         
-        blank<-rectGrob(gp=gpar(col="white"))
+        blank <- rectGrob( gp = gpar( col = "white" ) )
         
         arranged_plots <- grid.arrange( arrangeGrob( grobs=list_of_plots ), #blank,
                                         inventory_legend, 
                                         widths = c( 6, 1 ), 
                                         nrow = 1,
-                                        top = textGrob(paste0("Inventory scaling percentages of ", em, 
-                                                              " by ", map_by), 
+                                        top = textGrob( paste0( "Inventory scaling percentages of ", em, 
+                                                                " by ", map_by ), 
                                         gp = gpar( fontsize = 15, font = 8 ) ) )
 
-        ggsave( paste0("../diagnostic-output/value-meta-heatmaps/MasterHeatmapBy", map_by, ".png"), 
-                arranged_plots, width = 7, height=4)
+        ggsave( paste0( "../diagnostic-output/value-meta-heatmaps/MasterHeatmapBy", 
+                        map_by, ".png" ), 
+                arranged_plots, width = 7, height = 4 )
         
         return( meta_classified )
     }
 
 # ---------------------------------------------------------------------------
 # 1. Read in data
-    library(grid)
+    library( grid )
     
     value_metadata <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_EF-value_metadata" ), 
-                                meta = FALSE, to_numeric=FALSE)
-    value_metadata <- melt(value_metadata, id.vars = c('iso','sector','fuel'))
+                                meta = FALSE, to_numeric = FALSE )
+    value_metadata <- melt( value_metadata, id.vars = c( 'iso', 'sector', 'fuel' ) )
     names( value_metadata ) <- c( "iso", "sector", "fuel", "year", "comment" )
-    value_metadata$comment <- as.character(value_metadata$comment)
+    value_metadata$comment <- as.character( value_metadata$comment )
     
-    country_map <- readData("MAPPINGS", "Master_Country_List")
-    sector_map <- readData("MAPPINGS", "Master_Sector_Level_Map")
+    country_map <- readData( "MAPPINGS", "Master_Country_List" )
+    sector_map <- readData( "MAPPINGS", "Master_Sector_Level_Map" )
     
 # ---------------------------------------------------------------------------
 # 2. Exectue function
