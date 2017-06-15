@@ -65,6 +65,12 @@
     is.invalid = function(x) {
       return(is.null(x) || is.na(x) || is.nan(x))
     }
+    
+    is.nan.df <- function(x) {
+        do.call(cbind, lapply(x, is.nan)) 
+    }
+    
+    
 
 # ------------------------------------------------------------------------------------
 # 1. Read in data
@@ -89,6 +95,9 @@
 
 # This script only operates on combustion emissions, so reduce the data to that form
     all_activity_data <- default_activity_mapped[ which(default_activity_mapped$CEDS_sector %in% comb_sectors_only ), ]
+### Accept only unique rows. Hopefully we won't have to do this once
+###     restructuring of defaults is done.
+    all_activity_data <- all_activity_data[ !duplicated(all_activity_data[c("iso", "CEDS_fuel", "agg_fuel", "CEDS_sector", "agg_sector")]), ]
     
 # Read instructions files and create a procedure list
     instructions <- readInUserInstructions()
@@ -112,8 +121,7 @@
             
     # Extract the data from the dataframe that will refer to the specific
     # categories and years as defined by the
-        user_dataframe_subset <- user_dataframe
-        user_dataframe_subset <- user_dataframe_subset[ which( user_dataframe_subset$iso == 
+        user_dataframe_subset <- user_dataframe[ which( user_dataframe$iso == 
                                                                  instructions$iso[1] ), ]
         if ( !is.invalid( instructions$CEDS_sector[1] ) && instructions$CEDS_sector[1] != 'all' ) {
             user_dataframe_subset <- user_dataframe_subset[ which ( user_dataframe_subset$CEDS_sector == 
@@ -142,20 +150,20 @@
         
         agg_level <- identifyLevel( user_dataframe )
         if ( agg_level == 4 ) {
-            data_to_use <- all_activity_data[ which( all_activity_data$iso == instructions$iso[1] &
-                                                     all_activity_data$CEDS_sector == instructions$CEDS_sector[1] &
-                                                     all_activity_data$agg_fuel == MFL$aggregated_fuel[which( instructions$CEDS_fuel[1] == MFL$fuel)]
+            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% user_dataframe_subset$iso &
+                                                     all_activity_data$CEDS_sector %in% user_dataframe_subset$CEDS_sector &
+                                                     all_activity_data$agg_fuel %in% MFL$aggregated_fuel[which( user_dataframe_subset$CEDS_fuel == MFL$fuel)]
                                                      ), c( colnames( all_activity_data[ which( !isXYear( 
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
         } else if (agg_level == 3) {
-            data_to_use <- all_activity_data[ which( all_activity_data$iso == instructions$iso[1] &
-                                                     all_activity_data$agg_sector == instructions$agg_sector[1] &
-                                                     all_activity_data$agg_fuel == MFL$aggregated_fuel[which( instructions$CEDS_fuel[1] == MFL$fuel)]
+            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% user_dataframe_subset$iso &
+                                                     all_activity_data$agg_sector %in% user_dataframe_subset$agg_sector &
+                                                     all_activity_data$agg_fuel == MFL$aggregated_fuel[which( user_dataframe_subset$CEDS_fuel == MFL$fuel)]
                                                      ), c( colnames( all_activity_data[ which( !isXYear( 
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
         } else if (agg_level == 2 || agg_level == 1) {
-            data_to_use <- all_activity_data[ which( all_activity_data$iso == instructions$iso[1] &
-                                                     all_activity_data$agg_fuel == instructions$agg_fuel[1]
+            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% user_dataframe_subset$iso&
+                                                     all_activity_data$agg_fuel %in% user_dataframe_subset$agg_fuel
                                                      ), c( colnames( all_activity_data[ which( !isXYear( 
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
         } 
@@ -229,7 +237,7 @@
                 stop( "Aggregate sums were not retained" )
             }
             
-            if ( any( colSums(data_changed[, Xyears] < 0 ) ) ) {
+            if ( any( colSums(data_changed[, Xyears] ) < 0 )  ) {
                data_changed[ which(data_changed[,Xyears] < 0), Xyears] <- 0
                warning("Some negative values were created during normalization. Coercing to zeros.")
             }
@@ -239,9 +247,158 @@
                                       all_activity_data$CEDS_sector %in% data_changed$CEDS_sector), Xyears] <-
                       data_changed[, Xyears]  ### We will maybe not re-add this data into the main dataframe... discuss later
             
-        } else if ( agg_level == 2) {
+        } else if ( agg_level == 3 ) {
+        # At agg level 2, we need to:
+            # Aggregate by CEDS_fuel
+            # Replace values for our sectors at agg level
+            # Normalize over all sectors
+            # Replace all values down
+            activity_agg_to_l3 <- ddply(data_to_use, c("iso","CEDS_fuel","agg_fuel","agg_sector"), function(x) colSums(x[Xyears]))
+            act_agg_to_l3_changed <- activity_agg_to_l3
+            act_agg_to_l3_changed[ which(act_agg_to_l3_changed$CEDS_fuel %in% user_dataframe_subset$CEDS_fuel), Xyears] <- user_dataframe_subset[, Xyears]
+          
+        # Create a total to calculate percents of differences that the non-user-edited sectors need to absorb
+            year_totals <- activity_agg_to_l3[1,]
+            year_totals[1, Xyears] <- colSums(activity_agg_to_l3[, Xyears])
+            year_totals_non_user_data <- year_totals[ , c( colnames( year_totals[ which( !isXYear( 
+                                                           colnames(year_totals) ) ) ] ), Xyears ) ]
+            year_totals_non_user_data[, Xyears] <- year_totals[, Xyears] - 
+                                                      activity_agg_to_l3[ which( activity_agg_to_l3$CEDS_fuel %in% 
+                                                                                 user_dataframe_subset$CEDS_fuel ), 
+                                                                          Xyears]
+        
+        # Calculate percents that each non-edited sector needs to absorb
+            year_totals_non_user_data[ 2:(nrow(act_agg_to_l3_changed) - 1), ] <- year_totals_non_user_data[1,]
+            
+            pct_of_agg_group <- activity_agg_to_l3[ which( activity_agg_to_l3$CEDS_fuel %!in% 
+                                                             user_dataframe_subset$CEDS_fuel ), 
+                                                    c( colnames( year_totals[ which( !isXYear( 
+                                                      colnames(year_totals) ) ) ] ), Xyears ) ]
+            
+            pct_of_agg_group[, Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) / data.matrix(year_totals_non_user_data[, Xyears])
+            pct_of_agg_group[ is.nan.df( pct_of_agg_group ) ] <- 0
+            
+            new_year_totals <- act_agg_to_l3_changed[1,]
+            new_year_totals[1, Xyears] <- colSums( act_agg_to_l3_changed[ , Xyears ] )
+            
+            annual_diffs <- year_totals[ 1, Xyears ] - new_year_totals[, Xyears]
+            annual_diffs[ 2:(nrow(act_agg_to_l3_changed) - 1), ] <- annual_diffs[1,]
+            
+            sums_to_add <- pct_of_agg_group
+            sums_to_add[ , Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) * data.matrix(annual_diffs[, Xyears])
+            
+            data_to_correct <- activity_agg_to_l3[ which( activity_agg_to_l3$CEDS_fuel %!in% user_dataframe_subset$CEDS_fuel)
+                                                   , c( colnames( year_totals[ which( !isXYear( 
+                                                     colnames(year_totals) ) ) ] ), Xyears ) ]
+            corrected_data <- data_to_correct
+            corrected_data[, Xyears] <- data.matrix(data_to_correct[, Xyears]) + data.matrix(sums_to_add[, Xyears])
+            
+        # Add corrected data, resulting in a dataframe with the new agg sums
+            act_agg_to_l3_changed[ which( act_agg_to_l3_changed$CEDS_fuel %!in% user_dataframe_subset$CEDS_fuel), ] <-
+              corrected_data
+            
+        # Now we need to apply the changes above linearly to the disaggregate cells.
+            disagg_data_changed <- data_to_use
+            
+            disaggregation_factors <- act_agg_to_l3_changed
+            disaggregation_factors[, Xyears] <- act_agg_to_l3_changed[, Xyears] / activity_agg_to_l3[, Xyears]
+            
+            disaggregation_factors <- left_join(disagg_data_changed[, c("iso", "CEDS_fuel", "CEDS_sector")], disaggregation_factors, by = c("iso", "CEDS_fuel"))
+            
+            disagg_data_changed[, Xyears] <- disagg_data_changed[, Xyears] * disaggregation_factors[, Xyears] 
+            
+        # Replace any values that were 0s in the old dataset with 0s   ### This is not a good method but will work for now
+            disagg_data_changed[is.nan.df(disagg_data_changed) & data_to_use == 0] <- 0
+            
+            if (any(round(colSums(disagg_data_changed[, Xyears]), 3) != round(colSums(data_to_use[,Xyears]), 3))) {
+                warning("Column sums were not retained \n[this will eventually be an error once we fix the situation with 0s]")
+            }
+            
+            all_activity_data[ which( all_activity_data$iso %in% disagg_data_changed$iso &
+                                        all_activity_data$agg_fuel %in% disagg_data_changed$agg_fuel &
+                                        all_activity_data$CEDS_sector %in% disagg_data_changed$CEDS_sector), Xyears] <-
+              disagg_data_changed[, Xyears]  ### We will maybe not re-add this data into the main dataframe... discuss later
             
             
+        } else if ( agg_level == 2 ) {
+        # At agg level 2, we need to:
+            # Calculate total CEDS_fuel over all sectors
+            # Replace values for our sectors at agg level
+            # Normalize fuels over all sectors 
+            # Replace all values down     ### Do I need to make a replace values down function?? I don't think so bc it has to be pretty column-specific
+            
+            activity_agg_to_l2 <- ddply(data_to_use, c("iso","CEDS_fuel","agg_fuel"), function(x) colSums(x[Xyears]))
+            act_agg_to_l2_changed <- activity_agg_to_l2
+            act_agg_to_l2_changed[ which(act_agg_to_l2_changed$CEDS_fuel %in% user_dataframe_subset$CEDS_fuel), Xyears] <- user_dataframe_subset[, Xyears]
+            
+        # Create a total to calculate percents of differences that the non-user-edited sectors need to absorb
+            year_totals <- activity_agg_to_l2[1,]
+            year_totals[1, Xyears] <- colSums(activity_agg_to_l2[, Xyears])
+            year_totals_non_user_data <- year_totals[ , c( colnames( year_totals[ which( !isXYear( 
+              colnames(year_totals) ) ) ] ), Xyears ) ]
+            year_totals_non_user_data[, Xyears] <- year_totals[, Xyears] - 
+                  activity_agg_to_l2[ which( activity_agg_to_l2$CEDS_fuel %in% 
+                                             user_dataframe_subset$CEDS_fuel ), 
+                                      Xyears]
+            
+        # Calculate percents that each non-edited sector needs to absorb
+            year_totals_non_user_data[ 2:(nrow(act_agg_to_l2_changed) - 1), ] <- year_totals_non_user_data[1,]
+            
+            pct_of_agg_group <- activity_agg_to_l2[ which( activity_agg_to_l2$CEDS_fuel %!in% 
+                                                             user_dataframe_subset$CEDS_fuel ), 
+                                                    c( colnames( year_totals[ which( !isXYear( 
+                                                               colnames(year_totals) ) ) ] ), Xyears ) ]
+            
+            pct_of_agg_group[, Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) / data.matrix(year_totals_non_user_data[, Xyears])
+            pct_of_agg_group[ is.nan.df( pct_of_agg_group ) ] <- 0
+            
+            new_year_totals <- act_agg_to_l2_changed[1,]
+            new_year_totals[1, Xyears] <- colSums( act_agg_to_l2_changed[ , Xyears ] )
+            
+            annual_diffs <- year_totals[ 1, Xyears ] - new_year_totals[, Xyears]
+            annual_diffs[ 2:(nrow(act_agg_to_l2_changed) - 1), ] <- annual_diffs[1,]
+            
+            sums_to_add <- pct_of_agg_group
+            sums_to_add[ , Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) * data.matrix(annual_diffs[, Xyears])
+            
+            data_to_correct <- activity_agg_to_l2[ which( activity_agg_to_l2$CEDS_fuel %!in% user_dataframe_subset$CEDS_fuel)
+                                            , c( colnames( year_totals[ which( !isXYear( 
+                                              colnames(year_totals) ) ) ] ), Xyears ) ]
+            corrected_data <- data_to_correct
+            corrected_data[, Xyears] <- data.matrix(data_to_correct[, Xyears]) + data.matrix(sums_to_add[, Xyears])
+        
+        # Add corrected data, resulting in a dataframe with the new agg sums
+            act_agg_to_l2_changed[ which( act_agg_to_l2_changed$CEDS_fuel %!in% user_dataframe_subset$CEDS_fuel), ] <-
+                                                                        corrected_data
+            
+        # Now we need to apply the changes above linearly to the disaggregate cells.
+            disagg_data_changed <- data_to_use
+            
+            disaggregation_factors <- act_agg_to_l2_changed
+            disaggregation_factors[, Xyears] <- act_agg_to_l2_changed[, Xyears] / activity_agg_to_l2[, Xyears]
+            
+            disaggregation_factors <- left_join(disagg_data_changed[, c("iso", "CEDS_fuel")], disaggregation_factors, by = c("iso", "CEDS_fuel"))
+            
+            disagg_data_changed[, Xyears] <- disagg_data_changed[, Xyears] * disaggregation_factors[, Xyears] 
+            
+        ### An issue that's occurring--that I haven't addressed--is that if
+        ### a cell had 0 to begin with, it will end up with 0 or NaN even if
+        ### we've directly given it different data. We need a whole
+        ### disaggregation procedure here to fix this, which takes its
+        ### percent breakdowns fromthe nearest row with data (at least
+        ### that's my proposal)
+            
+        # Replace any values that were 0s in the old dataset with 0s   ### This is not a good method but will work for now
+            disagg_data_changed[is.nan.df(disagg_data_changed) & data_to_use == 0] <- 0
+            
+            if (any(round(colSums(disagg_data_changed[, Xyears]), 3) != round(colSums(data_to_use[,Xyears]), 3))) {
+                warning("Column sums were not retained \n[this will eventually be an error once we fix the situation with 0s]")
+            }
+            
+            all_activity_data[ which( all_activity_data$iso %in% data_changed$iso &
+                                        all_activity_data$agg_fuel %in% data_changed$agg_fuel &
+                                        all_activity_data$CEDS_sector %in% data_changed$CEDS_sector), Xyears] <-
+              disagg_data_changed[, Xyears]  ### We will maybe not re-add this data into the main dataframe... discuss later
             
         } else if ( agg_level == 1 ) {
             
@@ -250,7 +407,7 @@
             
             yearly_totals_unchanged <- colSums( data_to_use[ , Xyears ] )
             
-            adjustment_factors <- user_dataframe[, Xyears] / yearly_totals_unchanged
+            adjustment_factors <- user_dataframe_subset[, Xyears] / yearly_totals_unchanged
             adjustment_factors[ 2:nrow( data_to_use ), ] <- adjustment_factors
             
             data_changed <- data_to_use
@@ -265,22 +422,19 @@
                                         all_activity_data$CEDS_sector %in% data_changed$CEDS_sector), Xyears] <-
               data_changed[, Xyears]  ### We will maybe not re-add this data into the main dataframe... discuss later
             
-            
+           
         }
-        
-        
-        
         
         old.file <- new.file
         instructions <- instructions[ -1, ]
     }
 
-    
-     
-    
 
-
-
+### Major things that I haven't dealt with:
+    # Batching input data by group
+    # Ordering instructions (should be most aggregate -> least aggregate, least
+    #     recent -> most recent except where specified)
+    # Updating disaggregate zeros
     
     
     
