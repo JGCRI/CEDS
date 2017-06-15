@@ -50,28 +50,10 @@ if ( is.na( em ) ) em <- "NH3"
         return(legend)}
 
 
-    createSinglePlot <- function( identifier, meta_classified, id_type = "Region" ) {
+    createSinglePlot <- function( identifier, meta_classified, id_type = "Region", inventory_colors ) {
         
-        inventory_colors <- c( "Default" = "#cccccc",
-                               "Zero emissions" = "#000000",
-                               "EDGAR 4.3-PEGASOS" = "#026fff",
-                               "EMEP_NFR09" = "#00BE67",
-                               "REAS 2.1" = "#d966ff",
-                               "EMEP_NFR14" = "#73e600",
-                               "UNFCCC, 2015" = "#f75555",
-                               "Environment Canada, 2013" = "#ff8c1a",
-                               "Environment and Climate Change Canada, 2016" = "#ffe11a",
-                               "US EPA, 2016" = "#990033",
-                               "US" = "#1d3d84",
-                               "Li et al., 2017" = "#fcde1e",
-                               "TEPA, 2016" = "#1de0cc",
-                               "Argentina UNFCCC submission, 2016" = "#ff8484",
-                               "Kurokawa et. al, 2013" = "#990606",
-                               "South Korea National Institute of Environmental Research, 2016" = "#875c1d",
-                               "Australian Department of the Environment, 2016" = "#1c661b",
-                               "EDGAR 4.2" = "#80d4ff" )
-
-        if (id_type == "Region") {    
+        p <- NULL
+        if (id_type == "Region" && identifier != "Global") {    
             meta_this_region <- meta_classified[ which(meta_classified$Region == identifier), c("year","value","prepost") ]
             
             
@@ -94,7 +76,7 @@ if ( is.na( em ) ) em <- "NH3"
             regional_counts <- rbind(first_years, last_years, regional_counts)
             
             p <- ggplot(regional_counts, aes( year, n ) ) + 
-                 geom_area(aes(fill = val, alpha = prepost), position = 'stack') +
+                 geom_col(aes(fill = val, alpha = prepost), position = 'stack', width = 1) +
                  theme(legend.position="none") +
                  scale_fill_manual(values = inventory_colors) +
                  theme(axis.title.y=element_blank(),
@@ -104,20 +86,43 @@ if ( is.na( em ) ) em <- "NH3"
                    panel.border = element_rect(colour = "grey80", fill=NA, size=.8)) +
                  ggtitle(identifier) +       
                  scale_alpha_discrete(range = c(1, 0.4)) +
-                 theme(text = element_text(size=4))
+                 theme(text = element_text(size=6))
             
-            list_of_plots <- c(list_of_plots, p)
-            
+
         } else if (id_type == "Sector") {
             meta_this_sector <- meta_classified[ which(meta_classified$Figure_sector == identifier), c("year","value","prepost") ]
             
-            sectoral_counts <- meta_this_sector %>% count( year, value, prepost )
+            sectoral_counts <- meta_this_sector %>% 
+                                count( year, value, prepost )
+            colnames(sectoral_counts)[2] <- "val"
             
-            sectoral_counts$year <- substr(sectoral_counts$year, 2, 5) %>% as.numeric()
+            sectoral_counts$year <- substr(sectoral_counts$year, 2, 5) %>% 
+                                      as.numeric()
+            
+            first_years <- group_by(sectoral_counts, val, prepost) %>%
+              summarise(year = min(year) - 1) %>%
+              filter(year > 1960) %>%
+              mutate(n = 0)
+            last_years <- group_by(sectoral_counts, val, prepost) %>%
+              summarise(year = max(year) + 1) %>%
+              filter(year < 2014) %>%
+              mutate(n = 0)
+            
+            sectoral_counts <- rbind(first_years, last_years, sectoral_counts)
             
             p <- ggplot(sectoral_counts, aes( year, n ) ) + 
-                 geom_area(aes(fill = value, alpha = prepost), position = 'stack') +
-                 theme(legend.position="none")
+              geom_col(aes(fill = val, alpha = prepost), position = 'stack', width = 1) +
+              theme(legend.position="none") +
+              scale_fill_manual(values = inventory_colors) +
+              theme(axis.title.y=element_blank(),
+                    axis.text.y=element_blank(),
+                    axis.ticks.y=element_blank(), axis.title.x = element_blank(),
+                    panel.background=element_blank(),
+                    panel.border = element_rect(colour = "grey80", fill=NA, size=.8)) +
+              ggtitle(identifier) +       
+              scale_alpha_discrete(range = c(1, 0.4)) +
+              theme(text = element_text(size=6))
+            
         }
       
       return(p)
@@ -128,12 +133,14 @@ if ( is.na( em ) ) em <- "NH3"
         
         mapped_meta_notes <- left_join( meta_notes, country_map[ ,c('iso','Region')] )
         all_regions <- unique( mapped_meta_notes$Region )
+        all_regions <- all_regions[which(all_regions != "Global")]
         
         print(colnames(mapped_meta_notes))
-        sector_map <- sector_map[ ,c('detailed_sectors','Figure_sector') ]
+        sector_map <- sector_map[ ,c('working_sectors_v1', 'Figure_sector') ]
         colnames( sector_map )[1] <- "sector"
         mapped_meta_notes <- left_join( mapped_meta_notes, sector_map )
         all_sectors <- unique( mapped_meta_notes$Figure_sector )
+        all_sectors <- all_sectors[!is.na(all_sectors)]
         
         meta_split <- mapped_meta_notes
 
@@ -158,53 +165,81 @@ if ( is.na( em ) ) em <- "NH3"
         # meta_classified <- meta_classified[ which(!is.na(meta_classified$Figure_sector)), ]
         # meta_classified <- meta_classified[ which(!is.na(meta_classified$Region)), ]
         
+        inventory_colors <- c( "Default" = "#cccccc",
+                               "Zero emissions" = "#ffffff",
+                               "EDGAR 4.3-PEGASOS" = "#026fff",
+                               "EMEP_NFR09" = "#00BE67",
+                               "REAS 2.1" = "#d966ff",
+                               "EMEP_NFR14" = "#73e600",
+                               "UNFCCC, 2015" = "#f75555",
+                               "Environment Canada, 2013" = "#ff8c1a",
+                               "Environment and Climate Change Canada, 2016" = "#ffe11a",
+                               "US EPA, 2016" = "#990033",
+                               "US" = "#1d3d84",
+                               "Li et al., 2017" = "#fcde1e",
+                               "TEPA, 2016" = "#1de0cc",
+                               "Argentina UNFCCC submission, 2016" = "#ff8484",
+                               "Kurokawa et. al, 2013" = "#990606",
+                               "South Korea National Institute of Environmental Research, 2016" = "#875c1d",
+                               "Australian Department of the Environment, 2016" = "#1c661b",
+                               "EDGAR 4.2" = "#80d4ff" )
+        
         list_of_plots <- list()
         
         if (map_by == "Sector") {
             list_of_plots <- lapply( all_sectors, 
                                      createSinglePlot, 
                                      meta_classified = meta_for_plots, 
-                                     id_type="Sector" )
+                                     id_type="Sector",
+                                     inventory_colors = inventory_colors)
         } else if (map_by == "Region") {
             list_of_plots <- lapply( all_regions, 
                                      createSinglePlot, 
                                      meta_classified = meta_for_plots, 
-                                     id_type="Region" )
+                                     id_type="Region",
+                                     inventory_colors = inventory_colors)
         }
-        
-        
+
         all_counts <- meta_for_plots %>% 
           count( year, value, prepost )
         
         plot_for_legend <- ggplot(all_counts, aes( year, n ) ) + 
           geom_area(aes(fill = value, alpha = prepost), position = 'stack') +
           scale_fill_manual(values = inventory_colors) +
-          theme( legend.position="bottom",
+          theme( 
+                # legend.position="bottom",
                 axis.title.y=element_blank(),
                 axis.text.y=element_blank(),
                 axis.ticks.y=element_blank(), axis.title.x = element_blank(),
                 panel.background=element_blank(),
                 panel.border = element_rect(colour = "grey80", fill=NA, size=.8)) +
+          labs(fill="Inventory", alpha="Extension") +
           ggtitle("Don't use this plot") +       
           scale_alpha_discrete(range = c(1, 0.4)) +
           theme(text = element_text(size=4))
         
         inventory_legend <- g_legend(plot_for_legend)
-      
-        n <- length(list_of_plots)
-        nCol <- floor(sqrt(n))
+        
+        blank<-rectGrob(gp=gpar(col="white"))
+        
+        arranged_plots <- grid.arrange( arrangeGrob( grobs=list_of_plots ), #blank,
+                                        inventory_legend, 
+                                        widths = c( 6, 1 ), 
+                                        nrow = 1,
+                                        top = textGrob(paste0("Inventory scaling percentages of ", em, 
+                                                              " by ", map_by), 
+                                        gp = gpar( fontsize = 15, font = 8 ) ) )
 
-        arranged_plots <- grid.arrange( arrangeGrob( grobs=list_of_plots),
-                                        inventory_legend, heights=c(10,1))
+        ggsave( paste0("../diagnostic-output/value-meta-heatmaps/MasterHeatmapBy", map_by, ".png"), 
+                arranged_plots, width = 7, height=4)
         
-        ggsave("TestOutput.png", arranged_plots)
-        
-        treturn( meta_classified )
+        return( meta_classified )
     }
 
 # ---------------------------------------------------------------------------
 # 1. Read in data
-
+    library(grid)
+    
     value_metadata <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_EF-value_metadata" ), 
                                 meta = FALSE, to_numeric=FALSE)
     value_metadata <- melt(value_metadata, id.vars = c('iso','sector','fuel'))
@@ -217,6 +252,6 @@ if ( is.na( em ) ) em <- "NH3"
 # ---------------------------------------------------------------------------
 # 2. Exectue function
 
+    classed_meta <- createMasterValMetaHeatmap( value_metadata, country_map, sector_map, map_by = "Sector" )
     classed_meta <- createMasterValMetaHeatmap( value_metadata, country_map, sector_map, map_by = "Region" )
-
-
+    
