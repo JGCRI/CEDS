@@ -32,7 +32,7 @@ initialize( script_name, log_msg, headers )
 # ---------------------------------------------------------------------------
 # 1. Read input
 # 'Data' tab only runs to 1890, so read 1850-1890 from tab 'SPEW_Pig_iron_production'
-    spew <- readData( "ACTIVITY_IN", "Blast_furnace_iron_production_1850-2014", ".xlsx", 
+    composite_data <- readData( "ACTIVITY_IN", "Blast_furnace_iron_production_1850-2014", ".xlsx", 
                       sheet_selection = "Data", domain_extension = "metals/", 
                       skip = 2 )[ 1:60, 3:128 ]
     spew_pre <- readData( "ACTIVITY_IN", "Blast_furnace_iron_production_1850-2014", ".xlsx", 
@@ -92,7 +92,7 @@ initialize( script_name, log_msg, headers )
 # ---------------------------------------------------------------------------
 # 2. Process data
 # Standardize format, drop rows of NA, short ton to metric ton, etc.
-    names( spew ) <- make.names( names( spew ) )
+    names( composite_data ) <- make.names( names( composite_data ) )
     spew_pre <- group_by( spew_pre, iso ) %>%
       summarise_each( funs( sum ) )
     spew_pre <- subset( spew_pre, rowSums( spew_pre[, grepl("X", names( spew_pre ) ) ], na.rm = T ) != 0 )  # drop NA rows
@@ -108,8 +108,8 @@ initialize( script_name, log_msg, headers )
                         iso ~ X_year, value = 'pop')
     
 # Melt data to long format
-    spew_long <- melt( spew, id = "iso" ) %>% filter( !is.na( value ), value != 0 )
-    names( spew_long ) <- c( "iso", "year", "spew_en" )
+    composite_long <- melt( composite_data, id = "iso" ) %>% filter( !is.na( value ), value != 0 )
+    names( composite_long ) <- c( "iso", "year", "spew_en" )
     spew_pre_long <- melt( as.data.frame( spew_pre ), id = "iso" ) %>% 
       filter( !is.na( value ), value != 0 )
     names( spew_pre_long ) <- c( "iso", "year", "spew_pre_en" )
@@ -118,13 +118,13 @@ initialize( script_name, log_msg, headers )
     us_long <- melt( us, id = "iso" ) %>% filter( !is.na( value ), value != 0 )
     names( us_long ) <- c( "iso", "year", "us_en" )    
  
-# Combine all data with priority mitchell > spew > spew_pre (except US where spew > spew_pre > us > mitchell)
+# Combine all data with priority mitchell > composite_data > spew_pre (except US where spew > spew_pre > us > mitchell)
     all <- data.frame( year = X_extended_years ) %>%
       merge( data.frame( iso = unique( 
-        c( us_long$iso, mitchell_long$iso, spew_long$iso, spew_pre_long$iso ) ) ), all = T ) %>%
+        c( us_long$iso, mitchell_long$iso, composite_long$iso, spew_pre_long$iso ) ) ), all = T ) %>%
       merge( us_long, all = T ) %>%
       merge( mitchell_long, all = T ) %>%
-      merge( spew_long, all = T ) %>%
+      merge( composite_long, all = T ) %>%
       merge( spew_pre_long, all = T )
     all$en <- all$mitchell_en
     all$en[ is.na( all$en ) ] <- all$spew_en[ is.na( all$en ) ]
