@@ -83,7 +83,6 @@
     default_activity <- readData( 'MED_OUT', paste0('H.', em, '_total_activity_extended_db' ) , meta = F) ### Eventually this will not require an emissions species.
     colnames( default_activity )[1:3] <- c("iso","CEDS_sector","CEDS_fuel")
     default_activity_mapped <- mapToCEDS( default_activity, MSL, MCL, MFL, aggregate = F)
-    default_activity_mapped$units <- default_activity$units
 
 # ------------------------------------------------------------------------------------
 # 2. Collect user-defined inputs and begin processing data loop
