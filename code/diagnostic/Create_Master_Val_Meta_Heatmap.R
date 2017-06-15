@@ -221,6 +221,7 @@
     #   plot (see above function) based on counts for that region/sector and add
     #   to a list of plots
         list_of_plots <- list()
+        printLog( paste0( "Generating aggregate metaval heatmaps by ", map_by ) )
         if ( map_by == "Sector" ) {
             list_of_plots <- lapply( all_sectors, 
                                      createSinglePlot, 
