@@ -56,7 +56,26 @@
             }
         }
         
+        # First, determine batches. How will we indicate that a group of items is in a batch?
+        ### The solution is probably just to sort them in a way that batched items are together...
+        ### Okay, what makes a batch? A batch is any items that are a) on the same aggregation level
+        ###    and b) belong to the same aggregate category.
+        
+        
+        level_1_instructions <- all_instructions[ which( !is.na(all_instructions$L1_agg_fuel)),] %>%
+                                    arrange(iso)
+        level_2_instructions <- all_instructions[ which( !is.na(all_instructions$L2_CEDS_fuel)),]%>%
+                                    arrange(iso)
+        level_3_instructions <- all_instructions[ which( !is.na(all_instructions$L3_agg_sector)),]%>%
+                                    arrange(iso)
+        level_4_instructions <- all_instructions[ which( !is.na(all_instructions$L4_CEDS_sector)),] %>%
+                                    arrange(iso)
+        
+        all_instructions <- rbind(level_1_instructions, level_2_instructions, level_3_instructions, level_4_instructions)
+        
         
         return ( all_instructions )
     }
         
+
+    
