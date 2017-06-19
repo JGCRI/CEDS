@@ -97,10 +97,13 @@
     normalizeAndIncludeDataL4 <- function( Xyears, data_to_use, 
                                          user_dataframe_subset, all_activity_data, whole_group ) {
         
+        year_totals <- data_to_use[1,]
+        pct_of_agg_group <- data_to_use[ which( data_to_use$CEDS_fuel %!in% user_dataframe_subset$CEDS_fuel)
+                                 , c( colnames( year_totals[ which( !isXYear( 
+                                   colnames(year_totals) ) ) ] ), Xyears ) ]
         if (!whole_group) {
         # Calculate percent breakdowns for the category.
         # First, get the sum of the category faor each year.
-            year_totals <- data_to_use[1,]
             if (length(Xyears) > 1){ 
                 year_totals[1, Xyears] <- colSums(data_to_use[, Xyears])
                 year_totals_non_user_data <- year_totals[ , c( colnames( year_totals[ which( !isXYear( 
@@ -127,9 +130,7 @@
         # group; we can just operate on rows.
             
         # Determine what percent of the agg group minus our row each row made up
-            pct_of_agg_group <- data_to_use[ which( data_to_use$CEDS_fuel %!in% user_dataframe_subset$CEDS_fuel)
-                                             , c( colnames( year_totals[ which( !isXYear( 
-                                               colnames(year_totals) ) ) ] ), Xyears ) ]
+
             if (nrow(pct_of_agg_group) > 1) {
                 year_totals_non_user_data[ 2:(nrow(pct_of_agg_group)), ] <- year_totals_non_user_data[1,]  ### Rework how I get year_totals so I can start out with a matrix of the right size
             }
@@ -186,7 +187,11 @@
     # occuring during testing)
         if (length(Xyears) > 1){
             if (any(round(colSums(data_changed[, Xyears]), 3) != round(colSums(data_to_use[,Xyears]), 3))) {
-                warning( "Aggregate sums were not retained" )
+                if( !whole_group ) {
+                    warning( "Aggregate sums were not retained" )
+                } else {
+                    warning( "Aggregate sums were not retained due to whole-group overwrite" )
+                }
             } 
             if ( any( colSums(data_changed[, Xyears] ) < 0 )  ) {
               data_changed[ which(data_changed[,Xyears] < 0), Xyears] <- 0
@@ -221,8 +226,12 @@
         act_agg_to_l3_changed[ which(act_agg_to_l3_changed$CEDS_fuel %in% user_dataframe_subset$CEDS_fuel), Xyears] <- user_dataframe_subset[, Xyears]
       
     # Create a total to calculate percents of differences that the non-user-edited sectors need to absorb
+        year_totals <- activity_agg_to_l3[1,]
+        pct_of_agg_group <- activity_agg_to_l3[ which( activity_agg_to_l3$CEDS_fuel %!in% 
+                                                         user_dataframe_subset$CEDS_fuel ), 
+                                                c( colnames( year_totals[ which( !isXYear( 
+                                                  colnames(year_totals) ) ) ] ), Xyears ) ]
         if (!whole_group) {
-            year_totals <- activity_agg_to_l3[1,]
             year_totals[1, Xyears] <- colSums(activity_agg_to_l3[, Xyears])
             year_totals_non_user_data <- year_totals[ , c( colnames( year_totals[ which( !isXYear( 
                                                            colnames(year_totals) ) ) ] ), Xyears ) ]
@@ -232,11 +241,6 @@
                                                                           Xyears]
         
         # Calculate percents that each non-edited sector needs to absorb
-            pct_of_agg_group <- activity_agg_to_l3[ which( activity_agg_to_l3$CEDS_fuel %!in% 
-                                                             user_dataframe_subset$CEDS_fuel ), 
-                                                    c( colnames( year_totals[ which( !isXYear( 
-                                                      colnames(year_totals) ) ) ] ), Xyears ) ]
-            
             year_totals_non_user_data[ 2:(nrow(pct_of_agg_group) - 1), ] <- year_totals_non_user_data[1,]
             
             pct_of_agg_group[, Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) / data.matrix(year_totals_non_user_data[, Xyears])
@@ -376,9 +380,9 @@
             }           
         }
         
-        all_activity_data[ which( all_activity_data$iso %in% data_changed$iso &
-                                    all_activity_data$agg_fuel %in% data_changed$agg_fuel &
-                                    all_activity_data$CEDS_sector %in% data_changed$CEDS_sector), Xyears] <-
+        all_activity_data[ which( all_activity_data$iso %in% disagg_data_changed$iso &
+                                    all_activity_data$agg_fuel %in% disagg_data_changed$agg_fuel &
+                                    all_activity_data$CEDS_sector %in% disagg_data_changed$CEDS_sector), Xyears] <-
           disagg_data_changed[, Xyears]  ### We will maybe not re-add this data into the main dataframe... discuss later
             
     }
@@ -446,6 +450,7 @@
     instructions[, c("iso", "CEDS_fuel", "agg_fuel")] <- left_join( instructions[ , c("iso","CEDS_fuel") ], 
                                                             MFL[ , c( "aggregated_fuel", "fuel" ) ], 
                                                             by = c( "CEDS_fuel" = "fuel" ) )
+    rows_completed <- instructions[0,]
     
     old.file <- "NULL"
     
@@ -623,6 +628,8 @@
           
           
         old.file <- new.file
+        rows_completed <- rbind(rows_completed, working_instructions)
+        
     }
 
 
@@ -640,6 +647,8 @@
     # Updating disaggregate zeros (and handling zeros in general)
     
     # Combine level 2 & 3 NAI funtions into a single function?
+    
+    # Check on where agg sums are not retained, and why no warning message from whole group update
     
     
     
