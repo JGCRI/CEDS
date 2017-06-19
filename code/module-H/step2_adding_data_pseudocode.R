@@ -166,17 +166,7 @@
                                                     instructions$iso %!in% user_dataframe_subset$iso |
                                                     instructions$CEDS_sector %!in% user_dataframe_subset$CEDS_sector |
                                                     instructions$agg_fuel %!in% user_dataframe_subset$agg_fuel ), ]
-            ### Add a line of code: any batch instructions that don't have time
-            ### overlap need to be put back into instructions
-            
-            batch_instructions_overlap <- batch_data_instructions[ which( 
-                                                    batch_data_instructions$start_year < working_instructions$end_year &
-                                                    batch_data_instructions$end_year > working_instructions$start_year), ]
-            batch_instructions_no_overlap <- batch_data_instructions[ which( 
-                                                    batch_data_instructions$start_year > working_instructions$end_year |
-                                                    batch_data_instructions$end_year < working_instructions$start_year), ]
-            instructions <- rbind( instructions, batch_instructions_no_overlap )
-            batch_data_instructions <- batch_instructions_overlap
+
             
             
         } else if ( agg_level == 3 ) {
@@ -189,23 +179,25 @@
                                                    instructions$iso %!in% user_dataframe_subset$iso |
                                                    instructions$agg_sector %!in% user_dataframe_subset$agg_sector |
                                                    instructions$agg_fuel %!in% user_dataframe_subset$agg_fuel ), ]
-            ### Add a line of code: any batch instructions that don't have time
-            ### overlap need to be put back into instructions
-            
-            batch_instructions_overlap <- batch_data_instructions[ which( 
-              batch_data_instructions$start_year < working_instructions$end_year &
-                batch_data_instructions$end_year > working_instructions$start_year), ]
-            batch_instructions_no_overlap <- batch_data_instructions[ which( 
-              batch_data_instructions$start_year > working_instructions$end_year |
-                batch_data_instructions$end_year < working_instructions$start_year), ]
-            instructions <- rbind( instructions, batch_instructions_no_overlap )
-            batch_data_instructions <- batch_instructions_overlap            
-            
-        } else if ( agg_level == 2 ) {
-            batch_data_instructions <- instructions[0,]   ### These obviously will need to get written
-        } else if ( agg_level == 1 ) {
-            batch_data_instructions <- instructions[0,]
+
+        } else if ( agg_level %in% 1:2 ) {
+            batch_data_instructions <- instructions[ which( !is.na(instructions$L4_CEDS_sector) & 
+                                                            instructions$iso %in% user_dataframe_subset$iso &
+                                                            instructions$agg_fuel %in% user_dataframe_subset$agg_fuel &
+                                                            ), ] ### A line of code that confirms that they're only grabbing instructions at the same level.
+            instructions <- instructions[ which( is.na(instructions$L4_CEDS_sector) |
+                                                 instructions$iso %!in% user_dataframe_subset$iso |
+                                                 instructions$agg_fuel %!in% user_dataframe_subset$agg_fuel ), ]
         }
+
+        batch_instructions_overlap <- batch_data_instructions[ which( 
+                              batch_data_instructions$start_year < working_instructions$end_year &
+                              batch_data_instructions$end_year > working_instructions$start_year), ]
+        batch_instructions_no_overlap <- batch_data_instructions[ which( 
+                              batch_data_instructions$start_year > working_instructions$end_year |
+                              batch_data_instructions$end_year < working_instructions$start_year), ]
+        instructions <- rbind( instructions, batch_instructions_no_overlap )
+        batch_data_instructions <- batch_instructions_overlap
         
     # If there are data in our instructions that will be in the current group's batch:
         if (nrow(batch_data_instructions) > 0) {
@@ -614,7 +606,7 @@
 ### Major things that I haven't dealt with:
     # Batching input data by group (I THINK this is done. Go check when I have time/focus)
     # Updating disaggregate zeros (and handling zeros in general)
-    
+    # Should I make some of the agg if-statements into functions? would make code a whole lot easier to follow
     
     
     
