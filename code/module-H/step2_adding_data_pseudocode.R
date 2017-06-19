@@ -180,7 +180,27 @@
             
             
         } else if ( agg_level == 3 ) {
-            batch_data_instructions <- instructions[0,]
+            batch_data_instructions <- instructions[ which( !is.na(instructions$L4_CEDS_sector) & 
+                                                              instructions$iso %in% user_dataframe_subset$iso &
+                                                              instructions$agg_sector %in% user_dataframe_subset$agg_sector &
+                                                              instructions$agg_fuel
+                                                            %in% user_dataframe_subset$agg_fuel ), ] ### This isn't working because I agg to CEDS_fuel instead of agg_sector.... check in on this tomorrow.
+            instructions <- instructions[ which( is.na(instructions$L4_CEDS_sector) |
+                                                   instructions$iso %!in% user_dataframe_subset$iso |
+                                                   instructions$agg_sector %!in% user_dataframe_subset$agg_sector |
+                                                   instructions$agg_fuel %!in% user_dataframe_subset$agg_fuel ), ]
+            ### Add a line of code: any batch instructions that don't have time
+            ### overlap need to be put back into instructions
+            
+            batch_instructions_overlap <- batch_data_instructions[ which( 
+              batch_data_instructions$start_year < working_instructions$end_year &
+                batch_data_instructions$end_year > working_instructions$start_year), ]
+            batch_instructions_no_overlap <- batch_data_instructions[ which( 
+              batch_data_instructions$start_year > working_instructions$end_year |
+                batch_data_instructions$end_year < working_instructions$start_year), ]
+            instructions <- rbind( instructions, batch_instructions_no_overlap )
+            batch_data_instructions <- batch_instructions_overlap            
+            
         } else if ( agg_level == 2 ) {
             batch_data_instructions <- instructions[0,]   ### These obviously will need to get written
         } else if ( agg_level == 1 ) {
@@ -310,11 +330,12 @@
         # group; we can just operate on rows.
             
         # Determine what percent of the agg group minus our row each row made up
-            year_totals_non_user_data[ 2:(nrow(data_to_use) - 1), ] <- year_totals_non_user_data[1,]  ### Rework how I get year_totals so I can start out with a matrix of the right size
-            
             pct_of_agg_group <- data_to_use[ which( data_to_use$CEDS_fuel %!in% user_dataframe_subset$CEDS_fuel)
                                              , c( colnames( year_totals[ which( !isXYear( 
                                                colnames(year_totals) ) ) ] ), Xyears ) ]
+            if (nrow(pct_of_agg_group) > 1) {
+                year_totals_non_user_data[ 2:(nrow(pct_of_agg_group)), ] <- year_totals_non_user_data[1,]  ### Rework how I get year_totals so I can start out with a matrix of the right size
+            }
             pct_of_agg_group[, Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) / data.matrix(year_totals_non_user_data[, Xyears])
             
         # Create a new dataframe that and replace the old row of data with the
@@ -329,13 +350,17 @@
             if (length( Xyears ) > 1) {
                 new_year_totals[1, Xyears] <- colSums( data_changed[ , Xyears ] )
                 annual_diffs <- year_totals[ 1, Xyears ] - new_year_totals[, Xyears]
-                annual_diffs[ 2:(nrow(data_to_use) - 1), ] <- annual_diffs[1,]
+                if (nrow(pct_of_agg_group) > 1) {
+                    annual_diffs[ 2:(nrow(data_to_use) - 1), ] <- annual_diffs[1,]
+                }
                 sums_to_add <- pct_of_agg_group
                 sums_to_add[ , Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) * data.matrix(annual_diffs[, Xyears])
             } else {
                 new_year_totals[1, Xyears] <- sum( data_changed[ , Xyears ] )
                 annual_diffs <- year_totals[ 1, Xyears ] - new_year_totals[, Xyears]
-                annual_diffs[ 2:(nrow(data_to_use) - 1) ] <- annual_diffs
+                if (nrow(pct_of_agg_group) > 1) {
+                    annual_diffs[ 2:(nrow(data_to_use) - 1) ] <- annual_diffs
+                }
                 sums_to_add <- pct_of_agg_group
                 sums_to_add[ , Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) * data.matrix(annual_diffs)
             }
@@ -354,12 +379,16 @@
             data_changed[ which( data_to_use$CEDS_fuel %!in% user_dataframe_subset$CEDS_fuel), ] <-
                     corrected_data
             
+            data_changed[is.nan.df(data_changed)] <- 0
+            
+            ### WHat do we do in the situation where the only columns left to change are 0s? We just add the new values to that column, right? We can make this happen eventually...for now, they stay zeros, and the normalization just fails.
+            
         # Return an error if column sums didn't come out the same (rounded to 3
         # decimal places to allow for e-14 processing discrepencies that were
         # occuring during testing)
             if (length(Xyears) > 1){
                 if (any(round(colSums(data_changed[, Xyears]), 3) != round(colSums(data_to_use[,Xyears]), 3))) {
-                    stop( "Aggregate sums were not retained" )
+                    warning( "Aggregate sums were not retained" )
                 } 
                 if ( any( colSums(data_changed[, Xyears] ) < 0 )  ) {
                   data_changed[ which(data_changed[,Xyears] < 0), Xyears] <- 0
@@ -367,7 +396,7 @@
                 }             
             } else {
                 if (any(round(sum(data_changed[, Xyears]), 3) != round(sum(data_to_use[,Xyears]), 3))) {
-                  stop( "Aggregate sums were not retained" )
+                  warning( "Aggregate sums were not retained" )
                 } 
                 if ( any( sum(data_changed[, Xyears] ) < 0 )  ) {
                   data_changed[ which(data_changed[,Xyears] < 0), Xyears] <- 0
@@ -402,12 +431,12 @@
                                                                           Xyears]
         
         # Calculate percents that each non-edited sector needs to absorb
-            year_totals_non_user_data[ 2:(nrow(act_agg_to_l3_changed) - 1), ] <- year_totals_non_user_data[1,]
-            
             pct_of_agg_group <- activity_agg_to_l3[ which( activity_agg_to_l3$CEDS_fuel %!in% 
                                                              user_dataframe_subset$CEDS_fuel ), 
                                                     c( colnames( year_totals[ which( !isXYear( 
                                                       colnames(year_totals) ) ) ] ), Xyears ) ]
+            
+            year_totals_non_user_data[ 2:(nrow(pct_of_agg_group) - 1), ] <- year_totals_non_user_data[1,]
             
             pct_of_agg_group[, Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) / data.matrix(year_totals_non_user_data[, Xyears])
             pct_of_agg_group[ is.nan.df( pct_of_agg_group ) ] <- 0
@@ -481,14 +510,15 @@
                                       Xyears]
             
         # Calculate percents that each non-edited sector needs to absorb
-            year_totals_non_user_data[ 2:(nrow(act_agg_to_l2_changed) - 1), ] <- year_totals_non_user_data[1,]
-            
             pct_of_agg_group <- activity_agg_to_l2[ which( activity_agg_to_l2$CEDS_fuel %!in% 
                                                              user_dataframe_subset$CEDS_fuel ), 
                                                     c( colnames( year_totals[ which( !isXYear( 
-                                                               colnames(year_totals) ) ) ] ), Xyears ) ]
+                                                      colnames(year_totals) ) ) ] ), Xyears ) ]
             
-            pct_of_agg_group[, Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) / data.matrix(year_totals_non_user_data[1, Xyears])
+            year_totals_non_user_data[ 2:(nrow(pct_of_agg_group) - 1), ] <- year_totals_non_user_data[1,]
+            
+            
+            pct_of_agg_group[, Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) / data.matrix(year_totals_non_user_data[, Xyears])
             pct_of_agg_group[ is.nan.df( pct_of_agg_group ) ] <- 0
             
             new_year_totals <- act_agg_to_l2_changed[1,]
@@ -582,10 +612,8 @@
 
 
 ### Major things that I haven't dealt with:
-    # Batching input data by group (<--working on this now!)
-    # Ordering instructions (should be most aggregate -> least aggregate, least
-    #     recent -> most recent except where specified)
-    # Updating disaggregate zeros
+    # Batching input data by group (I THINK this is done. Go check when I have time/focus)
+    # Updating disaggregate zeros (and handling zeros in general)
     
     
     

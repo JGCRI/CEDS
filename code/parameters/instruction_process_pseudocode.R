@@ -10,6 +10,12 @@
 # Notes: 
 # ------------------------------------------------------------------------------------
     
+    orderInstructions <- function( instructions ) {
+        
+        instructions <- instructions[ order(instructions$start_year) ]
+        
+        return()
+    }
     
     readInUserInstructions <- function () {
     # At this point in the process, data has been maped & cleaned.
@@ -63,13 +69,17 @@
         
         
         level_1_instructions <- all_instructions[ which( !is.na(all_instructions$L1_agg_fuel)),] %>%
-                                    arrange(iso)
+                                    arrange(iso) %>%
+                                    arrange(-end_year)
         level_2_instructions <- all_instructions[ which( !is.na(all_instructions$L2_CEDS_fuel)),]%>%
-                                    arrange(iso)
+                                    arrange(iso) %>%
+                                    arrange(-end_year)
         level_3_instructions <- all_instructions[ which( !is.na(all_instructions$L3_agg_sector)),]%>%
-                                    arrange(iso)
+                                    arrange(iso) %>%
+                                    arrange(-end_year)
         level_4_instructions <- all_instructions[ which( !is.na(all_instructions$L4_CEDS_sector)),] %>%
-                                    arrange(iso)
+                                    arrange(iso) %>%
+                                    arrange(-end_year)
         
         all_instructions <- rbind(level_1_instructions, level_2_instructions, level_3_instructions, level_4_instructions)
         
