@@ -63,23 +63,38 @@
 # return: a ggplot of the bar chart 
 # input files: reclassified value metadata
 # output: none
-    createSinglePlot <- function( identifier, meta_classified, id_type = "Region", inventory_colors ) {
+    createSinglePlot <- function( identifier, meta_classified, id_type = "Region", inventory_colors,
+                                  weight_by_em, normalize ) {
     
     # Separate extraction procedure by region vs. sector.
         if ( id_type == "Region" ) {    
         
         # Extract metadata for this region
             meta_this_region <- meta_classified[ which(meta_classified$Region == identifier ), 
-                                                 c( "year", "value", "prepost" ) ]
+                                                 c( "year", "value", "prepost", "emissions" ) ]
             
         # Count the frequency of each year/value/prepost occurance
             regional_counts <- meta_this_region %>% 
                                     count( year, value, prepost )
             
         # Make the years numeric so we can have a continunous x-axis
+
+            id_cols <- c("year","value","prepost")
+            
+            if (weight_by_em) {
+                regional_counts <- aggregate( meta_this_region$emissions, by = meta_this_region[id_cols], sum )
+                colnames(regional_counts)[which(colnames(regional_counts) == "x")] <- "n"
+                if (normalize) {
+                    year_totals <- aggregate(regional_counts$n, by = regional_counts["year"], sum)
+                    regional_counts <- left_join( regional_counts, year_totals, by = c("year"))
+                    regional_counts$n <- regional_counts$n / regional_counts$x
+                }
+            }
+        
+            
             regional_counts$year <- substr( regional_counts$year, 2, 5 ) %>% 
                                       as.numeric()
-        
+                    
         # Make a geom_col plot of frequency (n, determined in count() above) by year.
         # Fill is determined by inventory (as stated in the colors list) and
         #   transparency is determined by extension direction
@@ -98,6 +113,11 @@
                  ggtitle( identifier ) +       
                  scale_alpha_discrete( range = c( 1, 0.4 ) ) +
                  theme( text = element_text( size = 6 ) )
+            
+            if (weight_by_em) {
+                ggsave( paste0( "../diagnostic-output/value-meta-heatmaps/TestOutWeighted.png" ), 
+                p, width = 7, height = 4 )
+            }
             
         } else if ( id_type == "Sector" ) {
         # Extract metadata for this sector
@@ -153,7 +173,8 @@
 # input files: value metadata
 # output: ("Inventory scaling percentages of ", em, " by ", map_by).png
 
-    createMasterValMetaHeatmap <- function( meta_notes, country_map, sector_map, map_by = "Sector" ) {
+    createMasterValMetaHeatmap <- function( meta_notes, country_map, sector_map, map_by = "Sector", 
+                                            weight_by_em = T, normalize = weight_by_em) {
     
     # Map the value_metadata notes to region and sector. Collect a list of
     #   all unique regions and sectors present in the data.
@@ -194,7 +215,7 @@
     
     # Hand off only relevant columns to a dataframe that will be used for
     #   plotting only; operating on notes is finished
-        meta_for_plots <- meta_classified[ , c( "Region", "Figure_sector", "year", "value", "prepost" ) ]
+        meta_for_plots <- meta_classified[ , c( "Region", "Figure_sector", "year", "value", "prepost", "emissions" ) ]
     
     # A list of pre-determined colors for each inventory allows us to force
     #   Default to be gray and Zero to be white
@@ -212,7 +233,7 @@
                                "Li et al., 2017" = "#fcde1e",
                                "TEPA, 2016" = "#1de0cc",
                                "Argentina UNFCCC submission, 2016" = "#ff8484",
-                               "Kurokawa et. al, 2013" = "#990606",
+                               "Kurokawa et. al, 2013" = "#e53d6e",
                                "South Korea National Institute of Environmental Research, 2016" = "#875c1d",
                                "Australian Department of the Environment, 2016" = "#1c661b",
                                "EDGAR 4.2" = "#80d4ff" )
@@ -227,13 +248,17 @@
                                      createSinglePlot, 
                                      meta_classified = meta_for_plots, 
                                      id_type = "Sector",
-                                     inventory_colors = inventory_colors )
+                                     inventory_colors = inventory_colors,
+                                     weight_by_em = weight_by_em,
+                                     normalize = normalize )
         } else if ( map_by == "Region" ) {
             list_of_plots <- lapply( all_regions, 
                                      createSinglePlot, 
                                      meta_classified = meta_for_plots, 
                                      id_type = "Region",
-                                     inventory_colors = inventory_colors )
+                                     inventory_colors = inventory_colors,
+                                     weight_by_em = weight_by_em,
+                                     normalize = normalize )
         }
 
     # Get a quick count of all data
@@ -279,9 +304,19 @@
     value_metadata <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_EF-value_metadata" ), 
                                 meta = FALSE, to_numeric = FALSE )
     value_metadata <- melt( value_metadata, id.vars = c( 'iso', 'sector', 'fuel' ) )
-    names( value_metadata ) <- c( "iso", "sector", "fuel", "year", "comment" )
+    names( value_metadata ) <- c( "iso", "sector", "fuel", "year", "comment")
     value_metadata$comment <- as.character( value_metadata$comment )
+    
+# Read in absolute emissions for weights
+    corresponding_data <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_emissions" ), 
+                                meta = FALSE )
+    corresponding_data <- melt( corresponding_data[, c("iso","sector","fuel", paste0("X", 1960:2014))], id.vars = c( 'iso', 'sector', 'fuel' ) )
+    names( corresponding_data ) <- c( "iso", "sector", "fuel", "year", "emissions" )
 
+# Add the absolute emissions to the value_metadata dataframe
+    value_metadata <- left_join( value_metadata, corresponding_data, by = c("iso", "sector", "fuel", "year"))
+    names( value_metadata ) <- c( "iso", "sector", "fuel", "year", "comment", "emissions" )
+    
 # We need these two files for mapping to aggregate regions and sectors
     country_map <- readData( "MAPPINGS", "Master_Country_List" )
     sector_map <- readData( "MAPPINGS", "Master_Sector_Level_Map" )
@@ -289,6 +324,6 @@
 # ---------------------------------------------------------------------------
 # 2. Exectue function
 
-    classed_meta <- createMasterValMetaHeatmap( value_metadata, country_map, sector_map, map_by = "Sector" )
-    classed_meta <- createMasterValMetaHeatmap( value_metadata, country_map, sector_map, map_by = "Region" )
+    classed_meta <- createMasterValMetaHeatmap( value_metadata, country_map, sector_map, map_by = "Sector", weight_by_em = T )
+    classed_meta <- createMasterValMetaHeatmap( value_metadata, country_map, sector_map, map_by = "Region", weight_by_em = T )
     
