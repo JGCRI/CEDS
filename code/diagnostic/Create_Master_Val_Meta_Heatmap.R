@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
-# Program Name: Create_Val_Metadata_Heatmap.R
+# Program Name: Create_Master_Val_Metadata_Heatmap.R
 # Author: Ben Goldstein
-# Date Last Updated: 14 June 2017
+# Date Last Updated: 19 June 2017
 # Program Purpose: Uses the F.create_EF_value_meta_heatmap to create a heatmap
 #                  diagnostic of the value metadata for a single country.
 # Input Files: F.[em]_scaled_EF-value_metadata.csv
@@ -29,14 +29,14 @@
     headers <- c( "data_functions.R",'common_data.R', 
                   'IO_functions.R', 'emissions_scaling_functions.R') # Additional function files may be required.
     log_msg <- "Create value metadata heatmap" # First message to be printed to the log
-    script_name <- "Create_Val_Metadata_Heatmap.R"
+    script_name <- "Create_Master_Val_Metadata_Heatmap.R"
 
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "NH3"
+    if ( is.na( em ) ) em <- "NOx"
 
 # ---------------------------------------------------------------------------
 # 0.5 Define functions
@@ -122,11 +122,23 @@
         } else if ( id_type == "Sector" ) {
         # Extract metadata for this sector
             meta_this_sector <- meta_classified[ which( meta_classified$Figure_sector == identifier ), 
-                                                 c( "year", "value", "prepost" ) ]
+                                                 c( "year", "value", "prepost", "emissions" ) ]
             
         # Count the frequency of each year/value/prepost occurance
             sectoral_counts <- meta_this_sector %>% 
                                 count( year, value, prepost )
+            
+            id_cols <- c("year","value","prepost")
+            
+            if (weight_by_em) {
+                sectoral_counts <- aggregate( meta_this_sector$emissions, by = meta_this_sector[id_cols], sum )
+                colnames(sectoral_counts)[which(colnames(sectoral_counts) == "x")] <- "n"
+                if (normalize) {
+                    year_totals <- aggregate(sectoral_counts$n, by = sectoral_counts["year"], sum)
+                    sectoral_counts <- left_join( sectoral_counts, year_totals, by = c("year"))
+                    sectoral_counts$n <- sectoral_counts$n / sectoral_counts$x
+                }
+            }
             
         # Make the years numeric so we can have a continunous x-axis
             sectoral_counts$year <- substr( sectoral_counts$year, 2, 5 ) %>% 
@@ -271,18 +283,23 @@
         plot_for_legend <- ggplot(all_counts, aes( year, n ) ) + 
           geom_area(aes(fill = value, alpha = prepost), position = 'stack') +
           scale_fill_manual(values = inventory_colors) +
-          labs(fill="Inventory", alpha="Extension") +
+          labs(fill="Inventory", alpha="Extension (alpha)") +
           ggtitle("Don't use this plot") +       
           scale_alpha_discrete(range = c(1, 0.4)) +
-          theme(text = element_text(size=4))
+          theme(text = element_text(size=4),
+                legend.key.size = unit(7, "points"))
     
     # Extract the plot's legend
         inventory_legend <- g_legend( plot_for_legend )
-    
+        layout <- rbind( c(1,1,1,1,NA),
+                         c(1,1,1,1,2),
+                         c(1,1,1,1,2),
+                         c(1,1,1,1,NA))
+
     # Arrange the list of plots into a grid, next to the legend
         arranged_plots <- grid.arrange( arrangeGrob( grobs=list_of_plots ),
                                         inventory_legend, 
-                                        widths = c( 6, 1 ), 
+                                        layout_matrix = layout,
                                         nrow = 1,
                                         top = textGrob( paste0( "Inventory scaling percentages of ", em, 
                                                                 " by ", map_by ), 
@@ -291,7 +308,7 @@
     # Save the output file and return
         ggsave( paste0( "../diagnostic-output/value-meta-heatmaps/MasterHeatmapBy", 
                         map_by, ".png" ), 
-                arranged_plots, width = 7, height = 4 )
+                arranged_plots, width = 7, height = 4)
         
         return( meta_classified )
     }
