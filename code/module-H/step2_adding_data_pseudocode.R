@@ -95,44 +95,46 @@
     
     
     normalizeAndIncludeDataL4 <- function( Xyears, data_to_use, 
-                                         user_dataframe_subset, all_activity_data ) {
-    
-    # Calculate percent breakdowns for the category.
-    # First, get the sum of the category faor each year.
-        year_totals <- data_to_use[1,]
-        if (length(Xyears) > 1){ 
-            year_totals[1, Xyears] <- colSums(data_to_use[, Xyears])
-            year_totals_non_user_data <- year_totals[ , c( colnames( year_totals[ which( !isXYear( 
-              colnames(year_totals) ) ) ] ), Xyears ) ]
-            year_totals_non_user_data[, Xyears] <- year_totals[, Xyears] - 
-              colSums(data_to_use[ which( data_to_use$iso %in% user_dataframe_subset$iso &
-                                    data_to_use$CEDS_sector %in% user_dataframe_subset$CEDS_sector &
-                                    data_to_use$CEDS_fuel %in% user_dataframe_subset$CEDS_fuel )
-                           , Xyears])
-        } else { 
-            year_totals[1, Xyears] <- sum(data_to_use[, Xyears])
-            year_totals_non_user_data <- year_totals[ , c( colnames( year_totals[ which( !isXYear( 
-              colnames(year_totals) ) ) ] ), Xyears ) ]
-            year_totals_non_user_data[, Xyears] <- year_totals[, Xyears] - 
-              sum(data_to_use[ which( data_to_use$iso %in% user_dataframe_subset$iso &
-                                    data_to_use$CEDS_sector %in% user_dataframe_subset$CEDS_sector &
-                                    data_to_use$CEDS_fuel %in% user_dataframe_subset$CEDS_fuel )
-                           , Xyears])
-        }
-
-    # Determine higher-level percentage breakdown. Because this is agg. 
-    # level 4, we can be confident that each row (if unique) is of a higher 
-    # level of aggregation than the data being added, so we don't have to
-    # group; we can just operate on rows.
+                                         user_dataframe_subset, all_activity_data, whole_group ) {
         
-    # Determine what percent of the agg group minus our row each row made up
-        pct_of_agg_group <- data_to_use[ which( data_to_use$CEDS_fuel %!in% user_dataframe_subset$CEDS_fuel)
-                                         , c( colnames( year_totals[ which( !isXYear( 
-                                           colnames(year_totals) ) ) ] ), Xyears ) ]
-        if (nrow(pct_of_agg_group) > 1) {
-            year_totals_non_user_data[ 2:(nrow(pct_of_agg_group)), ] <- year_totals_non_user_data[1,]  ### Rework how I get year_totals so I can start out with a matrix of the right size
+        if (!whole_group) {
+        # Calculate percent breakdowns for the category.
+        # First, get the sum of the category faor each year.
+            year_totals <- data_to_use[1,]
+            if (length(Xyears) > 1){ 
+                year_totals[1, Xyears] <- colSums(data_to_use[, Xyears])
+                year_totals_non_user_data <- year_totals[ , c( colnames( year_totals[ which( !isXYear( 
+                  colnames(year_totals) ) ) ] ), Xyears ) ]
+                year_totals_non_user_data[, Xyears] <- year_totals[, Xyears] - 
+                  colSums(data_to_use[ which( data_to_use$iso %in% user_dataframe_subset$iso &
+                                        data_to_use$CEDS_sector %in% user_dataframe_subset$CEDS_sector &
+                                        data_to_use$CEDS_fuel %in% user_dataframe_subset$CEDS_fuel )
+                               , Xyears])
+            } else { 
+                year_totals[1, Xyears] <- sum(data_to_use[, Xyears])
+                year_totals_non_user_data <- year_totals[ , c( colnames( year_totals[ which( !isXYear( 
+                  colnames(year_totals) ) ) ] ), Xyears ) ]
+                year_totals_non_user_data[, Xyears] <- year_totals[, Xyears] - 
+                  sum(data_to_use[ which( data_to_use$iso %in% user_dataframe_subset$iso &
+                                        data_to_use$CEDS_sector %in% user_dataframe_subset$CEDS_sector &
+                                        data_to_use$CEDS_fuel %in% user_dataframe_subset$CEDS_fuel )
+                               , Xyears])
+            }
+    
+        # Determine higher-level percentage breakdown. Because this is agg. 
+        # level 4, we can be confident that each row (if unique) is of a higher 
+        # level of aggregation than the data being added, so we don't have to
+        # group; we can just operate on rows.
+            
+        # Determine what percent of the agg group minus our row each row made up
+            pct_of_agg_group <- data_to_use[ which( data_to_use$CEDS_fuel %!in% user_dataframe_subset$CEDS_fuel)
+                                             , c( colnames( year_totals[ which( !isXYear( 
+                                               colnames(year_totals) ) ) ] ), Xyears ) ]
+            if (nrow(pct_of_agg_group) > 1) {
+                year_totals_non_user_data[ 2:(nrow(pct_of_agg_group)), ] <- year_totals_non_user_data[1,]  ### Rework how I get year_totals so I can start out with a matrix of the right size
+            }
+            pct_of_agg_group[, Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) / data.matrix(year_totals_non_user_data[, Xyears])
         }
-        pct_of_agg_group[, Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) / data.matrix(year_totals_non_user_data[, Xyears])
         
     # Create a new dataframe that and replace the old row of data with the
     # new row, to calculate new year totals
@@ -150,7 +152,7 @@
                 annual_diffs[ 2:(nrow(data_to_use) - 1), ] <- annual_diffs[1,]
             }
             sums_to_add <- pct_of_agg_group
-            sums_to_add[ , Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) * data.matrix(annual_diffs[, Xyears])
+            if (!whole_group) sums_to_add[ , Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) * data.matrix(annual_diffs[, Xyears])
         } else {
             new_year_totals[1, Xyears] <- sum( data_changed[ , Xyears ] )
             annual_diffs <- year_totals[ 1, Xyears ] - new_year_totals[, Xyears]
@@ -158,7 +160,7 @@
                 annual_diffs[ 2:(nrow(data_to_use) - 1) ] <- annual_diffs
             }
             sums_to_add <- pct_of_agg_group
-            sums_to_add[ , Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) * data.matrix(annual_diffs)
+            if (!whole_group) sums_to_add[ , Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) * data.matrix(annual_diffs)
         }
         
         
@@ -170,7 +172,7 @@
                                         , c( colnames( year_totals[ which( !isXYear( 
                                           colnames(year_totals) ) ) ] ), Xyears ) ]
         corrected_data <- data_to_correct
-        corrected_data[, Xyears] <- data.matrix(data_to_correct[, Xyears]) + data.matrix(sums_to_add[, Xyears])
+        if (!whole_group) corrected_data[, Xyears] <- data.matrix(data_to_correct[, Xyears]) + data.matrix(sums_to_add[, Xyears])
         
         data_changed[ which( data_to_use$CEDS_fuel %!in% user_dataframe_subset$CEDS_fuel), ] <-
                 corrected_data
@@ -208,7 +210,7 @@
         
     }
       
-    normalizeAndIncludeDataL3 <- function( Xyears, data_to_use, user_dataframe_subset, all_activity_data ) {
+    normalizeAndIncludeDataL3 <- function( Xyears, data_to_use, user_dataframe_subset, all_activity_data, whole_group = F ) {
     # At agg level 2, we need to:
         # Aggregate by CEDS_fuel
         # Replace values for our sectors at agg level
@@ -219,34 +221,36 @@
         act_agg_to_l3_changed[ which(act_agg_to_l3_changed$CEDS_fuel %in% user_dataframe_subset$CEDS_fuel), Xyears] <- user_dataframe_subset[, Xyears]
       
     # Create a total to calculate percents of differences that the non-user-edited sectors need to absorb
-        year_totals <- activity_agg_to_l3[1,]
-        year_totals[1, Xyears] <- colSums(activity_agg_to_l3[, Xyears])
-        year_totals_non_user_data <- year_totals[ , c( colnames( year_totals[ which( !isXYear( 
-                                                       colnames(year_totals) ) ) ] ), Xyears ) ]
-        year_totals_non_user_data[, Xyears] <- year_totals[, Xyears] - 
-                                                  activity_agg_to_l3[ which( activity_agg_to_l3$CEDS_fuel %in% 
-                                                                             user_dataframe_subset$CEDS_fuel ), 
-                                                                      Xyears]
-    
-    # Calculate percents that each non-edited sector needs to absorb
-        pct_of_agg_group <- activity_agg_to_l3[ which( activity_agg_to_l3$CEDS_fuel %!in% 
-                                                         user_dataframe_subset$CEDS_fuel ), 
-                                                c( colnames( year_totals[ which( !isXYear( 
-                                                  colnames(year_totals) ) ) ] ), Xyears ) ]
+        if (!whole_group) {
+            year_totals <- activity_agg_to_l3[1,]
+            year_totals[1, Xyears] <- colSums(activity_agg_to_l3[, Xyears])
+            year_totals_non_user_data <- year_totals[ , c( colnames( year_totals[ which( !isXYear( 
+                                                           colnames(year_totals) ) ) ] ), Xyears ) ]
+            year_totals_non_user_data[, Xyears] <- year_totals[, Xyears] - 
+                                                      activity_agg_to_l3[ which( activity_agg_to_l3$CEDS_fuel %in% 
+                                                                                 user_dataframe_subset$CEDS_fuel ), 
+                                                                          Xyears]
         
-        year_totals_non_user_data[ 2:(nrow(pct_of_agg_group) - 1), ] <- year_totals_non_user_data[1,]
-        
-        pct_of_agg_group[, Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) / data.matrix(year_totals_non_user_data[, Xyears])
-        pct_of_agg_group[ is.nan.df( pct_of_agg_group ) ] <- 0
-        
-        new_year_totals <- act_agg_to_l3_changed[1,]
-        new_year_totals[1, Xyears] <- colSums( act_agg_to_l3_changed[ , Xyears ] )
-        
-        annual_diffs <- year_totals[ 1, Xyears ] - new_year_totals[, Xyears]
-        annual_diffs[ 2:(nrow(act_agg_to_l3_changed) - 1), ] <- annual_diffs[1,]
-        
-        sums_to_add <- pct_of_agg_group
-        sums_to_add[ , Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) * data.matrix(annual_diffs[, Xyears])
+        # Calculate percents that each non-edited sector needs to absorb
+            pct_of_agg_group <- activity_agg_to_l3[ which( activity_agg_to_l3$CEDS_fuel %!in% 
+                                                             user_dataframe_subset$CEDS_fuel ), 
+                                                    c( colnames( year_totals[ which( !isXYear( 
+                                                      colnames(year_totals) ) ) ] ), Xyears ) ]
+            
+            year_totals_non_user_data[ 2:(nrow(pct_of_agg_group) - 1), ] <- year_totals_non_user_data[1,]
+            
+            pct_of_agg_group[, Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) / data.matrix(year_totals_non_user_data[, Xyears])
+            pct_of_agg_group[ is.nan.df( pct_of_agg_group ) ] <- 0
+            
+            new_year_totals <- act_agg_to_l3_changed[1,]
+            new_year_totals[1, Xyears] <- colSums( act_agg_to_l3_changed[ , Xyears ] )
+            
+            annual_diffs <- year_totals[ 1, Xyears ] - new_year_totals[, Xyears]
+            annual_diffs[ 2:(nrow(act_agg_to_l3_changed) - 1), ] <- annual_diffs[1,]
+            
+            sums_to_add <- pct_of_agg_group
+            sums_to_add[ , Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) * data.matrix(annual_diffs[, Xyears])
+        }
         
         data_to_correct <- activity_agg_to_l3[ which( activity_agg_to_l3$CEDS_fuel %!in% user_dataframe_subset$CEDS_fuel)
                                                , c( colnames( year_totals[ which( !isXYear( 
@@ -288,7 +292,7 @@
         
     }
       
-    normalizeAndIncludeDataL2 <- function( Xyears, data_to_use, user_dataframe_subset, all_activity_data ) {
+    normalizeAndIncludeDataL2 <- function( Xyears, data_to_use, user_dataframe_subset, all_activity_data, whole_group ) {
     # At agg level 2, we need to:
         # Calculate total CEDS_fuel over all sectors
         # Replace values for our sectors at agg level
@@ -299,36 +303,38 @@
         act_agg_to_l2_changed <- activity_agg_to_l2
         act_agg_to_l2_changed[ which(act_agg_to_l2_changed$CEDS_fuel %in% user_dataframe_subset$CEDS_fuel), Xyears] <- user_dataframe_subset[, Xyears]
         
-    # Create a total to calculate percents of differences that the non-user-edited sectors need to absorb
-        year_totals <- activity_agg_to_l2[1,]
-        year_totals[1, Xyears] <- colSums(activity_agg_to_l2[, Xyears])
-        year_totals_non_user_data <- year_totals[ , c( colnames( year_totals[ which( !isXYear( 
-          colnames(year_totals) ) ) ] ), Xyears ) ]
-        year_totals_non_user_data[, Xyears] <- year_totals[, Xyears] - 
-              activity_agg_to_l2[ which( activity_agg_to_l2$CEDS_fuel %in% 
-                                         user_dataframe_subset$CEDS_fuel ), 
-                                  Xyears]
-        
-    # Calculate percents that each non-edited sector needs to absorb
-        pct_of_agg_group <- activity_agg_to_l2[ which( activity_agg_to_l2$CEDS_fuel %!in% 
-                                                         user_dataframe_subset$CEDS_fuel ), 
-                                                c( colnames( year_totals[ which( !isXYear( 
-                                                  colnames(year_totals) ) ) ] ), Xyears ) ]
-        
-        year_totals_non_user_data[ 2:(nrow(pct_of_agg_group) - 1), ] <- year_totals_non_user_data[1,]
-        
-        
-        pct_of_agg_group[, Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) / data.matrix(year_totals_non_user_data[, Xyears])
-        pct_of_agg_group[ is.nan.df( pct_of_agg_group ) ] <- 0
-        
-        new_year_totals <- act_agg_to_l2_changed[1,]
-        new_year_totals[1, Xyears] <- colSums( act_agg_to_l2_changed[ , Xyears ] )
-        
-        annual_diffs <- year_totals[ 1, Xyears ] - new_year_totals[, Xyears]
-        annual_diffs[ 2:(nrow(act_agg_to_l2_changed) - 1), ] <- annual_diffs[1,]
-        
-        sums_to_add <- pct_of_agg_group
-        sums_to_add[ , Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) * data.matrix(annual_diffs[, Xyears])
+        if (!whole_group){
+        # Create a total to calculate percents of differences that the non-user-edited sectors need to absorb
+            year_totals <- activity_agg_to_l2[1,]
+            year_totals[1, Xyears] <- colSums(activity_agg_to_l2[, Xyears])
+            year_totals_non_user_data <- year_totals[ , c( colnames( year_totals[ which( !isXYear( 
+              colnames(year_totals) ) ) ] ), Xyears ) ]
+            year_totals_non_user_data[, Xyears] <- year_totals[, Xyears] - 
+                  activity_agg_to_l2[ which( activity_agg_to_l2$CEDS_fuel %in% 
+                                             user_dataframe_subset$CEDS_fuel ), 
+                                      Xyears]
+            
+        # Calculate percents that each non-edited sector needs to absorb
+            pct_of_agg_group <- activity_agg_to_l2[ which( activity_agg_to_l2$CEDS_fuel %!in% 
+                                                             user_dataframe_subset$CEDS_fuel ), 
+                                                    c( colnames( year_totals[ which( !isXYear( 
+                                                      colnames(year_totals) ) ) ] ), Xyears ) ]
+            
+            year_totals_non_user_data[ 2:(nrow(pct_of_agg_group) - 1), ] <- year_totals_non_user_data[1,]
+            
+            
+            pct_of_agg_group[, Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) / data.matrix(year_totals_non_user_data[, Xyears])
+            pct_of_agg_group[ is.nan.df( pct_of_agg_group ) ] <- 0
+            
+            new_year_totals <- act_agg_to_l2_changed[1,]
+            new_year_totals[1, Xyears] <- colSums( act_agg_to_l2_changed[ , Xyears ] )
+            
+            annual_diffs <- year_totals[ 1, Xyears ] - new_year_totals[, Xyears]
+            annual_diffs[ 2:(nrow(act_agg_to_l2_changed) - 1), ] <- annual_diffs[1,]
+            
+            sums_to_add <- pct_of_agg_group
+            sums_to_add[ , Xyears] <- data.matrix(pct_of_agg_group[, Xyears]) * data.matrix(annual_diffs[, Xyears])
+        }
         
         data_to_correct <- activity_agg_to_l2[ which( activity_agg_to_l2$CEDS_fuel %!in% user_dataframe_subset$CEDS_fuel)
                                         , c( colnames( year_totals[ which( !isXYear( 
@@ -534,10 +540,10 @@
                 for (i in 1:(length(year_breaks)-1)) {
                     new_year_span <- year_breaks[i]:(year_breaks[i+1] - 1)
                     
-                    rows_to_segment <- whole_batch[ which( whole_batch$start_year %in%
-                                                                  new_year_span | 
-                                                           whole_batch$end_year %in%
-                                                                  new_year_span), ]
+                    rows_to_segment <- whole_batch[ which( whole_batch$start_year <=
+                                                                  max(new_year_span) &
+                                                           whole_batch$end_year >=
+                                                                  min(new_year_span)), ]
                     rows_to_segment$start_year <- min(new_year_span)
                     rows_to_segment$end_year <- max(new_year_span)
                     
@@ -600,14 +606,19 @@
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
         } 
         
+        whole_group = F
+        if (nrow(data_to_use) == nrow(user_dataframe_subset)) {
+            whole_group = T
+        }
+
         if (agg_level == 1) {
             normalizeAndIncludeDataL1( Xyears, data_to_use, user_dataframe_subset, all_activity_data )
         } else if (agg_level == 2) {
-            normalizeAndIncludeDataL2( Xyears, data_to_use, user_dataframe_subset, all_activity_data )
+            normalizeAndIncludeDataL2( Xyears, data_to_use, user_dataframe_subset, all_activity_data, whole_group )
         } else if (agg_level == 3) {
-            normalizeAndIncludeDataL3( Xyears, data_to_use, user_dataframe_subset, all_activity_data )
+            normalizeAndIncludeDataL3( Xyears, data_to_use, user_dataframe_subset, all_activity_data, whole_group )
         } else if (agg_level == 4) {
-            normalizeAndIncludeDataL4( Xyears, data_to_use, user_dataframe_subset, all_activity_data )
+            normalizeAndIncludeDataL4( Xyears, data_to_use, user_dataframe_subset, all_activity_data, whole_group )
         }
           
           
@@ -628,8 +639,7 @@
     
     # Updating disaggregate zeros (and handling zeros in general)
     
-    # Should I make some of the agg if-statements into functions? 
-    #     would make code a whole lot easier to follow
+    # Combine level 2 & 3 NAI funtions into a single function?
     
     
     
