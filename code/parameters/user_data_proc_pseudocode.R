@@ -69,7 +69,7 @@
     
 #------------------------------------------------------------------------------
 # mapToCEDS()
-mapToCEDS <- function( dataframe, MSL, MCL, MFL, iso_map = NULL, agg_sector_map = NULL, CEDS_sector_map = NULL, 
+    mapToCEDS <- function( dataframe, MSL, MCL, MFL, iso_map = NULL, agg_sector_map = NULL, CEDS_sector_map = NULL, 
                            agg_fuel_map = NULL, CEDS_fuel_map = NULL, aggregate = TRUE ) {
       
         print( "Mapping to CEDS" )
@@ -114,7 +114,7 @@ mapToCEDS <- function( dataframe, MSL, MCL, MFL, iso_map = NULL, agg_sector_map 
         #   we can automatically map to agg sector based on CEDS sectors and MSL
             if ( is.null(agg_sector_map) ) {
                 if ( 'agg_sector' %!in% dataframe_categories ) {
-                    MSL_to_map <- MSL[ , c("CEDS_sector", "aggregate_sectors") ]
+                    MSL_to_map <- unique(MSL[ , c("CEDS_sector", "aggregate_sectors") ])
                     colnames(MSL_to_map) <- c( "CEDS_sector", "agg_sector" )
                     dataframe <- left_join( dataframe, MSL_to_map ) 
                 }
