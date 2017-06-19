@@ -4,7 +4,7 @@
 # Date Last Updated: 14 June 2017
 # Program Purpose: To process user-defined datasets for use in the historical
 #                  energy extension. 
-# Input Files: U.*, U.*-instructions, U.*-mapping
+# Input Files: U.*.csv, U.*-instructions.xslx, U.*-mapping.xslx
 # Output Files: None
 # Functions Defined: mapToCEDS, interpolateData, interpolateByTrend
 # Notes: 
@@ -92,198 +92,10 @@
         return(user_dataframe_subset)
     }
     
-
-# ------------------------------------------------------------------------------------
-# 1. Read in data
-
-    MSL <- readData("Master_Sector_Level_map", domain = "MAPPINGS")
-    colnames( MSL )[ which( colnames( MSL ) == 'working_sectors_v1' ) ] <- 'CEDS_sector' 
-    MCL <- readData("Master_Country_List", domain = "MAPPINGS")
-    MFL <- readData("Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
-                    sheet_selection = "Fuels")
-    comb_or_NC <- readData("Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
-                           sheet_selection = "Sectors")
-    comb_sectors_only <- comb_or_NC$sector[ which( comb_or_NC$type == "comb") ]
     
-
-# Gather default activity data
-    default_activity <- readData( 'MED_OUT', paste0('H.', em, '_total_activity_extended_db' ) , meta = F) ### Eventually this will not require an emissions species.
-    colnames( default_activity )[1:3] <- c("iso","CEDS_sector","CEDS_fuel")
-    default_activity_mapped <- mapToCEDS( default_activity, MSL, MCL, MFL, aggregate = F)
-
-# ------------------------------------------------------------------------------------
-# 2. Collect user-defined inputs and begin processing data loop
-
-# This script only operates on combustion emissions, so reduce the data to that form
-    all_activity_data <- default_activity_mapped[ which(default_activity_mapped$CEDS_sector %in% comb_sectors_only ), ]
-### Accept only unique rows. Hopefully we won't have to do this once
-###     restructuring of defaults is done.
-    all_activity_data <- all_activity_data[ !duplicated(all_activity_data[c("iso", "CEDS_fuel", "agg_fuel", "CEDS_sector", "agg_sector")]), ]
     
-# Read instructions files and create a procedure list
-    instructions <- readInUserInstructions()
-    instructions[, c("iso", "CEDS_fuel", "agg_fuel")] <- left_join( instructions[ , c("iso","CEDS_fuel") ], 
-                                                            MFL[ , c( "aggregated_fuel", "fuel" ) ], 
-                                                            by = c( "CEDS_fuel" = "fuel" ) )
-    
-    old.file <- "NULL"
-    
-    while (nrow(instructions) > 0) {
-        
-        working_instructions <- instructions[1,]
-        instructions <- instructions[ -1, ]
-        
-        Xyears <- paste0("X", working_instructions$start_year:working_instructions$end_year)
-      
-    # Get the first dataset to operate on. ### For now, we will just do them in order until we commit to a priority method,
-    #     although priority could take effect in the readInUserInstructions() function by ordering them?
-        new.file <-working_instructions$data_file
-        
-        if (old.file != new.file) {
-            dataframe_interp_instructions <- readData( paste0 ("user-defined-energy/", 
-                                                               new.file, "-instructions"),
-                                                       domain = "EXT_IN", extension = ".xlsx", 
-                                                       sheet_selection = "Interpolation_instructions")
-            user_dataframe <- processUserDefinedData( new.file, dataframe_interp_instructions, MSL, MCL, MFL )
-        }
-            
-    # Extract the data from the dataframe that will refer to the specific
-    # categories and years as defined by the
-        user_dataframe_subset <- retrieveUserDataframeSubset( user_dataframe, working_instructions )
-        agg_level <- identifyLevel( user_dataframe )
-        
-    # Identify other instructions in the "batch" that will neeed to be
-    # aggreagated as one.
-        
-        if ( agg_level == 4 ) {
-            
-            batch_data_instructions <- instructions[ which( !is.na(instructions$L4_CEDS_sector) & 
-                                                            instructions$iso %in% user_dataframe_subset$iso &
-                                                            instructions$CEDS_sector %in% user_dataframe_subset$CEDS_sector &
-                                                            instructions$agg_fuel
-                                                                        %in% user_dataframe_subset$agg_fuel ), ] ### This isn't working because I agg to CEDS_fuel instead of agg_sector.... check in on this tomorrow.
-            instructions <- instructions[ which( is.na(instructions$L4_CEDS_sector) |
-                                                    instructions$iso %!in% user_dataframe_subset$iso |
-                                                    instructions$CEDS_sector %!in% user_dataframe_subset$CEDS_sector |
-                                                    instructions$agg_fuel %!in% user_dataframe_subset$agg_fuel ), ]
-
-            
-            
-        } else if ( agg_level == 3 ) {
-            batch_data_instructions <- instructions[ which( !is.na(instructions$L4_CEDS_sector) & 
-                                                              instructions$iso %in% user_dataframe_subset$iso &
-                                                              instructions$agg_sector %in% user_dataframe_subset$agg_sector &
-                                                              instructions$agg_fuel
-                                                            %in% user_dataframe_subset$agg_fuel ), ] ### This isn't working because I agg to CEDS_fuel instead of agg_sector.... check in on this tomorrow.
-            instructions <- instructions[ which( is.na(instructions$L4_CEDS_sector) |
-                                                   instructions$iso %!in% user_dataframe_subset$iso |
-                                                   instructions$agg_sector %!in% user_dataframe_subset$agg_sector |
-                                                   instructions$agg_fuel %!in% user_dataframe_subset$agg_fuel ), ]
-
-        } else if ( agg_level %in% 1:2 ) {
-            batch_data_instructions <- instructions[ which( !is.na(instructions$L4_CEDS_sector) & 
-                                                            instructions$iso %in% user_dataframe_subset$iso &
-                                                            instructions$agg_fuel %in% user_dataframe_subset$agg_fuel &
-                                                            ), ] ### A line of code that confirms that they're only grabbing instructions at the same level.
-            instructions <- instructions[ which( is.na(instructions$L4_CEDS_sector) |
-                                                 instructions$iso %!in% user_dataframe_subset$iso |
-                                                 instructions$agg_fuel %!in% user_dataframe_subset$agg_fuel ), ]
-        }
-
-        batch_instructions_overlap <- batch_data_instructions[ which( 
-                              batch_data_instructions$start_year < working_instructions$end_year &
-                              batch_data_instructions$end_year > working_instructions$start_year), ]
-        batch_instructions_no_overlap <- batch_data_instructions[ which( 
-                              batch_data_instructions$start_year > working_instructions$end_year |
-                              batch_data_instructions$end_year < working_instructions$start_year), ]
-        instructions <- rbind( instructions, batch_instructions_no_overlap )
-        batch_data_instructions <- batch_instructions_overlap
-        
-    # If there are data in our instructions that will be in the current group's batch:
-        if (nrow(batch_data_instructions) > 0) {
-          
-        # If our years haven't been properly subdivided by year, we'll need to
-        #     subdivide the whole batch and return back to the beginning of the loop
-            if ( any( batch_data_instructions$start_year != working_instructions$start_year ) ||
-                 any( batch_data_instructions$end_year != working_instructions$end_year ) ) {
-                
-                year_breaks <- unique( c( batch_data_instructions$start_year,
-                                          working_instructions$start_year,
-                                          batch_data_instructions$end_year + 1,
-                                          working_instructions$end_year + 1 ) ) %>%
-                                  sort()
-                
-                whole_batch <- rbind( working_instructions, batch_data_instructions )
-                new_division_batch <- whole_batch[0,]
-                
-                for (i in 1:(length(year_breaks)-1)) {
-                    new_year_span <- year_breaks[i]:(year_breaks[i+1] - 1)
-                    
-                    rows_to_segment <- whole_batch[ which( whole_batch$start_year %in%
-                                                                  new_year_span | 
-                                                           whole_batch$end_year %in%
-                                                                  new_year_span), ]
-                    rows_to_segment$start_year <- min(new_year_span)
-                    rows_to_segment$end_year <- max(new_year_span)
-                    
-                    new_division_batch <- rbind( new_division_batch, rows_to_segment )
-                }
-                
-                instructions <- rbind( instructions, new_division_batch )
-                next
-            }
-        
-        # If our years are properly subdivided, we should re-retrieve our
-        #   user_defined_data dataframe. This may require drawing on multiple
-        #   source files.
-            working_instructions <- rbind( working_instructions, batch_data_instructions )
-            user_dataframe_subset <- user_dataframe_subset[0,]
-            for ( file in unique( working_instructions$data_file ) ) { 
-              
-                dataframe_interp_instructions <- readData( paste0 ("user-defined-energy/", 
-                                                                   file, "-instructions"),
-                                                           domain = "EXT_IN", extension = ".xlsx", 
-                                                           sheet_selection = "Interpolation_instructions")
-                user_dataframe <- processUserDefinedData( file, dataframe_interp_instructions, MSL, MCL, MFL )
-                
-                user_dataframe_subset <- rbind( user_dataframe_subset, 
-                                                retrieveUserDataframeSubset( user_dataframe, working_instructions ) )
-                
-            }
-          
-
-              
-        }
-        
-        
-    # Identify the rows that will need adjusting. If the aggregation level is the lowest,
-    #   this will be any rows that match to your row, and any row in the next-highest aggregation
-    #   GROUP. For example, If I'm adjusting ger-coal_coke-1A1, I will need to edit all the
-    #   ger-coal_coke-1A rows.
-    #   If we're dealing with data on not the lowest aggregation level, you need any cells that
-    #   can map to this cell.
-    # Basically, in all cases: figure out what level you're on, 
-    #   then grab any rows that would be in the same group as yours one level up.
-    
-        if ( agg_level == 4 ) {
-            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% user_dataframe_subset$iso &
-                                                     all_activity_data$CEDS_sector %in% user_dataframe_subset$CEDS_sector &
-                                                     all_activity_data$agg_fuel %in% MFL$aggregated_fuel[which( MFL$fuel %in%  user_dataframe_subset$CEDS_fuel )]
-                                                     ), c( colnames( all_activity_data[ which( !isXYear( 
-                                                       colnames(all_activity_data) ) ) ] ), Xyears ) ]
-            
-        } else if (agg_level == 3) {
-            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% user_dataframe_subset$iso &
-                                                     all_activity_data$agg_sector %in% user_dataframe_subset$agg_sector &
-                                                     all_activity_data$agg_fuel == MFL$aggregated_fuel[which(  MFL$fuel %in%  user_dataframe_subset$CEDS_fuel )]
-                                                     ), c( colnames( all_activity_data[ which( !isXYear( 
-                                                       colnames(all_activity_data) ) ) ] ), Xyears ) ]
-        } else if (agg_level == 2 || agg_level == 1) {
-            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% user_dataframe_subset$iso&
-                                                     all_activity_data$agg_fuel %in% user_dataframe_subset$agg_fuel
-                                                     ), c( colnames( all_activity_data[ which( !isXYear( 
-                                                       colnames(all_activity_data) ) ) ] ), Xyears ) ]
-        } 
+    normalizeAndIncludeData <- function( agg_level, Xyears, data_to_use, 
+                                         user_dataframe_subset, all_activity_data ) {
         
     # We have all cells that we need to operate on. Cells that are part of 
     # the aggregate group need to be adjusted based on the current percent 
@@ -595,18 +407,223 @@
                                         all_activity_data$agg_fuel %in% data_changed$agg_fuel &
                                         all_activity_data$CEDS_sector %in% data_changed$CEDS_sector), Xyears] <-
               data_changed[, Xyears]  ### We will maybe not re-add this data into the main dataframe... discuss later
-            
-           
+        }        
+    }
+    
+
+# ------------------------------------------------------------------------------------
+# 1. Read in data
+
+    MSL <- readData("Master_Sector_Level_map", domain = "MAPPINGS")
+    colnames( MSL )[ which( colnames( MSL ) == 'working_sectors_v1' ) ] <- 'CEDS_sector' 
+    MCL <- readData("Master_Country_List", domain = "MAPPINGS")
+    MFL <- readData("Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
+                    sheet_selection = "Fuels")
+    comb_or_NC <- readData("Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
+                           sheet_selection = "Sectors")
+    comb_sectors_only <- comb_or_NC$sector[ which( comb_or_NC$type == "comb") ]
+    
+
+# Gather default activity data
+    default_activity <- readData( 'MED_OUT', paste0('H.', em, '_total_activity_extended_db' ) , meta = F) ### Eventually this will not require an emissions species.
+    colnames( default_activity )[1:3] <- c("iso","CEDS_sector","CEDS_fuel")
+    default_activity_mapped <- mapToCEDS( default_activity, MSL, MCL, MFL, aggregate = F)
+
+# ------------------------------------------------------------------------------------
+# 2. Collect user-defined inputs and begin processing data loop
+
+# This script only operates on combustion emissions, so reduce the data to that form
+    all_activity_data <- default_activity_mapped[ which( default_activity_mapped$CEDS_sector %in% comb_sectors_only ), ]
+### Accept only unique rows. Hopefully we won't have to do this once
+###     restructuring of defaults is done.
+    all_activity_data <- all_activity_data[ !duplicated(all_activity_data[c("iso", "CEDS_fuel", "agg_fuel", "CEDS_sector", "agg_sector")]), ]
+    
+# Read instructions files and create a procedure list
+    instructions <- readInUserInstructions()
+    instructions[, c("iso", "CEDS_fuel", "agg_fuel")] <- left_join( instructions[ , c("iso","CEDS_fuel") ], 
+                                                            MFL[ , c( "aggregated_fuel", "fuel" ) ], 
+                                                            by = c( "CEDS_fuel" = "fuel" ) )
+    
+    old.file <- "NULL"
+    
+    while (nrow(instructions) > 0) {
+        
+        working_instructions <- instructions[1,]
+        instructions <- instructions[ -1, ]
+        
+        Xyears <- paste0("X", working_instructions$start_year:working_instructions$end_year)
+      
+    # Get the first dataset to operate on. ### For now, we will just do them in order until we commit to a priority method,
+    #     although priority could take effect in the readInUserInstructions() function by ordering them?
+        new.file <-working_instructions$data_file
+        
+        if (old.file != new.file) {
+            dataframe_interp_instructions <- readData( paste0 ("user-defined-energy/", 
+                                                               new.file, "-instructions"),
+                                                       domain = "EXT_IN", extension = ".xlsx", 
+                                                       sheet_selection = "Interpolation_instructions")
+            user_dataframe <- processUserDefinedData( new.file, dataframe_interp_instructions, MSL, MCL, MFL )
         }
+            
+    # Extract the data from the dataframe that will refer to the specific
+    # categories and years as defined by the
+        user_dataframe_subset <- retrieveUserDataframeSubset( user_dataframe, working_instructions )
+        agg_level <- identifyLevel( user_dataframe )
+        
+    # Identify other instructions in the "batch" that will neeed to be
+    # aggreagated as one.
+        
+        if ( agg_level == 4 ) {
+            
+            batch_data_instructions <- instructions[ which( !is.na(instructions$L4_CEDS_sector) & 
+                                                            instructions$iso %in% user_dataframe_subset$iso &
+                                                            instructions$CEDS_sector %in% user_dataframe_subset$CEDS_sector &
+                                                            instructions$agg_fuel
+                                                                        %in% user_dataframe_subset$agg_fuel ), ] ### This isn't working because I agg to CEDS_fuel instead of agg_sector.... check in on this tomorrow.
+            instructions <- instructions[ which( is.na(instructions$L4_CEDS_sector) |
+                                                    instructions$iso %!in% user_dataframe_subset$iso |
+                                                    instructions$CEDS_sector %!in% user_dataframe_subset$CEDS_sector |
+                                                    instructions$agg_fuel %!in% user_dataframe_subset$agg_fuel ), ]
+
+            
+            
+        } else if ( agg_level == 3 ) {
+            batch_data_instructions <- instructions[ which( !is.na(instructions$L4_CEDS_sector) & 
+                                                              instructions$iso %in% user_dataframe_subset$iso &
+                                                              instructions$agg_sector %in% user_dataframe_subset$agg_sector &
+                                                              instructions$agg_fuel
+                                                            %in% user_dataframe_subset$agg_fuel ), ] ### This isn't working because I agg to CEDS_fuel instead of agg_sector.... check in on this tomorrow.
+            instructions <- instructions[ which( is.na(instructions$L4_CEDS_sector) |
+                                                   instructions$iso %!in% user_dataframe_subset$iso |
+                                                   instructions$agg_sector %!in% user_dataframe_subset$agg_sector |
+                                                   instructions$agg_fuel %!in% user_dataframe_subset$agg_fuel ), ]
+
+        } else if ( agg_level %in% 1:2 ) {
+            batch_data_instructions <- instructions[ which( !is.na(instructions$L4_CEDS_sector) &
+                                                            instructions$iso %in% user_dataframe_subset$iso &
+                                                            instructions$agg_fuel %in% user_dataframe_subset$agg_fuel #&
+                                                            ), ] ### A line of code that confirms that they're only grabbing instructions at the same level.
+            instructions <- instructions[ which( is.na(instructions$L4_CEDS_sector) |
+                                                 instructions$iso %!in% user_dataframe_subset$iso |
+                                                 instructions$agg_fuel %!in% user_dataframe_subset$agg_fuel ), ]
+        }
+
+        batch_instructions_overlap <- batch_data_instructions[ which( 
+                              batch_data_instructions$start_year < working_instructions$end_year &
+                              batch_data_instructions$end_year > working_instructions$start_year), ]
+        batch_instructions_no_overlap <- batch_data_instructions[ which( 
+                              batch_data_instructions$start_year > working_instructions$end_year |
+                              batch_data_instructions$end_year < working_instructions$start_year), ]
+        instructions <- rbind( instructions, batch_instructions_no_overlap )
+        batch_data_instructions <- batch_instructions_overlap
+        
+    # If there are data in our instructions that will be in the current group's batch:
+        if (nrow(batch_data_instructions) > 0) {
+          
+        # If our years haven't been properly subdivided by year, we'll need to
+        #     subdivide the whole batch and return back to the beginning of the loop
+            if ( any( batch_data_instructions$start_year != working_instructions$start_year ) ||
+                 any( batch_data_instructions$end_year != working_instructions$end_year ) ) {
+                
+                year_breaks <- unique( c( batch_data_instructions$start_year,
+                                          working_instructions$start_year,
+                                          batch_data_instructions$end_year + 1,
+                                          working_instructions$end_year + 1 ) ) %>%
+                                  sort()
+                
+                whole_batch <- rbind( working_instructions, batch_data_instructions )
+                new_division_batch <- whole_batch[0,]
+                
+                for (i in 1:(length(year_breaks)-1)) {
+                    new_year_span <- year_breaks[i]:(year_breaks[i+1] - 1)
+                    
+                    rows_to_segment <- whole_batch[ which( whole_batch$start_year %in%
+                                                                  new_year_span | 
+                                                           whole_batch$end_year %in%
+                                                                  new_year_span), ]
+                    rows_to_segment$start_year <- min(new_year_span)
+                    rows_to_segment$end_year <- max(new_year_span)
+                    
+                    new_division_batch <- rbind( new_division_batch, rows_to_segment )
+                }
+                
+                instructions <- rbind( instructions, new_division_batch )
+                next
+            }
+        
+        # If our years are properly subdivided, we should re-retrieve our
+        #   user_defined_data dataframe. This may require drawing on multiple
+        #   source files.
+            working_instructions <- rbind( working_instructions, batch_data_instructions )
+            user_dataframe_subset <- user_dataframe_subset[0,]
+            for ( file in unique( working_instructions$data_file ) ) { 
+              
+                dataframe_interp_instructions <- readData( paste0 ("user-defined-energy/", 
+                                                                   file, "-instructions"),
+                                                           domain = "EXT_IN", extension = ".xlsx", 
+                                                           sheet_selection = "Interpolation_instructions")
+                user_dataframe <- processUserDefinedData( file, dataframe_interp_instructions, MSL, MCL, MFL )
+                
+                user_dataframe_subset <- rbind( user_dataframe_subset, 
+                                                retrieveUserDataframeSubset( user_dataframe, working_instructions ) )
+                
+            }
+          
+
+              
+        }
+        
+        
+    # Identify the rows that will need adjusting. If the aggregation level is the lowest,
+    #   this will be any rows that match to your row, and any row in the next-highest aggregation
+    #   GROUP. For example, If I'm adjusting ger-coal_coke-1A1, I will need to edit all the
+    #   ger-coal_coke-1A rows.
+    #   If we're dealing with data on not the lowest aggregation level, you need any cells that
+    #   can map to this cell.
+    # Basically, in all cases: figure out what level you're on, 
+    #   then grab any rows that would be in the same group as yours one level up.
+    
+        if ( agg_level == 4 ) {
+            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% user_dataframe_subset$iso &
+                                                     all_activity_data$CEDS_sector %in% user_dataframe_subset$CEDS_sector &
+                                                     all_activity_data$agg_fuel %in% MFL$aggregated_fuel[which( MFL$fuel %in%  user_dataframe_subset$CEDS_fuel )]
+                                                     ), c( colnames( all_activity_data[ which( !isXYear( 
+                                                       colnames(all_activity_data) ) ) ] ), Xyears ) ]
+            
+        } else if (agg_level == 3) {
+            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% user_dataframe_subset$iso &
+                                                     all_activity_data$agg_sector %in% user_dataframe_subset$agg_sector &
+                                                     all_activity_data$agg_fuel == MFL$aggregated_fuel[which(  MFL$fuel %in%  user_dataframe_subset$CEDS_fuel )]
+                                                     ), c( colnames( all_activity_data[ which( !isXYear( 
+                                                       colnames(all_activity_data) ) ) ] ), Xyears ) ]
+        } else if (agg_level == 2 || agg_level == 1) {
+            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% user_dataframe_subset$iso&
+                                                     all_activity_data$agg_fuel %in% user_dataframe_subset$agg_fuel
+                                                     ), c( colnames( all_activity_data[ which( !isXYear( 
+                                                       colnames(all_activity_data) ) ) ] ), Xyears ) ]
+        } 
+        
+        normalizeAndIncludeData( agg_level, Xyears, data_to_use, user_dataframe_subset, all_activity_data )
         
         old.file <- new.file
     }
 
 
+    
+    
+    
 ### Major things that I haven't dealt with:
-    # Batching input data by group (I THINK this is done. Go check when I have time/focus)
+    
+    # Batch reading works! I need to include a manual override if the user 
+    #     specifies data for a whole batch. For example if we're dealing with 
+    #     scaling across 3 fuels and there is data provided for all three, we 
+    #     need to not try to normalize. Actually, maybe this already works 
+    #     automatically by just adjusting nothing? Let's check
+    
     # Updating disaggregate zeros (and handling zeros in general)
-    # Should I make some of the agg if-statements into functions? would make code a whole lot easier to follow
+    
+    # Should I make some of the agg if-statements into functions? 
+    #     would make code a whole lot easier to follow
     
     
     
