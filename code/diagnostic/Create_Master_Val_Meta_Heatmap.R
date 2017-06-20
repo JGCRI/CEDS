@@ -94,7 +94,12 @@
             
             regional_counts$year <- substr( regional_counts$year, 2, 5 ) %>% 
                                       as.numeric()
-                    
+            
+            regional_counts$value <- factor( regional_counts$value, 
+                                 levels = c( "Default", 
+                                             unique( regional_counts$value[ which (
+                                                  regional_counts$value != 'Default' ) ] ) ) )
+        
         # Make a geom_col plot of frequency (n, determined in count() above) by year.
         # Fill is determined by inventory (as stated in the colors list) and
         #   transparency is determined by extension direction
@@ -103,15 +108,15 @@
                            position = 'stack', width = 1 ) +
                  theme( legend.position = "none" ) +
                  scale_fill_manual( values = inventory_colors ) +
-                 theme( axis.title.y = element_blank(),
-                        axis.text.y = element_blank(),
-                        axis.ticks.y = element_blank(), 
+                 ylab("% total emissions") +
+                 theme( axis.ticks.y = element_blank(), 
                         axis.title.x = element_blank(),
                         panel.background = element_blank(),
+                        plot.title = element_text(hjust = 0.5),
                         panel.border = element_rect( colour = "grey80", 
                                                      fill = NA, size = .8 ) ) +
                  ggtitle( identifier ) +       
-                 scale_alpha_discrete( range = c( 1, 0.4 ) ) +
+                 scale_alpha_discrete( range = c( 0.85, 0.4 ) ) +
                  theme( text = element_text( size = 6 ) )
             
             if (weight_by_em) {
@@ -148,6 +153,11 @@
             sectoral_counts$year <- substr( sectoral_counts$year, 2, 5 ) %>% 
                                       as.numeric()
             
+            sectoral_counts$value <- factor( sectoral_counts$value, 
+                                             levels = c( "Default", 
+                                                         unique( sectoral_counts$value[ which (
+                                                              sectoral_counts$value != 'Default' ) ] ) ) )
+            
         # Make a geom_col plot of frequency (n, determined in count() above) by year.
         # Fill is determined by inventory (as stated in the colors list) and
         #   transparency is determined by extension direction
@@ -156,15 +166,15 @@
                         position = 'stack', width = 1 ) +
               theme( legend.position = "none" ) +
               scale_fill_manual( values = inventory_colors ) +
-              theme( axis.title.y = element_blank(),
-                     axis.text.y = element_blank(),
-                     axis.ticks.y = element_blank(), 
+              ylab("% total emissions") +
+              theme( axis.ticks.y = element_blank(), 
                      axis.title.x = element_blank(),
+                     plot.title = element_text(hjust = 0.5),
                      panel.background = element_blank(),
                      panel.border = element_rect( colour = "grey80", 
                                                   fill = NA, size = .8 ) ) +
               ggtitle( identifier ) +       
-              scale_alpha_discrete( range = c( 1, 0.4 ) ) +
+              scale_alpha_discrete( range = c( 0.85, 0.4 ) ) +
               theme( text = element_text( size = 6 ) )
             
         }
@@ -310,7 +320,7 @@
                                         gp = gpar( fontsize = 15, font = 8 ) ) )
     
     # Save the output file and return
-        ggsave( paste0( "../diagnostic-output/value-meta-heatmaps/MasterHeatmapBy", 
+        ggsave( paste0( "../diagnostic-output/value-meta-heatmaps/", em, "-MasterHeatmapBy", 
                         map_by, ".png" ), 
                 arranged_plots, width = 7, height = 4)
         
@@ -323,7 +333,7 @@
     
 # Read in and format value metadata for the given emissions species
     value_metadata <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_EF-value_metadata" ), 
-                                meta = FALSE, to_numeric = FALSE )
+                                meta = FALSE, to_numeric = FALSE )[, c("iso","sector","fuel", paste0("X", 1971:2014))]
     value_metadata <- melt( value_metadata, id.vars = c( 'iso', 'sector', 'fuel' ) )
     names( value_metadata ) <- c( "iso", "sector", "fuel", "year", "comment")
     value_metadata$comment <- as.character( value_metadata$comment )
@@ -331,7 +341,7 @@
 # Read in absolute emissions for weights
     corresponding_data <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_emissions" ), 
                                 meta = FALSE )
-    corresponding_data <- melt( corresponding_data[, c("iso","sector","fuel", paste0("X", 1960:2014))], id.vars = c( 'iso', 'sector', 'fuel' ) )
+    corresponding_data <- melt( corresponding_data[, c("iso","sector","fuel", paste0("X", 1971:2014))], id.vars = c( 'iso', 'sector', 'fuel' ) )
     names( corresponding_data ) <- c( "iso", "sector", "fuel", "year", "emissions" )
 
 # Add the absolute emissions to the value_metadata dataframe
