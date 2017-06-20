@@ -127,12 +127,16 @@
         # Count the frequency of each year/value/prepost occurance
             sectoral_counts <- meta_this_sector %>% 
                                 count( year, value, prepost )
-            
+        
+        # A list of column names that will be used for grouping and weighting
             id_cols <- c("year","value","prepost")
-            
+        
+        # If we want our values to be adjusted by weight (emissions):
             if (weight_by_em) {
+            # Aggregate and sum emissions by the desired categories
                 sectoral_counts <- aggregate( meta_this_sector$emissions, by = meta_this_sector[id_cols], sum )
                 colnames(sectoral_counts)[which(colnames(sectoral_counts) == "x")] <- "n"
+            # If data is to be normalize 
                 if (normalize) {
                     year_totals <- aggregate(sectoral_counts$n, by = sectoral_counts["year"], sum)
                     sectoral_counts <- left_join( sectoral_counts, year_totals, by = c("year"))
