@@ -113,11 +113,14 @@
                         axis.title.x = element_blank(),
                         panel.background = element_blank(),
                         plot.title = element_text(hjust = 0.5),
+                        panel.grid.minor = element_line(colour="gray95", size = 0.2 ),
+                        panel.grid.major = element_line(colour="gray88", size = 0.2 ),
                         panel.border = element_rect( colour = "grey80", 
                                                      fill = NA, size = .8 ) ) +
                  ggtitle( identifier ) +       
                  scale_alpha_discrete( range = c( 0.85, 0.4 ) ) +
-                 theme( text = element_text( size = 6 ) )
+                 theme( text = element_text( size = 6 ) ) + 
+                 scale_x_continuous(breaks = c(1970, 1990, 2010))
             
             if (weight_by_em) {
                 ggsave( paste0( "../diagnostic-output/value-meta-heatmaps/TestOutWeighted.png" ), 
@@ -169,12 +172,15 @@
               ylab("% total emissions") +
               theme( axis.ticks.y = element_blank(), 
                      axis.title.x = element_blank(),
+                     panel.grid.minor = element_line(colour="gray95", size = 0.2 ),
+                     panel.grid.major = element_line(colour="gray88", size = 0.2 ),
                      plot.title = element_text(hjust = 0.5),
                      panel.background = element_blank(),
                      panel.border = element_rect( colour = "grey80", 
                                                   fill = NA, size = .8 ) ) +
               ggtitle( identifier ) +       
               scale_alpha_discrete( range = c( 0.85, 0.4 ) ) +
+              scale_x_continuous(breaks = c(1970, 1990, 2010)) +
               theme( text = element_text( size = 6 ) )
             
         }
@@ -256,7 +262,7 @@
                                "Environment and Climate Change Canada, 2016" = "#ffe11a",
                                "US EPA, 2016" = "#990033",
                                "US" = "#1d3d84",
-                               "Li et al., 2017" = "#fcde1e",
+                               "Li et al., 2017" = "#552bff",
                                "TEPA, 2016" = "#1de0cc",
                                "Argentina UNFCCC submission, 2016" = "#ff8484",
                                "Kurokawa et. al, 2013" = "#e53d6e",
@@ -333,7 +339,8 @@
     
 # Read in and format value metadata for the given emissions species
     value_metadata <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_EF-value_metadata" ), 
-                                meta = FALSE, to_numeric = FALSE )[, c("iso","sector","fuel", paste0("X", 1971:2014))]
+                                meta = FALSE, to_numeric = FALSE )[ , c( "iso", "sector", "fuel", 
+                                                                         paste0( "X", 1971:2014 ) ) ]
     value_metadata <- melt( value_metadata, id.vars = c( 'iso', 'sector', 'fuel' ) )
     names( value_metadata ) <- c( "iso", "sector", "fuel", "year", "comment")
     value_metadata$comment <- as.character( value_metadata$comment )
@@ -341,11 +348,14 @@
 # Read in absolute emissions for weights
     corresponding_data <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_emissions" ), 
                                 meta = FALSE )
-    corresponding_data <- melt( corresponding_data[, c("iso","sector","fuel", paste0("X", 1971:2014))], id.vars = c( 'iso', 'sector', 'fuel' ) )
+    corresponding_data <- melt( corresponding_data[, c("iso","sector","fuel", 
+                                                       paste0( "X", 1971:2014 ) ) ], 
+                                id.vars = c( 'iso', 'sector', 'fuel' ) )
     names( corresponding_data ) <- c( "iso", "sector", "fuel", "year", "emissions" )
 
 # Add the absolute emissions to the value_metadata dataframe
-    value_metadata <- left_join( value_metadata, corresponding_data, by = c("iso", "sector", "fuel", "year"))
+    value_metadata <- left_join( value_metadata, corresponding_data, 
+                                 by = c( "iso", "sector", "fuel", "year" ) )
     names( value_metadata ) <- c( "iso", "sector", "fuel", "year", "comment", "emissions" )
     
 # We need these two files for mapping to aggregate regions and sectors
@@ -355,6 +365,8 @@
 # ---------------------------------------------------------------------------
 # 2. Exectue function
 
-    classed_meta <- createMasterValMetaHeatmap( value_metadata, country_map, sector_map, map_by = "Sector", weight_by_em = T )
-    classed_meta <- createMasterValMetaHeatmap( value_metadata, country_map, sector_map, map_by = "Region", weight_by_em = T )
+    classed_meta <- createMasterValMetaHeatmap( value_metadata, country_map, sector_map, 
+                                                map_by = "Sector", weight_by_em = T )
+    classed_meta <- createMasterValMetaHeatmap( value_metadata, country_map, sector_map, 
+                                                map_by = "Region", weight_by_em = T )
     
