@@ -70,16 +70,20 @@
         
         level_1_instructions <- all_instructions[ which( !is.na(all_instructions$L1_agg_fuel)),] %>%
                                     arrange(iso) %>%
-                                    arrange(-end_year)
+                                    arrange(-end_year) %>%
+                                    arrange(-priority)
         level_2_instructions <- all_instructions[ which( !is.na(all_instructions$L2_CEDS_fuel)),]%>%
                                     arrange(iso) %>%
-                                    arrange(-end_year)
+                                    arrange(-end_year) %>%
+                                    arrange(-priority)
         level_3_instructions <- all_instructions[ which( !is.na(all_instructions$L3_agg_sector)),]%>%
                                     arrange(iso) %>%
-                                    arrange(-end_year)
+                                    arrange(-end_year) %>%
+                                    arrange(-priority)
         level_4_instructions <- all_instructions[ which( !is.na(all_instructions$L4_CEDS_sector)),] %>%
                                     arrange(iso) %>%
-                                    arrange(-end_year)
+                                    arrange(-end_year) %>%
+                                    arrange(-priority)
         
         all_instructions <- rbind(level_1_instructions, level_2_instructions, level_3_instructions, level_4_instructions)
         
