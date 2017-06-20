@@ -36,8 +36,8 @@
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "data_functions.R" ,"emissions_scaling_functions.R" , "analysis_functions.R", 
-                  "interpolation_extension_functions.R", "user_data_proc_pseudocode.R",
-                  "instruction_process_pseudocode.R") # Additional function files required.
+                  "interpolation_extension_functions.R", "user_data_processing.R",
+                  "user_extension_instr_processing.R") # Additional function files required.
     log_msg <- paste0( "Calling inventory emission scaling stripts" ) # First message to be printed to the log
     script_name <- paste0( "step2_adding_data_pseudocode.R" )
     
@@ -179,6 +179,7 @@
                 corrected_data
         
         data_changed[is.nan.df(data_changed)] <- 0
+        data_changed[is.na(data_changed)] <- 0
         
         ### WHat do we do in the situation where the only columns left to change are 0s? We just add the new values to that column, right? We can make this happen eventually...for now, they stay zeros, and the normalization just fails.
         
@@ -189,8 +190,10 @@
             if (any(round(colSums(data_changed[, Xyears]), 3) != round(colSums(data_to_use[,Xyears]), 3))) {
                 if( !whole_group ) {
                     warning( "Aggregate sums were not retained" )
+                    warning_diag <- "Col sums not retained"
                 } else {
                     warning( "Aggregate sums were not retained due to whole-group overwrite" )
+                    warning_diag <- "Whole-group overwrite"
                 }
             } 
             if ( any( colSums(data_changed[, Xyears] ) < 0 )  ) {
@@ -199,11 +202,13 @@
             }             
         } else {
             if (any(round(sum(data_changed[, Xyears]), 3) != round(sum(data_to_use[,Xyears]), 3))) {
-              warning( "Aggregate sums were not retained" )
+                warning( "Aggregate sums were not retained" )
+                warning_diag <- "Col sums not retained"
             } 
             if ( any( sum(data_changed[, Xyears] ) < 0 )  ) {
-              data_changed[ which(data_changed[,Xyears] < 0), Xyears] <- 0
-              warning("Some negative values were created during normalization. Coercing to zeros.")
+                data_changed[ which(data_changed[,Xyears] < 0), Xyears] <- 0
+                warning("Some negative values were created during normalization. Coercing to zeros.")
+                warning_diag <- "Negative values created"
             }                   
         }
         
@@ -212,7 +217,16 @@
                                   all_activity_data$agg_fuel %in% data_changed$agg_fuel &
                                   all_activity_data$CEDS_sector %in% data_changed$CEDS_sector), Xyears] <-
                   data_changed[, Xyears]  ### We will maybe not re-add this data into the main dataframe... discuss later
+    
+    # Count the number of rows that have a changed value
+        if ( length( Xyears ) > 1 ) {
+            rows_changed <- sum( apply( data_changed[, Xyears] != data_to_use[, Xyears], 1, any ) ) 
+        } else {
+            rows_changed <- sum( any( data_changed[, Xyears] != data_to_use[, Xyears] ) )
+        }
         
+        diagnostics <- data.frame( rows_changed, warning_diag )
+        return( diagnostics )
     }
       
     normalizeAndIncludeDataL3 <- function( Xyears, data_to_use, user_dataframe_subset, all_activity_data, whole_group = F ) {
@@ -279,20 +293,27 @@
     # Replace any values that were 0s in the old dataset with 0s   ### This is not a good method but will work for now
         disagg_data_changed[is.nan.df(disagg_data_changed) & data_to_use == 0] <- 0
         
+        warning_diag <- NA
         if (length(Xyears) > 1){
             if (any(round(colSums(disagg_data_changed[, Xyears]), 3) != round(colSums(data_to_use[,Xyears]), 3))) {
                 warning("Column sums were not retained \n[this will eventually be an error once we fix the situation with 0s]")
+                warning_diag <- "Col sums not retained"
             }
         } else {
             if (any(round(sum(disagg_data_changed[, Xyears]), 3) != round(sum(data_to_use[,Xyears]), 3))) {
                 warning("Column sums were not retained \n[this will eventually be an error once we fix the situation with 0s]")
+                warning_diag <- "Col sums not retained"
             }             
         }
         all_activity_data[ which( all_activity_data$iso %in% disagg_data_changed$iso &
                                     all_activity_data$agg_fuel %in% disagg_data_changed$agg_fuel &
                                     all_activity_data$CEDS_sector %in% disagg_data_changed$CEDS_sector), Xyears] <-
           disagg_data_changed[, Xyears]  ### We will maybe not re-add this data into the main dataframe... discuss later
-        
+    
+    # Count the number of rows that have a changed value
+        rows_changed <- sum( apply( disagg_data_changed != data_to_use, 1, any ) ) 
+        diagnostics <- data.frame( rows_changed, warning_diag )
+        return( diagnostics )
         
     }
       
@@ -370,13 +391,16 @@
     # Replace any values that were 0s in the old dataset with 0s   ### This is not a good method but will work for now
         disagg_data_changed[is.nan.df(disagg_data_changed) & data_to_use == 0] <- 0
         
+        warning_diag <- NA
         if (length(Xyears) > 1){
             if (any(round(colSums(disagg_data_changed[, Xyears]), 3) != round(colSums(data_to_use[,Xyears]), 3))) {
                 warning("Column sums were not retained \n[this will eventually be an error once we fix the situation with 0s]")
+                warning_diag <- "Col sums not retained"
             }
         } else {
             if (any(round(colSums(disagg_data_changed[, Xyears]), 3) != round(colSums(data_to_use[,Xyears]), 3))) {
                 warning("Column sums were not retained \n[this will eventually be an error once we fix the situation with 0s]")
+                warning_diag <- "Col sums not retained"
             }           
         }
         
@@ -384,7 +408,12 @@
                                     all_activity_data$agg_fuel %in% disagg_data_changed$agg_fuel &
                                     all_activity_data$CEDS_sector %in% disagg_data_changed$CEDS_sector), Xyears] <-
           disagg_data_changed[, Xyears]  ### We will maybe not re-add this data into the main dataframe... discuss later
-            
+        
+    # Count the number of rows that have a changed value
+        rows_changed <- sum( apply( disagg_data_changed != data_to_use, 1, any ) ) 
+        
+        diagnostics <- data.frame( rows_changed, warning_diag )
+        return( diagnostics )
     }
       
     normalizeAndIncludeDataL1 <- function( Xyears, data_to_use, user_dataframe_subset, all_activity_data ) {
@@ -392,8 +421,9 @@
         grouping_cols <- c("iso", "agg_fuel")
         data_to_use[, Xyears][is.na(data_to_use[, Xyears])] <- 0  
         
-        if (length(Xyears) > 1) yearly_totals_unchanged <- colSums( data_to_use[ , Xyears] )
-        else yearly_totals_unchanged(sum(data_to_use[ , Xyears]))
+        if (length(Xyears) > 1){ 
+          yearly_totals_unchanged <- colSums( data_to_use[ , Xyears] )
+        } else yearly_totals_unchanged(sum(data_to_use[ , Xyears]))
         
         adjustment_factors <- user_dataframe_subset[, Xyears] / yearly_totals_unchanged
         adjustment_factors[ 2:nrow( data_to_use ), ] <- adjustment_factors
@@ -415,6 +445,13 @@
                                     all_activity_data$agg_fuel %in% data_changed$agg_fuel &
                                     all_activity_data$CEDS_sector %in% data_changed$CEDS_sector), Xyears] <-
           data_changed[, Xyears]  ### We will maybe not re-add this data into the main dataframe... discuss later
+        
+        warning_diag <- NA # Level 1 can't return a warning
+    # Count the number of rows that have a changed value
+        rows_changed <- sum( apply( data_changed != data_to_use, 1, any ) ) 
+        
+        diagnostics <- data.frame( rows_changed, warning_diag )
+        return( diagnostics )
     }
     
 
@@ -450,12 +487,20 @@
     instructions[, c("iso", "CEDS_fuel", "agg_fuel")] <- left_join( instructions[ , c("iso","CEDS_fuel") ], 
                                                             MFL[ , c( "aggregated_fuel", "fuel" ) ], 
                                                             by = c( "CEDS_fuel" = "fuel" ) )
+
+# This will store the final form of each instruction used, for diagnostics
     rows_completed <- instructions[0,]
+    
+# This integer will track which batch number we're on, for informing diagnostics
+    batch <- 0
     
     old.file <- "NULL"
     
     while (nrow(instructions) > 0) {
         
+        batch <- batch + 1
+    
+    # Select the first instruction in the list for processing
         working_instructions <- instructions[1,]
         instructions <- instructions[ -1, ]
         
@@ -617,22 +662,25 @@
         }
 
         if (agg_level == 1) {
-            normalizeAndIncludeDataL1( Xyears, data_to_use, user_dataframe_subset, all_activity_data )
+            diagnostics <- normalizeAndIncludeDataL1( Xyears, data_to_use, user_dataframe_subset, all_activity_data )
         } else if (agg_level == 2) {
-            normalizeAndIncludeDataL2( Xyears, data_to_use, user_dataframe_subset, all_activity_data, whole_group )
+            diagnostics <- normalizeAndIncludeDataL2( Xyears, data_to_use, user_dataframe_subset, all_activity_data, whole_group )
         } else if (agg_level == 3) {
-            normalizeAndIncludeDataL3( Xyears, data_to_use, user_dataframe_subset, all_activity_data, whole_group )
+            diagnostics <- normalizeAndIncludeDataL3( Xyears, data_to_use, user_dataframe_subset, all_activity_data, whole_group )
         } else if (agg_level == 4) {
-            normalizeAndIncludeDataL4( Xyears, data_to_use, user_dataframe_subset, all_activity_data, whole_group )
+            diagnostics <- normalizeAndIncludeDataL4( Xyears, data_to_use, user_dataframe_subset, all_activity_data, whole_group )
         }
-          
-          
+        
+        working_instructions$batch_id <- batch
+        working_instructions$nrow_changed <- diagnostics$rows_changed
+        working_instructions$warnings <- diagnostics$warning_diag
+        
         old.file <- new.file
-        rows_completed <- rbind(rows_completed, working_instructions)
+        rows_completed <- rbind( rows_completed, working_instructions )
         
     }
 
-
+    writeData( rows_completed, domain = "DIAG_OUT", fn = "user-ext-data_diagnostics")
     
     
     
