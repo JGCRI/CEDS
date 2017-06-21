@@ -64,8 +64,28 @@
 # input files: reclassified value metadata
 # output: none
     createSinglePlot <- function( identifier, meta_classified, id_type = "Region", inventory_colors,
-                                  weight_by_em, normalize ) {
-    
+                                  weight_by_em, normalize, to_group = T ) {
+        
+        factor_levels <- c( "Default",
+                  "Zero emissions",
+                  "EDGAR 4.3-PEGASOS",
+                  "EMEP_NFR09",
+                  "REAS 2.1",
+                  "EMEP_NFR14",
+                  "UNFCCC, 2015",
+                  "Environment Canada, 2013",
+                  "Environment and Climate Change Canada, 2016",
+                  "US EPA, 2016",
+                  "US",
+                  "Li et al., 2017",
+                  "TEPA, 2016",
+                  "Argentina UNFCCC submission, 2016",
+                  "Kurokawa et. al, 2013",
+                  "South Korea National Institute of Environmental Research, 2016",
+                  "Australian Department of the Environment, 2016",
+                  "EDGAR 4.2" )
+      
+      
     # Separate extraction procedure by region vs. sector.
         if ( id_type == "Region" ) {    
         
@@ -81,24 +101,73 @@
 
             id_cols <- c("year","value","prepost")
             
+        # If we want our values to be adjusted by weight (emissions):
             if (weight_by_em) {
+            # Aggregate and sum emissions by the desired categories
                 regional_counts <- aggregate( meta_this_region$emissions, by = meta_this_region[id_cols], sum )
                 colnames(regional_counts)[which(colnames(regional_counts) == "x")] <- "n"
+                regional_counts$year <- substr( regional_counts$year, 2, 5 ) %>% 
+                                      as.numeric()
+            # If data is to be normalize 
                 if (normalize) {
                     year_totals <- aggregate(regional_counts$n, by = regional_counts["year"], sum)
                     regional_counts <- left_join( regional_counts, year_totals, by = c("year"))
                     regional_counts$n <- regional_counts$n / regional_counts$x
                 }
-            }
-        
+                
+                regional_counts_all <- expand.grid( unique( regional_counts$value ),
+                                                    unique( regional_counts$prepost ),
+                                                    1971:2014 )
+                colnames(regional_counts_all) <- c("value", "prepost", "year")
+                
+                regional_counts <- merge( regional_counts_all, regional_counts,
+                                              by = c("year", "value", "prepost"), all.x = T) %>%
+                                   arrange(value)
+                
+                regional_counts$n[ is.na( regional_counts$n ) ] <- 0
+                
+                regional_counts$value <- factor( regional_counts$value,
+                                         levels = factor_levels )
+            
+        # Make a geom_col plot of frequency (n, determined in count() above) by year.
+        # Fill is determined by inventory (as stated in the colors list) and
+        #   transparency is determined by extension direction
+            p <- ggplot( regional_counts, aes( year, n ) ) + 
+              geom_area( aes( fill = value, alpha = prepost ), 
+                        position = 'stack', width = 1 ) +
+              theme( legend.position = "none" ) +
+              scale_fill_manual( values = inventory_colors ) +
+              ylab("Global emissions [kt]") +
+              theme( axis.ticks.y = element_blank(), 
+                     axis.title.x = element_blank(),
+                     panel.grid.minor = element_line(colour="gray95", size = 0.2 ),
+                     panel.grid.major = element_line(colour="gray88", size = 0.2 ),
+                     plot.title = element_text(hjust = 0.5),
+                     panel.background = element_blank(),
+                     panel.border = element_rect( colour = "grey80", 
+                                                  fill = NA, size = .8 ) ) +
+              ggtitle( identifier ) +       
+              scale_alpha_discrete( range = c( 0.85, 0.4 ) ) +
+              scale_x_continuous(breaks = c(1970, 1990, 2010)) +
+              theme( text = element_text( size = 6 ) )
+              
+              if (!to_group) p <- p + theme( legend.position = "right",
+                                             legend.key.size = unit(5, "point"),
+                                             legend.text = element_text( size = 5 ),
+                                             text = element_text( size = 10 )) + 
+                                      ggtitle( paste0( "Emissions per year scaled by each inventory\nfor emissions species ", em, ", region ", identifier ) )
+
+              if (normalize) p <- p + ylab("% of global emissions")
+              
+              return( p )
+                                
+            }        
             
             regional_counts$year <- substr( regional_counts$year, 2, 5 ) %>% 
                                       as.numeric()
             
             regional_counts$value <- factor( regional_counts$value, 
-                                 levels = c( "Default", 
-                                             unique( regional_counts$value[ which (
-                                                  regional_counts$value != 'Default' ) ] ) ) )
+                                 levels = factor_levels )
         
         # Make a geom_col plot of frequency (n, determined in count() above) by year.
         # Fill is determined by inventory (as stated in the colors list) and
@@ -112,7 +181,7 @@
                  theme( axis.ticks.y = element_blank(), 
                         axis.title.x = element_blank(),
                         panel.background = element_blank(),
-                        plot.title = element_text(hjust = 0.5),
+                        plot.title = element_text( hjust = 0.5 ),
                         panel.grid.minor = element_line(colour="gray95", size = 0.2 ),
                         panel.grid.major = element_line(colour="gray88", size = 0.2 ),
                         panel.border = element_rect( colour = "grey80", 
@@ -121,11 +190,6 @@
                  scale_alpha_discrete( range = c( 0.85, 0.4 ) ) +
                  theme( text = element_text( size = 6 ) ) + 
                  scale_x_continuous(breaks = c(1970, 1990, 2010))
-            
-            if (weight_by_em) {
-                ggsave( paste0( "../diagnostic-output/value-meta-heatmaps/TestOutWeighted.png" ), 
-                p, width = 7, height = 4 )
-            }
             
         } else if ( id_type == "Sector" ) {
         # Extract metadata for this sector
@@ -138,28 +202,74 @@
         
         # A list of column names that will be used for grouping and weighting
             id_cols <- c("year","value","prepost")
-        
+        # Make the years numeric so we can have a continunous x-axis
+            sectoral_counts$year <- substr( sectoral_counts$year, 2, 5 ) %>% 
+                                      as.numeric()
+
         # If we want our values to be adjusted by weight (emissions):
             if (weight_by_em) {
             # Aggregate and sum emissions by the desired categories
                 sectoral_counts <- aggregate( meta_this_sector$emissions, by = meta_this_sector[id_cols], sum )
                 colnames(sectoral_counts)[which(colnames(sectoral_counts) == "x")] <- "n"
+                sectoral_counts$year <- substr( sectoral_counts$year, 2, 5 ) %>% 
+                                      as.numeric()
             # If data is to be normalize 
                 if (normalize) {
                     year_totals <- aggregate(sectoral_counts$n, by = sectoral_counts["year"], sum)
                     sectoral_counts <- left_join( sectoral_counts, year_totals, by = c("year"))
                     sectoral_counts$n <- sectoral_counts$n / sectoral_counts$x
                 }
+                
+                sectoral_counts_all <- expand.grid( unique( sectoral_counts$value ),
+                                                    unique( sectoral_counts$prepost ),
+                                                    1971:2014 )
+                colnames(sectoral_counts_all) <- c("value", "prepost", "year")
+                
+                sectoral_counts <- merge( sectoral_counts_all, sectoral_counts,
+                                              by = c("year", "value", "prepost"), all.x = T) %>%
+                                   arrange(value)
+                
+                sectoral_counts$n[ is.na( sectoral_counts$n ) ] <- 0
+                
+                sectoral_counts$value <- factor( sectoral_counts$value,
+                                         levels = factor_levels )
+            
+        # Make a geom_col plot of frequency (n, determined in count() above) by year.
+        # Fill is determined by inventory (as stated in the colors list) and
+        #   transparency is determined by extension direction
+            p <- ggplot( sectoral_counts, aes( year, n ) ) + 
+              geom_area( aes( fill = value, alpha = prepost ), 
+                        position = 'stack', width = 1 ) +
+              theme( legend.position = "none" ) +
+              scale_fill_manual( values = inventory_colors ) +
+              ylab("Global emissions [kt]") +
+              theme( axis.ticks.y = element_blank(), 
+                     axis.title.x = element_blank(),
+                     panel.grid.minor = element_line(colour="gray95", size = 0.2 ),
+                     panel.grid.major = element_line(colour="gray88", size = 0.2 ),
+                     plot.title = element_text(hjust = 0.5),
+                     panel.background = element_blank(),
+                     panel.border = element_rect( colour = "grey80", 
+                                                  fill = NA, size = .8 ) ) +
+              ggtitle( identifier ) +       
+              scale_alpha_discrete( range = c( 0.85, 0.4 ) ) +
+              scale_x_continuous(breaks = c(1970, 1990, 2010)) +
+              theme( text = element_text( size = 6 ) )
+            
+              if (!to_group) p <- p + ggtitle( paste0( "Emissions per year scaled by each inventory\nfor emissions species ", em, ", sector ", identifier ) ) +  
+                                      theme( legend.position = "right",
+                                             legend.key.size = unit( 5, "point" ),
+                                             legend.text = element_text(size=5),
+                                             text = element_text( size = 10 ))
+              if (normalize) p <- p + ylab("% of global emissions")
+              
+              return( p )
+                                
             }
             
-        # Make the years numeric so we can have a continunous x-axis
-            sectoral_counts$year <- substr( sectoral_counts$year, 2, 5 ) %>% 
-                                      as.numeric()
             
-            sectoral_counts$value <- factor( sectoral_counts$value, 
-                                             levels = c( "Default", 
-                                                         unique( sectoral_counts$value[ which (
-                                                              sectoral_counts$value != 'Default' ) ] ) ) )
+        sectoral_counts$value <- factor( sectoral_counts$value,
+                                         levels = factor_levels )
             
         # Make a geom_col plot of frequency (n, determined in count() above) by year.
         # Fill is determined by inventory (as stated in the colors list) and
@@ -296,6 +406,24 @@
     # Get a quick count of all data
         all_counts <- meta_for_plots %>% 
                           count( year, value, prepost )
+        all_counts$value <- factor( all_counts$value, levels = c( "Default",
+                  "Zero emissions",
+                  "EDGAR 4.3-PEGASOS",
+                  "EMEP_NFR09",
+                  "REAS 2.1",
+                  "EMEP_NFR14",
+                  "UNFCCC, 2015",
+                  "Environment Canada, 2013",
+                  "Environment and Climate Change Canada, 2016",
+                  "US EPA, 2016",
+                  "US",
+                  "Li et al., 2017",
+                  "TEPA, 2016",
+                  "Argentina UNFCCC submission, 2016",
+                  "Kurokawa et. al, 2013",
+                  "South Korea National Institute of Environmental Research, 2016",
+                  "Australian Department of the Environment, 2016",
+                  "EDGAR 4.2" ) )
         
     # Create a single master plot. This plot will never be arranged or 
     #   displayed; its purpose is to generate a unifying legend for all the data,
@@ -366,7 +494,7 @@
 # 2. Exectue function
 
     classed_meta <- createMasterValMetaHeatmap( value_metadata, country_map, sector_map, 
-                                                map_by = "Sector", weight_by_em = T )
+                                                map_by = "Sector", weight_by_em = T, normalize = F )
     classed_meta <- createMasterValMetaHeatmap( value_metadata, country_map, sector_map, 
-                                                map_by = "Region", weight_by_em = T )
+                                                map_by = "Region", weight_by_em = T, normalize = F )
     
