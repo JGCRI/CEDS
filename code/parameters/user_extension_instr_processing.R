@@ -12,7 +12,7 @@
     
     orderInstructions <- function( instructions ) {
         
-        instructions <- instructions[ order(instructions$start_year) ]
+        instructions <- instructions[ order( instructions$start_year ) ]
         
         return()
     }
@@ -23,11 +23,11 @@
         USER_DOM <- "../input/extension/user-defined-energy/"
         
     # Get a list of all the files in the directory
-        files_present <- list.files(USER_DOM)
-        instruction_files <- files_present[ grep("-instructions", files_present) ]
-        comb_or_NC <- readData("Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
-                                                        sheet_selection = "Sectors")
-        comb_sectors_only <- comb_or_NC$sector[ which( comb_or_NC$type == "comb") ]
+        files_present <- list.files( USER_DOM )
+        instruction_files <- files_present[ grep( "-instructions", files_present ) ]
+        comb_or_NC <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
+                                                        sheet_selection = "Sectors" )
+        comb_sectors_only <- comb_or_NC$sector[ which( comb_or_NC$type == "comb" ) ]
         
     # For each file in the instructions folder, read it in and collect important info:
     #    Name of the file minus "-instructions" tells us what data it's connected to
@@ -38,17 +38,17 @@
         
         all_instructions <- NULL
         
-        for (file in instruction_files) {
-            data_file <- gsub("-instructions.xlsx", "", file)
+        for ( file in instruction_files ) {
+            data_file <- gsub( "-instructions.xlsx", "", file )
     
-            use_instructions <- readData( paste0( "user-defined-energy/", data_file, "-instructions"), domain = "EXT_IN", extension = '.xlsx',
-                                          sheet_selection = "Trend_instructions")
+            use_instructions <- readData( paste0( "user-defined-energy/", data_file, "-instructions" ), domain = "EXT_IN", extension = '.xlsx',
+                                          sheet_selection = "Trend_instructions" )
             
-            if ("CEDS_sector" %in% colnames(use_instructions)) {
-                all_rows <- nrow(use_instructions)
+            if ( "CEDS_sector" %in% colnames( use_instructions ) ) {
+                all_rows <- nrow( use_instructions )
                 use_instructions <- use_instructions[ which ( use_instructions$CEDS_sector %in% comb_sectors_only ), ]
-                if (nrow(use_instructions) != all_rows) {
-                    warning(paste0(all_rows-nrow(use_instructions)," instruction line(s) were rejected as non-combustion sectors"))
+                if ( nrow( use_instructions ) != all_rows ) {
+                    warning( paste0( all_rows-nrow(use_instructions )," instruction line(s) were rejected as non-combustion sectors" ) )
                 }
             }
             
@@ -57,8 +57,8 @@
                 all_instructions$data_file <- data_file
             }
             else {
-                all_instructions <- rbind.fill(all_instructions, use_instructions)
-                all_instructions$data_file[ which( is.na( all_instructions$data_file) ) ] <- data_file
+                all_instructions <- rbind.fill( all_instructions, use_instructions )
+                all_instructions$data_file[ which( is.na( all_instructions$data_file ) ) ] <- data_file
             }
         }
         
@@ -68,24 +68,24 @@
         ###    and b) belong to the same aggregate category.
         
         
-        level_1_instructions <- all_instructions[ which( !is.na(all_instructions$L1_agg_fuel)),] %>%
+        level_1_instructions <- all_instructions[ which( !is.na( all_instructions$L1_agg_fuel ) ), ] %>%
                                     arrange(iso) %>%
                                     arrange(-end_year) %>%
                                     arrange(-priority)
-        level_2_instructions <- all_instructions[ which( !is.na(all_instructions$L2_CEDS_fuel)),]%>%
+        level_2_instructions <- all_instructions[ which( !is.na(all_instructions$L2_CEDS_fuel ) ), ] %>%
                                     arrange(iso) %>%
                                     arrange(-end_year) %>%
                                     arrange(-priority)
-        level_3_instructions <- all_instructions[ which( !is.na(all_instructions$L3_agg_sector)),]%>%
+        level_3_instructions <- all_instructions[ which( !is.na(all_instructions$L3_agg_sector ) ), ] %>%
                                     arrange(iso) %>%
                                     arrange(-end_year) %>%
                                     arrange(-priority)
-        level_4_instructions <- all_instructions[ which( !is.na(all_instructions$L4_CEDS_sector)),] %>%
+        level_4_instructions <- all_instructions[ which( !is.na(all_instructions$L4_CEDS_sector ) ), ] %>%
                                     arrange(iso) %>%
                                     arrange(-end_year) %>%
                                     arrange(-priority)
         
-        all_instructions <- rbind(level_1_instructions, level_2_instructions, level_3_instructions, level_4_instructions)
+        all_instructions <- rbind( level_1_instructions, level_2_instructions, level_3_instructions, level_4_instructions )
         
         
         return ( all_instructions )
