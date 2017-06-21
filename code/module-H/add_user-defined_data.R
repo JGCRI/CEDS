@@ -272,11 +272,13 @@
     
     # Count the number of rows that have a changed value
         if ( length( Xyears ) > 1 ) {
-            rows_changed <- sum( apply( data_changed[, Xyears] != data_to_use[ , Xyears ], 1, any ) ) 
+            rows_changed <- sum( apply( data_changed[ , Xyears ] != data_to_use[ , Xyears ], 1, any ) ) 
         } else {
             rows_changed <- sum( any( data_changed[ , Xyears ] != data_to_use[ , Xyears ] ) )
         }
         
+        activity_environment$all_activity_data <- all_activity_data
+
         diagnostics <- data.frame( rows_changed, warning_diag )
         return( diagnostics )
     }
@@ -396,7 +398,9 @@
                                     all_activity_data$agg_fuel %in% disagg_data_changed$agg_fuel &
                                     all_activity_data$CEDS_sector %in% disagg_data_changed$CEDS_sector ), Xyears ] <-
           disagg_data_changed[, Xyears]  ### We will maybe not re-add this data into the main dataframe... discuss later
-    
+        
+        activity_environment$all_activity_data <- all_activity_data
+
     # Count the number of rows that have a changed value
         rows_changed <- sum( apply( disagg_data_changed != data_to_use, 1, any ) ) 
         diagnostics <- data.frame( rows_changed, warning_diag )
@@ -528,7 +532,8 @@
         
     # Count the number of rows that have a changed value
         rows_changed <- sum( apply( disagg_data_changed != data_to_use, 1, any ) ) 
-        
+        activity_environment$all_activity_data <- all_activity_data
+
         diagnostics <- data.frame( rows_changed, warning_diag )
         return( diagnostics )
     }
@@ -571,6 +576,7 @@
             }
         }
         
+    
         all_activity_data[ which( all_activity_data$iso %in% data_changed$iso &
                                     all_activity_data$agg_fuel %in% data_changed$agg_fuel &
                                     all_activity_data$CEDS_sector %in% data_changed$CEDS_sector ), Xyears ] <-
@@ -579,6 +585,8 @@
         warning_diag <- NA # Level 1 can't return a warning
     # Count the number of rows that have a changed value
         rows_changed <- sum( apply( data_changed != data_to_use, 1, any ) ) 
+        
+        activity_environment$all_activity_data <- all_activity_data
         
         diagnostics <- data.frame( rows_changed, warning_diag )
         return( diagnostics )
@@ -606,9 +614,13 @@
 # ------------------------------------------------------------------------------------
 # 2. Collect user-defined inputs and begin processing data loop
 
+# Initialize an environment to track activity data
+    activity_environment <- new.env()
+    
 # This script only operates on combustion emissions, so reduce the data to that form
     all_activity_data <- default_activity_mapped[ which( default_activity_mapped$CEDS_sector %in% comb_sectors_only ), ]
-
+    activity_environment$all_activity_data <- all_activity_data
+    
 # Read instructions files and create a procedure list
     instructions <- readInUserInstructions()
      instructions[ , c( "iso", "CEDS_fuel", "agg_fuel" ) ] <- left_join( instructions[ , c( "iso", "CEDS_fuel" ) ], 
