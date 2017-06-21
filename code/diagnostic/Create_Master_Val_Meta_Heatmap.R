@@ -36,7 +36,7 @@
 
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "NOx"
+    if ( is.na( em ) ) em <- "CH4"
 
 # ---------------------------------------------------------------------------
 # 0.5 Define functions
@@ -134,7 +134,7 @@
         #   transparency is determined by extension direction
             p <- ggplot( regional_counts, aes( year, n ) ) + 
               geom_area( aes( fill = value, alpha = prepost ), 
-                        position = 'stack', width = 1 ) +
+                        position = 'stack' ) +
               theme( legend.position = "none" ) +
               scale_fill_manual( values = inventory_colors ) +
               ylab("Global emissions [kt]") +
@@ -239,7 +239,7 @@
         #   transparency is determined by extension direction
             p <- ggplot( sectoral_counts, aes( year, n ) ) + 
               geom_area( aes( fill = value, alpha = prepost ), 
-                        position = 'stack', width = 1 ) +
+                        position = 'stack' ) +
               theme( legend.position = "none" ) +
               scale_fill_manual( values = inventory_colors ) +
               ylab("Global emissions [kt]") +
@@ -494,7 +494,7 @@
 # 2. Exectue function
 
     classed_meta <- createMasterValMetaHeatmap( value_metadata, country_map, sector_map, 
-                                                map_by = "Sector", weight_by_em = T, normalize = F )
+                                                map_by = "Sector", weight_by_em = F )
     classed_meta <- createMasterValMetaHeatmap( value_metadata, country_map, sector_map, 
-                                                map_by = "Region", weight_by_em = T, normalize = F )
+                                                map_by = "Region", weight_by_em = F )
     
