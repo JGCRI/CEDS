@@ -105,7 +105,7 @@ initialize( script_name, log_msg, headers )
     
     
 # ------------------------------------------------------------------------------
-# 4. Sector mapping
+# 5. Sector mapping
     
     EIA_data_formatted$sector <- NA
     
@@ -132,7 +132,7 @@ initialize( script_name, log_msg, headers )
     
 
 # ------------------------------------------------------------------------------
-# 4. Prepare unit conversion
+# 6. Prepare unit conversion
     
     coal_conversion$year <- paste0( "X", substr( coal_conversion$YYYYMM, 1, 4 ) )
     petrol_conversion$year <- paste0( "X", substr( petrol_conversion$YYYYMM, 1, 4 ) )
@@ -178,7 +178,7 @@ initialize( script_name, log_msg, headers )
     conversion_factors <- rbind( coal_conversion, petrol_conversion )
     
 # ------------------------------------------------------------------------------
-# 4. Execute conversion to kt
+# 7. Execute conversion to kt
   
     EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "biomass" ) ] <-
           as.numeric( EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "biomass" ) ] ) / 
@@ -209,14 +209,98 @@ initialize( script_name, log_msg, headers )
                                                        c( "oil", "coal" ) ), ] <-
             EIA_convert_subset[, c("iso", "sector", "fuel",
                                    "Unit", "year", "Value")]
-    
 
 # ------------------------------------------------------------------------------
-# 4. Cast to wide and write output
+# 8. Cast to wide and write output
     
     EIA_final <- spread(EIA_data_formatted, key=year, value=Value)
     
     writeData( EIA_final, domain="MED_OUT", paste0('E.',em,'_US-EIA_inventory'))
     
     
+
+# ------------------------------------------------------------------------------
+# 9. Prepare data for comparison to CEDS trends
+    
+    total_activity <- readData( "A.total_activity", domain = "MED_OUT" )
+    total_activity <- total_activity[ which( total_activity$iso == "usa" ), ]
+    MSL <- readData( "MAPPINGS", "Master_Sector_Level_Map" )[ , c('working_sectors_v1', 
+                                                                  'aggregate_sectors')] %>%
+                unique()
+    MFL <- readData("Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
+                    sheet_selection = "Fuels")
+    
+    X_CEDS_years <- paste0( "X", 1960:2014 )
+    total_activity <- left_join( total_activity, MSL, 
+                                 by = c( "sector" = "working_sectors_v1") )
+    total_activity <- left_join( total_activity, MFL[ , c('fuel', 'aggregated_fuel')], 
+                                 by = c( "fuel") )
+    
+    total_act_agg <- ddply( total_activity, 
+                            c( "aggregated_fuel", "aggregate_sectors" ), 
+                            function(x) colSums( x[ X_CEDS_years ] ) )
+    
+    total_act_agg <- total_act_agg[ which( total_act_agg$aggregated_fuel != "process"), ]
+    
+    total_act_agg <- gather( total_act_agg, key=year, value=Value,
+                             -aggregated_fuel, -aggregate_sectors )
+    
+    colnames(total_act_agg)[ which(colnames(total_act_agg) == "aggregate_sectors")] <- "sector"
+    
+    res_and_com_nonagg <- total_activity[ which( total_activity$sector %in% c("1A4b_Residential",
+                                                                "1A4a_Commercial-institutional")),
+                                           c( "sector", "aggregated_fuel", X_CEDS_years) ]
+    res_and_com_nonagg <- ddply( res_and_com_nonagg, 
+                                        c( "sector", "aggregated_fuel" ), 
+                                        function(x) colSums( x[ X_CEDS_years ] ) )
+    res_and_com_nonagg <- gather( res_and_com_nonagg, key=year, value=Value,
+                             -aggregated_fuel, -sector )
+    
+    total_act_agg <- rbind( total_act_agg,
+                            res_and_com_nonagg )
+
+
+# ------------------------------------------------------------------------------
+# 9. Compare coal use across 5 sectors
+    
+    EIA_compare_coal <- EIA_data_formatted[ which(EIA_data_formatted$fuel == "coal"), ]
+    CEDS_compare_coal <- total_act_agg[ which(total_act_agg$aggregated_fuel == "coal"), ]
+    
+    EIA_compare_coal$year <- as.numeric( substr( EIA_compare_coal$year, 2, 5 ) )
+    CEDS_compare_coal$year <- as.numeric( substr( CEDS_compare_coal$year, 2, 5 ) )
+
+    EIA_compare_coal$Value <- as.numeric( EIA_compare_coal$Value )
+    CEDS_compare_coal$Value <- as.numeric( CEDS_compare_coal$Value )
+
+    list_of_EIA_sectors <- c( "Commercial", "Residential", "Industry", 
+                              "Energy Transf/Ext", "Transportation" )
+    list_of_CEDS_equivs <- c( "1A4a_Commercial-institutional", "1A4b_Residential",
+                              "1A2_Industry-combustion", "1A1_Energy-transformation",
+                              "1A3_Transportation")
+    
+    list_of_plots <- lapply( 1:5,
+                             createCompPlot,
+                             CEDS_data = CEDS_compare_coal,
+                             EIA_data = EIA_compare_coal,
+                             CEDS_sectors = list_of_CEDS_equivs,
+                             EIA_sectors = list_of_EIA_sectors)
+    
+    createCompPlot <- function( CEDS_data, EIA_data, CEDS_sectors, EIA_sectors, number ) {
+        temp_CEDS_data <- CEDS_compare_coal[ which( CEDS_compare_coal$sector == 
+                                                      list_of_CEDS_equivs[number]),]
+        temp_EIA_data <- EIA_compare_coal[ which( EIA_compare_coal$sector == 
+                                                      list_of_EIA_sectors[number]),]
+      
+        p <- ggplot(temp_EIA_data, aes( year, Value ) ) + 
+          geom_line(data=temp_CEDS_data, aes( year, Value ), color="blue" ) +
+          geom_line(data=temp_EIA_data, aes( year, Value), color="red" ) + 
+          theme( legend.position = "right")
+          ggtitle( list_of_EIA_sectors[number] )
+        
+        return(p)
+    }
+    
+    arranged_plots <- grid.arrange( arrangeGrob( grobs=list_of_plots ),
+                                        top = textGrob( paste0( "Compare CEDS coal to EIA coal" ), 
+                                        gp = gpar( fontsize = 15, font = 8 ) ) )
     
