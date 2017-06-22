@@ -488,13 +488,15 @@
     
 # We need these two files for mapping to aggregate regions and sectors
     country_map <- readData( "MAPPINGS", "Master_Country_List" )
+    country_map <- country_map[ , c( "iso", "Paper_Figure_Region" ) ]
+    colnames(country_map) <- c ("iso", "Region" )
     sector_map <- readData( "MAPPINGS", "Master_Sector_Level_Map" )
     
 # ---------------------------------------------------------------------------
 # 2. Exectue function
 
     classed_meta <- createMasterValMetaHeatmap( value_metadata, country_map, sector_map, 
-                                                map_by = "Sector", weight_by_em = F )
+                                                map_by = "Sector", weight_by_em = T, normalize = F )
     classed_meta <- createMasterValMetaHeatmap( value_metadata, country_map, sector_map, 
-                                                map_by = "Region", weight_by_em = F )
+                                                map_by = "Region", weight_by_em = T, normalize = F )
     
