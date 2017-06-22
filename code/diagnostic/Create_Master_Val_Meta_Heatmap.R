@@ -443,14 +443,18 @@
                          c(1,1,1,1,2),
                          c(1,1,1,1,2),
                          c(1,1,1,1,NA))
-
+        
+        title_text <- paste0( "Inventory scaling percentages of ", em, " by ", map_by )
+        if (weight_by_em && !normalize) {
+            title_text <- paste0( "Makeup of total emissions of ", em, 
+                                  "\nscaled to each inventory (by ", map_by, ")" )
+        }
     # Arrange the list of plots into a grid, next to the legend
         arranged_plots <- grid.arrange( arrangeGrob( grobs=list_of_plots ),
                                         inventory_legend, 
                                         layout_matrix = layout,
                                         nrow = 1,
-                                        top = textGrob( paste0( "Inventory scaling percentages of ", em, 
-                                                                " by ", map_by ), 
+                                        top = textGrob( title_text, 
                                         gp = gpar( fontsize = 15, font = 8 ) ) )
     
     # Save the output file and return
