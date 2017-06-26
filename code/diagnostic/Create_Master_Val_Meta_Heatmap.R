@@ -126,6 +126,8 @@
                 
                 regional_counts$n[ is.na( regional_counts$n ) ] <- 0
                 
+                regional_counts$n <- regional_counts$n / 1000 # Convert to Tg
+                
                 regional_counts$value <- factor( regional_counts$value,
                                          levels = factor_levels )
             
@@ -137,27 +139,27 @@
                         position = 'stack' ) +
               theme( legend.position = "none" ) +
               scale_fill_manual( values = inventory_colors ) +
-              ylab("Global emissions [kt]") +
+              ylab(paste0( em, " emissions [Tg]" ) ) +
               theme( axis.ticks.y = element_blank(), 
                      axis.title.x = element_blank(),
-                     panel.grid.minor = element_line(colour="gray95", size = 0.2 ),
-                     panel.grid.major = element_line(colour="gray88", size = 0.2 ),
-                     plot.title = element_text(hjust = 0.5),
+                     panel.grid.minor = element_line( colour="gray95", size = 0.2 ),
+                     panel.grid.major = element_line( colour="gray88", size = 0.2 ),
+                     plot.title = element_text( hjust = 0.5 ),
                      panel.background = element_blank(),
                      panel.border = element_rect( colour = "grey80", 
                                                   fill = NA, size = .8 ) ) +
               ggtitle( identifier ) +       
               scale_alpha_discrete( range = c( 0.85, 0.4 ) ) +
-              scale_x_continuous(breaks = c(1970, 1990, 2010)) +
+              scale_x_continuous( breaks = c( 1970, 1990, 2010 ) ) +
               theme( text = element_text( size = 6 ) )
               
               if (!to_group) p <- p + theme( legend.position = "right",
-                                             legend.key.size = unit(5, "point"),
+                                             legend.key.size = unit( 5, "point" ),
                                              legend.text = element_text( size = 5 ),
-                                             text = element_text( size = 10 )) + 
+                                             text = element_text( size = 10 ) ) + 
                                       ggtitle( paste0( "Emissions per year scaled by each inventory\nfor emissions species ", em, ", region ", identifier ) )
 
-              if (normalize) p <- p + ylab("% of global emissions")
+              if (normalize) p <- p + ylab( "% of global emissions" )
               
               return( p )
                                 
@@ -231,6 +233,8 @@
                 
                 sectoral_counts$n[ is.na( sectoral_counts$n ) ] <- 0
                 
+                sectoral_counts$n <- sectoral_counts$n / 1000 # Convert to Tg
+                
                 sectoral_counts$value <- factor( sectoral_counts$value,
                                          levels = factor_levels )
             
@@ -242,7 +246,7 @@
                         position = 'stack' ) +
               theme( legend.position = "none" ) +
               scale_fill_manual( values = inventory_colors ) +
-              ylab("Global emissions [kt]") +
+              ylab(paste0( em, " emissions [Tg]" ) ) +
               theme( axis.ticks.y = element_blank(), 
                      axis.title.x = element_blank(),
                      panel.grid.minor = element_line(colour="gray95", size = 0.2 ),
@@ -267,7 +271,7 @@
                                 
             }
             
-            
+
         sectoral_counts$value <- factor( sectoral_counts$value,
                                          levels = factor_levels )
             
@@ -431,7 +435,7 @@
         plot_for_legend <- ggplot(all_counts, aes( year, n ) ) + 
           geom_area(aes(fill = value, alpha = prepost), position = 'stack') +
           scale_fill_manual(values = inventory_colors) +
-          labs(fill="Inventory", alpha="Extension (alpha)") +
+          labs(fill="Inventory", alpha="Extension \n(Color Transparency)") +
           ggtitle("Don't use this plot") +       
           scale_alpha_discrete(range = c(1, 0.4)) +
           theme(text = element_text(size=4),
@@ -444,10 +448,11 @@
                          c(1,1,1,1,2),
                          c(1,1,1,1,NA))
         
-        title_text <- paste0( "Inventory scaling percentages of ", em, " by ", map_by )
+        title_text <- paste0( "Inventory scaling percentages of ", 
+                              em, " by ", map_by )
         if (weight_by_em && !normalize) {
-            title_text <- paste0( "Makeup of total emissions of ", em, 
-                                  "\nscaled to each inventory (by ", map_by, ")" )
+            title_text <- paste0( "Global ", em, 
+                                  " - Inventory Scaling by ", map_by )
         }
     # Arrange the list of plots into a grid, next to the legend
         arranged_plots <- grid.arrange( arrangeGrob( grobs=list_of_plots ),
