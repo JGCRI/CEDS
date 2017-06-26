@@ -52,7 +52,8 @@ initialize( script_name, log_msg, headers )
           geom_line(data=temp_CEDS_data, aes( year, Value ), color="blue" ) +
           geom_line(data=temp_EIA_data, aes( year, Value), color="red" ) + 
           theme( legend.position = "right") +
-          ggtitle( list_of_EIA_sectors[number] )
+          ggtitle( list_of_EIA_sectors[number] ) +
+          ylab("Consumption [kt]")
         
         return(p)
     }
@@ -149,15 +150,6 @@ initialize( script_name, log_msg, headers )
     
     EIA_data_formatted <- EIA_data_formatted[ , c( "iso", "sector", "fuel", 
                                                    "Unit", "year", "Value" ) ]
-    
-# ------------------------------------------------------------------------------
-# 6. Remove Coal Coke use from Industry 
-#    Coal coke usage in coal coke manufacture is considered a process activity
-#    in CEDS, so it needs to be removed from the EIA estimate
-    
-    
-
-    
 
 # ------------------------------------------------------------------------------
 # 6. Prepare unit conversion
@@ -239,9 +231,37 @@ initialize( script_name, log_msg, headers )
                                                        c( "oil", "coal" ) ), ] <-
             EIA_convert_subset[, c("iso", "sector", "fuel",
                                    "Unit", "year", "Value")]
-
+   
 # ------------------------------------------------------------------------------
-# 8. Cast to wide and write output
+# 8. Remove Coal Coke use from Industry 
+#    Coal coke usage in coal coke manufacture is considered a process activity
+#    in CEDS, so it needs to be removed from the EIA estimate
+    
+    coal_activity_all <- readData( "Table_6.2_Coal_Consumption_by_Sector", extension = '.xlsx',
+                               domain = "ACTIVITY_IN", domain_extension = "EIA-data/",
+                               skip_rows = 6, sheet_selection = "Annual Data")
+    
+    coal_coke_consumed <- coal_activity_all[ , c( "Annual Total", 
+                                                 "Coal Consumed by the Industrial Sector, Coke Plants" ) ]
+    coal_coke_consumed$Unit <- "Thousand Short Tons"
+    coal_coke_consumed <- coal_coke_consumed[ -1, ]
+    colnames( coal_coke_consumed ) <- c( "year", "Value", "Unit")
+
+# Convert to kt
+    coal_coke_consumed <- coal_coke_consumed[ !is.na( coal_coke_consumed$year ), ]
+    coal_coke_consumed$Value <- as.numeric(coal_coke_consumed$Value) * 0.9072
+    coal_coke_consumed$Unit <- "kt"
+    
+# Subtract from coal industry activity
+    EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "coal" &
+                                     EIA_data_formatted$sector == "Industry" ) ] <-
+          as.numeric(EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "coal" &
+                                           EIA_data_formatted$sector == "Industry" ) ]) -
+          as.numeric(coal_coke_consumed$Value)
+
+    
+# ------------------------------------------------------------------------------
+# 9. Cast to wide and write output
     
     EIA_final <- spread(EIA_data_formatted, key=year, value=Value)
     
@@ -250,7 +270,7 @@ initialize( script_name, log_msg, headers )
     
 
 # ------------------------------------------------------------------------------
-# 9. Prepare data for comparison to CEDS trends
+# 10. Prepare data for comparison to CEDS trends
     
     total_activity <- readData( "A.total_activity", domain = "MED_OUT" )
     total_activity <- total_activity[ which( total_activity$iso == "usa" ), ]
@@ -291,7 +311,7 @@ initialize( script_name, log_msg, headers )
 
 
 # ------------------------------------------------------------------------------
-# 9. Compare 4 fuels use across 5 sectors
+# 11. Compare 4 fuels use across 5 sectors
     list_of_fuels <- c( "coal", "gas", "oil", "biomass")
     
     for (fuel in list_of_fuels) {
@@ -342,6 +362,8 @@ initialize( script_name, log_msg, headers )
                 width = 5, 
                 height = 6 )
     }
+    
+    
     
     
     
