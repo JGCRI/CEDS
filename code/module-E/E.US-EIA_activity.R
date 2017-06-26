@@ -249,23 +249,23 @@ initialize( script_name, log_msg, headers )
 
 # Convert to kt
     coal_coke_consumed <- coal_coke_consumed[ !is.na( coal_coke_consumed$year ), ]
-    coal_coke_consumed$Value <- as.numeric(coal_coke_consumed$Value) * 0.9072
+    coal_coke_consumed$Value <- as.numeric( coal_coke_consumed$Value ) * 0.9072
     coal_coke_consumed$Unit <- "kt"
     
 # Subtract from coal industry activity
     EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "coal" &
                                      EIA_data_formatted$sector == "Industry" ) ] <-
-          as.numeric(EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "coal" &
-                                           EIA_data_formatted$sector == "Industry" ) ]) -
-          as.numeric(coal_coke_consumed$Value)
+          as.numeric( EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "coal" &
+                                           EIA_data_formatted$sector == "Industry" ) ] ) -
+          as.numeric( coal_coke_consumed$Value )
 
     
 # ------------------------------------------------------------------------------
 # 9. Cast to wide and write output
     
-    EIA_final <- spread(EIA_data_formatted, key=year, value=Value)
+    EIA_final <- spread( EIA_data_formatted, key = year, value = Value )
     
-    writeData( EIA_final, domain="MED_OUT", paste0('E.',em,'_US-EIA_inventory'))
+    writeData( EIA_final, domain = "MED_OUT", paste0( 'E.', em, '_US-EIA_inventory' ) )
     
     
 
@@ -274,17 +274,17 @@ initialize( script_name, log_msg, headers )
     
     total_activity <- readData( "A.total_activity", domain = "MED_OUT" )
     total_activity <- total_activity[ which( total_activity$iso == "usa" ), ]
-    MSL <- readData( "MAPPINGS", "Master_Sector_Level_Map" )[ , c('working_sectors_v1', 
-                                                                  'aggregate_sectors')] %>%
+    MSL <- readData( "MAPPINGS", "Master_Sector_Level_Map" )[ , c( 'working_sectors_v1', 
+                                                                   'aggregate_sectors' ) ] %>%
                 unique()
-    MFL <- readData("Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
-                    sheet_selection = "Fuels")
+    MFL <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
+                     sheet_selection = "Fuels" )
     
     X_CEDS_years <- paste0( "X", 1960:2014 )
     total_activity <- left_join( total_activity, MSL, 
-                                 by = c( "sector" = "working_sectors_v1") )
-    total_activity <- left_join( total_activity, MFL[ , c('fuel', 'aggregated_fuel')], 
-                                 by = c( "fuel") )
+                                 by = c( "sector" = "working_sectors_v1" ) )
+    total_activity <- left_join( total_activity, MFL[ , c( 'fuel', 'aggregated_fuel' ) ], 
+                                 by = c( "fuel" ) )
     
     total_act_agg <- ddply( total_activity, 
                             c( "aggregated_fuel", "aggregate_sectors" ), 
@@ -295,10 +295,11 @@ initialize( script_name, log_msg, headers )
     total_act_agg <- gather( total_act_agg, key=year, value=Value,
                              -aggregated_fuel, -aggregate_sectors )
     
-    colnames(total_act_agg)[ which(colnames(total_act_agg) == "aggregate_sectors")] <- "sector"
+    colnames(total_act_agg)[ which( colnames( total_act_agg ) == 
+                                          "aggregate_sectors" ) ] <- "sector"
     
-    res_and_com_nonagg <- total_activity[ which( total_activity$sector %in% c("1A4b_Residential",
-                                                                "1A4a_Commercial-institutional")),
+    res_and_com_nonagg <- total_activity[ which( total_activity$sector %in% c( "1A4b_Residential",
+                                                                "1A4a_Commercial-institutional" ) ),
                                            c( "sector", "aggregated_fuel", X_CEDS_years) ]
     res_and_com_nonagg <- ddply( res_and_com_nonagg, 
                                         c( "sector", "aggregated_fuel" ), 
@@ -308,6 +309,12 @@ initialize( script_name, log_msg, headers )
     
     total_act_agg <- rbind( total_act_agg,
                             res_and_com_nonagg )
+    
+### TEST ONLY: transportation = transp + aviation + shipping
+    total_act_agg$Value[ total_act_agg$sector == "1A3_Transportation" ] <-
+          total_act_agg$Value[ total_act_agg$sector == "1A3_Transportation" ] +
+          total_act_agg$Value[ total_act_agg$sector == "1A3_International-shipping" ] +
+          total_act_agg$Value[ total_act_agg$sector == "1A3_Aviation" ]
 
 
 # ------------------------------------------------------------------------------
@@ -316,8 +323,8 @@ initialize( script_name, log_msg, headers )
     
     for (fuel in list_of_fuels) {
     
-        EIA_compare_fuel <- EIA_data_formatted[ which(EIA_data_formatted$fuel == fuel), ]
-        CEDS_compare_fuel <- total_act_agg[ which(total_act_agg$aggregated_fuel == fuel), ]
+        EIA_compare_fuel <- EIA_data_formatted[ EIA_data_formatted$fuel == fuel, ]
+        CEDS_compare_fuel <- total_act_agg[ total_act_agg$aggregated_fuel == fuel, ]
         
         EIA_compare_fuel$year <- as.numeric( substr( EIA_compare_fuel$year, 2, 5 ) )
         CEDS_compare_fuel$year <- as.numeric( substr( CEDS_compare_fuel$year, 2, 5 ) )
@@ -334,10 +341,13 @@ initialize( script_name, log_msg, headers )
         data_for_legend <- data.frame( c( "EIA", "CEDS" ), 
                                        c( 10, 10, 10, 10 ),
                                        c( 20, 30, 40, 50 ) )
-        colnames(data_for_legend) <- c( "Inventory", "Value", "year")
+        colnames(data_for_legend) <- c( "Inventory", "Value", "year" )
         
-        plot_for_legend <- ggplot(data_for_legend, aes(year, Value, color = Inventory)) +
-                           geom_line() + scale_color_manual( values = c("EIA"="red", "CEDS"="blue") )
+        plot_for_legend <- ggplot( data_for_legend, 
+                                   aes( year, Value, color = Inventory ) ) +
+                           geom_line() + 
+                           scale_color_manual( values = c( "EIA" = "red",
+                                                           "CEDS" = "blue" ) )
         
         inv_legend <- g_legend( plot_for_legend )
         
