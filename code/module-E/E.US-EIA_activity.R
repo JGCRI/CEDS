@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: E.US-EIA_activity.R
 # Author: Ben Goldstein
-# Date Last Modified: June 22, 2017
+# Date Last Modified: June 26, 2017
 # Program Purpose: To read in & reformat EIA activity data from 1949 to 2014
 # Units are initially in btu
 # Input Files: all files in the folder input/activity/EIA-data
@@ -40,9 +40,29 @@ initialize( script_name, log_msg, headers )
 
 
 # ------------------------------------------------------------------------------
-# 1. Define parameters for inventory specific script
+# 1. Define functions for inventory specific script
 
+    createCompPlot <- function( CEDS_data, EIA_data, CEDS_sectors, EIA_sectors, number ) {
+        temp_CEDS_data <- CEDS_data[ which( CEDS_data$sector == 
+                                            CEDS_sectors[number]),]
+        temp_EIA_data <- EIA_data[ which( EIA_data$sector == 
+                                          EIA_sectors[number]),]
+      
+        p <- ggplot(temp_EIA_data, aes( year, Value ) ) + 
+          geom_line(data=temp_CEDS_data, aes( year, Value ), color="blue" ) +
+          geom_line(data=temp_EIA_data, aes( year, Value), color="red" ) + 
+          theme( legend.position = "right") +
+          ggtitle( list_of_EIA_sectors[number] )
+        
+        return(p)
+    }
 
+    g_legend <- function( a.gplot ) {
+        tmp <- ggplot_gtable( ggplot_build( a.gplot ) )
+        leg <- which( sapply( tmp$grobs, function(x) x$name ) == "guide-box" )
+        legend <- tmp$grobs[[leg]]
+        return( legend ) 
+    }
 
 
 # ------------------------------------------------------------------------------
@@ -54,7 +74,7 @@ initialize( script_name, log_msg, headers )
     all_EIA_raw_data <- NULL
     
     for (f in files_to_read) {
-        
+        if ( grepl( "MER", f ) )
         temp_df <- readData( f, domain = "ACTIVITY_IN", domain_extension = "EIA-data/" )
         
         if ( is.null( all_EIA_raw_data ) ) {
@@ -62,14 +82,14 @@ initialize( script_name, log_msg, headers )
         } else {
             all_EIA_raw_data <- rbind(all_EIA_raw_data, temp_df)
         }
-        
     }
     
     coal_conversion <- readData( "MER_TA5", domain = "ACTIVITY_IN", 
                                  domain_extension = "EIA-data/unit-conversion/")
     petrol_conversion <- readData( "MER_TA3", domain = "ACTIVITY_IN",
                                    domain_extension = "EIA-data/unit-conversion/")
-
+    gas_conversion <- readData( "MER_TA4", domain = "ACTIVITY_IN",
+                                   domain_extension = "EIA-data/unit-conversion/")
 # ------------------------------------------------------------------------------
 # 3. Basic reformatting
     
@@ -130,12 +150,21 @@ initialize( script_name, log_msg, headers )
     EIA_data_formatted <- EIA_data_formatted[ , c( "iso", "sector", "fuel", 
                                                    "Unit", "year", "Value" ) ]
     
+# ------------------------------------------------------------------------------
+# 6. Remove Coal Coke use from Industry 
+#    Coal coke usage in coal coke manufacture is considered a process activity
+#    in CEDS, so it needs to be removed from the EIA estimate
+    
+    
+
+    
 
 # ------------------------------------------------------------------------------
 # 6. Prepare unit conversion
     
     coal_conversion$year <- paste0( "X", substr( coal_conversion$YYYYMM, 1, 4 ) )
     petrol_conversion$year <- paste0( "X", substr( petrol_conversion$YYYYMM, 1, 4 ) )
+    gas_conversion$year <- paste0( "X", substr( gas_conversion$YYYYMM, 1, 4 ) )
     
     petrol_conversion$sector <- NA
     petrol_conversion$sector[ which( petrol_conversion$MSN == "PARCKUS") ] <- "Residential"
@@ -158,8 +187,6 @@ initialize( script_name, log_msg, headers )
     coal_conversion_trans <- coal_conversion[ which( coal_conversion$sector == 
                                                      "Industry"), ]
     coal_conversion_trans$sector <- "Transportation"
-    
-    
     coal_conversion <- rbind( coal_conversion, coal_conversion_com, coal_conversion_res,
                               coal_conversion_trans)
     
@@ -169,8 +196,11 @@ initialize( script_name, log_msg, headers )
     petrol_conversion$fuel <- "oil"
     
 # Convert from (million btu/short ton) to TJ/kt
-    petrol_conversion$Value <- as.numeric(petrol_conversion$Value) * 1.163
+    petrol_conversion$Value <- as.numeric(petrol_conversion$Value) * 7.33 # Conversion factor from OPEC 2014
+    petrol_conversion$Unit <- "Million BTU/tonne"
+    petrol_conversion$Value <- as.numeric(petrol_conversion$Value) * 1.055
     petrol_conversion$Unit <- "TJ/kt"
+
     
     coal_conversion$Value <- as.numeric(coal_conversion$Value) * 1.163
     coal_conversion$Unit <- "TJ/kt"
@@ -186,7 +216,7 @@ initialize( script_name, log_msg, headers )
     EIA_data_formatted$Unit[ which( EIA_data_formatted$fuel == "biomass" ) ] <- "kt"
     
     EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "gas" ) ] <-
-          as.numeric( EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "gas" ) ] ) * 
+          as.numeric( EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "gas" ) ] ) / 
                   conversionFactor_naturalgas_TJ_per_kt
     EIA_data_formatted$Unit[ which( EIA_data_formatted$fuel == "gas" ) ] <- "kt"
     
@@ -261,46 +291,62 @@ initialize( script_name, log_msg, headers )
 
 
 # ------------------------------------------------------------------------------
-# 9. Compare coal use across 5 sectors
+# 9. Compare 4 fuels use across 5 sectors
+    list_of_fuels <- c( "coal", "gas", "oil", "biomass")
     
-    EIA_compare_coal <- EIA_data_formatted[ which(EIA_data_formatted$fuel == "coal"), ]
-    CEDS_compare_coal <- total_act_agg[ which(total_act_agg$aggregated_fuel == "coal"), ]
+    for (fuel in list_of_fuels) {
     
-    EIA_compare_coal$year <- as.numeric( substr( EIA_compare_coal$year, 2, 5 ) )
-    CEDS_compare_coal$year <- as.numeric( substr( CEDS_compare_coal$year, 2, 5 ) )
-
-    EIA_compare_coal$Value <- as.numeric( EIA_compare_coal$Value )
-    CEDS_compare_coal$Value <- as.numeric( CEDS_compare_coal$Value )
-
-    list_of_EIA_sectors <- c( "Commercial", "Residential", "Industry", 
-                              "Energy Transf/Ext", "Transportation" )
-    list_of_CEDS_equivs <- c( "1A4a_Commercial-institutional", "1A4b_Residential",
-                              "1A2_Industry-combustion", "1A1_Energy-transformation",
-                              "1A3_Transportation")
-    
-    list_of_plots <- lapply( 1:5,
-                             createCompPlot,
-                             CEDS_data = CEDS_compare_coal,
-                             EIA_data = EIA_compare_coal,
-                             CEDS_sectors = list_of_CEDS_equivs,
-                             EIA_sectors = list_of_EIA_sectors)
-    
-    createCompPlot <- function( CEDS_data, EIA_data, CEDS_sectors, EIA_sectors, number ) {
-        temp_CEDS_data <- CEDS_compare_coal[ which( CEDS_compare_coal$sector == 
-                                                      list_of_CEDS_equivs[number]),]
-        temp_EIA_data <- EIA_compare_coal[ which( EIA_compare_coal$sector == 
-                                                      list_of_EIA_sectors[number]),]
-      
-        p <- ggplot(temp_EIA_data, aes( year, Value ) ) + 
-          geom_line(data=temp_CEDS_data, aes( year, Value ), color="blue" ) +
-          geom_line(data=temp_EIA_data, aes( year, Value), color="red" ) + 
-          theme( legend.position = "right")
-          ggtitle( list_of_EIA_sectors[number] )
+        EIA_compare_fuel <- EIA_data_formatted[ which(EIA_data_formatted$fuel == fuel), ]
+        CEDS_compare_fuel <- total_act_agg[ which(total_act_agg$aggregated_fuel == fuel), ]
         
-        return(p)
+        EIA_compare_fuel$year <- as.numeric( substr( EIA_compare_fuel$year, 2, 5 ) )
+        CEDS_compare_fuel$year <- as.numeric( substr( CEDS_compare_fuel$year, 2, 5 ) )
+    
+        EIA_compare_fuel$Value <- as.numeric( EIA_compare_fuel$Value )
+        CEDS_compare_fuel$Value <- as.numeric( CEDS_compare_fuel$Value )
+    
+        list_of_EIA_sectors <- c( "Commercial", "Residential", "Industry", 
+                                  "Energy Transf/Ext", "Transportation" )
+        list_of_CEDS_equivs <- c( "1A4a_Commercial-institutional", "1A4b_Residential",
+                                  "1A2_Industry-combustion", "1A1_Energy-transformation",
+                                  "1A3_Transportation")
+        
+        data_for_legend <- data.frame( c( "EIA", "CEDS" ), 
+                                       c( 10, 10, 10, 10 ),
+                                       c( 20, 30, 40, 50 ) )
+        colnames(data_for_legend) <- c( "Inventory", "Value", "year")
+        
+        plot_for_legend <- ggplot(data_for_legend, aes(year, Value, color = Inventory)) +
+                           geom_line() + scale_color_manual( values = c("EIA"="red", "CEDS"="blue") )
+        
+        inv_legend <- g_legend( plot_for_legend )
+        
+        list_of_plots <- lapply( 1:5,
+                                 createCompPlot,
+                                 CEDS_data = CEDS_compare_fuel,
+                                 EIA_data = EIA_compare_fuel,
+                                 CEDS_sectors = list_of_CEDS_equivs,
+                                 EIA_sectors = list_of_EIA_sectors)
+        
+        layout <- rbind( c(1, 1),
+                         c(1, 1),
+                         c(1, 2) )
+      
+        arranged_plots <- grid.arrange( arrangeGrob( grobs=list_of_plots ),
+                                        inv_legend, layout_matrix = layout,
+                                            top = textGrob( paste0( "Compare CEDS ", fuel, " to EIA ", fuel), 
+                                            gp = gpar( fontsize = 15, font = 8 ) ) )
+        ggsave( paste0( "../diagnostic-output/ceds-comparisons/Compare-", 
+                        fuel, "-CEDS-to-EIA.png" ), 
+                arranged_plots,
+                width = 5, 
+                height = 6 )
     }
     
-    arranged_plots <- grid.arrange( arrangeGrob( grobs=list_of_plots ),
-                                        top = textGrob( paste0( "Compare CEDS coal to EIA coal" ), 
-                                        gp = gpar( fontsize = 15, font = 8 ) ) )
+    
+    
+    
+    
+    
+    
     
