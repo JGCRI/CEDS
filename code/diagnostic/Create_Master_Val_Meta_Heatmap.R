@@ -157,7 +157,8 @@
                                              legend.key.size = unit( 5, "point" ),
                                              legend.text = element_text( size = 5 ),
                                              text = element_text( size = 10 ) ) + 
-                                      ggtitle( paste0( "Emissions per year scaled by each inventory\nfor emissions species ", em, ", region ", identifier ) )
+                                      ggtitle( paste0( "Emissions per year scaled by each inventory\nfor emissions species ", 
+                                                       em, ", region ", identifier ) )
 
               if (normalize) p <- p + ylab( "% of global emissions" )
               
@@ -260,7 +261,8 @@
               scale_x_continuous(breaks = c(1970, 1990, 2010)) +
               theme( text = element_text( size = 6 ) )
             
-              if (!to_group) p <- p + ggtitle( paste0( "Emissions per year scaled by each inventory\nfor emissions species ", em, ", sector ", identifier ) ) +  
+              if (!to_group) p <- p + ggtitle( paste0( "Emissions per year scaled by each inventory\nfor emissions species ", 
+                                                       em, ", sector ", identifier ) ) +  
                                       theme( legend.position = "right",
                                              legend.key.size = unit( 5, "point" ),
                                              legend.text = element_text(size=5),
@@ -432,6 +434,9 @@
     # Create a single master plot. This plot will never be arranged or 
     #   displayed; its purpose is to generate a unifying legend for all the data,
     #   as it contains all the inventories present
+        
+        if (weight_by_em) all_counts <- all_counts[ all_counts$value != "Zero emissions", ]
+        
         plot_for_legend <- ggplot(all_counts, aes( year, n ) ) + 
           geom_area(aes(fill = value, alpha = prepost), position = 'stack') +
           scale_fill_manual(values = inventory_colors) +
@@ -465,7 +470,7 @@
     # Save the output file and return
         ggsave( paste0( "../diagnostic-output/value-meta-heatmaps/", em, "-MasterHeatmapBy", 
                         map_by, ".png" ), 
-                arranged_plots, width = 7, height = 4)
+                arranged_plots, width = 7, height = 4 )
         
         return( meta_classified )
     }
