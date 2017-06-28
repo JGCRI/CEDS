@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A3.2.Adjust_Shipping_Fuel_Cons.R
 # Authors Names: Steve Smith, Linh Vu
-# Date Last Updated: 7 Mar 2016
+# Date Last Updated: 5 June 2016
 # Program Purpose: Reads in exogenous time series for global shipping fuel consumption
 #                  Adds difference with reported shipping fuel to global international shipping sector
 #
@@ -68,30 +68,33 @@
     shipping_fuel <- shipping_fuel[ 1:163, 1:4 ]
     names( shipping_fuel ) <- c( "year", "hard_coal", "heavy_oil", "diesel_oil" )
     
-    # Melt and recast
-    shipping_fuel <- melt( shipping_fuel, id = "year" )
+# Melt and recast
+    shipping_fuel <- melt( shipping_fuel, id = "year" )  ### TODO: use gather()
     names( shipping_fuel ) <- c( "year", "fuel", "ship_fuel" )
  
 # -----------------------------------------------------------------------------------------
-# 3. Compute IEA shipping fuel
-# Total IEA shipping = fishing + international shipping + domestic navigation    
+# 3. Compute IEA shipping fuel. Aggregates fishing, bunker, shipping fuel
+#    by fuel. Result is long-form dataframe of shipping fuel activity by fuel per year.
+    
+# Total IEA shipping = fishing + international shipping + domestic aviation    
 # For purposes here, treat all coal as hard coal
-  
     iea_data$fuel <- IEA_product_fuel$fuel[ match( iea_data$PRODUCT, IEA_product_fuel$product ) ]
     iea_data$fuel [ which ( iea_data$fuel %in% c( 'hard_coal', 'brown_coal' ) ) ] <- 'hard_coal'
     
     Fishing_fuel <- aggregate( iea_data[ X_IEA_years ],
                     by=list( fuel = iea_data$fuel,
                              FLOW = iea_data$FLOW ), sum )
-  
+
+# Retrieve IEA fishing fuel data
     Fishing_fuel <- Fishing_fuel[ which(Fishing_fuel$FLOW == "FISHING" ), ]
     Fishing_fuel <- Fishing_fuel[ c( "fuel", X_IEA_years ) ]
-    
+
+# Aggregate CEDS data by fuel and sector
     ceds_iea_data <- aggregate( iea_data_extended[ X_IEA_years ],
-                               by=list( fuel = iea_data_extended$fuel,
-                                        sector = iea_data_extended$sector ), sum )
+                                by=list( fuel = iea_data_extended$fuel,
+                                         sector = iea_data_extended$sector ), sum )
     ceds_iea_data$fuel [ which ( ceds_iea_data$fuel %in% c( 'hard_coal', 'brown_coal' ) ) ] <- 'hard_coal'
-    
+
     Int_Bunker_fuel <- ceds_iea_data[ which(ceds_iea_data$sector == "1A3di_International-shipping" ), ]
     Domestic_Ship_fuel <- ceds_iea_data[ which(ceds_iea_data$sector == "1A3dii_Domestic-navigation" ), ]
     
@@ -102,11 +105,11 @@
     Total_IEA_Ship_Fuel <- aggregate( Total_IEA_Ship_Fuel[ X_IEA_years ],
                                 by=list( fuel = Total_IEA_Ship_Fuel$fuel ), sum )
 
-    # Keep only diesel_oil, heavy_oil, and coal
+# Keep only diesel_oil, heavy_oil, and coal
     Total_IEA_Ship_Fuel <- filter( Total_IEA_Ship_Fuel, 
                                    fuel %in% c( "hard_coal", "heavy_oil", "diesel_oil" ) )
     
-    # Melt
+# Melt
     Total_IEA_Ship_Fuel <- melt( Total_IEA_Ship_Fuel, id = "fuel" )
     names( Total_IEA_Ship_Fuel ) <- c( "fuel", "year", "IEA_fuel" )
     Total_IEA_Ship_Fuel$year <- xYearToNum( Total_IEA_Ship_Fuel$year )
@@ -114,24 +117,24 @@
 # -----------------------------------------------------------------------------------------
 # 4. Determine amount of additional shipping fuel to be added 
 # 
-# Add to global international shipping sector fuel consumption equal to the difference between 
-# shipping_fuel variable and the total_IEA_shipping fuel.
-# Where total_IEA_shipping is > shipping_fuel:
-#   diesel_oil : (ignore, as this shouldn't happen)
-#   heavy_oil : Account for this in diesel oil (e.g., add less diesel oil)
-#   coal : ignore (no adjustment )
+#    Add to global international shipping sector fuel consumption equal to the difference between 
+#    shipping_fuel variable and the total_IEA_shipping fuel.
+#    Where total_IEA_shipping is > shipping_fuel:
+#      diesel_oil : (ignore, as this shouldn't happen) ### Should there be a check for this?
+#      heavy_oil : Account for this in diesel oil (e.g., add less diesel oil)
+#      coal : ignore (no adjustment )
 # 
-# Ignore coking coal, biomass, and natural gas
+#    Ignore coking coal, biomass, and natural gas
 #
-# Desired result is a time series by fuel from 1850 to the end of shipping_fuel data 
+#    Desired result is a time series by fuel from 1850 to the end of shipping_fuel data 
 # 
-# The above will generally be < IEA years. Last step is, for the last year of IEA data, 
-# calculate average IEA underreport for last three years,and add that amount.
+#    The above will generally be < IEA years. Last step is, for the last year of IEA data, 
+#    calculate average IEA underreport for last three years,and add that amount.
 # 
-# Then make constant for any years after IEA years.
+#    Then make constant for any years after IEA years.
 #
-# For years before IEA years, the global international shipping sector will contain 
-# the entire shipping fuel estimate, since there is no IEA data at that point. 
+#    For years before IEA years, the global international shipping sector will contain 
+#    the entire shipping fuel estimate, since there is no IEA data at that point. 
     
 # Combine two dfs
     comp <- merge( Total_IEA_Ship_Fuel, shipping_fuel, all = T )
@@ -160,15 +163,15 @@
     global_intl_ship_full$global_fuel[ is.na( global_intl_ship_full$global_fuel ) ] <- 0
     
 # Give all ship_fuel to global_fuel before IEA starts
-    global_intl_ship_full <- merge( global_intl_ship_full, shipping_fuel, all = T )
+    global_intl_ship_full <- merge( global_intl_ship_full, shipping_fuel, all = T )  ###TODO: consider using a join() function from dplyr
     before_IEA <- global_intl_ship_full$year < min( IEA_years )
-    global_intl_ship_full$global_fuel[ before_IEA ] <- 
-      global_intl_ship_full$ship_fuel[ before_IEA ]
+    global_intl_ship_full$global_fuel[ before_IEA ] <- global_intl_ship_full$ship_fuel[ before_IEA ]
     global_intl_ship_full$ship_fuel <- NULL  # already copied over so don't need this anymore
     
 # For 2013-2014, extend using average IEA underreport for 2010-2012
     avg <- filter( global_intl_ship_full, year %in% seq( 2010, 2012 ) ) %>%
-      group_by( fuel ) %>% summarise( global_fuel = mean( global_fuel ) )
+      group_by( fuel ) %>% 
+      summarise( global_fuel = mean( global_fuel ) )
     extended <- global_intl_ship_full$year %in% c( 2013, 2014 )
     global_intl_ship_full$global_fuel[ extended ] <- 
       avg$global_fuel[ match( global_intl_ship_full$fuel[ extended ], avg$fuel ) ]
@@ -180,7 +183,7 @@
     global_intl_ship_wide$units <- "kt"
     global_intl_ship_wide$year <- paste0( "X", global_intl_ship_wide$year )
     global_intl_ship_wide <- cast( global_intl_ship_wide, 
-                                  fuel + sector + iso + units ~ year, value = "global_fuel" )
+                                  fuel + sector + iso + units ~ year, value = "global_fuel" ) ### TODO: use spread()
 
 # Add global_intl_ship_wide to CEDS
     iea_data_extended <- rbind( iea_data_extended, global_intl_ship_wide[ 
@@ -190,12 +193,15 @@
     ship_check <- merge( global_intl_ship_full, select( comp, -diff ), all = T )
     ship_check[ is.na( ship_check ) ] <- 0
     ship_check <- mutate( ship_check, check = IEA_fuel + global_fuel - ship_fuel ) %>%
-      filter( check != 0 ) %>% arrange( desc( year ) )
+      filter( check != 0 ) %>% 
+      arrange( desc( year ) )
         
 # -----------------------------------------------------------------------------
-# 5. Extrapolate pre-1855 shipping coal
+# 5. Extrapolate pre-1855 (### global?) shipping coal using extrapolation data from
+#    Fouquet & Pearson (1998).
+    
 # Reformat and extend extrap values
-    global_coal <- select( shipping_coal_extrap, year = Year, global = Total_Ship_Extrap ) %>%
+    global_coal <- select( shipping_coal_extrap, year = Year, global = Total_Ship_Extrap ) %>%  ### TODO: use gather in this section instead of melt
       melt( id = "year" )
     names( global_coal ) <- c( "year", "iso", "consumption" )
     british_coal <- select( shipping_coal_extrap, year = Year, gbr = British_Shipping_Coal ) %>%
@@ -217,7 +223,7 @@
     ship_out <- group_by( ship_out, iso, sector, fuel, units ) %>%
       summarise_each( fun = "max" )
 
-#Separate for output
+# Seperate for output
     global_shipping <- ship_out[which(ship_out$iso == 'global'),]
     else_shipping <- ship_out[which(ship_out$iso != 'global'),]
     
@@ -229,7 +235,7 @@
     writeData( ship_check, "DIAG_OUT", "A.intl_shipping_discrepancy" )
 
 # Every script should finish with this line
- logStop()
+    logStop()
     
 # END
     
