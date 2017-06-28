@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: A3.4.proc_pig_iron.R
+# Program Name: A3.4.proc_pig_iron.R  ### I think this file could have a more informative name
 # Author: Linh Vu
 # Date Last Updated: 14 April 2016
 # Program Purpose: Process pig iron production
@@ -9,30 +9,31 @@
 # Output Files: A.Pig_Iron_Production.csv, A.Pig_Iron_Production_full.csv
 # TODO: Read in just the primary data (and not rely on the “data” sheet extrapolation)
 # ---------------------------------------------------------------------------
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length( wd ) > 0 ) {
-    setwd( wd[ 1 ] )
-    break
-  }
-}
-PARAM_DIR <- "../code/parameters/"
+    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
+    for ( i in 1:length( dirs ) ) {
+        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
+        wd <- grep( 'CEDS/input', list.dirs(), value = T )
+        if ( length( wd ) > 0 ) {
+            setwd( wd[ 1 ] )
+            break
+        }
+    }
+    PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "common_data.R", "data_functions.R" ) # Additional function files may be required.
-log_msg <- "Process pig iron production"
-script_name <- "A3.4.proc_pig_iron.R"
-
-source( paste0( PARAM_DIR, "header.R" ) )
-initialize( script_name, log_msg, headers )
+    headers <- c( "common_data.R", "data_functions.R" ) # Additional function files may be required.
+    log_msg <- "Process pig iron production"
+    script_name <- "A3.4.proc_pig_iron.R"
+    
+    source( paste0( PARAM_DIR, "header.R" ) )
+    initialize( script_name, log_msg, headers )
 
 # ---------------------------------------------------------------------------
 # 1. Read input
+
 # 'Data' tab only runs to 1890, so read 1850-1890 from tab 'SPEW_Pig_iron_production'
-    composite_data <- readData( "ACTIVITY_IN", "Blast_furnace_iron_production_1850-2014", ".xlsx", 
+    spew <- readData( "ACTIVITY_IN", "Blast_furnace_iron_production_1850-2014", ".xlsx", 
                       sheet_selection = "Data", domain_extension = "metals/", 
                       skip = 2 )[ 1:60, 3:128 ]
     spew_pre <- readData( "ACTIVITY_IN", "Blast_furnace_iron_production_1850-2014", ".xlsx", 
@@ -47,54 +48,71 @@ initialize( script_name, log_msg, headers )
     SHORT_TO_METRIC <- .9072  # short ton to metric ton (for US)
     
 # Define functions
-# TODO: Update to use function in code/parameter once that's available
-    disaggregate_countries <- function(original_data,aggregate_country,disaggregate_countries, aggregate_end_year,
-                                       data_start_year = 1850, id_cols=c('iso','fuel'), population){
+# TODO: Update to use function in code/parameter once that's available ### <-Is this a thing? If so, use. If not, either create or comment this function better.
+    disaggregate_countries <- function( original_data, aggregate_country, disaggregate_countries, aggregate_end_year,
+                                       data_start_year = 1850, id_cols = c( 'iso', 'fuel' ), population ) {
       
-      aggregate_country_data <- original_data[ which( original_data$iso == aggregate_country),]
-      disaggregate_years <- paste0('X', data_start_year:aggregate_end_year)
-      
-      # template for extended disaggregate - fill
-      disaggregate_extended <- original_data[ which( original_data$iso %in% disaggregate_countries), id_cols]
-      
-      # driver data - population disaggregate and aggregate_country
-      #part of the ratio - disaggregate population
-      disaggregate_population <- disaggregate_extended
-      disaggregate_population <- population[ match(disaggregate_population $iso,population$iso) , disaggregate_years]
-      #part of the ratio - aggregate_country population
-      aggregate_country_pop <- population[ which( population$iso %in% disaggregate_countries), c('iso',disaggregate_years)]
-      aggregate_country_pop <- rbind(aggregate_country_pop,c(aggregate_country,colSums(aggregate_country_pop[disaggregate_years])))
-      aggregate_country_pop[disaggregate_years] <- sapply(aggregate_country_pop[disaggregate_years],FUN=as.numeric)
-      aggregate_country_population <- disaggregate_extended
-      aggregate_country_population[disaggregate_years] <- aggregate_country_pop[ match(rep( x=aggregate_country,times=nrow(aggregate_country_population)),
-                                                                                       aggregate_country_pop$iso) , disaggregate_years]
-      
-      #TODO: matches by fuel, not robust (will work for this script)
-      # multiplyer - aggregate_country CDIAC data
-      aggregate_country_cdiac_multiplier <- disaggregate_extended[id_cols]
-      aggregate_country_cdiac_multiplier[disaggregate_years] <- aggregate_country_data[ match(aggregate_country_cdiac_multiplier$fuel,aggregate_country_data$fuel),
-                                                                                        disaggregate_years]
-      
-      #Extend Data
-      disaggregate_extended[disaggregate_years] <- as.matrix(aggregate_country_cdiac_multiplier[disaggregate_years]) * 
-        as.matrix(disaggregate_population[disaggregate_years]) / as.matrix(aggregate_country_population[disaggregate_years])
-      
-      # add back to full data
-      corrected <- replaceValueColMatch(original_data,disaggregate_extended,
-                                        x.ColName = disaggregate_years,
-                                        match.x = id_cols,
-                                        addEntries = FALSE)
-      #remove aggregate_country from final cdiac data to prevent double counting
-      corrected <- corrected[-which(corrected$iso == aggregate_country),]
-      return(corrected)
+        aggregate_country_data <- original_data[ which( original_data$iso == aggregate_country ), ]
+        disaggregate_years <- paste0( 'X', data_start_year:aggregate_end_year )
+          
+    # template for extended disaggregate - fill
+        disaggregate_extended <- original_data[ which( original_data$iso %in% 
+                                                       disaggregate_countries ), id_cols ]
+          
+    # Driver data - population disaggregate and aggregate_country
+    # Part of the ratio - disaggregate population
+        disaggregate_population <- disaggregate_extended
+        disaggregate_population <- population[ match( disaggregate_population$iso, 
+                                                     population$iso ),
+                                               disaggregate_years ]
+        
+    # Part of the ratio - aggregate_country population
+        aggregate_country_pop <- population[ which( population$iso %in% disaggregate_countries ), 
+                                             c( 'iso', disaggregate_years ) ]
+        aggregate_country_pop <- rbind( aggregate_country_pop, 
+                                        c( aggregate_country, 
+                                           colSums( aggregate_country_pop[ disaggregate_years ] ) ) )
+        aggregate_country_pop[ disaggregate_years ] <- sapply( aggregate_country_pop[ disaggregate_years ],
+                                                            FUN = as.numeric )
+        aggregate_country_population <- disaggregate_extended
+        aggregate_country_population[ disaggregate_years ] <- 
+                        aggregate_country_pop[ match( rep( x = aggregate_country, 
+                                                           times = nrow( aggregate_country_population ) ),
+                                                      aggregate_country_pop$iso ), 
+                                               disaggregate_years ]
+          
+    #TODO: matches by fuel, not robust (will work for this script)
+    # multiplyer - aggregate_country CDIAC data
+        aggregate_country_cdiac_multiplier <- disaggregate_extended[ id_cols ]
+        aggregate_country_cdiac_multiplier[ disaggregate_years ] <- 
+                        aggregate_country_data[ match( aggregate_country_cdiac_multiplier$fuel,
+                                                       aggregate_country_data$fuel ),
+                                                disaggregate_years ]
+          
+    # Extend Data
+        disaggregate_extended[ disaggregate_years ] <- 
+                                as.matrix( aggregate_country_cdiac_multiplier[ disaggregate_years ] ) * 
+                                as.matrix( disaggregate_population[ disaggregate_years ] ) / 
+                                as.matrix( aggregate_country_population[ disaggregate_years ] )
+          
+    # add back to full data
+        corrected <- replaceValueColMatch( original_data, 
+                                           disaggregate_extended,
+                                           x.ColName = disaggregate_years,
+                                           match.x = id_cols,
+                                           addEntries = FALSE )
+        
+    # remove aggregate_country from final cdiac data to prevent double counting
+        corrected <- corrected[ -which( corrected$iso == aggregate_country ), ]
+        return( corrected )
     }
     
 # ---------------------------------------------------------------------------
 # 2. Process data
 # Standardize format, drop rows of NA, short ton to metric ton, etc.
-    names( composite_data ) <- make.names( names( composite_data ) )
+    names( spew ) <- make.names( names( spew ) )
     spew_pre <- group_by( spew_pre, iso ) %>%
-      summarise_each( funs( sum ) )
+            summarise_each( funs( sum ) )
     spew_pre <- subset( spew_pre, rowSums( spew_pre[, grepl("X", names( spew_pre ) ) ], na.rm = T ) != 0 )  # drop NA rows
     mitchell$units <- NULL
     mitchell$iso[ mitchell$iso == "rus" ] <- "ussr"  # Change rus to ussr
@@ -108,8 +126,8 @@ initialize( script_name, log_msg, headers )
                         iso ~ X_year, value = 'pop')
     
 # Melt data to long format
-    composite_long <- melt( composite_data, id = "iso" ) %>% filter( !is.na( value ), value != 0 )
-    names( composite_long ) <- c( "iso", "year", "spew_en" )
+    spew_long <- melt( spew, id = "iso" ) %>% filter( !is.na( value ), value != 0 )
+    names( spew_long ) <- c( "iso", "year", "spew_en" )
     spew_pre_long <- melt( as.data.frame( spew_pre ), id = "iso" ) %>% 
       filter( !is.na( value ), value != 0 )
     names( spew_pre_long ) <- c( "iso", "year", "spew_pre_en" )
@@ -118,14 +136,14 @@ initialize( script_name, log_msg, headers )
     us_long <- melt( us, id = "iso" ) %>% filter( !is.na( value ), value != 0 )
     names( us_long ) <- c( "iso", "year", "us_en" )    
  
-# Combine all data with priority mitchell > composite_data > spew_pre (except US where spew > spew_pre > us > mitchell)
+# Combine all data with priority mitchell > spew > spew_pre (except US where spew > spew_pre > us > mitchell)
     all <- data.frame( year = X_extended_years ) %>%
       merge( data.frame( iso = unique( 
-        c( us_long$iso, mitchell_long$iso, composite_long$iso, spew_pre_long$iso ) ) ), all = T ) %>%
-      merge( us_long, all = T ) %>%
-      merge( mitchell_long, all = T ) %>%
-      merge( composite_long, all = T ) %>%
-      merge( spew_pre_long, all = T )
+        c( us_long$iso, mitchell_long$iso, spew_long$iso, spew_pre_long$iso ) ) ), all = T ) %>%
+                                                                   merge( us_long, all = T ) %>%
+                                                             merge( mitchell_long, all = T ) %>%
+                                                                 merge( spew_long, all = T ) %>%
+                                                             merge( spew_pre_long, all = T )
     all$en <- all$mitchell_en
     all$en[ is.na( all$en ) ] <- all$spew_en[ is.na( all$en ) ]
     all$en[ is.na( all$en ) ] <- all$spew_pre_en[ is.na( all$en ) ]
@@ -140,7 +158,7 @@ initialize( script_name, log_msg, headers )
     all$fuel <- "process"
     all$units <- "kt"
     all <- arrange( all, iso, sector, fuel, units, year )
-    all_wide <- cast( all, iso+sector+fuel+units ~ year, value = "en" )
+    all_wide <- cast( all, iso + sector + fuel + units ~ year, value = "en" )
     all_wide$iso <- as.character( all_wide$iso )
 
 # Interpolate NAs
@@ -149,27 +167,28 @@ initialize( script_name, log_msg, headers )
     
 # Disaggregate countries
     # Czechoslovakia
-    iso_csk <- c('cze', 'svk')
+    iso_csk <- c( 'cze', 'svk' )
     iso_csk_in_data <- iso_csk[ iso_csk %in% all_wide$iso ]
     all_wide_csk <- disaggregate_countries( all_wide, aggregate_country = 'csk',
                                             disaggregate_countries = iso_csk_in_data, 
                                             aggregate_end_year = 1991, data_start_year = 1750,
-                                            id_cols=c('iso','sector','fuel','units'), population)
+                                            id_cols = c( 'iso', 'sector', 'fuel', 'units' ), population )
     
     # USSR
-    iso_ussr <- c('aze','arm' , 'blr','est','geo','kaz','kgz','lva', 'ltu','mda','tjk','tkm','ukr','uzb', 'rus')
+    iso_ussr <- c( 'aze', 'arm', 'blr', 'est', 'geo', 'kaz', 'kgz', 
+                   'lva', 'ltu', 'mda', 'tjk', 'tkm', 'ukr', 'uzb', 'rus')
     iso_ussr_in_data <- iso_ussr[ iso_ussr %in% all_wide_csk$iso ]
     all_wide_ussr <- disaggregate_countries( all_wide_csk, aggregate_country = 'ussr',
-                                            disaggregate_countries = iso_ussr_in_data, 
-                                            aggregate_end_year = 1991, data_start_year = 1750, 
-                                            id_cols=c('iso', 'sector','fuel','units'), population)
+                                             disaggregate_countries = iso_ussr_in_data, 
+                                             aggregate_end_year = 1991, data_start_year = 1750, 
+                                             id_cols = c( 'iso', 'sector', 'fuel', 'units' ), population )
     # Yug
     iso_yug <- c('bih','hrv','mkd','svn', 'srb','mne')
     iso_yug_in_data <- iso_yug[ iso_yug %in% all_wide_ussr$iso ]
     all_wide_yug <- disaggregate_countries( all_wide_ussr, aggregate_country = 'yug',
-                                           disaggregate_countries = iso_yug_in_data, 
-                                           aggregate_end_year = 1991, data_start_year = 1750, 
-                                           id_cols=c('iso', 'sector','fuel','units'), population)
+                                            disaggregate_countries = iso_yug_in_data, 
+                                            aggregate_end_year = 1991, data_start_year = 1750, 
+                                            id_cols = c( 'iso', 'sector', 'fuel', 'units' ), population )
 
 # Remove countries that are all zeroes from full dataset
     Xyears <- names( all_wide )[ grepl( "X", names( all_wide ) ) ]
