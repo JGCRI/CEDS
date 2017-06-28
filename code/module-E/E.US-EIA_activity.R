@@ -124,7 +124,7 @@
 # Read each file and append to a single dataframe
     for (f in files_to_read) {
         if ( grepl( "MER", f ) )
-        temp_df <- readData( f, domain = "ACTIVITY_IN", domain_extension = "EIA-data/" )
+        temp_df <- readData( f, domain = "EM_INV", domain_extension = "EIA-data/" )
         
         if ( is.null( all_EIA_raw_data ) ) {
             all_EIA_raw_data <- temp_df
@@ -134,11 +134,11 @@
     }
 
 # Read in heat content conversion files  
-    coal_heat_content <- readData( "MER_TA5", domain = "ACTIVITY_IN", 
+    coal_heat_content <- readData( "MER_TA5", domain = "EM_INV", 
                                  domain_extension = "EIA-data/unit-conversion/" )
-    petrol_heat_content <- readData( "MER_TA3", domain = "ACTIVITY_IN",
+    petrol_heat_content <- readData( "MER_TA3", domain = "EM_INV",
                                    domain_extension = "EIA-data/unit-conversion/" )
-    gas_heat_content <- readData( "MER_TA4", domain = "ACTIVITY_IN",
+    gas_heat_content <- readData( "MER_TA4", domain = "EM_INV",
                                    domain_extension = "EIA-data/unit-conversion/" )
 # ------------------------------------------------------------------------------
 # 3. Basic reformatting
@@ -271,11 +271,11 @@
     petrol_heat_content$fuel <- "oil"
     
 # Convert from (million btu/short ton) to TJ/kt
-    petrol_heat_content$Value <- as.numeric( petrol_heat_content$Value ) / convert_tonne_to_barrel
+    petrol_heat_content$Value <- as.numeric( petrol_heat_content$Value ) * convert_tonne_to_barrel
     petrol_heat_content$Unit <- "Million BTU/tonne"
 # Convert from Million BTU/t to TJ/kt 
     petrol_heat_content$Value <- as.numeric(petrol_heat_content$Value) * 
-                                    ( convert_TrillionBTU_to_TJ / 10^6 ) * 10^3 
+                                    ( convert_TrillionBTU_to_TJ / 10^6 ) * 10^3
     petrol_heat_content$Unit <- "TJ/kt"
 
     
@@ -332,7 +332,7 @@
     
 # Read in a supplementary EIA file that will identify coal coke activity
     coal_activity_all <- readData( "Table_6.2_Coal_Consumption_by_Sector", extension = '.xlsx',
-                               domain = "ACTIVITY_IN", domain_extension = "EIA-data/",
+                               domain = "EM_INV", domain_extension = "EIA-data/",
                                skip_rows = 6, sheet_selection = "Annual Data")
     
 # 
@@ -380,6 +380,7 @@
     MSL <- readData( "MAPPINGS", "Master_Sector_Level_Map" )[ , c( 'working_sectors_v1', 
                                                                    'aggregate_sectors' ) ] %>%
                 unique()
+    
     MFL <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
                      sheet_selection = "Fuels" )
     
@@ -436,7 +437,39 @@
 
     list_of_fuels <- c( "coal", "gas", "oil", "biomass")
     
+# Read in the CEDS total fuels
+    total_CEDS_petrol <- readData( domain = "DIAG_OUT", 
+                                   file_name = "H.Extended_total_petroleum" )
+    total_CEDS_petrol <- total_CEDS_petrol[ total_CEDS_petrol$iso == 'usa',
+                                            paste0( "X", 1949:2010 ) ]
+    total_CEDS_coal <- readData( domain = "DIAG_OUT", 
+                                   file_name = "H.Extended_total_coal" )
+    total_CEDS_coal <- total_CEDS_coal[ total_CEDS_coal$iso == 'usa',
+                                            paste0( "X", 1949:2010 ) ]
+    total_CEDS_gas <- readData( domain = "DIAG_OUT", 
+                                   file_name = "H.Extended_total_natural_gas" )
+    total_CEDS_gas <- total_CEDS_gas[ total_CEDS_gas$iso == 'usa',
+                                            paste0( "X", 1949:2010 ) ]
+    total_CEDS_gas$fuel <- "gas"
+    total_CEDS_coal$fuel <- "coal"
+    total_CEDS_petrol$fuel <- "oil"
+    
+    total_CEDS_gas <- gather( total_CEDS_gas, key=year, value=Value, -fuel )
+    total_CEDS_petrol <- gather( total_CEDS_petrol, key=year, value=Value, -fuel )
+    total_CEDS_coal <- gather( total_CEDS_coal, key=year, value=Value, -fuel )
+    
+    total_CEDS_biomass <- ddply( total_act_agg[ which( total_act_agg$aggregated_fuel == "biomass" &
+                                                       total_act_agg$sector != "1A4_Stationary_RCO"), ], 
+                                  "year", 
+                                  function(x) colSums( x[ "Value" ] ) ) 
+    total_CEDS_biomass$fuel <- "biomass"
+    
+    CEDS_agg_by_fuel <- rbind( total_CEDS_biomass, total_CEDS_coal, 
+                               total_CEDS_gas, total_CEDS_petrol )
+    CEDS_agg_by_fuel$year <- as.numeric( substr( CEDS_agg_by_fuel$year, 2, 5 ) )
+    
     library(grid)
+    
 # Loop through each fuel
     for (fuel in list_of_fuels) {
     
@@ -455,10 +488,10 @@
     # These lists work in parallel, acting to pair each EIA sector with its CEDS
     # equivalent. The first items in each list match, then the second, etc etc
         list_of_EIA_sectors <- c( "Commercial", "Residential", "Industry", 
-                                  "Energy Transf/Ext", "Transportation", "Total" )
+                                  "Energy Transf/Ext", "Transportation" )
         list_of_CEDS_equivs <- c( "1A4a_Commercial-institutional", "1A4b_Residential",
                                   "1A2_Industry-combustion", "1A1_Energy-transformation",
-                                  "1A3_Transportation", "Total" )
+                                  "1A3_Transportation" )
     
     # Create a useless chart with fake data for the purposes of extracting its legend
         data_for_legend <- data.frame( c( "EIA", "CEDS" ), 
@@ -474,19 +507,42 @@
         
     # Apply down the list of sectors, executing the createCompPlot function
     # defined and explained in Code Block 1
-        list_of_plots <- lapply( 1:6,
+        list_of_plots <- lapply( 1:5,
                                  createCompPlot,
                                  CEDS_data = CEDS_compare_fuel,
                                  EIA_data = EIA_compare_fuel,
                                  CEDS_sectors = list_of_CEDS_equivs,
                                  EIA_sectors = list_of_EIA_sectors )
         
+    # Create a plot of totals comparisons      
+        CEDS_totals <- CEDS_agg_by_fuel[ CEDS_agg_by_fuel$fuel == fuel, ]
+        EIA_totals <- ddply( EIA_compare_fuel, 
+                             "year", 
+                             function(x) colSums( x[ "Value" ] ) )
+        
+    # Adjust units for readability (if over 1000, use Mt instead of kt)
+        y_label <- "Consumption [kt]"
+        if ( max( CEDS_totals$Value ) > 1000 || max( EIA_totals$Value ) > 1000 ) {
+            CEDS_totals$Value <- CEDS_totals$Value / 1000
+            EIA_totals$Value <- EIA_totals$Value / 1000
+            y_label <- "Consumption [Mt]"
+        }
+      
+    # Create the ggplot. CEDS is blue, EIA is red.
+        totals_plot <- ggplot( EIA_totals, aes( year, Value ) ) + 
+          geom_line( data = CEDS_totals, aes( year, Value ), color = "blue" ) +
+          geom_line( data = EIA_totals, aes( year, Value ), color = "red" ) + 
+          theme( legend.position = "right" ) +
+          ggtitle( "Total" ) +
+          ylab( y_label )
+        
         layout <- rbind( c(1, 1, NA),
-                         c(1, 1, 2),
-                         c(1, 1, NA) )
+                         c(1, 1, 3),
+                         c(1, 2, NA) )
       
     # Arrange the plots and save to output
         arranged_plots <- grid.arrange( arrangeGrob( grobs=list_of_plots ),
+                                        totals_plot,
                                         inv_legend, layout_matrix = layout,
                                             top = textGrob( paste0( "Compare CEDS ", fuel, " to EIA ", fuel), 
                                             gp = gpar( fontsize = 15, font = 8 ) ) )
