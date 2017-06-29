@@ -39,7 +39,7 @@
                   "interpolation_extension_functions.R", "user_data_processing.R",
                   "user_extension_instr_processing.R") # Additional function files required.
     log_msg <- paste0( "Calling inventory emission scaling stripts" ) # First message to be printed to the log
-    script_name <- paste0( "step2_adding_data_pseudocode.R" )
+    script_name <- paste0( "add_user-defined_data.R" )
     
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
@@ -354,12 +354,12 @@
             corrected_data <- data_to_correct
             corrected_data[ , Xyears ] <- data.matrix( data_to_correct[ , Xyears ] ) + 
                                           data.matrix( sums_to_add[ , Xyears ] )
+            
+        # Add corrected data, resulting in a dataframe with the new agg sums
+            act_agg_to_l3_changed[ which( act_agg_to_l3_changed$CEDS_fuel %!in% user_dataframe_subset$CEDS_fuel), ] <-
+                            corrected_data
         }
-        
-    # Add corrected data, resulting in a dataframe with the new agg sums
-        act_agg_to_l3_changed[ which( act_agg_to_l3_changed$CEDS_fuel %!in% user_dataframe_subset$CEDS_fuel), ] <-
-          corrected_data
-        
+      
     # Now we need to apply the changes above linearly to the disaggregate cells.
         disagg_data_changed <- data_to_use
         
@@ -441,7 +441,7 @@
                                         , c( colnames( year_totals[ which( !isXYear( 
                                           colnames(year_totals) ) ) ] ), Xyears ) ]
 
-        if ( !whole_group && !any( override_normalization ) ){
+        if ( !whole_group && !any( override_normalization ) ) {
         # Create a total to calculate percents of differences that the non-user-edited sectors need to absorb
             year_totals[ 1, Xyears ] <- colSums( activity_agg_to_l2[ , Xyears ] )
             year_totals_non_user_data <- year_totals[ , c( colnames( year_totals[ which( !isXYear( 
@@ -477,12 +477,13 @@
             corrected_data <- data_to_correct
             corrected_data[ , Xyears ] <- data.matrix( data_to_correct[ , Xyears ] ) + 
                                           data.matrix( sums_to_add[ , Xyears ] )
+        # Add corrected data, resulting in a dataframe with the new agg sums
+            act_agg_to_l2_changed[ which( act_agg_to_l2_changed$CEDS_fuel %!in% 
+                                        user_dataframe_subset$CEDS_fuel ), ] <- corrected_data
+
         }
         
     
-    # Add corrected data, resulting in a dataframe with the new agg sums
-        act_agg_to_l2_changed[ which( act_agg_to_l2_changed$CEDS_fuel %!in% 
-                                        user_dataframe_subset$CEDS_fuel ), ] <- corrected_data
         
     # Now we need to apply the changes above linearly to the disaggregate cells.
         disagg_data_changed <- data_to_use
@@ -623,7 +624,7 @@
     
 # Read instructions files and create a procedure list
     instructions <- readInUserInstructions()
-     instructions[ , c( "iso", "CEDS_fuel", "agg_fuel" ) ] <- left_join( instructions[ , c( "iso", "CEDS_fuel" ) ], 
+    instructions[ , c( "iso", "CEDS_fuel", "agg_fuel" ) ] <- left_join( instructions[ , c( "iso", "CEDS_fuel" ) ], 
                                                             MFL[ , c( "aggregated_fuel", "fuel" ) ], 
                                                             by = c( "CEDS_fuel" = "fuel" ) )
 
