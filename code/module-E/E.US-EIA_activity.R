@@ -115,7 +115,7 @@
 #    the reported data, then creates dataframes storing heat content factors
 
 # Prepare to read in all *.csv files from the EIA data folder
-    files_to_read <- list.files( "activity/EIA-data/" )
+    files_to_read <- list.files( "emissions-inventories/EIA-data/" )
     files_to_read <- gsub( "\\.csv$","", files_to_read[ grep( "*.csv", files_to_read ) ] )
 
 # Initialize an empty dataframe
@@ -215,6 +215,79 @@
 # Extract only those columns we want to use from now on (CEDS info)
     EIA_data_formatted <- EIA_data_formatted[ , c( "iso", "sector", "fuel", 
                                                    "Unit", "year", "Value" ) ]
+
+# ------------------------------------------------------------------------------
+# 6. Remove liquid biofuels from biomass estimate
+#    CEDS considers liquid biofuels (ethanol) in petroleum, but EIA counts it
+#    in renewable biomass. For the purposes of informing CEDS, we must remove
+#    liquid biomass from the EIA total biomass energy estimate. This also
+#    requires that CEDS has produced an estimate with no liquid biomass in
+#    petroleum.
+
+# Read in the sectoral renewable breakdowns, isolating only fuel ethanol columns
+    liquid_biofuels_ind <- readData( "Table_10.2b_Renewable_Energy_Consumption-__Industrial_and_Transportation_Sectors", 
+                                           extension = '.xlsx',
+                                           domain = "EM_INV", 
+                                           domain_extension = "EIA-data/unit-conversion/",
+                                           skip_rows = 6, 
+                                           sheet_selection = "Annual Data" )[ , c( 1, 8 ) ]
+    liquid_biofuels_trn <- readData( "Table_10.2b_Renewable_Energy_Consumption-__Industrial_and_Transportation_Sectors", 
+                                           extension = '.xlsx',
+                                           domain = "EM_INV", 
+                                           domain_extension = "EIA-data/unit-conversion/",
+                                           skip_rows = 6, 
+                                           sheet_selection = "Annual Data" )[ , c( 1, 12 ) ]
+    liquid_biofuels_com <- readData( "Table_10.2a_Renewable_Energy_Consumption-__Residential_and_Commercial_Sectors", 
+                                     extension = '.xlsx',
+                                     domain = "EM_INV", 
+                                     domain_extension = "EIA-data/unit-conversion/",
+                                     skip_rows = 6, 
+                                     sheet_selection = "Annual Data" )[ , c( 1, 12 ) ]
+
+# Add sector tags
+    liquid_biofuels_ind$sector <- "Industry"
+    liquid_biofuels_trn$sector <- "Transportation"
+    liquid_biofuels_com$sector <- "Commercial"
+
+# Unify column names for rbind operation
+    colnames( liquid_biofuels_ind )[ 1:2 ] <- c( "year", "Value_to_subtract" )
+    colnames( liquid_biofuels_trn )[ 1:2 ] <- c( "year", "Value_to_subtract" )
+    colnames( liquid_biofuels_com )[ 1:2 ] <- c( "year", "Value_to_subtract" )
+    
+# Create a single df storing all values
+    liquid_biofuels <- rbind( liquid_biofuels_ind, 
+                              liquid_biofuels_trn, 
+                              liquid_biofuels_com )
+
+# Force values to be numeric, dropping NAs and "Not Available" rows
+    liquid_biofuels$Value_to_subtract <- as.numeric( liquid_biofuels$Value_to_subtract )
+    liquid_biofuels <- liquid_biofuels[ !is.na( liquid_biofuels$Value_to_subtract ), ]
+
+# Convert from Trillion BTU to TJ (conversion constant)
+    liquid_biofuels$Value_to_subtract <- liquid_biofuels$Value_to_subtract * 
+                                         convert_TrillionBTU_to_TJ
+
+# Add fuel and unit tags, and make years Xyears, in preparation for join
+    liquid_biofuels$Unit <- "TJ"
+    liquid_biofuels$fuel <- "biomass"
+    liquid_biofuels$year <- paste0( "X", liquid_biofuels$year )
+    
+# Join the values needing to be subtractd to the main EIA dataframe
+    EIA_data_formatted <- left_join( EIA_data_formatted, 
+                                     liquid_biofuels,
+                                     by = c( "year", "fuel", "sector", "Unit" ) )
+    
+# Any rows that didn't have values to be subtracted will subtract 0 (so numeric
+# operator can be vectorized)
+    EIA_data_formatted$Value_to_subtract[ is.na( EIA_data_formatted$Value_to_subtract ) ] <- 0
+    
+# Execute subtraction
+    EIA_data_formatted$Value <- as.numeric( EIA_data_formatted$Value ) - 
+                                EIA_data_formatted$Value_to_subtract
+    
+# Drop the Values_to_subtract column
+    EIA_data_formatted <- EIA_data_formatted[ , colnames(EIA_data_formatted) != 
+                                                "Value_to_subtract" ]
 
 # ------------------------------------------------------------------------------
 # 6. Prepare unit conversion
@@ -354,6 +427,7 @@
                                            EIA_data_formatted$sector == "Industry" ) ] ) -
           as.numeric( coal_coke_consumed$Value )
 
+
     
 # ------------------------------------------------------------------------------
 # 9. Cast to wide and write output
@@ -450,19 +524,21 @@
                                    file_name = "H.Extended_total_natural_gas" )
     total_CEDS_gas <- total_CEDS_gas[ total_CEDS_gas$iso == 'usa',
                                             paste0( "X", 1949:2010 ) ]
+    total_CEDS_biomass <- total_activity[ total_activity$fuel == "biomass", 
+                                          paste0( "X", 1960:2014 ) ]
+    total_CEDS_biomass[ 1, ] <- colSums( total_CEDS_biomass )
+    total_CEDS_biomass <- total_CEDS_biomass[ 1, ]
+
     total_CEDS_gas$fuel <- "gas"
     total_CEDS_coal$fuel <- "coal"
     total_CEDS_petrol$fuel <- "oil"
+    total_CEDS_biomass$fuel <- "biomass"
     
     total_CEDS_gas <- gather( total_CEDS_gas, key=year, value=Value, -fuel )
     total_CEDS_petrol <- gather( total_CEDS_petrol, key=year, value=Value, -fuel )
     total_CEDS_coal <- gather( total_CEDS_coal, key=year, value=Value, -fuel )
+    total_CEDS_biomass <- gather( total_CEDS_biomass, key=year, value=Value, -fuel )
     
-    total_CEDS_biomass <- ddply( total_act_agg[ which( total_act_agg$aggregated_fuel == "biomass" &
-                                                       total_act_agg$sector != "1A4_Stationary_RCO"), ], 
-                                  "year", 
-                                  function(x) colSums( x[ "Value" ] ) ) 
-    total_CEDS_biomass$fuel <- "biomass"
     
     CEDS_agg_by_fuel <- rbind( total_CEDS_biomass, total_CEDS_coal, 
                                total_CEDS_gas, total_CEDS_petrol )
