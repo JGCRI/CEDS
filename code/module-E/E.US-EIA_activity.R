@@ -434,7 +434,7 @@
 # 9. Cast to wide and write output
     
     EIA_final <- spread( EIA_data_formatted, key = year, value = Value )
-    writeData( EIA_final, domain = "MED_OUT", paste0( 'E.', em, '_US-EIA_inventory' ) )
+    writeData( EIA_final, domain = "MED_OUT", 'E.US-EIA_inventory' )
     
     
 
