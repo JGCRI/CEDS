@@ -237,14 +237,23 @@
                                            domain = "EM_INV",
                                            domain_extension = "EIA-data/unit-conversion/",
                                            skip_rows = 6,
-                                           sheet_selection = "Annual Data" )[ , c( 1, 12 ) ]
+                                           sheet_selection = "Annual Data" )[ , c( 1, 12, 13 ) ]
     liquid_biofuels_com <- readData( "Table_10.2a_Renewable_Energy_Consumption-__Residential_and_Commercial_Sectors",
                                      extension = '.xlsx',
                                      domain = "EM_INV",
                                      domain_extension = "EIA-data/unit-conversion/",
                                      skip_rows = 6,
                                      sheet_selection = "Annual Data" )[ , c( 1, 12 ) ]
-
+    
+# In transportation, we need to sum diesel and ethanol. Convert to numeric and
+# replace NAs with 0s...
+    liquid_biofuels_trn[ , 2 ] <- as.numeric(liquid_biofuels_trn[ , 2 ] )
+    liquid_biofuels_trn[ , 3 ] <- as.numeric(liquid_biofuels_trn[ , 3 ] )
+    liquid_biofuels_trn[ is.na( liquid_biofuels_trn ) ] <- 0
+# ...then sum and drop the specific columns.
+    liquid_biofuels_trn$Value <- liquid_biofuels_trn[ , 2 ] + liquid_biofuels_trn[ , 3 ]
+    liquid_biofuels_trn <- liquid_biofuels_trn[ , c( "Annual Total", "Value" )]
+    
 # Add sector tags
     liquid_biofuels_ind$sector <- "Industry"
     liquid_biofuels_trn$sector <- "Transportation"
@@ -372,8 +381,8 @@
     
 # Convert natural gas to kt using CEDS standard conversion factor ### This will hopefully change--we need an EIA factor since they use diff. reporting
     EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "gas" ) ] <-
-          as.numeric( EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "gas" ) ] ) / 
-                   (US_natural_gas_OECD_conversion_factor_TJ_to_t / 10^3) # divide by 10^3 to get kt
+          as.numeric( EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "gas" ) ] ) * 0.9 / ###EXPLAIN
+                  conversionFactor_naturalgas_TJ_per_kt
     EIA_data_formatted$Unit[ which( EIA_data_formatted$fuel == "gas" ) ] <- "kt"
     
 # Subset the data which can be converted using timeseries EIA conversion data
