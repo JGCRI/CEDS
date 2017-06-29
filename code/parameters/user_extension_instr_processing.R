@@ -46,7 +46,8 @@
             
             if ( "CEDS_sector" %in% colnames( use_instructions ) ) {
                 all_rows <- nrow( use_instructions )
-                use_instructions <- use_instructions[ which ( use_instructions$CEDS_sector %in% comb_sectors_only ), ]
+                use_instructions <- use_instructions[ which ( use_instructions$CEDS_sector %in% comb_sectors_only | 
+                                                                is.na(use_instructions$CEDS_sector)), ]
                 if ( nrow( use_instructions ) != all_rows ) {
                     warning( paste0( all_rows-nrow(use_instructions )," instruction line(s) were rejected as non-combustion sectors" ) )
                 }

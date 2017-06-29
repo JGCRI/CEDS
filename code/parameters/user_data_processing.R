@@ -20,7 +20,14 @@
                                         MSL = NULL, MCL = NULL, MFL = NULL, comb_or_NC = NULL ) {
         
     # Read in the data frame
-        dataframe <- readData( paste0( "user-defined-energy/", filename ), domain = "EXT_IN" )
+        dataframe <- readData( paste0( "user-defined-energy/", filename ), 
+                               domain = "EXT_IN" )
+        
+        Xyears <- colnames( dataframe )[ which( isXYear( colnames( dataframe ) ) ) ]
+        
+        dataframe[ , Xyears ] <- as.data.frame( sapply( dataframe[ , Xyears ], as.numeric ) )
+
+        dataframe[ is.na( dataframe ) ] <- 0
         
     # initialize null dataframe
         mapping_iso <- NULL
@@ -84,8 +91,7 @@
       
         print( "Mapping to CEDS" )
         dataframe_categories <- colnames( dataframe )[ !grepl( "X", colnames( dataframe ) ) ]
-        Xyears <- colnames( dataframe )[ which( colnames( dataframe ) %!in% 
-                                                  dataframe_categories ) ]
+        Xyears <- colnames( dataframe )[ which( isXYear( colnames( dataframe ) ) ) ]
       
     # If the iso is not already in the data, map to it
         if ( 'iso' %!in% dataframe_categories ) {
