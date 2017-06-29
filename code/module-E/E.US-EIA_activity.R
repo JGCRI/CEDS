@@ -21,7 +21,7 @@
             setwd( wd[1] )
             break
         }
-    } 
+    }
     PARAM_DIR <- "../code/parameters/"
 
 # Get emission species first so can name log appropriately
@@ -45,7 +45,8 @@
 # Given constants
     convert_TrillionBTU_to_TJ <- 1055
     convert_shortTon_to_tonne <- 0.9072
-    convert_tonne_to_barrel <- 7.33 # heat_content factor from OPEC 2014
+    convert_tonne_to_barrel <- 7.33 # mass density factor from OPEC 2014
+    US_natural_gas_OECD_conversion_factor_TJ_to_t <- 46629 
     
     
 # createCompPlot
@@ -366,7 +367,7 @@
 # Convert biomass to kt using CEDS standard conversion factor ### This will hopefully change--we need an EIA factor since they use diff. reporting
     EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "biomass" ) ] <-
           as.numeric( EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "biomass" ) ] ) / 
-                  conversionFactor_biomass_kt_TJ
+                  (US_natural_gas_OECD_conversion_factor_TJ_to_t / 10^3) # divide by 10^3 to get kt
     EIA_data_formatted$Unit[ which( EIA_data_formatted$fuel == "biomass" ) ] <- "kt"
     
 # Convert natural gas to kt using CEDS standard conversion factor ### This will hopefully change--we need an EIA factor since they use diff. reporting
