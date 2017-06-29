@@ -226,23 +226,23 @@
 #    petroleum.
 
 # Read in the sectoral renewable breakdowns, isolating only fuel ethanol columns
-    liquid_biofuels_ind <- readData( "Table_10.2b_Renewable_Energy_Consumption-__Industrial_and_Transportation_Sectors", 
+    liquid_biofuels_ind <- readData( "Table_10.2b_Renewable_Energy_Consumption-__Industrial_and_Transportation_Sectors",
                                            extension = '.xlsx',
-                                           domain = "EM_INV", 
+                                           domain = "EM_INV",
                                            domain_extension = "EIA-data/unit-conversion/",
-                                           skip_rows = 6, 
+                                           skip_rows = 6,
                                            sheet_selection = "Annual Data" )[ , c( 1, 8 ) ]
-    liquid_biofuels_trn <- readData( "Table_10.2b_Renewable_Energy_Consumption-__Industrial_and_Transportation_Sectors", 
+    liquid_biofuels_trn <- readData( "Table_10.2b_Renewable_Energy_Consumption-__Industrial_and_Transportation_Sectors",
                                            extension = '.xlsx',
-                                           domain = "EM_INV", 
+                                           domain = "EM_INV",
                                            domain_extension = "EIA-data/unit-conversion/",
-                                           skip_rows = 6, 
+                                           skip_rows = 6,
                                            sheet_selection = "Annual Data" )[ , c( 1, 12 ) ]
-    liquid_biofuels_com <- readData( "Table_10.2a_Renewable_Energy_Consumption-__Residential_and_Commercial_Sectors", 
+    liquid_biofuels_com <- readData( "Table_10.2a_Renewable_Energy_Consumption-__Residential_and_Commercial_Sectors",
                                      extension = '.xlsx',
-                                     domain = "EM_INV", 
+                                     domain = "EM_INV",
                                      domain_extension = "EIA-data/unit-conversion/",
-                                     skip_rows = 6, 
+                                     skip_rows = 6,
                                      sheet_selection = "Annual Data" )[ , c( 1, 12 ) ]
 
 # Add sector tags
@@ -254,10 +254,10 @@
     colnames( liquid_biofuels_ind )[ 1:2 ] <- c( "year", "Value_to_subtract" )
     colnames( liquid_biofuels_trn )[ 1:2 ] <- c( "year", "Value_to_subtract" )
     colnames( liquid_biofuels_com )[ 1:2 ] <- c( "year", "Value_to_subtract" )
-    
+
 # Create a single df storing all values
-    liquid_biofuels <- rbind( liquid_biofuels_ind, 
-                              liquid_biofuels_trn, 
+    liquid_biofuels <- rbind( liquid_biofuels_ind,
+                              liquid_biofuels_trn,
                               liquid_biofuels_com )
 
 # Force values to be numeric, dropping NAs and "Not Available" rows
@@ -265,29 +265,29 @@
     liquid_biofuels <- liquid_biofuels[ !is.na( liquid_biofuels$Value_to_subtract ), ]
 
 # Convert from Trillion BTU to TJ (conversion constant)
-    liquid_biofuels$Value_to_subtract <- liquid_biofuels$Value_to_subtract * 
+    liquid_biofuels$Value_to_subtract <- liquid_biofuels$Value_to_subtract *
                                          convert_TrillionBTU_to_TJ
 
 # Add fuel and unit tags, and make years Xyears, in preparation for join
     liquid_biofuels$Unit <- "TJ"
     liquid_biofuels$fuel <- "biomass"
     liquid_biofuels$year <- paste0( "X", liquid_biofuels$year )
-    
+
 # Join the values needing to be subtractd to the main EIA dataframe
-    EIA_data_formatted <- left_join( EIA_data_formatted, 
+    EIA_data_formatted <- left_join( EIA_data_formatted,
                                      liquid_biofuels,
                                      by = c( "year", "fuel", "sector", "Unit" ) )
-    
+
 # Any rows that didn't have values to be subtracted will subtract 0 (so numeric
 # operator can be vectorized)
     EIA_data_formatted$Value_to_subtract[ is.na( EIA_data_formatted$Value_to_subtract ) ] <- 0
-    
+
 # Execute subtraction
-    EIA_data_formatted$Value <- as.numeric( EIA_data_formatted$Value ) - 
+    EIA_data_formatted$Value <- as.numeric( EIA_data_formatted$Value ) -
                                 EIA_data_formatted$Value_to_subtract
-    
+
 # Drop the Values_to_subtract column
-    EIA_data_formatted <- EIA_data_formatted[ , colnames(EIA_data_formatted) != 
+    EIA_data_formatted <- EIA_data_formatted[ , colnames(EIA_data_formatted) !=
                                                 "Value_to_subtract" ]
 
 # ------------------------------------------------------------------------------
@@ -366,14 +366,14 @@
   
 # Convert biomass to kt using CEDS standard conversion factor ### This will hopefully change--we need an EIA factor since they use diff. reporting
     EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "biomass" ) ] <-
-          as.numeric( EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "biomass" ) ] ) / 
-                  (US_natural_gas_OECD_conversion_factor_TJ_to_t / 10^3) # divide by 10^3 to get kt
+          as.numeric( EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "biomass" ) ] ) /
+                  conversionFactor_biomass_kt_TJ
     EIA_data_formatted$Unit[ which( EIA_data_formatted$fuel == "biomass" ) ] <- "kt"
     
 # Convert natural gas to kt using CEDS standard conversion factor ### This will hopefully change--we need an EIA factor since they use diff. reporting
     EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "gas" ) ] <-
           as.numeric( EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "gas" ) ] ) / 
-                  conversionFactor_naturalgas_TJ_per_kt
+                   (US_natural_gas_OECD_conversion_factor_TJ_to_t / 10^3) # divide by 10^3 to get kt
     EIA_data_formatted$Unit[ which( EIA_data_formatted$fuel == "gas" ) ] <- "kt"
     
 # Subset the data which can be converted using timeseries EIA conversion data
@@ -499,10 +499,10 @@
                             res_and_com_nonagg )
     
 ### TEST ONLY: transportation = transp + aviation + shipping
-    # total_act_agg$Value[ total_act_agg$sector == "1A3_Transportation" ] <-
-    #       total_act_agg$Value[ total_act_agg$sector == "1A3_Transportation" ] +
-    #       total_act_agg$Value[ total_act_agg$sector == "1A3_International-shipping" ] +
-    #       total_act_agg$Value[ total_act_agg$sector == "1A3_Aviation" ]
+    total_act_agg$Value[ total_act_agg$sector == "1A3_Transportation" ] <-
+          total_act_agg$Value[ total_act_agg$sector == "1A3_Transportation" ] +
+          total_act_agg$Value[ total_act_agg$sector == "1A3_International-shipping" ] +
+          total_act_agg$Value[ total_act_agg$sector == "1A3_Aviation" ]
 
 
 # ------------------------------------------------------------------------------
