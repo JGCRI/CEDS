@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: E.US-EIA_activity.R
 # Author: Ben Goldstein
-# Date Last Modified: June 26, 2017
+# Date Last Modified: June 29, 2017
 # Program Purpose: To read in & reformat EIA activity data from 1949 to 2014
 # Units are initially in btu
 # Input Files: all files in the folder input/activity/EIA-data
@@ -300,7 +300,7 @@
                                                 "Value_to_subtract" ]
 
 # ------------------------------------------------------------------------------
-# 6. Prepare unit conversion
+# 7. Prepare unit conversion
 #    Code blocks 6 and 7 use heat content conversion files to determine the mass
 #    of fuel consumed (given energy EIA data).
 #    Biomass is converted using a constant.
@@ -370,7 +370,7 @@
     conversion_factors <- rbind( coal_heat_content, petrol_heat_content )
     
 # ------------------------------------------------------------------------------
-# 7. Execute conversion to kt
+# 8. Execute conversion to kt
 #    Executes the conversions described in Code Block 6 description
   
 # Convert biomass to kt using CEDS standard conversion factor ### This will hopefully change--we need an EIA factor since they use diff. reporting
@@ -409,7 +409,7 @@
                                    "Unit", "year", "Value")]
    
 # ------------------------------------------------------------------------------
-# 8. Remove Coal Coke use from Industry 
+# 9. Remove Coal Coke use from Industry 
 #    Coal coke usage in coal coke manufacture is considered a process activity
 #    in CEDS, so it needs to be removed from the EIA estimate
     
@@ -437,10 +437,83 @@
                                            EIA_data_formatted$sector == "Industry" ) ] ) -
           as.numeric( coal_coke_consumed$Value )
 
+# ------------------------------------------------------------------------------
+# 6. Replace coal info sector by sector with data from coal-specific mass units
+    
+    coal_electric_sector <- coal_activity_all[ , c( 1, 12 ) ]
+    colnames( coal_electric_sector ) <- c( "year", "Value" )
+    
+    coal_electric_sector$Value <- as.numeric(coal_electric_sector$Value)
+    coal_electric_sector <- coal_electric_sector[ !is.na( coal_electric_sector$Value ), ]
+    
+    coal_electric_sector$Unit <- "Thousand short tons"
+    coal_electric_sector$Value <- convert_shortTon_to_tonne * coal_electric_sector$Value
+    coal_electric_sector$Unit <- "kt"
+
+    EIA_data_formatted$Value[ which(EIA_data_formatted$sector == "Energy Transf/Ext" &
+                              EIA_data_formatted$fuel == "coal")] <- coal_electric_sector$Value
+    
+    
+    coal_transportation_sector <- coal_activity_all[ , c( 1, 11 ) ]
+    colnames( coal_transportation_sector ) <- c( "year", "Value" )
+    
+    coal_transportation_sector$Value <- as.numeric(coal_transportation_sector$Value)
+    coal_transportation_sector <- coal_transportation_sector[ !is.na( coal_transportation_sector$Value ), ]
+    
+    coal_transportation_sector$Unit <- "Thousand short tons"
+    coal_transportation_sector$Value <- convert_shortTon_to_tonne * coal_transportation_sector$Value
+    coal_transportation_sector$Unit <- "kt"
+
+    EIA_data_formatted$Value[ which(EIA_data_formatted$sector == "Transportation" &
+                              EIA_data_formatted$fuel == "coal")] <- coal_transportation_sector$Value
+    
+    
+    coal_residential_sector <- coal_activity_all[ , c( 1, 2 ) ]
+    colnames( coal_residential_sector ) <- c( "year", "Value" )
+
+    coal_residential_sector$Value <- as.numeric(coal_residential_sector$Value)
+    coal_residential_sector <- coal_residential_sector[ !is.na( coal_residential_sector$Value ), ]
+    
+    coal_residential_sector$Unit <- "Thousand short tons"
+    coal_residential_sector$Value <- convert_shortTon_to_tonne * coal_residential_sector$Value
+    coal_residential_sector$Unit <- "kt"
+
+    EIA_data_formatted$Value[ which( EIA_data_formatted$sector == "Residential" &
+                              EIA_data_formatted$fuel == "coal" ) ] <- coal_residential_sector$Value
 
     
+    coal_commercial_sector <- coal_activity_all[ , c( 1, 5 ) ]
+    colnames( coal_commercial_sector ) <- c( "year", "Value" )
+
+    coal_commercial_sector$Value <- as.numeric(coal_commercial_sector$Value)
+    coal_commercial_sector <- coal_commercial_sector[ !is.na( coal_commercial_sector$Value ), ]
+    
+    coal_commercial_sector$Unit <- "Thousand short tons"
+    coal_commercial_sector$Value <- convert_shortTon_to_tonne * coal_commercial_sector$Value
+    coal_commercial_sector$Unit <- "kt"
+
+    EIA_data_formatted$Value[ which(EIA_data_formatted$sector == "Commercial" &
+                              EIA_data_formatted$fuel == "coal")] <- coal_commercial_sector$Value
+
+    coal_industrial_sector <- coal_activity_all[ , c( 1, 9 ) ]
+    coal_coke <- coal_activity_all[ , c( 1, 6 ) ]
+    colnames( coal_industrial_sector ) <- c( "year", "Value" )
+    colnames( coal_coke ) <- c( "year", "Value" )
+    
+    coal_industrial_sector$Value <- coal_industrial_sector$Value - coal_coke$Value
+
+    coal_industrial_sector$Value <- as.numeric(coal_industrial_sector$Value)
+    coal_industrial_sector <- coal_industrial_sector[ !is.na( coal_industrial_sector$Value ), ]
+    
+    coal_industrial_sector$Unit <- "Thousand short tons"
+    coal_industrial_sector$Value <- convert_shortTon_to_tonne * coal_industrial_sector$Value
+    coal_industrial_sector$Unit <- "kt"
+
+    EIA_data_formatted$Value[ which(EIA_data_formatted$sector == "Commercial" &
+                              EIA_data_formatted$fuel == "coal")] <- coal_industrial_sector$Value
+    
 # ------------------------------------------------------------------------------
-# 9. Cast to wide and write output
+# 10. Cast to wide and write output
     
     EIA_final <- spread( EIA_data_formatted, key = year, value = Value )
     writeData( EIA_final, domain = "MED_OUT", 'E.US-EIA_inventory' )
@@ -448,7 +521,7 @@
     
 
 # ------------------------------------------------------------------------------
-# 10. Prepare data for comparison to CEDS trends
+# 11. Prepare data for comparison to CEDS trends
 #     This section of code processes CEDS total activity data for comparison
 #     to EIA data. Its input is A.total_activity; its output is CEDS activity
 #     data aggregated to EIA-comparable sectors.
@@ -515,7 +588,7 @@
 
 
 # ------------------------------------------------------------------------------
-# 11. Compare 4 fuels use across 5 sectors
+# 12. Compare 4 fuels use across 5 sectors
 #     This section executes and generates graphs for a fuel-by-fuel comparison
 #     between EIA and CEDS data
 
@@ -639,4 +712,6 @@
                 height = 5.66 )
     }
 
+  logStop()
+# END
     
