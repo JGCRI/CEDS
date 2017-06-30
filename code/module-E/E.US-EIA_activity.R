@@ -381,7 +381,7 @@
     
 # Convert natural gas to kt using CEDS standard conversion factor ### This will hopefully change--we need an EIA factor since they use diff. reporting
     EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "gas" ) ] <-
-          as.numeric( EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "gas" ) ] ) * 0.9 / ###EXPLAIN
+          as.numeric( EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "gas" ) ] ) / 
                   conversionFactor_naturalgas_TJ_per_kt
     EIA_data_formatted$Unit[ which( EIA_data_formatted$fuel == "gas" ) ] <- "kt"
     
