@@ -197,7 +197,7 @@
       arrange( desc( year ) )
         
 # -----------------------------------------------------------------------------
-# 5. Extrapolate pre-1855 (### global?) shipping coal using extrapolation data from
+# 5. Extrapolate pre-1855 global shipping coal using extrapolation data from
 #    Fouquet & Pearson (1998).
     
 # Reformat and extend extrap values
@@ -223,7 +223,7 @@
     ship_out <- group_by( ship_out, iso, sector, fuel, units ) %>%
       summarise_each( fun = "max" )
 
-# Seperate for output
+# Separate for output
     global_shipping <- ship_out[which(ship_out$iso == 'global'),]
     else_shipping <- ship_out[which(ship_out$iso != 'global'),]
     
