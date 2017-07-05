@@ -178,7 +178,7 @@ for( h in seq_along(em_list)){
       labs(x= "" , y= paste(em, 'Emissions', unit ))+
       theme(panel.background=element_blank(),
             panel.grid.minor = element_line(colour="gray95"),
-            panel.grid.major = element_line(colour="gray88"),
+            panel.grid.major = element_line(colour="gray88", width = 5),
             panel.border = element_rect(colour = "grey80", fill=NA, size=.8))+
       geom_hline(yintercept = 0, size = .5, color = 'white') +
       geom_hline(yintercept = 0, size = .25, color = 'grey3') +
