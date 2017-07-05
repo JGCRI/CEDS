@@ -74,9 +74,9 @@ grid_one_iso <- function( iso,
 
   sub_flag <- proxy_substitution_mapping[ proxy_substitution_mapping$em == em &
                                             proxy_substitution_mapping$sector == sector &
-                                            proxy_substitution_mapping$iso == iso, paste0( 'X', year ) ]
+                                            proxy_substitution_mapping$iso == iso, 'sub_flag' ]
   
-  if ( sub_flag == 0 ) { proxy <- proxy } else { proxy <- proxy_backup }
+  if ( length( sub_flag ) == 0  ) { proxy <- proxy } else { proxy <- proxy_backup }
   
   # retrieve matrix indexes for iso for later proxy cropping
   index_line <- location_index[ location_index$iso == iso, ]
