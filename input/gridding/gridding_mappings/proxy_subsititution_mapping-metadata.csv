@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment,Created by
+Mapping,NA,NA,NA,NA,NA,"Proxy substitution flag for certain iso-sector combination, the sub_flag is applied for all years.",task CMIP6-proxy-substitution-mapping-generation

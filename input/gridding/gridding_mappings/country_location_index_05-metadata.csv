@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment,Created by
+Mapping,NA,NA,NA,NA,NA,Matrix indices indicating loactions of country masks in extent of a global map at 0.5 degree resolution.,task country-mask-generation
