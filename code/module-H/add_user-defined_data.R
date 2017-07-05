@@ -351,30 +351,35 @@
         
         diagnostics <- NA
         
-        if ( agg_level == 1 ) {
-            diagnostics <- normalizeAndIncludeDataL1( Xyears, data_to_use, user_dataframe_subset, 
-                                                      all_activity_data )
-        } else if ( agg_level == 2 ) {
-            diagnostics <- normalizeAndIncludeDataL2( Xyears, data_to_use, user_dataframe_subset, 
-                                                      all_activity_data, whole_group, 
-                                                      as.logical( working_instructions$override_normalization ) )
-        } else if ( agg_level == 3 ) {
-            diagnostics <- normalizeAndIncludeDataL3( Xyears, data_to_use, user_dataframe_subset, 
-                                                      all_activity_data, whole_group, 
-                                                      as.logical( working_instructions$override_normalization ) )
-        } else if ( agg_level == 4 ) {
-            diagnostics <- normalizeAndIncludeDataL4( Xyears, data_to_use, user_dataframe_subset, 
-                                                      all_activity_data, whole_group, 
-                                                      as.logical( working_instructions$override_normalization ) )
-        } else if ( agg_level == 5 ) {
-            diagnostics <- normalizeAndIncludeDataL5( Xyears, data_to_use, user_dataframe_subset, 
-                                                      all_activity_data, whole_group, 
-                                                      as.logical( working_instructions$override_normalization ) )
-        } else if ( agg_level == 6 ) {
-            diagnostics <- normalizeAndIncludeDataL6( Xyears, data_to_use, user_dataframe_subset, 
-                                          all_activity_data, whole_group, 
-                                          as.logical( working_instructions$override_normalization ) )
-        }
+        # if ( agg_level == 1 ) {
+        #     diagnostics <- normalizeAndIncludeDataL1( Xyears, data_to_use, user_dataframe_subset, 
+        #                                               all_activity_data )
+        # } else if ( agg_level == 2 ) {
+        #     diagnostics <- normalizeAndIncludeDataL2( Xyears, data_to_use, user_dataframe_subset, 
+        #                                               all_activity_data, whole_group, 
+        #                                               as.logical( working_instructions$override_normalization ) )
+        # } else if ( agg_level == 3 ) {
+        #     diagnostics <- normalizeAndIncludeDataL3( Xyears, data_to_use, user_dataframe_subset, 
+        #                                               all_activity_data, whole_group, 
+        #                                               as.logical( working_instructions$override_normalization ) )
+        # } else if ( agg_level == 4 ) {
+        #     diagnostics <- normalizeAndIncludeDataL4( Xyears, data_to_use, user_dataframe_subset, 
+        #                                               all_activity_data, whole_group, 
+        #                                               as.logical( working_instructions$override_normalization ) )
+        # } else if ( agg_level == 5 ) {
+        #     diagnostics <- normalizeAndIncludeDataL5( Xyears, data_to_use, user_dataframe_subset, 
+        #                                               all_activity_data, whole_group, 
+        #                                               as.logical( working_instructions$override_normalization ) )
+        # } else if ( agg_level == 6 ) {
+        #     diagnostics <- normalizeAndIncludeDataL6( Xyears, data_to_use, user_dataframe_subset, 
+        #                                   all_activity_data, whole_group, 
+        #                                   as.logical( working_instructions$override_normalization ) )
+        # }
+        
+        diagnostics <- normalizeAndIncludeData( Xyears, data_to_use, user_dataframe_subset, 
+                                                all_activity_data, whole_group, 
+                                                as.logical( working_instructions$override_normalization ),
+                                                agg_level )
         
         working_instructions$batch_id <- batch
         working_instructions$agg_level <- agg_level
