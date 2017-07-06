@@ -51,7 +51,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "BC"
+if ( is.na( em ) ) em <- "CH4"
 
 # Load Packages
 
@@ -72,6 +72,7 @@ theme_set( theme_gray( ) ) # switch back to default ggplot2 theme
 rcp_start_year <- 1850
 rcp_end_year <- 2000
 CEDS_start_year <- 1850
+if ( em == 'CH4') CEDS_start_year <- 1970
 CEDS_end_year <- end_year
 
 rcp_years <- seq(from=rcp_start_year,to=rcp_end_year,by=10)
@@ -299,7 +300,8 @@ if ( has_ship ) {
 global_rcp <- cast( global_rcp_long )
 
 # Combine
-global <- rbind( global_ceds[ ,c( 'em', 'Inventory', x_rcp_years ) ], global_rcp[ ,c( 'em', 'Inventory', x_rcp_years ) ] )
+global <- rbind.fill( global_ceds[ ,c( 'em', 'Inventory', paste0('X', max(CEDS_start_year,rcp_start_year):CEDS_end_year)  ) ], 
+                      global_rcp[ ,c( 'em', 'Inventory', x_rcp_years ) ] )
 
 global_long <- rbind( global_ceds_long, global_rcp_long )
 names( global_long ) <- c( 'em', 'Inventory', 'year', 'total_emissions' )
@@ -320,8 +322,8 @@ max <- 1.2 * ( max( df$total_emissions ) )
 plot <- ggplot(df, aes(x=year,y=total_emissions,group=Inventory,shape=Inventory,linetype=Inventory)) + 
   geom_line(data = subset(df, Inventory=='CEDS'),size=1, color = 'black') +
   geom_point(data = subset(df, Inventory=='RCP'),color='dodgerblue1') +
-  scale_x_continuous(limits = c(CEDS_start_year,2015 ),
-                     breaks= seq(from=CEDS_start_year, to=rcp_end_year, by=50),
+  scale_x_continuous(limits = c(min(CEDS_start_year,rcp_start_year),2015 ),
+                     breaks= seq(from= min(CEDS_start_year,rcp_start_year), to=rcp_end_year, by=50),
                      minor_breaks = seq(from=CEDS_start_year, to=rcp_end_year, by=25)) +
   scale_y_continuous(limits = c(0,max ),labels = comma)+
   ggtitle( em )+
@@ -364,7 +366,8 @@ names(region_long) <- c('region','Inventory','year','total_emissions')
 region_long$year <- gsub('X',"",region_long$year)
 region_long$year <- as.numeric(region_long$year)
 
-region <- rbind( region_ceds[,c('Inventory','region',x_rcp_years)],region_rcp[,c('Inventory','region',x_rcp_years)])
+region <- rbind.fill( region_ceds[,c('Inventory','region',paste0('X', seq(max(CEDS_start_year,rcp_start_year),rcp_end_year,by = 10)))],
+                      region_rcp[,c('Inventory','region',paste0('X', seq(max(CEDS_start_year,rcp_start_year),rcp_end_year,by = 10)))] )
 region <- region [ with( region , order( region , Inventory ) ), ]
 
 #writeout
@@ -393,7 +396,7 @@ for(i in 1:6){
                               shape=Inventory,linetype = Inventory)) +
     geom_line(data = subset(plot_df, Inventory =='CEDS'),size=1,aes(x=year,y=total_emissions, color = region), alpha= .5) +
     geom_point(data = subset(plot_df, Inventory =='RCP'),size=1,aes(x=year,y=total_emissions, color = region), alpha= .5) +
-    scale_x_continuous(breaks=seq(from=rcp_start_year,to=rcp_end_year,by=30))+
+    scale_x_continuous(breaks=seq(from=rcp_start_year,to=CEDS_end_year,by=30))+
     ggtitle( em )+
     labs(x= "" , y= 'Emissions [Gg/yr]' )+
     theme(panel.background=element_blank(),
@@ -442,7 +445,8 @@ names(sector_long) <- c('sector','Inventory','year','total_emissions')
 sector_long$year <- gsub('X',"",sector_long$year)
 sector_long$year <- as.numeric(sector_long$year)
 
-sector <- rbind( sector_ceds[,c('Inventory','sector',x_rcp_years)],sector_rcp[,c('Inventory','sector',x_rcp_years)])
+sector <- rbind.fill( sector_ceds[,c('Inventory','sector',paste0('X', seq(max(CEDS_start_year,rcp_start_year),rcp_end_year,by = 10)))],
+                      sector_rcp[,c('Inventory','sector',paste0('X', seq(max(CEDS_start_year,rcp_start_year),rcp_end_year,by = 10)))])
 sector <- sector [ with( sector , order( sector , Inventory ) ), ]
 
 #writeout
@@ -490,7 +494,7 @@ region_sector_rcp <- aggregate(rcp_comparable[,x_rcp_years],
                                          sector = rcp_comparable$Sector ),FUN=sum )
 region_sector_rcp$Inventory <- 'RCP'
 
-region_sector_both <- rbind( region_sector_ceds[,c( 'Inventory', 'region', 'sector', x_rcp_years )],
+region_sector_both <- rbind.fill( region_sector_ceds[,c( 'Inventory', 'region', 'sector', paste0('X', max(CEDS_start_year,rcp_start_year):CEDS_end_year) )],
                              region_sector_rcp[,c( 'Inventory', 'region', 'sector', x_rcp_years )])
 
 region_sector_both <- region_sector_both [ with( region_sector_both , order( region , sector, Inventory ) ), ]
