@@ -158,7 +158,7 @@
     instructions[ which( is.na( instructions$agg_fuel ) ), c( "iso", "CEDS_fuel", "agg_fuel" ) ] <- 
                                         left_join( instructions[ which( is.na(instructions$agg_fuel)), c( "iso", "CEDS_fuel" ) ], 
                                                             MFL[ , c( "aggregated_fuel", "fuel" ) ], 
-                                                            by = c( "CEDS_fuel" = "fuel" ) ) ### Do a row check
+                                                            by = c( "CEDS_fuel" = "fuel" ) )
 
 # This will store the final form of each instruction used, for diagnostics
     rows_completed <- instructions[ 0, ]
