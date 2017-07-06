@@ -120,6 +120,7 @@
     rcp_remove_sectors <- c( 'AWB', 'Tot_Ant' )
     ceds_remove_sectors <- c( "1A3ai_International-aviation",
                               "1A3di_International-shipping",
+                              "1A3di_Oil_Tanker_Loading",
                               '1A3aii_Domestic-aviation',
                               '7A_Fossil-fuel-fires',
                               '3F_Agricultural-residue-burning-on-fields',
@@ -128,24 +129,6 @@
                               '11C_Other-natural', 
                               '6B_Other-not-in-total' )
 
-
-# if current em does not have ship emissions
-# for the RCP shipping emissions data Historicalshipemissions_IPCC_FINAL_Jan09_updated_1850.xlsx 
-# it doesn't contain data for NH3
-    has_ship <- em != "NH3"
-    
-    if ( has_ship ) {
-        ceds_remove_sectors_global <- c( '7A_Fossil-fuel-fires',
-                                         '3F_Agricultural-residue-burning-on-fields',
-                                         '11A_Volcanoes', 
-                                         '11B_Forest-fires', 
-                                         '11C_Other-natural', 
-                                         '6B_Other-not-in-total' )
-      
-    } else {
-        ceds_remove_sectors_global <- ceds_remove_sectors
-      
-    }
 # Create complete region map for CEDS to RCP
     complete_region_map <- merge( Map_iso_codes, Map_region_codes,
                                   by.x = "RCP Template Reg #",
