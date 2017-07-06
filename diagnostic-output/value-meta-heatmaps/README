@@ -1,0 +1,6 @@
+README
+This folder stores the outputs of Create_Val_Metadata_Heatmap.R, which are heat maps showing the emissions factor scaling inventories.
+
+The only documents in this folder that are versioned are this README document
+and .gitignore file, which tells git to ignore changes to all other files in
+this folder.

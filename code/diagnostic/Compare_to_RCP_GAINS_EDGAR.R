@@ -47,10 +47,16 @@ library('gridExtra')
 
 # 0.5. Script Options
 
+# Get emission species first so can name log appropriately
+args_from_makefile <- commandArgs( TRUE )
+em <- args_from_makefile[ 1 ]
+if ( is.na( em ) ) em <- "CH4"
+
 rcp_start_year <- 1850
 rcp_end_year <- 2000
 edgar_start_year <- 1970
 edgar_end_year <- 2010
+if (em == 'CH4') edgar_end_year <- 2008
 ceds_start_year <- 1850
 ceds_end_year <- end_year
 gains_start_year <- 2000
@@ -72,15 +78,11 @@ x_plot_years <- paste0( 'X', plot_years )
 
 # --------------------------------------------
 # 0.8 default emission setup and emission availability check 
-# Get emission species first so can name log appropriately
-args_from_makefile <- commandArgs( TRUE )
-em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
 
-ceds_em_list <- c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'OC', 'BC', 'CO' )
-gains_em_list <- c( 'SO2', 'NOx', 'NMVOC', 'BC', 'OC', 'CH4', 'CO', 'CO2' )
-edgar_em_list <- c( 'BC', 'CO', 'NH3', 'NMVOC', 'NOx', 'OC', 'SO2' )
-rcp_em_list <- c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'OC', 'BC', 'CO' )
+ceds_em_list <- c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'OC', 'BC', 'CO','CH4' )
+gains_em_list <- c( 'SO2', 'NOx', 'NMVOC', 'BC', 'OC', 'CH4', 'CO', 'CO2' ,'CH4')
+edgar_em_list <- c( 'BC', 'CO', 'NH3', 'NMVOC', 'NOx', 'OC', 'SO2' ,'CH4')
+rcp_em_list <- c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'OC', 'BC', 'CO','CH4' )
 rcp_shipping_em_list <- c( "NOx", "SO2", "NMVOC", "BC", "OC", "CO" ) 
 
 ceds_em_flag <- em %in% ceds_em_list
@@ -102,6 +104,7 @@ ceds_emissions <- readData( 'MED_OUT', paste0( em, '_total_CEDS_emissions' ) )
 #-------------------------------------------------------------------------------
 # 1.2 Read in and load files for EDGAR 
 if ( edgar_em_flag == T ) { 
+  if (em != 'CH4'){
   # construct sheet name, for BC and OC the sheet name is slightly different
   edgar_sheet_name <- paste0( "NEW_v4.3_EM_" ,em, "_ref" )
   if ( em %in% c( 'BC', 'OC' ) ) { edgar_sheet_name <- paste0( "NEW_v4.3_EM_" ,em, "_hindc") }
@@ -112,6 +115,13 @@ if ( edgar_em_flag == T ) {
                                extension = ".xlsx", 
                                sheet_selection = edgar_sheet_name, 
                                skip_rows = 8 ) 
+  }
+  if (em == 'CH4'){
+    edgar_emissions <- readData( domain = "EM_INV", 
+                                 domain_extension = "EDGAR/", 
+                                 file_name = 'EDGAR42_CH4') 
+    
+  }
   } else {
     printLog( paste0( em, ' is not supportted by EDGAR, dummy data created. ' ) )
     edgar_dummy <- data.frame( em = em, inventory = 'EDGAR', year = plot_years, total_emissions = NA )  
@@ -354,7 +364,8 @@ if ( rcp_shipping_em_flag == T ) {
 if ( edgar_em_flag == T ) {
 # Clean rows and columns to standard format
 edgar_emissions$units <- 'kt'
-edgar_emissions <- edgar_emissions[ ,c( 'ISO_A3', 'IPCC', 'units', edgar_years ) ]
+if (em != 'CH4') edgar_emissions <- edgar_emissions[ ,c( 'ISO_A3', 'IPCC', 'units', edgar_years ) ]
+if (em == 'CH4') edgar_emissions <- edgar_emissions[ ,c( 'ISO_A3', 'IPCC', 'units', x_edgar_years ) ]
 names( edgar_emissions ) <- c ('iso','sector','units', x_edgar_years )
 edgar_emissions$iso <- tolower( edgar_emissions$iso )
 

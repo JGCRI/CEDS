@@ -44,19 +44,19 @@
 # 1. Read in files
 
     iea_data_full <- readData( "MED_OUT", "A.IEA_BP_energy_ext" )
-    bp_energy_data <- readData( "ENERGY_IN","BP_energy_data", ".xlsx")
+    bp_energy_data <- readData( "ENERGY_IN", "BP_energy_data", ".xlsx")
     ctry_mapping <- readData( "MAPPINGS", "Master_Country_List" )
     fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
     
-    bp_oil_full  <- readData( "ENERGY_IN","BP_energy_data", ".xlsx", sheet_selection = 7 ) # Oil Consumption- Tonnes
-    printLog( c("Read in BP data sheet: ", names( bp_oil_full )[[1]]) )
-    bp_gas_full  <- readData( "ENERGY_IN","BP_energy_data", ".xlsx", sheet_selection = 24 ) # Gas Consumption – tonnes
-    printLog( c("Read in BP data sheet: ", names( bp_gas_full )[[1]]) )
+    bp_oil_full  <- readData( "ENERGY_IN", "BP_energy_data", ".xlsx", sheet_selection = 7 ) # Oil Consumption- Tonnes
+    printLog( c( "Read in BP data sheet: ", names( bp_oil_full )[[1]] ) )
+    bp_gas_full  <- readData( "ENERGY_IN", "BP_energy_data", ".xlsx", sheet_selection = 24 ) # Gas Consumption – tonnes
+    printLog( c( "Read in BP data sheet: ", names( bp_gas_full )[[1]] ) )
     bp_coal_full <- readData( "ENERGY_IN","BP_energy_data", ".xlsx", sheet_selection = 33 ) # Coal Consumption -  Mtoe
-    printLog( c("Read in BP data sheet: ", names( bp_coal_full )[[1]]) )
+    printLog( c( "Read in BP data sheet: ", names( bp_coal_full )[[1]] ) )
     
 # Check input data for proper sector and fuel names
-    sectorCheck( iea_data_full )
+    sectorCheck( iea_data_full )  ### TODO: Currently shows all sectors are mislabeled. Is this a problem? The script doesn't do anyhting with this info
     fuelCheck( iea_data_full )
 
 # -----------------------------------------------------------------------------------------
@@ -86,23 +86,23 @@
     
 # ------------------------------------------------------------------------------
 # 3. Match BP data to IEA data
-# Re-format the data to allow for easier manipulation. Also account for
-#   differences in naming, resolution, etc.
-# ------------------------------------------------------------------------------
+#    Re-format the data to allow for easier manipulation. Also account for
+#    differences in naming, resolution, etc.
 
     printLog( "Matching BP and IEA data" )
 
-    BP_years <- c(1965:1970)
+# Define useful year variables
+    BP_years <- c( 1965:1970 )
     X_BP_years <- paste0( "X", BP_years )
     IEA_start_year <- 1971
     X_IEA_start_year <- 'X1971'
     
-      
+# Separate rows which need extending
     iea_data_full_all <- iea_data_full 
-    iea_data_full_not_extended <-  iea_data_full[-which(iea_data_full$X1960==0 & iea_data_full$X1970==0),] 
-    iea_data_full <-  iea_data_full[which(iea_data_full$X1960==0 & iea_data_full$X1970==0),] 
+    iea_data_full_not_extended <-  iea_data_full[ -which( iea_data_full$X1960==0 & iea_data_full$X1970==0 ), ] 
+    iea_data_full <-  iea_data_full[ which( iea_data_full$X1960==0 & iea_data_full$X1970==0 ), ] 
     iea_data_full_original <- iea_data_full
-    iea_data_full <- iea_data_full[,c("iso","sector","fuel","units", paste0( "X", IEA_start_year:end_year ))] 
+    iea_data_full <- iea_data_full[ , c( "iso", "sector", "fuel", "units", paste0( "X", IEA_start_year:end_year ) ) ] 
     
 # Input the years of interest
     ext_years <- c( BP_years, IEA_start_year ) # Years used to extendBackward data
@@ -114,7 +114,6 @@
     bp_data_full <- list( bp_oil_full, bp_gas_full, bp_coal_full )
     names( bp_data_full ) <- c( "bp_oil", "bp_gas", "bp_coal" )
     
-        # CHECK WHETHER THESE ARE STILL TREATED AS ENTRIES IN A LIST- ERRORS IN 3.2
     bp_data_clean <- list()
     bp_data <- list()
     
@@ -138,7 +137,7 @@
     #   instances
         bp_data[[i]][ bp_data[[i]] == "-" ] <- 0
         bp_data[[i]][ bp_data[[i]] == "^" ] <- 0.05
-    }
+    } # END loop
     
     names( bp_data ) <- c( "bp_oil", "bp_gas", "bp_coal" )
     
@@ -150,10 +149,10 @@
     printLog( "Reformatting combined data" )
     
 # Aggregate IEA over fuel -> oil, gas, coal, biomass, other   
-        oil_fuels <- fuel_list[fuel_list$aggregated_fuel == "oil", "fuel"] 
-        gas_fuels <- fuel_list[fuel_list$aggregated_fuel == "gas", "fuel"]
-       coal_fuels <- fuel_list[fuel_list$aggregated_fuel == "coal", "fuel"]
-    biomass_fuels <- fuel_list[fuel_list$aggregated_fuel == "biomass", "fuel"]
+        oil_fuels <- fuel_list[ fuel_list$aggregated_fuel == "oil", "fuel" ] 
+        gas_fuels <- fuel_list[ fuel_list$aggregated_fuel == "gas", "fuel" ]
+       coal_fuels <- fuel_list[ fuel_list$aggregated_fuel == "coal", "fuel" ]
+    biomass_fuels <- fuel_list[ fuel_list$aggregated_fuel == "biomass", "fuel" ]
       other_fuels <- subset( unique( iea_data$fuel ), unique( iea_data$fuel ) 
           %!in% c( oil_fuels, gas_fuels, coal_fuels, biomass_fuels ) )
     
@@ -228,13 +227,13 @@
 #        
 #    }
     
-# Assume biomass is constant for now    
+# Assume biomass is constant for now, and extend back.
     biomass_iea_data <- iea_data_full[ iea_data_full$fuel %in% biomass_fuels, ]
     biomass_fuel_ratios <- array( 1, c( nrow( iea_data_full[ 
         iea_data_full$fuel %in% biomass_fuels, ] ), 1 ) ) %*% 
             array( 1, c( 1, length( BP_years ) ) )
     biomass_iea_proj <- biomass_iea_data[, X_IEA_start_year ] * biomass_fuel_ratios
-    extendBackwarded_iea_biomass <- cbind( biomass_iea_data, biomass_iea_proj )
+    extendBackwarded_iea_biomass <- cbind( biomass_iea_data, biomass_iea_proj )  ### TODO: "Backwarded" variables should be changed to "Backward"
     names( extendBackwarded_iea_biomass ) <- names( extendBackwarded_iea[[1]] )
     
 # Other fuels are assumed constant. Form column of ones
@@ -243,47 +242,51 @@
         iea_data_full$fuel %in%
         other_fuels, ] ), 1 ) ) %*% array( 1, c( 1, length( BP_years ) ) )
     other_iea_proj <- other_iea_data[, X_IEA_start_year ] * other_fuel_ratios
+    
+# Extend IEA backward.
     extendBackwarded_iea_other <- cbind( other_iea_data, other_iea_proj )
     names( extendBackwarded_iea_other ) <- names( extendBackwarded_iea[[1]] )
     
     IEA_BP_ext <- rbind( extendBackwarded_iea[[1]], extendBackwarded_iea[[2]], 
         extendBackwarded_iea[[3]], extendBackwarded_iea_biomass, extendBackwarded_iea_other )
     
-    IEA_BP_ext <- merge( iea_data_full_original[, c( "iso", "sector", "fuel", paste0('X',start_year:(BP_years[1]-1))) ], 
+    IEA_BP_ext <- merge( iea_data_full_original[, c( "iso", "sector", "fuel", paste0( 'X', start_year:( BP_years[1] - 1 ) ) ) ],  ### Did we decide between merge and join? Between rbind and bind_rows?
         IEA_BP_ext, by = c( "iso", "sector", "fuel" ), all.x = TRUE )
     
-    IEA_BP_ext <- rbind(IEA_BP_ext[,c("iso", "sector", "fuel","units",X_emissions_years)],
-                        iea_data_full_not_extended)
+    IEA_BP_ext <- rbind( IEA_BP_ext[ , c( "iso", "sector", "fuel", "units", X_emissions_years ) ],
+                        iea_data_full_not_extended )
 
 # Replace NAs with 0
-    IEA_BP_ext[is.na(IEA_BP_ext)] <- 0
+    IEA_BP_ext[ is.na(IEA_BP_ext) ] <- 0
     
 # ------------------------------------------------------------------------------
 # 5. Aggregate Data by fuel
     
 # Aggregate Activity data over fuels
- printLog( "Aggregate Energy as Activity Data for energy production sectors" )
+    printLog( "Aggregate Energy as Activity Data for energy production sectors" )
     
- IEA_BP_ext<-aggregate ( IEA_BP_ext[
-   X_emissions_years],
-   by = list( fuel = IEA_BP_ext$fuel,
-              sector = IEA_BP_ext$sector, 
-              iso = IEA_BP_ext$iso,
-              units= IEA_BP_ext$units), sum ) 
+    IEA_BP_ext<-aggregate ( IEA_BP_ext[
+                            X_emissions_years ],
+                            by = list( fuel = IEA_BP_ext$fuel,
+                                       sector = IEA_BP_ext$sector, 
+                                       iso = IEA_BP_ext$iso,
+                                       units= IEA_BP_ext$units ), 
+                            sum ) 
  
 # -----------------------------------------------------------------------------
 # 6. Output
 # Add comments for each table
-  comments.A.energy_data_extension <- c( paste0( "IEA energy statistics", 
-                                               " by intermediate sector / intermediate fuel / historical year,",
-                                               " extendBackwarded with BP energy statistics for earliest BP years" ) )
-    
+    comments.A.energy_data_extension <- 
+          c( paste0( "IEA energy statistics", 
+                     " by intermediate sector / intermediate fuel / historical year,",
+                     " extendBackwarded with BP energy statistics for earliest BP years" ) )
+          
 # write extended energy data
-  writeData( IEA_BP_ext, domain = "MED_OUT", fn = "A.IEA_BP_energy_ext", 
-           comments = comments.A.energy_data_extension )
+    writeData( IEA_BP_ext, domain = "MED_OUT", fn = "A.IEA_BP_energy_ext", 
+             comments = comments.A.energy_data_extension )
         
 # Every script should finish with this line
- logStop()
+  logStop()
     
 # END
     
