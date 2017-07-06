@@ -86,9 +86,9 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
 # whole group (data for an entire aggregate group) and can't normalize
     whole_group <- ( nrow( data_to_correct ) == 0 )
     
-# Initialize the negatives boolean
+# Initialize warning info
     negatives <- F
-
+    all_zero_years <- NA
 # The block of code that deals with normalization (the process of modifying rows
 # that weren't directly specified in order to retain aggregate information) will
 # only be called if a) a whole group was not specified and b) no manual override
@@ -127,6 +127,11 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
                                         data.matrix( year_totals_non_user_rows[ , Xyears ] ) 
         pct_of_agg_group[ is.nan.df( pct_of_agg_group ) ] <- 0
         
+    # IF all of the data in a year (that wasn't user-specified) is 0, this is
+    # like having a "whole group"--we do not need to (cannot) normalize in this
+    # case. We will not compare these rows in the warnings check.
+        all_zero_years <- colnames( pct_of_agg_group[, Xyears] ) [ which( colSums(pct_of_agg_group[ , Xyears] == 0) == nrow(pct_of_agg_group) ) ]
+        
     # Calculate the sum of the data post-inclusion and pre-normalization
         if ( length( Xyears ) > 1 ) {
             new_year_totals <- colSums( act_agg_changed[ , Xyears ] )
@@ -140,8 +145,8 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
         annual_diffs <- pct_of_agg_group
         annual_diffs[ 1, Xyears ] <- year_totals - new_year_totals
         if ( nrow( year_totals_non_user_rows ) > 1 ) {
-             annual_diffs[ 2:nrow(year_totals_non_user_rows), Xyears ] <- 
-               rep( annual_diffs[ 1, Xyears ], each = nrow(year_totals_non_user_rows) - 1 )
+            annual_diffs[ 2:nrow(annual_diffs), Xyears ] <- 
+                  as.numeric( annual_diffs[ 1, Xyears ] )
         }
     # Each row linearly absorbs a percentage of the total difference
         sums_to_add <- pct_of_agg_group
@@ -202,9 +207,13 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
                                         disaggregation_factors[ , Xyears ]
     
 # Call the generateWarnings function to diagnose how well we did retaining column sums
-    warning_diagnostics <- generateWarnings( Xyears, disagg_data_changed,
-                                             data_to_use, negatives, whole_group,
-                                             override_normalization )
+    if ( agg_level != 1 ) {
+        warning_diagnostics <- generateWarnings( Xyears, disagg_data_changed,
+                                                 data_to_use, negatives, whole_group,
+                                                 override_normalization, all_zero_years )
+    } else {
+        warning_diagnostics <- NA
+    }
 
 
     all_activity_data[ which( all_activity_data$iso %in% disagg_data_changed$iso &
@@ -231,25 +240,33 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
 #                            manually skipped
 generateWarnings <- function ( Xyears, disagg_data_changed, 
                                data_to_use, negatives, whole_group, 
-                               override_normalization ) {
+                               override_normalization, all_zero_years ) {
+  
+# Exclude those years for which there is no non-user-specified data from generating warnings
+    years_to_compare <- Xyears[ which( Xyears %!in% all_zero_years ) ]
+    
+    if ( length( years_to_compare ) == 0 ) {
+       return( NA )
+    }
+    
     warning_diag <- NA
     if ( !any( override_normalization ) && !whole_group ) {
-        if ( length( Xyears ) > 1 ) {
-            if ( any( round( colSums( disagg_data_changed[ , Xyears ] ), 3 ) != 
-                      round( colSums( data_to_use[ , Xyears ] ), 3 ) ) ) {
+        if ( length( years_to_compare ) > 1 ) {
+            if ( any( round( colSums( disagg_data_changed[ , years_to_compare ] ), 3 ) != 
+                      round( colSums( data_to_use[ , years_to_compare ] ), 3 ) ) ) {
               
-              cols_not_retained <- sum( round( colSums( disagg_data_changed[ , Xyears ] ), 3 ) != 
-                                        round( colSums( data_to_use[ , Xyears ] ), 3 ) )
+              cols_not_retained <- sum( round( colSums( disagg_data_changed[ , years_to_compare ] ), 3 ) != 
+                                        round( colSums( data_to_use[ , years_to_compare ] ), 3 ) )
               warning_diag <- paste0( cols_not_retained, " column sums were not retained.")
               if ( negatives ) {
                   warning_diag <- paste0( warning_diag, 
-                                          "A specified total exceeded an aggregate group total." )
+                                          " A specified total exceeded an aggregate group total." )
               }
               
             }
         } else {
-            if ( any( round( sum( disagg_data_changed[ , Xyears ] ), 3 ) 
-                      != round( sum( data_to_use[ , Xyears ] ), 3 ) ) ) {
+            if ( any( round( sum( disagg_data_changed[ , years_to_compare ] ), 3 ) 
+                      != round( sum( data_to_use[ , years_to_compare ] ), 3 ) ) ) {
               warning_diag <- "1 column sum was not retained."
               if ( negatives ) {
                   warning_diag <- paste0( warning_diag, "A specified total exceeded an aggregate group total.")
