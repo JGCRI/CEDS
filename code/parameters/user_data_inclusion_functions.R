@@ -146,7 +146,7 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
         annual_diffs[ 1, Xyears ] <- year_totals - new_year_totals
         if ( nrow( year_totals_non_user_rows ) > 1 ) {
             annual_diffs[ 2:nrow(annual_diffs), Xyears ] <- 
-                  as.numeric( annual_diffs[ 1, Xyears ] )
+                  as.numeric( annual_diffs[ 1, Xyears ] ) 
         }
     # Each row linearly absorbs a percentage of the total difference
         sums_to_add <- pct_of_agg_group
