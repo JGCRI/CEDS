@@ -35,7 +35,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO"
+if ( is.na( em ) ) em <- "CO2"
 
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
@@ -226,7 +226,7 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
     
     # if current-run and last-run are identical, don't write out 
     #    current-run and move last-run back to current-versions
-  } else if ( identical( em_current, em_last ) ) {
+  } else if ( all( em_current$previous == em_last$previous ) ) {
     warning( paste( base_fn, "did not change from last run." ) )
     fl <- list.files( paste0( "../final-emissions/", em, "_last-run/" ), pattern = paste0( "_", em, "_" ), full.names = T )
     moveFileList( fl, "../final-emissions/current-versions/" )
