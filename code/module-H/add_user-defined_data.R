@@ -344,7 +344,7 @@
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
         }
         
-        diagnostics <- NA
+        diagnostics <- NA 
         
         diagnostics <- normalizeAndIncludeData( Xyears, data_to_use, user_dataframe_subset, 
                                                 all_activity_data,
