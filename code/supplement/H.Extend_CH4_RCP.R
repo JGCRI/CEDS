@@ -265,16 +265,11 @@
                                   by = "iso" )
     colnames( sectors_on_hold )[ which( colnames( sectors_on_hold ) == "Region" )] <- "RCP_Region"
     
-    CEDS_values_for_figures <- rbind( CEDS_1970_and_RCP_factors[ , c("iso", "sector", "fuel", 
+    CEDS_backextended_emissions <- rbind( CEDS_1970_and_RCP_factors[ , c("iso", "sector", "fuel", 
                                                                      "units", "RCP_Sector", "RCP_Region", X_RCP_years) ], 
                                       sectors_on_hold )
-    CEDS_values_for_figures <- CEDS_values_for_figures[ !is.na( CEDS_values_for_figures$RCP_Sector ), ]
-    CEDS_values_for_figures <- CEDS_values_for_figures[ !is.na( CEDS_values_for_figures$RCP_Region ), ]
-
-    
-# Trim to only the relevant columns in preparation for export
-    CEDS_backextended_to_output <- CEDS_1970_and_RCP_factors[ , c( "iso", "sector", "fuel", "units", X_RCP_years ) ] %>%
-                                   arrange( iso, sector, fuel )
+    CEDS_backextended_emissions <- CEDS_backextended_emissions[ !is.na( CEDS_backextended_emissions$RCP_Sector ), ]
+    CEDS_backextended_emissions <- CEDS_backextended_emissions[ !is.na( CEDS_backextended_emissions$RCP_Region ), ]
 
 # ---------------------------------------------------------------------------
 # 5. Re-aggregate back-extended data into RCP regions for comparison
@@ -317,14 +312,12 @@
     reagg_sectoral_comparison <- bind_rows(CEDS_aggregate_to_sector, RCP_aggregate_to_sector)
     reagg_sectoral_comparison <- reagg_sectoral_comparison[, c("RCP_Sector", "inv", X_RCP_years ) ]
 
-
 # ---------------------------------------------------------------------------
 # 6. Write data to supplemental output
 
-    writeData(CEDS_backextended_to_output, domain = "MED_OUT", "H.CH4_RCP_Back-Extended")
+    writeData(CEDS_backextended_emissions, domain = "MED_OUT", "H.CH4_RCP_Back-Extended")
     writeData(reagg_regional_comparison, domain = "MED_OUT", "H.CH4_Back-Ext_Compare_to_RCP_by_Region")
     writeData(reagg_sectoral_comparison, domain = "MED_OUT", "H.CH4_Back-Ext_Compare_to_RCP_by_Sector")
-
 
 # Every script should finish with this line
     logStop()
