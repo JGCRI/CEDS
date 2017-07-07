@@ -254,17 +254,21 @@
                                  CEDS_1970_and_RCP_factors$X1970 == 0 )
     CEDS_1970_and_RCP_factors$X1970[ indices_to_replace ] <- CEDS_1970_and_RCP_factors$CEDS_1970_emissions[ indices_to_replace ]
     
+# Map 'sectors on hold' to RCP years, and assign them to their own sectors
     sectors_on_hold <- sectors_on_hold[ , c( "iso", "sector", "fuel", "units", X_RCP_years ) ]
     sectors_on_hold$RCP_Sector <- NA
     sectors_on_hold$RCP_Sector[ which( sectors_on_hold$sector %in% c( "1A3ai_International-aviation",
                                                                       '1A3aii_Domestic-aviation' ) ) ] <- "Aviation"
     sectors_on_hold$RCP_Sector[ which( sectors_on_hold$sector %in% c( "7A_Fossil-fuel-fires" ) ) ] <- "Fossil-fuel-fires"
+    sectors_on_hold$RCP_Sector[ which( sectors_on_hold$sector %in% c( "1A3di_International-shipping" ) ) ] <- "International-shipping"
 
+# Map 'sectors on hold' to RCP regions
     sectors_on_hold <- left_join( sectors_on_hold, 
                                   complete_region_map[ c( "iso", "Region" ) ], 
                                   by = "iso" )
     colnames( sectors_on_hold )[ which( colnames( sectors_on_hold ) == "Region" )] <- "RCP_Region"
     
+# Recombine 'sectors on hold' with CEDS extended data to create an output dataframe
     CEDS_backextended_emissions <- rbind( CEDS_1970_and_RCP_factors[ , c("iso", "sector", "fuel", 
                                                                      "units", "RCP_Sector", "RCP_Region", X_RCP_years) ], 
                                       sectors_on_hold )
