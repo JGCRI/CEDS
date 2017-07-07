@@ -116,7 +116,8 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
     # This data is stored in a dataframe of multiple identical rows for the
     # purposes of mathematical operation
         if ( nrow( year_totals_non_user_rows ) > 1 ) {
-            year_totals_non_user_rows[ 2:nrow(year_totals_non_user_rows), Xyears ] <- year_totals_non_user_rows[ 1, Xyears ]
+            year_totals_non_user_rows[ 2:nrow(year_totals_non_user_rows), Xyears ] <- 
+                    year_totals_non_user_rows[ 1, Xyears ]
         } 
         
     # Divide each unedited row by the sum of these rows. This provides a
@@ -130,7 +131,8 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
     # IF all of the data in a year (that wasn't user-specified) is 0, this is
     # like having a "whole group"--we do not need to (cannot) normalize in this
     # case. We will not compare these rows in the warnings check.
-        all_zero_years <- colnames( pct_of_agg_group[, Xyears] ) [ which( colSums(pct_of_agg_group[ , Xyears] == 0) == nrow(pct_of_agg_group) ) ]
+        all_zero_years <- colnames( pct_of_agg_group[, Xyears] ) [ which( colSums(pct_of_agg_group[ , Xyears] == 0) 
+                                                                          == nrow(pct_of_agg_group) ) ]
         
     # Calculate the sum of the data post-inclusion and pre-normalization
         if ( length( Xyears ) > 1 ) {
@@ -214,12 +216,52 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
     } else {
         warning_diagnostics <- NA
     }
-
-
-    all_activity_data[ which( all_activity_data$iso %in% disagg_data_changed$iso &
+    
+    make_continuous <- T
+    if ( make_continuous ) {
+        act_rows_to_integrate <- all_activity_data[ which( all_activity_data$iso %in% disagg_data_changed$iso &
                                     all_activity_data$CEDS_fuel %in% disagg_data_changed$CEDS_fuel &
-                                    all_activity_data$CEDS_sector %in% disagg_data_changed$CEDS_sector ), Xyears ] <-
-          disagg_data_changed[, Xyears]
+                                    all_activity_data$CEDS_sector %in% disagg_data_changed$CEDS_sector ), Xyears ]
+        if ( length( Xyears ) > 5 ){
+            smooth_interval_beginning <- paste0( "X", ( working_instructions$start_year[1] ):
+                                                      ( working_instructions$start_year[1] + 2 ) )
+            
+            smooth_interval_end <- paste0( "X", ( working_instructions$end_year[1] - 2 ):
+                                                ( working_instructions$end_year[1] ) )
+            
+        # This is really unnecessary, since we won't go outside the range of
+        # disagg_data (which has already been enforced), but in case we change
+        # that, here it is
+            smooth_interval_beginning <- smooth_interval_beginning[ smooth_interval_beginning %in% 
+                                                          colnames(all_activity_data) ]
+            smooth_interval_end <- smooth_interval_end[ smooth_interval_end %in% 
+                                                          colnames(all_activity_data) ]
+        }
+        
+        smooth_factor_b <- 1 / length( smooth_interval_beginning )
+        smooth_factor_e <- 1 / length( smooth_interval_end )
+        
+        for ( i in seq_along( smooth_interval_beginning ) ) {
+            disagg_data_changed[ , smooth_interval_beginning[i] ] <- 
+                          ( i * smooth_factor_b ) *
+                          disagg_data_changed[ , smooth_interval_beginning[i] ] + 
+                          ( 1 - ( i * smooth_factor_b ) ) *
+                          act_rows_to_integrate[ , smooth_interval_beginning[i] ]
+        }
+        for ( i in seq_along( smooth_interval_end ) ) {
+            disagg_data_changed[ , smooth_interval_end[i] ] <- 
+                          ( 1 - ( i * smooth_factor_e ) ) *
+                          disagg_data_changed[ , smooth_interval_end[i] ] + 
+                          ( i * smooth_factor_e ) *
+                          act_rows_to_integrate[ , smooth_interval_end[i] ]
+        }
+        
+    } else { 
+        all_activity_data[ which( all_activity_data$iso %in% disagg_data_changed$iso &
+                                  all_activity_data$CEDS_fuel %in% disagg_data_changed$CEDS_fuel &
+                                  all_activity_data$CEDS_sector %in% disagg_data_changed$CEDS_sector ), Xyears ] <-
+        disagg_data_changed[ , Xyears ]
+    }
     
     activity_environment$all_activity_data <- all_activity_data
     

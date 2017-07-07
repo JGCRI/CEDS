@@ -75,8 +75,10 @@
                                       CEDS_sector_map = mapping_ceds_sector, 
                                       agg_fuel_map = mapping_agg_fuel, 
                                       CEDS_fuel_map = mapping_ceds_fuel)
-        interp_dataframe <- interpolateData( mapped_dataframe, interpolation_instructions, MSL, MCL, MFL )
-        
+        interp_dataframe <- interpolateData( mapped_dataframe,
+                                             interpolation_instructions,
+                                             MSL, MCL, MFL )
+
         return( interp_dataframe )
     }
 
@@ -242,9 +244,7 @@
         non_year_cols <- colnames( dataframe ) [ which( colnames( dataframe ) %in% 
                                                         c( "iso", "agg_sector", "CEDS_sector", 
                                                            "agg_fuel", "CEDS_fuel" ) ) ]
-      
-    # Determine desired year range, and which years need to be added or removed;
-    #  Then add and remove columns to the dataframe so it represents the desired range
+        
         X_data_years <- paste0( "X", interpolation_instructions$start_year:interpolation_instructions$end_year )
         
         needed_Xyears <- X_data_years[ which( X_data_years %!in% colnames( dataframe ) ) ]
