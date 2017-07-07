@@ -176,38 +176,36 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
     }
     
     disagg_data_changed <- data_to_use
+# Create a dataframe of group totals arranged correspondingly to the
+# disaggregate data
+    agg_group_totals_unchanged <- left_join( disagg_data_changed[ , c( "iso", "agg_fuel", 
+                                                             "CEDS_fuel", "agg_sector", 
+                                                             "CEDS_sector" ) ],
+                                   activity_agg_to_level,
+                                   by = cols_given ) 
+    agg_group_totals_changed <- left_join( disagg_data_changed[ , c( "iso", "agg_fuel", 
+                                                             "CEDS_fuel", "agg_sector", 
+                                                             "CEDS_sector" ) ],
+                                   act_agg_changed,
+                                   by = cols_given ) 
+
+# Calculate the percentage of the aggregate group that each row used to make up
+    disagg_pct_breakdown <- data_to_use
+    disagg_pct_breakdown[ , Xyears ] <- data_to_use[ , Xyears ] / 
+                                        agg_group_totals_unchanged[ , Xyears ]
     
-# Our changed data needs to be on the lowest level of aggregation. We'll do this
-# by calculating the factor by which each row at the aggregate level was
-# changed, then apply this to any disaggregate row that's a part of the
-# corresponding aggregate value.
-    disaggregation_factors <- act_agg_changed
-    disaggregation_factors[ , Xyears ] <- act_agg_changed[ , Xyears ] / 
-                              activity_agg_to_level[ , Xyears ]
+    disagg_pct_breakdown[ is.nan.df(disagg_pct_breakdown) ] <- 0
+  
+### In here is where the zeros get changed
     
-    disaggregation_factors[ is.nan.df( disaggregation_factors ) ] <- 0
-    disaggregation_factors[ act_agg_changed != 0 & activity_agg_to_level == 0 ] <- 1
+# Multiply these percentages by the new values to get updated versions
+    disagg_data_changed[ , Xyears ] <- disagg_pct_breakdown[ , Xyears ] *
+                                       agg_group_totals_changed[ , Xyears ]
     
-### Okay, so here's the problem. Unless we have pct breakdowns for data, if
-### there are 0 emissions in a category that now has emissions, they're going to
-### get replaced. This is an issue. Manual override doesn't fix because there's
-### no way to inform the breakdowns. We're going to have to come up with a whole
-### thing to handle this case, but for now, 0 anywhere means 0.
     
-# Arrange disaggregation factors to the correct rows
-    disaggregation_factors <- left_join( disagg_data_changed[ , c( "iso", 
-                                                                   "CEDS_fuel", 
-                                                                   "CEDS_sector", 
-                                                                   "agg_fuel", 
-                                                                   "agg_sector" ) ], 
-                                         disaggregation_factors,
-                                         by = cols_given
-                                      )
     
-# Apply disaggregation factors
-    disagg_data_changed[ , Xyears ] <- disagg_data_changed[ , Xyears ] *
-                                        disaggregation_factors[ , Xyears ]
     
+
 # Call the generateWarnings function to diagnose how well we did retaining column sums
     if ( agg_level != 1 ) {
         warning_diagnostics <- generateWarnings( Xyears, disagg_data_changed,
