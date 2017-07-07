@@ -217,12 +217,14 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
         warning_diagnostics <- NA
     }
     
-    make_continuous <- T
-    if ( make_continuous ) {
+    start_continuity <- T
+    end_continuity <- T
+    
+    if ( start_continuity || end_continuity ) {
         act_rows_to_integrate <- all_activity_data[ which( all_activity_data$iso %in% disagg_data_changed$iso &
                                     all_activity_data$CEDS_fuel %in% disagg_data_changed$CEDS_fuel &
                                     all_activity_data$CEDS_sector %in% disagg_data_changed$CEDS_sector ), Xyears ]
-        if ( length( Xyears ) > 5 ){
+        if ( length( Xyears ) > 5 ) {
             smooth_interval_beginning <- paste0( "X", ( working_instructions$start_year[1] ):
                                                       ( working_instructions$start_year[1] + 2 ) )
             
@@ -236,24 +238,29 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
                                                           colnames(all_activity_data) ]
             smooth_interval_end <- smooth_interval_end[ smooth_interval_end %in% 
                                                           colnames(all_activity_data) ]
-        }
-        
-        smooth_factor_b <- 1 / length( smooth_interval_beginning )
-        smooth_factor_e <- 1 / length( smooth_interval_end )
-        
-        for ( i in seq_along( smooth_interval_beginning ) ) {
-            disagg_data_changed[ , smooth_interval_beginning[i] ] <- 
-                          ( i * smooth_factor_b ) *
-                          disagg_data_changed[ , smooth_interval_beginning[i] ] + 
-                          ( 1 - ( i * smooth_factor_b ) ) *
-                          act_rows_to_integrate[ , smooth_interval_beginning[i] ]
-        }
-        for ( i in seq_along( smooth_interval_end ) ) {
-            disagg_data_changed[ , smooth_interval_end[i] ] <- 
-                          ( 1 - ( i * smooth_factor_e ) ) *
-                          disagg_data_changed[ , smooth_interval_end[i] ] + 
-                          ( i * smooth_factor_e ) *
-                          act_rows_to_integrate[ , smooth_interval_end[i] ]
+
+            smooth_factor_b <- 1 / length( smooth_interval_beginning )
+            smooth_factor_e <- 1 / length( smooth_interval_end )
+            
+            if ( start_continuity ) {
+                for ( i in seq_along( smooth_interval_beginning ) ) {
+                    disagg_data_changed[ , smooth_interval_beginning[i] ] <- 
+                                  ( i * smooth_factor_b ) *
+                                  disagg_data_changed[ , smooth_interval_beginning[i] ] + 
+                                  ( 1 - ( i * smooth_factor_b ) ) *
+                                  act_rows_to_integrate[ , smooth_interval_beginning[i] ]
+                }
+            }
+            
+            if ( end_continuity ) {
+                for ( i in seq_along( smooth_interval_end ) ) {
+                    disagg_data_changed[ , smooth_interval_end[i] ] <- 
+                                  ( 1 - ( i * smooth_factor_e ) ) *
+                                  disagg_data_changed[ , smooth_interval_end[i] ] + 
+                                  ( i * smooth_factor_e ) *
+                                  act_rows_to_integrate[ , smooth_interval_end[i] ]
+                }
+            }
         }
         
     } else { 

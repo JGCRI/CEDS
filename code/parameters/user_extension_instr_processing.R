@@ -89,6 +89,28 @@
         all_instructions <- rbind( level_1_instructions, level_2_instructions, level_3_instructions, level_4_instructions )
         
         
+        if ( "start_continuity" %!in% colnames(all_instructions) ) {
+            all_instructions$start_continuity <- T
+        } else {
+            all_instructions$start_continuity <- as.logical(all_instructions$start_continuity)
+        }
+        if ( "end_continuity" %!in% colnames(all_instructions) ) {
+            all_instructions$end_continuity <- T
+        } else {
+            all_instructions$end_continuity <- as.logical(all_instructions$end_continuity)
+        }
+        all_instructions$start_continuity[ is.na(all_instructions$start_continuity) ] <- T
+        all_instructions$end_continuity[ is.na(all_instructions$end_continuity) ] <- T
+        
+        
+        if ( "override_normalization" %!in% colnames(all_instructions) ) {
+            all_instructions$override_normalization <- T
+        } else {
+            all_instructions$override_normalization <- as.logical(all_instructions$override_normalization)
+        }
+        all_instructions$override_normalization[ is.na(all_instructions$override_normalization) ] <- F
+        
+        
         return ( all_instructions )
     }
         

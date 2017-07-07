@@ -191,7 +191,7 @@
             user_dataframe <- processUserDefinedData( new.file, dataframe_interp_instructions, MSL, MCL, MFL )
             old.file <- new.file
         }
-            
+        
     # Extract the data from the dataframe that will refer to the specific
     # categories and years as defined by the
         user_dataframe_subset <- retrieveUserDataframeSubset( user_dataframe, working_instructions )
