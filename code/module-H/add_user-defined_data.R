@@ -253,11 +253,13 @@
         batch_data_instructions <- batch_instructions_overlap
     # If there are data in our instructions that will be in the current group's batch:
         if ( nrow( batch_data_instructions ) > 0 ) {
-          
+            
         # If our years haven't been properly subdivided by year, we'll need to
         #     subdivide the whole batch and return back to the beginning of the loop
-            if ( length( unique( working_instructions$start_year ) ) > 1 ||
-                 length( unique(  working_instructions$end_year  ) ) > 1 ) {
+            if ( length( unique( c(batch_data_instructions$start_year, working_instructions$start_year) ) ) > 1 ||
+                 length( unique(  c(batch_data_instructions$end_year, working_instructions$end_year)  ) ) > 1 ) {
+                
+                got_here <- T
                 
                 year_breaks <- unique( c( batch_data_instructions$start_year,
                                           working_instructions$start_year,
@@ -275,11 +277,21 @@
                                                                   max( new_year_span ) &
                                                            whole_batch$end_year >=
                                                                   min( new_year_span ) ), ]
+                    if ( i != 1 ) {
+                        rows_to_segment$start_continuity[ which( rows_to_segment$start_year != year_breaks[ i ] ) ] <- F
+                    }
+                    if ( i != length( year_breaks ) - 1 ) {
+                        rows_to_segment$end_continuity[ which( rows_to_segment$end_year != year_breaks[ i + 1 ] - 1 ) ] <- F
+                    }
+                    
                     rows_to_segment$start_year <- min( new_year_span )
                     rows_to_segment$end_year <- max( new_year_span )
-                    
+                  
                     new_division_batch <- rbind( new_division_batch, rows_to_segment )
+
                 }
+                
+                
                 
                 instructions <- rbind( instructions, new_division_batch )
                 next
