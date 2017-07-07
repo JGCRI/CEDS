@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: H.Extend_CH4_RCP.R
 # Author's Name: Ben Goldstein
-# Date Last Modified: 27 June 2017
+# Date Last Modified: 7 July 2017
 # Program Purpose: Back-extend the CEDS CH4 data based on RCP emissions data.
 #                  Provides a supplemental output for CH4 estimates.
 # Note: Meant to run as supplemental; not called in the body of the CEDS system
@@ -253,14 +253,28 @@
     indices_to_replace <- which( CEDS_1970_and_RCP_factors$CEDS_1970_emissions != 0 &
                                  CEDS_1970_and_RCP_factors$X1970 == 0 )
     CEDS_1970_and_RCP_factors$X1970[ indices_to_replace ] <- CEDS_1970_and_RCP_factors$CEDS_1970_emissions[ indices_to_replace ]
-      
-# Trim to only the relevant columns in preparation for export
-    CEDS_backextended_to_output <- CEDS_1970_and_RCP_factors[, c("iso", "sector", "fuel", "units", X_RCP_years)]
     
-# Re-add the unscalable sectors
-    sectors_on_hold <- sectors_on_hold[, c("iso", "sector", "fuel", "units", X_RCP_years)]
-    CEDS_backextended_to_output <- rbind( sectors_on_hold, CEDS_backextended_to_output ) %>%
-                                      arrange( iso, sector, fuel )
+    sectors_on_hold <- sectors_on_hold[ , c( "iso", "sector", "fuel", "units", X_RCP_years ) ]
+    sectors_on_hold$RCP_Sector <- NA
+    sectors_on_hold$RCP_Sector[ which( sectors_on_hold$sector %in% c( "1A3ai_International-aviation",
+                                                                      '1A3aii_Domestic-aviation' ) ) ] <- "Aviation"
+    sectors_on_hold$RCP_Sector[ which( sectors_on_hold$sector %in% c( "7A_Fossil-fuel-fires" ) ) ] <- "Fossil-fuel-fires"
+
+    sectors_on_hold <- left_join( sectors_on_hold, 
+                                  complete_region_map[ c( "iso", "Region" ) ], 
+                                  by = "iso" )
+    colnames( sectors_on_hold )[ which( colnames( sectors_on_hold ) == "Region" )] <- "RCP_Region"
+    
+    CEDS_values_for_figures <- rbind( CEDS_1970_and_RCP_factors[ , c("iso", "sector", "fuel", 
+                                                                     "units", "RCP_Sector", "RCP_Region", X_RCP_years) ], 
+                                      sectors_on_hold )
+    CEDS_values_for_figures <- CEDS_values_for_figures[ !is.na( CEDS_values_for_figures$RCP_Sector ), ]
+    CEDS_values_for_figures <- CEDS_values_for_figures[ !is.na( CEDS_values_for_figures$RCP_Region ), ]
+
+    
+# Trim to only the relevant columns in preparation for export
+    CEDS_backextended_to_output <- CEDS_1970_and_RCP_factors[ , c( "iso", "sector", "fuel", "units", X_RCP_years ) ] %>%
+                                   arrange( iso, sector, fuel )
 
 # ---------------------------------------------------------------------------
 # 5. Re-aggregate back-extended data into RCP regions for comparison
@@ -274,7 +288,7 @@
     RCP_cast_to_year[, X_RCP_years] <- lapply(RCP_cast_to_year[, X_RCP_years], as.numeric)
     RCP_aggregate_to_region <- ddply(RCP_cast_to_year, "RCP_Region", function(x) colSums(x[dataColumn]))
 # Remove Antarctica from RCP summary
-    RCP_aggregate_to_region <- RCP_aggregate_to_region[2:nrow(RCP_aggregate_to_region),]
+    RCP_aggregate_to_region <- RCP_aggregate_to_region[ 2:nrow(RCP_aggregate_to_region ), ]
 
 # Add a column specifying the inventory of origin
     CEDS_aggregate_to_region$inv <- "CEDS"
@@ -307,9 +321,9 @@
 # ---------------------------------------------------------------------------
 # 6. Write data to supplemental output
 
-    writeData(CEDS_backextended_to_output, domain = "DIAG_OUT", domain_extension = "supplemental/", "H.CH4_RCP_Back-Extended")
-    writeData(reagg_regional_comparison, domain = "DIAG_OUT", domain_extension= "supplemental/", "H.CH4_Back-Ext_Compare_to_RCP_by_Region")
-    writeData(reagg_sectoral_comparison, domain = "DIAG_OUT", domain_extension = "supplemental/", "H.CH4_Back-Ext_Compare_to_RCP_by_Sector")
+    writeData(CEDS_backextended_to_output, domain = "MED_OUT", "H.CH4_RCP_Back-Extended")
+    writeData(reagg_regional_comparison, domain = "MED_OUT", "H.CH4_Back-Ext_Compare_to_RCP_by_Region")
+    writeData(reagg_sectoral_comparison, domain = "MED_OUT", "H.CH4_Back-Ext_Compare_to_RCP_by_Sector")
 
 
 # Every script should finish with this line
