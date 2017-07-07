@@ -87,7 +87,7 @@
 # params:
 #    x: a dataframe that may or may not contain NaN values
     is.nan.df <- function(x) {
-        do.call(cbind, lapply(x, is.nan)) 
+        do.call( cbind, lapply(x, is.nan) ) 
     }
 
 # retrieveUserDataframeSubset
@@ -187,6 +187,7 @@
                                                                 new.file, "-instructions"),
                                                        domain = "EXT_IN", extension = ".xlsx", 
                                                        sheet_selection = "Interpolation_instructions" )
+
             user_dataframe <- processUserDefinedData( new.file, dataframe_interp_instructions, MSL, MCL, MFL )
             old.file <- new.file
         }
@@ -255,8 +256,8 @@
           
         # If our years haven't been properly subdivided by year, we'll need to
         #     subdivide the whole batch and return back to the beginning of the loop
-            if ( any( batch_data_instructions$start_year != working_instructions$start_year ) ||
-                 any( batch_data_instructions$end_year != working_instructions$end_year ) ) {
+            if ( length( unique( working_instructions$start_year ) ) > 1 ||
+                 length( unique(  working_instructions$end_year  ) ) > 1 ) {
                 
                 year_breaks <- unique( c( batch_data_instructions$start_year,
                                           working_instructions$start_year,
@@ -283,19 +284,20 @@
                 instructions <- rbind( instructions, new_division_batch )
                 next
             }
-        
+            print("Got here")
         # If our years are properly subdivided, we should re-retrieve our
         #   user_defined_data dataframe. This may require drawing on multiple
         #   source files.
             working_instructions <- rbind( working_instructions, batch_data_instructions )
-            user_dataframe_subset <- user_dataframe_subset[0,]
+            user_dataframe_subset <- user_dataframe_subset[ 0, ]
             for ( file in unique( working_instructions$data_file ) ) { 
               
                 dataframe_interp_instructions <- readData( paste0 ( "user-defined-energy/", 
-                                                                    file, "-instructions"),
+                                                                    new.file, "-instructions"),
                                                            domain = "EXT_IN", extension = ".xlsx", 
                                                            sheet_selection = "Interpolation_instructions" )
-                user_dataframe <- processUserDefinedData( file, dataframe_interp_instructions, MSL, MCL, MFL )
+                
+                user_dataframe <- processUserDefinedData( new.file, dataframe_interp_instructions, MSL, MCL, MFL )
                 
                 user_dataframe_subset <- retrieveUserDataframeSubset( user_dataframe, 
                                                                             working_instructions )
@@ -353,7 +355,7 @@
         
         working_instructions$batch_id <- batch
         working_instructions$agg_level <- agg_level
-        if ( !is.na( diagnostics ) ) {
+        if ( is.data.frame( diagnostics ) ) {
             working_instructions$nrow_changed <- diagnostics$rows_changed
             working_instructions$warnings <- diagnostics$warning_diag
         } else {
