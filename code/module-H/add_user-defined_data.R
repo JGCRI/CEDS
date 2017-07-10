@@ -227,7 +227,7 @@
                                    instructions %>% filter( agg_fuel %!in% user_dataframe_subset$agg_fuel ),
                                    instructions %>% filter( !is.na( CEDS_sector ) ) )
             instructions <- unique(instructions)
-        } else if ( agg_level %in% c(1, 2) ) {
+        } else if ( agg_level %in% c( 1, 2 ) ) {
             batch_data_instructions <- instructions %>% filter( iso %in% user_dataframe_subset$iso ) %>%
                                                     filter( agg_fuel %in% user_dataframe_subset$agg_fuel ) %>%
                                                     filter( is.na( agg_sector ) )
@@ -361,7 +361,6 @@
         }
         
         diagnostics <- NA 
-        
         diagnostics <- normalizeAndIncludeData( Xyears, data_to_use, user_dataframe_subset, 
                                                 all_activity_data,
                                                 working_instructions$override_normalization,

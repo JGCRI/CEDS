@@ -25,7 +25,7 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
                                      all_activity_data, override_normalization,
                                      agg_level, start_continuity, end_continuity ) {
     
-    continuity_year_range <- 4
+    continuity_year_range <- 7
     
 # The any() function returns NA if no elements are true but some are NA. We do a
 # quick overwrite if this is the case so that we can use
@@ -149,8 +149,13 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
         annual_diffs <- pct_of_agg_group
         annual_diffs[ 1, Xyears ] <- year_totals - new_year_totals
         if ( nrow( year_totals_non_user_rows ) > 1 ) {
-            annual_diffs[ 2:nrow(annual_diffs), Xyears ] <- 
-                  as.numeric( annual_diffs[ 1, Xyears ] ) 
+            if (length( Xyears ) > 1) {
+                annual_diffs[ 2:nrow(annual_diffs), Xyears ] <- 
+                      annual_diffs[ 1, Xyears ]
+            } else {
+                annual_diffs[ 2:nrow(annual_diffs), Xyears ] <- 
+                      as.numeric( annual_diffs[ 1, Xyears ] )
+            }
         }
     # Each row linearly absorbs a percentage of the total difference
         sums_to_add <- pct_of_agg_group
@@ -198,11 +203,6 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
     
     disagg_pct_breakdown[ is.nan.df(disagg_pct_breakdown) ] <- 0
     
-    
-# Multiply these percentages by the new values to get updated versions
-    disagg_data_changed[ , Xyears ] <- disagg_pct_breakdown[ , Xyears ] *
-                                       agg_group_totals_changed[ , Xyears ]
-
 ### In here is where the zeros get changed in the case that there is a cell with
 ### zeros for the PREVIOUS aggregate group but the changed data specifies a
 ### nonzero aggregate amount#################################################################################################################################################
@@ -211,13 +211,57 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
               act_agg_changed[ , Xyears ] != 0 ) ) {
     # We need a percentage breakdown for a cell that has zero emissions.
       
-        zero_cells <- act_agg_changed
-        zero_cells[ , Xyears ] <- act_agg_changed[ , Xyears ] != 0 &
-                                  activity_agg_to_level[ , Xyears ] == 0
+        zero_cells <- act_agg_changed[ which( rowSums( act_agg_changed[, Xyears] ) > 0 ), ]
+        zero_cells[ , Xyears ] <- activity_agg_to_level[ which( rowSums( act_agg_changed[, Xyears] ) > 0 ),
+                                                         Xyears ] == 0
         
+        any_zeros <- zero_cells[ apply( zero_cells[ , Xyears ], 1, any ), ]
         all_zeros <- zero_cells[ apply( zero_cells[ , Xyears ], 1, all ), ]
+        not_all_zeros <- rbind( all_zeros, any_zeros )
+        not_all_zeros <- not_all_zeros[ !duplicated( not_all_zeros ) &
+                                          seq(nrow(not_all_zeros)) > nrow(all_zeros), ]
         
-    
+    # For rows that have some but not all zero cells (some 0 rows available)
+        if ( nrow( not_all_zeros ) > 0 ) {
+            for ( row_num in 1:nrow(not_all_zeros) ) {
+                operating_row <- not_all_zeros[row_num, ]
+                breakdowns_to_correct <- disagg_pct_breakdown
+                for ( col in cols_given ) {
+                    breakdowns_to_correct <- breakdowns_to_correct[ breakdowns_to_correct[, col] 
+                                                       == operating_row[, col], ]
+                }
+                
+            ### Can we interpolate our percentage breakdowns?
+                breakdowns_to_correct[ , 5 + which( colSums( breakdowns_to_correct[ , Xyears] ) == 0 ) ] <- NA
+                new_percent_breakdowns <- breakdowns_to_correct
+                
+            # If the first or last year is NA this will make complete
+            # interpolation impossible. We will therefore come up with a global
+            # default for the first and last year if it is NA.
+                
+                if ( all( is.na( breakdowns_to_correct[ , Xyears[1] ] ) ) ) {
+                    first_non_NA <- min( which( !is.na( breakdowns_to_correct[ 1, Xyears ] ))) + 5
+                    breakdowns_to_correct[ , Xyears[1] ] <- breakdowns_to_correct[, first_non_NA]
+                }
+                if ( all( is.na( breakdowns_to_correct[ , Xyears[ length(Xyears) ] ] ) ) ) {
+                    first_non_NA <- max( which( !is.na( breakdowns_to_correct[ 1, Xyears ] ))) + 5
+                    breakdowns_to_correct[ , Xyears[ length(Xyears) ] ] <- 
+                            breakdowns_to_correct[, first_non_NA]
+                }
+
+                
+                
+                new_percent_breakdowns[ , Xyears ] <- interpolate_NAs( breakdowns_to_correct[ , Xyears ] )
+                
+            }
+            
+            disagg_pct_breakdown[ which( disagg_pct_breakdown$CEDS_fuel %in% new_percent_breakdowns$CEDS_fuel &
+                                         disagg_pct_breakdown$CEDS_sector %in% new_percent_breakdowns$CEDS_sector ), ] <-
+                    new_percent_breakdowns
+            
+        }
+        
+    # For rows that have no non-zero years available:
         if ( nrow( all_zeros ) > 0 ) {
             
             breakdowns_to_correct <- disagg_pct_breakdown
@@ -226,14 +270,43 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
                                                                 %in% all_zeros[, col], ]
             }
             
+            breakdowns_to_correct[ , Xyears ] <- apply( breakdowns_to_correct, 1,
+                                                        sumAllActivityByFuelSector )
+            
+            totals_by_agg_group <- ddply( breakdowns_to_correct, cols_given, 
+                                          function(x) colSums( x[ Xyears ] ) )
+            
+            totals_by_agg_group <- left_join( breakdowns_to_correct[ c( "iso", "CEDS_fuel",
+                                                                        "CEDS_sector", "agg_sector", 
+                                                                        "agg_fuel" ) ],
+                                              totals_by_agg_group, by = cols_given )
+            
+            new_percent_breakdowns <- totals_by_agg_group
+            new_percent_breakdowns[ , Xyears ] <- breakdowns_to_correct[ , Xyears ] / 
+                                                  totals_by_agg_group[ , Xyears ]
+            
+        ### I need to do something about the fact that this can STILL cause a 0 
+        ### if nowhere in the world has data here. Although I guess at that 
+        ### point we probably need to just make it 0. Maybe divide it evenly?
+        ### For now, just correct NaN and NA to 0
+            
+            new_percent_breakdowns[ is.nan.df( new_percent_breakdowns ) ] <- 0
+            
+            
+            disagg_pct_breakdown[ which( disagg_pct_breakdown$CEDS_fuel %in% new_percent_breakdowns$CEDS_fuel &
+                                         disagg_pct_breakdown$CEDS_sector %in% new_percent_breakdowns$CEDS_sector ), ] <-
+                    new_percent_breakdowns
         }
-        
-    # Default is global?
-        
         
         
     }
-    
+    # Multiply these percentages by the new values to get updated versions
+    disagg_data_changed[ , Xyears ] <- disagg_pct_breakdown[ , Xyears ] *
+                                       agg_group_totals_changed[ , Xyears ]
+    if ( agg_level == 4 ) {
+        disagg_data_changed <- act_agg_changed
+    }
+
     
     
 
@@ -362,8 +435,22 @@ generateWarnings <- function ( Xyears, disagg_data_changed,
 }
 
 
-
-
+# sumAllActivityByFuelSector
+# A helper function for enforcing percentage breakdowns in all-zero rows.
+#    Helps create a global default percentage breakdown for a given aggregation category.
+sumAllActivityByFuelSector <- function( guide_row, years = Xyears, data = all_activity_data ) {
+    
+    fuel_row <- as.character( guide_row[ which( names( guide_row ) == "CEDS_fuel" ) ] )
+    sector_row <- as.character( guide_row[ which( names( guide_row ) == "CEDS_sector" ) ] )
+    
+    df_to_sum <- data %>% 
+                  filter( CEDS_sector == sector_row ) %>%
+                  filter( CEDS_fuel == fuel_row )
+    
+    df_to_sum[ is.na( df_to_sum ) ] <- 0
+    
+    return( colSums( df_to_sum[ , years ] ) )
+}
 
 
 
