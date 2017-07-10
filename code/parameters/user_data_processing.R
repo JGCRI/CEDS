@@ -25,7 +25,13 @@
         
         Xyears <- colnames( dataframe )[ which( isXYear( colnames( dataframe ) ) ) ]
         
-        dataframe[ , Xyears ] <- as.data.frame( sapply( dataframe[ , Xyears ], as.numeric ) )
+        if ( nrow( dataframe ) > 1 ) {
+            dataframe[ , Xyears ] <- as.data.frame( sapply( dataframe[ , Xyears ], as.numeric ) )
+        } else {
+            dataframe[ , Xyears ] <- sapply( dataframe[ , Xyears ], as.numeric )
+        }
+        
+        
 
         dataframe[ is.na( dataframe ) ] <- 0
         
@@ -245,7 +251,8 @@
                                                         c( "iso", "agg_sector", "CEDS_sector", 
                                                            "agg_fuel", "CEDS_fuel" ) ) ]
         
-        X_data_years <- paste0( "X", interpolation_instructions$start_year:interpolation_instructions$end_year )
+        X_data_years <- paste0( "X", unique( interpolation_instructions$start_year ):
+                                     unique( interpolation_instructions$end_year ) )
         
         needed_Xyears <- X_data_years[ which( X_data_years %!in% colnames( dataframe ) ) ]
         extra_Xyears <- colnames( dataframe )[ which( colnames( dataframe ) %!in% X_data_years &
@@ -272,8 +279,10 @@
       
         if ( interpolation_instructions$method %!in% valid_methods ) {
         # Throw an error if the method is invalid
-            stop( paste0( "Specified interpolation method '", 
-                       interpolation_instructions$method, "' is invalid" ) )
+            warning( paste0( "Specified interpolation method '", 
+                       interpolation_instructions$method, "' is invalid; using linear" ) )
+            final_dataframe <- dataframe
+            final_dataframe[ , X_data_years ] <- interpolate_NAs( final_dataframe[ , X_data_years ] )
         } else if ( interpolation_instructions$method == "match_to_trend" ) {
         # Execute trend-matching function
             final_dataframe <- interpolateByTrend( dataframe, 

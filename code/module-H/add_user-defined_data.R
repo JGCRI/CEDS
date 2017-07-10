@@ -169,6 +169,8 @@
     old.file <- "NULL"
     
     while ( nrow( instructions ) > 0 ) {
+      
+        all_activity_data <- activity_environment$all_activity_data
         
         batch <- batch + 1
     
@@ -362,8 +364,10 @@
         
         diagnostics <- normalizeAndIncludeData( Xyears, data_to_use, user_dataframe_subset, 
                                                 all_activity_data,
-                                                as.logical( working_instructions$override_normalization ),
-                                                agg_level )
+                                                working_instructions$override_normalization,
+                                                agg_level, 
+                                                working_instructions$start_continuity,
+                                                working_instructions$end_continuity )
         
         working_instructions$batch_id <- batch
         working_instructions$agg_level <- agg_level
@@ -378,6 +382,12 @@
         rows_completed <- rbind( rows_completed, working_instructions )
     }
 
-    writeData( rows_completed, domain = "DIAG_OUT", fn = "user-ext-data_diagnostics")
+    writeData( rows_completed, domain = "DIAG_OUT", fn = "user-ext-data_diagnostics" )
 
+    
+
+    
+    
+    
+    
     
