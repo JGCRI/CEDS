@@ -91,6 +91,7 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
 # Initialize warning info
     negatives <- F
     all_zero_years <- NA
+    need_user_spec <- F
 # The block of code that deals with normalization (the process of modifying rows
 # that weren't directly specified in order to retain aggregate information) will
 # only be called if a) a whole group was not specified and b) no manual override
@@ -273,6 +274,11 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
             breakdowns_to_correct[ , Xyears ] <- apply( breakdowns_to_correct, 1,
                                                         sumAllActivityByFuelSector )
             
+            if ( any( colSums( breakdowns_to_correct[ , Xyears ] ) == 0 ) ) {
+                breakdowns_to_correct[ , 5 + which( colSums( breakdowns_to_correct[ , Xyears ] ) == 0 ) ] <- 1
+                need_user_spec <- T
+            }
+            
             totals_by_agg_group <- ddply( breakdowns_to_correct, cols_given, 
                                           function(x) colSums( x[ Xyears ] ) )
             
@@ -314,12 +320,11 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
     if ( agg_level != 1 ) {
         warning_diagnostics <- generateWarnings( Xyears, disagg_data_changed,
                                                  data_to_use, negatives, whole_group,
-                                                 override_normalization, all_zero_years )
+                                                 override_normalization, all_zero_years,
+                                                 need_user_spec)
     } else {
         warning_diagnostics <- NA
     }
-    
-    
     
     if ( ( start_continuity || end_continuity ) && 
          length( Xyears ) > 2 ) {
@@ -393,13 +398,18 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
 #                            manually skipped
 generateWarnings <- function ( Xyears, disagg_data_changed, 
                                data_to_use, negatives, whole_group, 
-                               override_normalization, all_zero_years ) {
+                               override_normalization, all_zero_years,
+                               need_user_spec ) {
   
 # Exclude those years for which there is no non-user-specified data from generating warnings
     years_to_compare <- Xyears[ which( Xyears %!in% all_zero_years ) ]
     
     if ( length( years_to_compare ) == 0 ) {
-       return( NA )
+        return( NA )
+    }
+    
+    if ( need_user_spec ) {
+        return( "User-specified percent breakdowns are needed; no global defaults." )
     }
     
     warning_diag <- NA
