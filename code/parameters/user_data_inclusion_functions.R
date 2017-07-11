@@ -23,9 +23,7 @@
 
 normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset, 
                                      all_activity_data, override_normalization,
-                                     agg_level, start_continuity, end_continuity ) {
-    
-    continuity_year_range <- 7
+                                     agg_level ) {
     
 # The any() function returns NA if no elements are true but some are NA. We do a
 # quick overwrite if this is the case so that we can use
@@ -338,18 +336,14 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
                                          disagg_pct_breakdown$CEDS_sector %in% new_percent_breakdowns$CEDS_sector ), ] <-
                     new_percent_breakdowns
         }
-        
-        
     }
-    # Multiply these percentages by the new values to get updated versions
+    
+# Multiply these percentages by the new values to get updated versions
     disagg_data_changed[ , Xyears ] <- disagg_pct_breakdown[ , Xyears ] *
                                        agg_group_totals_changed[ , Xyears ]
     if ( agg_level == 4 ) {
         disagg_data_changed <- act_agg_changed
     }
-
-    
-    
 
 # Call the generateWarnings function to diagnose how well we did retaining column sums
     if ( agg_level != 1 ) {
@@ -361,53 +355,6 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
         warning_diagnostics <- NA
     }
     
-    if ( ( start_continuity || end_continuity ) && 
-         length( Xyears ) > 2 ) {
-        act_rows_to_integrate <- all_activity_data[ which( all_activity_data$iso %in% disagg_data_changed$iso &
-                                    all_activity_data$CEDS_fuel %in% disagg_data_changed$CEDS_fuel &
-                                    all_activity_data$CEDS_sector %in% disagg_data_changed$CEDS_sector ), Xyears]
-        if ( length( Xyears ) < ( continuity_year_range * 2 ) + 1 ) {
-            continuity_year_range <- floor( length( Xyears ) / 2 ) - 1
-        }
-        
-        smooth_interval_beginning <- paste0( "X", ( working_instructions$start_year[1] ):
-                                                  ( working_instructions$start_year[1] + continuity_year_range ) )
-        
-        smooth_interval_end <- paste0( "X", ( working_instructions$end_year[1] - continuity_year_range ):
-                                            ( working_instructions$end_year[1] ) )
-        
-    # This is really unnecessary, since we won't go outside the range of
-    # disagg_data (which has already been enforced), but in case we change
-    # that, here it is
-        smooth_interval_beginning <- smooth_interval_beginning[ smooth_interval_beginning %in% 
-                                                      colnames(all_activity_data) ]
-        smooth_interval_end <- smooth_interval_end[ smooth_interval_end %in% 
-                                                      colnames(all_activity_data) ]
-
-        smooth_factor_b <- 1 / length( smooth_interval_beginning )
-        smooth_factor_e <- 1 / length( smooth_interval_end )
-        
-        if ( start_continuity ) {
-            for ( i in seq_along( smooth_interval_beginning ) ) {
-                disagg_data_changed[ , smooth_interval_beginning[i] ] <- 
-                              ( i * smooth_factor_b ) *
-                              disagg_data_changed[ , smooth_interval_beginning[i] ] + 
-                              ( 1 - ( i * smooth_factor_b ) ) *
-                              act_rows_to_integrate[ , smooth_interval_beginning[i] ]
-            }
-        }
-        
-        if ( end_continuity ) {
-            for ( i in seq_along( smooth_interval_end ) ) {
-                disagg_data_changed[ , smooth_interval_end[i] ] <- 
-                              ( 1 - ( i * smooth_factor_e ) ) *
-                              disagg_data_changed[ , smooth_interval_end[i] ] + 
-                              ( i * smooth_factor_e ) *
-                              act_rows_to_integrate[ , smooth_interval_end[i] ]
-            }
-        }
-        
-    }
     all_activity_data[ which( all_activity_data$iso %in% disagg_data_changed$iso &
                               all_activity_data$CEDS_fuel %in% disagg_data_changed$CEDS_fuel &
                               all_activity_data$CEDS_sector %in% disagg_data_changed$CEDS_sector ), Xyears ] <-
@@ -509,15 +456,21 @@ sumAllActivityByFuelSector <- function( guide_row, years = Xyears, data = all_ac
 
 
 # enforceContinuity 
-enforceContinuity <- function( activity_environment ) {
+enforceContinuity <- function( act_env, yearsAllowed ) {
     
-    final_activity_data <- ( activity_environment$all_activity_data *
-                             activity_environment$continuity_factors ) +
-                           ( activity_environment$old_activity_data *
-                             1 - activity_environment$continuity_factors )
+    final_activity_data <- act_env$all_activity_data
+
+    final_activity_data[ , yearsAllowed ] <- 
+                           ( act_env$all_activity_data[ , yearsAllowed ] *
+                             act_env$continuity_factors[ , yearsAllowed ] ) +
+                           ( act_env$old_activity_data[ , yearsAllowed ] *
+                           ( 1 - act_env$continuity_factors[ , yearsAllowed ] ) )
   
     return( final_activity_data )
+    
 }
+
+
 
 # initializeContinuityFactors
 initializeContinuityFactors <- function( activity_environment, instructions,
@@ -526,7 +479,7 @@ initializeContinuityFactors <- function( activity_environment, instructions,
     activity_environment$continuity_factors <- activity_environment$all_activity_data
     activity_environment$continuity_factors[ , yearsAllowed ] <- 1
 
-    for ( row_num in nrow( instructions ) ) {
+    for ( row_num in 1:nrow( instructions ) ) {
     # Select the row for initializating continuity
         this.row <- instructions[ row_num, ]
         start_year <- this.row$start_year
@@ -560,17 +513,21 @@ initializeContinuityFactors <- function( activity_environment, instructions,
         if ( this.row$start_continuity && start_year != 1750 ) {
             rows_to_adjust[ 1, paste0( "X", start_year:( start_year + continuity_interval - 1 ) ) ] <-
                   ( 1:continuity_interval ) * continuity_step
-            rows_to_adjust[ 2:nrow(rows_to_adjust), paste0( "X", start_year:( start_year + continuity_interval - 1 ) ) ] <-
-                rows_to_adjust[ 1, paste0( "X", start_year:( start_year + continuity_interval - 1 ) ) ]
+            if ( nrow( rows_to_adjust ) > 1 ) {
+                rows_to_adjust[ 2:nrow(rows_to_adjust), paste0( "X", start_year:( start_year + continuity_interval - 1 ) ) ] <-
+                    rows_to_adjust[ 1, paste0( "X", start_year:( start_year + continuity_interval - 1 ) ) ]
+            }
             
         }
         
         if ( this.row$end_continuity && end_year < 2014 ) {
             rows_to_adjust[ 1, paste0( "X", end_year:( end_year - continuity_interval + 1 ) ) ] <-
                   ( 1:continuity_interval ) * continuity_step
-            rows_to_adjust[ 2:nrow(rows_to_adjust), 
-                            paste0( "X", end_year:( end_year - continuity_interval + 1 ) ) ] <-
-                rows_to_adjust[ 1, paste0( "X", end_year:( end_year - continuity_interval + 1 ) ) ]
+            if ( nrow( rows_to_adjust ) > 1 ) {
+                rows_to_adjust[ 2:nrow(rows_to_adjust), 
+                                paste0( "X", end_year:( end_year - continuity_interval + 1 ) ) ] <-
+                    rows_to_adjust[ 1, paste0( "X", end_year:( end_year - continuity_interval + 1 ) ) ]
+            }
         }
 
         activity_environment$continuity_factors[ which( activity_environment$continuity_factors$iso %in%

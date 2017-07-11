@@ -391,9 +391,7 @@
         diagnostics <- normalizeAndIncludeData( Xyears, data_to_use, user_dataframe_subset, 
                                                 all_activity_data,
                                                 working_instructions$override_normalization,
-                                                agg_level, 
-                                                working_instructions$start_continuity,
-                                                working_instructions$end_continuity )
+                                                agg_level )
         
     # Tack on some diagnostics to the working instructions dataframe for
     # diagnostic output
@@ -413,7 +411,9 @@
 # ------------------------------------------------------------------------------------
 # 4. Write out the diagnostic data
     writeData( rows_completed, domain = "DIAG_OUT", fn = "user-ext-data_diagnostics" )
-
+    
+    final_activity <- enforceContinuity( activity_environment, yearsAllowed )
+    
     logStop()
 
 #END
