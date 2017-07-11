@@ -11,9 +11,9 @@
 ###       all we need to do is reject this user-defined dataset and proceed
 ###       to the next one... Unless this would make it hard for the user
 ###       to see that their changes are being rejected?
-# ------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # 0. Read in global settings and headers
     dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
     for ( i in 1:length( dirs ) ) {
@@ -141,7 +141,7 @@
     default_activity_mapped <- mapToCEDS( default_activity, MSL, MCL, MFL, aggregate = F )
 
 # ------------------------------------------------------------------------------------
-# 2. Collect user-defined inputs and begin processing data loop
+# 2. Collect user-defined inputs and prepare processing loop
 
 # Initialize an environment to track activity data
     activity_environment <- new.env()
@@ -151,8 +151,6 @@
     
     yearsAllowed <- colnames( all_activity_data )[ isXYear(colnames( all_activity_data ))]
     
-    activity_environment$all_activity_data <- all_activity_data
-    
 # Read instructions files and create a procedure list
     instructions <- readInUserInstructions()
     instructions[ which( is.na( instructions$agg_fuel ) ), c( "iso", "CEDS_fuel", "agg_fuel" ) ] <- 
@@ -160,12 +158,26 @@
                                                      c( "iso", "CEDS_fuel" ) ], 
                                        MFL[ , c( "aggregated_fuel", "fuel" ) ], 
                                        by = c( "CEDS_fuel" = "fuel" ) )
+    
+# Establish the activity_environment, an environment which will hold three
+# dataframes needed to be passed together
+    activity_environment$all_activity_data <- all_activity_data
+    activity_environment$old_activity_data <- all_activity_data
+    
+    activity_environment <-
+          initializeContinuityFactors( activity_environment,
+                                       instructions )
+
+    
 
 # This will store the final form of each instruction used, for diagnostics
     rows_completed <- instructions[ 0, ]
     
 # This integer will track which batch number we're on, for informing diagnostics
     batch <- 0
+    
+# ------------------------------------------------------------------------------------
+# 3. Execute processing loop
     
     while ( nrow( instructions ) > 0 ) {
     
@@ -368,7 +380,14 @@
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
         }
         
+    # Initialize diagnostics as NA, so if the function fails or returns nothing
+    # it will still exist
         diagnostics <- NA 
+    
+    # Execute the normalizeAndIncludeData function in
+    # user_data_inclusion_functions. This is the main point of the program; it
+    # will normalize, disaggregate, and then incorporate the user-defined data
+    # into activity_environment$all_activity_data
         diagnostics <- normalizeAndIncludeData( Xyears, data_to_use, user_dataframe_subset, 
                                                 all_activity_data,
                                                 working_instructions$override_normalization,
@@ -376,6 +395,8 @@
                                                 working_instructions$start_continuity,
                                                 working_instructions$end_continuity )
         
+    # Tack on some diagnostics to the working instructions dataframe for
+    # diagnostic output
         working_instructions$batch_id <- batch
         working_instructions$agg_level <- agg_level
         if ( is.data.frame( diagnostics ) ) {
@@ -385,16 +406,17 @@
             working_instructions$nrow_changed <- 0
             working_instructions$warnings <- "Normalize and Include function not called"
         }
-        
+    # Add working instructions to rows_completed, which will be a diagnostic for
+    # reviewing what changes occurred
         rows_completed <- rbind( rows_completed, working_instructions )
     }
-
+# ------------------------------------------------------------------------------------
+# 4. Write out the diagnostic data
     writeData( rows_completed, domain = "DIAG_OUT", fn = "user-ext-data_diagnostics" )
 
-    
+    logStop()
 
-    
-    
+#END
     
     
     

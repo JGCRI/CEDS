@@ -506,3 +506,84 @@ sumAllActivityByFuelSector <- function( guide_row, years = Xyears, data = all_ac
 
 
 
+
+
+# enforceContinuity 
+enforceContinuity <- function( activity_environment ) {
+    
+    final_activity_data <- ( activity_environment$all_activity_data *
+                             activity_environment$continuity_factors ) +
+                           ( activity_environment$old_activity_data *
+                             1 - activity_environment$continuity_factors )
+  
+    return( final_activity_data )
+}
+
+# initializeContinuityFactors
+initializeContinuityFactors <- function( activity_environment, instructions,
+                                         default_continuity_interval = 7 ) {
+    
+    activity_environment$continuity_factors <- activity_environment$all_activity_data
+    activity_environment$continuity_factors[ , yearsAllowed ] <- 1
+
+    for ( row_num in nrow( instructions ) ) {
+    # Select the row for initializating continuity
+        this.row <- instructions[ row_num, ]
+        start_year <- this.row$start_year
+        end_year <- this.row$end_year
+        continuity_interval <- default_continuity_interval
+    # Determine the years of the data
+        data_years <- paste0( "X", start_year:end_year )
+        data_years <- data_years[ which( data_years %in% 
+                                         colnames( activity_environment$all_activity_data ) ) ]
+    # If the data year length is less than twice the continuity interval, the interval will need to be reduced.
+        if ( length( data_years ) < continuity_interval * 2 ) {
+            continuity_interval <- floor( length( data_years ) / 2 )
+        }
+    
+    # Determine which columns are present (bypass needing agg_level)
+        cols_given <- colnames( instructions )[ which( !is.na( this.row ) &
+                                                       colnames( instructions ) %in% 
+                                                       c( "iso", "CEDS_fuel",
+                                                          "CEDS_sector", "agg_sector",
+                                                          "agg_fuel" ) ) ]
+        
+    # Extract the subset of disaggregated rows corresponding to the data
+        rows_to_adjust <- activity_environment$continuity_factors
+        for ( col in cols_given ) {
+            rows_to_adjust <- rows_to_adjust[ rows_to_adjust[, col] 
+                                      %in% this.row[, col], ]
+        }
+        
+        continuity_step <- 1 / continuity_interval
+        
+        if ( this.row$start_continuity && start_year != 1750 ) {
+            rows_to_adjust[ 1, paste0( "X", start_year:( start_year + continuity_interval - 1 ) ) ] <-
+                  ( 1:continuity_interval ) * continuity_step
+            rows_to_adjust[ 2:nrow(rows_to_adjust), paste0( "X", start_year:( start_year + continuity_interval - 1 ) ) ] <-
+                rows_to_adjust[ 1, paste0( "X", start_year:( start_year + continuity_interval - 1 ) ) ]
+            
+        }
+        
+        if ( this.row$end_continuity && end_year < 2014 ) {
+            rows_to_adjust[ 1, paste0( "X", end_year:( end_year - continuity_interval + 1 ) ) ] <-
+                  ( 1:continuity_interval ) * continuity_step
+            rows_to_adjust[ 2:nrow(rows_to_adjust), 
+                            paste0( "X", end_year:( end_year - continuity_interval + 1 ) ) ] <-
+                rows_to_adjust[ 1, paste0( "X", end_year:( end_year - continuity_interval + 1 ) ) ]
+        }
+
+        activity_environment$continuity_factors[ which( activity_environment$continuity_factors$iso %in%
+                                                          rows_to_adjust$iso &
+                                                        activity_environment$continuity_factors$CEDS_sector %in%
+                                                          rows_to_adjust$CEDS_sector &
+                                                        activity_environment$continuity_factors$CEDS_fuel %in%
+                                                          rows_to_adjust$CEDS_fuel ), ] <-
+                        rows_to_adjust
+
+    }
+  
+    return( activity_environment )
+  
+}
+
