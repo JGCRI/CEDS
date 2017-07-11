@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: user_data_proc_pseudocode.R
 # Author: Ben Goldstein
-# Date Last Updated: 5 July 2017
+# Date Last Updated: 11 July 2017
 # Program Purpose: To process user-defined datasets for use in the historical
 #                  energy extension. 
 # Input Files: U.*.csv, U.*-instructions.xslx, U.*-mapping.xslx
@@ -77,7 +77,7 @@
 # params:
 #    x: some non-list object
     is.invalid = function(x) {
-      return(is.null(x) || is.na(x) || is.nan(x))
+      return( is.null(x) || is.na(x) || is.nan(x) )
     }
     
 # is.nan.df
@@ -156,9 +156,10 @@
 # Read instructions files and create a procedure list
     instructions <- readInUserInstructions()
     instructions[ which( is.na( instructions$agg_fuel ) ), c( "iso", "CEDS_fuel", "agg_fuel" ) ] <- 
-                                        left_join( instructions[ which( is.na(instructions$agg_fuel)), c( "iso", "CEDS_fuel" ) ], 
-                                                            MFL[ , c( "aggregated_fuel", "fuel" ) ], 
-                                                            by = c( "CEDS_fuel" = "fuel" ) )
+                            left_join( instructions[ which( is.na( instructions$agg_fuel ) ), 
+                                                     c( "iso", "CEDS_fuel" ) ], 
+                                       MFL[ , c( "aggregated_fuel", "fuel" ) ], 
+                                       by = c( "CEDS_fuel" = "fuel" ) )
 
 # This will store the final form of each instruction used, for diagnostics
     rows_completed <- instructions[ 0, ]
@@ -166,10 +167,8 @@
 # This integer will track which batch number we're on, for informing diagnostics
     batch <- 0
     
-    old.file <- "NULL"
-    
     while ( nrow( instructions ) > 0 ) {
-      
+    
         all_activity_data <- activity_environment$all_activity_data
         
         batch <- batch + 1
@@ -178,21 +177,20 @@
         working_instructions <- instructions[ 1, ]
         instructions <- instructions[ -1, ]
         
-        Xyears <- paste0( "X", working_instructions$start_year:working_instructions$end_year )
-        Xyears <- Xyears[ which( Xyears %in% yearsAllowed )]
-      
-    # Get the first dataset to operate on. 
-        new.file <- working_instructions$data_file
+        Xyears <- paste0( "X", working_instructions$start_year:
+                               working_instructions$end_year )
+        Xyears <- Xyears[ which( Xyears %in% yearsAllowed ) ]
         
-        if ( old.file != new.file ) {
-            dataframe_interp_instructions <- readData( paste0 ( "user-defined-energy/", 
-                                                                new.file, "-instructions"),
-                                                       domain = "EXT_IN", extension = ".xlsx", 
-                                                       sheet_selection = "Interpolation_instructions" )
-
-            user_dataframe <- processUserDefinedData( new.file, dataframe_interp_instructions, MSL, MCL, MFL )
-            old.file <- new.file
-        }
+    # Read in the interpolation instructions, saved with the default filename
+        interp_instructions <- readData( paste0 ( "user-defined-energy/", 
+                                                  working_instructions$data_file, "-instructions"),
+                                                  domain = "EXT_IN", extension = ".xlsx", 
+                                                  sheet_selection = "Interpolation_instructions" )
+    # call the processUserDefinedData function, which will execute mapping
+    # and interpolation as necessary
+        user_dataframe <- processUserDefinedData( working_instructions$data_file, 
+                                                  interp_instructions, 
+                                                  MSL, MCL, MFL )
         
     # Extract the data from the dataframe that will refer to the specific
     # categories and years as defined by the
@@ -202,7 +200,6 @@
     # Identify other instructions in the "batch" that will neeed to be
     # aggreagated as one.
         if ( agg_level == 4 ) {
-            
             batch_data_instructions <- instructions[ which( instructions$iso %in% user_dataframe_subset$iso &
                                                             instructions$CEDS_sector %in% user_dataframe_subset$CEDS_sector &
                                                             instructions$agg_fuel
@@ -244,35 +241,45 @@
                                    instructions %>% filter( agg_sector %!in% user_dataframe_subset$agg_sector ) )
             instructions <- unique(instructions)
         }
-
+    
+    # Files only need to be batched if their year ranges overlap.
         batch_instructions_overlap <- batch_data_instructions[ which( 
                               batch_data_instructions$start_year < working_instructions$end_year &
                               batch_data_instructions$end_year > working_instructions$start_year ), ]
+        
+    # Extract those that don't overlap and bind them back into instructions.
         batch_instructions_no_overlap <- batch_data_instructions[ which( 
                               batch_data_instructions$start_year > working_instructions$end_year |
                               batch_data_instructions$end_year < working_instructions$start_year ), ]
-        instructions <- rbind( instructions, batch_instructions_no_overlap )
+        instructions <- rbind( batch_instructions_no_overlap, instructions )  ### Should sort instructions at this point
+        
         batch_data_instructions <- batch_instructions_overlap
+    
     # If there are data in our instructions that will be in the current group's batch:
         if ( nrow( batch_data_instructions ) > 0 ) {
             
-        # If our years haven't been properly subdivided by year, we'll need to
-        #     subdivide the whole batch and return back to the beginning of the loop
-            if ( length( unique( c(batch_data_instructions$start_year, working_instructions$start_year) ) ) > 1 ||
-                 length( unique(  c(batch_data_instructions$end_year, working_instructions$end_year)  ) ) > 1 ) {
-                
-                got_here <- T
-                
+        # If our years haven't been properly subdivided by year, we'll need to 
+        # subdivide the whole batch and return back to the beginning of the
+        # loop. The goal of this process is to be able to process subdivisions
+        # of datasets that only partially overlap. 
+            if ( length( unique( c(batch_data_instructions$start_year, 
+                                   working_instructions$start_year) ) ) > 1 ||
+                 length( unique(  c(batch_data_instructions$end_year, 
+                                    working_instructions$end_year)  ) ) > 1 ) {
+            # Identify all the breaks that will need to occur (each unique start
+            # and end year)
                 year_breaks <- unique( c( batch_data_instructions$start_year,
                                           working_instructions$start_year,
                                           batch_data_instructions$end_year + 1,
                                           working_instructions$end_year + 1 ) ) %>%
                                   sort()
-                
+            # Combine the working with the rest of the batch
                 whole_batch <- rbind( working_instructions, batch_data_instructions )
                 new_division_batch <- whole_batch[ 0, ]
-                
-                for (i in 1:(length(year_breaks)-1)) {
+            
+            # For each break: create a new instruction for any instruction that
+            # encompasses this year range
+                for ( i in 1:( length( year_breaks ) - 1 ) ) {
                     new_year_span <- year_breaks[ i ]:( year_breaks[ i+1 ] - 1 )
                     
                     rows_to_segment <- whole_batch[ which( whole_batch$start_year <=
@@ -294,8 +301,8 @@
                 }
                 
                 
-                
-                instructions <- rbind( instructions, new_division_batch )
+            # Tack all the newly-divided instructions onto the instructions df
+                instructions <- rbind( new_division_batch, instructions )
                 next
             }
             print("Got here")
@@ -305,23 +312,25 @@
             working_instructions <- rbind( working_instructions, batch_data_instructions )
             user_dataframe_subset <- user_dataframe_subset[ 0, ]
             for ( file in unique( working_instructions$data_file ) ) { 
-              
                 dataframe_interp_instructions <- readData( paste0 ( "user-defined-energy/", 
-                                                                    new.file, "-instructions"),
+                                                                    file, 
+                                                                    "-instructions"),
                                                            domain = "EXT_IN", extension = ".xlsx", 
                                                            sheet_selection = "Interpolation_instructions" )
                 
-                user_dataframe <- processUserDefinedData( new.file, dataframe_interp_instructions, MSL, MCL, MFL )
+                user_dataframe <- processUserDefinedData( file, 
+                                                          dataframe_interp_instructions, 
+                                                          MSL, MCL, MFL )
                 
-                user_dataframe_subset <- retrieveUserDataframeSubset( user_dataframe, 
-                                                                            working_instructions )
+                user_dataframe_subset <- rbind( retrieveUserDataframeSubset( user_dataframe, 
+                                                                      working_instructions ) )
             }
         }
         
     # Identify the rows that will need adjusting. If the aggregation level is the lowest,
     #   this will be any rows that match to your row, and any row in the next-highest aggregation
-    #   GROUP. For example, If I'm adjusting ger-coal_coke-1A1, I will need to edit all the
-    #   ger-coal_coke-1A rows.
+    #   GROUP. For example, If I'm adjusting usa-coal_coke-1A1, I will need to edit all the
+    #   usa-coal_coke-1A rows.
     #   If we're dealing with data on not the lowest aggregation level, you need any cells that
     #   can map to this cell.
     # Basically, in all cases: figure out what level you're on, 
@@ -334,7 +343,6 @@
                                                                                                     user_dataframe_subset$CEDS_fuel ) ]
                                                      ), c( colnames( all_activity_data[ which( !isXYear( 
                                                        colnames( all_activity_data ) ) ) ] ), Xyears ) ]
-            
         } else if (agg_level == 3) {
             data_to_use <- all_activity_data[ which( all_activity_data$iso %in% user_dataframe_subset$iso &
                                                      all_activity_data$agg_sector %in% user_dataframe_subset$agg_sector &
@@ -342,7 +350,7 @@
                                                                                                     user_dataframe_subset$CEDS_fuel ) ] 
                                                      ), c( colnames( all_activity_data[ which( !isXYear( 
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
-        } else if (agg_level == 2 || agg_level == 1) {
+        } else if ( agg_level == 2 || agg_level == 1 ) {
             data_to_use <- all_activity_data[ which( all_activity_data$iso %in% user_dataframe_subset$iso &
                                                      all_activity_data$agg_fuel %in% user_dataframe_subset$agg_fuel
                                                      ), c( colnames( all_activity_data[ which( !isXYear( 
