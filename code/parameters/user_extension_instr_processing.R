@@ -110,6 +110,14 @@
         }
         all_instructions$override_normalization[ is.na(all_instructions$override_normalization) ] <- F
         
+        if ( "use_as_trend" %!in% colnames(all_instructions) ) {
+            all_instructions$use_as_trend <- F
+        } else {
+            all_instructions$use_as_trend <- as.logical(all_instructions$use_as_trend)
+        }
+        all_instructions$use_as_trend[ is.na( all_instructions$use_as_trend ) ] <- F
+        
+        all_instructions$bypass_processing <- F
         
         return ( all_instructions )
     }

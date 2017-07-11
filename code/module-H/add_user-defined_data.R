@@ -168,7 +168,8 @@
           initializeContinuityFactors( activity_environment,
                                        instructions )
 
-    
+    instructions <- processTrendData( instructions )
+
 
 # This will store the final form of each instruction used, for diagnostics
     rows_completed <- instructions[ 0, ]
@@ -193,16 +194,21 @@
                                working_instructions$end_year )
         Xyears <- Xyears[ which( Xyears %in% yearsAllowed ) ]
         
-    # Read in the interpolation instructions, saved with the default filename
-        interp_instructions <- readData( paste0 ( "user-defined-energy/", 
-                                                  working_instructions$data_file, "-instructions"),
-                                                  domain = "EXT_IN", extension = ".xlsx", 
-                                                  sheet_selection = "Interpolation_instructions" )
-    # call the processUserDefinedData function, which will execute mapping
-    # and interpolation as necessary
-        user_dataframe <- processUserDefinedData( working_instructions$data_file, 
-                                                  interp_instructions, 
-                                                  MSL, MCL, MFL )
+        if ( !any( working_instructions$bypass_processing ) ) {
+        # Read in the interpolation instructions, saved with the default filename
+            interp_instructions <- readData( paste0 ( "user-defined-energy/", 
+                                                      working_instructions$data_file, "-instructions"),
+                                                      domain = "EXT_IN", extension = ".xlsx", 
+                                                      sheet_selection = "Interpolation_instructions" )
+        # call the processUserDefinedData function, which will execute mapping
+        # and interpolation as necessary
+            user_dataframe <- processUserDefinedData( working_instructions$data_file, 
+                                                      interp_instructions, 
+                                                      MSL, MCL, MFL )
+        } else {
+            user_dataframe <- readData( working_instructions$data_file, domain = "EXT_IN",
+                                        domain_extension = "user-defined-energy/" )
+        }
         
     # Extract the data from the dataframe that will refer to the specific
     # categories and years as defined by the
@@ -323,17 +329,25 @@
         #   source files.
             working_instructions <- rbind( working_instructions, batch_data_instructions )
             user_dataframe_subset <- user_dataframe_subset[ 0, ]
-            for ( file in unique( working_instructions$data_file ) ) { 
-                dataframe_interp_instructions <- readData( paste0 ( "user-defined-energy/", 
-                                                                    file, 
-                                                                    "-instructions"),
-                                                           domain = "EXT_IN", extension = ".xlsx", 
-                                                           sheet_selection = "Interpolation_instructions" )
+            for ( row_num in 1:nrow( working_instructions ) ) { 
+                file <- working_instructions$data_file[ row_num ]
+                bypass <- working_instructions$bypass_processing[ row_num ]
                 
-                user_dataframe <- processUserDefinedData( file, 
-                                                          dataframe_interp_instructions, 
-                                                          MSL, MCL, MFL )
-                
+                if ( !bypass ) {
+                # Read in the interpolation instructions, saved with the default filename
+                    interp_instructions <- readData( paste0 ( "user-defined-energy/", 
+                                                              file, "-instructions"),
+                                                              domain = "EXT_IN", extension = ".xlsx", 
+                                                              sheet_selection = "Interpolation_instructions" )
+                # call the processUserDefinedData function, which will execute mapping
+                # and interpolation as necessary
+                    user_dataframe <- processUserDefinedData( file, 
+                                                              interp_instructions, 
+                                                              MSL, MCL, MFL )
+                } else {
+                    user_dataframe <- readData( file, domain = "EXT_IN",
+                                                domain_extension = "user-defined-energy/" )
+                }                
                 user_dataframe_subset <- rbind( retrieveUserDataframeSubset( user_dataframe, 
                                                                       working_instructions ) )
             }
@@ -412,7 +426,7 @@
 # 4. Write out the diagnostic data
     writeData( rows_completed, domain = "DIAG_OUT", fn = "user-ext-data_diagnostics" )
     
-    final_activity <- enforceContinuity( activity_environment, yearsAllowed )
+    # final_activity <- enforceContinuity( activity_environment, yearsAllowed )
     
     logStop()
 

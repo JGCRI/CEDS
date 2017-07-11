@@ -368,6 +368,7 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
     
 }
 
+#------------------------------------------------------------------------------
 # generateWarnings
 # Brief: A helper function for normalizeAndIncludeData. Analyzes the output and 
 #        prepares warning diagnostics based on how much data was changed.
@@ -428,6 +429,7 @@ generateWarnings <- function ( Xyears, disagg_data_changed,
 }
 
 
+#------------------------------------------------------------------------------
 # sumAllActivityByFuelSector
 # A helper function for enforcing percentage breakdowns in all-zero rows.
 #    Helps create a global default percentage breakdown for a given aggregation category.
@@ -455,24 +457,53 @@ sumAllActivityByFuelSector <- function( guide_row, years = Xyears, data = all_ac
 
 
 
+#------------------------------------------------------------------------------
 # enforceContinuity 
+# Brief: Used for preventing discontinuity between user-specified input and 
+#          default activity data.
+# Purpose: calculates final_activity based on the unchanged and changed versions
+#          of the activity dataframe, and a dataframe storing continuity "factors"
+#          that holds which cells need what proportion.
+# Params:
+#   act_env: the activity environment, which stores three things: changed activity
+#            data, unchanged activity data, and continuity factors
+#   yearsAllowed: the Xyears in the current run of the system
+# Returns: final_activity_data, a dataframe storing continuous activity data
 enforceContinuity <- function( act_env, yearsAllowed ) {
     
+# Initialize a dataframe to hold the results
     final_activity_data <- act_env$all_activity_data
 
+# Calculation. For cells that don't need smoothing, 
+#                 final activity data = all_activity data
+# For cells that do need smoothing,
+#                 final = (changed * factor) + (unchanged * (1-factor))
     final_activity_data[ , yearsAllowed ] <- 
                            ( act_env$all_activity_data[ , yearsAllowed ] *
                              act_env$continuity_factors[ , yearsAllowed ] ) +
                            ( act_env$old_activity_data[ , yearsAllowed ] *
                            ( 1 - act_env$continuity_factors[ , yearsAllowed ] ) )
-  
+
+# Return the result
     return( final_activity_data )
-    
 }
 
 
 
+#------------------------------------------------------------------------------
 # initializeContinuityFactors
+# Brief: Creates a dataframe storing the "continuity factors", which tell 
+#        what cells will need to be made continuous and what factor of scaling 
+#        they require.
+# Params:
+#   activity_environment: the environment holding activity and factors
+#   instructions: The master instruction list. This will be used to identify
+#                 the beginning and end of each row of data, so as to enforce
+#                 continuity at dataframe boundaries
+#   default_continuity_interval: an optional value storing how many years
+#                 should be made continuous at each edge, if possible.
+# Returns: the activity_environment, now holding a continuity_factors dataframe
+
 initializeContinuityFactors <- function( activity_environment, instructions,
                                          default_continuity_interval = 7 ) {
     
@@ -508,28 +539,35 @@ initializeContinuityFactors <- function( activity_environment, instructions,
                                       %in% this.row[, col], ]
         }
         
+    # The continuity step is by how much each value will increase each year
+    # (ends at 1)
         continuity_step <- 1 / continuity_interval
         
+    # If continuity enforcement is required at the beginning of this dataset:
         if ( this.row$start_continuity && start_year != 1750 ) {
+        # Define the first row of continuity factors
             rows_to_adjust[ 1, paste0( "X", start_year:( start_year + continuity_interval - 1 ) ) ] <-
                   ( 1:continuity_interval ) * continuity_step
+        # Apply this row's values to all rows
             if ( nrow( rows_to_adjust ) > 1 ) {
                 rows_to_adjust[ 2:nrow(rows_to_adjust), paste0( "X", start_year:( start_year + continuity_interval - 1 ) ) ] <-
                     rows_to_adjust[ 1, paste0( "X", start_year:( start_year + continuity_interval - 1 ) ) ]
             }
             
         }
-        
+    # If continuity enforcement is required at the end of this dataset:
         if ( this.row$end_continuity && end_year < 2014 ) {
+        # Define the first row of continuity factors
             rows_to_adjust[ 1, paste0( "X", end_year:( end_year - continuity_interval + 1 ) ) ] <-
                   ( 1:continuity_interval ) * continuity_step
+        # Apply this row's values to all rows
             if ( nrow( rows_to_adjust ) > 1 ) {
                 rows_to_adjust[ 2:nrow(rows_to_adjust), 
                                 paste0( "X", end_year:( end_year - continuity_interval + 1 ) ) ] <-
                     rows_to_adjust[ 1, paste0( "X", end_year:( end_year - continuity_interval + 1 ) ) ]
             }
         }
-
+    # Incorporate the new adjusted rows into the greated dataframe
         activity_environment$continuity_factors[ which( activity_environment$continuity_factors$iso %in%
                                                           rows_to_adjust$iso &
                                                         activity_environment$continuity_factors$CEDS_sector %in%
@@ -539,7 +577,7 @@ initializeContinuityFactors <- function( activity_environment, instructions,
                         rows_to_adjust
 
     }
-  
+# Return
     return( activity_environment )
   
 }
