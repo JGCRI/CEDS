@@ -729,6 +729,7 @@ $(MED_OUT)/H.$(EM)_total_activity_extended.csv : \
 	$(MOD_H)/H1.1.base_activity.R \
 	$(MOD_H)/H1.2.add_activity.R \
 	$(MOD_H)/H1.3.proc_activity.R \
+	$(MOD_H)/add_user-defined_data.R \
 	$(MOD_H)/H1.2.add_activity_CDIAC.R \
 	$(MOD_H)/H1.2.add_activity_Fernandez.R \
 	$(MOD_H)/H1.2.add_activity_population.R \
@@ -753,6 +754,8 @@ $(MED_OUT)/H.$(EM)_total_activity_extended.csv : \
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
+	Rscript $(word 4,$^) $(EM) --nosave --no-restore
+
 
 
 $(MED_OUT)/H.$(EM)_total_EFs_adjusted-sector.csv : \
