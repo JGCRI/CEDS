@@ -241,7 +241,7 @@
             instructions <- rbind( instructions %>% filter( iso %!in% user_dataframe_subset$iso ),
                                    instructions %>% filter( agg_fuel %!in% user_dataframe_subset$agg_fuel ),
                                    instructions %>% filter( !is.na( CEDS_sector ) ) )
-            instructions <- unique(instructions)
+            instructions <- unique( instructions )
         } else if ( agg_level %in% c( 1, 2 ) ) {
             batch_data_instructions <- instructions %>% filter( iso %in% user_dataframe_subset$iso ) %>%
                                                     filter( agg_fuel %in% user_dataframe_subset$agg_fuel ) %>%
@@ -249,7 +249,7 @@
             instructions <- rbind( instructions %>% filter( iso %!in% user_dataframe_subset$iso ),
                                    instructions %>% filter( agg_fuel %!in% user_dataframe_subset$agg_fuel ) )
                                    instructions %>% filter( !is.na( agg_sector ) )
-            instructions <- unique(instructions)
+            instructions <- unique( instructions )
         } else if ( agg_level == 5 ) {
             batch_data_instructions <- instructions %>% filter( iso %in% user_dataframe_subset$iso ) %>%
                                                     filter( agg_fuel %in% user_dataframe_subset$agg_fuel ) %>%
@@ -257,7 +257,7 @@
             instructions <- rbind( instructions %>% filter( iso %!in% user_dataframe_subset$iso ),
                                    instructions %>% filter( agg_fuel %!in% user_dataframe_subset$agg_fuel ),
                                    instructions %>% filter( agg_sector %!in% user_dataframe_subset$agg_sector ) )
-            instructions <- unique(instructions)
+            instructions <- unique( instructions )
         }
     
     # Files only need to be batched if their year ranges overlap.

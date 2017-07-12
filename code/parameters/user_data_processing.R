@@ -22,17 +22,20 @@
     # Read in the data frame
         dataframe <- readData( paste0( "user-defined-energy/", filename ), 
                                domain = "EXT_IN" )
-        
+    
+    # Take advantage of the isXYear function to isolate which columns are
+    # available. Since data is not yet interpolated we can't use the range.
         Xyears <- colnames( dataframe )[ which( isXYear( colnames( dataframe ) ) ) ]
-        
+    
+    # Do some different row maneuvering to force all cells to be numeric.
         if ( nrow( dataframe ) > 1 ) {
-            dataframe[ , Xyears ] <- as.data.frame( sapply( dataframe[ , Xyears ], as.numeric ) )
+            dataframe[ , Xyears ] <- as.data.frame( sapply( dataframe[ , Xyears ], 
+                                                            as.numeric ) )
         } else {
             dataframe[ , Xyears ] <- sapply( dataframe[ , Xyears ], as.numeric )
         }
         
-        
-
+    # replace all NA values with 0s
         dataframe[ is.na( dataframe ) ] <- 0
         
     # initialize null dataframe
@@ -44,43 +47,51 @@
         
     # read in each potential mapping sheet. Uses try() since some sheets may not
     # be provided, which is allowed.
-        try( mapping_iso <- readData( paste0( "user-defined-energy/", filename, "-mapping" ), 
+        tryCatch( { mapping_iso <- readData( paste0( "user-defined-energy/", filename, "-mapping" ), 
                                       domain = "EXT_IN", 
                                       extension = ".xlsx",
-                                      sheet_selection = "iso" ) )
-        try( mapping_agg_sector <- readData( paste0( "user-defined-energy/", filename, "-mapping" ), 
+                                      sheet_selection = "iso" ) }, 
+                  error = function(x) { message( "" ) } )
+        tryCatch( {mapping_agg_sector <- readData( paste0( "user-defined-energy/", filename, "-mapping" ), 
                                              domain = "EXT_IN", 
                                              extension = ".xlsx",
-                                             sheet_selection = "agg_sector" ) )
-        try( mapping_ceds_sector <- readData( paste0( "user-defined-energy/", filename, "-mapping" ), 
+                                             sheet_selection = "agg_sector" ) }, 
+                  error = function(x) { message( "" ) } )
+        tryCatch( { mapping_ceds_sector <- readData( paste0( "user-defined-energy/", filename, "-mapping" ), 
                                               domain = "EXT_IN", 
                                               extension = ".xlsx",
-                                              sheet_selection = "CEDS_sector" ) )
-        try( mapping_agg_fuel <- readData( paste0( "user-defined-energy/", filename, "-mapping" ), 
+                                              sheet_selection = "CEDS_sector" ) }, 
+                  error = function(x) { message( "" ) } )
+        tryCatch( { mapping_agg_fuel <- readData( paste0( "user-defined-energy/", filename, "-mapping" ), 
                                            domain = "EXT_IN", 
                                            extension = ".xlsx",
-                                           sheet_selection = "agg_fuel" ) )
-        try( mapping_ceds_fuel <- readData( paste0( "user-defined-energy/", filename, "-mapping" ), 
+                                           sheet_selection = "agg_fuel" ) }, 
+                  error = function(x) { message( "" ) } )
+        tryCatch( { mapping_ceds_fuel <- readData( paste0( "user-defined-energy/", filename, "-mapping" ), 
                                             domain = "EXT_IN", 
                                             extension = ".xlsx",
-                                            sheet_selection = "CEDS_fuel" ) )
+                                            sheet_selection = "CEDS_fuel" ) }, 
+                  error = function(x) { message( "" ) } )
     
     # If master mapping files were not provided, they need to be read in.
+    # Master Sector List
         if ( is.null( MSL ) ) {
             MSL <- readData( "Master_Sector_Level_map", domain = "MAPPINGS" )
             colnames( MSL )[ which( colnames( MSL ) == 'working_sectors_v1' ) ] <- 'CEDS_sector' 
         }
+    # Master Country List
         if ( is.null( MCL ) ) MCL <- readData("Master_Country_List", domain = "MAPPINGS")
+    # Master Fuel List
         if ( is.null( MFL ) ) MFL <- readData("Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
                                           sheet_selection = "Fuels")
         
     # Execute sub-functions; first map the dataframe, then interpolate this mapped dataframe.
-        mapped_dataframe <- mapToCEDS(dataframe, MSL, MCL, MFL, 
-                                      iso_map = mapping_iso, 
-                                      agg_sector_map = mapping_agg_sector, 
-                                      CEDS_sector_map = mapping_ceds_sector, 
-                                      agg_fuel_map = mapping_agg_fuel, 
-                                      CEDS_fuel_map = mapping_ceds_fuel)
+        mapped_dataframe <- mapToCEDS( dataframe, MSL, MCL, MFL, 
+                                       iso_map = mapping_iso, 
+                                       agg_sector_map = mapping_agg_sector, 
+                                       CEDS_sector_map = mapping_ceds_sector, 
+                                       agg_fuel_map = mapping_agg_fuel, 
+                                       CEDS_fuel_map = mapping_ceds_fuel )
         interp_dataframe <- interpolateData( mapped_dataframe,
                                              interpolation_instructions,
                                              MSL, MCL, MFL )
@@ -93,12 +104,22 @@
     
 #------------------------------------------------------------------------------
 # mapToCEDS()
+# Brief: Maps a user dataframe to CEDS lavel categories
+# Params: 
+#   dataframe: The user dataframe 
+#   MSL: Master sector list (default)
+#   MCL: Master country list (default)
+#   MFL: Master fuel list (default)
+#   iso_map, agg_sector_map, CEDS_sector_map, agg_fuel_map, CEDS_fuel_map:
+#        Specified mapping files corresponding to sheets in a mapping
+#        spreadsheet. Should have one column that's the CEDS column and one
+#        that matches the column in the user dataframe.
+# Returns: the mapped dataframe
     mapToCEDS <- function( dataframe, MSL, MCL, MFL, iso_map = NULL, 
                            agg_sector_map = NULL, CEDS_sector_map = NULL, 
                            agg_fuel_map = NULL, CEDS_fuel_map = NULL, aggregate = TRUE ) {
-      
-        print( "Mapping to CEDS" )
-        dataframe_categories <- colnames( dataframe )[ !grepl( "X", colnames( dataframe ) ) ]
+    # Divide the present column names into       
+        dataframe_categories <- colnames( dataframe )[ which( !isXYear( colnames( dataframe ) ) ) ]
         Xyears <- colnames( dataframe )[ which( isXYear( colnames( dataframe ) ) ) ]
       
     # If the iso is not already in the data, map to it
