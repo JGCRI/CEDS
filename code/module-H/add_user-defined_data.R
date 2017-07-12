@@ -332,7 +332,7 @@
             for ( row_num in 1:nrow( working_instructions ) ) { 
                 file <- working_instructions$data_file[ row_num ]
                 bypass <- working_instructions$bypass_processing[ row_num ]
-                
+            # Process the data if necessary...
                 if ( !bypass ) {
                 # Read in the interpolation instructions, saved with the default filename
                     interp_instructions <- readData( paste0 ( "user-defined-energy/", 
@@ -344,10 +344,12 @@
                     user_dataframe <- processUserDefinedData( file, 
                                                               interp_instructions, 
                                                               MSL, MCL, MFL )
+            # Otherwise, read in the raw file...
                 } else {
                     user_dataframe <- readData( file, domain = "EXT_IN",
                                                 domain_extension = "user-defined-energy/" )
-                }                
+                }        
+            # ...and append the relevant part to the dataframe
                 user_dataframe_subset <- rbind( retrieveUserDataframeSubset( user_dataframe, 
                                                                       working_instructions ) )
             }
@@ -411,6 +413,7 @@
     # diagnostic output
         working_instructions$batch_id <- batch
         working_instructions$agg_level <- agg_level
+    
         if ( is.data.frame( diagnostics ) ) {
             working_instructions$nrow_changed <- diagnostics$rows_changed
             working_instructions$warnings <- diagnostics$warning_diag
@@ -426,7 +429,9 @@
 # 4. Write out the diagnostic data
     writeData( rows_completed, domain = "DIAG_OUT", fn = "user-ext-data_diagnostics" )
     
-    # final_activity <- enforceContinuity( activity_environment, yearsAllowed )
+    final_activity <- enforceContinuity( activity_environment, yearsAllowed )
+    
+    # writeData( final_activity, paste0("H.", em,"-total-activity-))
     
     logStop()
 

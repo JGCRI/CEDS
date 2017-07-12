@@ -192,16 +192,16 @@
         # If a CEDS fuel map was provided:
         if ( !is.null( CEDS_fuel_map ) |
              'CEDS_fuel' %in% dataframe_categories ) {
-          if ( 'CEDS_fuel' %!in% dataframe_categories ) {
-            # same join, same assumptions
-            dataframe_w_fuel <- left_join( dataframe, CEDS_fuel_map )
-            if ( nrow( dataframe_w_fuel ) != nrow( dataframe ) ) {
-              stop( "Double-mapped sectors are not allowed." )
-            }
-            dataframe <- dataframe_w_fuel
-            
-            # Throw out data that has NAs for CEDS_fuel
-            dataframe <- dataframe[ which( !is.na( dataframe$CEDS_fuel ) ), ]
+            if ( 'CEDS_fuel' %!in% dataframe_categories ) {
+              # same join, same assumptions
+              dataframe_w_fuel <- left_join( dataframe, CEDS_fuel_map )
+              if ( nrow( dataframe_w_fuel ) != nrow( dataframe ) ) {
+                  stop( "Double-mapped sectors are not allowed." )
+              }
+              dataframe <- dataframe_w_fuel
+              
+              # Throw out data that has NAs for CEDS_fuel
+              dataframe <- dataframe[ which( !is.na( dataframe$CEDS_fuel ) ), ]
           }
           
           # if a CEDS fuel map was provided but an agg fuel map was not,
@@ -272,8 +272,8 @@
                                                         c( "iso", "agg_sector", "CEDS_sector", 
                                                            "agg_fuel", "CEDS_fuel" ) ) ]
         
-        X_data_years <- paste0( "X", unique( interpolation_instructions$start_year ):
-                                     unique( interpolation_instructions$end_year ) )
+        X_data_years <- paste0( "X", min( interpolation_instructions$start_year ):
+                                     max( interpolation_instructions$end_year ) )
         
         needed_Xyears <- X_data_years[ which( X_data_years %!in% colnames( dataframe ) ) ]
         extra_Xyears <- colnames( dataframe )[ which( colnames( dataframe ) %!in% X_data_years &
