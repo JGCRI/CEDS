@@ -754,6 +754,7 @@ $(MED_OUT)/H.$(EM)_total_activity_extended.csv : \
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 
+
 $(MED_OUT)/H.$(EM)_total_EFs_adjusted-sector.csv : \
 	$(MOD_H)/H2.1.replace_EF_sectors.R \
 	$(MED_OUT)/F.$(EM)_scaled_EF.csv \

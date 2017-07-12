@@ -187,23 +187,18 @@
         batch <- batch + 1
     
     # Select the first instruction in the list for processing
-        working_instructions <- instructions[ 1, ]
-        instructions <- instructions[ -1, ]
+        instructions <- orderInstructions( instructions )
+        working_instructions <- instructions[ nrow( instructions ), ]
+        instructions <- instructions[ -nrow( instructions ), ]
         
         Xyears <- paste0( "X", working_instructions$start_year:
                                working_instructions$end_year )
         Xyears <- Xyears[ which( Xyears %in% yearsAllowed ) ]
         
         if ( !any( working_instructions$bypass_processing ) ) {
-        # Read in the interpolation instructions, saved with the default filename
-            interp_instructions <- readData( paste0 ( "user-defined-energy/", 
-                                                      working_instructions$data_file, "-instructions"),
-                                                      domain = "EXT_IN", extension = ".xlsx", 
-                                                      sheet_selection = "Interpolation_instructions" )
         # call the processUserDefinedData function, which will execute mapping
         # and interpolation as necessary
-            user_dataframe <- processUserDefinedData( working_instructions$data_file, 
-                                                      interp_instructions, 
+            user_dataframe <- processUserDefinedData( working_instructions$data_file,
                                                       MSL, MCL, MFL )
         } else {
             user_dataframe <- readData( working_instructions$data_file, domain = "EXT_IN",
@@ -334,16 +329,9 @@
                 bypass <- working_instructions$bypass_processing[ row_num ]
             # Process the data if necessary...
                 if ( !bypass ) {
-                # Read in the interpolation instructions, saved with the default filename
-                    interp_instructions <- readData( paste0 ( "user-defined-energy/", 
-                                                              file, "-instructions"),
-                                                              domain = "EXT_IN", extension = ".xlsx", 
-                                                              sheet_selection = "Interpolation_instructions" )
                 # call the processUserDefinedData function, which will execute mapping
                 # and interpolation as necessary
-                    user_dataframe <- processUserDefinedData( file, 
-                                                              interp_instructions, 
-                                                              MSL, MCL, MFL )
+                    user_dataframe <- processUserDefinedData( file, MSL, MCL, MFL )
             # Otherwise, read in the raw file...
                 } else {
                     user_dataframe <- readData( file, domain = "EXT_IN",

@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Program Name: user_data_proc_pseudocode.R
+# Program Name: user_extension_instr_processing.R
 # Author: Ben Goldstein
 # Date Last Updated: 9 June 2017
 # Program Purpose: To process user-defined datasets for use in the historical
@@ -10,11 +10,18 @@
 # Notes: 
 # ------------------------------------------------------------------------------------
     
+
+# orderInstructions
+# Sorts the instructions in order to ensure that all actions are performed in the right order
     orderInstructions <- function( instructions ) {
         
-        instructions <- instructions[ order( instructions$start_year ) ]
-        
-        return()
+        instructions <- instructions %>% 
+                arrange( start_year ) %>%
+                arrange( CEDS_fuel ) %>%
+                arrange( CEDS_sector ) %>%
+                arrange( priority ) 
+
+        return( instructions )
     }
     
     readInUserInstructions <- function () {
