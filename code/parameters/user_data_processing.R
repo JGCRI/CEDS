@@ -16,12 +16,24 @@
 #------------------------------------------------------------------------------
 # processUserDefinedData()
     
-    processUserDefinedData <- function( filename, interpolation_instructions,
-                                        MSL = NULL, MCL = NULL, MFL = NULL, comb_or_NC = NULL ) {
+    processUserDefinedData <- function( filename, MSL = NULL, MCL = NULL, 
+                                        MFL = NULL, comb_or_NC = NULL ) {
+      
+    # Read in the interpolation instructions, saved with the default filename
+        interpolation_instructions <- NA
+        tryCatch( { interpolation_instructions <- readData( paste0 ( "user-defined-energy/", 
+                                                  filename, "-instructions"),
+                                                  domain = "EXT_IN", extension = ".xlsx", 
+                                                  sheet_selection = "Interpolation_instructions" ) },
+                  error = function(x) {
+                      message <- ("")
+                  } )
+        
         
     # Read in the data frame
-        dataframe <- readData( paste0( "user-defined-energy/", filename ), 
-                               domain = "EXT_IN" )
+        dataframe <- readData( filename,
+                               domain = "EXT_IN",
+                               domain_extension = "user-defined-energy/")
     
     # Take advantage of the isXYear function to isolate which columns are
     # available. Since data is not yet interpolated we can't use the range.
@@ -52,7 +64,7 @@
                                       extension = ".xlsx",
                                       sheet_selection = "iso" ) }, 
                   error = function(x) { message( "" ) } )
-        tryCatch( {mapping_agg_sector <- readData( paste0( "user-defined-energy/", filename, "-mapping" ), 
+        tryCatch( { mapping_agg_sector <- readData( paste0( "user-defined-energy/", filename, "-mapping" ), 
                                              domain = "EXT_IN", 
                                              extension = ".xlsx",
                                              sheet_selection = "agg_sector" ) }, 
@@ -272,8 +284,17 @@
                                                         c( "iso", "agg_sector", "CEDS_sector", 
                                                            "agg_fuel", "CEDS_fuel" ) ) ]
         
-        X_data_years <- paste0( "X", min( interpolation_instructions$start_year ):
-                                     max( interpolation_instructions$end_year ) )
+        if ( is.na( interpolation_instructions ) ) {
+            min_year <- colnames( dataframe )[ which( isXYear( colnames( dataframe ) ) ) ] %>%
+                        min() %>% substr( 2, 5 )
+            max_year <- colnames( dataframe )[ which( isXYear( colnames( dataframe ) ) ) ] %>%
+                        max() %>% substr( 2, 5 )
+            X_data_years <- paste0( "X", min_year:max_year )
+            
+        } else {
+            X_data_years <- paste0( "X", min( interpolation_instructions$start_year ):
+                                         max( interpolation_instructions$end_year ) )
+        }
         
         needed_Xyears <- X_data_years[ which( X_data_years %!in% colnames( dataframe ) ) ]
         extra_Xyears <- colnames( dataframe )[ which( colnames( dataframe ) %!in% X_data_years &
@@ -297,20 +318,23 @@
     # Confirm that a valid method was specified. I'm making a list to store valid methods
     #   so we can easily change them as they arise.
         valid_methods <- c( "match_to_trend", "linear" )
-      
-        if ( interpolation_instructions$method %!in% valid_methods ) {
+        
+        if ( !is.na( interpolation_instructions ) &&
+             interpolation_instructions$method %!in% valid_methods ) {
         # Throw an error if the method is invalid
             warning( paste0( "Specified interpolation method '", 
                        interpolation_instructions$method, "' is invalid; using linear" ) )
             final_dataframe <- dataframe
             final_dataframe[ , X_data_years ] <- interpolate_NAs( final_dataframe[ , X_data_years ] )
-        } else if ( interpolation_instructions$method == "match_to_trend" ) {
+        } else if ( !is.na( interpolation_instructions ) &&
+                    interpolation_instructions$method == "match_to_trend" ) {
         # Execute trend-matching function
             final_dataframe <- interpolateByTrend( dataframe, 
                                                  interpolation_instructions$matching_file_name,
                                                  interpolation_instructions$domain,
                                                  MSL, MCL, MFL )
-        } else if ( interpolation_instructions$method == "linear" ) {
+        } else if ( is.na( interpolation_instructions ) ||
+                    interpolation_instructions$method == "linear" ) {
         # CEDS already has a function for linear interpolation. 
             final_dataframe <- dataframe
             final_dataframe[ , X_data_years ] <- interpolate_NAs( final_dataframe[ , X_data_years ] )
@@ -395,19 +419,14 @@
       
     # Because we'll have to write out a new file for each row, it is unrealistic
     # to plan on doing this vectorized; a for loop is necessary.
-        if ( nrow( trend_instructions > 1 ) ) {
+        if ( nrow( trend_instructions ) > 0 ) {
             for ( row_num in 1:nrow( trend_instructions ) ) {
                 Xyears <- paste0( "X", trend_instructions[row_num, ]$start_year:
                                        trend_instructions[row_num, ]$end_year)
-            # Read in the interpolation instructions, saved with the default filename
-                interp_instructions <- readData( paste0 ( "user-defined-energy/", 
-                                                          trend_instructions[row_num, ]$data_file, "-instructions"),
-                                                          domain = "EXT_IN", extension = ".xlsx", 
-                                                          sheet_selection = "Interpolation_instructions" )
+
             # call the processUserDefinedData function, which will execute mapping
             # and interpolation as necessary
-                user_dataframe <- processUserDefinedData( trend_instructions[row_num, ]$data_file, 
-                                                          interp_instructions, 
+                user_dataframe <- processUserDefinedData( trend_instructions[row_num, ]$data_file,  
                                                           MSL, MCL, MFL )
                 
             # Extract the data from the dataframe that will refer to the specific

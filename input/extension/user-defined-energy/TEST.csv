@@ -1,5 +1,5 @@
-ctry,CEDS_fuel,sec,X1930,X1931,X1932,X1933,X1935,X1936
-Germany,coal_coke,A,0.01,15,2,13,14,1
-Germany,hard_coal,A,0.01,0.1,1,10,100,130
-Germany,brown_coal,A,0.1,0.2,0.3,0.5,1,2.5
-Germany,coal_coke,B,1,2,3,4,5,6
+ctry,CEDS_fuel,sec,1930,1931,1932,1933,1934,1935,1936
+Germany,coal_coke,A,0.01,15,2,13,14,1,1
+Germany,hard_coal,A,0.01,0.1,1,10,100,130,130
+Germany,brown_coal,A,0.1,0.2,0.3,0.5,1,2.5,2.5
+Germany,coal_coke,B,1,2,3,4,5,6,6

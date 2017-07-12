@@ -212,17 +212,28 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
 
     # zero_cells holds a boolean data frame used to identify cells which will
     # have this issue (changed value is > 0 but original value is 0)
-        zero_cells <- act_agg_changed[ which( rowSums( act_agg_changed[, Xyears] ) > 0 ), ]
-        zero_cells[ , Xyears ] <- activity_agg_to_level[ which( rowSums( act_agg_changed[, Xyears] ) > 0 ),
+        if ( length( Xyears ) > 1 ) {
+            zero_cells <- act_agg_changed[ which( rowSums( act_agg_changed[, Xyears] ) > 0 ), ]
+            zero_cells[ , Xyears ] <- activity_agg_to_level[ which( rowSums( act_agg_changed[, Xyears] ) > 0 ),
                                                          Xyears ] == 0
+            any_zeros <- zero_cells[ apply( zero_cells[ , Xyears ], 1, any ), ]
+            all_zeros <- zero_cells[ apply( zero_cells[ , Xyears ], 1, all ), ]
+        } else {
+            zero_cells <- act_agg_changed[ which( act_agg_changed[, Xyears] > 0 ), ]
+            zero_cells[ , Xyears ] <- activity_agg_to_level[ which( act_agg_changed[, Xyears] > 0 ),
+                                                         Xyears ] == 0
+            all_zeros <- zero_cells[ which( zero_cells[, Xyears] ), ]
+            any_zeros <- all_zeros
+        }
+
+        not_all_zeros <- rbind( all_zeros, any_zeros )
+        not_all_zeros <- not_all_zeros[ !duplicated( not_all_zeros ) &
+                                        seq( nrow( not_all_zeros ) ) > nrow( all_zeros ), ]
+
         
     # create two dataframes: not_all_zeros (those rows that have some, but not
     # all, cells causing the issue) and all_zeros (all cells cause the issue)
-        any_zeros <- zero_cells[ apply( zero_cells[ , Xyears ], 1, any ), ]
-        all_zeros <- zero_cells[ apply( zero_cells[ , Xyears ], 1, all ), ]
-        not_all_zeros <- rbind( all_zeros, any_zeros )
-        not_all_zeros <- not_all_zeros[ !duplicated( not_all_zeros ) &
-                                          seq(nrow(not_all_zeros)) > nrow(all_zeros), ]
+
         
     # For rows that have some but not all zero cells (some 0 rows available): we
     # can use interpolate_NA() to fill in percent breakdowns linearly, retaining
@@ -298,7 +309,14 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
             if ( any( totals_by_agg_group[ , Xyears ] == 0 ) ) {
               
             # Extract the rows to address with this fix
-                problem_rows <- totals_by_agg_group[ which( rowSums( totals_by_agg_group[ , Xyears ] ) == 0 ), ]
+                if ( length( Xyears ) > 1 ) {
+                    problem_rows <- totals_by_agg_group[ which( rowSums( 
+                                 totals_by_agg_group[ , Xyears ] ) == 0 ), ]
+                } else {
+                    problem_rows <- totals_by_agg_group[ which( 
+                                 totals_by_agg_group[ , Xyears ] == 0 ), ]
+                }
+                
             # Extract the corresponding disaggregated rows
                 problem_bd <- disagg_pct_breakdown
                 for ( col in cols_given ) {
@@ -448,7 +466,13 @@ sumAllActivityByFuelSector <- function( guide_row, years = Xyears, data = all_ac
     
     df_to_sum[ is.na( df_to_sum ) ] <- 0
     
-    return( colSums( df_to_sum[ , years ] ) )
+    if ( length( years ) > 1 ) {
+        return( colSums( df_to_sum[ , years ] ) )
+    } else {
+        return( sum( df_to_sum[ , years ] ) )
+    }
+    
+    
 }
 
 
