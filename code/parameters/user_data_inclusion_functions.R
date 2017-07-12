@@ -343,6 +343,7 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
                                        agg_group_totals_changed[ , Xyears ]
     if ( agg_level == 4 ) {
         disagg_data_changed <- act_agg_changed
+        need_user_spec <- F
     }
 
 # Call the generateWarnings function to diagnose how well we did retaining column sums
@@ -544,7 +545,7 @@ initializeContinuityFactors <- function( activity_environment, instructions,
         continuity_step <- 1 / continuity_interval
         
     # If continuity enforcement is required at the beginning of this dataset:
-        if ( this.row$start_continuity && start_year != 1750 ) {
+        if ( this.row$start_continuity && start_year > historical_pre_extension_year ) {
         # Define the first row of continuity factors
             rows_to_adjust[ 1, paste0( "X", start_year:( start_year + continuity_interval - 1 ) ) ] <-
                   ( 1:continuity_interval ) * continuity_step
@@ -556,7 +557,7 @@ initializeContinuityFactors <- function( activity_environment, instructions,
             
         }
     # If continuity enforcement is required at the end of this dataset:
-        if ( this.row$end_continuity && end_year < 2014 ) {
+        if ( this.row$end_continuity && end_year < end_year ) {
         # Define the first row of continuity factors
             rows_to_adjust[ 1, paste0( "X", end_year:( end_year - continuity_interval + 1 ) ) ] <-
                   ( 1:continuity_interval ) * continuity_step

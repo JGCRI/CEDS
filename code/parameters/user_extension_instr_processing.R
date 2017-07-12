@@ -49,7 +49,7 @@
                 use_instructions <- use_instructions[ which ( use_instructions$CEDS_sector %in% comb_sectors_only | 
                                                                 is.na(use_instructions$CEDS_sector)), ]
                 if ( nrow( use_instructions ) != all_rows ) {
-                    warning( paste0( all_rows-nrow(use_instructions )," instruction line(s) were rejected as non-combustion sectors" ) )
+                    warning( paste0( all_rows-nrow( use_instructions )," instruction line(s) were rejected as non-combustion sectors" ) )
                 }
             }
             
@@ -69,25 +69,25 @@
         ###    and b) belong to the same aggregate category.
         
         
-        level_1_instructions <- all_instructions[ which( !is.na( all_instructions$L1_agg_fuel ) ), ] %>%
+        level_1_instructions <- all_instructions[ which( !is.na( all_instructions$agg_fuel ) ), ] %>%
                                     arrange(iso) %>%
                                     arrange(-end_year) %>%
                                     arrange(-priority)
-        level_2_instructions <- all_instructions[ which( !is.na(all_instructions$L2_CEDS_fuel ) ), ] %>%
+        level_2_instructions <- all_instructions[ which( !is.na(all_instructions$CEDS_fuel ) ), ] %>%
                                     arrange(iso) %>%
                                     arrange(-end_year) %>%
                                     arrange(-priority)
-        level_3_instructions <- all_instructions[ which( !is.na(all_instructions$L3_agg_sector ) ), ] %>%
+        level_3_instructions <- all_instructions[ which( !is.na(all_instructions$agg_sector ) ), ] %>%
                                     arrange(iso) %>%
                                     arrange(-end_year) %>%
                                     arrange(-priority)
-        level_4_instructions <- all_instructions[ which( !is.na(all_instructions$L4_CEDS_sector ) ), ] %>%
+        level_4_instructions <- all_instructions[ which( !is.na(all_instructions$CEDS_sector ) ), ] %>%
                                     arrange(iso) %>%
                                     arrange(-end_year) %>%
                                     arrange(-priority)
         
         all_instructions <- rbind( level_1_instructions, level_2_instructions, level_3_instructions, level_4_instructions )
-        
+        all_instructions <- unique( all_instructions )
         
         if ( "start_continuity" %!in% colnames(all_instructions) ) {
             all_instructions$start_continuity <- T
