@@ -23,7 +23,7 @@
 
 normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset, 
                                      all_activity_data, override_normalization,
-                                     agg_level ) {
+                                     agg_level, filename, specified_breakdowns ) {
     
 # The any() function returns NA if no elements are true but some are NA. We do a
 # quick overwrite if this is the case so that we can use
@@ -355,6 +355,56 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
                     new_percent_breakdowns
         }
     }
+    
+    
+    if ( any( specified_breakdowns ) ) {
+        user_breakdown <- NA
+        tryCatch( { user_breakdown <- readData( paste0( filename, "-breakdowns" ),
+                                                domain = "EXT_IN",
+                                                domain_extension = "user-defined-energy/" ) %>%
+                                      as.data.frame() },
+                  error = function(x) { message = "" } )
+        if ( !all( is.na( user_breakdown ) ) ) {
+            if ( any( colnames( user_breakdown ) == "all" ) ) {
+            # use the "all" column for every year
+                user_breakdown[ , Xyears ] <- user_breakdown$all
+            }
+        # Confirm that there are year headers and merge them in
+            years_to_merge <- colnames( user_breakdown )[ which( 
+                              isXYear( colnames( user_breakdown ) ) ) ]
+            
+            disagg_pct_breakdown[ which( paste0( disagg_pct_breakdown$CEDS_fuel,
+                                                 disagg_pct_breakdown$CEDS_sector,
+                                                 disagg_pct_breakdown$iso ) %in%
+                                         paste0( user_breakdown$CEDS_fuel,
+                                                 user_breakdown$CEDS_sector,
+                                                 user_breakdown$iso ) ), 
+                                  c( "CEDS_fuel", "CEDS_sector", "iso",
+                                     years_to_merge ) ] <- 
+                  user_breakdown[ , c( "CEDS_fuel", "CEDS_sector", "iso",
+                                     years_to_merge ) ]
+        # Check to make sure everything still adds up to 100%
+            double_check_breakdowns <- ddply( disagg_pct_breakdown, cols_given, 
+                                      function(x) colSums( x[ Xyears ] ) )
+            
+            if ( any( double_check_breakdowns[ , Xyears ] %!in%
+                                                            c( 1,0 ) ) ) {
+            # Join to the disaggregates, and then divide
+                correction_factors <- left_join( disagg_data_changed[ , cols_given ],
+                                                 double_check_breakdowns,
+                                                 by = cols_given )
+                disagg_pct_breakdown[ , Xyears ] <- 
+                        disagg_pct_breakdown[ , Xyears ] /
+                        correction_factors[ , Xyears ] 
+               disagg_pct_breakdown[ is.nan.df( disagg_pct_breakdown ) ]<- 0
+            }
+        } else {
+            stop( paste0( "No user specified breakdown found for ", filename ) )
+        }
+        
+    }
+    
+    
     
 # Multiply these percentages by the new values to get updated versions
     disagg_data_changed[ , Xyears ] <- disagg_pct_breakdown[ , Xyears ] *
