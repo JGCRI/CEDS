@@ -124,6 +124,13 @@
         }
         all_instructions$use_as_trend[ is.na( all_instructions$use_as_trend ) ] <- F
         
+        if ( "specified_breakdowns" %!in% colnames(all_instructions) ) {
+            all_instructions$specified_breakdowns <- F
+        } else {
+            all_instructions$specified_breakdowns <- as.logical(all_instructions$specified_breakdowns)
+        }
+        all_instructions$specified_breakdowns[ is.na( all_instructions$specified_breakdowns ) ] <- F
+        
         all_instructions$bypass_processing <- F
         
         return ( all_instructions )

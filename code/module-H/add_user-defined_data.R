@@ -395,7 +395,8 @@
         diagnostics <- normalizeAndIncludeData( Xyears, data_to_use, user_dataframe_subset, 
                                                 all_activity_data,
                                                 working_instructions$override_normalization,
-                                                agg_level )
+                                                agg_level, working_instructions$data_file,
+                                                as.logical( working_instructions$specified_breakdowns ) )
         
     # Tack on some diagnostics to the working instructions dataframe for
     # diagnostic output
