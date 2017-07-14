@@ -42,45 +42,47 @@
 # 0.5. Settings
 
 # Input file
-input_name <- "population"
+    input_name <- "population"
 
 # Location of input files relative to wd (input)
-input_domain <- "ACTIVITY_IN"
+    input_domain <- "ACTIVITY_IN"
 
 # Name to refer to this activity
-activity_name <- "pop"
+    activity_name <- "pop"
 
 # ------------------------------------------------------------------------------
 # 1. Read in files
 
 # iso_mapping <- readData( "MAPPINGS","2011_NC_SO2_ctry" )
-act_input <- readData( "MAPPINGS", "activity_input_mapping")
-MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
+    act_input <- readData( "MAPPINGS", "activity_input_mapping" )
+    MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", 
+                     ".xlsx", sheet_selection = "Sectors" )
 
-population_data <- readData( "MED_OUT", "A.UN_pop_master" )
-population_data <- subset( population_data, scenario == "Estimates" )
-
-unit <- '1000'
+    population_data <- readData( "MED_OUT", "A.UN_pop_master" )
+    population_data <- subset( population_data, scenario == "Estimates" )
+    
+    unit <- '1000'
 
 # ------------------------------------------------------------------------------
 # 2. Reformatting
 
 # Transform to wide format
-activity_data <-  cast( population_data, iso ~ year, mean, value="pop")
+    activity_data <-  cast( population_data, iso ~ year, mean, value = "pop" )
 
 # TODO: Add "X" to all year names
-names( activity_data ) <- c( "iso", paste0("X",names( activity_data )[ -1 ] ) )
+    names( activity_data ) <- c( "iso", 
+                                 paste0( "X", names( activity_data )[ -1 ] ) )
 
 # Applies activity and unit assignments, and reorders columns to standard form
-activity_data$activity <- activity_name
-activity_data$units <- unit
+    activity_data$activity <- activity_name
+    activity_data$units <- unit
+    
+    activity_years <- names( activity_data )[ grep( "X", names( activity_data ) ) ]
 
-activity_years <- names(activity_data)[grep("X",names(activity_data))]
-
-results <- cbind( activity_data[ c( "iso","activity","units" ) ] , activity_data[ activity_years ] )
+    results <- cbind( activity_data[ c( "iso","activity","units" ) ] , activity_data[ activity_years ] )
 
 # Sort results by iso and activity
-results <- results[ with( results, order( iso, activity ) ), ]
+    results <- results[ with( results, order( iso, activity ) ), ]
 
 # ------------------------------------------------------------------------------
 # 3. Output
@@ -89,9 +91,9 @@ results <- results[ with( results, order( iso, activity ) ), ]
 # By default, it will be extended forward to the common end year, but not backwards.
 # Only do this if the activityCheck header function determines that the activities in
 # the reformatted activity_data are all present in the Master List.
-if( activityCheck( results, check_all = FALSE ) ){
-    addToActivityDb( results )
-}
+    if ( activityCheck( results, check_all = FALSE ) ) {
+        addToActivityDb( results )
+    }
 
-logStop()
+    logStop()
 # END
