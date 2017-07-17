@@ -54,6 +54,7 @@
 
 # define function to correct coal shares over IEA data
   fix_hard_coal_shares <- function ( df ) {
+  
   # define years for which to correct
     extend_years <- paste0( 'X', 1960 : 1977 )
   # if statement - if need to correct
