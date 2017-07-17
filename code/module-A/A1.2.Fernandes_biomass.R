@@ -2,30 +2,31 @@
 # Program Name: A1.2.Fernandes_biomass.R
 # Author: Linh Vu
 # Date Last Updated: 19 February 2016
-# Program Purpose:  This program produces 1850-2013 time series of residential biomass 
-#                   consumption by country and fuel type from Fernandes biofuels data.
-#                   The program also produces fuel-weighted biomass conversion factors
-#                   (TJ/kt) by country and year.
-# Input Files:     Fernandes_Biofuels_9.xlsx, Master_Country_List.csv, A.UN_pop_master.csv,
-#                  biomass_heat_content.xlsx, Fernandes_proxy_country_mapping.csv
-# Output Files:    A.Fernandes_residential_biomass.csv, A.Fernandes_biomass_conversion.csv
-# Notes:  1. Fernandes provide residential biomass consumption by country and fuel type
-#            for 1850-2000.
-#         2. Most corrections to the original data (e.g. fix gaps, fill in missing
-#            data) are done on rural per-capita basis.
-#         3. Where original data is unavailable, use rural per-capita value of a 
-#            proxy country. For split-up countries, use the value of the composite
-#            country before the split.
-#         4. Assume minimum of 0.25 kt/rural population Dom Total FW for all years
-#            before 1900. Phase in this minimum from 1900 to 1940 (so minimum of 
-#            zero in 1940).
-#         5. If biomass for one year is zero or drops substantially, replace with
-#            biomass of the next available year. Extend last non-zero biomass year
-#            forward in time.
-#         6. Aside from the biomass time series, also calculate residential 
-#            fuel-weighted biomass conversion factors (TJ/kt) by country.
-# TODO: Move Fernandes_years to common_data.R?
-#   
+# Program Purpose: This program produces 1850-2013 time series of residential biomass 
+#                  consumption by country and fuel type from Fernandes biofuels data.
+#                  The program also produces fuel-weighted biomass conversion factors
+#                  (TJ/kt) by country and year.
+# Input Files: Fernandes_Biofuels_9.xlsx, Master_Country_List.csv, A.UN_pop_master.csv,
+#              biomass_heat_content.xlsx, Fernandes_proxy_country_mapping.csv
+# Output Files: A.Fernandes_residential_biomass.csv, A.Fernandes_biomass_conversion.csv
+# Notes: 1. Fernandes provide residential biomass consumption by country and fuel type
+#           for 1850-2000.
+#        2. Most corrections to the original data (e.g. fix gaps, fill in missing
+#           data) are done on rural per-capita basis.
+#        3. Where original data is unavailable, use rural per-capita value of a 
+#           proxy country. For split-up countries, use the value of the composite
+#           country before the split.
+#        4. Assume minimum of 0.25 kt/rural population Dom Total FW for all years
+#           before 1900. Phase in this minimum from 1900 to 1940 (so minimum of 
+#           zero in 1940).
+#        5. If biomass for one year is zero or drops substantially, replace with
+#           biomass of the next available year. Extend last non-zero biomass year
+#           forward in time.
+#        6. Aside from the biomass time series, also calculate residential 
+#           fuel-weighted biomass conversion factors (TJ/kt) by country.
+# TODO: 1. Move Fernandes_years to common_data.R?
+#       2. TODO itmesfrom the code review. 
+#
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -52,7 +53,7 @@
 
   source( paste0( PARAM_DIR, "header.R" ) )
   initialize( script_name, log_msg, headers )
-
+  
 # ------------------------------------------------------------------------------
 # 1. Read raw input files and define useful values
   library( "zoo" )
@@ -94,20 +95,19 @@
 # 2. Read and reformat input
 # processSingleSheet(): takes one sheet of input in df, returns processed df
   processSingleSheet <- function( i ){  # i: sheet index
+
   # Read sheet, keep relevant columns rename columns
     df <- input[[ i ]][ 1:152 ]
     df$units <- names( df )[[ 1 ]]  # slice out units from cell (1, 1)
     names( df ) <- c( "fuel", X_Fernandes_years, "units" )
       
   # Drop aggregation rows (everything after "TOTALS...") and blank rows
-    df <- df[ 1: (grep( "TOTALS", df$fuel ) - 1 ), ] %>% 
-      filter( !is.na( fuel ) )
+    df <- df[ 1: (grep( "TOTALS", df$fuel ) - 1 ), ] %>% filter( !is.na( fuel ) )
       
   # Some rows of df$fuel contain country name info (generally row 1 and 
   # all rows immediately after "Total" rows). Slice out country names from 
   # these rows and copy to a separate column
-    rows <- c( 1, grep( "^Total$", df$fuel ) + 1, nrow( df ) + 1 ) %>% 
-      unique()
+    rows <- c( 1, grep( "^Total$", df$fuel ) + 1, nrow( df ) + 1 ) %>% unique()
     countries <- df$fuel[ rows[ -length( rows ) ] ]  # all country names
     rep_times <- rows - lag( rows )
     rep_times <- rep_times[ -1 ]
@@ -117,7 +117,7 @@
     df <- filter( df, fuel %!in% countries, fuel != "Total" )
       
     return( df )
-    }
+  }
     
 # Read all data sheets into a df; clean up
   raw <- lapply( seq_along( input ), processSingleSheet )
@@ -125,7 +125,8 @@
     select_( .dots = c( "country", "units", "fuel", X_Fernandes_years ) )
   raw <- filter( raw, country != "USSR-not included" )
   raw$country <- str_trim( raw$country )
-  raw[, X_Fernandes_years ] <- sapply( raw[, X_Fernandes_years ], function( x ){ as.numeric( as.character( x ) ) } )
+  raw[, X_Fernandes_years ] <- sapply( raw[, X_Fernandes_years ], 
+                                       function( x ){ as.numeric( as.character( x ) ) } )
   raw$fuel <- str_trim( raw$fuel )
   raw$units <- "kt"
     
@@ -155,7 +156,7 @@
 # Comoro Islands, St. Helena: not in IEA, ok to leave out;
 # Other Asia, Other L America: composite regions, will not use
   in_Fern_not_in_MCL <- filter( mapped, is.na( iso ) ) %>% 
-    unique() %>%
+    unique() %>% 
     arrange( country, year, fuel )
     
 # Drop countries with no ISO
@@ -166,7 +167,8 @@
 # What countries do not have rural population for at least 1 year
 # (that is not the result of 0 total population)?
 # aia, bmu, cym, gib, hkg, mac, mco, nru, sgp, sxm, vat
-  no_rural <- unique( pop_master$iso[ is.na( pop_master$urban_share ) | pop_master$urban_share == 1 ] )
+  no_rural <- unique( pop_master$iso[ is.na( pop_master$urban_share ) | 
+                                        pop_master$urban_share == 1 ] )
     
 # Create variable pop2 = rural pop if rural_pop available and nonzero,
 # = total pop otherwise
@@ -180,7 +182,7 @@
   mapped_pc <- merge( mapped, pop_master, all.x = T ) %>%
     mutate( consumption_pc = consumption / pop2 ) %>%
     select( -pop2, -consumption )
-    
+ 
 # ------------------------------------------------------------------------------
 # 3. Make estimates for split-up countries and countries with no Fernandes
 # -- Split-up countries include: 
@@ -212,7 +214,8 @@
 # a proxy country
   proxied <- filter( full, iso %in% proxy_mapping$iso ) %>%
     merge( select( proxy_mapping, iso, iso_proxy ), all.x = T ) %>%
-    merge( select( full, fuel, year, iso_proxy = iso, consumption_pc_proxy = consumption_pc ), all.x = T )
+    merge( select( full, fuel, year, iso_proxy = iso, 
+                   consumption_pc_proxy = consumption_pc ), all.x = T )
   proxied$consumption_pc[ proxied$consumption_pc == 0 ] <- 
     proxied$consumption_pc_proxy[ proxied$consumption_pc == 0 ] 
     
@@ -223,9 +226,9 @@
 
 # ------------------------------------------------------------------------------
 # 4. Apply minimum rural pc biomass
-# Assume minimum of 0.25 kt/rural population Dom Total FW for all years
-# before 1900. Phase in this minimum from 1900 to 1940 (so minimum of zero 
-# in 1940)
+#   Assume minimum of 0.25 kt/rural population Dom Total FW for all years
+#   before 1900. Phase in this minimum from 1900 to 1940 (so minimum of zero 
+#   in 1940)
     
 # Define values used in routine
   MIN_CONSUMPTION_PC_HIST <- .25
@@ -256,10 +259,10 @@
 # ------------------------------------------------------------------------------
 # 5. Fix discontinuities and extend Fernandes to cover all emissions years
 # -- If pc biomass for one year is zero or drops substantially, replace with pc 
-# biomass of the next available year. In pseudo-mathematical notation: If 
-# consumption_pc_i is 0, or consumption_pc_(i + 1) is not 0 and 
-# consumption_pc_i/consumption_pc_(i + 1) < threshold, replace consumption_pc_i 
-# with consumption_pc_(i + 1), where i denotes the current year.
+#    biomass of the next available year. In pseudo-mathematical notation: If 
+#    consumption_pc_i is 0, or consumption_pc_(i + 1) is not 0 and 
+#    consumption_pc_i/consumption_pc_(i + 1) < threshold, replace consumption_pc_i 
+#    with consumption_pc_(i + 1), where i denotes the current year.
 # -- Extend last non-zero per-capita Fernandes forward.
     
 # Iterate over each ISO + fuel combination to fix discontinuities
@@ -268,15 +271,16 @@
     for ( i_year in seq_along( X_Fernandes_years )[-1] ){
       if( df$consumption_pc[[ i_year - 1]] > 0 & 
           df$consumption_pc[[ i_year ]] / df$consumption_pc[[ i_year - 1 ]] < THRESHOLD )
-        { df$consumption_pc[[ i_year ]] <- df$consumption_pc[[ i_year - 1 ]] }
-      }
+      { df$consumption_pc[[ i_year ]] <- df$consumption_pc[[ i_year - 1 ]] }
+    } # END for loop
     return( df )
     } )
 
 # Now the only 0 left should be end years -- extend last nonzero pc consumption forward.
   full_discont_fixed$consumption_pc[ full_discont_fixed$consumption_pc == 0 ] <- NA
   full_discont_fixed <- arrange( full_discont_fixed, iso, fuel, year ) %>%
-    ddply( .(iso, fuel), function( df ){ within( df, { consumption_pc <- na.locf( consumption_pc, na.rm = F ) } ) } )
+    ddply( .(iso, fuel), 
+           function( df ){ within( df, { consumption_pc <- na.locf( consumption_pc, na.rm = F ) } ) } )
   full_discont_fixed$consumption_pc[ is.na( full_discont_fixed$consumption_pc ) ] <- 0
     
 # Re-compute total consumption from pc
@@ -293,7 +297,8 @@
 # 6. Calculate residential fuel-weighted biomass conversion factors by country
 # Note: Exclude Dom Charcoal from computation since IEA Charcoal is already in kt
   Fernandes_biomass_conversion <- filter( full_discont_fixed, fuel != "Dom Charcoal" ) %>%
-    select( -units ) %>% merge( heat_content ) %>%
+    select( -units ) %>% 
+    merge( heat_content ) %>%
     group_by( iso, units, year ) %>%
     summarise( heating_value = weighted.mean( heating_value, consumption ) ) %>%
     data.frame()
@@ -318,3 +323,4 @@
 
   logStop()
     
+

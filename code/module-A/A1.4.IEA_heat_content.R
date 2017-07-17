@@ -53,20 +53,20 @@
   fuels <- c('hard_coal','coal_coke','brown_coal')
 
 # define function to correct coal shares over IEA data
-  fix_hard_coal_shares <- function (df) {
+  fix_hard_coal_shares <- function ( df ) {
   # define years for which to correct
-    extend_years <- paste0('X', 1960:1977)
+    extend_years <- paste0( 'X', 1960 : 1977 )
   # if statement - if need to correct
-    if ( "Hard coal" %in% df$PRODUCT ){
+    if ( "Hard coal" %in% df$PRODUCT ) {
     if ( df[ which( df$PRODUCT == 'Hard coal' ),  'X1977' ] != 0 &
-         df[ which( df$PRODUCT == 'Hard coal' ),  'X1978' ] == 0 ){
+         df[ which( df$PRODUCT == 'Hard coal' ),  'X1978' ] == 0 ) {
     # seperate lines to leave, extend, and use in calucations      
       out <- df[ which( df$X1978 == 0 & df$PRODUCT != 'Hard coal' ) , ]
       to_extend <- df[ which( df$X1978 != 0 & df$X1977 == 0 ) , ]
       hard_coal <- df[ which( df$PRODUCT == 'Hard coal' ) , ]
     # extend 1978 ratio of disaggregate fuels over hard coal value
       extended <- to_extend
-      extended[extend_years] <- do.call("rbind", replicate( nrow( extended ), hard_coal[ extend_years ], simplify = FALSE ) ) *
+      extended[ extend_years ] <- do.call( "rbind", replicate( nrow( extended ), hard_coal[ extend_years ], simplify = FALSE ) ) *
         do.call( "cbind", replicate( length( extend_years ) ,  to_extend[ 'X1978' ] , simplify = FALSE ) )
     # set hard coal to zero
       hard_coal[ extend_years ] <- 0
@@ -77,29 +77,28 @@
       renormalized_shares <- calculate_shares( input_data = corrected_all,
                                                id_columns = c( 'iso', 'fuel' ), 
                                                target_column = 'PRODUCT' )
-      
       return( renormalized_shares ) 
     } } else ( return( df ) ) }
   
-  fix_brown_coal_shares <- function (df) {
+  fix_brown_coal_shares <- function ( df ) {
   # define years for which to correct
     extend_years <- paste0( 'X', 1960 : 1977 )
   # if statement - if need to correct
-    if ( "Brown coal" %in% df$PRODUCT ){
+    if ( "Brown coal" %in% df$PRODUCT ) {
       if ( df[ which( df$PRODUCT == 'Brown coal' ),  'X1977' ] != 0 &
-           df[ which( df$PRODUCT == 'Brown coal' ),  'X1978' ] == 0 ){
+           df[ which( df$PRODUCT == 'Brown coal' ),  'X1978' ] == 0 ) {
       # seperate lines to leave, extend, and use in calucations
         out <- df[ which( df$X1978 == 0 & df$PRODUCT != 'Brown coal' ) , ]
         to_extend <- df[ which( df$X1978 != 0 & df$X1977 == 0 ) , ]
         brown_coal <- df[ which( df$PRODUCT == 'Brown coal' ) , ]
       # extend 1978 ratio of disaggregate fuels over hard coal value
         extended <- to_extend
-        extended[extend_years] <- do.call("rbind", replicate( nrow( extended ), brown_coal[extend_years], simplify = FALSE)) *
-          do.call("cbind", replicate( length( extend_years) ,  to_extend['X1978'] , simplify = FALSE))
+        extended[ extend_years ] <- do.call( "rbind", replicate( nrow( extended ), brown_coal[ extend_years ], simplify = FALSE ) ) *
+          do.call( "cbind", replicate( length( extend_years ) ,  to_extend[ 'X1978' ] , simplify = FALSE ) )
       # set hard coal to zero
-        brown_coal[extend_years] <- 0
+        brown_coal[ extend_years ] <- 0
       # combine all rows
-        corrected_all <- rbind( out, extended, brown_coal) %>% arrange( PRODUCT)
+        corrected_all <- rbind( out, extended, brown_coal ) %>% arrange( PRODUCT )
       # renormalize to one
         renormalized_shares <- calculate_shares( input_data = corrected_all,
                                                  id_columns = c( 'iso', 'fuel' ),
@@ -113,11 +112,11 @@
 # Combine into one df, convert to numeric  
   conversion_all <- bind_rows( conversion_OECD, conversion_NonOECD )
   conversion_all$X2014E <- NULL
-  conversion_all[ paste0('X', BP_years) ] <- conversion_all$X2014
-  conversion_all[, X_emissions_years ] <- suppressWarnings( lapply( conversion_all[, X_emissions_years ], function(x){ as.numeric(as.character(x)) }))
+  conversion_all[ paste0('X', BP_years ) ] <- conversion_all$X2014
+  conversion_all[ , X_emissions_years ] <- suppressWarnings( lapply( conversion_all[ , X_emissions_years ], function( x ) { as.numeric( as.character( x ) ) } ) )
 
 # Conversion years
-  conversion_years <-  select(conversion_all, contains ('X') ) %>% 
+  conversion_years <-  select( conversion_all, contains ('X') ) %>% 
     names
   
 # Clean up mapping
@@ -168,7 +167,7 @@
   coal_shares_corrected <- rbind( filter( coal_shares, fuel %!in% c( 'hard_coal', 'brown_coal' ) ), 
                                   do.call( 'rbind', hard_coal_shares_list ),
                                   do.call( 'rbind', brown_coal_shares_list ) ) %>% 
-    arrange(iso, fuel, PRODUCT)
+    arrange( iso, fuel, PRODUCT )
 
 # ---------------------------------------------------------------------------
 # 4. Calculate weighted average heat content
