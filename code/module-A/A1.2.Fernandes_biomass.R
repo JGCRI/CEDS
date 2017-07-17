@@ -59,10 +59,10 @@
   library( "zoo" )
   library( "FAOSTAT" )
 
-  input <- readData( "ENERGY_IN", "Fernandes_Biofuels_9", ".xlsx" )[ 2:11 ]
+  input <- readData( "ENERGY_IN", "Fernandes_Biofuels_9", ".xlsx" )[ 2:11 ] # read in excel sheets from 2 to 11 
   Master_Country_List <- readData( "MAPPINGS", "Master_Country_List" )
     
-# Read and process population data
+# Read and process population data to have rural population 
   pop_master <- readData( "MED_OUT", "A.UN_pop_master" ) %>%
     filter( scenario %in% c( "Estimates", "Medium fertility" ) ) %>%
     select( iso, year, pop, urban_share ) %>%
@@ -131,6 +131,7 @@
   raw$units <- "kt"
     
 # Reshape from wide to long format; drop rows with NA and 0 biomass
+### TODO: moving towards tidyr functions: gather, spread
   raw <- melt( raw, measure.vars = X_Fernandes_years )
   names( raw )[ names( raw ) %in% c( "variable", "value" ) ] <- c( "year", "consumption" )
   raw$year <- as.character( raw$year )
@@ -308,6 +309,7 @@
   Fernandes_biomass_conversion$units <- "TJ/kt"
     
 # Cast to wide format
+### TODO: moving towards tidyr functions: gather, spread
   Fernandes_biomass_conversion <- filter( Fernandes_biomass_conversion, year %in% IEA_years ) %>%
     cast( iso + units ~ year, value = "heating_value" )
     
