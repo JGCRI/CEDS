@@ -1,3 +1,4 @@
+
 # ------------------------------------------------------------------------------
 # Program Name: S1.1.write_summary_data.R 
 # Author: Rachel Hoesly, Steve Smith, Linh Vu, Presley Muwan
@@ -395,13 +396,3 @@ if( em %!in% c( 'CO2', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R'
 logStop()
 
 # END
-
-
-
-
-
-
-
-
-
-

@@ -69,7 +69,7 @@ if ( is.na( em ) ) em <- "NH3"
   writeData(emissions, domain = "MED_OUT", fn = paste0( "F.", em, "_scaled_emissions" ), meta = TRUE )
 
 # Create base value_metadata file
-  F.initializeMeta(EF)
+  if ( Write_value_metadata ) F.initializeMeta( emissions )
   
 # ------------------------------------------------------------------------------------
 # 3. Call scaling scripts for various species
@@ -127,6 +127,6 @@ if ( is.na( em ) ) em <- "NH3"
 # 4. Run all scripts for the given emissions type
 
   invisible( lapply( scripts, source_child ) )
- 
+  
   logStop()
 # END
