@@ -42,48 +42,56 @@
     if ( is.na( em ) ) em <- "OC"
     
 # ------------------------------------------------------------------------------------
-
-MODULE_B <- "../code/module-B/"
+# 1. Initialize parameters and functions
+    
+    MODULE_B <- "../code/module-B/"
 
 # Create a function that can be applied to source all child scripts for the given
 # emissions type.
-source_child <- function( file_name ){ source( paste( MODULE_B, file_name, sep = "" ) ) }
+    source_child <- function( file_name ){ source( paste( MODULE_B, file_name, sep = "" ) ) }
 
 # ------------------------------------------------------------------------------------
+# Select which scripts will be sourced based on the emissions species    
+    
+    scripts <- c()
 
-scripts <- c()
-if (em %in% c('SO2','NOx','NMVOC','BC','OC','CO','CH4','CO2')) 
-  scripts <- c(scripts,'B1.1.base_comb_GAINS_EMF-30.R')
+# For all GAINS emissions species:
+    if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'BC', 'OC', 'CO', 'CH4', 'CO2' ) )
+      scripts <- c( scripts, 'B1.1.base_comb_GAINS_EMF-30.R' )
 
-scripts <- c(scripts,'B1.1.base_comb_EF_control_percent.R')
+# All emissions species execute this file, which initializes the control pct
+# dataframe
+    scripts <- c( scripts, 'B1.1.base_comb_EF_control_percent.R' )
 
 # Set scripts to generate species-specific base emission factors
-if (em %in% c('SO2','NOx','NMVOC','BC','OC','CO','CH4','CO2','NH3','CO2')) {
-  
-  if( em == "SO2" ){
-    scripts <- c( scripts, "B1.1.base_SO2_comb_EF_parameters.R" )
-  } else if( em == "BC" ){
-    scripts <- c( scripts, "B1.1.base_BCOC_comb_EF.R" )
-  } else if( em == "OC" ){
-    scripts <- c( scripts, "B1.1.base_BCOC_comb_EF.R" )
-  } else if( em == "NH3" ){
-    scripts <- c( scripts, "B1.1.base_NH3_comb_EF.R" )
-  } else if( em == "CO2" ) {
-    scripts <- c( scripts, "B1.1.base_CO2_comb_EF.R" , "B1.1.2.CO2_biofuels_EF.R" )
-  } else{
-  # B1.1.base_OTHER_comb_EF.R processes GAINS EMF-30 efs for base emissions
-  # other than SO2 and BC/OC, if emission species is SO2, BC, or OC, CO2, CH4
-  # it only writes diagnostic output
-  scripts <- c( scripts, "B1.1.base_OTHER_comb_EF.R") }
-} else {
-  stop('No instructions for selecting base emission factors for 
-       selected emission species.')
-}
+    if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'BC', 'OC', 
+                    'CO', 'CH4', 'CO2', 'NH3', 'CO2' ) ) {
+        if( em == "SO2" ) {
+            scripts <- c( scripts, "B1.1.base_SO2_comb_EF_parameters.R" )
+        } else if ( em == "BC" ) {
+            scripts <- c( scripts, "B1.1.base_BCOC_comb_EF.R" )
+        } else if ( em == "OC" ) {
+            scripts <- c( scripts, "B1.1.base_BCOC_comb_EF.R" )
+        } else if ( em == "NH3" ) {
+            scripts <- c( scripts, "B1.1.base_NH3_comb_EF.R" )
+        } else if ( em == "CO2" ) {
+            scripts <- c( scripts, "B1.1.base_CO2_comb_EF.R", 
+                                   "B1.1.2.CO2_biofuels_EF.R" )
+        } else {
+        # B1.1.base_OTHER_comb_EF.R processes GAINS EMF-30 efs for base emissions
+        # other than SO2 and BC/OC, if emission species is SO2, BC, or OC, CO2, CH4
+        # it only writes diagnostic output
+            scripts <- c( scripts, "B1.1.base_OTHER_comb_EF.R") 
+        }
+    } else {
+        stop('No instructions for selecting base emission factors for 
+             selected emission species.')
+    }
 
 # Run all child scripts for the given emissions type. The call to
 # invisible() prevents extraneous output from appearing in the console.
 # lapply calls source_child on each script in the list.
-invisible( lapply( scripts, source_child ) )
-
-logStop()
+    invisible( lapply( scripts, source_child ) )
+    
+    logStop()
 # END
