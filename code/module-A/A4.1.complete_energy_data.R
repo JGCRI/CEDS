@@ -40,29 +40,37 @@
 # ------------------------------------------------------------------------------
 # 1. Read in files
 
-input_path <- paste0( getwd(), "/mappings/" )
-energy_data <- readData( "MED_OUT", "A.IEA_BP_energy_ext" ) 
-MFL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
-MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
-MCL <- readData( "MAPPINGS", "Master_Country_List" )
+    input_path <- paste0( getwd(), "/mappings/" )
+    energy_data <- readData( "MED_OUT", "A.IEA_BP_energy_ext" ) 
+    MFL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
+    MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
+    MCL <- readData( "MAPPINGS", "Master_Country_List" )
 
 # ------------------------------------------------------------------------------
 # 2. Separate combustion and activity energy data
 
-energy_data_combustion <- energy_data[energy_data$fuel != 'process',]
-energy_data_activity <- energy_data[energy_data$fuel == 'process',]
+    energy_data_combustion <- energy_data[ energy_data$fuel != 'process', ]
+    energy_data_activity <- energy_data[ energy_data$fuel == 'process', ]
 
 # ------------------------------------------------------------------------------
 # 3. Process energy production as activity/driver data
 
-energy_data_activity <- energy_data_activity[,c('iso','sector','units', X_emissions_years)]
-names(energy_data_activity) <- c('iso','activity','units', X_emissions_years)
+# Reformat & remove fuel column
+    energy_data_activity <- energy_data_activity[ , c( 'iso', 
+                                                       'sector', 
+                                                       'units', 
+                                                       X_emissions_years ) ]
+# Rename sector column
+    names( energy_data_activity ) <- c( 'iso', 'activity', 'units', X_emissions_years )
 
 # Remove negative values from refinery and natural gas
-energy_data_activity[which(energy_data_activity$activity == "refinery-and-natural-gas"),] <- 
-  replace(energy_data_activity[which(energy_data_activity$activity == "refinery-and-natural-gas"),],
-          energy_data_activity[which(energy_data_activity$activity == "refinery-and-natural-gas"),]<0,
-          0)
+    energy_data_activity[ which( energy_data_activity$activity == 
+                                   "refinery-and-natural-gas" ), ] <- 
+    replace( energy_data_activity[ which( energy_data_activity$activity == 
+                                            "refinery-and-natural-gas" ), ],
+             energy_data_activity[ which( energy_data_activity$activity == 
+                                            "refinery-and-natural-gas" ), ] < 0,
+             0 )
 
 # ------------------------------------------------------------------------------
 # 4. Create combustion activity database - Populate missing iso-sector-fuel combinations
@@ -71,45 +79,56 @@ energy_data_activity[which(energy_data_activity$activity == "refinery-and-natura
 
 # Whether these lists include biomass and/or process sectors is easily editable- 
 # left out for now via reasonable assumption.
-iso_list <- sort( unique( MCL$iso[ !grepl( "historical",  MCL$note ) ] ) )
-sector_list <- unique( c( MSL$sector[ MSL$activity == "Energy_Combustion" ], 
-                          unique( energy_data_combustion$sector[ energy_data_combustion$sector != "NA" ] ) ) )
+    iso_list <- sort( unique( MCL$iso[ !grepl( "historical",  MCL$note ) ] ) )
+    sector_list <- unique( c( MSL$sector[ MSL$activity == "Energy_Combustion" ], 
+                              unique( energy_data_combustion$sector[ 
+                                      energy_data_combustion$sector != "NA" ] ) ) )
 # fuel_list <- unique( MFL$fuel[ MFL$fuel != "process" & MFL$fuel != "biomass" ] )
-fuel_list <- unique( MFL$fuel[ MFL$fuel != "process" ] )
+    fuel_list <- unique( MFL$fuel[ MFL$fuel != "process" ] )
 
 # Remove NA-sector biomass entries for now
-energy_data_combustion <- na.omit( energy_data_combustion[ energy_data_combustion$sector != "NA", ] )
+    energy_data_combustion <- 
+        na.omit( energy_data_combustion[ energy_data_combustion$sector != "NA", ] )
 
 # Use header function to generate blank template data frame
-template <- buildCEDSTemplate( iso_list, sector_list, fuel_list )
+    template <- buildCEDSTemplate( iso_list, sector_list, fuel_list )
 
 # Insert existing data into blank template
-full_energy_data_combustion <- merge(template, energy_data_combustion, by = c("iso","sector","fuel"), all.x = TRUE, suffixes = c(".t",".e"))
-
-original_names <- c( "iso", "sector", "fuel", "units", X_emissions_years)
-merge_names <- c( "iso", "sector", "fuel", "units.t", paste0( X_emissions_years, ".e" ) )
+    full_energy_data_combustion <- merge( template,    ### Could use a dplyr join instead
+                                          energy_data_combustion, 
+                                          by = c( "iso", "sector", "fuel" ), 
+                                          all.x = TRUE, 
+                                          suffixes = c( ".t", ".e" ) )
+    
+    original_names <- c( "iso", "sector", "fuel", "units", X_emissions_years )
+    merge_names <- c( "iso", "sector", "fuel", "units.t", paste0( X_emissions_years, ".e" ) )
 
 # Extract energy data columns and rename
-full_energy_data_combustion <- full_energy_data_combustion[ merge_names ]
-names( full_energy_data_combustion ) <- original_names
+    full_energy_data_combustion <- full_energy_data_combustion[ merge_names ]
+    names( full_energy_data_combustion ) <- original_names
 
 # Replace merge-generated NAs with 0
-full_energy_data_combustion[ is.na( full_energy_data_combustion ) ] <- 0
+    full_energy_data_combustion[ is.na( full_energy_data_combustion ) ] <- 0
 
 # Sort
-full_energy_data_combustion <- full_energy_data_combustion[ with( full_energy_data_combustion, order( iso, sector, fuel ) ), ]
+    full_energy_data_combustion <- 
+        full_energy_data_combustion[ with( full_energy_data_combustion, 
+                                           order( iso, sector, fuel ) ), ]
 
 # ------------------------------------------------------------------------------
 # 3. Output
 # Add comments for each table
-comments.A.comb_activity <- c( paste0( "IEA energy statistics", 
-        " by intermediate sector / intermediate fuel / historical year,",
-        " extended with BP data and filled out with all combustion iso-sector-fuel combinations." ) )
+    comments.A.comb_activity <- c( paste0( "IEA energy statistics", 
+            " by intermediate sector / intermediate fuel / historical year,",
+            " extended with BP data and filled out with all combustion",
+            " iso-sector-fuel combinations." ) )
                                             
 # write out data
-writeData( full_energy_data_combustion, domain = "MED_OUT", fn = "A.comb_activity", comments = comments.A.comb_activity )
-writeData( energy_data_activity, domain = "MED_OUT", fn = "A.NC_activity_energy", comments = comments.A.comb_activity )
+    writeData( full_energy_data_combustion, domain = "MED_OUT", 
+               fn = "A.comb_activity", comments = comments.A.comb_activity )
+    writeData( energy_data_activity, domain = "MED_OUT", 
+               fn = "A.NC_activity_energy", comments = comments.A.comb_activity )
     
-logStop()
+    logStop()
 
 # END
