@@ -18,9 +18,9 @@
 # Set variable PARAM_DIR to be the activity_data system directory.
     dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
     for( i in 1:length( dirs ) ){
-        setwd(  paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
+        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
         wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if( length( wd ) > 0 ){
+        if ( length( wd ) > 0 ) {
             setwd( wd[ 1 ] )
             break
         }
@@ -30,8 +30,8 @@
 
 # Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( "data_functions.R", "timeframe_functions.R", "process_db_functions.R", 
-                  "analysis_functions.R" ) # Additional function files required.
+    headers <- c( "data_functions.R", "timeframe_functions.R", 
+                  "process_db_functions.R", "analysis_functions.R" ) # Additional function files required.
     log_msg <- "Initial reformatting of gdp process activity activity_data" # First message to be printed to the log
     script_name <- "A5.2.add_NC_activity_gdp.R"
     
@@ -42,45 +42,47 @@
 # 0.5. Settings
 
 # Input file
-input_name <- "GDP"
-input_ext <- ".xlsx"
-input <- paste0( input_name, input_ext )
+    input_name <- "GDP"
+    input_ext <- ".xlsx"
+    input <- paste0( input_name, input_ext )
 
 # Location of input files relative to wd (input)
-input_domain <- "ACTIVITY_IN"
+    input_domain <- "ACTIVITY_IN"
 
 # ------------------------------------------------------------------------------
 # 1. Read in files
 
 # iso_mapping <- readData( "MAPPINGS","2011_NC_SO2_ctry" )
-act_input <- readData( "MAPPINGS", "activity_input_mapping")
-MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
-
-activity_data <- readData( input_domain, input_name, input_ext )
-
-activity_data <- activity_data[[ 6 ]]
+    act_input <- readData( "MAPPINGS", "activity_input_mapping" )
+    MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", 
+                     sheet_selection = "Sectors" )
+# Read in activity data
+    activity_data <- readData( input_domain, input_name, input_ext )
+    
+    activity_data <- activity_data[[ 6 ]]
 
 # Set variables with the activity of the input file and the associated units
-activity_name <- act_input$activity[ act_input$file == input ]
-
-unit <- 'B2005USD'
+    activity_name <- act_input$activity[ act_input$file == input ]
+    
+    unit <- 'B2005USD'
 
 # ------------------------------------------------------------------------------
 # 2. Reformatting
 
 # Apply reformatting header function
-activity_data <- cleanData( activity_data )
+    activity_data <- cleanData( activity_data )
 
 # Applies activity and unit assignments, and reorders columns to standard form
-activity_data$activity <- activity_name
-activity_data$units <- unit
-
-activity_years <- names(activity_data)[grep("X",names(activity_data))]
-
-results <- cbind( activity_data[ c( "iso","activity","units" ) ] , activity_data[ activity_years ] )
+    activity_data$activity <- activity_name
+    activity_data$units <- unit
+    
+    activity_years <- names( activity_data )[ grep( "X", names( activity_data ) ) ]
+    
+    results <- cbind( activity_data[ c( "iso","activity","units" ) ] , 
+                      activity_data[ activity_years ] ) ### Does this need to be cbind?
 
 # Sort results by iso and activity
-results <- results[ with( results, order( iso, activity ) ), ]
+    results <- results[ with( results, order( iso, activity ) ), ]
 
 # ------------------------------------------------------------------------------
 # 3. Output
@@ -89,9 +91,9 @@ results <- results[ with( results, order( iso, activity ) ), ]
 # By default, it will be extended forward to the common end year, but not backwards.
 # Only do this if the activityCheck header function determines that the activities in
 # the reformatted activity_data are all present in the Master List.
-if( activityCheck( results, check_all = FALSE ) ){
-    addToActivityDb( results )
-}
-
-logStop()
+    if( activityCheck( results, check_all = FALSE ) ){
+        addToActivityDb( results )
+    }
+    
+    logStop()
 # END
