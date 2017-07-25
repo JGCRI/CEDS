@@ -50,31 +50,36 @@
 # Return:        none
 # Input files:   common_data.R
 # Output files:  A.NC_activity_db.csv
-createNewActivityDb <- function(){
-    
+    createNewActivityDb <- function() {
+        
     # Read in necessary files and data: common_data.R required 
     # to avoid variable overwrite carryover
-    source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
-    
+        source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
+        
     # Use values from common_data.R
-    years <- seq( start_year, end_year )
-    X_years <- paste0( "X", years )
-    
-    results <- data.frame( iso = "", activity = "", units = "" )
-    
-    for( yr in X_years ){
-        df <- data.frame( yr = 0 )
-        results <- cbind( results, df )
+        years <- seq( start_year, end_year )
+        X_years <- paste0( "X", years )
+        
+    # Initialize an empty df
+        results <- data.frame( iso = "", activity = "", units = "" )
+        
+    # Tack on as many rows as there are years   ### This seems like an odd way to do this but as long as it's 
+                                                ### not being used for anything bigger it's ok
+        for ( yr in X_years ) {
+            df <- data.frame( yr = 0 )
+            results <- cbind( results, df )
+        }
+        names( results ) <- c( "iso", "activity", "units", X_years )
+    # Empty the dataframe
+        results <- subset( results, results$iso != "" )
+        
+    # Output an empty data frame (only column headers)
+        writeData( results, domain = "MED_OUT", fn = "A.NC_activity_db", meta = FALSE )
+        
     }
-    names( results ) <- c( "iso", "activity", "units", X_years )
-    
-    results <- subset( results, results$iso != "" )
-    
-    # Output
-    writeData( results, domain = "MED_OUT", fn = "A.NC_activity_db", meta = FALSE )
-}
 
-createNewActivityDb()
-
-logStop()
+# Execute the function defined above  ### Why is it in a function? Will this ever be used elsewhere? It's not dynamic at all.
+    createNewActivityDb()
+    
+    logStop()
 # END
