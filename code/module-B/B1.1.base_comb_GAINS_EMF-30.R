@@ -382,7 +382,7 @@
 
 # check for non-numbers and infinite values and replace with NA
     gainsEMF30_all <- replace( gainsEMF30_all, gainsEMF30_all == Inf, NA )
-    gainsEMF30_all <- replace( gainsEMF30_all, is.nan( gainsEMF30_all ), NA )
+    gainsEMF30_all <- replace( gainsEMF30_all, is.na( gainsEMF30_all ), NA )
 
     
 # ---------------------------------------------------------------------------
