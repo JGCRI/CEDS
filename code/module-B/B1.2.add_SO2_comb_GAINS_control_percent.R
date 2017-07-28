@@ -254,7 +254,7 @@
     names( EmissFactors ) <- c( "iso", "sector", "fuel", "units", "EF_2005" )
 
 # Drop EFs of 0
-    EmissFactors <- EmissFactorsctors[ which( EmissFactors$EF_2005 > 0 ), ]
+    EmissFactors <- EmissFactors[ which( EmissFactors$EF_2005 > 0 ), ]
 
 # Drop very large EFs
     EmissFactors <- EmissFactors[ which( EmissFactors$EF_2005 < 10^4 ), ]
