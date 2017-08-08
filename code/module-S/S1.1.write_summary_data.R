@@ -1,8 +1,7 @@
-
 # ------------------------------------------------------------------------------
 # Program Name: S1.1.write_summary_data.R 
-# Author: Rachel Hoesly, Steve Smith, Linh Vu, Presley Muwan
-# Date Last Updated: 31 May 2017
+# Author: Rachel Hoesly, Steve Smith, Linh Vu, Presley Muwan, Leyang Feng
+# Date Last Updated: Aug 8 2017
 # Program Purpose: Produces summary output
 #               
 # Output Files: data in final-emissions folder
@@ -83,12 +82,12 @@ final_emissions <- final_emissions[ -which( final_emissions$sector %in% empty_se
 # save shipping and aviation emissions
 bunker_emissions <- final_emissions[ which( final_emissions$sector %in% 
                     c( "1A3ai_International-aviation", "1A3aii_Domestic-aviation",
-                       "1A3di_International-shipping" ) ) , ]
+                       "1A3di_International-shipping", "1A3di_Oil_Tanker_Loading" ) ) , ]
 
 # remove international shipping and aviation emissions
 final_emissions <- final_emissions[ -which( final_emissions$sector %in% 
                    c( "1A3ai_International-aviation", "1A3aii_Domestic-aviation",
-                      "1A3di_International-shipping" ) ) , ]
+                      "1A3di_International-shipping", "1A3di_Oil_Tanker_Loading" ) ) , ]
 
 # add summary sectors
 final_emissions$summary_sector <- Master_Sector_Level_map[match(final_emissions$sector,
