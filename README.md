@@ -1,6 +1,8 @@
 # CEDS
 The Community Emissions Data System (CEDS) produces consistent estimates of global air emissions species over the industrial era (1750 - present). The system is written in R and uses open-source data (with the exception of the IEA energy statistics which must be purchased from IEA). CEDS is publically availabe through an [Open Source Licence](#licence-section).
 
+**PLease note** that this repository currently contains only documentation and functionality to submit issues with the CEDS data. The CEDS data system is currently being prepared for open source release Fall 2017.
+
 Documentation is available at the [CEDS project wiki](https://github.com/JGCRI/CEDS/wiki).
 
 Issues with the data or system should be submitted using the [CEDS Issues](https://github.com/JGCRI/CEDS/issues) systen. This can include ananomloyes found in the aggregate or gridded emissions data. Please use an appropriate tag for any submitted issues.
