@@ -539,11 +539,11 @@ readExcel <- function( full_file_path, sheet_selection = "ALL", column_names = T
             # If only one sheet exists
             if( sheet_selection == "ALL" ) sheet_selection <- sheet_names[ 1 ] 
         
-        }
             x <- read_excel( path = full_file_path, sheet = sheet_selection,
                              col_names = column_names, col_types = column_types,
                              na = missing_value, trim_ws = FALSE, skip = skip_rows ) %>%
                 as.data.frame()
+        }
     }
     # THIS DOES NOT WORK FOR SOME REASON- ADDRESS LATER
     # Replace en-dashes and em-dashes with hyphens
