@@ -61,10 +61,10 @@
 # select and rename columns
     col.names <- names( diesel_standards_ppm )
 # Subset all numeric column names
-    years <- col.names[ which( is.na( as.numeric( col.names ) ) == FALSE ) ]
+    years <- col.names[ which( suppressWarnings(is.na( as.numeric( col.names ) ) == FALSE )) ]
     start_year <- years[ 1 ]
 # Paste to Xyears
-    X_years <- paste( 'X', years, sep = "" )
+    X_years <- paste0( 'X', years )
 # Only take iso and data columns
     diesel_standards_ppm <- diesel_standards_ppm[ , c( 'iso', years ) ]
 # Force to Xyears
@@ -74,10 +74,6 @@
     X_standard_years <- paste( "X", start_year:2015, sep = "" )
     diesel_standards_ppm <- diesel_standards_ppm[ , c( 'iso', 
                                                        X_standard_years ) ]
-    
-# Drop data with NA isos
-    diesel_standards_ppm <- 
-         diesel_standards_ppm[ -which( is.na( diesel_standards_ppm$iso ) ), ]
     
 # -------------------------------------------------------------------------------
 # 3. Fill in default and interpolate between data estimates
