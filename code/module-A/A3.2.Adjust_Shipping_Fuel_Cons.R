@@ -19,6 +19,7 @@
 # Input: A.IEA_BP_energy_ext.csv, A.IEA_en_stat_ctry_hist.csv, Shipping_Fuel_Consumption.xlsx
 #        IEA_product_fuel.csv
 # Output: A.IEA_BP_energy_ext.csv, A.intl_shipping_en.csv
+# TODO: Remove hard coded end years (e.g. 2012 and 2014), derive from input data and system respectively
 #-------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
