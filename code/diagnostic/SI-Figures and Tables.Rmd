@@ -359,7 +359,7 @@ North America & Canada & United States & Puerto Rico & \\
 
 \begin{figure}[!ht]
   \centering
-  \includegraphics[width=6.5in]{Regional_summaries_International.pdf}
+  \includegraphics[width=6.5in]{Regional_summaries_International Air-Ship.pdf}
   \caption{Global International Shipping and Aircraft: CEDS emissions by aggregate sector}
   \label{fig:non:float}
 \end{figure}
@@ -421,7 +421,7 @@ North America & Canada & United States & Puerto Rico & \\
 
 \begin{figure}[!ht]
   \centering
-  \includegraphics[width=6.5in]{Regional_summaries_International.pdf}
+  \includegraphics[width=6.5in]{Regional_summaries_International Air-Ship.pdf}
   \caption{Recent CEDS Emissions: International Shipping and Aircraft emissions by Sector}
   \label{fig:non:float}
 \end{figure}
@@ -592,5 +592,104 @@ NMVOC & kt NMVOC/year & 144,884 & 140,749 & 160,887 \\
 \end{tabular}
 \end{center}
 \end{table}
+
+<!-- New Section ---------------------------------------------------------- -->
+\FloatBarrier
+\newpage
+\section{J. Gridded Emissions - Difference with CMIP5}
+\fancyhead[RO,RE]{J. Gridded Emissions - Difference with CMIP5}
+\addcontentsline{lof}{section}{J. Gridded Emissions - Difference with CMIP5}
+
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/SO2_1850_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total SO2 emissions in 1850. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\newpage
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/SO2_2000_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total SO2 emissions in 2000. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/NOx_1850_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total NOx emissions in 1850. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/NOx_2000_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total NOx emissions in 2000. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/CO_1850_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total CO emissions in 1850. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/CO_2000_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total CO emissions in 2000. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/OC_1850_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total OC emissions in 1850. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/OC_2000_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total OC emissions in 2000. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/BC_1850_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total BC emissions in 1850. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/BC_2000_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total BC emissions in 2000. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/NH3_1850_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total NH3 emissions in 1850. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/NH3_2000_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total NH3 emissions in 2000. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/NMVOC_1850_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total NMVOC emissions in 1850. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/NMVOC_2000_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total NMVOC emissions in 2000. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
 
 

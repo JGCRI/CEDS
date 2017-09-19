@@ -61,15 +61,10 @@ source('../code/diagnostic/Paper_Figures_plot_colors.R')
 
 # ---------------------------------------------------------------------------
 # Start Emissions Loop
-em_list <- c('SO2','NOx','CO','OC','BC','NH3','NMVOC','CO2')
+em_list <- c('SO2','NOx','CO','OC','BC','NH3','NMVOC','CO2','CH4')
 
 # Create Plot Lists
-start <- 1750
-end <- 2014
-plot_years <- start:end
-X_plot_years <- paste0('X',start:end)
-major_break <- 50
-minor_break <- 25
+
 
 em_plot_list <- list()
 em_plot_list_nolegend <- list()
@@ -80,7 +75,13 @@ for( h in seq_along(em_list)){
   
 # ---------------------------------------------------------------------------
 # 2. Other script Options
-  
+  start <- 1750
+  end <- 2014
+  plot_years <- start:end
+  X_plot_years <- paste0('X',start:end)
+  if( em == 'CH4') X_plot_years <- paste0('X',1970:end)
+  major_break <- 50
+  minor_break <- 25
   unit <- '[Tg/year]'
   
   if (em == 'SO2') unit <- '[Tg SO2/year]'
@@ -90,7 +91,7 @@ for( h in seq_along(em_list)){
   if (em == 'CO') unit <- '[Tg CO/year]'
   if (em == 'NMVOC') unit <- '[Tg NMVOC/year]'
   if (em == 'CO2') unit <- '[Tg CO2/year]'
-  
+  if (em == 'CH4') unit <- '[Tg CH4/year]' 
 # ---------------------------------------------------------------------------
 # 3. Load and Process CEDS Emissions Data 
   
@@ -140,6 +141,7 @@ for( h in seq_along(em_list)){
   df_color$value <- 1
   sector_legend_plot <- ggplot(df_color, aes(sector, value, color = sector))+
       geom_point(size = 7, shape = 15)+
+    theme(legend.position="bottom")+
       scale_color_manual(name = 'Sector',
                        breaks = sector_colors$sector,
                        values = sector_colors$color)
@@ -211,10 +213,11 @@ file_name <- paste0('../diagnostic-output/paper-figures/Supplement/Regional_summ
 if(regions[[k]] == "Other Asia/Pacific") file_name <- paste0('../diagnostic-output/paper-figures/Supplement/Regional_summaries_OtherAsia.pdf')
 
 pdf( file_name ,width=9.5,height=9.5,paper='special', onefile=F)
-grid.arrange(em_plot_list_nolegend[[1]][[k]],em_plot_list_nolegend[[2]][[k]],em_plot_list_nolegend[[3]][[k]],
+grid.arrange(arrangeGrob(em_plot_list_nolegend[[1]][[k]],em_plot_list_nolegend[[2]][[k]],em_plot_list_nolegend[[3]][[k]],
              em_plot_list_nolegend[[4]][[k]],em_plot_list_nolegend[[5]][[k]],em_plot_list_nolegend[[6]][[k]],
-             em_plot_list_nolegend[[7]][[k]],em_plot_list_nolegend[[8]][[k]],leg,
-             ncol=3, top=textGrob(regions[[k]], gp=gpar(fontsize=16,font=8)))
+             em_plot_list_nolegend[[7]][[k]],em_plot_list_nolegend[[8]][[k]],em_plot_list_nolegend[[9]][[k]],ncol = 3), 
+             leg,
+             ncol=1, heights = c(10,1),top=textGrob(regions[[k]], gp=gpar(fontsize=16,font=8)))
 dev.off()
 }
 
