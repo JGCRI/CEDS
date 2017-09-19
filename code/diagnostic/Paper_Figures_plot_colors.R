@@ -51,14 +51,14 @@ Master_Fuel_list <- readData('MAPPINGS','Master_Fuel_Sector_List','.xlsx')[[2]]
 # if( 'International' %in% regions ) regions <- regions[which(regions != 'International')]
 # regions <- c(regions, 'International')
 regions <- c( "China","Other Asia/Pacific","North America","Europe", 
-              "Latin America", "Africa" ,"Former Soviet Union","International")
+              "Latin America", "Africa" ,"Former Soviet Union","International Air-Ship")
 
 # # order sectors
 # sectors <- unique(MSLevel$Figure_sector)
 # sectors <- sectors[which(!is.na(sectors))]
 # sectors <- sectors[order(sectors)]
 sectors <- c( "Energy Transf/Ext" , "Industry"  ,"RCO" , "Transportation" ,
-              "Agriculture" , "Solvents" , "Waste", "Air" , "Shipping")
+              "Agriculture" , "Solvents" , "Waste",  "Shipping","Air")
 
 # order fuels
 # fuels <- unique(Master_Fuel_list$fuel)
