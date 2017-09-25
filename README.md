@@ -1,14 +1,16 @@
 # CEDS
 The Community Emissions Data System (CEDS) produces consistent estimates of global air emissions species over the industrial era (1750 - present). The system is written in R and uses open-source data (with the exception of the IEA energy statistics which must be purchased from IEA). CEDS is publically availabe through an [Open Source Licence](#licence-section).
 
-**PLease note** that this repository currently contains only documentation and functionality to submit issues with the CEDS data. The CEDS data system is currently being prepared for open source release Fall 2017.
+**Please note** that this repository currently contains only documentation and functionality to submit issues with the CEDS data. The CEDS data system is currently being prepared for open source release Fall 2017.
 
-Documentation is available at the [CEDS project wiki](https://github.com/JGCRI/CEDS/wiki).
+Documentation of CEDS assumptions and system operation are available at the [CEDS project wiki](https://github.com/JGCRI/CEDS/wiki) and in the journal paper listed below. 
 
-Issues with the data or system should be submitted using the [CEDS Issues](https://github.com/JGCRI/CEDS/issues) systen. This can include ananomloyes found in the aggregate or gridded emissions data. Please use an appropriate tag for any submitted issues.
+Current issues with the data or system are documented in the [CEDS Issues](https://github.com/JGCRI/CEDS/issues) systen in this gitHub repository (current issues are also listed in the "Known Issues" section of the Data and Assumptions wiki). Users can submit issues using this sytem. These can include ananomloyes found in the aggregate or gridded emissions data. Please use an appropriate tag for any submitted issues. Note that by default only unresolved issues are shown. All issues, including resolved issues, can be viewed by removing the "is:open" filter.
+
+Further information can also be found at the [project web site](http://www.globalchange.umd.edu/ceds/).
 
 # Journal Papers
-[Historical (1750–2014) anthropogenic emissions of reactive gases and aerosols from the Community Emission Data System (CEDS)](https://www.geosci-model-dev-discuss.net/gmd-2017-43/). *In Review*
+[Hoesly et al, Historical (1750–2014) anthropogenic emissions of reactive gases and aerosols from the Community Emission Data System (CEDS). Geosci. Model Dev. Discuss.](https://www.geosci-model-dev-discuss.net/gmd-2017-43/). *In Review*
 
 
 # <a name="licence-section"></a>Licence
