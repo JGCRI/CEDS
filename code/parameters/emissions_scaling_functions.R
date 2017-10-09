@@ -97,9 +97,9 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
   inv_data_full <- readData( inv_data_folder , inventory)
   scaling_map <- readData( "SCALE_MAPPINGS", mapping , ".xlsx", sheet_selection = 'map' )  
   scaling_map_names <- names(scaling_map)
-  scaling_map_names <- scaling_map_names[which(scaling_map_names %!in% c("",NA,'NA'))]
-  scaling_map <- scaling_map[,scaling_map_names]
-  scaling_map <- unique(scaling_map)
+  non_data_columns <- c("", NA, 'NA', paste0('X__', 1:length(scaling_map_names)))
+  scaling_map_names <- scaling_map_names[scaling_map_names %!in% non_data_columns]
+  scaling_map <- scaling_map[,scaling_map_names] %>% unique()
   
   # Check that ceds sectors are valid
   sectorCheck( scaling_map, colname = "ceds_sector" )
