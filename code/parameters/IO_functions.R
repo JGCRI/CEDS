@@ -517,7 +517,8 @@ readExcel <- function( full_file_path, sheet_selection = "ALL", column_names = T
 
         x <- lapply( excel_sheets( full_file_path ), read_excel, path = full_file_path, 
                      col_names = column_names, col_types = column_types, 
-                     na = missing_value, trim_ws = FALSE, skip = skip_rows) %>%
+                     na = missing_value, trim_ws = FALSE, skip = skip_rows,
+                     guess_max = 100) %>%
             lapply( as.data.frame ) # Ensure result is in standard data frame form, 
                                     # instead of a "local data frame"
         names( x ) <- sheet_names # Fix names
@@ -530,7 +531,8 @@ readExcel <- function( full_file_path, sheet_selection = "ALL", column_names = T
             multi_sheet <- TRUE
             x <- lapply( sheet_selection, read_excel, path = full_file_path, 
                          col_names = column_names, col_types = column_types, 
-                         na = missing_value, trim_ws = FALSE, skip = skip_rows) %>%
+                         na = missing_value, trim_ws = FALSE, skip = skip_rows,
+                         guess_max = 100) %>%
                 lapply( as.data.frame )
             names( x ) <- sheet_selection
             
@@ -541,7 +543,8 @@ readExcel <- function( full_file_path, sheet_selection = "ALL", column_names = T
         
             x <- read_excel( path = full_file_path, sheet = sheet_selection,
                              col_names = column_names, col_types = column_types,
-                             na = missing_value, trim_ws = FALSE, skip = skip_rows ) %>%
+                             na = missing_value, trim_ws = FALSE, skip = skip_rows,
+                             guess_max = 100) %>%
                 as.data.frame()
         }
     }
