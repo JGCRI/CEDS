@@ -65,7 +65,7 @@ if( em != 'CO2') {
   fraction_oxidized <- readData( "DEFAULT_EF_IN", "CO2_base_EF", ".xlsx", 
                                  sheet_selection = "Fraction_Oxidized" )
   MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
-  iea_start <- readData('EXT_IN','iea_start_date', ".xlsx", sheet_selection = "coal")
+  iea_start <- readData('EXT_IN','IEA_start_date', ".xlsx", sheet_selection = "coal")
   H.Extended_total_coal <- readData( "DIAG_OUT", "H.Extended_total_coal" )
   H.Extended_total_natural_gas <- readData( "DIAG_OUT", "H.Extended_total_natural_gas" )
   
