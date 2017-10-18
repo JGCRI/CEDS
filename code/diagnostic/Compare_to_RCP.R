@@ -12,15 +12,9 @@
 #                  
 # Input Files: [em]_total_CEDS_emissions.csv
 # Output Files: figures in the diagnostic-output
-# Note: (1) the script uses 'cowplot' package to add footnotes for each pdf plot 
-#           except the pdf that contains multiple grobs. The package 'cowplot' is
-#           imported in section 0.5 than set the plot theme back to ggplot2 default.
-#           All codes related to the use of 'cowplot' are surrounded by ### comments 
-#       (2) Shipping emissions is included in global comparison.
-#       (3) RCP shipping emissions does not have data for NH3
-# TODO: (1) Remove the use of 'cowplot' when new version of ggplot2 is available ( > 2.1).
-#           The new ggplot2 will provide default method of adding captions. 
-#       (2) In RCP shipping data NMVOC and CH4 data doesn't include emissions for tanker loading.
+# Note: (1) Shipping emissions is included in global comparison.
+#       (2) RCP shipping emissions does not have data for NH3
+# TODO: (1) In RCP shipping data NMVOC and CH4 data doesn't include emissions for tanker loading.
 #           Change the sector drop mapping when tanker loading sector is added for CEDS. 
 # ---------------------------------------------------------------------------
 
@@ -59,11 +53,6 @@ library('ggplot2')
 library('plyr')
 library('scales')
 library('gridExtra')
-
-### see note (1) for triple # comments 
-library( 'cowplot' )
-theme_set( theme_gray( ) ) # switch back to default ggplot2 theme
-### end 
 
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
@@ -327,21 +316,17 @@ plot <- ggplot(df, aes(x=year,y=total_emissions,group=Inventory,shape=Inventory,
                      minor_breaks = seq(from=CEDS_start_year, to=rcp_end_year, by=25)) +
   scale_y_continuous(limits = c(0,max ),labels = comma)+
   ggtitle( em )+
-  labs(x= "" , y= 'Emissions [Tg/yr]' )+
+  labs(x= "" , y= 'Emissions [Tg/yr]', caption = footnote_v1 )+
   theme(panel.background=element_blank(),
-        panel.grid.minor = element_line(colour="gray95"),
-        panel.grid.major = element_line(colour="gray88"))+
+        panel.grid.minor = element_line(colour = "gray95"),
+        panel.grid.major = element_line(colour = "gray88"),
+        plot.caption = element_text(hjust = 0.5, size = 6))+
   scale_linetype_manual(name= 'Inventory',
                         breaks = c('CEDS','RCP'),
                         values = c('solid','blank'))+
   scale_shape_manual(name= 'Inventory',
                      breaks = c('CEDS','RCP'),
                      values = c(NA,19))
-
-### adding footnote -- see note (1) for triple # comments 
-footnote_added <- add_sub( plot, footnote_v1, size = 6 ) # add footnote 
-ggdraw( footnote_added )
-### end 
 
 ggsave( paste0('ceds-comparisons/RCP_',em,'_Global_Comparison.pdf') , width = 7, height = 4)
 
