@@ -36,7 +36,7 @@
 
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "CH4"
+    if ( is.na( em ) ) em <- "CO"
 
 # ---------------------------------------------------------------------------
 # 0.5 Define functions
@@ -448,10 +448,20 @@
     
     # Extract the plot's legend
         inventory_legend <- g_legend( plot_for_legend )
-        layout <- rbind( c(1,1,1,1,NA),
-                         c(1,1,1,1,2),
-                         c(1,1,1,1,2),
-                         c(1,1,1,1,NA))
+        # layout <- rbind( c(1,1,1,1,NA),
+        #                  c(1,1,1,1,2),
+        #                  c(1,1,1,1,2),
+        #                  c(1,1,1,1,NA))
+        if (map_by == 'Region'){
+        layout <- rbind( c(1,1,2),
+                         c(1,1,2),
+                         c(1,1,2),
+                         c(1,1,2))
+        } else if(map_by == 'Sector'){
+          layout <- rbind( c(1,1,1,1),
+                           c(1,1,1,2),
+                           c(1,1,1,2),
+                           c(1,1,1,2))}
         
         title_text <- paste0( "Inventory scaling percentages of ", 
                               em, " by ", map_by )
@@ -460,17 +470,35 @@
                                   " - Inventory Scaling by ", map_by )
         }
     # Arrange the list of plots into a grid, next to the legend
-        arranged_plots <- grid.arrange( arrangeGrob( grobs=list_of_plots ),
-                                        inventory_legend, 
-                                        layout_matrix = layout,
-                                        nrow = 1,
-                                        top = textGrob( title_text, 
-                                        gp = gpar( fontsize = 15, font = 8 ) ) )
+        if (map_by == "Sector") { col_n <- 3
+                                  row_n <- 4
+                                  arranged_plots <- grid.arrange( arrangeGrob( grobs=list_of_plots , ncol=col_n, nrow=row_n, as.table = FALSE),
+                                                                  inventory_legend, 
+                                                                  layout_matrix = layout,
+                                                                  nrow = 1,
+                                                                  top = textGrob( title_text, 
+                                                                                  gp = gpar( fontsize = 15, font = 8 ) ) )
+                                  
+                                  }
+        if (map_by == "Region") { col_n <- 2
+                                  row_n <- 4
+                                  
+                                  arranged_plots <- grid.arrange( arrangeGrob( grobs=list_of_plots , ncol=col_n, nrow=row_n, as.table = FALSE),
+                                                                  inventory_legend, 
+                                                                  layout_matrix = layout,
+                                                                  nrow = 1,
+                                                                  widths = c(2,1),
+                                                                  top = textGrob( title_text, 
+                                                                                  gp = gpar( fontsize = 15, font = 8 ) ) )
+                                  }
+        
+
+        arrangeGrob()
     
     # Save the output file and return
         ggsave( paste0( "../diagnostic-output/value-meta-heatmaps/", em, "-MasterHeatmapBy", 
                         map_by, ".png" ), 
-                arranged_plots, width = 7, height = 4 )
+                arranged_plots, width = 7, height = 7 )
         
         return( meta_classified )
     }
