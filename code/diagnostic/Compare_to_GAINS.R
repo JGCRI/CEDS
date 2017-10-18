@@ -35,7 +35,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO2"
+if ( is.na( em ) ) em <- "NOx"
 
 # Stop script if running for unsupported species
 if ( em %!in% c('SO2','NOx','NMVOC','BC','OC','CH4','CO','CO2') ) {
@@ -132,7 +132,8 @@ not_gains_sectors <- c('1A3ai_International-aviation',
                         '11A_Volcanoes',
                         '11B_Forest-fires',
                         '11C_Other-natural',
-                       '5C_Waste-incineration')
+                        '5C_Waste-incineration',
+                        '3D_Soil-emissions')
 
 ceds <- ceds_emissions[ which( ceds_emissions$sector %!in% not_gains_sectors )
                         ,c('iso', 'sector', x_ceds_years)]
