@@ -75,6 +75,10 @@
     diesel_standards_ppm <- diesel_standards_ppm[ , c( 'iso', 
                                                        X_standard_years ) ]
     
+# Drop data with NA isos
+    diesel_standards_ppm <- 
+         diesel_standards_ppm[ !is.na( diesel_standards_ppm$iso ), ]
+    
 # -------------------------------------------------------------------------------
 # 3. Fill in default and interpolate between data estimates
 #    Begin with default S content standardsw where available and NAs where not.
