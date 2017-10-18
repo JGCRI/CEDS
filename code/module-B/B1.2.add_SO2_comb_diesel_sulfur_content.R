@@ -45,16 +45,15 @@
 # 1. Reading data
 
 # Read in S trends in diesel
-    diesel_standards <- readData( "DEFAULT_EF_IN",  
-                                  "Diesel_transport_S_trend", '.xlsx' )
+    diesel_standards_ppm <- readData( "DEFAULT_EF_IN", "Diesel_transport_S_trend", 
+                                      ".xlsx", sheet_selection = "ppm", 
+                                      column_types = c(rep('text', 3), rep('numeric', 52)))
 # Mapping file
     MCL <- readData( "MAPPINGS", "Master_Country_List" )
 
 # -------------------------------------------------------------------------------
 # 2. Format to CEDS format
 
-# Grab sheet with ppm data
-    diesel_standards_ppm <- diesel_standards[[ 'ppm' ]]
 # Extract region/iso info
     regions <- diesel_standards_ppm[ , 1:2 ]
 
