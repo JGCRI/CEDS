@@ -83,6 +83,7 @@ x_rcp_years <- paste0('X',rcp_years)
 ceds_years <- seq(from=CEDS_start_year,to=CEDS_end_year,by=1)
 x_ceds_years <- paste0('X',ceds_years)
 
+
 cdiac_years <- seq(from=cdiac_start_year,to=cdiac_end_year,by=1)
 x_cdiac_years <- paste0('X',cdiac_years)
 
@@ -135,8 +136,8 @@ global_cdiac_long$total_emissions <- 44/12*global_cdiac_long$total_emissions
 
 # ---------------------------------------------------------------------------
 # Start Emissions Loop
-em_list <- c('SO2','NOx','CO','OC','BC','NH3','NMVOC','CO2')
-
+em_list <- c('SO2','NOx','CO','OC','BC','NH3','NMVOC','CO2','CH4')
+em_list <- c('BC','CH4')
 # Create Plot Lists
 total_comparison_list <- list()
 total_stacked_sector_list <- list()
@@ -162,7 +163,8 @@ if (em %in% c('OC','BC')) unit <- '[Tg C/year]'
 if (em == 'NH3') unit <- '[Tg NH3/year]'
 if (em == 'CO') unit <- '[Tg CO/year]'
 if (em == 'NMVOC') unit <- '[Tg NMVOC/year]'
-if (em == 'CO2') unit <- '[Tg CO2/year]'
+if (em == 'CO2') unit <- '[1000 Tg CO2/year]'
+if (em == 'CH4') unit <- '[Tg CH4/year]'
 
 # Non Comparable Sectors
 rcp_remove_sectors <- c('AWB','Tot_Ant')
@@ -302,8 +304,6 @@ CEDS$agg_Sector <- as.factor(CEDS$agg_Sector)
 # add region
 CEDS$Region <- Master_Country_List[match(CEDS$iso,Master_Country_List$iso),'Paper_Figure_Region']
 
-# select years
-CEDS <- CEDS[,c( "iso","sector","fuel","units","Region","agg_Sector",'em',x_ceds_years)]
 
 # remove other total
 other <- CEDS[ which(CEDS$sector %in% c('6A_Other-in-total', '11C_Other-natural', '11B_Forest-fires','11A_Volcanoes','6B_Other-not-in-total')), ]
@@ -311,7 +311,13 @@ other_sum <- sum(other[X_plot_years])
 if(other_sum != 0) stop('There are non zero emissions in "other in total". Please check.')
 CEDS <- CEDS[-which(CEDS$sector %in% c('6A_Other-in-total', '11C_Other-natural', '11B_Forest-fires','11A_Volcanoes','6B_Other-not-in-total') ), ]
 
-
+# select only post 1970 for methane
+if ( em == 'CH4'){
+  CEDS <- CEDS[,c( "iso","sector","fuel","units","Region","agg_Sector",'em',paste0('X', 1750:end_year))]
+}else{
+# select years
+CEDS <- CEDS[,c( "iso","sector","fuel","units","Region","agg_Sector",'em',x_ceds_years)]
+}
 # ---------------------------------------------------------------------------
 # 5. Remove sectors to make like with like comparison
 if (em != 'CO2') rcp_comparable <- RCP[which(RCP$Sector %!in% rcp_remove_sectors),]
@@ -325,6 +331,7 @@ ceds_comparable_global <- CEDS [-which(CEDS$sector %in% ceds_remove_sectors_glob
 # 6.1 Global CEDS and RCP
 
 #Aggregate CEDS to Global
+if ( em == 'CH4') x_years <- paste0('X',1750:2014)
 global_ceds <- aggregate(ceds_comparable_global[x_years], 
                          by = list(em = ceds_comparable_global$em ),
                          FUN=sum )
@@ -418,6 +425,7 @@ fuel_ceds_long$year <- as.numeric(gsub('X',"",fuel_ceds_long$year))
 df <- global_long[,c('Inventory','year','total_emissions')]
 df$Inventory <- as.factor(df$Inventory)
 df$total_emissions <- df$total_emissions/1000
+if (em == 'CO2') df$total_emissions <- df$total_emissions/1000
 max <- 1.1*(max(df$total_emissions))
 if( em != 'CO2'){
 plot <- ggplot(df, aes(x=year,y=total_emissions,group=Inventory,shape=Inventory,linetype=Inventory)) + 
@@ -472,21 +480,30 @@ df <- rbind(global_cdiac_long[,c('Inventory','year','total_emissions')],
             global_rcp_long[,c('Inventory','year','total_emissions')])
 df$Inventory <- as.factor(df$Inventory)
 df$total_emissions <- df$total_emissions/1000
+if (em == 'CO2') df$total_emissions <- df$total_emissions/1000
 max <- 1.1*(max(df$total_emissions))
 df$sector <- 'none'
 
 df2 <- sector_ceds_long
 df2$total_emissions <- df2$total_emissions/1000
+if (em == 'CO2') df2$total_emissions <- df2$total_emissions/1000
 df2$Inventory <- NA
-df2$sector <- factor(df2$sector , levels = sectors )
+df2$sector <- factor(df2$sector , levels = sectors[which(sectors != 'Air')] )
 df2 <- df2 %>% arrange(sector)
 
+writeData(df, 'DIAG_OUT',paste0("summary_plot_data_",em,"sector_rcp"))
+writeData(df2, 'DIAG_OUT',paste0("summary_plot_data_",em,"sector_ceds"))
+
 # Legend Plot
+no_air_sectors <- sector_colors[which(sector_colors$sector != 'Air'),'sector']
+no_air_colors <- sector_colors[which(sector_colors$sector != 'Air'),'color']
 Sector_plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
   geom_area( data= df2, aes(x=year,y=total_emissions, fill = sector),  alpha = .7)+
+  theme(legend.position="bottom")+
+  guides(fill=guide_legend(nrow=1))+
   scale_fill_manual(name = 'Sector',
-                    breaks = sector_colors$sector,
-                    values = sector_colors$color)
+                    breaks = no_air_sectors,
+                    values = no_air_colors)
 # Stacked Plots
 if( em != 'CO2'){
 plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
@@ -515,6 +532,8 @@ if( em == 'CO2'){
   Inventory_plot <- ggplot(data= df, aes(x=year,y=total_emissions, linetype = Inventory, shape = Inventory)) + 
     geom_line(data = subset(df, Inventory == 'CDIAC'), aes(x=year,y=total_emissions)) +
     geom_point(data = subset(df, Inventory == 'CMIP5'), aes(x=year,y=total_emissions)) +
+    theme(legend.position="bottom")+
+    # guides(fill=guide_legend(nrow=1))+
     scale_fill_manual(name = 'Sector',
                       breaks = sector_colors$sector,
                       values = sector_colors$color)+
@@ -573,13 +592,18 @@ df <- global_rcp_long[,c('Inventory','year','total_emissions')]
 if( em == 'CO2') df <- global_cdiac_long
 df$Inventory <- as.factor(df$Inventory)
 df$total_emissions <- df$total_emissions/1000
+if (em == 'CO2') df$total_emissions <- df$total_emissions/1000
 max <- 1.1*(max(df$total_emissions))
 
 df2 <- region_ceds_long
 df2$total_emissions <- df2$total_emissions/1000
+if (em == 'CO2') df2$total_emissions <- df2$total_emissions/1000
 df2$Inventory <- NA
 df2$region <- factor(df2$region , levels = regions )
 df2 <- df2 %>% arrange(region)
+
+writeData(df, 'DIAG_OUT',paste0("summary_plot_data_",em,"region_rcp"))
+writeData(df2, 'DIAG_OUT',paste0("summary_plot_data_",em,"region_ceds"))
 
 if( em != 'CO2'){
   plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
@@ -607,6 +631,8 @@ if( em == 'CO2'){
   
   Region_plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
     geom_area( data= df2, aes(x=year,y=total_emissions, fill = region),  alpha = .7)+
+    theme(legend.position="bottom")+
+    # guides(fill=guide_legend(nrow=1))+
     scale_fill_manual(name = 'Region',
                       breaks = region_colors$region,
                       values = region_colors$color)
@@ -660,10 +686,12 @@ df <- global_rcp_long[,c('Inventory','year','total_emissions')]
 if( em == 'CO2') df <- global_cdiac_long
 df$Inventory <- as.factor(df$Inventory)
 df$total_emissions <- df$total_emissions/1000
+if (em == 'CO2') df$total_emissions <- df$total_emissions/1000
 max <- 1.1*(max(df$total_emissions))
 
 df2 <- fuel_ceds_long
 df2$total_emissions <- df2$total_emissions/1000
+if (em == 'CO2') df2$total_emissions <- df2$total_emissions/1000
 df2$Inventory <- NA
 df2$fuel <- factor(df2$fuel , levels = fuels )
 df2 <- df2 %>% arrange(fuel)
@@ -694,6 +722,8 @@ if( em == 'CO2'){
   
   Fuel_plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
        geom_area( data= df2, aes(x=year,y=total_emissions, fill = fuel),  alpha = .7)+
+    theme(legend.position="bottom")+
+    guides(fill=guide_legend(nrow=1))+
     scale_fill_manual(name = 'Fuel',
                       breaks = fuel_colors$fuel,
                       values = fuel_colors$color)
@@ -742,72 +772,75 @@ total_line_fuel_list[[h]] <- ggplot(data= df2, aes(x=year,y=total_emissions, col
 
 # ---------------------------------------------------------------------------
 } # end emissions loop
-
-# Legend Processing
-total_comparison_nolegend_list <- lapply(total_comparison_list, function(x) x + theme(legend.position="none"))
-total_stacked_sector_nolegend_list <- lapply(total_stacked_sector_list, function(x) x + theme(legend.position="none"))
-total_stacked_region_nolegend_list <- lapply(total_stacked_region_list, function(x) x + theme(legend.position="none"))
-total_stacked_fuel_nolegend_list <- lapply(total_stacked_fuel_list, function(x) x + theme(legend.position="none"))
-total_line_sector_nolegend_list <- lapply(total_line_sector_list, function(x) x + theme(legend.position="none"))
-total_line_region_nolegend_list <- lapply(total_line_region_list, function(x) x + theme(legend.position="none"))
-total_line_fuel_nolegend_list <- lapply(total_line_fuel_list, function(x) x + theme(legend.position="none"))
-
-Inventory_plot_legend <- g_legend(Inventory_plot)
-Sector_plot_lend <- g_legend(Sector_plot)
-Region_plot_lend <- g_legend(Region_plot)
-Fuel_plot_lend <- g_legend(Fuel_plot)
-
-# Stacked Sector 
-pdf(paste0('../diagnostic-output/paper-figures/Paper/Paper_Figures_sector_stacked.pdf'),width=9.5,height=8.5,paper='special', onefile=F)
-grid.arrange(total_stacked_sector_nolegend_list[[1]],total_stacked_sector_nolegend_list[[2]],total_stacked_sector_nolegend_list[[3]],
-             total_stacked_sector_nolegend_list[[4]],total_stacked_sector_nolegend_list[[5]],total_stacked_sector_nolegend_list[[6]],
-             total_stacked_sector_nolegend_list[[7]],total_stacked_sector_nolegend_list[[8]],
-             grid.arrange(Sector_plot_lend,Inventory_plot_legend, ncol=2),
-             ncol=3)
-dev.off()
-
-# Line Sector
-pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_sector_line.pdf'),width=9.5,height=8.5,paper='special', onefile=F)
-grid.arrange(total_line_sector_nolegend_list[[1]],total_line_sector_nolegend_list[[2]],total_line_sector_nolegend_list[[3]],
-             total_line_sector_nolegend_list[[4]],total_line_sector_nolegend_list[[5]],total_line_sector_nolegend_list[[6]],
-             total_line_sector_nolegend_list[[7]],total_line_sector_nolegend_list[[8]],Sector_plot_lend,
-             ncol=3)
-dev.off()
-# Stacked Region
-pdf(paste0('../diagnostic-output/paper-figures/Paper/Paper_Figures_region_stacked.pdf'),width=9.5,height=8.5,paper='special', onefile=F)
-grid.arrange(total_stacked_region_nolegend_list[[1]],total_stacked_region_nolegend_list[[2]],total_stacked_region_nolegend_list[[3]],
-             total_stacked_region_nolegend_list[[4]],total_stacked_region_nolegend_list[[5]],total_stacked_region_nolegend_list[[6]],
-             total_stacked_region_nolegend_list[[7]],total_stacked_region_nolegend_list[[8]],
-             grid.arrange(Region_plot_lend,Inventory_plot_legend, ncol=2),
-             ncol=3)
-dev.off()
-
-# Line Region
-leg <- leg <- g_legend(total_line_region_list[[1]])
-pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_region_line.pdf'),width=9.5,height=8.5,paper='special', onefile=F)
-grid.arrange(total_line_region_nolegend_list[[1]],total_line_region_nolegend_list[[2]],total_line_region_nolegend_list[[3]],
-             total_line_region_nolegend_list[[4]],total_line_region_nolegend_list[[5]],total_line_region_nolegend_list[[6]],
-             total_line_region_nolegend_list[[7]],total_line_region_nolegend_list[[8]],leg,
-             ncol=3)
-dev.off()
-
-# Stacked fuel
-pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_fuel_stacked.pdf'),width=9.5,height=8.5,paper='special', onefile=F)
-grid.arrange(total_stacked_fuel_nolegend_list[[1]],total_stacked_fuel_nolegend_list[[2]],total_stacked_fuel_nolegend_list[[3]],
-             total_stacked_fuel_nolegend_list[[4]],total_stacked_fuel_nolegend_list[[5]],total_stacked_fuel_nolegend_list[[6]],
-             total_stacked_fuel_nolegend_list[[7]],total_stacked_fuel_nolegend_list[[8]],
-             grid.arrange(Fuel_plot_lend,Inventory_plot_legend, ncol=2),
-             ncol=3)
-dev.off()
-
-# Line Fuel
-leg <- leg <- g_legend(total_line_fuel_list[[1]])
-pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_fuel_line.pdf'),width=9.5,height=8.5,paper='special', onefile=F)
-grid.arrange(total_line_fuel_nolegend_list[[1]],total_line_fuel_nolegend_list[[2]],total_line_fuel_nolegend_list[[3]],
-             total_line_fuel_nolegend_list[[4]],total_line_fuel_nolegend_list[[5]],total_line_fuel_nolegend_list[[6]],
-             total_line_fuel_nolegend_list[[7]],total_line_fuel_nolegend_list[[8]],leg,
-             ncol=3)
-dev.off()
+# 
+# # Legend Processing
+# total_comparison_nolegend_list <- lapply(total_comparison_list, function(x) x + theme(legend.position="none"))
+# total_stacked_sector_nolegend_list <- lapply(total_stacked_sector_list, function(x) x + theme(legend.position="none"))
+# total_stacked_region_nolegend_list <- lapply(total_stacked_region_list, function(x) x + theme(legend.position="none"))
+# total_stacked_fuel_nolegend_list <- lapply(total_stacked_fuel_list, function(x) x + theme(legend.position="none"))
+# total_line_sector_nolegend_list <- lapply(total_line_sector_list, function(x) x + theme(legend.position="none"))
+# total_line_region_nolegend_list <- lapply(total_line_region_list, function(x) x + theme(legend.position="none"))
+# total_line_fuel_nolegend_list <- lapply(total_line_fuel_list, function(x) x + theme(legend.position="none"))
+# 
+# Inventory_plot_legend <- g_legend(Inventory_plot)
+# Sector_plot_legend <- g_legend(Sector_plot)
+# Region_plot_legend <- g_legend(Region_plot)
+# Fuel_plot_legend <- g_legend(Fuel_plot)
+# 
+# # Stacked Sector 
+# pdf(paste0('../diagnostic-output/paper-figures/Paper/Paper_Figures_sector_stacked.pdf'),width=10,height=10,paper='special', onefile=F)
+# grid.arrange(arrangeGrob(total_stacked_sector_nolegend_list[[1]],total_stacked_sector_nolegend_list[[2]],total_stacked_sector_nolegend_list[[3]],
+#                           total_stacked_sector_nolegend_list[[4]],total_stacked_sector_nolegend_list[[5]],total_stacked_sector_nolegend_list[[6]],
+#                           total_stacked_sector_nolegend_list[[7]],total_stacked_sector_nolegend_list[[8]],total_stacked_sector_nolegend_list[[9]],ncol=3),
+#             arrangeGrob(Sector_plot_legend,Inventory_plot_legend, ncol=1),
+#             ncol=1, heights = c(10,1))
+# dev.off()
+# 
+# # Line Sector
+# pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_sector_line.pdf'),width=10,height=10,paper='special', onefile=F)
+# grid.arrange(arrangeGrob(total_line_sector_nolegend_list[[1]],total_line_sector_nolegend_list[[2]],total_line_sector_nolegend_list[[3]],
+#                          total_line_sector_nolegend_list[[4]],total_line_sector_nolegend_list[[5]],total_line_sector_nolegend_list[[6]],
+#                          total_line_sector_nolegend_list[[7]],total_line_sector_nolegend_list[[8]],total_line_sector_nolegend_list[[9]],ncol=3),
+#              Sector_plot_legend,
+#              ncol=1, heights = c(10,1))
+# dev.off()
+# 
+# # Stacked Region
+# pdf(paste0('../diagnostic-output/paper-figures/Paper/Paper_Figures_region_stacked.pdf'),width=10,height=10,paper='special', onefile=F)
+# grid.arrange(arrangeGrob(total_stacked_region_nolegend_list[[1]],total_stacked_region_nolegend_list[[2]],total_stacked_region_nolegend_list[[3]],
+#                          total_stacked_region_nolegend_list[[4]],total_stacked_region_nolegend_list[[5]],total_stacked_region_nolegend_list[[6]],
+#                          total_stacked_region_nolegend_list[[7]],total_stacked_region_nolegend_list[[8]],total_stacked_region_nolegend_list[[9]],ncol=3),
+#              arrangeGrob(Region_plot_legend,Inventory_plot_legend, ncol=1),
+#              ncol=1, heights = c(10,1))
+# dev.off()
+# 
+# # Line Region
+# pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_region_line.pdf'),width=10,height=10,paper='special', onefile=F)
+# grid.arrange(arrangeGrob(total_line_region_nolegend_list[[1]],total_line_region_nolegend_list[[2]],total_line_region_nolegend_list[[3]],
+#                          total_line_region_nolegend_list[[4]],total_line_region_nolegend_list[[5]],total_line_region_nolegend_list[[6]],
+#                          total_line_region_nolegend_list[[7]],total_line_region_nolegend_list[[8]],total_line_region_nolegend_list[[9]],ncol=3),
+#              Region_plot_legend,
+#              ncol=1, heights = c(10,1))
+# dev.off()
+# 
+# # Stacked fuel
+# pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_fuel_stacked.pdf'),width=10,height=10,paper='special', onefile=F)
+# grid.arrange(arrangeGrob(total_stacked_fuel_nolegend_list[[1]],total_stacked_fuel_nolegend_list[[2]],total_stacked_fuel_nolegend_list[[3]],
+#                          total_stacked_fuel_nolegend_list[[4]],total_stacked_fuel_nolegend_list[[5]],total_stacked_fuel_nolegend_list[[6]],
+#                          total_stacked_fuel_nolegend_list[[7]],total_stacked_fuel_nolegend_list[[8]],total_stacked_fuel_nolegend_list[[9]],ncol=3),
+#              arrangeGrob(Fuel_plot_legend,Inventory_plot_legend, ncol=1),
+#              ncol=1, heights = c(10,1))
+# dev.off()
+# 
+# 
+# # Line Fuel
+# pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_fuel_line.pdf'),width=10,height=10,paper='special', onefile=F)
+# grid.arrange(arrangeGrob(total_line_fuel_nolegend_list[[1]],total_line_fuel_nolegend_list[[2]],total_line_fuel_nolegend_list[[3]],
+#                          total_line_fuel_nolegend_list[[4]],total_line_fuel_nolegend_list[[5]],total_line_fuel_nolegend_list[[6]],
+#                          total_line_fuel_nolegend_list[[7]],total_line_fuel_nolegend_list[[8]],total_line_fuel_nolegend_list[[9]],ncol=3),
+#              Fuel_plot_legend,
+#              ncol=1, heights = c(10,1))
+# dev.off()
 
 # ---------------------------------------------------------------------------
 logStop()
