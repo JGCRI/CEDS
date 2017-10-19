@@ -30,7 +30,7 @@ PARAM_DIR <- "../code/parameters/"
 headers <- c( "data_functions.R", "analysis_functions.R",'process_db_functions.R',
               'common_data.R', 'IO_functions.R', 'data_functions.R', 'timeframe_functions.R') # Additional function files may be required.
 log_msg <- "Processing Paper and Supplement Figures for all emission species" # First message to be printed to the log
-script_name <- "Paper_Figures_sector_summaries.R"
+script_name <- "Paper_Figures_sector_summaries_recent.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -60,15 +60,9 @@ source('../code/diagnostic/Paper_Figures_plot_colors.R')
 
 # ---------------------------------------------------------------------------
 # Start Emissions Loop
-em_list <- c('SO2','NOx','CO','OC','BC','NH3','NMVOC','CO2')
+em_list <- c('SO2','NOx','CO','OC','BC','NH3','NMVOC','CO2','CH4')
 
 # Create Plot Lists
-start <- 1990
-end <- 2014
-plot_years <- start:end
-X_plot_years <- paste0('X',start:end)
-major_break <- 10
-minor_break <- 5
 
 em_plot_list <- list()
 em_plot_list_nolegend <- list()
@@ -80,6 +74,14 @@ for( h in seq_along(em_list)){
   # ---------------------------------------------------------------------------
   # 2. Other script Options
   
+  start <- 1990
+  end <- 2014
+  plot_years <- start:end
+  X_plot_years <- paste0('X',start:end)
+  if( em == 'CH4') X_plot_years <- paste0('X',1970:end)
+  major_break <- 10
+  minor_break <- 5
+  unit <- '[Tg/year]'
   unit <- '[Tg/year]'
   
   if (em == 'SO2') unit <- '[Tg SO2/year]'
@@ -94,10 +96,10 @@ for( h in seq_along(em_list)){
   # 3. Load and Process CEDS Emissions Data 
   
   CEDS <- readData('MED_OUT', paste0(em,'_total_CEDS_emissions'))
-
+  
   # rename other process emissions to tanker loading
   CEDS[which(CEDS$sector == '2L_Other-process-emissions'),'sector'] <- '1A3di_International-shipping'
-    
+  
   # rename international shipping to global
   CEDS[which(CEDS$sector %in% c('1A3ai_International-aviation','1A3di_International-shipping','1A3aii_Domestic-aviation')),'iso'] <- 'global'
   
@@ -139,6 +141,7 @@ for( h in seq_along(em_list)){
   df_color$value <- 1
   region_legend_plot <- ggplot(df_color, aes(region, value, color = region))+
     geom_point(size = 7, shape = 15)+
+    theme(legend.position="bottom")+
     scale_color_manual(name = 'Region',
                        breaks = region_colors$region,
                        values = region_colors$color)
@@ -154,14 +157,14 @@ for( h in seq_along(em_list)){
   for (k in seq_along(sectors)){
     
     df_plot <- df[which(df$sector == sectors[k]),]
-    df_plot <- df_plot[-which(df_plot$emissions == 0),]
-# add zero values, then remove duplicates, so that df_plot has a data entry for all regions
+    df_plot <- df_plot[which(df_plot$emissions != 0),]
+    # add zero values, then remove duplicates, so that df_plot has a data entry for all regions
     df_plot <- rbind.fill(df_plot,zero_df)
     df_plot <- df_plot[!duplicated(df_plot[c('region','year')]),]
-# check for all regions
+    # check for all regions
     if(length(unique(df_plot$region)) != n_regions) stop("figure doesn't have all regions. Legend won't work")
     if(nrow(df_plot) == 0) df_plot <- zero_df
-   
+    
     max <- 1.1*(max(df_plot$emissions))
     if(max < 1) max <- 1
     # if(max < 1 & em %!in% c('BC','OC')) max <- 1
@@ -199,7 +202,7 @@ for( h in seq_along(em_list)){
   
   em_plot_list[[h]] <-  sector_plot_list  
   em_plot_list_nolegend[[h]] <-  sector_plot_list_nolegend
-
+  
 } # end emissions loop
 # ---------------------------------------------------------------------------
 # 6. Arrange plots
@@ -215,10 +218,11 @@ for(k in seq_along(sectors)){
   file_name <- paste0('../diagnostic-output/paper-figures/Supplement/Recent_Sector_summaries_',sector_name,'.pdf')
   
   pdf( file_name ,width=9.5,height=9.5,paper='special', onefile=F)
-  grid.arrange(em_plot_list_nolegend[[1]][[k]],em_plot_list_nolegend[[2]][[k]],em_plot_list_nolegend[[3]][[k]],
-               em_plot_list_nolegend[[4]][[k]],em_plot_list_nolegend[[5]][[k]],em_plot_list_nolegend[[6]][[k]],
-               em_plot_list_nolegend[[7]][[k]],em_plot_list_nolegend[[8]][[k]],leg,
-               ncol=3, top=textGrob(sectors[[k]], gp=gpar(fontsize=16,font=8)))
+  grid.arrange(arrangeGrob(em_plot_list_nolegend[[1]][[k]],em_plot_list_nolegend[[2]][[k]],em_plot_list_nolegend[[3]][[k]],
+                           em_plot_list_nolegend[[4]][[k]],em_plot_list_nolegend[[5]][[k]],em_plot_list_nolegend[[6]][[k]],
+                           em_plot_list_nolegend[[7]][[k]],em_plot_list_nolegend[[8]][[k]],em_plot_list_nolegend[[9]][[k]],ncol = 3), 
+               leg,
+               ncol=1, heights = c(10,1),top=textGrob(sectors[[k]], gp=gpar(fontsize=16,font=8)))
   dev.off()
 }
 
