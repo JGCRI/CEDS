@@ -34,7 +34,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NH3"
+if ( is.na( em ) ) em <- "SO2"
 
 # ---------------------------------------------------------------------------
 # 0.5. Script Settings needed for data import
