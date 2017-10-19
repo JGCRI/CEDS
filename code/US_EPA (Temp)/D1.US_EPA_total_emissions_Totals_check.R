@@ -2,13 +2,13 @@
 # Program Name: D1.US_EPA_total_emissions_Totals_check.R
 # Author: Cecilia Moura
 # Date Last Updated: September 10, 2015
-# Program Purpose:  
+# Program Purpose:
 #   Calculates air pollutant emission totals for CO, NOx, PM10, M2.5, SO2, VOC, NH3, CO2 and HAP-VOC.
 #   Emissions are calculated for each of the 4 EPA data categories, and consistency checks are done.
 #   HAP-VOCs emissions are extracted from the list of all pollutant emissions, based on EPA definition of HAP-VOC pollutants.
 #   An emissions table is created.
-#   
-# Input Files:    
+#
+# Input Files:
 #   onroad_emissions_state,nonroad_emissions_state,point_emissions_state, nonpoint_emissions_state
 #   onroad_emissions_US,nonroad_emissions_US,point_emissions_US, nonpoint_emissions_US
 #   point_emissions_tribe, nonpoint_emissions_tribe
@@ -16,34 +16,34 @@
 #   List_HAP_VOC.csv  (created from EPA site http://www.epa.gov/ttn/chief/net/2011inventory.html,
 #   from section entitled "Sector Summaries - Criteria and Hazardous Air Pollutants by 60 EIS emission sector")
 # Output Files: Emission_totals.csv
-# Notes: 
-# 
-# TODO: 
+# Notes:
+#
+# TODO:
 # 1 - Unit checking is incomplete.
-# 2 - The Emissions_total file was used for further calculations, but the original file was not changed. The additional work, 
+# 2 - The Emissions_total file was used for further calculations, but the original file was not changed. The additional work,
 # which was in progress, based on the Emissions_total results, can be found in the file Summary_emission_totals_CM.csv.
 # 3 - Checking and diagnostics need to be improved.
-# 4- For an unknown reason, row names were not written out to the Emissions_totals.csv file. Note that the data frame from 
+# 4- For an unknown reason, row names were not written out to the Emissions_totals.csv file. Note that the data frame from
 # which it is written (totals) does have row names.
-#   
+#
 # -----------------------------------------------------------------------------------------------------------
 # -----------------------------------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 
-# Set working directory to the CEDS inputÄù directory and define PARAM_DIR as the
-# location of the CEDS parameters ù directory, relative to the new working directory.
+# Set working directory to the CEDS inputÔøΩÔøΩ directory and define PARAM_DIR as the
+# location of the CEDS parameters ÔøΩ directory, relative to the new working directory.
 dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
 for ( i in 1:length( dirs ) ) {
   setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'emissions-data-system/input', list.dirs(), value = T )
-  if ( length( wd ) > 0 ) {
-    setwd( wd[ 1 ] )
+  wd <- grep( 'CEDS/input', list.dirs(), value = T )
+  if ( length(wd) > 0 ) {
+    setwd( wd[1] )
     break
   }
 }
 PARAM_DIR <- "../code/parameters/"
 
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R" ) # Any additional function files required
 log_msg <- "short description of code" # First message to be printed to the log
@@ -72,7 +72,7 @@ all_emissions_US <- readData("US_EPA_MED_OUT","all_emissions_US")
 all_emissions_tribe <- readData("US_EPA_MED_OUT","all_emissions_tribe")
 
 
-# Get total US CO emissions 
+# Get total US CO emissions
 
 CO<-subset(all_emissions_US,all_emissions_US$pollutant=="Carbon Monoxide")
 sum(CO$emissions)
@@ -301,7 +301,7 @@ Num_all_pollutants <- nrow(list_all_pollutants) # 288
 # Pollutants which are not HAP-VOCs (288-153=135)
 all_but_HAP_VOC <- data.frame(all_pollutants[!(all_pollutants$pollutants %in% HAP_VOC$HAP.VOC),])
 
-# HAP-VOcs listed in all_pollutants (153). 
+# HAP-VOcs listed in all_pollutants (153).
 HAP_VOC_short <- data.frame(intersect(all_pollutants[,1],HAP_VOC[,1]))  #153
 colnames(HAP_VOC_short)[which(names(HAP_VOC_short) == "intersect.all_pollutants...1...HAP_VOC...1..")] <- "HAP.VOC"
 
@@ -328,5 +328,3 @@ CO2 <- c(CO2_unit,CO2_onroad_total,CO2_nonroad_total,CO2_point_total,CO2_nonpoin
 totals <- data.frame(CO,NOx,PM10_Primary,PM2.5_Primary,SO2,VOC,NH3,CO2)
 row.names(totals)<-c("unit","onroad", "nonroad", "point","nonpoint")
 writeData(totals,"US_EPA_MED_OUT","Emission_totals" )  #Why are row names not being written out?
-
-

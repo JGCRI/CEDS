@@ -21,8 +21,8 @@
     for ( i in 1:length( dirs ) ) {
         setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
         wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if ( length( wd ) > 0 ) {
-            setwd( wd[ 1 ] )
+        if ( length(wd) > 0 ) {
+            setwd( wd[1] )
             break
           
         }
