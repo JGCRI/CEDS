@@ -5,34 +5,22 @@
 # Program Purpose: To fill out missing sections in the process emissions database
 # Input Files: Master_Fuel_Sector_List.xlsx, C.[em]_NC_emissions_db.csv, A.NC_activity.csv
 # Output Files:  C.[em]_NC_emissions.csv
-# Notes: 
+# Notes:
 # TODO:
 #-------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
-
-# Before we can load headers we need some paths defined. They may be provided by
-#   a system environment variable or may have already been set in the workspace.
-# Set variable PARAM_DIR to be the data system directory
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if ( length(wd) > 0 ) {
-            setwd( wd[1] )
-            break
-            
-        }
-    }
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
     PARAM_DIR <- "../code/parameters/"
 
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "data_functions.R" ) # Additional function files required.
     log_msg <- "Integration of process emissions data" # First message to be printed to the log
     script_name <- "C1.3.proc_NC_emissions.R"
-    
+
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
@@ -53,7 +41,7 @@ activity_data <- readData( "MED_OUT", "A.NC_activity" )
 emissions_data <- readData( "MED_OUT", paste0( "C.", em, "_", "NC", "_emissions_db" ), meta = FALSE )
 
 # ----------------------------------------------------------------------------
-# 2. Populate missing sectors and countries: 
+# 2. Populate missing sectors and countries:
 #    Add rows of all 0 for every missing iso/sector combination
 
 emissions_iso_list <- unique( emissions_data$iso )
@@ -91,7 +79,7 @@ missing_entries <- emissions_data[ emissions_data$iso == "No such iso", ]
 
 # Append a block with all missing isos for each sector
 for( sector_name in sector_list ){
-    
+
     # Data frame of only ID columns
     blank <- data.frame(
       iso = missing_iso_list,

@@ -5,37 +5,25 @@
 # Program Purpose: Add CDIAC cement production and flaring emissions for CO2
 # Input Files: E.CO2_CDIAC_inventory.csv, C.[em]_NC_emissions_db.csv
 # Output Files: C.[em]_NC_emissions_db.csv
-# Notes: 
+# Notes:
 # TODO:
 #-------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- "../code/parameters/"
 
-# Before we can load headers we need some paths defined. They may be provided by
-#   a system environment variable or may have already been set in the workspace.
-# Set variable PARAM_DIR to be the data system directory
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-    
-  }
-}
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "timeframe_functions.R", "common_data.R", "data_functions.R", 
+headers <- c( "timeframe_functions.R", "common_data.R", "data_functions.R",
               "process_db_functions.R" ) # Additional function files required.
 log_msg <- "Processing CDIAC non-combustion emissions data" # First message to be printed to the log
 script_name <- "C1.2.add_CO2_NC_emissions_CDIAC.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
-initialize( script_name, log_msg, headers, common_data = FALSE )  
+initialize( script_name, log_msg, headers, common_data = FALSE )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]

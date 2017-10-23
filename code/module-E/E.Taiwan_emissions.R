@@ -6,29 +6,19 @@
 # Input Files: Taiwan_emissions.xlsx
 # Output Files: E.[EM]_TWN_inventory.csv
 # Notes: Taiwan emission data are only available for year 2003, 2006, 2010
-# TODO: 
+# TODO:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
-
-# Set working directory to the CEDS "input" directory and define PARAM_DIR as the
-# location of the CEDS "parameters" directory, relative to the new working directory.
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-  }
-} 
-PARAM_DIR <- "../code/parameters/"
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- "../code/parameters/"
 
 # Get emission species first so can name log appropriately
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[1]
 if ( is.na( em ) ) em <- "NOx"
-  
-# Call standard script header function to read in universal header files - 
+
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'common_data.R',"data_functions.R" , "analysis_functions.R") # Additional function files required.
 log_msg <- "Generating Taiwan emission inventory data" # First message to be printed to the log
@@ -56,7 +46,7 @@ inv_data_folder <- "EM_INV"
 sector_fuel_mapping <- 'TWN_scaling_mapping'
 mapping_method <- 'sector'
 inv_name <- 'TWN' #for naming diagnostic files
-region <- c( "twn" ) 
+region <- c( "twn" )
 inv_years<-c( 2003, 2006, 2010 )
 
 
@@ -68,40 +58,40 @@ inv_years<-c( 2003, 2006, 2010 )
 if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) {
   inv_data_species <- data.frame( )
 
-  } else { 
+  } else {
 # Import Sheets containing 2008,2010,2012 data.
 sheet_name <- "2003"
-inv_data_sheet_two <- readData( inv_data_folder, inventory_data_file , ".xlsx", skip = 1, 
+inv_data_sheet_two <- readData( inv_data_folder, inventory_data_file , ".xlsx", skip = 1,
                                  sheet_selection = sheet_name, domain_extension = subfolder_name )
 sheet_name <- "2006"
-inv_data_sheet_three <- readData( inv_data_folder, inventory_data_file , ".xlsx", skip = 1, 
+inv_data_sheet_three <- readData( inv_data_folder, inventory_data_file , ".xlsx", skip = 1,
                                   sheet_selection = sheet_name, domain_extension = subfolder_name )
 sheet_name <- "2010"
-inv_data_sheet_four <- readData( inv_data_folder, inventory_data_file , ".xlsx", skip = 1, 
+inv_data_sheet_four <- readData( inv_data_folder, inventory_data_file , ".xlsx", skip = 1,
                                   sheet_selection = sheet_name, domain_extension = subfolder_name )
 # kepp desired columns
 keep_columns <- c( 'sector', 'sub-sector1', 'sub-sector2', 'SOx', 'NOx', 'NMHC', 'CO' )
 col_names <- c( 'sector', 'subsector_l1', 'subsector_l2', 'SO2', 'NOx', 'NMVOC', 'CO')
 df2003 <- subset( inv_data_sheet_two, select = keep_columns )
-colnames( df2003 ) <- col_names 
+colnames( df2003 ) <- col_names
 df2003 <- df2003[ !is.na( df2003$sector ), ]
 df2006 <- subset( inv_data_sheet_three, select = keep_columns )
-colnames( df2006 ) <- col_names 
+colnames( df2006 ) <- col_names
 df2006 <- df2006[ !is.na( df2006$sector ), ]
 df2010 <- subset( inv_data_sheet_four, select = keep_columns )
-colnames( df2010 ) <- col_names 
+colnames( df2010 ) <- col_names
 df2010 <- df2010[ !is.na( df2010$sector ), ]
 
 # construct unified sector names
-df2003$sector <- paste( df2003$sector, df2003$subsector_l1, df2003$subsector_l2, sep = '_' )  
+df2003$sector <- paste( df2003$sector, df2003$subsector_l1, df2003$subsector_l2, sep = '_' )
 df2003$sector <- gsub( '_NA', '', df2003$sector )
-df2003 <- df2003[ , !( colnames( df2003 ) %in% c( 'subsector_l1', 'subsector_l2' ) ) ] 
-df2006$sector <- paste( df2006$sector, df2006$subsector_l1, df2006$subsector_l2, sep = '_' )  
+df2003 <- df2003[ , !( colnames( df2003 ) %in% c( 'subsector_l1', 'subsector_l2' ) ) ]
+df2006$sector <- paste( df2006$sector, df2006$subsector_l1, df2006$subsector_l2, sep = '_' )
 df2006$sector <- gsub( '_NA', '', df2006$sector )
-df2006 <- df2006[ , !( colnames( df2006 ) %in% c( 'subsector_l1', 'subsector_l2' ) ) ] 
-df2010$sector <- paste( df2010$sector, df2010$subsector_l1, df2010$subsector_l2, sep = '_' )  
+df2006 <- df2006[ , !( colnames( df2006 ) %in% c( 'subsector_l1', 'subsector_l2' ) ) ]
+df2010$sector <- paste( df2010$sector, df2010$subsector_l1, df2010$subsector_l2, sep = '_' )
 df2010$sector <- gsub( '_NA', '', df2010$sector )
-df2010 <- df2010[ , !( colnames( df2010 ) %in% c( 'subsector_l1', 'subsector_l2' ) ) ] 
+df2010 <- df2010[ , !( colnames( df2010 ) %in% c( 'subsector_l1', 'subsector_l2' ) ) ]
 
 # construct unified sectors in each df
 df2003 <- merge( df2003, df2006['sector'], by = 'sector', all = T )
@@ -115,10 +105,10 @@ X2003 <- df2003[ , em ]
 X2006 <- df2006[ , em ]
 X2010 <- df2010[ , em ]
 
-inv_data_species <- data.frame(sector, X2003, X2006, X2010 ) 
+inv_data_species <- data.frame(sector, X2003, X2006, X2010 )
 
 # Make numeric and convert from tonnes to kt
-inv_data_species[ , paste0( 'X', inv_years ) ] <- 
+inv_data_species[ , paste0( 'X', inv_years ) ] <-
   as.matrix( inv_data_species[ , paste0( 'X', inv_years ) ] )/1000
 
 # Clean rows and columns to standard format
@@ -136,8 +126,3 @@ writeData( inv_data_species , domain = "MED_OUT", paste0('E.',em,'_',inv_name,'_
 # Every script should finish with this line
 logStop()
 # END
-
-
-
-
-

@@ -8,23 +8,12 @@
 #               E.[EM]__UNFCCC_inventory.cvs
 #               E.[EM]_UNFCCC_filename_Sector_mapping.cvs
 # Notes: UNFCCC  Emissions are provided from 1990-2012.
-# TODO: 
+# TODO:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
-
-# Set working directory to the CEDS “input” directory & define PARAM_DIR as the
-# location of the CEDS “parameters” directory, relative to the new working directory.
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-    setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-    wd <- grep( 'CEDS/input', list.dirs(), value = T )
-    if ( length(wd) > 0 ) {
-        setwd( wd[1] )
-        break
-    }
-}
-INPUT <- paste( getwd() )
-PARAM_DIR <- "../code/parameters/"
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
@@ -58,11 +47,11 @@ file_path <- filePath( domain, file_name, extension, domain_ext )
 #Author:         Presley Muwan
 
 #Brief:          This function prints out a WARNING message if it detects that a file contains data intended for
-#                another specie or another file. 
+#                another specie or another file.
 
-#Details: 
+#Details:
 #              * file_name_id: is the unique id, of the file, retrieved from the file's name
-#              * content_id: is the unique id, of the file, retrieve from within the file 
+#              * content_id: is the unique id, of the file, retrieve from within the file
 
 #              * file_name_specie: is the emission specie retrieved from the file's name
 #              * content_specie: is the emission specie column-header within the file
@@ -71,11 +60,11 @@ file_path <- filePath( domain, file_name, extension, domain_ext )
 #               the files content might contain another file's data; so a WARNING massage is printed
 
 #               This funtion also matches content_specie and file_name_specie. If they do not match a WARNING messages
-#               is printed; as this implies that the file may content data intended for a different emission specie. 
+#               is printed; as this implies that the file may content data intended for a different emission specie.
 
-#Parameter:     this function has two parameters 
+#Parameter:     this function has two parameters
 #               *UNFCCC_DF: A data frame that holds the (cvs) file(s) content
-#               *UNFCCC_FILE_NAMES: A list that holds only the names of the file(s) of the emmission within the 
+#               *UNFCCC_FILE_NAMES: A list that holds only the names of the file(s) of the emmission within the
 
 #Return   no return
 
@@ -86,55 +75,55 @@ file_path <- filePath( domain, file_name, extension, domain_ext )
 #              E.[EM]_UNFCCC_filename_Sector_mapping.cvs: This file contains a list of filename to sector mapping within the emission specie folder
 
 check_uniqueID_and_species_mismatch <- function( UNFCCC_DF, UNFCCC_FILE_NAMES){
-  
-  
-  #stores errors found when checking for uniqueID_and_species_mismatch  
-  diagnostic_error_data = list() 
-  
+
+
+  #stores errors found when checking for uniqueID_and_species_mismatch
+  diagnostic_error_data = list()
+
   #stores data cotianing a list of filename-sectorname mapping for each file.
   diagnostic_general_data = list()
-  
-  #keeps count of the number of species/index mismatches found 
+
+  #keeps count of the number of species/index mismatches found
   mismatch_count = 0;
-  
-  
-  #iterate through each file  and within the emission specie folder 
-  #and check for uniqueID_and_species_mismatch 
-  
+
+
+  #iterate through each file  and within the emission specie folder
+  #and check for uniqueID_and_species_mismatch
+
   for ( i in seq_along( UNFCCC_DF ) ){
     #Retrieve the specie and the id from the file Name
-    fileName <- strsplit(UNFCCC_FILE_NAMES[i], split='_', fixed=TRUE) 
-    
+    fileName <- strsplit(UNFCCC_FILE_NAMES[i], split='_', fixed=TRUE)
+
     file_name_specie <- strsplit(fileName[[1]][1], split='/', fixed=TRUE)[[1]][2]
-    
+
     file_name_id <- toupper(fileName[[1]][2])
-    
-    
+
+
     #Retrieve the specie and the id from the file colum
-    
+
     content_id <- toupper(strsplit(UNFCCC_DF[[i]][1,2], split = " ", fixed = TRUE)[[1]][1])
-    
+
     content_specie <- UNFCCC_DF[[i]][1,11]
-    
-    #store diagnostic data; containing list of file name and sector name 
+
+    #store diagnostic data; containing list of file name and sector name
     diagnostic_general_data$file_name[i] <- strsplit(file_list[i], split='/', fixed=TRUE)[[1]][2]
     diagnostic_general_data$sector_name[i] <- UNFCCC[[i]][1,2]
-    
-    #if the id's do not match, check if the file  have an id that does not follow the normal id name convention 
+
+    #if the id's do not match, check if the file  have an id that does not follow the normal id name convention
     #(like the "Multilateral Operation_netemission .cvs" file whose id is "Multilateral Operation")
     if(file_name_id!=content_id){
-      
+
       #use the whole file name (without the specie, and the "netemission" phrase)
       #as a the id; proxy_content_id
-      
+
       proxy_content_id <- toupper(as.character(UNFCCC[[i]][1,2]))
-      
-      
-      #if the emission species do not match, generate a diagnostic data and  log a WARNING message 
+
+
+      #if the emission species do not match, generate a diagnostic data and  log a WARNING message
       if(file_name_id != proxy_content_id){
         mismatch_count = (mismatch_count+1)
         problem_description <- "The id in the file name (File_name_id) does not match the id inside the file (content_id)"
-        
+
         #add columns to the diagnostics_output list and store information about the file with and id mismatch
         diagnostic_error_data$file_Name[mismatch_count] <- UNFCCC_FILE_NAMES[i]
         diagnostic_error_data$File_name_id[mismatch_count] <- fileName[[1]][2]
@@ -142,19 +131,19 @@ check_uniqueID_and_species_mismatch <- function( UNFCCC_DF, UNFCCC_FILE_NAMES){
         diagnostic_error_data$file_name_specie[mismatch_count] <- file_name_specie
         diagnostic_error_data$content_specie[mismatch_count] <- content_specie
         diagnostic_error_data$description[mismatch_count]<- problem_description
-        
-        #generate and print a log message 
+
+        #generate and print a log message
         printLog("EMISSION-ID MISMATCH WARNING:\n ","\tFilename:",UNFCCC_FILE_NAMES[i], "\n\tFile Content id:",
-                 content_id,"\n",problem_description,"\n", ts=TRUE, cr = TRUE);        
+                 content_id,"\n",problem_description,"\n", ts=TRUE, cr = TRUE);
       }
-      
+
     }
-    
+
     #if the emission species do not match, generate a diagnostic data and  log a WARNING message
     if(file_name_specie != content_specie){
       mismatch_count = (mismatch_count+1)
       problem_description <- "The specie in the file name (file_name_specie) does not match the specie inside the file (content_specie)"
-      
+
       #add columns to the diagnostics_output list and store information about the file with and specie mismatch
       diagnostic_error_data$file_Name[mismatch_count] <- UNFCCC_FILE_NAMES[i]
       diagnostic_error_data$File_name_id[mismatch_count] <- fileName[[1]][2]
@@ -162,25 +151,25 @@ check_uniqueID_and_species_mismatch <- function( UNFCCC_DF, UNFCCC_FILE_NAMES){
       diagnostic_error_data$file_name_specie[mismatch_count] <- file_name_specie
       diagnostic_error_data$content_specie[mismatch_count] <- content_specie
       diagnostic_error_data$description[mismatch_count]<- problem_description
-      
-      #generate and print a log message 
+
+      #generate and print a log message
       printLog("EMISSION-SPECIES MISMATCH WARNING:\n ","\tFilename:",UNFCCC_FILE_NAMES[i], "\n\tFile Content Species:",
                content_specie,"\n",problem_description,"\n", ts=TRUE, cr = TRUE);
-      
+
     }
-    
-    
+
+
   }
-  
+
   #write the diagnostic data to a diagnostic file
   if(length(diagnostic_error_data) > 0){
-    
+
     writeData( diagnostic_error_data, domain = "DIAG_OUT", fn = paste0( "E.", em, "_WARNING_UNFCCC_inventory_mismatch_list" ), meta = FALSE )
   }
-  
+
   #generate (the second) diagnostic file contianing the list of file names and sector names
   writeData( diagnostic_general_data, domain = "DIAG_OUT", fn = paste0( "E.", em, "_UNFCCC_filename_Sector_mapping" ), meta = FALSE )
-  
+
 }
 
 
@@ -196,34 +185,34 @@ check_uniqueID_and_species_mismatch <- function( UNFCCC_DF, UNFCCC_FILE_NAMES){
 # header option.
 if( file.exists( file_path ) ){
 
-    UNFCCC <- readData( domain, file_name, extension, domain_extension = domain_ext, 
+    UNFCCC <- readData( domain, file_name, extension, domain_extension = domain_ext,
                         extract_all = TRUE, header = FALSE )
-    
+
     # Retrieve full list of internal files ( used to determine sectors )
     file_list <- listZippedFiles( file_path, FALSE )
-    
+
     #call check_uniqueID_and_specie() function to perform the 2-way specie & id check
     check_uniqueID_and_species_mismatch(UNFCCC, file_list)
-    
+
 } else { UNFCCC <- list() }
 
 # -----------------------------------------------------------------------------------------------------------
 # 2. Formatting Data
 
 # UNFCCC is now a list of data frames. If there was no data, there will be 0 entries in the list.
-if( length( UNFCCC ) > 0 ){ # If there is data to process for this emissions species: 
+if( length( UNFCCC ) > 0 ){ # If there is data to process for this emissions species:
 
 	UNFCCC_clean <- UNFCCC
 
 	for ( i in seq_along( UNFCCC_clean ) ){
 	  df <- UNFCCC_clean[[ i ]]
-  
+
 	  # Make a Variable called Sector
 	  df$sector <- file_list[ i ]
-  
+
 	  # Removes First Row
 	  df <- df[ -1, ]
-  
+
 	  # Reformat Col Names
 	  names <- as.character( unlist ( df[ 1, ] ) )
 	  years<-paste( "X", names[ 3:( length( names ) - 1 ) ], sep = "" )
@@ -231,19 +220,19 @@ if( length( UNFCCC ) > 0 ){ # If there is data to process for this emissions spe
 	  names[ length( names ) ] <- 'sector'
 	  names[ 1 ] <- 'country'
 	  names( df ) <- names
-  
+
 	  # Remove First Row
 	  df <- df[ -1, ]
-  
+
 	  # Creates Column for Units (Gg for SO2)
 	  df$units <- "kt"
 	  # Reoorder Columns of Interest
 	  df<-df[ , c( 'country', 'sector', 'units', years ) ]
-  
+
 	  # Remove All Information from Sectors Before "_" From File Name
 	  df <- mutate( df, sector = as.character( sector ) )
 	  df <- mutate( df, sector = sapply( strsplit( df$sector, split = '_', fixed = TRUE ), function( x ) ( x [ 2 ] ) ) )
-  
+
 	  UNFCCC_clean[[i]]<-df
 	  }
 
@@ -277,7 +266,7 @@ if( length( UNFCCC ) > 0 ){ # If there is data to process for this emissions spe
 # ------------------------------------------------------------------------------
 # 4. Dummy files
 
-} else { 
+} else {
 # If length( UNFCCC) == 0 (if no data to process for this emissions species), create dummy file.
     UNFCCC <- data.frame()
 }
@@ -285,12 +274,12 @@ if( length( UNFCCC ) > 0 ){ # If there is data to process for this emissions spe
 # ------------------------------------------------------------------------------
 # 4. Meta Data
 
-meta_names <- c( "Data.Type", "Emission", "Region", "Sector", "Start.Year", "End.Year", 
+meta_names <- c( "Data.Type", "Emission", "Region", "Sector", "Start.Year", "End.Year",
                  "Source.Comment" )
 
-meta_note <- c( "Default Emissions", "NA", "Russian Federation, Monaco & Liechtenstein", "All", "1990", 
-                "2012", paste0( "The Russian Federation's emissions are too low to be accurate," , 
-                "and have thus been removed. Additionally Liechtenstein and Monaco emissions", 
+meta_note <- c( "Default Emissions", "NA", "Russian Federation, Monaco & Liechtenstein", "All", "1990",
+                "2012", paste0( "The Russian Federation's emissions are too low to be accurate," ,
+                "and have thus been removed. Additionally Liechtenstein and Monaco emissions",
                 "have been removed temporarily."))
 addMetaData( meta_note, meta_names)
 

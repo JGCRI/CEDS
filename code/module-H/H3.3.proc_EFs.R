@@ -5,25 +5,15 @@
 # Program Purpose: Process extendtion EFs database to finalize and sort CEDS EFs database.
 # Input Files: None
 # Output Files: None
-# Notes: 
-# TODO: 
+# Notes:
+# TODO:
 # ------------------------------------------------------------------------------------
-# Before we can run other scripts we need some paths defined. They may be provided by
-#   a system environment variable or may have already been set in the workspace.
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-    
-  }
-}
+# 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- "../code/parameters/"
 
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "process_db_functions.R" ) # Additional function files required.
 log_msg <- paste0( "Processing CEDS extension EFs database" ) # First message to be printed to the log
@@ -62,6 +52,3 @@ final <- EFs_all[ with( EFs_all, order( iso, sector, fuel ) ), ]
 writeData( final, "MED_OUT" , paste0('H.',em,'_total_EFs_extended'))
 
 logStop()
-
-
-

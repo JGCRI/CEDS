@@ -5,27 +5,17 @@
 # Program Purpose: Initialize default control percentage Db for all emission species
 # Input Files: A.comb_activity
 # Output Files: B.[em]_ControlFrac_db
-# Notes: 
-# TODO: 
+# Notes:
+# TODO:
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
-
-# Before we can load headers we need some paths defined. They may be provided by
-#   a system environment variable or may have already been set in the workspace.
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if ( length(wd) > 0 ) {
-            setwd( wd[1] )
-            break
-        }
-    }
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
     PARAM_DIR <- "../code/parameters/"
 
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "data_functions.R", "analysis_functions.R" ) # Additional function files required.
     log_msg <- "Create default control_percentage" # First message to be printed to the log
@@ -33,7 +23,7 @@
 
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
-    
+
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
     if ( is.na( em ) ) em <- "SO2"
@@ -44,7 +34,7 @@
 
 # "em" is defined from parent script
     em_lc <- tolower( em )
-    
+
     activity_data <- readData( "MED_OUT", "A.comb_activity" )
 
 # ------------------------------------------------------------------------------
@@ -59,7 +49,7 @@
     default_ControlFrac$units <- 'percent'
 
 # ------------------------------------------------------------------------------
-# 3. Output    
+# 3. Output
 
 # Write out all three default databases
     writeData( default_ControlFrac, "MED_OUT", paste0( "B.", em , "_ControlFrac_db") )

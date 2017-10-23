@@ -5,39 +5,31 @@
 # Program Purpose: This file processes CO2 biofuel combustion emissions factors
 # Input Files: A.IEA_en_stat_ctry_hist, B.[em]_comb_EF_db
 # Output Files: B.[em]_comb_EF_db
-# Notes: 
-# To Do: 
+# Notes:
+# To Do:
 
 # ------------------------------------------------------------------------------
 
-# Before we can load headers we need some paths defined. They may be provided 
-#   by a system environment variable or they may have been set in the workspace
-# Set variable PARAM_DIR to be the data system directory
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if ( length(wd) > 0 ) {
-            setwd( wd[1] )
-            break
-        }
-    }
+# ------------------------------------------------------------------------------
+# 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
     PARAM_DIR <- "../code/parameters/"
 
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "data_functions.R", "analysis_functions.R" ) # Additional function files required.
     log_msg <- paste0( "Historical energy balances from IEA, aggregated to CEDS",
                        " sectors, and fuels" ) # First message to be printed to the log
     script_name <- "B1.1.2.CO2_biofuels_EF.R"
-    
+
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
-    
+
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
     if ( is.na( em ) ) em <- "CO2"
-    em_lc <- tolower( em )   
+    em_lc <- tolower( em )
 
 # Stop script if running for unsupported species
     if ( em %!in% c( 'CO2' ) ) {
@@ -48,11 +40,11 @@
 # ------------------------------------------------------------------------------
 # 1. Read in files
 
-# IEA processed historical flows df  
+# IEA processed historical flows df
     IEA_energy <- readData( 'MED_OUT', 'A.IEA_en_stat_ctry_hist' )
 # Initialized combustion emissions factors df
     CO2_ef <- readData( 'MED_OUT', paste0( "B.", em, "_comb_EF_db" ) )
-    
+
 # IEA mapping file
     IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
 
@@ -61,10 +53,10 @@
 # 2. Calculate biofuels fraction
 
 # map fuels, biofuels notation to IEA energy
-    IEA_energy$fuel <-  IEA_product_fuel[ match( IEA_energy$PRODUCT, 
-                                                 IEA_product_fuel$product ), 
+    IEA_energy$fuel <-  IEA_product_fuel[ match( IEA_energy$PRODUCT,
+                                                 IEA_product_fuel$product ),
                                           'fuel' ]
-    IEA_energy$bio_flag <-  IEA_product_fuel[ match( IEA_energy$PRODUCT, 
+    IEA_energy$bio_flag <-  IEA_product_fuel[ match( IEA_energy$PRODUCT,
                                                      IEA_product_fuel$product ),
                                               'biofuel_flag']
 
@@ -72,31 +64,31 @@
     IEA_energy_bio <- IEA_energy[ which( IEA_energy$bio_flag == 1 ), ]
     IEA_aggregate_biofuels <- aggregate( IEA_energy_bio[ X_IEA_years ],
                                          by = list( iso = IEA_energy_bio$iso,
-                                                    fuel = IEA_energy_bio$fuel ), 
+                                                    fuel = IEA_energy_bio$fuel ),
                                          sum )
 # ...and for all fuels
     IEA_aggregate <- aggregate( IEA_energy[ X_IEA_years ],
                                 by = list( iso = IEA_energy$iso,
-                                           fuel = IEA_energy$fuel ), 
+                                           fuel = IEA_energy$fuel ),
                                 sum )
 
 # Calculate fraction of biofuels for each year & country
     IEA_biofuels_fraction <- IEA_aggregate[ , c( 'iso', 'fuel' ) ]
-    IEA_biofuels_fraction[ X_IEA_years ] <- 
-          IEA_aggregate_biofuels[ match( paste( IEA_biofuels_fraction$iso, 
+    IEA_biofuels_fraction[ X_IEA_years ] <-
+          IEA_aggregate_biofuels[ match( paste( IEA_biofuels_fraction$iso,
                                                 IEA_biofuels_fraction$fuel ),
-                                         paste( IEA_aggregate_biofuels$iso, 
+                                         paste( IEA_aggregate_biofuels$iso,
                                                 IEA_aggregate_biofuels$fuel ) ),
-                                         X_IEA_years] / 
+                                         X_IEA_years] /
                    IEA_aggregate[ X_IEA_years ]
 # Clean up the resulting dataframe
-    IEA_biofuels_fraction <- 
+    IEA_biofuels_fraction <-
         IEA_biofuels_fraction[ which( !is.na( IEA_biofuels_fraction$X2013 ) ), ]
-    IEA_biofuels_fraction <- 
-        replace( IEA_biofuels_fraction, is.na( IEA_biofuels_fraction ), 0 ) 
-    IEA_biofuels_fraction <- 
+    IEA_biofuels_fraction <-
+        replace( IEA_biofuels_fraction, is.na( IEA_biofuels_fraction ), 0 )
+    IEA_biofuels_fraction <-
         IEA_biofuels_fraction[ -which( IEA_biofuels_fraction$fuel == 'biomass' ), ]
-    
+
     X_extension_years <- X_emissions_years[ X_emissions_years %!in% X_IEA_years ]
     IEA_biofuels_fraction[ X_extension_years ] <- IEA_biofuels_fraction[ X_IEA_end_year ]
 
@@ -105,16 +97,16 @@
 
 # Calculate final CO2 emissions factors
     final_ef <- CO2_ef[ , c( "iso", "sector", "fuel", "units" ) ]
-    
-    multiplier <- CO2_ef[ , c( "iso", "sector", "fuel", "units" ) ] 
-    multiplier[ X_emissions_years ] <- 
+
+    multiplier <- CO2_ef[ , c( "iso", "sector", "fuel", "units" ) ]
+    multiplier[ X_emissions_years ] <-
         IEA_biofuels_fraction[ match( paste( final_ef$iso, final_ef$fuel ),
-                                      paste( IEA_biofuels_fraction$iso, 
+                                      paste( IEA_biofuels_fraction$iso,
                                              IEA_biofuels_fraction$fuel ) ),
                                X_emissions_years ]
     multiplier <- replace( multiplier, is.na( multiplier ), 0 ) ### At the moment, this creates a df of all 0s
 
-    final_ef[ X_emissions_years ] <- 
+    final_ef[ X_emissions_years ] <-
         CO2_ef[ X_emissions_years ] * ( 1 - multiplier[ X_emissions_years ] )
 
 
@@ -123,14 +115,11 @@
 # Add comments for each table
 
     comment.final_ef <- paste0( 'Base CO2 combustion EFs taking into account',
-                               ' the fraction of liquid and gas fuels that', 
+                               ' the fraction of liquid and gas fuels that',
                                ' are from biofuels' )
-  
+
     writeData( final_ef, "MED_OUT", paste0( "B.", em, "_comb_EF_db" ),
                comments = comment.final_ef)
 
 # Every script should finish with this line:
     logStop()
-
-
-

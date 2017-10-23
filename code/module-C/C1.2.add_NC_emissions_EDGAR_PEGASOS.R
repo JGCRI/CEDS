@@ -4,37 +4,26 @@
 # Date Last Modified: 5 January 2016
 # Program Purpose: To reformat the non-combustion sections of the EDGAR default emissions
 #                      data and add it to the database for the relevant emissions species.
-# Input Files: 
-# Output Files: 
-# To Do: 
+# Input Files:
+# Output Files:
+# To Do:
 #      ext_backward = TRUE extended back only one year. (extend forward worked)
 #      Extend forward should extend forward with constant EFs, not linear trend
-# Notes: 
+# Notes:
 # -----------------------------------------------------------------------------
 # 0. Read in global settings and headers
-
-# Before we can load headers we need some paths defined. They may be provided by
-#   a system environment variable or may have already been set in the workspace.
-# Set variable PARAM_DIR to be the data system directory
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-      setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-      wd <- grep( 'CEDS/input', list.dirs(), value = T )
-      if ( length(wd) > 0 ) {
-        setwd( wd[1] )
-        break
-      }
-    }
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
     PARAM_DIR <- "../code/parameters/"
-# Universal header file - provides logging, file support, etc.
 
-    headers <- c( "common_data.R","data_functions.R", "analysis_functions.R", 
+# Universal header file - provides logging, file support, etc.
+    headers <- c( "common_data.R","data_functions.R", "analysis_functions.R",
                   "process_db_functions.R", 'timeframe_functions.R') # Additional function files required.
     log_msg <- paste0( "Processing EDGAR non-combustion default emissions data." ) # First message to be printed to the log
-    script_name <- "C1.2.add_NC_emissions_EDGAR_PEGASOS.R" 
+    script_name <- "C1.2.add_NC_emissions_EDGAR_PEGASOS.R"
     source( paste0( PARAM_DIR, "header.R" ) )
-    initialize( script_name, log_msg, headers )    
-  
+    initialize( script_name, log_msg, headers )
+
 # ------------------------------------------------------------------------------
 # 1. Settings ( "em" already set to correct species by parent script )
 
@@ -58,8 +47,8 @@ inventory_data_file <- paste0('JRC_PEGASOS_',em,'_TS_REF')
 sheet_name = paste0( 'NEW_v4.3_EM_', em, '_ref' )
 
 edgar <-  readData( domain, domain_extension = domain_ext,
-				    inventory_data_file,  ".xlsx", 
-					sheet_selection = sheet_name, skip_rows = 8 ) 
+				    inventory_data_file,  ".xlsx",
+					sheet_selection = sheet_name, skip_rows = 8 )
 
 NC_sector_map <- readData( "MAPPINGS", "NC_EDGAR_sector_mapping" )
 
@@ -75,7 +64,7 @@ names(edgar) <- c('iso','sector', 'units', paste0('X',inv_years))
 edgar$iso <- tolower(edgar$iso)
 
 #remove rows with all NA's
-edgar <- edgar[ apply( X=edgar[,paste0("X",inv_years)], 
+edgar <- edgar[ apply( X=edgar[,paste0("X",inv_years)],
                                          MARGIN = 1, function(x) (!all(is.na(x))) ) ,]
 
 
@@ -90,7 +79,7 @@ edgar$sector <- NC_sector_map$ceds_sector[ match( edgar$sector, NC_sector_map$ed
 edgar <- aggregate( edgar[ paste0("X",inv_years) ],
                                by=list(iso = edgar$iso,
                                        sector = edgar$sector,
-                                       units = edgar$units, 
+                                       units = edgar$units,
                                        fuel = edgar$fuel ), sum )
 
 # Turn NAs to zeros
@@ -110,8 +99,8 @@ edgar <- edgar[,c('iso','sector','fuel','units', paste0('X',EDGAR_start_year:EDG
 # ------------------------------------------------------------------------------
 # 4. Output
 addToEmissionsDb( edgar, em = em, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
-  
+
 writeData( edgar, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em ) )
- 
+
 logStop()
 # END

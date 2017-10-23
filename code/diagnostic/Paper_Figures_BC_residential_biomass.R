@@ -1,31 +1,21 @@
 # ------------------------------------------------------------------------------
 # Program Name: Paper_Figures_BC_residential_biomass.R
 # Author: Rachel Hoesly
-# Date Last Updated: 
-# Program Purpose: 
-#                  
+# Date Last Updated:
+# Program Purpose:
+#
 # Input Files: [em]_total_CEDS_emissions.csv
 # Output Files: figures in the diagnostic-output
-# Note: 
-# TODO: 
+# Note:
+# TODO:
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- "../code/parameters/"
 
-# Set working directory
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-    
-  }
-}
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R",'process_db_functions.R',
               'common_data.R', 'IO_functions.R', 'data_functions.R', 'timeframe_functions.R') # Additional function files may be required.
@@ -84,7 +74,7 @@ population$rural_popularion <- (1-population$urban_share)*population$pop
 population$region <- Master_Country_List[match(population$iso,Master_Country_List$iso),'Paper_Figure_Region']
 
 #aggregate
-population_region <- aggregate(population$pop, 
+population_region <- aggregate(population$pop,
                                by = list(year = population$year,
                                          region = population$region), sum)
 
@@ -92,7 +82,7 @@ population_region <- aggregate(population$pop,
 plot_em <- BC_em[which(BC_em$sector %in% residential_sectors),]
 plot_em <- BC_em[which(BC_em$fuel %in% 'biomass'),]
 plot_em$region <- Master_Country_List[match(plot_em$iso,Master_Country_List$iso),'Paper_Figure_Region']
-em_region <- aggregate(plot_em[paste0('X',plot_years)], 
+em_region <- aggregate(plot_em[paste0('X',plot_years)],
                        by = list(region = plot_em$region), sum)
 em_region <- em_region[which(em_region$region != 'International'),]
 em_region<- melt(em_region)
@@ -106,7 +96,7 @@ names(em_region) <- c('region','year','x')
 em_region$x <- em_region$x/1000
 em_region$region <- factor( em_region$region, levels = regions)
 max <- max(em_region$x)
-emissions_plot <- ggplot(data = em_region, aes(x=year,y=x, color = region) ) + 
+emissions_plot <- ggplot(data = em_region, aes(x=year,y=x, color = region) ) +
   geom_line(size=1, alpha = 0.8) +
   scale_x_continuous(limits = c(start,end ),
                      breaks= seq(from=start, to=end, by=major_break),
@@ -126,7 +116,7 @@ population_region$x <- population_region$x/1000
 population_region$region <- factor( population_region$region, levels = regions)
 
 max <- max(population_region$x)
-population_plot <- ggplot(data = population_region, aes(x=year,y=x, color = region) ) + 
+population_plot <- ggplot(data = population_region, aes(x=year,y=x, color = region) ) +
   geom_line(size=1, alpha = 0.8) +
   scale_x_continuous(limits = c(start,end ),
                      breaks= seq(from=start, to=end, by=major_break),
@@ -149,13 +139,13 @@ emissions_plot
 file_name <- paste0('../diagnostic-output/paper-figures/Paper/Residential_biomass.pdf')
 pdf( file_name ,width=9,height=3.5,paper='special', onefile=T)
 grid.arrange(emissions_plot+ theme(legend.position="none"),
-             population_plot+ theme(legend.position="none"), 
+             population_plot+ theme(legend.position="none"),
              g_legend(population_plot),ncol = 3, widths= c(1,1,.5))
 dev.off()
 
 
 
 # ---------------------------------------------------------------------------
-# 
+#
 
 logStop()

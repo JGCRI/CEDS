@@ -5,28 +5,18 @@
 # Program Purpose: To select and run the correct script(s) to extend CEDS activity data.
 # Input Files: None
 # Output Files: None
-# Notes: 
+# Notes:
 # TODO: section 2 - Check CEDS_historical_extension_drivers_activity.csv to ensure all sectors/fuels/time
 # are covered by a method
 # ------------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------------
-# Before we can run other scripts we need some paths defined. They may be provided by
-#   a system environment variable or may have already been set in the workspace.
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-    
-  }
-}
+# 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- "../code/parameters/"
 
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c('data_functions.R') # Additional function files required.
 log_msg <- paste0( "Calling species-specific child script to extend CEDS EFs data" ) # First message to be printed to the log
@@ -42,7 +32,7 @@ if ( is.na( em ) ) em <- "OC"
 # ------------------------------------------------------------------------------------
 # 0.5 Load Packages, Define Functions
   loadPackage('tools')
-  
+
   # Create a function that can be applied to source all child scripts for the given
   # emissions type.
   MODULE_H <- "../code/module-H/"

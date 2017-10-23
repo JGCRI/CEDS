@@ -1,31 +1,21 @@
 # ------------------------------------------------------------------------------
 # Program Name: Figures.R
 # Author: Rachel Hoesly, Huong Nguyen
-# Date Last Updated: October 07 2016 
-# Program Purpose: Produces diagnostic summary figures of default and 
+# Date Last Updated: October 07 2016
+# Program Purpose: Produces diagnostic summary figures of default and
 #                  scaled emissions
 # Input Files: F.em_scaled_emissions, D.em_default_emissions
-#               
+#
 # Output Files: figures in the diagnostic-output
-# TODO: 
+# TODO:
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- "../code/parameters/"
 
-# Set working directory
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-    
-  }
-}
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R",'process_db_functions.R',
               'common_data.R', 'IO_functions.R', 'data_functions.R', 'timeframe_functions.R') # Additional function files may be required.
@@ -70,7 +60,7 @@ setwd('../diagnostic-output')
 # ---------------------------------------------------------------------------
 # Data Processing
 
-# 1. Prepare Data 
+# 1. Prepare Data
 start <- 1750
 end <- end_year
 x_years<-paste('X',start:end,sep="")
@@ -110,13 +100,13 @@ if ( PRINT_DEFAULTS ){
 
 	DefaultEmissions.long$Region <- as.factor(DefaultEmissions.long$Region)
 	DefaultEmissions.long$year <- as.integer(DefaultEmissions.long$year)
-	
+
   DefaultEmissions.long$agg_Sector <- MSLevel[match(DefaultEmissions$sector,Master_Country_List$sector),'Figure_Region']
-	
-	
+
+
 	# Also add to the long format to use aggregate
 	DefaultEmissions$Region <- Master_Country_List[match(DefaultEmissions$iso,Master_Country_List$iso),'Figure_Region']
-	DefaultEmissions$Country <- Master_Country_List[match(DefaultEmissions$iso,Master_Country_List$iso),'Country_Name']	
+	DefaultEmissions$Country <- Master_Country_List[match(DefaultEmissions$iso,Master_Country_List$iso),'Country_Name']
 }
 
 combustion_sectors <- MasterSectorList[ which( MasterSectorList$type == 'comb' ), 'sector' ]
@@ -153,7 +143,7 @@ writeData( Energy_global_fuel_sector, "DIAG_OUT", paste0( 'summary-plots/', 'Ene
 
 
 # ---------------------------------------------------------------------------
-# 0. Tables - 
+# 0. Tables -
 # Total scaled emissions by country
 
 Em_by_Country<-aggregate( TotalEmissions[ x_years ],
@@ -168,7 +158,7 @@ if ( PRINT_DEFAULTS ){
                             by=list( Region =  DefaultEmissions$Region,
                                      Country =  DefaultEmissions$Country,
                                      iso = DefaultEmissions$iso ),sum )
-  
+
 	writeData( Em_by_Country, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_default_by_country'), meta = FALSE )
 }
 
@@ -188,7 +178,7 @@ if ( PRINT_DEFAULTS ){
                                      Country =  DefaultEmissions$Country,
                                      iso = DefaultEmissions$iso,
                                      fuel =  DefaultEmissions$fuel),sum )
-  
+
 	writeData( Em_by_Country, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_default_by_country_fuel'), meta = FALSE )
 
 	Em_by_Country<-aggregate( DefaultEmissions[ X_emissions_years ],
@@ -196,12 +186,12 @@ if ( PRINT_DEFAULTS ){
 									 Country =  DefaultEmissions$Country,
 									 iso = DefaultEmissions$iso,
 	                                 sector =  DefaultEmissions$sector),sum )
-	
+
 	writeData( Em_by_Country, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_default_by_country_sector'), meta = FALSE )
 
 	Em_by_Sector<-aggregate( DefaultEmissions[ X_emissions_years ],
 	                          by=list( sector =  DefaultEmissions$sector),sum )
-	
+
 	writeData( Em_by_Sector, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_default_global_sector'), meta = FALSE )
 }
 
@@ -216,9 +206,9 @@ writeData( Em_by_Region, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_sca
 # Global emissions by CEDS sector, and fuel
 
 Em_by_CEDS_Sector_Fuel<-aggregate( TotalEmissions[ x_years ],
-								   by=list( sector =  TotalEmissions$sector, 
+								   by=list( sector =  TotalEmissions$sector,
 							 			   fuel =  TotalEmissions$fuel),sum )
- 
+
 writeData( Em_by_CEDS_Sector_Fuel, "DIAG_OUT", paste0('summary-plots/',em ,'_gbl_emissions_scaled_by_CEDS-sector_fuel'), meta = FALSE )
 
 
@@ -228,14 +218,14 @@ if ( PRINT_BIG_TABLES ) {
   Em_by_Region<-aggregate( TotalEmissions[ X_emissions_years ],
                             by=list( Region =  TotalEmissions$Region,
                                      sector =  TotalEmissions$sector),sum )
-  
+
 	writeData( Em_by_Region, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_region_sector'), meta = FALSE )
 
 	# Total emissions by region, CEDS sector, and fuel
 
 	Em_by_Region<-aggregate( TotalEmissions[ X_emissions_years ],
 	                          by=list( Region =  TotalEmissions$Region,
-	                                   sector =  TotalEmissions$sector, 
+	                                   sector =  TotalEmissions$sector,
   	                                   fuel =  TotalEmissions$fuel),sum )
 
 	writeData( Em_by_Region, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_region_sector_fuel'), meta = FALSE )
@@ -259,11 +249,11 @@ Regions<-ddply(TotalEmissions.long, .(Region,year),summarize,
 
 df <- Regions
 
-plot <- ggplot(df, aes(x=year,y=Emissions, fill=Region)) + 
+plot <- ggplot(df, aes(x=year,y=Emissions, fill=Region)) +
                geom_area(size=1) +
         annotate("text", x = 2000, y = -80, label = version_stamp, size = 3) +
         theme( plot.title = element_text(vjust=0.8),
-               axis.title.x = element_text(vjust=0.3), axis.title.y = element_text(vjust=0.3), 
+               axis.title.x = element_text(vjust=0.3), axis.title.y = element_text(vjust=0.3),
                legend.position=c( 0.12, 0.69 ) ) +
         theme( legend.background =element_rect(color="black"), legend.key = element_blank() ) +
                 scale_x_continuous(breaks=seq(start,end, 20))+
@@ -284,7 +274,7 @@ if ( PRINT_DEFAULTS ){
 
 	df <- Regions
 	df <- df[-which(is.na(df$Region)),]
-	plot <- ggplot(df, aes(x=year,y=Emissions, fill=Region)) + 
+	plot <- ggplot(df, aes(x=year,y=Emissions, fill=Region)) +
 	  geom_area(size=1) +
 	  annotate("text", x = 2000 , y = -80, label = version_stamp, size = 3 ) +
 	  scale_x_continuous(breaks=seq(start,end, 20))+
@@ -301,7 +291,7 @@ Regions<-ddply(TotalEmissions.long, .(Region,year),summarize,
 
 df <- Regions
 plot <- ggplot(df, aes(x=year,y=Emissions,
-                       color=Region)) + 
+                       color=Region)) +
   geom_line(size=1) +
   annotate("text", x = 2000, y = -80, label = version_stamp, size = 3) + scale_x_continuous(breaks=seq(start,end, 20))+
   scale_y_continuous(labels = comma)+
@@ -336,42 +326,42 @@ Sectors<-ddply(TotalEmissions.long, .(agg_Sector,year),summarize,
                Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Sectors
-plot <- ggplot(df, aes(x=year,y=Emissions, fill=agg_Sector)) + 
+plot <- ggplot(df, aes(x=year,y=Emissions, fill=agg_Sector)) +
   geom_area(size=1) +
   annotate("text", x = 2000, y = -80, label = version_stamp, size=3) +
-  theme( plot.title = element_text(vjust=0.8), 
-         axis.title.x = element_text(vjust=0.3), axis.title.y = element_text(vjust=0.3), 
+  theme( plot.title = element_text(vjust=0.8),
+         axis.title.x = element_text(vjust=0.3), axis.title.y = element_text(vjust=0.3),
          legend.position=c( 0.08, 0.78 ) ) +
   theme( legend.background =element_rect(color="black"), legend.key = element_blank() ) +
   scale_x_continuous(breaks=seq(start,end, 20))+
   scale_y_continuous(labels = comma)+
   ggtitle(paste('Global ', em ,'Emissions'))+
   labs(x='Year',y= paste(em,'Emissions [kt]') )+
-  guides(fill=guide_legend(ncol=1) ) + labs(fill="Sector") 
+  guides(fill=guide_legend(ncol=1) ) + labs(fill="Sector")
 ggsave( paste0('summary-plots/',em,'_agg_sectors.scaled.pdf'), width = 11, height = 6 )
 
 #Convert to wide format for easier viewing
 data.wide <- cast(df, agg_Sector ~ year, mean, value="Emissions")
 writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_agg_sector') )
 
-plot <- ggplot(df, aes(x=year,y=Emissions, color=agg_Sector)) + 
+plot <- ggplot(df, aes(x=year,y=Emissions, color=agg_Sector)) +
   geom_line(size=1) +
   annotate("text", x = 2000, y = -80, label = version_stamp, size=3) +
   scale_x_continuous(breaks=seq(start,end, 20))+
   scale_y_continuous(labels = comma)+
   ggtitle(paste('Global Scaled', em ,'Emissions'))+
   labs(x='Year',y= paste(em,'Emissions [kt]') )+
-  guides(fill=guide_legend(ncol=1))              
+  guides(fill=guide_legend(ncol=1))
 ggsave( paste0('summary-plots/',em,'_agg_sectors_line.scaled.pdf'), width = 11, height = 6 )
 
 #Default
 if ( PRINT_DEFAULTS ){
   Sectors<-ddply(DefaultEmissions.long, .(agg_Sector,year),summarize,
                  Emissions=sum(Emissions, na.rm=TRUE))
-  
+
   df <- Sectors
   plot <- ggplot(df, aes(x=year,y=Emissions,
-                         fill=agg_Sector)) + 
+                         fill=agg_Sector)) +
     geom_area(size=1) +
     annotate("text", x = 2000, y = -80, label = version_stamp, size = 3) +
     scale_x_continuous(breaks=seq(start,end, 20))+
@@ -379,7 +369,7 @@ if ( PRINT_DEFAULTS ){
     ggtitle(paste('Global Default', em ,'Emissions'))+
     labs(x='Year',y= paste(em,'Emissions [kt]') )+
     guides(fill=guide_legend(ncol=2))
-  
+
     ggsave( paste0('summary-plots/',em,'_agg_sectors.default.pdf'), width = 11, height = 6 )
 }
 
@@ -391,7 +381,7 @@ Fuels<-ddply(TotalEmissions.long, .(fuel,year),summarize,
              Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Fuels
-plot <- ggplot(df, aes(x=year,y=Emissions, fill=fuel)) + 
+plot <- ggplot(df, aes(x=year,y=Emissions, fill=fuel)) +
   geom_area(size=1) +
   annotate("text", x = 2000, y = -80, label = version_stamp, size = 3) +
   scale_x_continuous(breaks=seq(start,end, 20))+
@@ -409,7 +399,7 @@ Fuels<-ddply(DefaultEmissions.long, .(fuel,year),summarize,
              Emissions=sum(Emissions, na.rm=TRUE))
 
 df <- Fuels
-plot <- ggplot(df, aes(x=year,y=Emissions, fill=fuel)) + 
+plot <- ggplot(df, aes(x=year,y=Emissions, fill=fuel)) +
   geom_area(size=1) +
   annotate("text", x = 2000, y = -80, label = version_stamp, size = 3) +
   scale_x_continuous(breaks=seq(start,end, 20))+
@@ -422,8 +412,3 @@ ggsave( paste0('summary-plots/',em,'_fuel.default.pdf'), width = 11, height = 6 
 # ---------------------------------------------------------------------------
 
 logStop()
-
-
-
-
-
