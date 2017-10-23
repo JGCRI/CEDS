@@ -43,9 +43,9 @@ initialize( script_name, log_msg, headers )
 # Read energy data
     IEA_en <- readData( "MED_OUT", "A.en_stat_sector_fuel" )
     Fern_biomass <- readData( "MED_OUT", "A.Fernandes_residential_biomass" )
-    Eur_biomass <- readData( "ENERGY_IN", "Europe_wooduse_Europe_TNO_4_Steve", ".xlsx",
-                              sheet_selection = "Data", skip_rows = 2 )[ c( 1, 5 ) ]
-    EIA_biomass <- readData( "ENERGY_IN", "EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors",
+    Eur_biomass <- readData( "ENERGY_IN", "Europe_wooduse_Europe_TNO_4_Steve", ".xlsx", 
+                              sheet_selection = "Data", skip_rows = 3 )[ c( 1, 5 ) ]
+    EIA_biomass <- readData( "ENERGY_IN", "EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors", 
                              ".xlsx", sheet_selection = "Annual Data", skip_rows = 10 )[ c( 1, 4 ) ]
 
 # Read biomass double-counting correction

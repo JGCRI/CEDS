@@ -31,7 +31,9 @@ if ( is.na( em ) ) em <- "CO2"
 
 activity_all <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended_db') , meta = F)
 
-bond_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/" ,"160227_SPEW_BCOCemission", ".xlsx", meta = T )
+bond_ctypes = c(rep("text", 5), rep("numeric", 4), "skip") # last column contains value in last cell: set option to skip
+bond_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/" ,"160227_SPEW_BCOCemission", ".xlsx", column_types = bond_ctypes, meta = T )
+
 iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_country_map", meta = F )
 fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_fuel_map", meta = F )
 sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_ext_map", ".xlsx", sheet_selection = 'Bond_to_ext',meta = F )
@@ -45,6 +47,7 @@ iea_start_year <- readData( 'ENERGY_IN' , 'IEA_iso_start_data')
 cdiac_solid_fuel <- readData( 'MED_OUT' , 'E.CO2_CDIAC_solid_fuel')
 
 solid_fuel_correction <- readData('EXT_IN', 'solid_fuel_correction_values')
+
 # ---------------------------------------------------------------------------
 # 2. Define Variables, select options
 
@@ -93,7 +96,7 @@ all_countries <- unique(activity$iso)
   bond_total_coal[ , bond_years] <- interpolate_NAs(bond_total_coal[ , bond_years])
 
 # ---------------------------------------------------------------------------
-# 3. CEDS Data processing
+# 4. CEDS Data processing
 
 # Extend IEA other coal to last CEDS year (extend last IEA year constantly)
   iea_other_coal[ X_BP_years ] <- iea_other_coal[ X_IEA_end_year ]
@@ -113,7 +116,7 @@ all_countries <- unique(activity$iso)
                    paste0("X",1960:1970) ] <- NA
 
 # ---------------------------------------------------------------------------
-# 4. Extend total coal with cdiac data
+# 5. Extend total coal with cdiac data
   printLog('Extending Total Coal Values with CDIAC')
 
   ceds_total_coal[ paste0("X",1750:1959) ] <- NA
@@ -137,8 +140,8 @@ all_countries <- unique(activity$iso)
   ceds_total_coal_extended[ is.na( ceds_total_coal_extended ) ] <- 0
 
 # ---------------------------------------------------------------------------
-# 5. Calculate and apply multiplier to merge extended CEDS total coal with bond
-#    total coal.
+# 6. Calculate and apply multiplier to merge extended CEDS total coal with bond
+#    total coal. 
 #    object names: (ceds_total_coal_extended, bond_total_coal) -> final_ceds_total_coal
 
 # calculate multiplier = bond value/cdiac extended value
@@ -149,8 +152,8 @@ cdiac_extension_values[bond_years] <- ceds_total_coal_extended[match(cdiac_exten
   # calculate
 bond_multiplier[bond_years] <- bond_multiplier[bond_years] / cdiac_extension_values[bond_years]
   # correct unreal values
-bond_multiplier[bond_years] <- replace( bond_multiplier[bond_years],bond_multiplier[bond_years] == Inf, 1)
-bond_multiplier[bond_years] <- replace( bond_multiplier[bond_years],bond_multiplier[bond_years] == NA, 1)
+bond_multiplier[bond_years] <- replace( bond_multiplier[bond_years], bond_multiplier[bond_years] == Inf, 1)  
+bond_multiplier[bond_years] <- replace( bond_multiplier[bond_years], is.na(bond_multiplier[bond_years]), 1) 
 
 bond_multiplier$X1845 <- 1
 
@@ -172,7 +175,7 @@ final_ceds_total_coal <- ceds_total_coal_extended
 final_ceds_total_coal[ paste0('X',1845:2000) ] <- final_ceds_total_coal[ paste0('X',1845:2000) ] * multipliers[ paste0('X',1845:2000) ]
 
 # ---------------------------------------------------------------------------
-# 5. Dissaggregate total coal into fuel types using CEDS start year split
+# 7. Dissaggregate total coal into fuel types using CEDS start year split 
 
 printLog('Disaggregating total coal into fuel types')
 
@@ -256,7 +259,7 @@ combustion_coal_by_fuel <- coal_extended_dissagregate_by_fuel_full[which(coal_ex
 
 
 # ---------------------------------------------------------------------------
-# 6. Merge Bond Sector Splits and CEDS aggregate Sector Splits
+# 8. Merge Bond Sector Splits and CEDS aggregate Sector Splits
 #  Sector breakdowns from total fuel type to ext_sector
 printLog('Calculating coal sector breakdowns')
 
@@ -420,7 +423,7 @@ for( i in seq_along(all_countries)) {
          } }}}}
 
 # ---------------------------------------------------------------------------
-# 6. CEDS disaggregate Sector Splits
+# 9. CEDS disaggregate Sector Splits
 
 # CEDS dissagregate sector splits in data start year (1960, 1971)
 # Calculate Ceds sector fuel % in start_year as percent of ext sector-fuel
@@ -545,7 +548,7 @@ for( i in seq_along(all_countries)) {
 
 
 # ---------------------------------------------------------------------------
-# 7. Dissaggregate total CEDS coal to CEDS sectors
+# 10. Dissaggregate total CEDS coal to CEDS sectors
 # Dissagregate combustion_coal_by_fuel using final_percentages
 printLog('Disaggregating coal to ceds sectors')
 # Loop over IEA data start years
@@ -600,7 +603,7 @@ printLog('Disaggregating coal to ceds sectors')
   final_coal[is.na(final_coal)] <- 0
 
 # ---------------------------------------------------------------------------
-# 7. Add to database
+# 11. Add to database
   replace_sectors <- unique(final_coal$sector)
 
 #Split activity data into data to replace, and not replace
@@ -643,7 +646,7 @@ printLog('Disaggregating coal to ceds sectors')
                                            sum, na.rm=T)
 
 # ---------------------------------------------------------------------------
-# 7. Write to database
+# 12. Write to database
 
   writeData(final_ceds_total_coal, 'DIAG_OUT', 'H.Extended_total_coal')
   writeData( all_other_tranformation_coal , 'MED_OUT', 'H.Extended_other_tranformation_coal')
