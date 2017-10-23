@@ -3,7 +3,7 @@
 # Author: Rachel Hoesly, Linh Vu
 # Date Last Updated: 21 April 2016
 # Program Purpose: 1. Produce OC emissions factors from SPEW (i.e. Bond) data.
-#              
+#
 # Input Files: Bond_ctry_mapping.csv, Bond_fuel_mapping.csv, Bond_sector_mapping.csv,
 #              A.comb_activity.csv, 160227_SPEW_BCOCemission.xlsx
 # Output Files: B.[em]_comb_EF_db.csv, B.[em]_SPEW_comb_EF.csv, B.[em]_SPEW_NC_em.csv
@@ -20,30 +20,20 @@
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
-
-# Before we can load headers we need some paths defined. They may be provided by
-#   a system environment variable or may have already been set in the workspace.
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if ( length(wd) > 0 ) {
-            setwd( wd[1] )
-            break
-        }
-    }
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
     PARAM_DIR <- "../code/parameters/"
 
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "data_functions.R", "analysis_functions.R", "process_db_functions.R",
                   "interpolation_extension_functions.R" ) # Additional function files required.
     log_msg <- "Produce OC BC emissions factors from SPEW data" # First message to be printed to the log
     script_name <- "B1.1.base_BCOC_comb_EF.R"
-    
+
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
-    
+
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
     if ( is.na( em ) ) em <- "BC"
@@ -55,28 +45,28 @@
 
 # all.na(); check if dataframe or list x is only NA entries
     all.na <- function( x ) {
-        return( all( is.na( x ) ) ) 
+        return( all( is.na( x ) ) )
     }
-    
+
 # interpolate_extend()
-# This function is used to 
+# This function is used to
     interpolate_extend <- function ( df ) {
-        
+
         years <- names( df )[ grep( 'X', names( df ) ) ]
-        interpolate <-  apply( X = df[ years ], MARGIN = 1, 
+        interpolate <-  apply( X = df[ years ], MARGIN = 1,
                                FUN = function( x )
                                   any( is.na( na.trim( x ) ) ) )
-        row.all.na <- apply( X = df[ years ], 
-                             MARGIN = 1 , 
+        row.all.na <- apply( X = df[ years ],
+                             MARGIN = 1 ,
                              FUN = all.na )
-        
+
     # interpolate, constant extend forward and back
-        df[ interpolate, years ] <- t( na.approx( t( df[ interpolate, years ] ), 
+        df[ interpolate, years ] <- t( na.approx( t( df[ interpolate, years ] ),
                                                   na.rm = FALSE ) )
-        df[ , years ] <-t( na.locf( t( df[ , years ] ), 
+        df[ , years ] <-t( na.locf( t( df[ , years ] ),
                                     na.rm = FALSE ) )
-        df[ , years ] <- t( na.locf( t( df[ , years ] ), 
-                                     fromLast = TRUE, 
+        df[ , years ] <- t( na.locf( t( df[ , years ] ),
+                                     fromLast = TRUE,
                                      na.rm = FALSE ) )
         return( df )
     }
@@ -89,45 +79,45 @@
     activity_data <- readData( "MED_OUT", "A.comb_activity" )
 
 # Read in mapping files
-    MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", 
+    MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx",
                      sheet_selection = "Sectors" , meta = F )
     sector_level_map <- readData( "MAPPINGS", "Master_Sector_Level_map", meta = F )
     MCL <- readData( "MAPPINGS", "Master_Country_List" )
     MSLevel <- readData( "MAPPINGS", "Master_Sector_Level_map" )
-    
+
 # Read in Bond data and mappings; this is a proprietary dataset that will not
 #   be released in the final version of CEDS
-    bcoc_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/", 
-                                 "160227_SPEW_BCOCemission", 
+    bcoc_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/",
+                                 "160227_SPEW_BCOCemission",
                                  ".xlsx", meta = T )
-    sector_map <- readData( "MAPPINGS", domain_extension = "Bond/", 
+    sector_map <- readData( "MAPPINGS", domain_extension = "Bond/",
                             "Bond_sector_map", meta = F )
-    iso_map <- readData( "MAPPINGS", domain_extension = "Bond/", 
+    iso_map <- readData( "MAPPINGS", domain_extension = "Bond/",
                          "Bond_country_map", meta = F )
-    fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/", 
+    fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/",
                           "Bond_fuel_map", meta = F )
 
 # ------------------------------------------------------------------------------
 # 2. Bond EFs
 #    Process and extract Bond data. Begins with raw bond data; ends with
-#    handled and interpolated dataframe. 
+#    handled and interpolated dataframe.
 
     if ( em == 'BC') em_col <- 'BC_kt'
     if ( em == 'OC') em_col <- 'OC_kt'
-    
+
 # Create year sequences for handling input data
     X_bond_years_recent <- paste0( 'X', seq( 2005, 2010, 5 ) )
     X_bond_years <- paste0( 'X', seq( 1850, 2000, 5 ) )
     Xyears_full <- paste0( "X", 1850:2014 )
-    
+
 # Add column headers to the Bond dataframe
     bond <- bcoc_historical
-    names( bond ) <- c( "Region", "Country", "Fuel", "Tech", 
+    names( bond ) <- c( "Region", "Country", "Fuel", "Tech",
                         "Sector", "Year", "Fuel_kt", "BC_kt", "OC_kt" )
 
 # convert natural gas from TJ to kt
-    bond[ which( bond$Fuel == " Natural Gas    " ), 'Fuel_kt' ] <- 
-      bond[ which( bond$Fuel == " Natural Gas    " ), 'Fuel_kt' ] / 
+    bond[ which( bond$Fuel == " Natural Gas    " ), 'Fuel_kt' ] <-
+      bond[ which( bond$Fuel == " Natural Gas    " ), 'Fuel_kt' ] /
       conversionFactor_naturalgas_TJ_per_kt
 
 # map to ceds fuel
@@ -142,15 +132,15 @@
                            bond$OC_kt > 0 ), ]
 # Set aside this reformatted complete Bond dataframe
     bond_everything <- bond
-    
+
 # Set aside only process and natural gas processes
     bond <- bond[ which( bond$fuel %!in% c( 'process', 'natural_gas' ) ), ]
 
-# Remove estimates for biomass after 2000 
+# Remove estimates for biomass after 2000
 #      (bond data doesn't update emission factors after 2000)
-    bond <- bond[ -which( bond$fuel %in% 
+    bond <- bond[ -which( bond$fuel %in%
                           'biomass' & bond$Year > 2000 ), ]
-    
+
 # Reformat year column to Xyears
     bond$Year <- paste0( 'X', bond$Year )
 
@@ -162,41 +152,41 @@
     bond <- bond[ complete.cases( bond ), ]
 
 # Map CEDS agg_sector to Bond dataframe
-    bond$agg_sector <- MSLevel[ match( bond$sector, 
-                                       MSLevel$working_sectors_v1 ), 
+    bond$agg_sector <- MSLevel[ match( bond$sector,
+                                       MSLevel$working_sectors_v1 ),
                                 "aggregate_sectors" ]
 
     bond_all <- bond
-    
+
 # Calculate emissions factors from Bond data by dividing emissions totals by
 # fuel totals
     bond_all$EF <- bond_all[ , em_col ] / bond_all[ , 'Fuel_kt' ]
-    
+
 # Cast to wide form
-    bond_all_cast <- cast( bond_all, iso + fuel + sector ~ Year, value = 'EF', 
-                           fun.aggregate = mean, rm.na = T ) 
+    bond_all_cast <- cast( bond_all, iso + fuel + sector ~ Year, value = 'EF',
+                           fun.aggregate = mean, rm.na = T )
 # Remove data that doesn't have values for 2005 or 2010 but not for earlier years
-    bond_remove_values <- 
-        bond_all_cast[ which( ( !is.na( bond_all_cast$X2005 ) | 
+    bond_remove_values <-
+        bond_all_cast[ which( ( !is.na( bond_all_cast$X2005 ) |
                                 !is.na( bond_all_cast$X2010 ) ) &
                                 ( apply( X = bond_all_cast[ X_bond_years ],
-                                         FUN = all.na, MARGIN = 1 ) ) ), 
-                       c( 'iso', 'sector', 'fuel', 
+                                         FUN = all.na, MARGIN = 1 ) ) ),
+                       c( 'iso', 'sector', 'fuel',
                           X_bond_years_recent ) ]
 
 # Add and reorder yearly columns
-    bond_remove_values [ paste0( 'X', 2001:end_year )[ 
-                         paste0( 'X', 2001:end_year ) %!in% 
+    bond_remove_values [ paste0( 'X', 2001:end_year )[
+                         paste0( 'X', 2001:end_year ) %!in%
                            X_bond_years_recent ] ] <- NA
-    bond_remove_values <- bond_remove_values[ c( 'iso', 'sector', 'fuel', 
+    bond_remove_values <- bond_remove_values[ c( 'iso', 'sector', 'fuel',
                                                  paste0( 'X', 2001:end_year ) ) ]
 # Interpolate NAs in the data frame, filling in yearly data
     bond_remove_values <- interpolate_extend( bond_remove_values )
-    
+
 # Prepare to handle all of the other data rows
-    bond <- bond[ which( paste( bond$iso, bond$fuel, bond$sector ) %!in% 
-                           paste( bond_remove_values$iso, 
-                                  bond_remove_values$fuel, 
+    bond <- bond[ which( paste( bond$iso, bond$fuel, bond$sector ) %!in%
+                           paste( bond_remove_values$iso,
+                                  bond_remove_values$fuel,
                                   bond_remove_values$sector ) ), ]
 
 # ------------------------------------------------------------------------------
@@ -214,14 +204,14 @@
 # Calculate emissions factors from Bond data by dividing emissions totals by
 # fuel totals
     bond_country$EF <- bond_country[ , em_col ] / bond_country[ , 'Fuel_kt' ]
-    bond_EF_country <- cast( bond_country, 
-                             iso + fuel + sector ~ Year, 
+    bond_EF_country <- cast( bond_country,
+                             iso + fuel + sector ~ Year,
                              value = 'EF' )
 # Replace non-Bond years with NAs
-    bond_EF_country [ X_emissions_years[ X_emissions_years %!in% 
+    bond_EF_country [ X_emissions_years[ X_emissions_years %!in%
                                            X_bond_years ] ] <- NA
 # Retrieve the XYears ### Use function isXYear()
-    Xyears <- names( bond_EF_country )[ grep( "X", 
+    Xyears <- names( bond_EF_country )[ grep( "X",
                                               names( bond_EF_country ) ) ] %>%
                 sort()
 # Reorder columns
@@ -229,7 +219,7 @@
 # Interpolate all the NAs in the dataframe based on the bond data
     bond_EF_country <- interpolate_extend( bond_EF_country )
 # Retain only complete cases of identifiers
-    bond_EF_country <- 
+    bond_EF_country <-
         bond_EF_country[ complete.cases( bond_EF_country[ Xyears ] ), ]
 
 # Aggregate by Region and repeat analyses
@@ -240,10 +230,10 @@
                                          Year = bond$Year ),
                               FUN = sum )
     bond_region$EF <- bond_region[ , em_col ] / bond_region[ , 'Fuel_kt' ]
-    bond_EF_region <- cast( bond_region, 
-                            Region + fuel + sector ~ Year, 
+    bond_EF_region <- cast( bond_region,
+                            Region + fuel + sector ~ Year,
                             value = 'EF' )
-    bond_EF_region [ X_emissions_years[ X_emissions_years %!in% 
+    bond_EF_region [ X_emissions_years[ X_emissions_years %!in%
                                         X_bond_years ] ] <- NA
     bond_EF_region <- bond_EF_region[ , c( "Region", "fuel", "sector", Xyears ) ]
     bond_EF_region <- interpolate_extend( bond_EF_region )
@@ -256,14 +246,14 @@
                                              agg_sector = bond$agg_sector,
                                              Year = bond$Year ),
                                   FUN = sum )
-    bond_agg_sector$EF <- bond_agg_sector[ , em_col ] / 
+    bond_agg_sector$EF <- bond_agg_sector[ , em_col ] /
                           bond_agg_sector[ , 'Fuel_kt' ]
-    bond_EF_agg_sector <- cast( bond_agg_sector, 
-                                Region + fuel + agg_sector ~ Year, 
+    bond_EF_agg_sector <- cast( bond_agg_sector,
+                                Region + fuel + agg_sector ~ Year,
                                 value = 'EF' )
-    bond_EF_agg_sector [ X_emissions_years[ X_emissions_years %!in% 
+    bond_EF_agg_sector [ X_emissions_years[ X_emissions_years %!in%
                                               X_bond_years ] ] <- NA
-    bond_EF_agg_sector <- bond_EF_agg_sector[ , c( "Region", "fuel", 
+    bond_EF_agg_sector <- bond_EF_agg_sector[ , c( "Region", "fuel",
                                                    "agg_sector", Xyears ) ]
     bond_EF_agg_sector <- interpolate_extend( bond_EF_agg_sector )
 
@@ -273,10 +263,10 @@
                                                fuel = bond$fuel ,
                                                Year = bond$Year) ,
                                    FUN = sum)
-    bond_region_fuel$EF <- bond_region_fuel[ , em_col ] / 
+    bond_region_fuel$EF <- bond_region_fuel[ , em_col ] /
                            bond_region_fuel[ , 'Fuel_kt' ]
-    bond_EF_region_fuel <- cast( bond_region_fuel, 
-                                 Region + fuel ~ Year, 
+    bond_EF_region_fuel <- cast( bond_region_fuel,
+                                 Region + fuel ~ Year,
                                  value = 'EF' )
     bond_EF_region_fuel [ X_emissions_years[ X_emissions_years
                                              %!in% X_bond_years ] ] <- NA
@@ -289,14 +279,14 @@
                                                   agg_sector = bond$agg_sector,
                                                   Year = bond$Year ),
                                        FUN = sum )
-    bond_fuel_agg_sector$EF <- bond_fuel_agg_sector[ , em_col ] / 
+    bond_fuel_agg_sector$EF <- bond_fuel_agg_sector[ , em_col ] /
                                bond_fuel_agg_sector[ , 'Fuel_kt' ]
-    bond_EF_fuel_agg_sector <- cast( bond_fuel_agg_sector, 
-                                     agg_sector + fuel  ~ Year, 
+    bond_EF_fuel_agg_sector <- cast( bond_fuel_agg_sector,
+                                     agg_sector + fuel  ~ Year,
                                      value = 'EF' )
-    bond_EF_fuel_agg_sector [ X_emissions_years[ X_emissions_years %!in% 
+    bond_EF_fuel_agg_sector [ X_emissions_years[ X_emissions_years %!in%
                                                  X_bond_years ] ] <- NA
-    bond_EF_fuel_agg_sector <- bond_EF_fuel_agg_sector[ , c( "agg_sector", 
+    bond_EF_fuel_agg_sector <- bond_EF_fuel_agg_sector[ , c( "agg_sector",
                                                              "fuel", Xyears ) ]
     bond_EF_fuel_agg_sector <- interpolate_extend( bond_EF_fuel_agg_sector )
 
@@ -305,16 +295,16 @@
                             by = list( fuel = bond$fuel ,
                                        Year = bond$Year) ,
                             FUN = sum )
-    bond_fuel$EF <- bond_fuel[ , em_col ] / 
+    bond_fuel$EF <- bond_fuel[ , em_col ] /
                     bond_fuel[ , 'Fuel_kt' ]
     bond_EF_fuel <- cast( bond_fuel, fuel  ~ Year, value = 'EF' )
-    bond_EF_fuel [ X_emissions_years[ X_emissions_years %!in% 
+    bond_EF_fuel [ X_emissions_years[ X_emissions_years %!in%
                                         X_bond_years ] ] <- NA
     bond_EF_fuel <- bond_EF_fuel[ , c( "fuel", Xyears ) ]
     bond_EF_fuel <- interpolate_extend( bond_EF_fuel )
 
 # Subset residential biomass activity
-    EF_residential_biomass <- 
+    EF_residential_biomass <-
         bond_EF_country[ which( bond_EF_country$fuel %in% c( "biomass" ) &
         bond_EF_country$sector == '1A4b_Residential' ), ]
 
@@ -323,7 +313,7 @@
 # 4. Map to CEDS sectors and countries
 #    This block of code adds emissions factors calculated at the various levels
 #    handled above. Rows are sequentially inserted by specificity priority; for example,
-#    all rows with data at the regional level get that data, then all rows at the 
+#    all rows with data at the regional level get that data, then all rows at the
 #    aggregate sector level, etc
 
 # Make EF template by copying info columns of activity data
@@ -332,15 +322,15 @@
     ef_template[ Xyears ] <- NA
 
 # Map Region, sector information to the EF template
-    ef_template$Region <- iso_map[ match( ef_template$iso, iso_map$iso ), 
+    ef_template$Region <- iso_map[ match( ef_template$iso, iso_map$iso ),
                                    'Region' ]
-    ef_template$agg_sector <- MSLevel[ match( ef_template$sector, 
-                                              MSLevel$working_sectors_v1 ), 
+    ef_template$agg_sector <- MSLevel[ match( ef_template$sector,
+                                              MSLevel$working_sectors_v1 ),
                                        "aggregate_sectors" ]
 
 # make natural gas ef = 0
     ef_template[ which( ef_template$fuel == 'natural_gas' ), Xyears ] <- 0
-    
+
 # Calculate the number of rows in the EF template
     nrow_all <- nrow( ef_template )
 
@@ -349,7 +339,7 @@
                                 x.ColName = Xyears,
                                 match.x = c( 'iso', 'sector', 'fuel' ),
                                 addEntries = FALSE )
-    
+
 # Subset data which does or does not have 1960 data
     EF_nas <- EF[ is.na( EF$X1960 ), ]
     EF_final <- EF[ !is.na( EF$X1960 ), ]
@@ -357,9 +347,9 @@
 # add EFs by region, sector, fuel to those which didn't have 1960 data
     EF <- replaceValueColMatch( EF_nas, bond_EF_region,
                                 x.ColName = Xyears,
-                                match.x = c( 'Region', 'sector', 'fuel' ), 
+                                match.x = c( 'Region', 'sector', 'fuel' ),
                                 addEntries = FALSE )
-    
+
 # Subset those rows that STILL don't have 1960 data and add the rest back in
     EF_nas <- EF[ is.na( EF$X1960 ), ]
     EF_final <- rbind( EF_final , EF[ !is.na( EF$X1960 ), ] )
@@ -367,14 +357,14 @@
 # add EFs by region, aggregate Sector,fuel
     EF <- replaceValueColMatch( EF_nas, bond_EF_agg_sector,
                                 x.ColName = Xyears,
-                                match.x = c( 'Region', 'agg_sector', 'fuel' ), 
+                                match.x = c( 'Region', 'agg_sector', 'fuel' ),
                                 addEntries = FALSE )
 # Subset those rows that STILL don't have 1960 data and add the rest back in
     EF_nas <- EF[ is.na( EF$X1960 ), ]
     EF_final <- rbind( EF_final , EF[ !is.na( EF$X1960 ), ] )
 
 
-# add EFs by region fuel 
+# add EFs by region fuel
     EF <- replaceValueColMatch( EF_nas , bond_EF_region_fuel,
                                 x.ColName = Xyears,
                                 match.x = c( 'Region', 'fuel' ),
@@ -386,14 +376,14 @@
 # add EFs by fuel , aggregate sector
     EF <- replaceValueColMatch( EF_nas, bond_EF_fuel_agg_sector,
                                 x.ColName = Xyears,
-                                match.x = c( 'agg_sector', 'fuel' ), 
+                                match.x = c( 'agg_sector', 'fuel' ),
                                 addEntries = FALSE )
-    
+
 # Subset those rows that STILL don't have 1960 data and add the rest back in
     EF_nas <- EF[ is.na( EF$X1960 ), ]
     EF_final <- rbind( EF_final, EF[ !is.na( EF$X1960 ), ] )
 
-# add EFs by global fuel average 
+# add EFs by global fuel average
     EF <- EF_nas
     EF[ Xyears ] <- bond_EF_fuel[ match( EF$fuel, bond_EF_fuel$fuel ), Xyears ]
 
@@ -403,13 +393,13 @@
 # ------------------------------------------------------------------------------
 # 5. Final Processing
 #    Create the final output dataframe by reordering and interpolating EF_final
-    
+
 # If there are still NAs, or if some rows were dropped during the data addition
 # process, throw an error.
     if ( nrow( EF_nas ) > 0 |
-         nrow( EF_final ) != nrow_all ) 
+         nrow( EF_final ) != nrow_all )
         stop( 'NAs in BC-OC efs. Please check code.' )
-    
+
 # Reorder emissions factors and move to final data frame
     EF_final <- EF_final[ with( EF_final, order( iso, sector, fuel ) ), ]
     final_full <- EF_final
@@ -425,7 +415,7 @@
     final_full[ is.na( final_full ) ] <- 0
 
 # Subset X_emissions_years
-    final_out <- final_full[ , c( 'iso', 'sector', 'fuel', 
+    final_out <- final_full[ , c( 'iso', 'sector', 'fuel',
                                   'units', X_emissions_years ) ]
 
 # replace bond values that were removed in section 2
@@ -439,12 +429,12 @@
 
 # Identify Bond years
     X_bond_process_years <- paste0( 'X', seq( 1850, 2010, 5 ) )
-    
+
 # Return to dataframe set aside earlier; convert years to XYears
     bond_everything$Year <- paste0( 'X', bond_everything$Year )
 # Add country data
-    bond_everything <- merge( bond_everything, 
-                              iso_map[ , c( 'iso', 'Country' ) ], 
+    bond_everything <- merge( bond_everything,
+                              iso_map[ , c( 'iso', 'Country' ) ],
                               all = TRUE )
 # Aggregate to iso/sector/fuel/year
     bond_everything <- aggregate( bond_everything[ paste0( em, '_kt' ) ],
@@ -454,31 +444,31 @@
                                              Year = bond_everything$Year ),
                                   FUN = sum )
 # Drop columns without emissions data
-    bond_everything <- 
+    bond_everything <-
         bond_everything[ which( !is.na( bond_everything[ , em_col ] ) ), ]
 
 # Cast to wide
-    bond_process <- cast( bond_everything, 
-                          iso + sector + fuel ~ Year, 
+    bond_process <- cast( bond_everything,
+                          iso + sector + fuel ~ Year,
                           value = paste0( em, '_kt' ) )
-    
+
 # Extract non-combustion sectors from Bond
     process_sectors <- MSL[ which( MSL$type == 'NC' ), 'sector' ]
-    bond_process <- bond_process[ which( bond_process$sector %in% 
+    bond_process <- bond_process[ which( bond_process$sector %in%
                                            process_sectors ), ]
-    
+
 # Set non data years to NA
-    bond_process [ X_emissions_years[ X_emissions_years %!in% 
+    bond_process [ X_emissions_years[ X_emissions_years %!in%
                                         X_bond_process_years ] ] <- NA
 
 # organize and interpolate process data
     bond_process <- bond_process[ , c( 'iso', 'sector', 'fuel', Xyears ) ]
-    
+
     bond_process <- bond_process[ rowSums( is.na( bond_process[ Xyears ] ) ) !=
                                     length( Xyears ), ]
     bond_process <- replace( bond_process, bond_process == 0, NA )
     bond_process_extend <- interpolateValues( bond_process )
-    
+
     bond_process_extend[ is.na( bond_process_extend ) ] <- 0
 
 # Bond stops at 2010. Copy 2010 process activity values to 2011-2014
@@ -487,19 +477,19 @@
 # relabel fuel and process and add units
     bond_process_extend$fuel <- 'process'
     bond_process_extend$units <- 'kt'
-    
+
 # Trim to final years
-    bond_process_extend <- bond_process_extend[ , c( 'iso', 'sector', 'fuel', 
+    bond_process_extend <- bond_process_extend[ , c( 'iso', 'sector', 'fuel',
                                                      'units', Xyears_full ) ]
 
 # ------------------------------------------------------------------------------
 # 7. Write output
 
     writeData( final_out , "MED_OUT", paste0( "B.", em, "_comb_EF_db" ) )
-    writeData( final_full, "EXT_IN", paste0( "B.", em, "_SPEW_comb_EF" ), 
+    writeData( final_full, "EXT_IN", paste0( "B.", em, "_SPEW_comb_EF" ),
                domain_extension = "extension-data/" )
-    writeData( bond_process_extend , "DEFAULT_EF_IN", 
-               domain_extension = 'non-combustion-emissions/', 
+    writeData( bond_process_extend , "DEFAULT_EF_IN",
+               domain_extension = 'non-combustion-emissions/',
                fn = paste0( "B.", em, "_SPEW_NC_em" ) , meta = F )
 
 # Every script should finish with this line

@@ -1,31 +1,21 @@
 # ------------------------------------------------------------------------------
 # Program Name: Paper_Figures_all.R
 # Author: Rachel Hoesly
-# Date Last Updated: 
+# Date Last Updated:
 # Program Purpose: Run all scripts that create paper and supplement figures
-#                  
-# Input Files: 
-# Output Files: 
-# Note: 
-# TODO: 
+#
+# Input Files:
+# Output Files:
+# Note:
+# TODO:
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
-
-# Set working directory
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- "../code/parameters/"
     
-  }
-}
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R",'process_db_functions.R',
               'common_data.R', 'IO_functions.R', 'data_functions.R', 'timeframe_functions.R') # Additional function files may be required.
@@ -55,9 +45,3 @@ source('../code/diagnostic/Paper_Figures_sector_recent.R')
 
 # ---------------------------------------------------------------------------
 logStop()
-
-
-
-
-
-

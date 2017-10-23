@@ -12,18 +12,10 @@
 #
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
-# Before we can load headers we need some paths defined. They may be provided by
-#   a system environment variable or may have already been set in the workspace.
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if ( length(wd) > 0 ) {
-            setwd( wd[1] )
-            break
-        }
-    }
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
     PARAM_DIR <- "../code/parameters/"
+    
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "data_functions.R", "analysis_functions.R" ) # Additional function files required.
@@ -31,7 +23,7 @@
     script_name <- "B1.1.base_SO2_comb_EF_parameters.R"
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
-    
+
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
     if ( is.na( em ) ) em <- "SO2"
@@ -74,12 +66,12 @@
     default_S_Content[ , X_emissions_years ] <- 0
 # Fill in the default values
     for ( i in seq_along( all_fuels ) ) {
-        default_S_Content[ default_S_Content$fuel == all_fuels[[ i ]], 
+        default_S_Content[ default_S_Content$fuel == all_fuels[[ i ]],
                            X_emissions_years ] <-
-        fuel_S_Content[ fuel_S_Content$fuel == all_fuels[[ i ]], 
+        fuel_S_Content[ fuel_S_Content$fuel == all_fuels[[ i ]],
                         paste0( "S", "_percent" ) ]
     }
-# Unit for sulfur content persentage 
+# Unit for sulfur content persentage
     default_S_Content$units <- 'kt/kt'
 # Create default ash retention database
     default_AshRet <- activity_data
@@ -87,18 +79,18 @@
 
     for ( fuel in all_fuels  ) {  ### This can be done much, much faster w/o for loops
         for ( sector in unique( fuel_sector_AshRet$sector ) ) {
-            default_AshRet[ default_AshRet$fuel == fuel & 
-                              default_AshRet$sector == sector, 
+            default_AshRet[ default_AshRet$fuel == fuel &
+                              default_AshRet$sector == sector,
                             X_emissions_years ] <-
-                fuel_sector_AshRet[ fuel_sector_AshRet$fuel == fuel & 
+                fuel_sector_AshRet[ fuel_sector_AshRet$fuel == fuel &
                                       fuel_sector_AshRet$sector == sector,
                                     "AshRet" ]
         }
     }
-    
+
 # Unit for sulfur content percentage
     default_AshRet$units <- 'kt/kt'
-    
+
 # ------------------------------------------------------------------------------
 # 4. Output
 # Write out all three default databases

@@ -6,31 +6,19 @@
 #                  and add it to the activity database.
 # Input Files: A.NC_activty_db.csv, activity_input_mapping.csv, A
 # Output Files: A.NC_activty_db.csv
-# Notes: 
-# TODO: 
+# Notes:
+# TODO:
 # -------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
-
-# Before we can load headers we need some paths defined. They may be provided by
-# a system environment variable or may have already been set in the workspace.
-# Set variable PARAM_DIR to be the activity_data system directory.
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if ( length(wd) > 0 ){
-            setwd( wd[1] )
-            break
-        }
-    }
-    
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
     PARAM_DIR <- "../code/parameters/"
 
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( "data_functions.R", "timeframe_functions.R", 
+    headers <- c( "data_functions.R", "timeframe_functions.R",
                   "process_db_functions.R", "analysis_functions.R" ) # Additional function files required.
     log_msg <- "Initial reformatting of gdp process activity activity_data" # First message to be printed to the log
     script_name <- "A5.2.add_NC_activity_energy.R"
@@ -54,7 +42,7 @@
 
 # iso_mapping <- readData( "MAPPINGS","2011_NC_SO2_ctry" )
     act_input <- readData( "MAPPINGS", "activity_input_mapping" )
-    MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", 
+    MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx",
                      sheet_selection = "Sectors" )
 
 # Read in the non-combustion energy activity
@@ -65,7 +53,7 @@
 
 # Applies activity and unit assignments, and reorders columns to standard form
 
-    results <- cbind( activity_data[ c( "iso", "activity", "units" ) ] , 
+    results <- cbind( activity_data[ c( "iso", "activity", "units" ) ] ,
                       activity_data[ X_IEA_years ] )
 
 # Sort results by iso and activity

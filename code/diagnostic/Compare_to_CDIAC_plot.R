@@ -1,33 +1,23 @@
 # Program Name: compare_CDIAC.R
 # Author: Linh Vu
-# Date Last Updated: 22 Dec 2016 
+# Date Last Updated: 22 Dec 2016
 # Program Purpose: Generate figures and tables to compare ceds CO2 to CDIAC
 # Input Files: CO2_total_CEDS_emissions.csv, E.CO2_CDIAC_inventory.csv
-# Output Files:  
-# Notes: 
-# TODO: 
+# Output Files:
+# Notes:
+# TODO:
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- "../code/parameters/"
 
-# Before we can load headers we need some paths defined. They may be provided by
-#   a system environment variable or may have already been set in the workspace.
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-  }
-}
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( 'data_functions.R' ) 
+headers <- c( 'data_functions.R' )
 #                 Additional function files may be required.
-log_msg <- "Producing base CO2 combustion EF" 
+log_msg <- "Producing base CO2 combustion EF"
 script_name <- 'compare_CDIAC.R'
 
 source( paste0( PARAM_DIR, "header.R" ) )
@@ -36,7 +26,7 @@ initialize( script_name, log_msg, headers )
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "CO2"
-em_lc <- tolower( em )   
+em_lc <- tolower( em )
 
 
 
@@ -59,10 +49,10 @@ Map_iso_codes <- readData( "EM_INV", domain_extension = 'RCP/',"RCP Region Mappi
 
 IEA_product_fuel <- readData( "MAPPINGS", "IEA_product_fuel", domain_extension = "energy/" )
 
-bunker_sectors <- c( "1A3di_International-shipping", "1A3aii_Domestic-aviation", "1A3ai_International-aviation", 
+bunker_sectors <- c( "1A3di_International-shipping", "1A3aii_Domestic-aviation", "1A3ai_International-aviation",
                      "1A3dii_Domestic-navigation" )
 
-cdiac_fuels <- c( "biomass", "solid_fuels", "liquid_fuels", "gas_fuels", 
+cdiac_fuels <- c( "biomass", "solid_fuels", "liquid_fuels", "gas_fuels",
                   "cement_production", "bunker_fuels" )
 
 # ---------------------------------------------------------------------------
@@ -85,7 +75,7 @@ ceds <- ceds_in[ c( "iso", "sector", "fuel", "units", X_common_years)]
 ceds$fuel_ref <- ceds$fuel
 ceds$fuel <- IEA_product_fuel$cdiac_fuel[ match( ceds$fuel, IEA_product_fuel$fuel ) ]
 ceds$fuel[ ceds$sector == "2A1_Cement-production" ] <- "cement_production"
-ceds$fuel[ ceds$sector %in% bunker_sectors & 
+ceds$fuel[ ceds$sector %in% bunker_sectors &
                 ceds$fuel == "liquid_fuels" ] <- "bunker_fuels"
 ceds <- filter( ceds, iso %in% cdiac$iso, fuel %in% cdiac$fuel | fuel_ref == "process" )
 ceds$fuel[ is.na( ceds$fuel ) ] <- "other_process"
@@ -152,10 +142,10 @@ names( cmp_global_both ) <- c( "year", "flow", "ceds_over_cdiac" )
 cmp_global_both$year <- substr(cmp_global_both$year, 2, 5)
 cmp_global_both$year <- as.numeric( as.character( cmp_global_both$year ) )
 
-ggplot(cmp_global_both, aes(x=year,y=ceds_over_cdiac, color = flow)) + 
+ggplot(cmp_global_both, aes(x=year,y=ceds_over_cdiac, color = flow)) +
   geom_point(size = 1.5) +
   scale_x_continuous(breaks=seq(from=cdiac_start_year,to=cdiac_end_year,by=20)) +
-  labs(x='Year',y= paste("CEDS/CDIAC")) + 
+  labs(x='Year',y= paste("CEDS/CDIAC")) +
   theme( legend.position="bottom" )
 ggsave( '../diagnostic-output/CO2_CEDS_vs_CDIAC_global_ratio.pdf',
         width = 14, height = 7 )
@@ -163,7 +153,7 @@ ggsave( '../diagnostic-output/CO2_CEDS_vs_CDIAC_global_ratio.pdf',
 
 # ---------------------------------------------------------------------------
 
-  
+
 # ---------------------------------------------------------------------------
 # Plot by RCP regions
 # Create complete region map for ceds to RCP
@@ -187,7 +177,7 @@ cmp_region <- filter( cmp_ctry_fuel, fuel != "bunker_fuels" ) %>%
 cmp_region$Region <- complete_region_map[match(cmp_region$iso,tolower(complete_region_map$Code)),'Region']
 cmp_region[which(is.na(cmp_region$Region)),'Region']<- 'Not Mapped'
 cmp_region <- group_by( cmp_region, Region, year ) %>%
-  summarise( ceds = sum( ceds ), cdiac = sum( cdiac ) ) %>% data.frame() 
+  summarise( ceds = sum( ceds ), cdiac = sum( cdiac ) ) %>% data.frame()
 region_long <- melt( cmp_region, id = c( "Region", "year" ) )
 names( region_long ) <- c( "region", "year", "inv", "total_emissions" )
 region_long$year <- gsub( "X", "", region_long$year )
@@ -205,14 +195,14 @@ regions_list_order <- unique(regions_list$region)
 df_all_regions <- data.frame()
 for(i in 1:6){
   plot_regions <- regions_list_order[(i*6-5):(i*6)]
-  
+
   plot_df <- region_long[which(region_long$region %in% plot_regions),c('inv','year','region','total_emissions')]
   plot_df$inv <- as.factor(plot_df$inv)
   plot_df$region <- as.factor(plot_df$region)
-  plot_df$total_emissions <-plot_df$total_emissions/1000 
+  plot_df$total_emissions <-plot_df$total_emissions/1000
   max <- 1.2*(max(plot_df$total_emissions))
-  
-  plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region, shape=inv)) + 
+
+  plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region, shape=inv)) +
     geom_line(data = subset(plot_df, inv =='cdiac'),size=.7,aes(x=year,y=total_emissions, color = region),linetype = 1) +
     geom_line(data = subset(plot_df, inv =='ceds'),size=.7,aes(x=year,y=total_emissions, color = region),linetype = 2) +
     scale_x_continuous(breaks=seq(from=1850,to=cdiac_end_year,by=30))+
@@ -221,20 +211,20 @@ for(i in 1:6){
     labs(x='Year',y= paste(em,'Emissions [Tg]'))+
     theme(legend.title=element_blank())
   plot
-  
+
   # calculate difference and arrange table
   df_temp <- as.data.frame(cast(plot_df, region+year~inv, value = 'total_emissions'))
   df_temp$diff <- df_temp$ceds - df_temp$cdiac
   df_temp <- melt(df_temp, measure.vars = c("cdiac", "ceds","diff"))
   names(df_temp)[which(names(df_temp) == 'variable')] <- 'inv'
-  
+
   df_out <- cast(df_temp, region+inv~year, value = 'total_emissions')
-  
-  writeData(df_out, 'DIAG_OUT', paste0('CO2_Regional_Comparison_CDIAC-', 
+
+  writeData(df_out, 'DIAG_OUT', paste0('CO2_Regional_Comparison_CDIAC-',
                            paste(plot_regions,collapse ='-' )), meta = F)
   df_all_regions <- rbind.fill(df_all_regions,df_out)
-  
-  ggsave( paste0('../diagnostic-output/ceds-comparisons/CDIAC_',em,'_Regional_Comparison_', 
+
+  ggsave( paste0('../diagnostic-output/ceds-comparisons/CDIAC_',em,'_Regional_Comparison_',
                  paste(plot_regions,collapse ='-' ),
                  '.pdf') , width = 7, height = 4)
 }
@@ -243,15 +233,15 @@ for(i in 1:6){
 #5 seperate graphs, saved together
 plot_list <- list()
 for(i in 1:6){
-  
+
   plot_regions <- regions_list_order[(i*6-5):(i*6)]
-  
+
   plot_df <- region_long[which(region_long$region %in% plot_regions),c('inv','year','region','total_emissions')]
   plot_df$inv <- as.factor(plot_df$inv)
   plot_df$region <- as.factor(plot_df$region)
   max <- 1.2*(max(plot_df$total_emissions))
-  
-  plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region, shape=inv)) + 
+
+  plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region, shape=inv)) +
     geom_line(data = subset(plot_df, inv =='cdiac'),size=.7,aes(x=year,y=total_emissions, color = region),linetype = 1) +
     geom_line(data = subset(plot_df, inv =='ceds'),size=.7,aes(x=year,y=total_emissions, color = region),linetype = 2) +
     scale_x_continuous(breaks=seq(from=1850,to=cdiac_end_year,by=30))+
@@ -260,8 +250,8 @@ for(i in 1:6){
     labs(x='Year',y= paste(em,'Emissions [kt]'))+
     theme(legend.title=element_blank())
   plot
-  
-  plot_list[[i]]<-plot              
+
+  plot_list[[i]]<-plot
 }
 
 pdf(paste0('../diagnostic-output/ceds-comparisons/CDIAC_',em,'_Regional_Comparison_All.pdf'),width=12,height=10,paper='special')
@@ -279,7 +269,7 @@ cmp_region_figure <- filter( cmp_ctry_fuel, fuel != "bunker_fuels" ) %>%
   summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) )
 cmp_region_figure$Region <- MCL$Figure_Region[match(cmp_region_figure$iso, MCL$iso)]
 cmp_region_figure <- group_by( cmp_region_figure, Region, year ) %>%
-  summarise( ceds = sum( ceds ), cdiac = sum( cdiac ) ) %>% data.frame() 
+  summarise( ceds = sum( ceds ), cdiac = sum( cdiac ) ) %>% data.frame()
 region_long_figure <- melt( cmp_region_figure, id = c( "Region", "year" ) )
 names( region_long_figure ) <- c( "region", "year", "inv", "total_emissions" )
 region_long_figure$year <- gsub( "X", "", region_long_figure$year )
@@ -301,8 +291,8 @@ for(i in 1:2){
   plot_df$inv <- as.factor(plot_df$inv)
   plot_df$region <- as.factor(plot_df$region)
   max <- 1.2*(max(plot_df$total_emissions))
-  
-  plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region, shape=inv)) + 
+
+  plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region, shape=inv)) +
     geom_line(data = subset(plot_df, inv =='cdiac'),size=1,aes(x=year,y=total_emissions, color = region),linetype = 1) +
     geom_line(data = subset(plot_df, inv =='ceds'),size=1,aes(x=year,y=total_emissions, color = region),linetype = 2) +
     scale_x_continuous(breaks=seq(from=1850,to=cdiac_end_year,by=30))+
@@ -311,7 +301,7 @@ for(i in 1:2){
     labs(x='Year',y= paste(em,'Emissions [kt]'))+
     theme(legend.title=element_blank())
   plot
-  
+
   ggsave( paste0('../diagnostic-output/CDIAC_',em,'_Regional_Comparison',
                  '-FigureRegion', i, '.pdf') , width = 7, height = 4)
 }
@@ -320,7 +310,7 @@ writeData( region_long, "DIAG_OUT", "/CO2_CEDS_vs_CDIAC_by_RCP_region", meta=F )
 writeData( region_long_figure, "DIAG_OUT", "/CO2_CEDS_vs_CDIAC_by_figure_region", meta=F )
 
 # }
-# 
+#
 
 # ---------------------------------------------------------------------------
 # cdiac comparison by region
@@ -337,10 +327,10 @@ cmp_ctry <- group_by( cmp_ctry_fuel, iso, year ) %>%
 compare <- cmp_ctry
 
 compare[which(compare$iso %in% FSU_iso),'iso'] <- 'FSU'
-compare <- compare %>% group_by(iso,year) %>% 
-  summarise_if(is.numeric,sum) %>% 
-  select(iso, year, diff) %>% 
-  mutate(year = as.numeric(gsub('X',"",year))) %>% 
+compare <- compare %>% group_by(iso,year) %>%
+  summarise_if(is.numeric,sum) %>%
+  select(iso, year, diff) %>%
+  mutate(year = as.numeric(gsub('X',"",year))) %>%
   filter(year >1900)
 
 #5 seperate graphs, saved together
@@ -352,13 +342,13 @@ regions_list <- regions_list[order(-abs(regions_list$diff)),]
 regions_list_order <- unique(regions_list$iso)
 
 for(i in 1:6){
-  
+
   plot_regions <- regions_list_order[(i*6-5):(i*6)]
   plot_df <- compare[which(compare$iso %in% plot_regions),c('year','iso','diff')]
   max <- 1.2*(max(plot_df$diff))
   min <- 1.2*(min(plot_df$diff))
-  
-  plot <- ggplot(plot_df, aes(x=year,y=diff, color = iso)) + 
+
+  plot <- ggplot(plot_df, aes(x=year,y=diff, color = iso)) +
     geom_line()+
     scale_x_continuous(breaks=seq(from=1900,to=cdiac_end_year,by=20))+
     scale_y_continuous(limits = c(min,max ),labels = comma)+
@@ -368,7 +358,7 @@ for(i in 1:6){
   plot
   ggsave(paste0('../diagnostic-output/ceds-comparisons/CDIAC_',em,'_Regional_Comparison_',i,'.pdf'),
           width=6, height=4)
-  plot_list[[i]]<-plot              
+  plot_list[[i]]<-plot
 }
 
 pdf(paste0('../diagnostic-output/ceds-comparisons/CDIAC_',em,'_Regional_Comparison_All_diff.pdf'),width=12,height=10,paper='special')
@@ -389,5 +379,3 @@ writeData( cmp_global_both, "DIAG_OUT", "/CO2_CEDS_vs_CDIAC_global_ratio", meta=
 
 
 logStop()
-
-

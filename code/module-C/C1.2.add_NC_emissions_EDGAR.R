@@ -4,44 +4,33 @@
 # Date Last Modified: 20 April 2017
 # Program Purpose: To reformat the non-combustion sections of the EDGAR default emissions
 #                      data and add it to the database for the relevant emissions species.
-# Input Files: 
-# Output Files: 
-# To Do: 
+# Input Files:
+# Output Files:
+# To Do:
 #      ext_backward = TRUE extended back only one year. (extend forward worked)
 #      Extend forward should extend forward with constant EFs, not linear trend
-# Notes: 
+# Notes:
 # -----------------------------------------------------------------------------
 # 0. Read in global settings and headers
-
-# Before we can load headers we need some paths defined. They may be provided by
-#   a system environment variable or may have already been set in the workspace.
-# Set variable PARAM_DIR to be the data system directory
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-      setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-      wd <- grep( 'CEDS/input', list.dirs(), value = T )
-      if ( length(wd) > 0 ) {
-        setwd( wd[1] )
-        break
-      }
-    }
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
     PARAM_DIR <- "../code/parameters/"
-# Universal header file - provides logging, file support, etc.
 
-    headers <- c( "common_data.R","data_functions.R", "analysis_functions.R", 
+# Universal header file - provides logging, file support, etc.
+    headers <- c( "common_data.R","data_functions.R", "analysis_functions.R",
                   "process_db_functions.R", 'timeframe_functions.R') # Additional function files required.
     log_msg <- paste0( "Processing EDGAR non-combustion default emissions data." ) # First message to be printed to the log
-    script_name <- "C.1.2.add_NC_emissions_EDGAR.R" 
+    script_name <- "C.1.2.add_NC_emissions_EDGAR.R"
     source( paste0( PARAM_DIR, "header.R" ) )
-    initialize( script_name, log_msg, headers )    
-  
+    initialize( script_name, log_msg, headers )
+
 # ------------------------------------------------------------------------------
-# 1. Settings 
+# 1. Settings
 
 # Define emissions species variable
   args_from_makefile <- commandArgs( TRUE )
   em <- args_from_makefile[ 1 ]
-  if ( is.na( em ) ) em <- "CH4"    
+  if ( is.na( em ) ) em <- "CH4"
 
   # EDGAR data version number
 vn <- "4.2"
@@ -75,8 +64,8 @@ NC_sector_map <- readData( "MAPPINGS", "NC_EDGAR_sector_mapping" )
 edgar <- readData( domain, fn[[ 1 ]], fn[[ 2 ]], domain_extension = domain_ext )
 
 if ( em == 'CH4' ){
-  BP_energy_data <- readData( 'ENERGY_IN', file_name = 'BP_energy_data', extension = ".xlsx", 
-                              sheet_selection = 'Coal Production - Tonnes', skip_rows = 2 )  
+  BP_energy_data <- readData( 'ENERGY_IN', file_name = 'BP_energy_data', extension = ".xlsx",
+                              sheet_selection = 'Coal Production - Tonnes', skip_rows = 2 )
   names(BP_energy_data)[1] <- 'BPName'
 
 }
@@ -131,51 +120,51 @@ edgar <- edgar[,c('iso','sector','fuel','units', paste0('X',EDGAR_start_year:EDG
 # 4. Extend Fugitive Solid Fuels for methane
 
 if ( em == 'CH4' ){
-  
-  # seperate fugitive solid fuels and other emissions  
+
+  # seperate fugitive solid fuels and other emissions
   fugitive_solid <- edgar %>% filter(sector == '1B1_Fugitive-solid-fuels')
   edgar <- edgar %>% filter(sector != '1B1_Fugitive-solid-fuels')
- 
+
   # process BP data for extension
-  bp <- Master_Country_List %>% 
+  bp <- Master_Country_List %>%
     select(iso, BPName) %>%
     filter(!is.na(BPName), BPName != 'ussr') %>%
-    unique() %>% 
-    filter(!duplicated(iso)) %>% 
-    unique() %>% 
-    left_join( BP_energy_data, by = 'BPName') %>% 
-    gather(year, value, -iso,-BPName) %>% 
-    mutate(year = as.numeric(year)) %>% 
-    filter(!is.na(year), !is.na(value)) %>% 
-    mutate(year = paste0('X',year)) %>% 
-    mutate(value = as.numeric(value)) %>% 
-    spread(year, value) %>% 
+    unique() %>%
+    filter(!duplicated(iso)) %>%
+    unique() %>%
+    left_join( BP_energy_data, by = 'BPName') %>%
+    gather(year, value, -iso,-BPName) %>%
+    mutate(year = as.numeric(year)) %>%
+    filter(!is.na(year), !is.na(value)) %>%
+    mutate(year = paste0('X',year)) %>%
+    mutate(value = as.numeric(value)) %>%
+    spread(year, value) %>%
     select(-BPName)
-  
-  fugitive_solid_extended <- extend_data_on_trend_range(driver_trend = bp, 
-                                                        input_data = fugitive_solid, 
+
+  fugitive_solid_extended <- extend_data_on_trend_range(driver_trend = bp,
+                                                        input_data = fugitive_solid,
                                                         start = 2009, end = 2014,
                                                         ratio_start_year = 2007,
                                                         expand = T,
                                                         range = 2,
                                                         id_match.driver = c('iso'))
-  fugitive_solid_extended <- fugitive_solid_extended[ , c('iso','sector','fuel','units',paste0('X',1971:2014) ) ] 
-  
+  fugitive_solid_extended <- fugitive_solid_extended[ , c('iso','sector','fuel','units',paste0('X',1971:2014) ) ]
+
 }
-  
+
 # ------------------------------------------------------------------------------
 # 5. Output
 
 if ( em == 'CH4'){
 
-  writeData( fugitive_solid_extended,  domain = "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/", 
+  writeData( fugitive_solid_extended,  domain = "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
              fn = paste0( "C.",em, "_EDGAR_NC_Emissions_fugitive_solid_fuels" ) )
 
-}  
+}
 addToEmissionsDb( edgar, em = em, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
 writeData( edgar, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em ) )
 
-if ( nrow( edgar_neg ) > 0 ) 
+if ( nrow( edgar_neg ) > 0 )
   writeData( edgar_neg, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em, "_negative" ) )
 
 

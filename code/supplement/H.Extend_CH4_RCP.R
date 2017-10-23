@@ -15,15 +15,6 @@
 # Before we can load headers we need some paths defined. They may be provided 
 #   by a system environment variable or they may have been set in the workspace
 # Set variable PARAM_DIR to be the data system directory
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-      setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-      wd <- grep( 'CEDS/input', list.dirs(), value = T )
-      if ( length(wd) > 0 ) {
-        setwd( wd[1] )
-        break
-      }
-    }
     PARAM_DIR <- "../code/parameters/"
 
 

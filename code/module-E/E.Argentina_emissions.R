@@ -5,32 +5,23 @@
 # Program Purpose: To read in & reformat Argentina emissions inventory data
 # This data only contains data from 1990 - 2011, missing data from 2000 and 2010.
 # Units are initially in metric tonnes
-# Input Files: Argentina_Translation.xlsx, Argentina Inventario 1990-2012-ipcc1996.xlsx, 
+# Input Files: Argentina_Translation.xlsx, Argentina Inventario 1990-2012-ipcc1996.xlsx,
 # Output Files: E.[em]_ARG_inventory.csv
-# Notes: 
+# Notes:
 # TODO: Re-write read-in so that order of years is taken from input data instead of assumed.
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 
-# Set working directory to the CEDS “input” directory and define PARAM_DIR as the
-# location of the CEDS “parameters” directory relative to the new working directory.
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-  }
-} 
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
 PARAM_DIR <- "../code/parameters/"
 
 # Get emission species first so can name log appropriately
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[1]
 if ( is.na( em ) ) em <- "NOx"
-  
-# Call standard script header function to read in universal header files - 
+
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R",  "analysis_functions.R" ) # Additional function files required.
 log_msg <- "Initial reformatting of Argentina emissions" # First message to be printed to the log
@@ -57,14 +48,14 @@ inv_years<-c(1990:1999, 2001:2009, 2011)
 
 translation_file <- 'Argentina_Translation'
 sheet_name <- "Sheet1"
-translation <- readData( inv_data_folder, translation_file, ".xlsx", 
-                            domain_extension = subfolder_name, 
+translation <- readData( inv_data_folder, translation_file, ".xlsx",
+                            domain_extension = subfolder_name,
                             sheet_selection = sheet_name, meta = F )
 
 attempt_file <- 'Argentina Inventario 1990-2012-ipcc1996'
 sheet_name2 <- "Inventario 1990"
-attempt <- readData( inv_data_folder, attempt_file , ".xlsx", 
-                     domain_extension = subfolder_name, 
+attempt <- readData( inv_data_folder, attempt_file , ".xlsx",
+                     domain_extension = subfolder_name,
                      sheet_selection = sheet_name2,  skip_rows = 2)
 
 # Renaming sector column, removing NA sectors and translating sector names from Spanish to English.
@@ -79,45 +70,45 @@ attempt[,2] <- translation$English[ match( attempt[,2], translation$Spanish ) ]
 if ( em_temp %in% names( attempt ) ){
   inv_data_sheet <- attempt[,c('sector', em_temp)]
   inv_data_sheet[,2] <- as.numeric(inv_data_sheet[,2])
-  
-  # Renaming specie column to year. Making NA's into 0's. 
+
+  # Renaming specie column to year. Making NA's into 0's.
   colnames(inv_data_sheet)[colnames(inv_data_sheet) == em_temp] <- "X1990"
   inv_data_sheet[is.na(inv_data_sheet)] <- 0
-  
+
   # Adding years to dataframe in a loop
   for(year in inv_years){
-    # Reading data sheet in. 
+    # Reading data sheet in.
     attempt <- 0
     old_names <- colnames(inv_data_sheet)
     attempt_file <- 'Argentina Inventario 1990-2012-ipcc1996'
     sheet_name2 <- paste("Inventario", as.character(year))
-    attempt <- readData( inv_data_folder, attempt_file , ".xlsx", 
-                         domain_extension = subfolder_name, 
+    attempt <- readData( inv_data_folder, attempt_file , ".xlsx",
+                         domain_extension = subfolder_name,
                          sheet_selection = sheet_name2, skip_rows = 2 )
-    
+
     # Translating sectors from Spanish to English. Removing NA rows from sector list.
     colnames(attempt)[2] <- "sector"
     attempt <- attempt[complete.cases(attempt$sector),]
     attempt[,2] <- translation$English[ match( attempt[,2], translation$Spanish ) ]
-    
-    
+
+
     attempt <- attempt[,c('sector', em_temp)]
     attempt[,2] <- as.numeric(attempt[,2])
     attempt[is.na(attempt)] <- 0
-    
+
     inv_data_sheet <- cbind(inv_data_sheet, attempt[,em_temp])
     colnames(inv_data_sheet) <- c(old_names, paste0("X",year))
   }
-  
+
   # Make numeric and convert from tonnes to kt
-  inv_data_sheet[,paste0('X',inv_years)] <- 
+  inv_data_sheet[,paste0('X',inv_years)] <-
     as.matrix(inv_data_sheet[,paste0('X',inv_years)])/1000
-  
+
   # Adding ISO column
   inv_data_sheet$iso <- 'arg'
   inv_data_sheet <- inv_data_sheet[,c('iso','sector', paste0('X',inv_years))]
 
-  
+
 # -------------------------------------------
 # Write out blank df if no inventory data exists for given emissions
 } else {
@@ -131,7 +122,3 @@ writeData( inv_data_sheet , domain = "MED_OUT", paste0('E.',em,'_',inv_name,'_in
 # Every script should finish with this line
 logStop()
 # END
-
-
-
-

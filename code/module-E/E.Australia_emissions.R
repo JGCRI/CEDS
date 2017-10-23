@@ -6,29 +6,19 @@
 # Input Files: [em]_Australia_UNFCCC_and_NPI.xlsx
 # Output Files: E.[EM]_Australia_inventory.csv
 # Notes: Only process Australia NPI data for year 2000, 2006, 2012
-# TODO: 
+# TODO:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
-
-# Set working directory to the CEDS "input" directory and define PARAM_DIR as the
-# location of the CEDS "parameters" directory, relative to the new working directory.
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-  }
-} 
-PARAM_DIR <- "../code/parameters/"
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- "../code/parameters/"
 
 # Get emission species first so can name log appropriately
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[1]
 if ( is.na( em ) ) em <- "NOx"
-  
-# Call standard script header function to read in universal header files - 
+
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'common_data.R',"data_functions.R" , "analysis_functions.R") # Additional function files required.
 log_msg <- "Generating Australia emission inventory data" # First message to be printed to the log
@@ -55,7 +45,7 @@ inv_data_folder <- "EM_INV"
 sector_fuel_mapping <- 'Australia_scaling_mapping'
 mapping_method <- 'sector'
 inv_name <- 'AUS' #for naming diagnostic files
-region <- c( "aus" ) 
+region <- c( "aus" )
 inv_years<-c( 2000, 2006, 2012 )
 
 
@@ -108,7 +98,7 @@ X2000 <- df2000[ , 2 ]
 X2006 <- df2006[ , 2 ]
 X2012 <- df2012[ , 2 ]
 
-inv_data <- data.frame(sector, X2000, X2006, X2012, stringsAsFactors = F ) 
+inv_data <- data.frame(sector, X2000, X2006, X2012, stringsAsFactors = F )
 
 # Clean rows and columns to standard format
 inv_data$iso <- 'aus'
@@ -125,8 +115,3 @@ writeData( inv_data , domain = "MED_OUT", paste0('E.',em,'_',inv_name,'_inventor
 # Every script should finish with this line
 logStop()
 # END
-
-
-
-
-

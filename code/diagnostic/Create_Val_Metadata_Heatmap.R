@@ -5,33 +5,23 @@
 # Program Purpose: Uses the F.create_EF_value_meta_heatmap to create a heatmap
 #                  diagnostic of the value metadata for a single country.
 # Input Files: F.[em]_scaled_EF-value_metadata.csv
-#               
+#
 # Output Files: A figure in the diagnostic-output
-# TODO: 
+# TODO:
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
-
-# Set working directory
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-      setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-      wd <- grep( 'CEDS/input', list.dirs(), value = T )
-      if ( length(wd) > 0 ) {
-        setwd( wd[1] )
-        break
-        
-      }
-    }
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
     PARAM_DIR <- "../code/parameters/"
 
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( "data_functions.R",'common_data.R', 
+    headers <- c( "data_functions.R",'common_data.R',
                   'IO_functions.R', 'emissions_scaling_functions.R') # Additional function files may be required.
     log_msg <- "Create value metadata heatmap" # First message to be printed to the log
     script_name <- "Create_Val_Metadata_Heatmap.R"
-    
+
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
@@ -43,11 +33,11 @@
 # 1. Set parameters
 #    Choose parameters for this run. Define the country and the desired sectors
 #    (use "all" to plot all sectors)
-    
+
     run_isos <- c( 'rus' )
     # run_isos <- c('aus')
     run_sectors <- 'all'
-    
+
     value_metadata <- readData( "MED_OUT", paste0( "F.", em, "_", "scaled_EF-value_metadata" ), meta = FALSE, to_numeric=FALSE)
     value_metadata <- melt(value_metadata, id.vars = c('iso','sector','fuel'))
     names( value_metadata ) <- c( "iso", "sector", "fuel", "year", "comment" )
@@ -63,12 +53,7 @@
 
 # ---------------------------------------------------------------------------
 # 2. Exectue function
-    
+
     for (run_iso in run_isos) {
         F.create_EF_value_meta_heatmap( meta_notes = value_metadata, iso = run_isos, sectors = run_sectors )
     }
-
-
-
-
-

@@ -4,25 +4,15 @@
 # Date Last Updated: March 21st , 2016
 # Program Purpose: To read in & reformat EMEP emissions data.
 # Input Files: All EMEP Emissions Data
-# Output Files: All Initial EMEP txt files resaved as csv files (in input folder), 
+# Output Files: All Initial EMEP txt files resaved as csv files (in input folder),
               # E.em_EMEP_inventory.csv, E.em_EMEP_inventory_Russia.csv
 # Notes: 1. EMEP Emissions are provided from 1980-2013
-# TODO: 
+# TODO:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
-# Set working directory to the CEDS “input” directory & define PARAM_DIR as the
-# location of the CEDS “parameters” directory, relative to the new working directory.
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-  }
-}
-INPUT <- paste(getwd())
-PARAM_DIR <- "../code/parameters/"
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
@@ -38,62 +28,62 @@ initialize( script_name, log_msg, headers )
   #logging does not support txt files, so convert to csv
   MCL <- readData( "MAPPINGS", "Master_Country_List" )
   loadPackage('tools')
-  
-# Describes which emission species is being analyzed 
+
+# Describes which emission species is being analyzed
   args_from_makefile <- commandArgs( TRUE )
   em <<- args_from_makefile[1]
   if ( is.na( em ) ) em <- "NMVOC"
-  
+
   em.read <- em
   if(em == "SO2") em.read <- "SOx"
 
 # -----------------------------------------------------------------------------------------------------------
 # 0.75 Select EMEP level
-    
+
 # SELECT EMEP LEVEL - 'LEVEL1' OR 'LEVEL2'
   level <- 'LEVEL1'
-  
+
 # SELECT Data Format
   Em_Format <<- args_from_makefile[2]
 # if ( is.na( Em_Format ) ) Em_Format <- "NFR14"
   if ( is.na( Em_Format ) ) Em_Format <- "NFR09"
-  
+
 # -----------------------------------------------------------------------------------------------------------
 # 1. Read in files
 
 # Create a List of EMEP Files
   inv_file_name <- paste0('EMEP_',Em_Format,'_', level , '_', em.read , ".txt" )
-  
+
   file_path <- filePath( 'EM_INV', inv_file_name, "", "EMEP/" )
 
   cat( "here with inv_file_name: ", inv_file_name)
   cat( "here with inv_file_path:: ", file_path)
-  
+
 if( file.exists( file_path ) ){
 
 # Function used to read in list of txt files
-  inv <- read.table(paste0('./emissions-inventories/EMEP/',inv_file_name), skip=0, header = FALSE, sep = ";" ,  
+  inv <- read.table(paste0('./emissions-inventories/EMEP/',inv_file_name), skip=0, header = FALSE, sep = ";" ,
                     na.strings=c( "", " ", "NA" ) ) # Converts all blank spaces to 'NA'
   names(inv) <- c('ISO2',"year","sector", "emission_species", "units","emissions")
-  
+
 # Writes each object as same format, but converted to a csv file
   writeData( inv , 'EM_INV', domain_extension = "EMEP/" , fn = paste0('EMEP_',Em_Format,'_', level , '_', em.read ),
              meta = TRUE)
 
-# Now read back in 
+# Now read back in
 
   file_name <- paste0('EMEP_',Em_Format,'_', level , '_', em.read )
-  EMEP <- readData('EM_INV', domain_extension = "EMEP/", file_name ) 
+  EMEP <- readData('EM_INV', domain_extension = "EMEP/", file_name )
 
 #Create empty list if file does not exist
-} else { 
-   EMEP <- list()    
-} 
- 
+} else {
+   EMEP <- list()
+}
+
 # -----------------------------------------------------------------------------------------------------------
 # 2. Formatting Data
- if( length( EMEP ) > 0 ){ 
- 
+ if( length( EMEP ) > 0 ){
+
 	  EMEP_em <- EMEP
 
 	# Reorder Columns of Interest
@@ -106,7 +96,7 @@ if( file.exists( file_path ) ){
 	  EMEP_em <-mutate(EMEP_em, sector = sapply( strsplit( EMEP_em$sector,
 				split = ' ', fixed = TRUE ), function( x ) ( x [ 2 ] ) ) )
 	}
-  
+
 	# Order By ISO2 & sector
 	  EMEP_em <-mutate( EMEP_em, ISO2 = as.character( ISO2 ) )
 	  EMEP_em <-EMEP_em[ order(EMEP_em$ISO2,EMEP_em$sector), ]
@@ -121,7 +111,7 @@ if( file.exists( file_path ) ){
 
 	# Paste value x infront of all Years
 	  EMEP_em$year <- sprintf("X%s", EMEP_em$year)
-  
+
 	# convert emissions to numeric
 	  EMEP_em$emissions <- as.numeric(EMEP_em$emissions)
 
@@ -130,27 +120,27 @@ if( file.exists( file_path ) ){
 	  # NOTE THIS INTRODUCES NEW NA's (from "C, IE, NE, NO, NR" where:
 	  # IE = Sources Included elsewhere, NE = Sources not Estimated
 	  # NO = Not Occuring, NR = Not Reported)
-  
+
 	# Cast to wide format
 	  EMEP_emdf <- cast(EMEP_em, iso + sector + units ~ year,  value ="emissions")
-  
+
 	# Relabel units from Gg to kt (same numerical value, different label)
 	  EMEP_emdf$units <- 'kt'
-  
+
 	 # Subset Russian Data
 	  EMEP_emRUS <- subset(EMEP_emdf, iso == "rus")
 	  remove_ISO <- c('rus')
 	  EMEP_emdf<-EMEP_emdf[-which(EMEP_emdf$iso %in% remove_ISO), ]
 
 	  # interpolate EMEP over problem years, NMVOC for bel
-  
+
 	  if (em == 'NMVOCxx'){ # Now deal with issues such as this in scaling mapping
 		EMEP_emdf[which(EMEP_emdf$iso == 'bel' &
 				  EMEP_emdf$sector == 'D_Fugitive'), paste0('X',2005:2010)] <- extendValues(EMEP_emdf[which(EMEP_emdf$iso == 'bel' &
 										  EMEP_emdf$sector == 'D_Fugitive'), paste0('X',2005:2010)], pre_ext_year = 2005,
 										  post_ext_year = 2010)
 	  }
-  
+
 # end processing for EMEP species
 } else {
 
@@ -158,18 +148,18 @@ if( file.exists( file_path ) ){
 # 4. Create dummy files for non EMEP species
     EMEP_emdf <- c('iso','sector','year')
     EMEP_emRUS <- c('iso','sector','year')
-}  
-  
+}
+
 # ------------------------------------------------------------------------------
   # 5. Output
-  # Write Data: 
+  # Write Data:
     writeData(EMEP_emdf, domain = "MED_OUT", fn = paste0( "E.", em, "_EMEP_", Em_Format, "_inventory" ), meta = TRUE )
-  
+
   # Write Russian Data:
     writeData(EMEP_emRUS, domain = "MED_OUT", fn = paste0( "E.", em, "_EMEP_", Em_Format, "_inventory_Russia" ),
             meta = TRUE )
-  
+
   # Every script should finish with this line-
     logStop()
-    
+
   # END
