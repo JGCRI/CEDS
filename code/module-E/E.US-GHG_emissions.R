@@ -12,7 +12,7 @@
 
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-PARAM_DIR <- "../code/parameters/"
+PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Get emission species first so can name log appropriately
 args_from_makefile <- commandArgs( TRUE )

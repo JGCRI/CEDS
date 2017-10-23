@@ -32,7 +32,7 @@
 
 # Set working directory to the CEDS input�� directory and define PARAM_DIR as the
 # location of the CEDS parameters � directory, relative to the new working directory.
-PARAM_DIR <- "../code/parameters/"
+PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
