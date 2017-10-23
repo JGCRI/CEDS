@@ -179,15 +179,32 @@ if ( WRITE_CEDS_SECTORS ) {
 	
 	
 	#freeze row names (sector column) and years (column headers)
-	global_em_wb_sheets <- c(paste0("",1750+(50*(0:4))), paste0("",c(1950+(10*(1:6)),2014)))
+	global_em_wb_sheets <- c( paste0( "",c(1950+(10*(1:6)),2014) ), paste0( "",1750+(50*(4:0)) ) )
 	global_em_workbook_path <- "../final-emissions/diagnostics/global_emissions_by_CEDS_sector.xlsx"
-	global_em_workbook <- xlsx::loadWorkbook(global_em_workbook_path)
+	#global_em_workbook <- xlsx::loadWorkbook(global_em_workbook_path)
 	
 	lapply(global_em_wb_sheets, function(sheet){
+	  
+	  # get the sheet
 	  sheet_to_freeze <- xlsx::getSheets(global_em_workbook)[[sheet]]
+	  
+	  # create a freezepane within the sheet
 	  xlsx::createFreezePane(sheet_to_freeze, colSplit = 3, rowSplit = 2, startRow = 2, startColumn = 3)
 	  xlsx::setColumnWidth(sheet_to_freeze, colIndex = 1, colWidth = 50)
-	  xlsx::saveWorkbook(global_em_workbook, global_em_workbook_path)})
+	  xlsx::saveWorkbook(global_em_workbook, global_em_workbook_path)
+	  
+	  # draw a Top Border line on the last row (Total)
+	  top_border <- xlsx::Border(color = "black", position = "TOP")
+	  
+	  cblock <- xlsx::CellBlock(sheet_to_freeze, startRow=57, startColumn=1,
+	                            noRows=1, noColumns=8, create=FALSE)
+	  
+	  CB.setBorder(cblock, top_border, 1, 1:8)
+	  
+	  # save the workbook
+	  xlsx::saveWorkbook(global_em_workbook, global_em_workbook_path)
+	  
+	  })
 	
 	#Global Emmission by specie 
 	global_total_emission <- aggregate( final_emissions[X_write_years],
