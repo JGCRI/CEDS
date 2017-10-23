@@ -5,6 +5,7 @@
 .R.d
 .Rhistory
 .Rdata
+*.Rproj
 
 #System Generated Documentation
 IO_documentation.csv
