@@ -15,7 +15,7 @@
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-    PARAM_DIR <- "../code/parameters/"
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Universal header file - provides logging, file support, etc.
     headers <- c( "common_data.R","data_functions.R", "analysis_functions.R",

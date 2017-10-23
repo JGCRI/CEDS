@@ -15,7 +15,7 @@
 # Before we can load headers we need some paths defined. They may be provided 
 #   by a system environment variable or they may have been set in the workspace
 # Set variable PARAM_DIR to be the data system directory
-    PARAM_DIR <- "../code/parameters/"
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 
 # Call standard script header function to read in universal header files - 
