@@ -625,7 +625,7 @@ addDependency <- function( fqn, ... ) {
 # params:           
 #   x:                  Data frame to be output as a .csv file.
 #   domain:             CEDS domain in which the file is located. [default: "MED_OUT"]
-#   fn:                 Name of the file to read in, minus the file extension. 
+#   fn:                 Name of the file to write, minus the file extension. 
 #                       [default: GCAM_SOURCE_FN]
 #   fn_sfx:             Suffix to append to the file name. [default: NULL]
 #   comments:           Output comments to be included at the top of the output file.
@@ -993,4 +993,25 @@ clearMeta <- function( ) {
         rm(all_metadata, pos = ".GlobalEnv")
     }
 }
-# --------------------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# savePlot
+# Brief:        Save a ggplot.
+# Details:      Saves the most recent plot as a .pdf file.
+# Dependencies: None
+# Author(s):    Caleb Braun
+# Params:       
+#   domain:     CEDS domain in which the file is located.
+#   domain_ext: File subdirectory within the specified domain. (Optional)
+#   file_name:  Name of the file to write out, minus the file extension. 
+#   width:      Width of the plot in inches.
+#   height:     Height of the plot in inches.
+# Return:       None
+# Input Files:  None
+# Output Files: Specified in "fn".
+savePlot <- function( domain, domain_ext, file_name, width, height ) {
+
+    fp <- filePath( domain, file_name, extension = '.pdf', domain_extension = domain_ext)
+    ggsave( fp , width = width, height = height )
+}
+# -----------------------------------------------------------------------------

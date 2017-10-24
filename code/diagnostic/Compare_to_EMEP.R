@@ -271,10 +271,6 @@ if ( CEDS_Data == "Default" ) File_postscript = "_EMEP_Comparison_Default"
 # 1. Read in files
 #   A. Read in EMEP data
 
-#       Location of input files relative to working directory --> Need to set new
-#       directory
-        setwd( "../intermediate-output")
-
 #       Create a list of EMEP as-in-models files
         inv1_file_name <- paste0('E.', em, '_', 'EMEP_as-in-models_inventory')
 
@@ -335,8 +331,6 @@ if ( CEDS_Data ==  "Final" ) {
 
 # ------------------------------------------------------------------------------
 # 3. Make Scattplots Comparing CEDS & EMEP for each Emissions Species
-# Set Working Directory to "diagnostic-output/EMEP" so that figures are saved in this folder
-setwd("../diagnostic-output/EMEP")
 
 # Groups for plots are by constructed by relative size of emissions
   # SO2 Groups:
@@ -378,22 +372,22 @@ setwd("../diagnostic-output/EMEP")
 
 #   Plot & Save Groups to "/diagnostic-output/EMEP" in pdf form
     graph(nt_df, group1, g1 ) # Group 1
-    ggsave( paste0( em, "_Group1", File_postscript, ".pdf" ), width=10.0, height=5.5)
+    savePlot("DIAG_OUT", "EMEP/", paste0( em, "_Group1", File_postscript), width = 10, height = 5.5)
 
     graph(nt_df, group2, g2 ) # Group 2
-    ggsave( paste0( em, "_Group2", File_postscript, ".pdf" ), width=10.0, height=5.5)
+    savePlot("DIAG_OUT", "EMEP/", paste0( em, "_Group2", File_postscript), width = 10, height = 5.5)
 
     graph(nt_df, group3, g3 ) # Group 3
-    ggsave( paste0( em, "_Group3", File_postscript, ".pdf" ), width=10.0, height=5.5)
+    savePlot("DIAG_OUT", "EMEP/", paste0( em, "_Group3", File_postscript), width = 10, height = 5.5)
 
     graph(nt_df, group4, g4 ) # Group 4
-    ggsave( paste0( em, "_Group4", File_postscript, ".pdf" ), width=10.0, height=5.5)
+    savePlot("DIAG_OUT", "EMEP/", paste0( em, "_Group4", File_postscript), width = 10, height = 5.5)
 
     graph(nt_df, group5, g5 ) # Group 5
-    ggsave( paste0( em, "_Group5", File_postscript, ".pdf" ), width=10.0, height=5.5)
+    savePlot("DIAG_OUT", "EMEP/", paste0( em, "_Group5", File_postscript), width = 10, height = 5.5)
 
     graph(nt_df, group6, g6 ) # Group 6
-    ggsave( paste0( em, "_Group6", File_postscript, ".pdf" ), width=10.0, height=5.5)
+    savePlot("DIAG_OUT", "EMEP/", paste0( em, "_Group6", File_postscript), width = 10, height = 5.5)
 
 # ------------------------------------------------------------------------------
 # 4. Making Table of differences  Between CEDS Final Emissions & EMEP Emissions for 1980 & 1990
@@ -401,8 +395,6 @@ setwd("../diagnostic-output/EMEP")
 
 # ------------------------------------------------------------------------------
 # 5. Save all tables created
-#  Reset working directory
-    setwd( "../../input")
 
 # A. Write Difference Table
     writeData(diff,  domain = "DIAG_OUT", domain_extension = "EMEP/",
@@ -410,8 +402,6 @@ setwd("../diagnostic-output/EMEP")
 
 # # B. Write tables of the wide & long formatted National Totals
 #   # Changing working directory to "intermediate-output"
-#   setwd( "..")
-#   setwd( "./intermediate-output")
 #
 # # Write CEDS long data (a csv file of CEDS national totals)
 #   writeData(CEDSlong, domain = "MED_OUT", fn = paste0( em, "_CEDS_national_totals", File_postscript ),
