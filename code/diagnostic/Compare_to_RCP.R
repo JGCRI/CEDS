@@ -156,9 +156,7 @@ RCP_df <- do.call("rbind", RCP_df_list)
 # delete temp folder
 unlink(dir.name,recursive = TRUE)
 
-setwd('../')
-setwd('../')
-setwd('../diagnostic-output')
+setwd('../../')
 
 # ---------------------------------------------------------------------------
 # 3. Process RCP Emissions Data
@@ -319,7 +317,7 @@ plot <- ggplot(df, aes(x=year,y=total_emissions,group=Inventory,shape=Inventory,
                      breaks = c('CEDS','RCP'),
                      values = c(NA,19))
 
-ggsave( paste0('ceds-comparisons/RCP_',em,'_Global_Comparison.pdf') , width = 7, height = 4)
+savePlot( 'DIAG_OUT', 'ceds-comparisons/', paste0('RCP_', em, '_Global_Comparison'), width = 7, height = 4)
 
 # ---------------------------------------------------------------------------
 # 7.  Region Comparisons
@@ -387,13 +385,14 @@ for(i in 1:6){
                        values = c('solid','blank'))
   plot_list[[i]]<-plot
 
-  ggsave( paste0('ceds-comparisons/RCP_',em,'_Regional_Comparison_',
-                 paste(plot_regions,collapse ='-' ),
-                 '.pdf') , width = 7, height = 4)
+  savePlot( 'DIAG_OUT', 'ceds-comparisons/', 
+            paste0('RCP_', em,'_Regional_Comparison_', 
+                   paste(plot_regions,collapse = '-' )),
+            width = 7, height = 4)
 
 }
 
-pdf(paste0('ceds-comparisons/RCP_',em,'_Regional_Comparison_All.pdf'),width=12,height=10,paper='special')
+pdf(paste0('../diagnostic-output/ceds-comparisons/RCP_',em,'_Regional_Comparison_All.pdf'),width=12,height=10,paper='special')
 grid.arrange(plot_list[[1]],plot_list[[2]],
              plot_list[[3]],plot_list[[4]],
              plot_list[[5]],plot_list[[6]], ncol=2,
@@ -453,8 +452,8 @@ plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = sector,
                         breaks = c('CEDS','RCP'),
                         values = c('solid','blank'))
 
-ggsave( paste0('ceds-comparisons/RCP_',em,'_sector_Comparison',
-               '.pdf') , width = 7, height = 4)
+savePlot( 'DIAG_OUT', 'ceds-comparisons/', paste0('RCP_', em,'_sector_Comparison'), 
+          width = 7, height = 4 )
 
 # ---------------------------------------------------------------------------
 # 9.  Region and Sector Comparisons (tables only)
