@@ -10,18 +10,25 @@
 
 
 # Load required libraries. If library isn't installed, outputs warning message
-loadPackage<-function(package){
-  if( suppressMessages(!require( package, lib.loc=.libPaths()[ 1 ], character.only=T ) )){
-    cat( "Couldn't load '", package, "'. Please Install.\n" ,sep="")
-    stop(paste( "Couldn't load '", package, "'. Please Install.\n" ,sep=""))
+loadPackage <- function(pName, versions){
+  minVersion <- versions[[pName]]
+  
+  if( suppressMessages(!require( pName, lib.loc=.libPaths()[ 1 ], character.only=T ) )){
+    cat( "Couldn't load '", pName, "'. Please Install.\n", sep="")
+    stop(paste0( "Couldn't load '", pName, "'. Please Install.\n" ))
+  }
+  
+  if( packageVersion(pName) < minVersion ) {
+    stop(paste0( "Package '", pName, "' version ", minVersion, " or greater is required."))
   }
 }
-libs <- c( "ggplot2", "magrittr", "pbapply", "plyr", "dplyr", "reshape", "stringr", "XML", 
-           "readxl", 'zoo', 'gridExtra', 'tidyr',"xlsx")
-for( i in seq_along(libs)){
-    package <- libs[[ i ]]
-    loadPackage(package)
-    }
+
+libs <- c( dplyr = "0.7.2", ggplot2 = "2.2.0", gridExtra = "2.2.1", 
+           magrittr = "1.5", pbapply = "1.3-1", plyr = "1.8.4", 
+           readxl = "1.0.0", reshape = "0.8.6", stringr = "1.1.0", 
+           tidyr = "0.6.3", xlsx = "0.5.7", XML = "3.98-1.5", zoo = "1.7-14" )
+
+lapply(names(libs), loadPackage, libs)
 
 # # Excel output requires the xlsx package, which is dependent on rJava. rJava
 # #   requires an updated version of Java compatible with the version of R used
