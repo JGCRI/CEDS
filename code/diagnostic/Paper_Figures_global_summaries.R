@@ -199,13 +199,12 @@ ceds_remove_sectors_global <- ceds_remove_sectors
 
 # ---------------------------------------------------------------------------
 # 2. Load and process RCP files
-# set wd to RCP folder
 if (em != 'CO2'){
-setwd( './emissions-inventories/RCP')
+rcp_dir <- './emissions-inventories/RCP'
 
 # create temporary folder to extract zipped files
-zipfile_path <- paste0('./',em,'.zip')
-dir.name <- paste0('./',em,'_RCP_temp_folder')
+zipfile_path <- paste0(rcp_dir, em, '.zip')
+dir.name <- paste0(rcp_dir, em, '_RCP_temp_folder')
 dir.create(dir.name)
 # unzip files to temp folder
 unzip(zipfile_path, exdir = dir.name)
@@ -229,10 +228,6 @@ RCP_df <- do.call("rbind", RCP_df_list)
 
 # delete temp folder
 unlink(dir.name,recursive = TRUE)
-
-setwd('../')
-setwd('../')
-# setwd('../diagnostic-output')
 
 # ---------------------------------------------------------------------------
 # 3. Process RCP Emissions Data

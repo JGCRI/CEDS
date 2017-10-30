@@ -13,7 +13,7 @@
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
+PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -44,8 +44,6 @@ print_defaults <- "True"
 # --------------- 1. Load Country List --------------------------------------
 Master_Country_List <- readData( "MAPPINGS", "Master_Country_List")
 Master_Sector_Level_map <- readData(domain = 'MAPPINGS', file_name = 'Master_Sector_Level_map')
-
-setwd('../diagnostic-output')
 
 # ---------------------------------------------------------------------------
 # Emissions and countries for which to produce plots
@@ -194,7 +192,7 @@ for(emiss in seq_along(emissions)){
       labs(x='Year',y= paste(em,'Emissions [kt]') )+
       guides(fill=guide_legend(ncol=2))
     plot
-    ggsave( paste0('country-plots/',em,'_',country_list[iso],'_sectors.scaled.pdf'), width = 11, height = 6 )
+    savePlot('DIAG_OUT', 'country-plots/', paste0(em,'_', country_list[iso], '_sectors.scaled.pdf'), width = 11, height = 6)
 
     #Convert to wide format for easier viewing
     data.wide <- cast(df, Summary_Sector ~ year, mean, value="Emissions")
@@ -216,8 +214,8 @@ for(emiss in seq_along(emissions)){
         guides(fill=guide_legend(ncol=2))
 
       plot
-      ggsave( paste0('country-plots/',em,'_',country_list[iso],'_sectors.default.pdf'), width = 11, height = 6 )
-
+      savePlot('DIAG_OUT', 'country-plots/', paste0(em,'_', country_list[iso], '_sectors.default.pdf'), width = 11, height = 6)
+      
     #Convert to wide format for easier viewing
     data.wide <- cast(df, Summary_Sector ~ year, mean, value="Emissions")
     writeData( data.wide, "DIAG_OUT", paste0('country-plots/',em,'_',country_list[iso],'_emissions_default_by_sector'), meta = FALSE )
@@ -242,7 +240,7 @@ for(emiss in seq_along(emissions)){
       labs(x='Year',y= paste(em,'Emissions [kt]') )+
      guides(fill=guide_legend(ncol=2))
     plot
-    ggsave( paste0('country-plots/',em,'_',country_list[iso],'_fuel.scaled.pdf'), width = 11, height = 6 )
+    savePlot('DIAG_OUT', 'country-plots/', paste0(em,'_', country_list[iso], '_fuel.scaled.pdf'), width = 11, height = 6)
 #Convert to wide format for easier viewing
     data.wide <- cast(df, fuel ~ year, mean, value="Emissions")
     writeData( data.wide, "DIAG_OUT", paste0('country-plots/',em ,'_',country_list[iso],'_emissions_scaled_by_fuel'), meta = FALSE )
@@ -261,7 +259,7 @@ for(emiss in seq_along(emissions)){
         ggtitle(paste(Full_Name,'_', em ,'Emissions'))+
         labs(x='Year',y= paste(em,'Emissions [kt]') )
         plot
-        ggsave( paste0('country-plots/',em,'_',country_list[iso],'_fuel.default.pdf'), width = 11, height = 6 )
+        savePlot('DIAG_OUT', 'country-plots/', paste0(em,'_', country_list[iso], '_fuel.default.pdf'), width = 11, height = 6)
     }
 
   } # Country Loop

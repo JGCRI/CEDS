@@ -8,7 +8,7 @@
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
+PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -76,9 +76,6 @@ if ( PRINT_GENERAL_TABLES ) {
 
 # ---------------------------------------------------------------------------
 # 0.3. Draw Graphs
-
-# Set to correct directory
-setwd('../diagnostic-output')
 
 # Set countries to report
 analysis_isos <- unique(Diagnostic_Country_List$iso)
@@ -154,7 +151,7 @@ for( Sector in 1:length( analysis_sectors ) ){
     # Save the group of plots for this Fuel and Sector
     File_name <- paste0( em, "_", analysis_sectors[ Sector ], "_", analysis_fuels[ Fuel ], File_Prefix )
 
-    pdf(paste0( EF_directory, File_name, '_EFs.pdf'),width=12,height=10,paper='special')
+    savePlot('DIAG_OUT', EF_directory, paste0(File_name, '_EFs.pdf'), width = 12, height = 10)
 
     # Need to be edited to match the number of regions if are to get all the graphs
     grid.arrange(plot_list[[1]],plot_list[[2]],
@@ -229,11 +226,12 @@ for( Sector in 1:length( analysis_sectors ) ){
 		        panel.border = element_rect(colour = "grey80", fill=NA, size=.8))
 		plot
 
-		File_name <- paste0( EF_directory, em, "_", analysis_sectors[ Sector ], "_", analysis_fuels[ Fuel ], "-Bounding_EFs.pdf" )
+		File_name <- paste0( em, "_", analysis_sectors[ Sector ], "_", analysis_fuels[ Fuel ], "-Bounding_EFs.pdf" )
 
-		if (File_name == paste0( EF_directory,'CO_1A3b_Road_light_oil-Bounding_EFs')) ggsave( './paper-figures/Paper/CO_EF.pdf' , width = 7, height = 3 )
-
-		  ggsave( File_name , width = 6, height = 3 )
+		if (File_name == paste0( 'CO_1A3b_Road_light_oil-Bounding_EFs'))
+      savePlot('DIAG_OUT', '/paper-figures/Paper/', 'CO_EF', width = 7, height = 3)
+		  
+		savePlot( 'DIAG_OUT', EF_directory, File_name, width = 6, height = 3 )
 
     }
 
@@ -274,8 +272,6 @@ All_Scaled_EFs  <- readData('MED_OUT', paste0('F.',em,'_scaled_EF'))
 if ( GRAPH_DEFAULTS ) All_Default_EFs <- readData('MED_OUT', paste0('D.',em,'_default_total_EF'))
 
 if ( PRINT_EMISSIONS ) Scaled_Emissions <- readData('MED_OUT', paste0( 'F.', em, '_scaled_emissions' ) )
-
-setwd('../diagnostic-output')
 
 # MAIN PROGRM LOOP
 
