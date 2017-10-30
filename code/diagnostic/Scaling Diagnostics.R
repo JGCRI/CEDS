@@ -12,7 +12,7 @@
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
+  PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
@@ -23,17 +23,16 @@
   source( paste0( PARAM_DIR, "header.R" ) )
   initialize( script_name, log_msg, headers )
 
-  setwd('../diagnostic-output')
   MED_OUT <- '../intermediate-output/'
 
 # ------------------------------------------------------------------------------
 # 1. Load Files
 
-  default.in <- read.csv(paste(MED_OUT, "D.SO2_default_total_emissions.csv", sep=""), stringsAsFactors=FALSE)
-  scaled.in <- read.csv(paste(MED_OUT, "F.SO2_scaled_emissions.csv", sep=""), stringsAsFactors=FALSE)
+  default.in <- readData('MED_OUT', 'D.SO2_default_total_emissions')
+  scaled.in <- readData('MED_OUT', 'F.SO2_scaled_emissions')
 
 # Redefine list of regions/iso if "all"
-  if (country == 'all')  country <- unique(default.in$iso)
+  if (exists('country') && country == 'all')  country <- unique(default.in$iso)
 
 # ------------------------------------------------------------------------------
 # 2. Define Country to examine by iso code
@@ -55,4 +54,4 @@
 
 # ------------------------------------------------------------------------------
 # 4. Output
-  write.csv(ratio,'scaling_diagnostics.csv')
+  writeData(ratio, domain = 'DIAG_OUT', fn = 'scaling_diagnostics', meta = F)

@@ -16,7 +16,6 @@
 
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-}
 PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
@@ -154,43 +153,39 @@ if ( gains_em_flag == T ) {
 # 2. Read in and load files for RCP
 # 2.1 Load RCP emissions ( shipping emissions excluded which will be load in section 2.2 )
 # Load and process RCP files
-# set wd to RCP folder  
 if ( rcp_em_flag == T ) {
-setwd( './emissions-inventories/RCP')
-
-# create temporary folder to extract zipped files
-zipfile_path <- paste0('./',em,'.zip')
-dir.name <- paste0('./',em,'_RCP_temp_folder')
-dir.create(dir.name)
-# unzip files to temp folder  
-unzip(zipfile_path, exdir = dir.name)
-
-# list files in the folder
-files <- list.files(paste0(dir.name,'/',em)  ,pattern = '.dat')
-files <- paste0(dir.name,'/',em,'/',files)
-
-rcp_files <- list()
-for (i in seq_along(rcp_years)){
-  rcp_files[i] <- files[grep(rcp_years[i], files)] 
-}
-rcp_files <- unlist(rcp_files)
-
-RCP_df_list <- lapply(X=rcp_files,FUN=read.table,strip.white = TRUE,header=TRUE,skip = 4,fill=TRUE, stringsAsFactors = FALSE)
-
-for (i in seq_along(rcp_years)){
-  RCP_df_list[[i]]$year <- rcp_years[i]
-}
-RCP_emissions <- do.call("rbind", RCP_df_list)
-
-# delete temp folder
-unlink(dir.name,recursive = TRUE)
-
-setwd('../../')
+  rcp_dir <- './emissions-inventories/RCP/'
+  
+  # create temporary folder to extract zipped files
+  zipfile_path <- paste0(rcp_dir, em, '.zip')
+  dir.name <- paste0(rcp_dir, em, '_RCP_temp_folder')
+  dir.create(dir.name)
+  # unzip files to temp folder  
+  unzip(zipfile_path, exdir = dir.name)
+  
+  # list files in the folder
+  files <- list.files(paste0(dir.name,'/',em)  ,pattern = '.dat')
+  files <- paste0(dir.name,'/',em,'/',files)
+  
+  rcp_files <- list()
+  for (i in seq_along(rcp_years)){
+    rcp_files[i] <- files[grep(rcp_years[i], files)] 
+  }
+  rcp_files <- unlist(rcp_files)
+  
+  RCP_df_list <- lapply(X=rcp_files,FUN=read.table,strip.white = TRUE,header=TRUE,skip = 4,fill=TRUE, stringsAsFactors = FALSE)
+  
+  for (i in seq_along(rcp_years)){
+    RCP_df_list[[i]]$year <- rcp_years[i]
+  }
+  RCP_emissions <- do.call("rbind", RCP_df_list)
+  
+  # delete temp folder
+  unlink(dir.name,recursive = TRUE)
 
 } else {
   printLog( paste0( em, ' is not supportted by RCP, dummy data created. ' ) )
   rcp_dummy <- data.frame( em = em, inventory = 'CMIP5', year = plot_years, total_emissions = NA )
-  setwd('../diagnostic-output')
 }
 # ----------------------------------------------------
 # 2.2 load RCP international shipping emissions 
@@ -362,7 +357,8 @@ if ( rcp_shipping_em_flag == T ) {
   rcp_plot$total_emissions <- rcp_plot$total_emissions + rcp_plot[ , em ]
   rcp_plot <- rcp_plot[ , c( 'em', 'inventory', 'year', 'total_emissions' ) ]
 } else { 
-    rcp_plot <- rcp_plot }
+    rcp_plot <- rcp_plot
+}
 
 # -----------------------------------------------------------------------------
 # 4.3 process EDGAR data

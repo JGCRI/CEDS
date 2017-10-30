@@ -15,7 +15,6 @@
 
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-}
 PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
@@ -141,42 +140,38 @@ if ( gains_em_flag == T ) {
 # Load and process RCP files
 # set wd to RCP folder
 if ( rcp_em_flag == T ) {
-setwd( './emissions-inventories/RCP')
-
-# create temporary folder to extract zipped files
-zipfile_path <- paste0('./',em,'.zip')
-dir.name <- paste0('./',em,'_RCP_temp_folder')
-dir.create(dir.name)
-# unzip files to temp folder
-unzip(zipfile_path, exdir = dir.name)
-
-# list files in the folder
-files <- list.files(paste0(dir.name,'/',em)  ,pattern = '.dat')
-files <- paste0(dir.name,'/',em,'/',files)
-
-rcp_files <- list()
-for (i in seq_along(rcp_years)){
-  rcp_files[i] <- files[grep(rcp_years[i], files)]
-}
-rcp_files <- unlist(rcp_files)
-
-RCP_df_list <- lapply(X=rcp_files,FUN=read.table,strip.white = TRUE,header=TRUE,skip = 4,fill=TRUE, stringsAsFactors = FALSE)
-
-for (i in seq_along(rcp_years)){
-  RCP_df_list[[i]]$year <- rcp_years[i]
-}
-RCP_emissions <- do.call("rbind", RCP_df_list)
-
-# delete temp folder
-unlink(dir.name,recursive = TRUE)
-
-setwd('../')
-setwd('../')
-setwd('../diagnostic-output')
+  rcp_dir <- './emissions-inventories/RCP/'
+  
+  # create temporary folder to extract zipped files
+  zipfile_path <- paste0(rcp_dir, em, '.zip')
+  dir.name <- paste0(rcp_dir, em, '_RCP_temp_folder')
+  dir.create(dir.name)
+  # unzip files to temp folder
+  unzip(zipfile_path, exdir = dir.name)
+  
+  # list files in the folder
+  files <- list.files(paste0(dir.name,'/',em)  ,pattern = '.dat')
+  files <- paste0(dir.name,'/',em,'/',files)
+  
+  rcp_files <- list()
+  for (i in seq_along(rcp_years)){
+    rcp_files[i] <- files[grep(rcp_years[i], files)]
+  }
+  rcp_files <- unlist(rcp_files)
+  
+  RCP_df_list <- lapply(X=rcp_files,FUN=read.table,strip.white = TRUE,header=TRUE,skip = 4,fill=TRUE, stringsAsFactors = FALSE)
+  
+  for (i in seq_along(rcp_years)){
+    RCP_df_list[[i]]$year <- rcp_years[i]
+  }
+  RCP_emissions <- do.call("rbind", RCP_df_list)
+  
+  # delete temp folder
+  unlink(dir.name,recursive = TRUE)
+  
 } else {
   printLog( paste0( em, ' is not supportted by RCP, dummy data created. ' ) )
   rcp_dummy <- data.frame( em = em, inventory = 'RCP', year = plot_years, total_emissions = NA )
-  setwd('../diagnostic-output')
 }
 # ----------------------------------------------------
 # 2.2 load RCP international shipping emissions
@@ -228,47 +223,47 @@ gains_remove_sectors <- c( 'Sum' )
 #---------------------------------------------------------------------------
 # 4.1 process data for CEDS
 if ( ceds_em_flag ) {
-# drop uncomparable sectors
-ceds_comparable <- ceds_emissions
-ceds_comparable$em <- em
-ceds_comparable <- ceds_comparable[ -which( ceds_comparable$sector %in% ceds_remove_sectors ), ]
-# generate ceds_global emissions
-ceds_global <- aggregate( ceds_comparable[ , x_ceds_years ],
-                          by = list( ceds_comparable$em ),
-                          FUN=sum )
-colnames( ceds_global ) <- c( 'em', x_ceds_years )
-# change the ceds_gloabl in to plot_years layout
-x_years_to_add <- x_plot_years[ which( x_plot_years %!in% x_ceds_years ) ]
-ceds_global[ , x_years_to_add ] <- NA
-ceds_global <- ceds_global[ , c( 'em', x_plot_years ) ]
-
-ceds_global$inventory <- 'CEDS'
-ceds_global_long <- melt( ceds_global, id.vars = c( 'em', 'inventory' ) )
-ceds_global_long$variable <- as.numeric( substr( ceds_global_long$variable, 2, 5 ) )
-colnames( ceds_global_long ) <- c( 'em', 'inventory', 'year', 'total_emissions' )
-
-ceds_plot <- ceds_global_long
-
-# additional step to extract ceds shipping emissions for later use in section 4.4
-ceds_shipping <- ceds_emissions
-ceds_shipping$em <- em
-ceds_shipping <- ceds_shipping[ ceds_shipping$sector == "1A3di_International-shipping", ]
-if ( nrow( ceds_shipping ) > 0 ) {
-ceds_shipping <- aggregate( ceds_shipping[ , x_ceds_years ],
-                            by = list( ceds_shipping$em ),
-                            FUN = sum  )
-colnames( ceds_shipping ) <- c( 'em', x_ceds_years )
-# change the ceds_shipping in to plot_years layout
-x_years_to_add <- x_plot_years[ which( x_plot_years %!in% x_ceds_years ) ]
-ceds_shipping[ , x_years_to_add ] <- NA
-ceds_shipping <- ceds_shipping[ , c( 'em', x_plot_years ) ]
-ceds_shipping<- melt( ceds_shipping, id.vars = c( 'em' ) )
-ceds_shipping$variable <- as.numeric( substr( ceds_shipping$variable, 2, 5 ) )
-colnames( ceds_shipping ) <- c( 'em', 'year', 'shipping_em' )
-ceds_shipping <- ceds_shipping[ , c( 'year', 'shipping_em' ) ]
-} else {
-  ceds_shipping <- data.frame( year = plot_years, shipping_em = NA )
-}
+  # drop uncomparable sectors
+  ceds_comparable <- ceds_emissions
+  ceds_comparable$em <- em
+  ceds_comparable <- ceds_comparable[ -which( ceds_comparable$sector %in% ceds_remove_sectors ), ]
+  # generate ceds_global emissions
+  ceds_global <- aggregate( ceds_comparable[ , x_ceds_years ],
+                            by = list( ceds_comparable$em ),
+                            FUN=sum )
+  colnames( ceds_global ) <- c( 'em', x_ceds_years )
+  # change the ceds_gloabl in to plot_years layout
+  x_years_to_add <- x_plot_years[ which( x_plot_years %!in% x_ceds_years ) ]
+  ceds_global[ , x_years_to_add ] <- NA
+  ceds_global <- ceds_global[ , c( 'em', x_plot_years ) ]
+  
+  ceds_global$inventory <- 'CEDS'
+  ceds_global_long <- melt( ceds_global, id.vars = c( 'em', 'inventory' ) )
+  ceds_global_long$variable <- as.numeric( substr( ceds_global_long$variable, 2, 5 ) )
+  colnames( ceds_global_long ) <- c( 'em', 'inventory', 'year', 'total_emissions' )
+  
+  ceds_plot <- ceds_global_long
+  
+  # additional step to extract ceds shipping emissions for later use in section 4.4
+  ceds_shipping <- ceds_emissions
+  ceds_shipping$em <- em
+  ceds_shipping <- ceds_shipping[ ceds_shipping$sector == "1A3di_International-shipping", ]
+  if ( nrow( ceds_shipping ) > 0 ) {
+    ceds_shipping <- aggregate( ceds_shipping[ , x_ceds_years ],
+                                by = list( ceds_shipping$em ),
+                                FUN = sum  )
+    colnames( ceds_shipping ) <- c( 'em', x_ceds_years )
+    # change the ceds_shipping in to plot_years layout
+    x_years_to_add <- x_plot_years[ which( x_plot_years %!in% x_ceds_years ) ]
+    ceds_shipping[ , x_years_to_add ] <- NA
+    ceds_shipping <- ceds_shipping[ , c( 'em', x_plot_years ) ]
+    ceds_shipping<- melt( ceds_shipping, id.vars = c( 'em' ) )
+    ceds_shipping$variable <- as.numeric( substr( ceds_shipping$variable, 2, 5 ) )
+    colnames( ceds_shipping ) <- c( 'em', 'year', 'shipping_em' )
+    ceds_shipping <- ceds_shipping[ , c( 'year', 'shipping_em' ) ]
+  } else {
+    ceds_shipping <- data.frame( year = plot_years, shipping_em = NA )
+  }
 } else {
   ceds_plot <- ceds_dummy
   ceds_shipping <- data.frame( year = plot_years, shipping_em = NA )
@@ -348,41 +343,42 @@ if ( rcp_shipping_em_flag == T ) {
   rcp_plot$total_emissions <- rcp_plot$total_emissions + rcp_plot[ , em ]
   rcp_plot <- rcp_plot[ , c( 'em', 'inventory', 'year', 'total_emissions' ) ]
 } else {
-    rcp_plot <- rcp_plot }
+  rcp_plot <- rcp_plot 
+}
 
 # -----------------------------------------------------------------------------
 # 4.3 process EDGAR data
 if ( edgar_em_flag == T ) {
-# Clean rows and columns to standard format
-edgar_emissions$units <- 'kt'
-if (em != 'CH4') edgar_emissions <- edgar_emissions[ ,c( 'ISO_A3', 'IPCC', 'units', edgar_years ) ]
-if (em == 'CH4') edgar_emissions <- edgar_emissions[ ,c( 'ISO_A3', 'IPCC', 'units', x_edgar_years ) ]
-names( edgar_emissions ) <- c ('iso','sector','units', x_edgar_years )
-edgar_emissions$iso <- tolower( edgar_emissions$iso )
-
-#remove rows with all NA's
-edgar_emissions <- edgar_emissions[ apply( X = edgar_emissions[ , x_edgar_years ],
-                       MARGIN = 1,
-                       function( x ) ( !all( is.na( x ) ) ) ) , ]
-edgar_emissions$em <- em
-# drop sectors
-edgar_comparable <- edgar_emissions[ -which( edgar_emissions$sector %in% edgar_remove_sectors ), ]
-# generate ceds_global emissions
-edgar_global <- aggregate( edgar_comparable[ , x_edgar_years ],
-                          by = list( edgar_comparable$em ),
-                          FUN=sum, na.rm = T )
-colnames( edgar_global ) <- c( 'em', x_edgar_years )
-# change the edgar_gloabl in to plot_years layout
-x_years_to_add <- x_plot_years[ which( x_plot_years %!in% x_edgar_years ) ]
-edgar_global[ , x_years_to_add ] <- NA
-edgar_global <- edgar_global[ , c( 'em', x_plot_years ) ]
-
-edgar_global$inventory <- 'EDGAR'
-edgar_global_long <- melt( edgar_global, id.vars = c( 'em', 'inventory' ) )
-edgar_global_long$variable <- as.numeric( substr( edgar_global_long$variable, 2, 5 ) )
-colnames( edgar_global_long ) <- c( 'em', 'inventory', 'year', 'total_emissions' )
-
-edgar_plot <- edgar_global_long
+  # Clean rows and columns to standard format
+  edgar_emissions$units <- 'kt'
+  if (em != 'CH4') edgar_emissions <- edgar_emissions[ ,c( 'ISO_A3', 'IPCC', 'units', edgar_years ) ]
+  if (em == 'CH4') edgar_emissions <- edgar_emissions[ ,c( 'ISO_A3', 'IPCC', 'units', x_edgar_years ) ]
+  names( edgar_emissions ) <- c ('iso','sector','units', x_edgar_years )
+  edgar_emissions$iso <- tolower( edgar_emissions$iso )
+  
+  #remove rows with all NA's
+  edgar_emissions <- edgar_emissions[ apply( X = edgar_emissions[ , x_edgar_years ],
+                         MARGIN = 1,
+                         function( x ) ( !all( is.na( x ) ) ) ) , ]
+  edgar_emissions$em <- em
+  # drop sectors
+  edgar_comparable <- edgar_emissions[ -which( edgar_emissions$sector %in% edgar_remove_sectors ), ]
+  # generate ceds_global emissions
+  edgar_global <- aggregate( edgar_comparable[ , x_edgar_years ],
+                            by = list( edgar_comparable$em ),
+                            FUN=sum, na.rm = T )
+  colnames( edgar_global ) <- c( 'em', x_edgar_years )
+  # change the edgar_gloabl in to plot_years layout
+  x_years_to_add <- x_plot_years[ which( x_plot_years %!in% x_edgar_years ) ]
+  edgar_global[ , x_years_to_add ] <- NA
+  edgar_global <- edgar_global[ , c( 'em', x_plot_years ) ]
+  
+  edgar_global$inventory <- 'EDGAR'
+  edgar_global_long <- melt( edgar_global, id.vars = c( 'em', 'inventory' ) )
+  edgar_global_long$variable <- as.numeric( substr( edgar_global_long$variable, 2, 5 ) )
+  colnames( edgar_global_long ) <- c( 'em', 'inventory', 'year', 'total_emissions' )
+  
+  edgar_plot <- edgar_global_long
 } else {
   edgar_plot <- edgar_dummy
 }
@@ -427,7 +423,7 @@ if ( gains_em_flag == T ) {
 
 } else {
   gains_plot <- gains_dummy
-  }
+}
 
 # -------------------------------------------------------------------
 # 5. combine all plot data together
@@ -494,7 +490,7 @@ plot <- ggplot( df, aes(x=year,y=total_emissions,
                                 'RCP' = rcp_shape_symbol,
                                 'GAINS' = gains_shape_symbol))
 
-ggsave(paste0('ceds-comparisons/CEDS_RCP_GAINS_EDGAR_',em,'_Global_Comparison.pdf') , width = 7, height = 4)
+savePlot('DIAG_OUT', 'ceds-comparisons', paste0('CEDS_RCP_GAINS_EDGAR_', em, '_Global_Comparison.pdf'), width = 7, height = 4)
 
 # ------------------------------------------------------------------------------
 # 7. Write out and end

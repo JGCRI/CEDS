@@ -21,7 +21,7 @@
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
+PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -126,12 +126,11 @@ if ( has_ship ) {
 
 # ---------------------------------------------------------------------------
 # 2. Load and process RCP files
-# set wd to REAS folder
-setwd( './emissions-inventories/RCP')
+rcp_dir <- './emissions-inventories/RCP/'
 
 # create temporary folder to extract zipped files
-zipfile_path <- paste0('./',em,'.zip')
-dir.name <- paste0('./',em,'_RCP_temp_folder')
+zipfile_path <- paste0(rcp_dir, em, '.zip')
+dir.name <- paste0(rcp_dir, em, '_RCP_temp_folder')
 dir.create(dir.name)
 # unzip files to temp folder
 unzip(zipfile_path, exdir = dir.name)
@@ -155,8 +154,6 @@ RCP_df <- do.call("rbind", RCP_df_list)
 
 # delete temp folder
 unlink(dir.name,recursive = TRUE)
-
-setwd('../../')
 
 # ---------------------------------------------------------------------------
 # 3. Process RCP Emissions Data

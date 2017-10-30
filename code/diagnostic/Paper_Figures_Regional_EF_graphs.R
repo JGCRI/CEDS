@@ -77,9 +77,6 @@ if ( PRINT_GENERAL_TABLES ) {
 # ---------------------------------------------------------------------------
 # 0.3. Draw Graphs
 
-# Set to correct directory
-setwd('../diagnostic-output')
-
 # Set countries to report
 analysis_isos <- unique(Diagnostic_Country_List$iso)
 
@@ -230,8 +227,8 @@ for( Sector in 1:length( analysis_sectors ) ){
 		plot
 
 		File_name <- paste0( EF_directory, em, "_", analysis_sectors[ Sector ], "_", analysis_fuels[ Fuel ], "-Bounding_EFs.pdf" )
-		if(File_name == paste0( EF_directory, 'NOx_1A3b_Road_light_oil-Bounding_EFs.pdf') ) ggsave( File_name , width = 5, height = 3 )
-
+		if(File_name == paste0( EF_directory, 'NOx_1A3b_Road_light_oil-Bounding_EFs.pdf') )
+      savePlot('DIAG_OUT', EF_directory, 'NOx_1A3b_Road_light_oil-Bounding_EFs.pdf', width = 5, height = 3 )
     }
   } # End of fuel loop
 } # End of sector loop
@@ -270,8 +267,6 @@ All_Scaled_EFs  <- readData('MED_OUT', paste0('F.',em,'_scaled_EF'))
 if ( GRAPH_DEFAULTS ) All_Default_EFs <- readData('MED_OUT', paste0('D.',em,'_default_total_EF'))
 
 if ( PRINT_EMISSIONS ) Scaled_Emissions <- readData('MED_OUT', paste0( 'F.', em, '_scaled_emissions' ) )
-
-setwd('../diagnostic-output')
 
 # MAIN PROGRM LOOP
 
