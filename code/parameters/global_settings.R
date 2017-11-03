@@ -23,8 +23,8 @@ loadPackage <- function(pName, versions = NULL){
   }
 }
 
-libs <- c( dplyr = "0.7.2", ggplot2 = "2.2.0", gridExtra = "2.2.1", 
-           magrittr = "1.5", pbapply = "1.3-1", plyr = "1.8.4", 
+libs <- c( plyr = "1.8.4", dplyr = "0.7.2", ggplot2 = "2.2.0",
+           gridExtra = "2.2.1", magrittr = "1.5", pbapply = "1.3-1", 
            readxl = "1.0.0", reshape = "0.8.6", stringr = "1.1.0", 
            tidyr = "0.6.3", xlsx = "0.5.7", XML = "3.98-1.5", zoo = "1.7-14" )
 
