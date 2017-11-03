@@ -10,8 +10,8 @@
 
 
 # Load required libraries. If library isn't installed, outputs warning message
-loadPackage <- function(pName, versions){
-  minVersion <- versions[[pName]]
+loadPackage <- function(pName, versions = NULL){
+  minVersion <- if( !is.null(versions) ) versions[[pName]] else 0
   
   if( suppressMessages(!require( pName, lib.loc=.libPaths()[ 1 ], character.only=T ) )){
     cat( "Couldn't load '", pName, "'. Please Install.\n", sep="")
