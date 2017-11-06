@@ -67,7 +67,7 @@ if ( length( sector_map_list ) > 0 ){
   ef_changed[, X_emissions_years ] <- ef_source[, X_emissions_years ]
   ef_full_changed <- filter( ef_full, paste( iso, sector, fuel ) %!in% 
                                paste( sector_map$iso, sector_map$changed_sector, sector_map$fuel ) ) %>%
-    rbind( ef_changed ) %>% arrange( iso, sector, fuel )
+    rbind( ef_changed ) %>% dplyr::arrange( iso, sector, fuel )
   
   
 # Do nothing if no instruction files exist

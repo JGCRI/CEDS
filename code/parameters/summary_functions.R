@@ -133,7 +133,7 @@ create_tab_of_global_emission_by_sector <- function( year , Em_by_CEDS_Sector_ta
       
       #add new column to exisiting data 
       emission_tab <- full_join( global_em_by_CEDS_sector, emission_tab, by = c("sector") ) %>% 
-        mutate( units = "kt" ) #add the "unit" column and initialize it with "kt"
+        dplyr::mutate( units = "kt" ) #add the "unit" column and initialize it with "kt"
       
       em_species <- names(emission_tab)[(names(emission_tab) %!in% c("sector", "units"))]
       emission_tab <- emission_tab[ c( c("sector", "units", em_species) ) ]

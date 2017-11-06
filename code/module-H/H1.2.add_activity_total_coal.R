@@ -257,7 +257,7 @@ for( i in seq_along(start_years) ){
   coal_extended_fuel_all_list[[i]] <- extension
 }
 extended_coal_by_fuel  <- do.call("rbind", coal_extended_fuel_all_list) %>% 
-  mutate(units = 'kt') %>% 
+  dplyr::mutate(units = 'kt') %>% 
   select(iso,fuel,units,contains('X'))
 extended_combustion_coal_by_fuel <- extended_coal_by_fuel %>% 
   filter(fuel != 'coal')

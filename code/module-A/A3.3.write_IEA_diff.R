@@ -147,9 +147,9 @@
 #             df2 contains diagnostics of where IEA < CEDS 
     computeDiff <- function( IEA_subset, CEDS_subset, fuel_name ) {
     # Compute difference
-        IEA_subset <- filter( IEA_subset, iso %in% CEDS_subset$iso ) %>% arrange( iso )
+        IEA_subset <- filter( IEA_subset, iso %in% CEDS_subset$iso ) %>% dplyr::arrange( iso )
         IEA_subset <- IEA_subset[ names( IEA_subset ) %in% names( CEDS_subset ) ]
-        CEDS_subset <- filter( CEDS_subset, iso %in% IEA_subset$iso ) %>% arrange( iso )
+        CEDS_subset <- filter( CEDS_subset, iso %in% IEA_subset$iso ) %>% dplyr::arrange( iso )
         CEDS_subset <- CEDS_subset[ names( CEDS_subset ) %in% names( IEA_subset ) ]
         diff <- IEA_subset
         Xyears <- names( diff )[ grepl( "X", names( diff ) ) ]
@@ -215,9 +215,9 @@
   
 # Diagnostics: Compute diff/total CEDS
     diag_ratio <- filter( diff_oil, iso %in% CEDS_oil$iso ) %>% 
-                                             arrange( iso ) 
+                                             dplyr::arrange( iso ) 
     CEDS_oil_temp <- filter( CEDS_oil, iso %in% diag_ratio$iso ) %>% 
-                                                  arrange( iso )
+                                                  dplyr::arrange( iso )
     diag_ratio[ , X_IEA_years ] <- diag_ratio[ , X_IEA_years ] / CEDS_oil_temp[ , X_IEA_years ]
   
 # Diagnostics: Write out IEA Non-Energy consumption for natural gas and oil
@@ -228,7 +228,7 @@
     IEA_nonenergy$fuel <- IEA_product_fuel$fuel[ match( IEA_nonenergy$PRODUCT, IEA_product_fuel$product ) ]
     IEA_nonenergy$units <- "kt"
     diag_nonenergy <- filter( IEA_nonenergy, fuel %in% CEDS_fuels ) %>% 
-                                      arrange( iso, FLOW, PRODUCT )
+                                      dplyr::arrange( iso, FLOW, PRODUCT )
     diag_nonenergy <- diag_nonenergy[ c( "iso", "FLOW", "PRODUCT", "sector", "fuel", "units", X_IEA_years ) ]
 
 # ------------------------------------------------------------------------------

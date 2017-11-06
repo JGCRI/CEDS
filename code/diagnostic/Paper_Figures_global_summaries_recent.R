@@ -483,7 +483,7 @@ for( h in seq_along(em_list)){
   if (em == 'CO2') df2$total_emissions <- df2$total_emissions/1000
   df2$Inventory <- NA
   df2$sector <- factor(df2$sector , levels = sectors[which(sectors != 'Air')] )
-  df2 <- df2 %>% arrange(sector)
+  df2 <- df2 %>% dplyr::arrange(sector)
   
   # Legend Plot
   no_air_sectors <- sector_colors[which(sector_colors$sector != 'Air'),'sector']
@@ -591,7 +591,7 @@ for( h in seq_along(em_list)){
   if (em == 'CO2') df2$total_emissions <- df2$total_emissions/1000
   df2$Inventory <- NA
   df2$region <- factor(df2$region , levels = regions )
-  df2 <- df2 %>% arrange(region)
+  df2 <- df2 %>% dplyr::arrange(region)
   
   if( em != 'CO2'){
     plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
@@ -682,7 +682,7 @@ for( h in seq_along(em_list)){
   if (em == 'CO2') df2$total_emissions <- df2$total_emissions/1000
   df2$Inventory <- NA
   df2$fuel <- factor(df2$fuel , levels = fuels )
-  df2 <- df2 %>% arrange(fuel)
+  df2 <- df2 %>% dplyr::arrange(fuel)
   
   if( em != 'CO2'){
     plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
