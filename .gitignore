@@ -5,7 +5,6 @@
 .R.d
 .Rhistory
 .Rdata
-*.Rproj
 
 #System Generated Documentation
 IO_documentation.csv
@@ -24,4 +23,3 @@ CH4_IO_documentation.csv
 input/energy/NonOECD_E_Stat.csv
 input/energy/OECD_E_Stat.csv
 
-.Rproj.user
