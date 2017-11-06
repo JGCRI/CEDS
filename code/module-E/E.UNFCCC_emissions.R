@@ -278,8 +278,8 @@
     	      df <- df[ , c( 'country', 'sector', 'units', years ) ]
       
     	  # Remove All Information from Sectors Before "_" From File Name
-    	      df <- mutate( df, sector = as.character( sector ) )
-    	      df <- mutate( df, sector = sapply( strsplit( df$sector, split = '_', 
+    	      df <- dplyr::mutate( df, sector = as.character( sector ) )
+    	      df <- dplyr::mutate( df, sector = sapply( strsplit( df$sector, split = '_', 
     	                                                   fixed = TRUE ), 
     	                                         function( x ) ( x [ 2 ] ) ) )
       

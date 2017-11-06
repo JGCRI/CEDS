@@ -342,7 +342,7 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
       names( em_last )[ names( em_last ) %in% c( "variable", "value" ) ] <-
         c( "year", "previous" ) 
       em_comp <- merge( em_current, em_last ) %>% 
-        mutate( diff = current - previous,
+        dplyr::mutate( diff = current - previous,
                 change_percent = diff*100 / current )
       em_comp$change_percent[ em_comp$current == em_comp$previous ] <- 0
       
@@ -358,7 +358,7 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
       
     # make df of absolute difference as percentage of country total 
       abs_diff_percent <- filter( em_comp, diff != 0 ) %>%
-        mutate( diff_percent = round( diff*100 / current ) ) %>%
+        dplyr::mutate( diff_percent = round( diff*100 / current ) ) %>%
         cast( as.formula( paste( x_var, "year", sep = "~" ) ), value = "diff_percent" )
 
     # write out diagnostics

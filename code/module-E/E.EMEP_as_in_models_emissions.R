@@ -82,7 +82,7 @@
     EMEP_em <- EMEP_em[ , c( "ISO2", "sector", "units", "year", "emissions" ) ]
 
 # Order By ISO2 & sector
-    EMEP_em <- mutate( EMEP_em, ISO2 = as.character( ISO2 ) )
+    EMEP_em <- dplyr::mutate( EMEP_em, ISO2 = as.character( ISO2 ) )
     EMEP_em <- EMEP_em[ order( EMEP_em$ISO2, EMEP_em$sector ), ]
 
 # Remove Data (Interested in countries, not 'Areas')

@@ -108,8 +108,8 @@
     	# Remove All Information from sectors Before " "
     	# Only for NFR14 format. NFR09 format does not have any spaces
         	if ( Em_Format == 'NFR14' ) {
-          	  EMEP_em <- mutate( EMEP_em, sector = as.character( sector ) )
-          	  EMEP_em <- mutate( EMEP_em, 
+          	  EMEP_em <- dplyr::mutate( EMEP_em, sector = as.character( sector ) )
+          	  EMEP_em <- dplyr::mutate( EMEP_em, 
           	                     sector = sapply( strsplit( EMEP_em$sector,
           				                                          split = ' ', 
           				                                          fixed = TRUE ), 
@@ -117,7 +117,7 @@
         	}
       
     	# Order By ISO2 & sector
-    	    EMEP_em <- mutate( EMEP_em, ISO2 = as.character( ISO2 ) )
+    	    EMEP_em <- dplyr::mutate( EMEP_em, ISO2 = as.character( ISO2 ) )
     	    EMEP_em <- EMEP_em[ order( EMEP_em$ISO2, EMEP_em$sector ), ]
     
     	# Remove EU, EU 9, EU 12, EU 15, EU 27 Data (Interested in Countries not EU)
