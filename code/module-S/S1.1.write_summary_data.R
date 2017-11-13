@@ -170,12 +170,12 @@ if ( WRITE_CEDS_SECTORS ) {
 	Em_by_CEDS_Sector <- Em_by_CEDS_Sector[ with( Em_by_CEDS_Sector, order( sector ) ), ]
 
 	# define the interval years 
-	all_years <- c(paste0("X",1750+(50*(0:4))), paste0("X",c(1950+(10*(1:6)),2014)))
+	summary_years <- c(paste0("X",1750+(50*(0:4))), paste0("X",c(1950+(10*(1:6)),2014)))
 	
 	Em_by_CEDS_Sector_long <- melt( Em_by_CEDS_Sector, id = c("sector", "em", "units"), variable_name = "year" )
 	
 	# create  global_emission_by_sector xlsx workbook with tabs 
-	lapply(all_years, FUN = create_tab_of_global_emission_by_sector, Em_by_CEDS_Sector_long)
+	lapply(summary_years, FUN = create_tab_of_global_emission_by_sector, Em_by_CEDS_Sector_long)
 	
 	
 	# freeze row names (sector column) and years (column headers)
