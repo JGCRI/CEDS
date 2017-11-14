@@ -91,6 +91,8 @@ format_xlsx_numeric_data <- function (workbook, sheetName, rowIndex, columnIndex
 # Input Files:  global_emissions_by_CEDS_sector.xlsx - if it exist
 # Output Files: global_emissions_by_CEDS_sector.xlsx 
 create_tab_of_global_emission_by_sector <- function( year , Em_by_CEDS_Sector_tabs ){
+  #year <- "X1750"
+  #Em_by_CEDS_Sector_tabs <- Em_by_CEDS_Sector_long
   
   #select dataset only for this year
   emission_tab <- Em_by_CEDS_Sector_long[ which(Em_by_CEDS_Sector_long$year == year ),]
@@ -106,6 +108,11 @@ create_tab_of_global_emission_by_sector <- function( year , Em_by_CEDS_Sector_ta
   
   #remove the 'em' and the 'year' column
   emission_tab <- select( emission_tab, -em, -year, -units )
+  
+  # add a row that holds the total sum of the emission data 
+  em_year_total <- data.frame(sector="Total", emission=sum(emission_tab[emission]))
+  names(em_year_total) <- names(emission_tab)
+  emission_tab <- bind_rows(emission_tab, em_year_total)
   
   #------------------------if file exist ------------------------#
   #check if file exist
@@ -126,13 +133,15 @@ create_tab_of_global_emission_by_sector <- function( year , Em_by_CEDS_Sector_ta
       printLog( "Reading sheet: '",tab_name,"' from", global_em_workbook_path ) 
       global_em_by_CEDS_sector <- xlsx::read.xlsx( file = global_em_workbook_path, sheetName = tab_name )
       
+      global_em_by_CEDS_sector <- select( global_em_by_CEDS_sector,-contains("NA.") )
+                                          
       #remove old emission data and replace with the current one
       if( em %in% colnames(global_em_by_CEDS_sector) ){
         global_em_by_CEDS_sector <- select( global_em_by_CEDS_sector, -contains(em) )
       }#if ends 
       
       #add new column to exisiting data 
-      emission_tab <- full_join( global_em_by_CEDS_sector, emission_tab, by = c("sector") ) %>% 
+      emission_tab <- left_join( global_em_by_CEDS_sector, emission_tab, by = c("sector") ) %>% 
         mutate( units = "kt" ) #add the "unit" column and initialize it with "kt"
       
       em_species <- names(emission_tab)[(names(emission_tab) %!in% c("sector", "units"))]
