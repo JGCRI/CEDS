@@ -11,13 +11,13 @@
 
 # Load required libraries. If library isn't installed, outputs warning message
 loadPackage<-function(package){
-  if( suppressMessages(!require( package, lib.loc=.libPaths()[ 1 ], character.only=T ) )){
+  if( suppressMessages(!require( package, lib.loc=.libPaths(), character.only=T ) )){
     cat( "Couldn't load '", package, "'. Please Install.\n" ,sep="")
     stop(paste( "Couldn't load '", package, "'. Please Install.\n" ,sep=""))
   }
 }
 libs <- c( "ggplot2", "magrittr", "pbapply", "plyr", "dplyr", "reshape", "stringr", "XML", 
-           "readxl", 'zoo', 'gridExtra', 'tidyr',"xlsx")
+           "readxl", 'zoo', 'gridExtra', 'tidyr')
 for( i in seq_along(libs)){
     package <- libs[[ i ]]
     loadPackage(package)
@@ -80,7 +80,7 @@ MODULE_PROC_ROOT		<- PARAM_DIR
 na_error <- 1
 
 # If true write value meta data in scaling module (FALSE to save time while test running)
-Write_value_metadata <- TRUE
+Write_value_metadata <- FALSE
 #
 
 #-----------------------------------------------------------------------------------------
