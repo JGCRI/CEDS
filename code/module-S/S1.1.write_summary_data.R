@@ -377,5 +377,3 @@ if (em != 'CO2')  source('../code/diagnostic/Compare_to_RCP.R')
 if( em %!in% c( 'CO2', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')
 
 logStop()
-
-# END
