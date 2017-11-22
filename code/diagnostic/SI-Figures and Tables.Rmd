@@ -36,6 +36,7 @@ header-includes: \usepackage{float}
                  \usepackage{array}
                  \usepackage{multirow}
                  \usepackage{tocloft}
+                 \usepackage{graphicx} 
                  
 ---
 
@@ -596,25 +597,142 @@ NMVOC & kt NMVOC/year & 144,884 & 140,749 & 160,887 \\
 <!-- New Section ---------------------------------------------------------- -->
 \FloatBarrier
 \newpage
-\section{J. Gridded Emissions - Difference with CMIP5}
-\fancyhead[RO,RE]{J. Gridded Emissions - Difference with CMIP5}
-\addcontentsline{lof}{section}{J. Gridded Emissions - Difference with CMIP5}
+\section{J. Inventory Scaling of Final Estimates}
+\fancyhead[RO,RE]{J. Inventory Scaling of Final Estimates}
+\addcontentsline{lof}{section}{J. Inventory Scaling of Final Estimates}
+
+These figures show the inventories (if any) to which final estimate are scaled. Saturated colors note that the final value is matched to a specific inventory value. Lighter colors note that final values are scaled by extending scaling factors beyond years for which the inventory is available. Grey notes that final estimates are default estimates and are not scaled ot inventory value. More detail on scaling factors and scaling methods are available in Section 2.4 of the manuscript.
+
+For example, SO2 estimates are mostly default estimates in Latin America, Africa, the Former Soviet Union, and International shipping and aviation, but scaled to many different inventories in different regions.
+
+Figures for BC, OC are not shown as they are not scaled to any invenotry values and all final estimates are defaults. Methane values are only scaled to the US GHG inventory. All methane values, other than US emissions are default values.
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/CO-MasterHeatmapByRegion.png}
+  \caption{Final CO emissions estimates by region. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/CO-MasterHeatmapBySector.png}
+  \caption{Final CO emissions estimates by sector. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/NOx-MasterHeatmapByRegion.png}
+  \caption{Final NOx emissions estimates by region. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/NOx-MasterHeatmapBySector.png}
+  \caption{Final NOx emissions estimates by sector. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
 
 
 \FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/SO2-MasterHeatmapByRegion.png}
+  \caption{Final SO2 emissions estimates by region. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/SO2-MasterHeatmapBySector.png}
+  \caption{Final SO2 emissions estimates by sector. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/NH3-MasterHeatmapByRegion.png}
+  \caption{Final NH3 emissions estimates by region. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/NH3-MasterHeatmapBySector.png}
+  \caption{Final NH3 emissions estimates by sector. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/CO2-MasterHeatmapByRegion.png}
+  \caption{Final CO2 emissions estimates by region. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/CO2-MasterHeatmapBySector.png}
+  \caption{Final CO2 emissions estimates by sector. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/NMVOC-MasterHeatmapByRegion.png}
+  \caption{Final NMVOC emissions estimates by region. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/NMVOC-MasterHeatmapBySector.png}
+  \caption{Final NMVOC emissions estimates by sector. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+<!-- New Section ---------------------------------------------------------- -->
+\FloatBarrier
+\newpage
+\section{K. Gridded Emissions - Difference with CMIP5}
+\fancyhead[RO,RE]{K. Gridded Emissions - Difference with CMIP5}
+\addcontentsline{lof}{section}{K. Gridded Emissions - Difference with CMIP5}
+
+These figures show differences, by grid cell, between CMIP5 (Lamarque et al. 2010) and CEDS gridded estimates. Values show are CEDS - CMIP5 values. Larger CEDS estimates are shown as blue while smaller CEDS estimates are shown as red. Note that for many emission species differences in spatial distribution of anthropogenic emissions in 1850 are numerically small relative, for example, to natural emissions and emissions from open burning (e.g. forest and grassland fires). Differences in later years where emission magnitudes are larger can have more influence on model results.
+
+These differences can stem from several sources: differences in country and sector level aggregate emission totals and differences in the way total emissions were mapped to spatial grids. In the CEDS estimates, consistent spatial distributions were used across all sectors and aggregate emissions were mapped to a spatial grid for each individual country (with tiling to account for multiple countries at boundary grid cells). In CMIP5 spatial grids were not consistent across species, and for most emissions (except for SO2), emissions were mapped on the basis of 38 regions instead of individual countries. So changes in aggregate totals, sectoral emissions split, spatial proxy data, and gridding methodology all contribute to differences at the spatial scale. 
+
+Referring to the figures below, CEDS OC emissions in 1850 are slightly lower over the eastern US, Europe and eastern China and larger over India and some central European countries such as Austria. Given the dominance of residential biofuel for this time period, these differences may reflect differences in the way residential sector emissions were mapped to population distributions. OC emissions in 2000 are most notably larger over Nigeria, India, and Pakistan, which reflect larger CEDS totals in 2000 for these regions. OC emissions are slightly smaller in parts of Eastern Europe and the Middle East.
+
+CEDS CH4 emissions in 1850 (supplemental extended emissions) are smaller in China, India, Eastern US, and the UK, but larger in the Western US, and pockets of Europe and India. In 2000, CH4 are also smaller in India and Eastern China. There are concentrated pockets of increased methane emissions in Venezuela, Russia, the Middle East, Algeria and Libya.
+
+Globally, CEDS NOx emissions in 1850 are smaller than CMIP6 estimates, largely due to explicit representation of biomass fuels. In the gridded data, this decrease is concentrated over the eastern US, India, and eastern China. In 2000, global CEDS NOx emissions are largely, and most noticeably larger over the US, western China, India, western Europe, and some Atlantic shipping routes.
+
+CO data show similar but opposite trends of NOx emissions. Globally in 1850, CEDS CO estimates are larger than CMIP6 and are most noticeable over the eastern US and Europe, while CEDS estimates are smaller over some parts of Africa, the middle east and Asia. In 2000, CEDS CO emissions are most notably larger over China and smaller over India.
+
+CEDS NMVOC emissions in 1850 are smaller over China, India, the Middle East, and parts of South America and Africa, while larger of the US and Europe. In 2000 differences are more concentrated in hot spots and are often not consistently large or smaller in aggregate within most countries. NMVOC are notably smaller in eastern China and Saudi Arabia.
+
+CEDS NH3 emissions in 1850 are smaller in India and the US, while consistently larger over Europe and China. CEDS NH3 emissions in 2000 are smaller over most of the world, but noticeably larger over India, Mongolia, and parts of Europe. Differences over Mongolia, address a previously known issue in the CMIP5 gridded data.
+While most emissions show differences spread out over countries and regions, SO2 shows highly concentrated differences in individual grid cells in both 1850 and 2000. In 1850, differences are small but are concentrated in the UK, Germany and France. Differences in 2000 gridded data have a similar character. Globally CEDS SO2 emissions are very similar to CMIP5 and differences largely are due to different proxy gridding data that incorporates the locations of power plants or metal smelters. CEDS emissions are slightly smaller over Mexico and the distribution of emissions shows changes in Eastern China, now more concentrated in the north. This comparison indicates the importance of accurate spatial proxy data for large SO2 point sources. Ideally individual point source data can be used to generate spatial maps, although such data is not available for all countries for all years.
+
+
+\FloatBarrier
+\newpage
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=6.5in]{gridded_emissions_diff/SO2_1850_CEDS_RCP_diff_mass.jpg}
   \caption{Difference in CEDS and CMIP5 gridded total SO2 emissions in 1850. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
 \end{figure}
 
-\newpage
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=6.5in]{gridded_emissions_diff/SO2_2000_CEDS_RCP_diff_mass.jpg}
   \caption{Difference in CEDS and CMIP5 gridded total SO2 emissions in 2000. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
 \end{figure}
 
+\FloatBarrier
+\newpage
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=6.5in]{gridded_emissions_diff/NOx_1850_CEDS_RCP_diff_mass.jpg}
@@ -639,7 +757,6 @@ NMVOC & kt NMVOC/year & 144,884 & 140,749 & 160,887 \\
   \includegraphics[width=6.5in]{gridded_emissions_diff/CO_2000_CEDS_RCP_diff_mass.jpg}
   \caption{Difference in CEDS and CMIP5 gridded total CO emissions in 2000. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
 \end{figure}
-
 
 \begin{figure}[!ht]
   \centering
