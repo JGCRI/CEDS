@@ -23,12 +23,12 @@
       break
     }
   }
-  PARAM_DIR <- "../code/parameters/"
+PARAM_DIR <- "../code/parameters/"
 
 # Call standard script header function to read in universal header files - 
 # provides logging, file support, and system functions - and start the script log.
-  headers <- c( 'gridding_functions.R', 'data_functions.R', 'nc_generation_functions.R' ) 
-  log_msg <- "Generates chunk NetCDF files for bulk emissions" 
+  headers <- c( 'gridding_functions.R', 'data_functions.R', 'nc_generation_functions.R' ) # Any additional function files required
+  log_msg <- "Generates chunk NetCDF files for bulk emissions" # First message to be printed to the log
   script_name <- "G3.3.chunk_CH4_extended_bulk_emissions.R"
 
   source( paste0( PARAM_DIR, "header.R" ) )
@@ -45,52 +45,51 @@
   CEDS_gridding_version <- '2017-05-18'
 
 # basic start year/end year check 
-
-  if ( end_year < start_year ) { stop( ' End year must not be earlier than start year. ') }
+# if ( start_year %% chunk_years != 0 ) { stop( 'Start year must be a multiple of the chunk_years. ' ) }
+if ( end_year < start_year ) { stop( ' End year must not be earlier than start year. ') }
 
 # calculate chunk start years
-  total_years <- ( end_year - start_year ) / chunk_density + 1
-  chunk_count <- ceiling( total_years / chunk_years  )  
+total_years <- ( end_year - start_year ) / chunk_density + 1
+chunk_count <- ceiling( total_years / chunk_years  )  
 # calculate chunk end years
-  chunk_start_years <- unlist( lapply( 1 : chunk_count, function( i ) { chunk_start_years <- start_year + ( i - 1 ) * chunk_years * chunk_density } ) )
-  chunk_end_years <- chunk_start_years + ( chunk_years * chunk_density - 1 * chunk_density ) 
-  if ( chunk_end_years[ length( chunk_end_years ) ] > end_year ) { chunk_end_years[ length( chunk_end_years ) ] <- end_year }
+chunk_start_years <- unlist( lapply( 1 : chunk_count, function( i ) { chunk_start_years <- start_year + ( i - 1 ) * chunk_years * chunk_density } ) )
+chunk_end_years <- chunk_start_years + ( chunk_years * chunk_density - 1 * chunk_density ) 
+if ( chunk_end_years[ length( chunk_end_years ) ] > end_year ) { chunk_end_years[ length( chunk_end_years ) ] <- end_year }
 
-# setup dirs
-  input_dir <- filePath( 'MED_OUT', 'gridded-emissions/', extension = "" )
-  output_dir <- filePath( 'FIN_OUT', 'gridded-emissions/', extension = "" )
+# define dirs
+input_dir <- filePath( 'MED_OUT', 'gridded-emissions/', extension = "" )
+output_dir <- filePath( 'FIN_OUT', 'gridded-emissions/', extension = "" )
 
 # ------------------------------------------------------------------------------
-# 1. Chunking 
+# 1. For each chunk count generate nc read in list 
 
 # Define e+missions species variable
-  args_from_makefile <- commandArgs( TRUE )
-  em <- args_from_makefile[ 1 ]
-  if ( is.na( em ) ) em <- "CH4"
+args_from_makefile <- commandArgs( TRUE )
+em <- args_from_makefile[ 1 ]
+if ( is.na( em ) ) em <- "CH4"
 
-  MODULE_G <- "../code/module-G/"
+MODULE_G <- "../code/module-G/"
 
-# Start chunking  
+printLog( paste0( 'Start ', em, ' grids chunking from ', start_year, ' to ', end_year ) )
+
+for ( chunk_count_index in 1 : chunk_count ) {
   
-  printLog( paste0( 'Start ', em, ' grids chunking from ', start_year, ' to ', end_year ) )
+  singleVarChunking_extendedCH4bulk( em, 
+                                     grid_resolution, 
+                                     chunk_start_years, 
+                                     chunk_end_years, 
+                                     chunk_density,
+                                     chunk_count_index, 
+                                     input_dir, 
+                                     output_dir, 
+                                     gridding_version = CEDS_gridding_version )
+  }
 
-  for ( chunk_count_index in 1 : chunk_count ) {
-  
-    singleVarChunking_extendedCH4bulk( em, 
-                                       grid_resolution, 
-                                       chunk_start_years, 
-                                       chunk_end_years, 
-                                       chunk_density,
-                                       chunk_count_index, 
-                                       input_dir, 
-                                       output_dir, 
-                                       gridding_version = CEDS_gridding_version )
-  } # END of for loop
 
 # -----------------------------------------------------------------------------
 # 2. Stop 
 
 # Every script should finish with this line:
-  logStop()  
+logStop()  
 
 
