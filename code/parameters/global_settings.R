@@ -16,7 +16,8 @@ loadPackage<-function(package){
     stop(paste( "Couldn't load '", package, "'. Please Install.\n" ,sep=""))
   }
 }
-libs <- c( "ggplot2", "magrittr", "pbapply", "plyr", "dplyr", "reshape", "stringr", "XML", 
+
+libs <- c( "ggplot2", "magrittr", "pbapply", "plyr", "dplyr", "reshape", "stringr", "openxlsx","XML", 
            "readxl", 'zoo', 'gridExtra', 'tidyr')
 for( i in seq_along(libs)){
     package <- libs[[ i ]]
