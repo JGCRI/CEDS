@@ -289,8 +289,13 @@
          GAINS_heat_content[ which( GAINS_heat_content$fuel == 'biomass' ),
                              'heat_content' ] ) * 10^-6
     
-    activities_ceds[activities_ceds$fuel %in% "light_oil", X_years] <-
-         ( activities_ceds[ activities_ceds$fuel %in% "light_oil", X_years ] /
+    activities_ceds[activities_ceds$fuel %in% "light_oil", X_years] <- 
+         ( activities_ceds[ activities_ceds$fuel %in% "light_oil", X_years ] / 
+         GAINS_heat_content[ which( GAINS_heat_content$fuel == 'light_oil' ),
+                             'heat_content' ] ) * 10^-6
+    
+    activities_ceds[activities_ceds$fuel %in% "light_oil", X_years] <- 
+         ( activities_ceds[ activities_ceds$fuel %in% "light_oil", X_years ] / 
          GAINS_heat_content[ which( GAINS_heat_content$fuel == 'light_oil' ),
                              'heat_content' ] ) * 10^-6
     

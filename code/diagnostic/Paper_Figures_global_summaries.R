@@ -12,9 +12,15 @@
 #                  
 # Input Files: [em]_total_CEDS_emissions.csv
 # Output Files: figures in the diagnostic-output
-# Note: (1) Shipping emissions is included in global comparison, but removed in regional comparison
-#       (2) RCP shipping emissions does not have data for NH3
-# TODO: (1) In RCP shipping data NMVOC and CH4 data doesn't include emissions for tanker loading.
+# Note: (1) the script uses 'cowplot' package to add footnotes for each pdf plot 
+#           except the pdf that contains multiple grobs. The package 'cowplot' is
+#           imported in section 0.5 than set the plot theme back to ggplot2 default.
+#           All codes related to the use of 'cowplot' are surrounded by ### comments 
+#       (2) Shipping emissions is included in global comparison, but removed in regional comparison
+#       (3) RCP shipping emissions does not have data for NH3
+# TODO: (1) Remove the use of 'cowplot' when new version of ggplot2 is available ( > 2.1).
+#           The new ggplot2 will provide default method of adding captions. 
+#       (2) In RCP shipping data NMVOC and CH4 data doesn't include emissions for tanker loading.
 #           Change the sector drop mapping when tanker loading sector is added for CEDS. 
 # ---------------------------------------------------------------------------
 
