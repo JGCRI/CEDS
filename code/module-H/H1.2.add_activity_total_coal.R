@@ -163,7 +163,13 @@ cdiac_extension_values[bond_years] <- ceds_total_coal_extended[match(cdiac_exten
 bond_multiplier[bond_years] <- bond_multiplier[bond_years] / cdiac_extension_values[bond_years]
   # correct unreal values
 bond_multiplier[bond_years] <- replace( bond_multiplier[bond_years], bond_multiplier[bond_years] == Inf, 1)  
-bond_multiplier[bond_years] <- replace( bond_multiplier[bond_years], is.na(bond_multiplier[bond_years]), 1) 
+
+  # NOTE: This line seems to be attempting to replace NA values in the variable
+  #       bond_multiplier[bond_years] with the value 1. However, it is NOT
+  #       replacing any NAs. To fix, use is.na() instead of '== NA', which will
+  #       end up changing the final results significantly. It is being left as
+  #       is for now to maintain consistent results, but should be changed soon.
+bond_multiplier[bond_years] <- replace( bond_multiplier[bond_years], bond_multiplier[bond_years] == NA, 1) 
 
 bond_multiplier$X1845 <- 1
 
