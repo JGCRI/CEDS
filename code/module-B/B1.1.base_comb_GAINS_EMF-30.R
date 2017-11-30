@@ -400,10 +400,10 @@
     Xyears <- names( gainsEMF30_all )[ grepl( "X", names( gainsEMF30_all ) ) ]
 # Prepare brown coal raw data
     gains_brown_coal <- filter( gainsEMF30_all, fuel == "brown_coal" ) %>% 
-                                                arrange( iso, sector )
+                                                dplyr::arrange( iso, sector )
 # Prepare hard coal raw data
     gains_hard_coal <- filter( gainsEMF30_all, fuel == "hard_coal" ) %>% 
-                                              arrange( iso, sector )
+                                              dplyr::arrange( iso, sector )
 # Replace brown coal EF with hard coal EF
     gains_brown_coal[ , Xyears ] <- gains_hard_coal[ , Xyears ]
     
@@ -414,7 +414,7 @@
 # Replace new brown coal values into main EF dataframe
     gainsEMF30_all <- filter( gainsEMF30_all, fuel != "brown_coal" ) %>%
                                            rbind( gains_brown_coal ) %>% 
-                                        arrange( iso, sector, fuel )
+                                        dplyr::arrange( iso, sector, fuel )
   
 # Separate process and combustion
     process_gainsEMF30 <- gainsEMF30_all[ which( gainsEMF30_all$fuel == 

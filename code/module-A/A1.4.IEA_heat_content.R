@@ -73,7 +73,7 @@
       hard_coal[ extend_years ] <- 0
     # combine all rows
       corrected_all <- rbind( out, extended, hard_coal ) %>% 
-        arrange( PRODUCT )
+        dplyr::arrange( PRODUCT )
     #renormalize to one
       renormalized_shares <- calculate_shares( input_data = corrected_all,
                                                id_columns = c( 'iso', 'fuel' ), 
@@ -99,7 +99,7 @@
       # set hard coal to zero
         brown_coal[ extend_years ] <- 0
       # combine all rows
-        corrected_all <- rbind( out, extended, brown_coal ) %>% arrange( PRODUCT )
+        corrected_all <- rbind( out, extended, brown_coal ) %>% dplyr::arrange( PRODUCT )
       # renormalize to one
         renormalized_shares <- calculate_shares( input_data = corrected_all,
                                                  id_columns = c( 'iso', 'fuel' ),
@@ -149,7 +149,7 @@
   coal_shares$PRODUCT <- gsub( " \\(.*", "", coal_shares$PRODUCT )
   coal_shares[ paste0( 'X', BP_years ) ] <- coal_shares[ paste0( 'X', IEA_end_year ) ]
   
-  coal_shares <- arrange( coal_shares, iso, fuel, PRODUCT )
+  coal_shares <- dplyr::arrange( coal_shares, iso, fuel, PRODUCT )
 
 # Correct coal_shares. 
 # Stems from discontinuity in IEA data (reporting before 1978)  - many fuels switch to being reported as "hard coal"
@@ -168,7 +168,7 @@
   coal_shares_corrected <- rbind( filter( coal_shares, fuel %!in% c( 'hard_coal', 'brown_coal' ) ), 
                                   do.call( 'rbind', hard_coal_shares_list ),
                                   do.call( 'rbind', brown_coal_shares_list ) ) %>% 
-    arrange( iso, fuel, PRODUCT )
+    dplyr::arrange( iso, fuel, PRODUCT )
 
 # ---------------------------------------------------------------------------
 # 4. Calculate weighted average heat content
@@ -189,7 +189,7 @@
     summarise_each( funs( sum( ., na.rm = T ) ) )
    
   hc_coal <- weighted_average_heat_content %>% 
-    mutate( units = 'kJ/kg' )
+    dplyr::mutate( units = 'kJ/kg' )
   hc_coal <- replace( hc_coal, hc_coal == 0, NA )
 
 # Drop duplicates and rows of all NAs  

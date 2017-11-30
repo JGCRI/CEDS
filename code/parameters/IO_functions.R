@@ -177,7 +177,7 @@ logStop <- function() {
     IO_doc[ IO_doc$file == fn, "output_description" ] <- about_output
     
     # Sort by file name
-    IO_doc <- arrange( IO_doc, file )
+    IO_doc <- dplyr::arrange( IO_doc, file )
     
     writeData( IO_doc, "DOCUMENTATION", paste0( em, "_", "IO_documentation" ), meta = FALSE, mute = TRUE )
 
@@ -353,7 +353,7 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
 
 	full_file_path <- filePath( domain, file_name, extension, domain_extension ) 
 
-    multi_sheet <- FALSE
+  multi_sheet <- FALSE
     
     # Assign em so the correct [em]_IO_documentation can be found  
 	if ( !exists( 'em', envir = .GlobalEnv ) ) em <- "CM"
@@ -464,13 +464,14 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
     }
   
 	# Convert years columns to numeric values if to_numeric = TRUE
-	if( to_numeric == TRUE){
-	  printLog("Converting NAs to numeric")
+	if( to_numeric == TRUE) {
+	  printLog( "Converting NAs to numeric" )
 	  names <- names( x )
 	  years <- names[names %in% X_extended_years]
-	  if (length(years)>0){
-	  x[,years] <- suppressWarnings(sapply( X= x[,years] , FUN=as.numeric) )}
-  	}
+	  if( length(years) > 0 ) {
+	    x[,years] <- suppressWarnings(sapply( X = x[,years] , FUN = as.numeric) )
+    }
+  }
 	  
 	return( x )
 }
@@ -516,7 +517,8 @@ readExcel <- function( full_file_path, sheet_selection = "ALL", column_names = T
 
         x <- lapply( excel_sheets( full_file_path ), read_excel, path = full_file_path, 
                      col_names = column_names, col_types = column_types, 
-                     na = missing_value, skip = skip_rows) %>%
+                     na = missing_value, trim_ws = FALSE, skip = skip_rows,
+                     guess_max = 100) %>%
             lapply( as.data.frame ) # Ensure result is in standard data frame form, 
                                     # instead of a "local data frame"
         names( x ) <- sheet_names # Fix names
@@ -529,7 +531,8 @@ readExcel <- function( full_file_path, sheet_selection = "ALL", column_names = T
             multi_sheet <- TRUE
             x <- lapply( sheet_selection, read_excel, path = full_file_path, 
                          col_names = column_names, col_types = column_types, 
-                         na = missing_value, skip = skip_rows) %>%
+                         na = missing_value, trim_ws = FALSE, skip = skip_rows,
+                         guess_max = 100) %>%
                 lapply( as.data.frame )
             names( x ) <- sheet_selection
             
@@ -538,9 +541,10 @@ readExcel <- function( full_file_path, sheet_selection = "ALL", column_names = T
             # If only one sheet exists
             if( sheet_selection == "ALL" ) sheet_selection <- sheet_names[ 1 ] 
         
-            x <- read_excel( path = full_file_path, sheet = sheet_selection, 
-                             col_names = column_names, col_types = column_types, 
-                             na = missing_value, skip = skip_rows ) %>%
+            x <- read_excel( path = full_file_path, sheet = sheet_selection,
+                             col_names = column_names, col_types = column_types,
+                             na = missing_value, trim_ws = FALSE, skip = skip_rows,
+                             guess_max = 100) %>%
                 as.data.frame()
         }
     }

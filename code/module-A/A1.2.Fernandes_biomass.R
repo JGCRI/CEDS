@@ -148,7 +148,7 @@
   mapped$country[ mapped$country == "Bosnia" ] <- "Bosnia and Herzegovina"   # IEA: Bosnia and Herzegovina
   mapped$country[ mapped$country == "Monaco" ] <- "France"                   # IEA: France
   mapped <- group_by( mapped, country, units, fuel, year ) %>%
-    summarise( consumption = sum( consumption ) )
+    dplyr::summarise( consumption = sum( consumption ) )
 
 # Drop all countries without ISO (i.e. those not in Master_Country_List)
   mapped$iso <- Master_Country_List$iso[ match( mapped$country, Master_Country_List$Country_Name, nomatch = NA ) ]  # add ISO
@@ -158,7 +158,7 @@
 # Other Asia, Other L America: composite regions, will not use
   in_Fern_not_in_MCL <- filter( mapped, is.na( iso ) ) %>% 
     unique() %>% 
-    arrange( country, year, fuel )
+    dplyr::arrange( country, year, fuel )
     
 # Drop countries with no ISO
   mapped <- filter( mapped, !is.na( iso ) )
@@ -181,7 +181,7 @@
     
 # Compute pc consumption
   mapped_pc <- merge( mapped, pop_master, all.x = T ) %>%
-    mutate( consumption_pc = consumption / pop2 ) %>%
+    dplyr::mutate( consumption_pc = consumption / pop2 ) %>%
     select( -pop2, -consumption )
  
 # ------------------------------------------------------------------------------
@@ -223,7 +223,7 @@
 # Bind back proxied values
   full_proxied <- bind_rows( filter( full, iso %!in% proxy_mapping$iso ), 
                              select( proxied, -iso_proxy, -consumption_pc_proxy ) ) %>% 
-    arrange( iso, year )
+    dplyr::arrange( iso, year )
 
 # ------------------------------------------------------------------------------
 # 4. Apply minimum rural pc biomass
@@ -267,7 +267,7 @@
 # -- Extend last non-zero per-capita Fernandes forward.
     
 # Iterate over each ISO + fuel combination to fix discontinuities
-  full_min_fixed <- arrange( full_min_fixed, iso, fuel, desc( year ) )
+  full_min_fixed <- dplyr::arrange( full_min_fixed, iso, fuel, dplyr::desc( year ) )
   full_discont_fixed <- ddply( full_min_fixed, .( iso, fuel ), function( df ){
     for ( i_year in seq_along( X_Fernandes_years )[-1] ){
       if( df$consumption_pc[[ i_year - 1]] > 0 & 
@@ -279,19 +279,19 @@
 
 # Now the only 0 left should be end years -- extend last nonzero pc consumption forward.
   full_discont_fixed$consumption_pc[ full_discont_fixed$consumption_pc == 0 ] <- NA
-  full_discont_fixed <- arrange( full_discont_fixed, iso, fuel, year ) %>%
+  full_discont_fixed <- dplyr::arrange( full_discont_fixed, iso, fuel, year ) %>%
     ddply( .(iso, fuel), 
            function( df ){ within( df, { consumption_pc <- na.locf( consumption_pc, na.rm = F ) } ) } )
   full_discont_fixed$consumption_pc[ is.na( full_discont_fixed$consumption_pc ) ] <- 0
     
 # Re-compute total consumption from pc
   full_discont_fixed <- merge( full_discont_fixed, pop_master, all.x = T ) %>%
-    mutate( consumption = consumption_pc * pop2 ) %>%
+    dplyr::mutate( consumption = consumption_pc * pop2 ) %>%
     select( -pop2 )    
     
 # Diagnostics: Fernandes per-capita biomass
   Fern_pc_wide <- group_by( full_discont_fixed, iso, country, region, units, year ) %>%
-    summarise( consumption = sum( consumption ), consumption_pc = sum( consumption_pc ) ) %>%
+    dplyr::summarise( consumption = sum( consumption ), consumption_pc = sum( consumption_pc ) ) %>%
     cast( iso + country + region + units ~ year, value = "consumption_pc" )
 
 # ------------------------------------------------------------------------------
@@ -301,7 +301,7 @@
     select( -units ) %>% 
     merge( heat_content ) %>%
     group_by( iso, units, year ) %>%
-    summarise( heating_value = weighted.mean( heating_value, consumption ) ) %>%
+    dplyr::summarise( heating_value = weighted.mean( heating_value, consumption ) ) %>%
     data.frame()
 
 # Convert ktoe/kt to TJ/kt
