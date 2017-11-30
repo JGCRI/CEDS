@@ -41,7 +41,11 @@ loadPackage('zoo')
 
 activity_all <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended_db') )
 
-bond_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/" ,"160227_SPEW_BCOCemission", ".xlsx", meta = F )
+# last column contains value in last cell: set option to skip
+bond_ctypes = c(rep("text", 5), rep("numeric", 4), "skip")
+bond_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/",
+                             "160227_SPEW_BCOCemission", ".xlsx",
+                             column_types = bond_ctypes, meta = F )
 sector_map <- readData( "MAPPINGS", "Bond_sector_map", meta = F )
 iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_country_map", meta = F )
 fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_fuel_map", meta = F )
