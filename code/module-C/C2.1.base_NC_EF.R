@@ -262,8 +262,7 @@ if( length ( check ) > 0 ) {
 
 # Add back unchanged EFs
   new_efs_corrected_user_added <- rbind( new_efs_corrected_user_added, new_efs_excl ) %>%
-    arrange( iso, sector, fuel, units )
-
+    dplyr::arrange( iso, sector, fuel, units )    
 
 # Logic Check for negative emissions factors
 if (any(new_efs_corrected_user_added < 0) ) stop('There are negative EFs in ', paste0( "C.", em, "_", "NC", "_EF" ))
@@ -291,7 +290,7 @@ if ( em == "CO2") {
 
   ff_all <- bind_rows( ff_high, ff_rest ) %>%
     filter( iso %!in% c( "global", "pse", "ussr", "yug" ) ) %>%
-    arrange( iso )
+    dplyr::arrange( iso )
   ff_all <- ff_all[ c( "iso", X_emissions_years ) ]
   ff_all[ is.na( ff_all ) ] <- 1
   ff_all$iso <- as.character( ff_all$iso )
@@ -300,7 +299,7 @@ if ( em == "CO2") {
   urban <- select( population, iso, year, urban_share )
   urban$year <- paste0( "X", urban$year )
   urban <- filter( urban, iso %in% ff_all$iso, year %in% names( ff_all ) )
-  urban <- cast( urban, iso~year, value="urban_share" ) %>% arrange( iso )
+  urban <- cast( urban, iso~year, value="urban_share" ) %>% dplyr::arrange( iso )
   urban <- urban[ c( "iso", X_emissions_years ) ]
   urban[ is.na( urban ) ] <- 1
 
@@ -314,7 +313,7 @@ if ( em == "CO2") {
 
   # Apply ratio to EF
   waste_EF <- filter( new_efs_corrected_user_added, sector == "5C_Waste-incineration" ) %>%
-    arrange( iso )
+    dplyr::arrange( iso )
   waste_EF_long <- melt( waste_EF, id=c( "iso", "sector", "fuel", "units" ) )
 
 
@@ -330,7 +329,7 @@ if ( em == "CO2") {
 
   # Clean up
   new_efs_corrected_user_added <- filter( new_efs_corrected_user_added, sector != "5C_Waste-incineration" ) %>%
-    rbind( waste_EF_new ) %>% arrange( iso, sector, fuel, units )
+    rbind( waste_EF_new ) %>% dplyr::arrange( iso, sector, fuel, units )
 
   writeData( ratios, "DIAG_OUT", "C.CO2_waste_fossil_ratios" )
   writeData( waste_EF_new, "DIAG_OUT", "C.CO2_waste_EFs" )

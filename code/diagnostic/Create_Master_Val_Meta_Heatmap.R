@@ -86,7 +86,7 @@
 
         # Count the frequency of each year/value/prepost occurance
             regional_counts <- meta_this_region %>%
-                                    count( year, value, prepost )
+                                    dplyr::count( year, value, prepost )
 
         # Make the years numeric so we can have a continunous x-axis
 
@@ -113,7 +113,7 @@
 
                 regional_counts <- merge( regional_counts_all, regional_counts,
                                               by = c("year", "value", "prepost"), all.x = T) %>%
-                                   arrange(value)
+                                   dplyr::arrange(value)
 
                 regional_counts$n[ is.na( regional_counts$n ) ] <- 0
 
@@ -192,7 +192,7 @@
 
         # Count the frequency of each year/value/prepost occurance
             sectoral_counts <- meta_this_sector %>%
-                                count( year, value, prepost )
+                                dplyr::count( year, value, prepost )
 
         # A list of column names that will be used for grouping and weighting
             id_cols <- c("year","value","prepost")
@@ -221,7 +221,7 @@
 
                 sectoral_counts <- merge( sectoral_counts_all, sectoral_counts,
                                               by = c("year", "value", "prepost"), all.x = T) %>%
-                                   arrange(value)
+                                   dplyr::arrange(value)
 
                 sectoral_counts$n[ is.na( sectoral_counts$n ) ] <- 0
 
@@ -453,8 +453,8 @@
                            c(1,1,1,2),
                            c(1,1,1,2),
                            c(1,1,1,2))}
-        
-        title_text <- paste0( "Inventory scaling percentages of ", 
+
+        title_text <- paste0( "Inventory scaling percentages of ",
                               em, " by ", map_by )
         if (weight_by_em && !normalize) {
             title_text <- paste0( "Global ", em,
@@ -464,33 +464,33 @@
         if (map_by == "Sector") { col_n <- 3
                                   row_n <- 4
                                   arranged_plots <- grid.arrange( arrangeGrob( grobs=list_of_plots , ncol=col_n, nrow=row_n, as.table = FALSE),
-                                                                  inventory_legend, 
+                                                                  inventory_legend,
                                                                   layout_matrix = layout,
                                                                   nrow = 1,
-                                                                  top = textGrob( title_text, 
+                                                                  top = textGrob( title_text,
                                                                                   gp = gpar( fontsize = 15, font = 8 ) ) )
-                                  
+
                                   }
         if (map_by == "Region") { col_n <- 2
                                   row_n <- 4
-                                  
+
                                   arranged_plots <- grid.arrange( arrangeGrob( grobs=list_of_plots , ncol=col_n, nrow=row_n, as.table = FALSE),
-                                                                  inventory_legend, 
+                                                                  inventory_legend,
                                                                   layout_matrix = layout,
                                                                   nrow = 1,
                                                                   widths = c(2,1),
-                                                                  top = textGrob( title_text, 
+                                                                  top = textGrob( title_text,
                                                                                   gp = gpar( fontsize = 15, font = 8 ) ) )
                                   }
-        
+
 
         arrangeGrob()
-    
+
     # Save the output file and return
-        ggsave( paste0( "../diagnostic-output/value-meta-heatmaps/", em, "-MasterHeatmapBy", 
-                        map_by, ".png" ), 
+        ggsave( paste0( "../diagnostic-output/value-meta-heatmaps/", em, "-MasterHeatmapBy",
+                        map_by, ".png" ),
                 arranged_plots, width = 7, height = 7 )
-        
+
         return( meta_classified )
     }
 

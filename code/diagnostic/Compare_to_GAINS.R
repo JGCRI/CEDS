@@ -86,15 +86,15 @@ gains <- gains[ gains$Region != "Global", ]
 gains_resid <- filter( gains, grepl( "End_Use_Residential_", Sector ) ) %>%
   select( -Sector ) %>% group_by( Region ) %>%
   summarise_each( funs( sum(., na.rm = T ) ) ) %>%
-  mutate( Sector = "Residential") %>%
-  arrange( Region ) %>% data.frame()
+  dplyr::mutate( Sector = "Residential") %>%
+  dplyr::arrange( Region ) %>% data.frame()
 gains_tot <- filter( gains, Sector == 'Sum' ) %>%
   select( -Sector ) %>% group_by( Region ) %>%
   summarise_each( funs( sum(., na.rm = T ) ) ) %>%
-  mutate( Sector = "All" ) %>%
-  arrange( Region ) %>% data.frame()
+  dplyr::mutate( Sector = "All" ) %>%
+  dplyr::arrange( Region ) %>% data.frame()
 gains_nonresid <- gains_tot %>%
-  mutate( Sector = "Non-Residential" )
+  dplyr::mutate( Sector = "Non-Residential" )
 gains_nonresid[, c( "X2000", "X2005", "X2010" ) ] <-
   gains_tot[, c( "X2000", "X2005", "X2010" ) ] -
   gains_resid[, c( "X2000", "X2005", "X2010" ) ]
@@ -134,7 +134,7 @@ ceds$sector[ ceds$sector == "1A4b_Residential" ] <- "Residential"
 ceds <- select( ceds, -iso ) %>% group_by( sector, Region ) %>%
   summarise_each( funs( sum(., na.rm = T ) ) ) %>%
   data.frame()
-ceds_tot <- mutate( ceds, sector = "All" ) %>% group_by( sector, Region ) %>%
+ceds_tot <- dplyr::mutate( ceds, sector = "All" ) %>% group_by( sector, Region ) %>%
   summarise_each( funs( sum(., na.rm = T ) ) ) %>%
   data.frame()
 ceds <- rbind( ceds, ceds_tot )

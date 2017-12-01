@@ -209,10 +209,10 @@
   	# Make adjustment to relevant COUNTRY+FLOW+PRODUCT
   	    IEA_to_adjust <- filter( A.IEAfull, paste0( COUNTRY, FLOW, PRODUCT ) %in%
   	                             paste0( adj_en_ext$COUNTRY, adj_en_ext$FLOW, adj_en_ext$PRODUCT ) ) %>%
-  	      arrange( COUNTRY, FLOW, PRODUCT )
+  	      dplyr::arrange( COUNTRY, FLOW, PRODUCT )
   	    adj_en_ext <- filter( adj_en_ext, paste0( COUNTRY, FLOW, PRODUCT ) %in%
   	                          paste0( IEA_to_adjust$COUNTRY, IEA_to_adjust$FLOW, IEA_to_adjust$PRODUCT ) ) %>%
-  	      arrange( COUNTRY, FLOW, PRODUCT )
+  	      dplyr::arrange( COUNTRY, FLOW, PRODUCT )
 
   	    IEA_adjusted <- IEA_to_adjust
 
@@ -220,7 +220,7 @@
   	    A.IEAfull <- 	filter( A.IEAfull, paste0( COUNTRY, FLOW, PRODUCT ) %!in%
   	                          paste0( adj_en_ext$COUNTRY, adj_en_ext$FLOW, adj_en_ext$PRODUCT ) ) %>%
   	      rbind( IEA_adjusted ) %>%
-  	      arrange( COUNTRY, FLOW, PRODUCT )
+  	      dplyr::arrange( COUNTRY, FLOW, PRODUCT )
 
   	# Diagnostics: What is the amount changed?
   	    IEA_adjust_diff <- IEA_adjusted

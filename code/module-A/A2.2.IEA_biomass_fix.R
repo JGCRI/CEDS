@@ -43,9 +43,9 @@ initialize( script_name, log_msg, headers )
 # Read energy data
     IEA_en <- readData( "MED_OUT", "A.en_stat_sector_fuel" )
     Fern_biomass <- readData( "MED_OUT", "A.Fernandes_residential_biomass" )
-    Eur_biomass <- readData( "ENERGY_IN", "Europe_wooduse_Europe_TNO_4_Steve", ".xlsx", 
+    Eur_biomass <- readData( "ENERGY_IN", "Europe_wooduse_Europe_TNO_4_Steve", ".xlsx",
                               sheet_selection = "Data", skip_rows = 3 )[ c( 1, 5 ) ]
-    EIA_biomass <- readData( "ENERGY_IN", "EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors", 
+    EIA_biomass <- readData( "ENERGY_IN", "EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors",
                              ".xlsx", sheet_selection = "Annual Data", skip_rows = 10 )[ c( 1, 4 ) ]
 
 # Read biomass double-counting correction
@@ -67,7 +67,7 @@ initialize( script_name, log_msg, headers )
 # 2. Combine IEA, EIA, Fernandes, and Europe biomass into one df
 # Prepare population data
     pop_master <- filter( pop_master, scenario == "Estimates" ) %>%
-      mutate( rural_pop = pop * ( 1 - urban_share ) )  # compute rural pop
+      dplyr::mutate( rural_pop = pop * ( 1 - urban_share ) )  # compute rural pop
 
     # What countries have 0 or NA rural pop for at least 1 year (that is
     # not the result of 0 total population)?
@@ -89,7 +89,7 @@ initialize( script_name, log_msg, headers )
 
 # Aggregate Fernandes biomass by country
     Fern_biomass <- group_by( Fern_biomass, iso, units, year ) %>%
-      summarise( Fern = sum( consumption ) )
+      dplyr::summarise( Fern = sum( consumption ) )
 
 # Convert Europe biomass to standard format
     names( Eur_biomass ) <- c( "iso", "Eur" )
@@ -147,7 +147,7 @@ initialize( script_name, log_msg, headers )
     biomass_1$IEA[ biomass_1$iso == "usa" ] <- biomass_1$EIA[ biomass_1$iso == "usa" ]
 
     # Calculate IEA/Fern and IEA/Eur ratio
-    biomass_1 <- mutate( biomass_1, IEA_over_Fern = IEA / Fern,
+    biomass_1 <- dplyr::mutate( biomass_1, IEA_over_Fern = IEA / Fern,
                          IEA_over_Eur = IEA / Eur )
 
     # If IEA differs from Eur by over 30%, take notes to decide later whether to use
@@ -161,9 +161,9 @@ initialize( script_name, log_msg, headers )
     # (evaluated for N years, centered at N_CENTER_YEAR)
       # Pick N years closest to N_CENTER_YEAR
     iso_Fern <- filter( biomass_1, iso %in% iso_rest ) %>%
-      mutate( d = abs( year - N_CENTER_YEAR ) )  # distance from center year
+      dplyr::mutate( d = abs( year - N_CENTER_YEAR ) )  # distance from center year
     iso_Fern$d[ is.na( iso_Fern$IEA_over_Fern ) ] <- NA  # skip years with NA IEA/Fern ratio
-    iso_Fern <- arrange( iso_Fern, d )
+    iso_Fern <- dplyr::arrange( iso_Fern, d )
     iso_Fern <- by( iso_Fern, iso_Fern$iso, head, n = N )
     iso_Fern <- Reduce( rbind, iso_Fern )
 
@@ -177,7 +177,7 @@ initialize( script_name, log_msg, headers )
 
 # Compute pc biomass (using pop2)
     biomass_1 <- merge( biomass_1, pop_master, all.x = T ) %>%
-      mutate( IEA_pc = IEA / pop2, Fern_pc = Fern / pop2, Eur_pc = Eur / pop2 )
+      dplyr::mutate( IEA_pc = IEA / pop2, Fern_pc = Fern / pop2, Eur_pc = Eur / pop2 )
 
 # Diagnostics: Decide whether to use IEA or Fernandes for countries in iso_Eur
     diag_Eur <- filter( biomass_1, iso %in% iso_Eur ) %>%
@@ -214,7 +214,7 @@ initialize( script_name, log_msg, headers )
     # Prepare for 4a
     biomass_1_IEA$IEA_pc_ext_a <- biomass_1_IEA$IEA_pc  # will change in 4a
     biomass_1_IEA$flag_a <- NA  # ==1 if changed in 4a
-    biomass_1_IEA <- arrange( biomass_1_IEA, iso, desc( year ) )
+    biomass_1_IEA <- dplyr::arrange( biomass_1_IEA, iso, dplyr::desc( year ) )
 
 # 4a. To fix NA: Starting from most recent year and going backwards in time, if IEA
 #   is missing, extrapolate using IEA/Fernandes ratio of the average of the 3 years
@@ -225,7 +225,7 @@ initialize( script_name, log_msg, headers )
 # Diagnostic: What countries have NA IEA?
     diag_IEA_NA <- filter( biomass_1a_IEA, is.na( IEA_pc ) ) %>%
       group_by( iso ) %>%
-      mutate( diff = year - lead( year ), first_yr = min( year ) )
+      dplyr::mutate( diff = year - lead( year ), first_yr = min( year ) )
 
     # What countries have irregular NA?
     # che: 1983-1992; deu: 1960-1969, 1986-1989; pol: 1990-1992
@@ -243,7 +243,7 @@ initialize( script_name, log_msg, headers )
 # Make a df of last (most recent) year with NA IEA
     last_IEA_NA <- filter( biomass_1a_IEA, is.na( IEA_pc_ext_a ) ) %>%
       group_by( iso ) %>%
-      mutate( last_yr = max( year ) ) %>%
+      dplyr::mutate( last_yr = max( year ) ) %>%
       select( iso, last_yr ) %>% unique()
 
 # For now, loop backwards from most recent years to fill in NA. The following
@@ -264,7 +264,7 @@ initialize( script_name, log_msg, headers )
     } )
 
 # Prepare for 4b
-    biomass_1a_IEA <- arrange( biomass_1a_IEA, iso, year )
+    biomass_1a_IEA <- dplyr::arrange( biomass_1a_IEA, iso, year )
     biomass_1a_IEA$IEA_pc_ext_b <- biomass_1a_IEA$IEA_pc_ext_a  # will change in 4b
     biomass_1a_IEA$flag_b <- NA  # ==1 if changed in 4b
 
@@ -275,7 +275,7 @@ initialize( script_name, log_msg, headers )
 #   extrapolated IEA series from the previous step).
 # Diagnostics: What countries have IEA yr-to-yr ratio exceeding threshold?
     diag_IEA_break <- group_by( biomass_1a_IEA, iso ) %>%
-      mutate( IEA_yr_to_yr = IEA_pc_ext_a / lead( IEA_pc_ext_a ),
+      dplyr::mutate( IEA_yr_to_yr = IEA_pc_ext_a / lead( IEA_pc_ext_a ),
               logical = ( IEA_yr_to_yr < MIN_IEA_YR_TO_YR |
                             IEA_yr_to_yr > MAX_IEA_YR_TO_YR ) ) %>%
       group_by( iso ) %>%
@@ -284,13 +284,13 @@ initialize( script_name, log_msg, headers )
 # Find year of the last (most recent) break
     last_IEA_break <- filter( diag_IEA_break, logical ) %>%
       group_by( iso ) %>%
-      mutate( last_yr = max( year ) ) %>%
+      dplyr::mutate( last_yr = max( year ) ) %>%
       select( iso, last_yr ) %>% unique()
 
 # Make a df of 3-year-average ratio of IEA/Fernandes
-    ratio_3yr <- arrange( diag_IEA_break, iso, year ) %>%
+    ratio_3yr <- dplyr::arrange( diag_IEA_break, iso, year ) %>%
       group_by( iso ) %>%
-      mutate( IEA_lead = lead( IEA_pc_ext_a ), Fern_lead = lead( Fern_pc ),
+      dplyr::mutate( IEA_lead = lead( IEA_pc_ext_a ), Fern_lead = lead( Fern_pc ),
               IEA_lead2 = lead( IEA_lead ), Fern_lead2 = lead( Fern_lead ),
               IEA_lead3 = lead( IEA_lead2 ), Fern_lead3 = lead( Fern_lead2 ) )
     ratio_3yr$IEA_over_Fern_3yr <- rowMeans( ratio_3yr[, c( "IEA_lead", "IEA_lead2",
@@ -312,7 +312,7 @@ initialize( script_name, log_msg, headers )
                                 IEA_break_ext )
 
 # Prepare for 4c
-    biomass_1b_IEA <- arrange( biomass_1b_IEA, iso, year )
+    biomass_1b_IEA <- dplyr::arrange( biomass_1b_IEA, iso, year )
     biomass_1b_IEA$IEA_pc_ext_c <- biomass_1b_IEA$IEA_pc_ext_b  # will change in 4c
     biomass_1b_IEA$flag_c <- NA  # ==1 if changed in 4c
 
@@ -329,7 +329,7 @@ initialize( script_name, log_msg, headers )
     max_3yr <- select( biomass_1b_IEA, iso, year, IEA_pc, Fern_pc ) %>%
       filter( year %in% YEAR_SEQUENCE ) %>%
       group_by( iso ) %>%
-      summarise( IEA_pc = mean( IEA_pc, na.rm = T ),
+      dplyr::summarise( IEA_pc = mean( IEA_pc, na.rm = T ),
                  Fern_pc = mean( Fern_pc, na.rm = T ) )
     max_3yr$max_3yr <- apply( max_3yr[, 2:3 ], 1, max, na.rm = T)
 
@@ -341,7 +341,7 @@ initialize( script_name, log_msg, headers )
       merge( last_IEA_gap ) %>%
       filter( year < last_yr + 4, year > last_yr  ) %>%  # keep 3 years following gap
       group_by( iso ) %>%
-      summarise( IEA_pc = mean( IEA_pc, na.rm = T ),
+      dplyr::summarise( IEA_pc = mean( IEA_pc, na.rm = T ), 
                  Fern_pc = mean( Fern_pc, na.rm = T ) )
     max_post_gap$max_post_gap <- apply( max_post_gap[, 2:3 ], 1, max, na.rm = T)
 
@@ -399,7 +399,7 @@ initialize( script_name, log_msg, headers )
 
 # Compute rural per-capita biomass (global, pse, ussr and yug won't have population -- that's ok)
     biomass_final_ext <- merge( biomass_final_ext, pop_master, all.x = T ) %>%
-      mutate( ceds_pc_orig = ceds / pop2, Fern_pc = Fern / pop2 )
+      dplyr::mutate( ceds_pc_orig = ceds / pop2, Fern_pc = Fern / pop2 )
 
 # For 1850-1920, just copy Fernandes values to CEDS
     Fern_years <- biomass_final_ext$year <= CONVERGENCE_YEAR &
@@ -419,7 +419,7 @@ initialize( script_name, log_msg, headers )
     last_IEA_below_Fern <- filter( biomass_IEA_final, is_ext ) %>%
       filter( IEA_pc_ext_final < Fern_pc ) %>%
       group_by( iso ) %>%
-      mutate( last_yr = max( year ) ) %>%
+      dplyr::mutate( last_yr = max( year ) ) %>%
       select( iso, last_yr ) %>% unique()
 
     # Add column start_yr to biomass_final_ext
@@ -429,7 +429,7 @@ initialize( script_name, log_msg, headers )
                                   biomass_final_ext$start_yr < LAST_IEA_YEAR ] <- LAST_IEA_YEAR
 
     # Extend and adjust ceds_pc
-    biomass_final_ext <- arrange( biomass_final_ext, iso, year )
+    biomass_final_ext <- dplyr::arrange( biomass_final_ext, iso, year )
     biomass_final_ext$ceds_pc_ext_adj <- biomass_final_ext$ceds_pc_ext
     scaled <- filter( biomass_final_ext, year <= start_yr )
     scaled <- ddply( scaled, .(iso), function( df ) {
@@ -455,11 +455,11 @@ initialize( script_name, log_msg, headers )
     })
 
     biomass_final_ext <- bind_rows( filter( biomass_final_ext, year > start_yr ), scaled ) %>%
-      arrange( iso, year )
+      dplyr::arrange( iso, year )
     biomass_final_ext$is_adj <- biomass_final_ext$ceds_pc_ext != biomass_final_ext$ceds_pc_ext_adj
 
 # Compute back total biomass
-    biomass_final_ext <- mutate( biomass_final_ext, ceds_tot_final = ceds_pc_ext_adj * pop2 )
+    biomass_final_ext <- dplyr::mutate( biomass_final_ext, ceds_tot_final = ceds_pc_ext_adj * pop2 )
 
 # Add source note
     biomass_final_ext$src <- "Fernandes"
@@ -528,9 +528,9 @@ initialize( script_name, log_msg, headers )
     IEA_res_unspec <- melt( IEA_res_unspec, id = c( "iso", "sector" ) )
     IEA_res_unspec <- cast( IEA_res_unspec, iso + variable ~ sector )
     names( IEA_res_unspec ) <- c( "iso", "year", "res", "unspec" )
-    IEA_res_unspec <- arrange( IEA_res_unspec, iso, year ) %>%
+    IEA_res_unspec <- dplyr::arrange( IEA_res_unspec, iso, year ) %>%
       group_by( iso ) %>%
-      mutate( res_ratio = res / lag( res ),
+      dplyr::mutate( res_ratio = res / lag( res ),
               unspec_ratio = unspec / lag( unspec ),
               res_diff = res - lag( res ),
               unspec_diff = unspec - lag( unspec ),
@@ -546,7 +546,7 @@ initialize( script_name, log_msg, headers )
     # flag == T where res and unspec changes abnormally in opposite direction
     IEA_res_unspec_out <- select( IEA_res_unspec, -res_flag, -unspec_flag ) %>%
       filter( iso %in% IEA_res_unspec_flag$iso ) %>%
-      arrange( iso, year )
+      dplyr::arrange( iso, year )
     IEA_res_unspec_out$flag <- NA
     IEA_res_unspec_out$flag[ paste0( IEA_res_unspec_out$iso, IEA_res_unspec_out$year ) %in%
                                paste0( IEA_res_unspec_flag$iso, IEA_res_unspec_flag$year ) ] <- 1
@@ -577,7 +577,7 @@ initialize( script_name, log_msg, headers )
 
     # Compute adjustment
     IEA_adj$IEA[ is.na( IEA_adj$IEA ) ] <- 0
-    IEA_adj <- mutate( IEA_adj, adj = ceds_tot_final - IEA )  %>%
+    IEA_adj <- dplyr::mutate( IEA_adj, adj = ceds_tot_final - IEA )  %>%
       filter( paste( iso, year ) %in%
                 paste( IEA_correction$iso, IEA_correction$year ) )
 
@@ -595,7 +595,7 @@ initialize( script_name, log_msg, headers )
     iso_no_res <- setdiff( IEA_en$iso, iso_w_res$iso )
     IEA_en_adj <- bind_rows( IEA_en, data.frame(
       iso = iso_no_res, sector = "1A4b_Residential", fuel = "biomass", units = "kt" ) ) %>%
-      arrange( iso, sector, fuel )
+      dplyr::arrange( iso, sector, fuel )
 
 # Replace residential biomass in CEDS with data in biomass_final_ext
     biomass_replaced <- select( biomass_final_ext, iso, year, units, ceds_tot_final ) %>%
@@ -619,7 +619,7 @@ initialize( script_name, log_msg, headers )
     # Bind back with other sectors/fuels
     IEA_en_adj <- bind_rows( filter( IEA_en_adj, ! (sector == "1A5_Other-unspecified" & fuel == "biomass" &
                                      iso %in% IEA_adj_wide$iso ) ), IEA_en_unspec ) %>%
-      arrange( iso, sector, fuel ) %>% data.frame( )
+      dplyr::arrange( iso, sector, fuel ) %>% data.frame( )
 
 # Diagnostics: Compare residential/unspecified biomass before and after adjustment
     res_unspec <- filter( IEA_en, sector %in% c( "1A4b_Residential", "1A5_Other-unspecified" ),

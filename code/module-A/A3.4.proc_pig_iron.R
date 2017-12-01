@@ -153,7 +153,7 @@
     all$sector <- "2C_Metal-production"
     all$fuel <- "process"
     all$units <- "kt"
-    all <- arrange( all, iso, sector, fuel, units, year )
+    all <- dplyr::arrange( all, iso, sector, fuel, units, year )
     all_wide <- cast( all, iso + sector + fuel + units ~ year, value = "en" )
     all_wide$iso <- as.character( all_wide$iso )
 

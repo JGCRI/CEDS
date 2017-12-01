@@ -223,7 +223,7 @@
     ef_data <- ef_data[ , c( "iso", "sector",
                              "fuel", "units",
                              X_emissions_years ) ]
-    ef_data <- arrange( ef_data, iso, sector, fuel )
+    ef_data <- dplyr::arrange( ef_data, iso, sector, fuel )
 
 # Prepare diagnostic output: country-specific EF for non-bunker sectors
     ef_non_bunker <- filter( ef_data, sector %!in% bunker_sectors ) %>%

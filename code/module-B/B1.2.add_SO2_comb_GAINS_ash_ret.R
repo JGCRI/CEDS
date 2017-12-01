@@ -124,7 +124,7 @@
     gainsash_ret_mapped_final <- filter( gainsash_ret_mapped,
                                          sector != "0_Temp-Aggregated" ) %>%
                                  bind_rows( gainsash_ret_mapped_disagg ) %>%
-                                            arrange( iso, sector, fuel )
+                                            dplyr::arrange( iso, sector, fuel )
 
 # -------------------------------------------------------------------------------
 # 3. Output

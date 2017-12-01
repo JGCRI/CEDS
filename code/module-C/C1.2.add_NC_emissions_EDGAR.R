@@ -129,15 +129,15 @@ if ( em == 'CH4' ){
   bp <- Master_Country_List %>%
     select(iso, BPName) %>%
     filter(!is.na(BPName), BPName != 'ussr') %>%
-    unique() %>%
+    unique() %>% 
     filter(!duplicated(iso)) %>%
     unique() %>%
     left_join( BP_energy_data, by = 'BPName') %>%
     gather(year, value, -iso,-BPName) %>%
-    mutate(year = as.numeric(year)) %>%
+    dplyr::mutate(year = as.numeric(year)) %>%
     filter(!is.na(year), !is.na(value)) %>%
-    mutate(year = paste0('X',year)) %>%
-    mutate(value = as.numeric(value)) %>%
+    dplyr::mutate(year = paste0('X',year)) %>%
+    dplyr::mutate(value = as.numeric(value)) %>%
     spread(year, value) %>%
     select(-BPName)
 

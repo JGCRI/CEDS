@@ -130,7 +130,7 @@
     comp <- merge( Total_IEA_Ship_Fuel, shipping_fuel, all = T )
 
 # If IEA < ship_fuel, add the difference to a new df
-    comp <- mutate( comp, diff = ship_fuel - IEA_fuel )
+    comp <- dplyr::mutate( comp, diff = ship_fuel - IEA_fuel )
     to_add <- filter( comp, diff > 0 )
 
 # For heavy_oil, if IEA > ship_fuel, subtract the difference from added diesel_oil
@@ -161,7 +161,7 @@
 # For 2013-2014, extend using average IEA underreport for 2010-2012
     avg <- filter( global_intl_ship_full, year %in% seq( 2010, 2012 ) ) %>%
       group_by( fuel ) %>%
-      summarise( global_fuel = mean( global_fuel ) )
+      dplyr::summarise( global_fuel = mean( global_fuel ) )
     extended <- global_intl_ship_full$year %in% c( 2013, 2014 )
     global_intl_ship_full$global_fuel[ extended ] <-
       avg$global_fuel[ match( global_intl_ship_full$fuel[ extended ], avg$fuel ) ]
@@ -182,9 +182,9 @@
 # Diagnostics: should have global_fuel = IEA_fuel + ship_fuel
     ship_check <- merge( global_intl_ship_full, select( comp, -diff ), all = T )
     ship_check[ is.na( ship_check ) ] <- 0
-    ship_check <- mutate( ship_check, check = IEA_fuel + global_fuel - ship_fuel ) %>%
+    ship_check <- dplyr::mutate( ship_check, check = IEA_fuel + global_fuel - ship_fuel ) %>%
       filter( check != 0 ) %>%
-      arrange( desc( year ) )
+      dplyr::arrange( dplyr::desc( year ) )
 
 # -----------------------------------------------------------------------------
 # 5. Extrapolate pre-1855 global shipping coal using extrapolation data from

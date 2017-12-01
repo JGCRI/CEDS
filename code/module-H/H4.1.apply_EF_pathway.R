@@ -62,9 +62,9 @@ if( length( fl ) > 0 ){
 # Extend EF pathway backward/forward
 # TODO: add interpolation
     pathway_full_long <- melt( pathway_full, id = id_cols ) %>%
-      arrange( iso, sector, fuel )
+      dplyr::arrange( iso, sector, fuel )
     pathway_full_long <- group_by( pathway_full_long, iso, sector, fuel ) %>%
-      mutate( value = na.locf( value, fromLast = T, na.rm = F ),
+      dplyr::mutate( value = na.locf( value, fromLast = T, na.rm = F ), 
               value = na.locf( value, na.rm = F ) )
     pathway_full <- cast( pathway_full_long )
 
@@ -78,7 +78,7 @@ if( length( fl ) > 0 ){
     rows_to_add <- merge( rows_to_add, data.frame( iso = iso_to_add ) )
     pathway_full <- rbind( pathway_full, rows_to_add ) %>%
       filter( iso != "all" ) %>%
-      arrange( iso, sector, fuel )
+      dplyr::arrange( iso, sector, fuel )
   }
 
 # Recast into more convenient format
@@ -126,7 +126,7 @@ if( length( fl ) > 0 ){
 # Combine with rest of EF database
     ef_pathway_applied <- filter( ef, paste0( iso, sector, fuel ) %!in% paste0(
       ef_subset$iso, ef_subset$sector, ef_subset$fuel ) ) %>%
-      bind_rows( ef_subset ) %>% arrange( iso, sector, fuel )
+      bind_rows( ef_subset ) %>% dplyr::arrange( iso, sector, fuel )
 
 
 # Do nothing if there are no EF pathway files in directory
