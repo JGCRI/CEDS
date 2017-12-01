@@ -123,7 +123,7 @@ for( h in seq_along(em_list)){
   df <- sector_region_ceds_long
   df$emissions <- df$emissions/1000
   df$region <- factor(df$region , levels = regions )
-  df <- df %>% arrange(region)
+  df <- df %>% dplyr::arrange(region)
 
   # Produce legend with all data
   df_color <- region_colors

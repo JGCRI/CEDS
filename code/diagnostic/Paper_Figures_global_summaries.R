@@ -468,7 +468,7 @@ df2$total_emissions <- df2$total_emissions/1000
 if (em == 'CO2') df2$total_emissions <- df2$total_emissions/1000
 df2$Inventory <- NA
 df2$sector <- factor(df2$sector , levels = sectors[which(sectors != 'Air')] )
-df2 <- df2 %>% arrange(sector)
+df2 <- df2 %>% dplyr::arrange(sector)
 
 writeData(df, 'DIAG_OUT',paste0("summary_plot_data_",em,"sector_rcp"))
 writeData(df2, 'DIAG_OUT',paste0("summary_plot_data_",em,"sector_ceds"))
@@ -579,7 +579,7 @@ df2$total_emissions <- df2$total_emissions/1000
 if (em == 'CO2') df2$total_emissions <- df2$total_emissions/1000
 df2$Inventory <- NA
 df2$region <- factor(df2$region , levels = regions )
-df2 <- df2 %>% arrange(region)
+df2 <- df2 %>% dplyr::arrange(region)
 
 writeData(df, 'DIAG_OUT',paste0("summary_plot_data_",em,"region_rcp"))
 writeData(df2, 'DIAG_OUT',paste0("summary_plot_data_",em,"region_ceds"))
@@ -673,7 +673,7 @@ df2$total_emissions <- df2$total_emissions/1000
 if (em == 'CO2') df2$total_emissions <- df2$total_emissions/1000
 df2$Inventory <- NA
 df2$fuel <- factor(df2$fuel , levels = fuels )
-df2 <- df2 %>% arrange(fuel)
+df2 <- df2 %>% dplyr::arrange(fuel)
 
 if( em != 'CO2'){
   plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) +

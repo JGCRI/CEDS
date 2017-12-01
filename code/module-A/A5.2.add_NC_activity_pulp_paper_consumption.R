@@ -34,7 +34,7 @@
         df <- merge( df, UN_pop, all.x = T )
         if ( nrow( df ) >= 2 ) {
         # Order in descending years (data is in long form)
-            df <- arrange( df, desc( year ) )
+            df <- dplyr::arrange( df, dplyr::desc( year ) )
         # Loop through all but the first row and scale to population
             for ( i in seq( 2, nrow( df ) ) ) {
                 if ( is.na( df$value[[ i ]] ) )
@@ -42,7 +42,7 @@
                     df$pop[[ i ]] / df$pop[[ i - 1 ]]
             }
         # Order by years
-            df <- arrange( df, year )
+            df <- dplyr::arrange( df, year )
         # Loop through each year and scale to population   ### I don't see why this happens twice
             for ( i in seq( 2, nrow( df ) ) ) {
                 if ( is.na( df$value[[ i ]] ) )
@@ -84,7 +84,7 @@
 #   coeff: Loess coefficient (smaller -> smoother)
 # Returns: vector containing smoothed val_var series
     smoothLoessSingle <- function( df, val_var, coeff ) {
-        df <- arrange( df, year )
+        df <- dplyr::arrange( df, year )
         smooth <- loess.smooth( df$year, unlist( df[ , val_var ] ),
                                 evaluation = length( df$year ),
                                 span = coeff )$y
@@ -191,7 +191,7 @@
 
 # Diagnostics: Write out original data and data that get dropped
     diag_FAO_all_original <- cast( fao_full, flow + iso ~ year ) %>%
-                             arrange( iso, flow )
+                             dplyr::arrange( iso, flow )
     diag_FAO_dropped <- filter( diag_FAO_all_original, iso %!in%
                                 Master_Country_List$iso )
 
@@ -202,7 +202,7 @@
     addComposite <- function( df, iso_comp, iso_members ) {
         added <- filter( df, iso %in% c( iso_comp, iso_members ) ) %>%
                  group_by( year, flow, units ) %>%
-                 summarise( value = sum( value ) )
+                 dplyr::summarise( value = sum( value ) )
         added$iso <- iso_comp
         out <- filter( df, iso %!in% c( iso_comp, iso_members ) ) %>%
           bind_rows( added )
@@ -242,7 +242,7 @@
 # Combine production, import, exports into one df
     fao_full_fixed <- bind_rows( prod, imp, exp ) %>%
                       select( iso, year, flow, units, value ) %>%
-                      arrange( iso, flow, year )
+                      dplyr::arrange( iso, flow, year )
     fao_full_fixed$value[ is.na( fao_full_fixed$value ) ] <- 0
     fao_full_fixed$country <-
           Master_Country_List$Country_Name[ match( fao_full_fixed$iso,
@@ -259,10 +259,10 @@
 # Compute consumption = production + imports - exports and per-capita consumption
     consumption <- fao_full_fixed
     consumption <- group_by( consumption, iso, country, region, units, year ) %>%
-                   summarise( cons = sum( value ) )
+                   dplyr::summarise( cons = sum( value ) )
     consumption$pop <- UN_pop$pop[ match( paste0( consumption$iso, consumption$year ),
                                           paste0( UN_pop$iso, UN_pop$year ) ) ]
-    consumption <- mutate( consumption, cons_pc = cons / pop )
+    consumption <- dplyr::mutate( consumption, cons_pc = cons / pop )
 
 # -----------------------------------------------------------------------------
 # 4. Smooth consumption series
@@ -270,8 +270,8 @@
     consumption_ctry <- filter( consumption, iso %in% iso_driver_list )
     consumption_region <- filter( consumption, iso %!in% iso_driver_list ) %>%
                           group_by( region, units, year ) %>%
-                          summarise( cons = sum( cons ), pop = sum( pop ) ) %>%
-                          mutate( cons_pc = cons / pop ) %>%
+                          dplyr::summarise( cons = sum( cons ), pop = sum( pop ) ) %>%
+                          dplyr::mutate( cons_pc = cons / pop ) %>%
                           filter( !is.na( cons_pc ) )
 
 # Smooth per-capita consumption by local regression (loess) with coefficient 1/4
@@ -324,8 +324,8 @@
           merge( select( Master_Country_List, region = Region, iso ), all.x = T ) %>%  # expand to all countries in region
           filter( iso %!in% iso_driver_list ) %>%  # drop countries that already have specific country series
           merge( UN_pop, all.x = T ) %>%   # attach population
-          mutate( cons = cons_pc_smooth * pop )     # compute total consumption
-    consumption_ctry_loess_tot <- mutate( consumption_ctry_loess_fixed,
+          dplyr::mutate( cons = cons_pc_smooth * pop )     # compute total consumption
+    consumption_ctry_loess_tot <- dplyr::mutate( consumption_ctry_loess_fixed,
                                           cons = cons_pc_smooth * pop )
 
 # Combine country and regional df

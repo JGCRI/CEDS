@@ -66,7 +66,7 @@ cdiac_add <- cdiac[ c( "iso", "fuel" ) ]
 cdiac_add$fuel <- "other_process"
 cdiac_add <- unique(cdiac_add)
 cdiac_add[ X_common_years ] <- 0
-cdiac <- rbind( cdiac, cdiac_add ) %>% arrange( iso, fuel )
+cdiac <- rbind( cdiac, cdiac_add ) %>% dplyr::arrange( iso, fuel )
 cdiac[, X_common_years ] <- cdiac[, X_common_years ] * conversionFactor_C_CO2
 
 
@@ -96,7 +96,7 @@ ceds_long <- melt( ceds, id=c( "iso", "fuel" ))
 names( ceds_long ) <- c( "iso", "fuel", "year", "ceds" )
 
 cmp_ctry_fuel <- merge( cdiac_long, ceds_long ) %>%
-  mutate( diff = ceds - cdiac,
+  dplyr::mutate( diff = ceds - cdiac,
           diff_pc = round((diff/ceds)*100) )
 cmp_ctry_fuel$diff_pc[ cmp_ctry_fuel$ceds == cmp_ctry_fuel$cdiac ] <- 0
 cmp_ctry_fuel <- filter( cmp_ctry_fuel, iso != "global" )
@@ -105,8 +105,8 @@ cmp_ctry_fuel <- filter( cmp_ctry_fuel, iso != "global" )
 
 # Total emissions by fuel
 cmp_fuel <- group_by( cmp_ctry_fuel, fuel, year ) %>%
-  summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) ) %>%
-  mutate( diff = ceds - cdiac,
+  dplyr::summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) ) %>%
+  dplyr::mutate( diff = ceds - cdiac,
           diff_pc = round((diff/ceds)*100) )
 cmp_fuel$diff_pc[ cmp_fuel$ceds == cmp_fuel$cdiac ] <- 0
 cmp_fuel_wide_pc <- cast( cmp_fuel, fuel~year, value = "diff_pc" )
@@ -115,8 +115,8 @@ cmp_fuel_wide_abs <- cast( cmp_fuel, fuel~year, value = "diff" )
 
 # Total emissions by ctry
 cmp_ctry <- group_by( cmp_ctry_fuel, iso, year ) %>%
-  summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) ) %>%
-  mutate( diff = ceds - cdiac,
+  dplyr::summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) ) %>%
+  dplyr::mutate( diff = ceds - cdiac,
           diff_pc = round((diff/ceds)*100) )
 cmp_ctry$diff_pc[ cmp_ctry$ceds == cmp_ctry$cdiac ] <- 0
 cmp_ctry_wide <- cast( cmp_ctry, iso~year, value = "diff_pc" )
@@ -125,14 +125,14 @@ cmp_ctry_wide <- cast( cmp_ctry, iso~year, value = "diff_pc" )
 # ---------------------------------------------------------------------------
 # Make plots: CEDS vs CDIAC, with and without Germany
 cmp_global_all <- group_by( cmp_ctry_fuel, year ) %>%
-  summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) ) %>%
-  mutate( ceds_over_cdiac_all = ceds/cdiac )
+  dplyr::summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) ) %>%
+  dplyr::mutate( ceds_over_cdiac_all = ceds/cdiac )
 cmp_global_all$ceds_over_cdiac_all[ cmp_global_all$cdiac == cmp_global_all$ceds ] <- 1
 
 cmp_global_no_deu <- filter( cmp_ctry_fuel, iso != "deu" ) %>%
   group_by( year ) %>%
-  summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) ) %>%
-  mutate( ceds_over_cdiac_no_deu = ceds/cdiac )
+  dplyr::summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) ) %>%
+  dplyr::mutate( ceds_over_cdiac_no_deu = ceds/cdiac )
 cmp_global_no_deu$ceds_over_cdiac_no_deu[ cmp_global_no_deu$cdiac == cmp_global_no_deu$ceds ] <- 1
 
 cmp_global_both <- merge( select( cmp_global_all, year, ceds_over_cdiac_all ),
@@ -173,17 +173,17 @@ complete_region_map[which( complete_region_map$Region %in% c('Russia+','Ukraine+
 # Drop bunker sectors. Aggregate by RCP Region
 cmp_region <- filter( cmp_ctry_fuel, fuel != "bunker_fuels" ) %>%
   group_by( iso, year ) %>%
-  summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) )
+  dplyr::summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) )
 cmp_region$Region <- complete_region_map[match(cmp_region$iso,tolower(complete_region_map$Code)),'Region']
 cmp_region[which(is.na(cmp_region$Region)),'Region']<- 'Not Mapped'
 cmp_region <- group_by( cmp_region, Region, year ) %>%
-  summarise( ceds = sum( ceds ), cdiac = sum( cdiac ) ) %>% data.frame()
+dplyr::summarise( ceds = sum( ceds ), cdiac = sum( cdiac ) ) %>% data.frame()
 region_long <- melt( cmp_region, id = c( "Region", "year" ) )
 names( region_long ) <- c( "region", "year", "inv", "total_emissions" )
 region_long$year <- gsub( "X", "", region_long$year )
 region_long$year <- as.numeric( region_long$year )
 region_long <- filter( region_long, year>=1850 )
-region_long <- arrange( region_long, inv, year )
+region_long <- dplyr::arrange( region_long, inv, year )
 
 # Plot
 regions_list <- region_long[,c('region','total_emissions')]
@@ -266,16 +266,16 @@ dev.off()
 # Drop bunker sectors. Aggregate by Figure Region
 cmp_region_figure <- filter( cmp_ctry_fuel, fuel != "bunker_fuels" ) %>%
   group_by( iso, year ) %>%
-  summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) )
+  dplyr::summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) )
 cmp_region_figure$Region <- MCL$Figure_Region[match(cmp_region_figure$iso, MCL$iso)]
 cmp_region_figure <- group_by( cmp_region_figure, Region, year ) %>%
-  summarise( ceds = sum( ceds ), cdiac = sum( cdiac ) ) %>% data.frame()
+dplyr::summarise( ceds = sum( ceds ), cdiac = sum( cdiac ) ) %>% data.frame()
 region_long_figure <- melt( cmp_region_figure, id = c( "Region", "year" ) )
 names( region_long_figure ) <- c( "region", "year", "inv", "total_emissions" )
 region_long_figure$year <- gsub( "X", "", region_long_figure$year )
 region_long_figure$year <- as.numeric( region_long_figure$year )
 region_long_figure <- filter( region_long_figure, year>=1850 )
-region_long_figure <- arrange( region_long_figure, inv, year )
+region_long_figure <- dplyr::arrange( region_long_figure, inv, year )
 
 # Plot
 regions_list <- region_long_figure[,c('region','total_emissions')]
@@ -320,8 +320,8 @@ FSU <- unique( MCL[which(MCL$Figure_Region == 'FSU'),'iso'] )
 FSU_iso <- FSU[which( FSU %!in% 'ussr')]
 
 cmp_ctry <- group_by( cmp_ctry_fuel, iso, year ) %>%
-  summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) ) %>%
-  mutate( diff = cdiac-ceds,
+  dplyr::summarise( cdiac = sum( cdiac ), ceds = sum( ceds ) ) %>%
+  dplyr::mutate( diff = cdiac-ceds,
           diff_pc = round((diff/ceds)*100) )
 
 compare <- cmp_ctry
@@ -330,7 +330,7 @@ compare[which(compare$iso %in% FSU_iso),'iso'] <- 'FSU'
 compare <- compare %>% group_by(iso,year) %>%
   summarise_if(is.numeric,sum) %>%
   select(iso, year, diff) %>%
-  mutate(year = as.numeric(gsub('X',"",year))) %>%
+  dplyr::mutate(year = as.numeric(gsub('X',"",year))) %>%
   filter(year >1900)
 
 #5 seperate graphs, saved together

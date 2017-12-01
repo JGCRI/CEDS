@@ -141,7 +141,7 @@ all_countries <- unique(activity$iso)
 
 # ---------------------------------------------------------------------------
 # 6. Calculate and apply multiplier to merge extended CEDS total coal with bond
-#    total coal. 
+#    total coal.
 #    object names: (ceds_total_coal_extended, bond_total_coal) -> final_ceds_total_coal
 
 # calculate multiplier = bond value/cdiac extended value
@@ -152,8 +152,14 @@ cdiac_extension_values[bond_years] <- ceds_total_coal_extended[match(cdiac_exten
   # calculate
 bond_multiplier[bond_years] <- bond_multiplier[bond_years] / cdiac_extension_values[bond_years]
   # correct unreal values
-bond_multiplier[bond_years] <- replace( bond_multiplier[bond_years], bond_multiplier[bond_years] == Inf, 1)  
-bond_multiplier[bond_years] <- replace( bond_multiplier[bond_years], is.na(bond_multiplier[bond_years]), 1) 
+bond_multiplier[bond_years] <- replace( bond_multiplier[bond_years], bond_multiplier[bond_years] == Inf, 1)
+
+  # NOTE: This line seems to be attempting to replace NA values in the variable
+  #       bond_multiplier[bond_years] with the value 1. However, it is NOT
+  #       replacing any NAs. To fix, use is.na() instead of '== NA', which will
+  #       end up changing the final results significantly. It is being left as
+  #       is for now to maintain consistent results, but should be changed soon.
+bond_multiplier[bond_years] <- replace( bond_multiplier[bond_years], bond_multiplier[bond_years] == NA, 1)
 
 bond_multiplier$X1845 <- 1
 
@@ -175,7 +181,7 @@ final_ceds_total_coal <- ceds_total_coal_extended
 final_ceds_total_coal[ paste0('X',1845:2000) ] <- final_ceds_total_coal[ paste0('X',1845:2000) ] * multipliers[ paste0('X',1845:2000) ]
 
 # ---------------------------------------------------------------------------
-# 7. Dissaggregate total coal into fuel types using CEDS start year split 
+# 7. Dissaggregate total coal into fuel types using CEDS start year split
 
 printLog('Disaggregating total coal into fuel types')
 
@@ -246,8 +252,8 @@ for( i in seq_along(start_years) ){
 
   coal_extended_fuel_all_list[[i]] <- extension
 }
-extended_coal_by_fuel  <- do.call("rbind", coal_extended_fuel_all_list) %>%
-  mutate(units = 'kt') %>%
+extended_coal_by_fuel  <- do.call("rbind", coal_extended_fuel_all_list) %>% 
+  dplyr::mutate(units = 'kt') %>%
   select(iso,fuel,units,contains('X'))
 extended_combustion_coal_by_fuel <- extended_coal_by_fuel %>%
   filter(fuel != 'coal')

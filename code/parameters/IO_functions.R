@@ -177,7 +177,7 @@ logStop <- function() {
     IO_doc[ IO_doc$file == fn, "output_description" ] <- about_output
     
     # Sort by file name
-    IO_doc <- arrange( IO_doc, file )
+    IO_doc <- dplyr::arrange( IO_doc, file )
     
     writeData( IO_doc, "DOCUMENTATION", paste0( em, "_", "IO_documentation" ), meta = FALSE, mute = TRUE )
 

@@ -121,7 +121,7 @@ if ( is.na( em ) ) em <- "NH3"
 # treatment % so that it does not rise going back in time:
 # if ww_percent[t-1] < ww_percent[t], replace ww_percent[t-1] with ww_percent[t]
   smoothSingleCountry <- function( df ){
-    df <- arrange( df, desc( year ) )
+    df <- dplyr::arrange( df, dplyr::desc( year ) )
     if ( nrow( df ) >= 2 ){
       for ( i in seq( 2, nrow( df ) ) ){
         if ( df$ww_percent[ i ] > df$ww_percent[ i - 1 ] )
@@ -182,7 +182,7 @@ if ( em == "NH3" ) {  # only run script for NH3
   names( REAS_ww ) <- c( "iso", "units", "year", "em" )
   REAS_ww$year <- xYearToNum( REAS_ww$year )
   REAS_ww <- merge( REAS_ww, select( UN_pop, iso, year, pop ), all.x = T )
-  REAS_ww <- mutate( REAS_ww, pop_no_ww = em / 1.6E-3,  # assume 1.6 kg/person/year i.e. 1.6E-3 kt/thous. people/year
+  REAS_ww <- dplyr::mutate( REAS_ww, pop_no_ww = em / 1.6E-3,  # assume 1.6 kg/person/year i.e. 1.6E-3 kt/thous. people/year
                      ww_percent_REAS = ( 1 - pop_no_ww / pop )* 100 ) %>%
     select( iso, year, ww_percent_REAS )
 
@@ -194,7 +194,7 @@ if ( em == "NH3" ) {  # only run script for NH3
 
 # Combine: Use OECD where available, then fill with UN and REAS
   ww <- merge( UN_ww, OECD_ww, all = T ) %>% merge( REAS_ww, all = T ) %>%
-    arrange( iso, year )
+    dplyr::arrange( iso, year )
   diag_overlap <- filter( ww, ( !is.na( ww_percent_UN ) & !is.na( ww_percent_OECD ) ) |
                     ( !is.na( ww_percent_UN ) & !is.na( ww_percent_REAS ) ) |
                     ( !is.na( ww_percent_REAS ) & !is.na( ww_percent_OECD ) ) )  # diagnostic: check overlapping
@@ -205,7 +205,7 @@ if ( em == "NH3" ) {  # only run script for NH3
 
   # Diagnostics: Write out countries using REAS and either OECD/UN (note chn 2000, 2004 and sgp 2009)
   diag_REAS <- group_by( ww, iso ) %>% filter( any( is.na( use_REAS ) ) & any( use_REAS ) ) %>%
-    arrange( iso, year )
+    dplyr::arrange( iso, year )
 
 # Manually remove REAS data for sgp to avoid jumps
   ww_smooth <- ww
@@ -218,7 +218,7 @@ if ( em == "NH3" ) {  # only run script for NH3
 # Correct jumps: Going back in time, if ww_percent[t-1] < ww_percent[t], replace ww_percent[t-1]
 # with ww_percent[t]
   ww_smooth <- ddply( ww_smooth, .(iso), smoothSingleCountry ) %>%
-    select( iso, year, ww_percent ) %>% arrange( iso, year )
+    select( iso, year, ww_percent ) %>% dplyr::arrange( iso, year )
 
 # Diagnostics: Write out unextended wastewater treatment %
   ww_unextended <- filter( ww_smooth, iso %!in% aux_ww$iso )
@@ -269,7 +269,7 @@ if ( em == "NH3" ) {  # only run script for NH3
 
 # Add all Master_Country_List countries to ww_interp (as template for proxy map)
   to_add <- filter( Master_Country_List, iso %!in% ww_interp$iso ) %>% select( iso, region = Region ) %>% unique()
-  ww_interp_full <- mutate( ww_interp, hasData = 1 )
+  ww_interp_full <- dplyr::mutate( ww_interp, hasData = 1 )
   ww_interp_full <- bind_rows( ww_interp_full, to_add )
   ww_interp_full$country <- Master_Country_List$Country_Name[ match( ww_interp_full$iso, Master_Country_List$iso ) ]
   ww_interp_full <- ww_interp_full[ c( "iso", "country", "region", "hasData", X_ww_years ) ] %>% data.frame()
@@ -304,57 +304,57 @@ if ( em == "NH3" ) {  # only run script for NH3
   # to extend in two different rounds.
 
   # Priority 2: Proxy-extend absolute trend of base countries (i.e. countries that will be used as proxy)
-  proxy_map_2 <- filter( proxy_map, priority == 2 ) %>% arrange( iso )
+  proxy_map_2 <- filter( proxy_map, priority == 2 ) %>% dplyr::arrange( iso )
   ww_interp_full_2 <- filter( ww_interp_full_1, iso %!in% proxy_map_2$iso )
-  extended <- filter( ww_interp_full_1, iso %in% proxy_map_2$iso ) %>% arrange( iso )
+  extended <- filter( ww_interp_full_1, iso %in% proxy_map_2$iso ) %>% dplyr::arrange( iso )
   for ( i in seq_along( extended[ , 1] ) ) {
     iso_ctry <- proxy_map_2$iso[[ i ]]
     iso_proxy <- proxy_map_2$proxy[[ i ]]
     out <- proxyExtendAbs( ww_interp_full_1, iso_ctry, iso_proxy )
     ww_interp_full_2 <- bind_rows( ww_interp_full_2, out )
   }
-  ww_interp_full_2 <- arrange( ww_interp_full_2, iso ) %>% data.frame()
+  ww_interp_full_2 <- dplyr::arrange( ww_interp_full_2, iso ) %>% data.frame()
   ww_interp_full_2[ X_ww_years ][ ww_interp_full_2[ X_ww_years ] < 0 ] <- 0
   ww_interp_full_2[ X_ww_years ][ ww_interp_full_2[ X_ww_years ] > 100 ] <- 100
 
   # Priority 3: Proxy-extend absolute trend of non-base countries
   # (i.e. countries that will not be used as proxy)
-  proxy_map_3 <- filter( proxy_map, priority == 3 ) %>% arrange( iso )
+  proxy_map_3 <- filter( proxy_map, priority == 3 ) %>% dplyr::arrange( iso )
   ww_interp_full_3 <- filter( ww_interp_full_2, iso %!in% proxy_map_3$iso )
-  extended <- filter( ww_interp_full_2, iso %in% proxy_map_3$iso ) %>% arrange( iso )
+  extended <- filter( ww_interp_full_2, iso %in% proxy_map_3$iso ) %>% dplyr::arrange( iso )
   for ( i in seq_along( extended[ , 1] ) ) {
     iso_ctry <- proxy_map_3$iso[[ i ]]
     iso_proxy <- proxy_map_3$proxy[[ i ]]
     out <- proxyExtendAbs( ww_interp_full_2, iso_ctry, iso_proxy )
     ww_interp_full_3 <- bind_rows( ww_interp_full_3, out )
   }
-  ww_interp_full_3 <- arrange( ww_interp_full_3, iso ) %>% data.frame()
+  ww_interp_full_3 <- dplyr::arrange( ww_interp_full_3, iso ) %>% data.frame()
   ww_interp_full_3[ X_ww_years ][ ww_interp_full_3[ X_ww_years ] < 0 ] <- 0
   ww_interp_full_3[ X_ww_years ][ ww_interp_full_3[ X_ww_years ] > 100 ] <- 100
 
   # Priority 4: Proxy-extend following relative trend of proxy country
-  proxy_map_4 <- filter( proxy_map, priority == 4 ) %>% arrange( iso )
+  proxy_map_4 <- filter( proxy_map, priority == 4 ) %>% dplyr::arrange( iso )
   ww_interp_full_4 <- filter( ww_interp_full_3, iso %!in% proxy_map_4$iso )
-  extended <- filter( ww_interp_full_3, iso %in% proxy_map_4$iso ) %>% arrange( iso )
+  extended <- filter( ww_interp_full_3, iso %in% proxy_map_4$iso ) %>% dplyr::arrange( iso )
   for ( i in seq_along( extended[ , 1] ) ) {
     iso_ctry <- proxy_map_4$iso[[ i ]]
     iso_proxy <- proxy_map_4$proxy[[ i ]]
     out <- proxyExtendRel( ww_interp_full_3, iso_ctry, iso_proxy )
     ww_interp_full_4 <- bind_rows( ww_interp_full_4, out )
   }
-  ww_interp_full_4 <- arrange( ww_interp_full_4, iso ) %>% data.frame()
+  ww_interp_full_4 <- dplyr::arrange( ww_interp_full_4, iso ) %>% data.frame()
 
   # Priority 5: Replace with data of specified proxy country
-  proxy_map_5 <- filter( proxy_map, priority == 5 ) %>% arrange( iso )
+  proxy_map_5 <- filter( proxy_map, priority == 5 ) %>% dplyr::arrange( iso )
   ww_interp_full_5 <- filter( ww_interp_full_4, iso %!in% proxy_map_5$iso )
-  extended <- filter( ww_interp_full_4, iso %in% proxy_map_5$iso ) %>% arrange( iso )
+  extended <- filter( ww_interp_full_4, iso %in% proxy_map_5$iso ) %>% dplyr::arrange( iso )
   for ( i in seq_along( extended[ , 1] ) ) {
     iso_ctry <- proxy_map_5$iso[[ i ]]
     iso_proxy <- proxy_map_5$proxy[[ i ]]
     out <- proxyReplace( ww_interp_full_4, iso_ctry, iso_proxy )
     ww_interp_full_5 <- bind_rows( ww_interp_full_5, out )
   }
-  ww_interp_full_5 <- arrange( ww_interp_full_5, iso ) %>% data.frame()
+  ww_interp_full_5 <- dplyr::arrange( ww_interp_full_5, iso ) %>% data.frame()
 
 # Add all emissions years
   ww_interp_ext <- ww_interp_full_5
@@ -363,11 +363,11 @@ if ( em == "NH3" ) {  # only run script for NH3
 
 # Extend last non-NA year forward
   ww_interp_fwd <- melt( ww_interp_ext, id = c( "iso", "country", "region" ) ) %>%
-    arrange( iso, variable )
+    dplyr::arrange( iso, variable )
   ww_interp_fwd <- ddply( ww_interp_fwd, .(iso), function( df ){
     within( df, { value <- na.locf( value, na.rm = F ) } )
   })
-  ww_interp_fwd <- cast( ww_interp_fwd ) %>% arrange( iso )
+  ww_interp_fwd <- cast( ww_interp_fwd ) %>% dplyr::arrange( iso )
 
 # For countries with no 1970 data, linearly extrapolate to 0 by 1970.
 # For chn only, linearly extrapolate to 0 by 1980
@@ -399,15 +399,15 @@ if ( em == "NH3" ) {  # only run script for NH3
 # Extend NH3 per-capita emissions to all emissions years
   names( NH3_em_pc ) <- c( "year", "NH3_pc" )
   NH3_em_pc$NH3_pc <- as.numeric( as.character( NH3_em_pc$NH3_pc ) )
-  NH3_em_pc_ext <- merge( data.frame( year = extended_years ),
-                       NH3_em_pc, all = T ) %>% arrange( year )
+  NH3_em_pc_ext <- merge( data.frame( year = extended_years ), 
+                       NH3_em_pc, all = T ) %>% dplyr::arrange( year )
   NH3_em_pc_ext$NH3_pc <- na.locf( NH3_em_pc_ext$NH3_pc, na.rm = F )
   NH3_em_pc_ext$NH3_pc <- na.locf( NH3_em_pc_ext$NH3_pc, na.rm = F, fromLast = T )
 
 # Compute default emissions
   default <- merge( ww_interp_bwd_long, select( UN_pop, iso, year, pop ), all.x = T ) %>%  # pop in thous. people
     merge( NH3_em_pc_ext, all.x = T )  # NH3_pc in kg/person
-  default <- mutate( default, emissions = NH3_pc*pop*(100-ww_treatment_percent)*1E-5,   # emissions in kt
+  default <- dplyr::mutate( default, emissions = NH3_pc*pop*(100-ww_treatment_percent)*1E-5,   # emissions in kt
                      EF = NH3_pc*(100-ww_treatment_percent)*1E-5 )
   default$em_units <- "kt"
   default$EF_units <- "kt/1000"
