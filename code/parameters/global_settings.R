@@ -13,7 +13,7 @@
 loadPackage <- function(pName, versions = NULL){
   minVersion <- if( !is.null(versions) ) versions[[pName]] else 0
 
-  if( suppressMessages(!require( pName, lib.loc=.libPaths()[ 1 ], character.only=T ) )){
+  if( suppressMessages(!require( pName, character.only=T ) )){
     cat( "Couldn't load '", pName, "'. Please Install.\n", sep="")
     stop(paste0( "Couldn't load '", pName, "'. Please Install.\n" ))
   }
