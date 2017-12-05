@@ -81,7 +81,7 @@ if ( is.na( em ) ) em <- "NH3"
     waste_input$iso[ waste_input$`Country Name` == "Venezuela, Bolivarian Republic of" ] <- "ven"
     waste_input$iso[ waste_input$`Country Name` == "Wallis and Futuna" ] <- "wlf"
     waste_input <- filter( waste_input, !is.na( iso ) ) %>%  # drop countries not in CEDS
-      arrange( iso )
+      dplyr::arrange( iso )
 
 # Keep relevant emissions (TODO)
     waste_input <- select( waste_input, iso, `Sulfur Dioxide (SO2)`, `Nitrogen Oxides (NOx as NO)`, 

@@ -10,18 +10,25 @@
 
 
 # Load required libraries. If library isn't installed, outputs warning message
-loadPackage<-function(package){
-  if( suppressMessages(!require( package, lib.loc=.libPaths(), character.only=T ) )){
-    cat( "Couldn't load '", package, "'. Please Install.\n" ,sep="")
-    stop(paste( "Couldn't load '", package, "'. Please Install.\n" ,sep=""))
+loadPackage <- function(pName, versions = NULL){
+  minVersion <- if( !is.null(versions) ) versions[[pName]] else 0
+
+  if( suppressMessages(!require( pName, lib.loc=.libPaths()[ 1 ], character.only=T ) )){
+    cat( "Couldn't load '", pName, "'. Please Install.\n", sep="")
+    stop(paste0( "Couldn't load '", pName, "'. Please Install.\n" ))
+  }
+
+  if( packageVersion(pName) < minVersion ) {
+    stop(paste0( "Package '", pName, "' version ", minVersion, " or greater is required."))
   }
 }
-libs <- c( "ggplot2", "magrittr", "pbapply", "plyr", "dplyr", "reshape", "stringr", "XML", 
-           "readxl", 'zoo', 'gridExtra', 'tidyr')
-for( i in seq_along(libs)){
-    package <- libs[[ i ]]
-    loadPackage(package)
-    }
+
+libs <- c( dplyr = "0.7.2", ggplot2 = "2.2.0", gridExtra = "2.2.1",
+           magrittr = "1.5", pbapply = "1.3-1", plyr = "1.8.4", 
+           readxl = "1.0.0", reshape = "0.8.6", stringr = "1.1.0",
+           tidyr = "0.6.3", xlsx = "0.5.7", XML = "3.98-1.5", zoo = "1.7-14" )
+
+lapply(names(libs), loadPackage, libs)
 
 # # Excel output requires the xlsx package, which is dependent on rJava. rJava
 # #   requires an updated version of Java compatible with the version of R used
@@ -29,7 +36,7 @@ for( i in seq_along(libs)){
 # # This block is currently commented out due to lack of use of the functions requiring rJava.
 
 # if( exists( 'RJAVA_PACKAGE_LOADED' ) == FALSE ) {
-    # # The first time the package is loaded, try to install 
+    # # The first time the package is loaded, try to install
     # require( "xlsx", lib.loc=libPath )
     # if( !require( "xlsx", lib.loc=libPath ) ) {
         # cat( "Couldn't load xlsx; trying to download it...\n" )
@@ -37,9 +44,9 @@ for( i in seq_along(libs)){
     # }
    # # Check if the install worked and mark the flag accordingly
     # check <- library( "rJava" )
-    # if( exists( 'check' ) ) { 
+    # if( exists( 'check' ) ) {
         # RJAVA_PACKAGE_LOADED <<- TRUE
-    # } else { 
+    # } else {
         # RJAVA_PACKAGE_LOADED <<- FALSE
         # cat( "rJava can't be loaded. Excel output set to OFF" )
     # }
@@ -73,8 +80,8 @@ MODULE_PROC_ROOT		<- PARAM_DIR
 # Logical Check - Options
 
 
-#na_error : Check for NA's. 
-# 1: If NA's exists in in EF database or dataframes, then error and stop script. 
+#na_error : Check for NA's.
+# 1: If NA's exists in in EF database or dataframes, then error and stop script.
 # There should be no NA's in these files. NA's  are the result of faulty code
 #
 na_error <- 1
@@ -84,31 +91,31 @@ Write_value_metadata <- FALSE
 #
 
 #-----------------------------------------------------------------------------------------
-#Generate system-wise version_stamp 
-#The version_stamp indicates the current CEDS version, and it will be marked on 
-#diagnostic plots. If user has an specific version_stamp he/she wants to use, 
-#follow the instruction in the next comment  
+#Generate system-wise version_stamp
+#The version_stamp indicates the current CEDS version, and it will be marked on
+#diagnostic plots. If user has an specific version_stamp he/she wants to use,
+#follow the instruction in the next comment
 
 # User should uncomment the following line if he/she has a specific cedsUserVersionNumber to use
 ## options(cedsUserVersionNumber = "v_YYYY_MM_DD")
 
 getcedsVersionNumber <- function( ) {
-  
+
   # get the current date
   version_date <- Sys.Date( )
-  
-  # retrieve the cedsUserVersionNumber from options() 
+
+  # retrieve the cedsUserVersionNumber from options()
   ceds_user_version_number <- getOption( "cedsUserVersionNumber" )
-  
+
   # generate the version_stamp
   if( is.null ( ceds_user_version_number ) == T ) {
     version_stamp <- paste0("v", "_", format(version_date, format="%Y_%m_%d"))
   } else {
     version_stamp <- ceds_user_version_number
   }
-  
+
   return ( version_stamp )
 }
 
-# create system version stamp  
+# create system version stamp
 version_stamp <- getcedsVersionNumber( )
