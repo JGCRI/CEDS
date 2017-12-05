@@ -141,7 +141,7 @@
 # Add disaggregated rows back into the main dataframe and remove 0_Temp-Aggregated
     EUfuel <- filter( EUfuel, sector != "0_Temp-Aggregated" ) %>%
                                    bind_rows( EUfuel_disagg ) %>%
-                                 arrange( iso, sector, fuel )
+                                 dplyr::arrange( iso, sector, fuel )
     
 # EUemiss processing:
 # Rename columns again
@@ -168,7 +168,7 @@
 # Add disaggregated rows back into the main dataframe and remove 0_Temp-Aggregated
     EUemiss <- filter( EUemiss, sector != "0_Temp-Aggregated" ) %>%
                                     bind_rows( EUemiss_disagg ) %>%
-                                   arrange( iso, sector, fuel )
+                                   dplyr::arrange( iso, sector, fuel )
 
 # Convert to isocode
     EUemiss$iso <- tolower( gainstoiso$ISO.code[ match( EUemiss$iso,

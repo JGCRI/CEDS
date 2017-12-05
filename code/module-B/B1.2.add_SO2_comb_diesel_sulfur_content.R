@@ -45,26 +45,25 @@
 # 1. Reading data
 
 # Read in S trends in diesel
-    diesel_standards <- readData( "DEFAULT_EF_IN",  
-                                  "Diesel_transport_S_trend", '.xlsx' )
+    diesel_standards_ppm <- readData( "DEFAULT_EF_IN", "Diesel_transport_S_trend", 
+                                      ".xlsx", sheet_selection = "ppm", 
+                                      column_types = c(rep('text', 3), rep('numeric', 52)))
 # Mapping file
     MCL <- readData( "MAPPINGS", "Master_Country_List" )
 
 # -------------------------------------------------------------------------------
 # 2. Format to CEDS format
 
-# Grab sheet with ppm data
-    diesel_standards_ppm <- diesel_standards[[ 'ppm' ]]
 # Extract region/iso info
     regions <- diesel_standards_ppm[ , 1:2 ]
 
 # select and rename columns
     col.names <- names( diesel_standards_ppm )
 # Subset all numeric column names
-    years <- col.names[ which( is.na( as.numeric( col.names ) ) == FALSE ) ]
+    years <- col.names[ which( suppressWarnings(is.na( as.numeric( col.names ) ) == FALSE )) ]
     start_year <- years[ 1 ]
 # Paste to Xyears
-    X_years <- paste( 'X', years, sep = "" )
+    X_years <- paste0( 'X', years )
 # Only take iso and data columns
     diesel_standards_ppm <- diesel_standards_ppm[ , c( 'iso', years ) ]
 # Force to Xyears
@@ -77,7 +76,7 @@
     
 # Drop data with NA isos
     diesel_standards_ppm <- 
-         diesel_standards_ppm[ -which( is.na( diesel_standards_ppm$iso ) ), ]
+         diesel_standards_ppm[ !is.na( diesel_standards_ppm$iso ), ]
     
 # -------------------------------------------------------------------------------
 # 3. Fill in default and interpolate between data estimates
