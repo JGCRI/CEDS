@@ -7,7 +7,7 @@
 
 #Set up your environment you wish to run in with module commands.
 module purge
-module load R/3.2.0
+module load R/3.3.3
 
 #Actually codes starts here
 now=$(date)
