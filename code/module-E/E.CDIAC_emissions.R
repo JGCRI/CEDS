@@ -543,7 +543,7 @@
     cement_other_X2014_X2015 <- filter( cement, iso == "OTHER" ) %>%
                                           select( X2014, X2015 ) %>%
                   merge( select( shares, iso, ratio ), all = T ) %>%
-              mutate( X2014 = X2014*ratio, X2015 = X2015*ratio )
+              dplyr::mutate( X2014 = X2014*ratio, X2015 = X2015*ratio )
     
 # Deselect 2015 and 2014 in original df data and replace with new values
     cement_other <- filter( cement, is.na( X2014 ) ) %>%
@@ -553,7 +553,7 @@
 # Combine all data with cement_other
     cement_all <- filter( cement, !is.na( X2014 ), iso != "OTHER" ) %>%
                                               rbind( cement_other ) %>% 
-                                                     arrange( iso )
+                                                     dplyr::arrange( iso )
   
 # Interpolate NAs
     cement_all[ , Xyears ] <- interpolate_NAs( cement_all[ , Xyears ] )
@@ -569,11 +569,11 @@
 # Get cement_production from CDIAC and arrange by iso
     cdiac_ext <- filter( cdiac_final, fuel == "cement_production", 
                          iso %in% cement_all$iso ) %>%
-                 arrange( iso )
+                 dplyr::arrange( iso )
     
 # Get USGS cement data corresponding to CDIAC data
     cement_prod <- filter( cement_all, iso %in% cdiac_ext$iso ) %>% 
-                   arrange( iso )
+                   dplyr::arrange( iso )
 
 # EF dataframe
     cement_ef <- cdiac_ext
@@ -592,7 +592,7 @@
 # Combine extended data back
     cdiac_final <- filter( cdiac_final, paste( iso, fuel ) %!in%
                            paste( cdiac_ext$iso, cdiac_ext$fuel ) ) %>%
-                    bind_rows( cdiac_ext ) %>% arrange( iso, fuel ) %>%
+                    bind_rows( cdiac_ext ) %>% dplyr::arrange( iso, fuel ) %>%
                                                        data.frame()
 
 # Set NA values to zero
@@ -637,7 +637,7 @@
 # Add up all solid fuels
     cdiac_solid_fuel_cumulative <- melt( cdiac_solid_fuel, 
                                          id = c( "iso", "fuel" ) )
-    cdiac_solid_fuel_cumulative <- arrange( cdiac_solid_fuel_cumulative, 
+    cdiac_solid_fuel_cumulative <- dplyr::arrange( cdiac_solid_fuel_cumulative, 
                                                    iso, fuel, variable ) %>%
                                   ddply( .( iso, fuel ), function( df ) {
                                       df$value <- cumsum( df$value )
