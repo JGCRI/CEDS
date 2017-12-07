@@ -146,7 +146,7 @@
     
     # Merge total population and urban share in one df and compute urban population
     UN_pop <- merge( UN_pop_raw, UN_urban_share_raw, all.x = T ) %>%
-      mutate( urban_pop = pop * urban_share )
+      dplyr::mutate( urban_pop = pop * urban_share )
     
     # Fix missing/outdated ISO codes
     UN_pop$iso <- tolower( UN_pop$iso )  # lowercase ISO
@@ -158,7 +158,7 @@
     UN_pop$iso[ UN_pop$iso == "ado" ] <- "and"  # update ISO of Andorra
     UN_pop$iso[ UN_pop$iso == "imy" ] <- "imn"  # update ISO of Isle of Man
     UN_pop <- filter( UN_pop, UN_code < 900 )  # skip aggregated regions
-    UN_pop <- arrange( UN_pop, scenario, iso, year )
+    UN_pop <- dplyr::arrange( UN_pop, scenario, iso, year )
     
 # Prepare WB population     
     # Merge WB pop and urban pop into one df and reformat
@@ -169,8 +169,8 @@
     WB_pop$iso <- tolower( WB_pop$iso )
     WB_pop$pop <- WB_pop$pop / 1000  # convert pop units to thous. people
     WB_pop$urban_pop <- WB_pop$urban_pop / 1000
-    WB_pop <- mutate( WB_pop, urban_share = urban_pop / pop )  # compute urban share 
-    WB_pop <- arrange( WB_pop, iso, year )
+    WB_pop <- dplyr::mutate( WB_pop, urban_share = urban_pop / pop )  # compute urban share 
+    WB_pop <- dplyr::arrange( WB_pop, iso, year )
 
 # Prepare HYDE population
     # Bind HYDE total population and urban share into one df
@@ -248,7 +248,7 @@
     # population-generation functions: sumPop(), extendProxy(), extendPop()
     completeID <- function( df, UN_code = NA, iso = NA, country = NA ){
       df <- df[ names( df ) %in% names( UN_pop ) ]
-      df <- mutate( df, UN_code = UN_code, iso = iso, country = country )
+      df <- dplyr::mutate( df, UN_code = UN_code, iso = iso, country = country )
       return( df )
     }
     
@@ -260,7 +260,7 @@
       if ( length( unique( df$iso[ df$iso %in% vector_of_iso ] ) ) == length( vector_of_iso ) ) {
         out <- filter( df, iso %in% vector_of_iso ) %>%
           group_by( scenario, year ) %>%
-          summarise( pop = sum( pop ), urban_pop = sum( urban_pop ) ) %>%
+          dplyr::summarise( pop = sum( pop ), urban_pop = sum( urban_pop ) ) %>%
           completeID( UN_code, iso, country )
         pop_list[[ length( pop_list ) + 1 ]] <<- out  # append to pop_list
         warnings( cat( "Population for", iso, 
@@ -289,7 +289,7 @@
     #   s1[2100] = s1[2014] * s2[2100] / s2[2014]
     # TODO: Fix cases where first_data_year or last_data_year is 0
     extendProxy <- function( df, s1, s2, first_data_yr, last_data_yr, col_out ){
-      out <- arrange( df, year )
+      out <- dplyr::arrange( df, year )
       out[, col_out ] <- out[, s1 ]
       for ( i_year in out$year ){
         if ( i_year < first_data_yr ){
@@ -343,7 +343,7 @@
     names( kosovo ) <- c( "year", "kosovo_pop" )
     serbia <- filter( UN_pop, country == "Serbia" ) %>% select( scenario, year, pop, urban_share )
     names( serbia ) <- c( "scenario", "year", "serbia_pop", "urban_share" )
-    serbia_kosovo <- merge( serbia, kosovo, all = T ) %>% arrange( scenario, year )
+    serbia_kosovo <- merge( serbia, kosovo, all = T ) %>% dplyr::arrange( scenario, year )
     
     # Extend Kosovo population using Serbia's growth. Results are added to pop_list for 
     # later binding.
@@ -375,13 +375,13 @@
       # Filter out the two edge years
     urban_growth <- filter( done, year >= min( years_needed ) - 2 ) %>%
       select( iso, year, scenario, urban_share ) %>%
-      arrange( iso, scenario, year )
+      dplyr::arrange( iso, scenario, year )
     
       # Compute growth of UN urban_share in two edge years for each country
       # Note growth will be NA if both edge years have 0 urban share, in which
       # case make growth 0 to keep urban share at 0 in future years
     urban_growth <- group_by( urban_growth, iso, scenario ) %>%
-      mutate( growth = urban_share / lag( urban_share ) ) %>%
+      dplyr::mutate( growth = urban_share / lag( urban_share ) ) %>%
       filter( year == min( years_needed ) - 1 )
     urban_growth$growth[ is.na( urban_growth$growth ) ] <- 0
     names( urban_growth ) <- c( "iso", "base_year", "scenario", 
@@ -390,7 +390,7 @@
       # Extend urban_share to all UN years, using base year share and growth
       # in the two edge years
     needed <- merge( needed, urban_growth, all.x = T ) %>%
-      mutate( urban_share = base_urban_share * growth^( year - base_year ) ) %>%
+      dplyr::mutate( urban_share = base_urban_share * growth^( year - base_year ) ) %>%
       select( -base_year, -base_urban_share, -growth )
     
       # If urban_share > 1, bring down to 1
@@ -398,7 +398,7 @@
 
     # Bind original and extended data in one df
     pop_master_ext <- bind_rows( done, needed ) %>%
-      arrange( iso, scenario, year )
+      dplyr::arrange( iso, scenario, year )
     
 
 # ------------------------------------------------------------------------------
@@ -428,7 +428,7 @@
     HYDE_rows <- select( pop_master_ext, UN_code, iso, country ) %>% unique() %>%
       merge( data.frame( year = HYDE_years_to_use, scenario = "Estimates" ), all = T )
     pop_master_HYDE <- bind_rows( pop_master_ext, HYDE_rows ) %>%
-      arrange( scenario, iso, year )
+      dplyr::arrange( scenario, iso, year )
 
 # Add columns for HYDE population and urban shares to master df
     pop_master_HYDE <- merge( pop_master_HYDE, 
@@ -443,7 +443,7 @@
     HYDE_comp <- filter( HYDE_pop, year == HYDE_comp_year ) %>% select( iso, year, pop, urban_share )
     names( HYDE_comp ) <- c( "iso", "year", "HYDE_pop", "HYDE_urban_share" )
     diag.master_vs_HYDE_comp <- merge( master_comp, HYDE_comp ) %>%
-      mutate( master_over_HYDE_pop = master_pop / HYDE_pop,
+      dplyr::mutate( master_over_HYDE_pop = master_pop / HYDE_pop,
               master_over_HYDE_urban_share = master_urban_share / HYDE_urban_share )
     
     # Ratio is NA if values in HYDE and master df are both 0. Correct this ratio to 1.
@@ -453,7 +453,7 @@
                                                              diag.master_vs_HYDE_comp$HYDE_urban_share ] <- 1
     
     # Flag countries where master df and HYDE differs significantly
-    diag.master_vs_HYDE_comp <- mutate( diag.master_vs_HYDE_comp, flag_pop = master_over_HYDE_pop < MIN_MASTER_OVER_HYDE | 
+    diag.master_vs_HYDE_comp <- dplyr::mutate( diag.master_vs_HYDE_comp, flag_pop = master_over_HYDE_pop < MIN_MASTER_OVER_HYDE | 
                                           master_over_HYDE_pop > MAX_MASTER_OVER_HYDE, 
                                         flag_urban_share = master_over_HYDE_urban_share < MIN_MASTER_OVER_HYDE | 
                                           master_over_HYDE_urban_share > MAX_MASTER_OVER_HYDE )
@@ -540,7 +540,7 @@
       filter( pop_master_HYDE_c, !( iso %in% iso_no_HYDE & year %in% 
                                       c( HYDE_years_to_use, HYDE_comp_year ) ) ), 
       scaled ) %>% 
-      mutate( urban_pop = pop*urban_share )
+      dplyr::mutate( urban_pop = pop*urban_share )
     
     
 # 4d. Generage population for historical dissolved countries by summing member countries 
@@ -569,7 +569,7 @@
 # 4e. Create final dataset
     pop_master_final <- select( pop_master_HYDE_d, iso, UN_code, country, scenario, 
                                 year, pop, urban_share ) %>%
-      arrange( iso, scenario, year )
+      dplyr::arrange( iso, scenario, year )
     
 #  # Check that there is no NA pop or urban_share left
 #     any( is.na( pop_master_final$pop ) )          # should be F

@@ -135,7 +135,7 @@
     gains_s_content_final <- filter( gains_s_content, 
                                      sector != "0_Temp-Aggregated" ) %>%
                                  bind_rows( gains_s_content_disagg ) %>%
-                                        arrange( iso, sector, fuel )
+                                        dplyr::arrange( iso, sector, fuel )
 
 # -------------------------------------------------------------------------------
 # 3. Output

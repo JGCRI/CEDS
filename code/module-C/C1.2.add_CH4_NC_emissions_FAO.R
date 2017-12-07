@@ -63,11 +63,11 @@ FAO <- FAO_API %>%
        left_join(MCL[c('iso','FAO_Country_Code')], by = c('FAOST_CODE' = 'FAO_Country_Code')) %>% 
        select(-FAOST_CODE) %>% 
        melt(id.vars = c('iso','Year')) %>% 
-       mutate(value = as.numeric(as.character(value))) %>% 
-       mutate(variable = gsub('X','',variable)) %>% 
-       mutate(variable = gsub('\\.','-',variable)) %>% 
+       dplyr::mutate(value = as.numeric(as.character(value))) %>% 
+       dplyr::mutate(variable = gsub('X','',variable)) %>% 
+       dplyr::mutate(variable = gsub('\\.','-',variable)) %>% 
        filter(!is.na(iso), Year %in% extended_years) %>% 
-       mutate(Year = paste0('X',Year)) %>% unique %>% 
+       dplyr::mutate(Year = paste0('X',Year)) %>% unique %>% 
        cast(iso+variable~Year) %>% 
        dplyr::rename(sector = variable)
 
@@ -139,8 +139,8 @@ FAO <- FAO_API %>%
   FAO_out[ add_years ] <- FAO_out[ paste0('X', FAO_last ) ] 
   
   FAO_out <- FAO_out %>% 
-    mutate(units = 'kt') %>% 
-    mutate(fuel = 'process')
+    dplyr::mutate(units = 'kt') %>% 
+    dplyr::mutate(fuel = 'process')
   
   FAO_out <- FAO_out[c('iso','sector','fuel','units',years)]
   

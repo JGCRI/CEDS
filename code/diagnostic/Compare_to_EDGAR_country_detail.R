@@ -211,14 +211,14 @@ em <- edgar_em_list[k]
   
 # country, sector  
   combined_long <- rbind(ceds_sector_iso_long,edgar_sector_iso_long) %>% 
-    mutate( year = as.numeric(gsub('X','',year)) )
+    dplyr::mutate( year = as.numeric(gsub('X','',year)) )
 
   for ( g in seq_along(select_countries)){
     country_name <- Master_Country_List[which(Master_Country_List$iso == select_countries[g]),"Country_Name"]
   
     # country total
     country_combined_long <- rbind(ceds_iso_long,edgar_iso_long) %>% 
-      mutate( year = as.numeric(gsub('X','',year)) ) %>% 
+      dplyr::mutate( year = as.numeric(gsub('X','',year)) ) %>% 
       filter (iso == select_countries[g])
     
     plot <- ggplot( country_combined_long, aes(x = year, y = emissions, linetype = inventory, alpha = inventory))+
@@ -289,7 +289,7 @@ em <- edgar_em_list[k]
       filter(year>1969) %>% 
       spread(inventory, emissions) %>% 
       replace(is.na(.), 0) %>% 
-      mutate(difference = CEDS-EDGAR) %>% 
+      dplyr::mutate(difference = CEDS-EDGAR) %>% 
       filter(difference > 0 )
     
     # sort sectors by size
