@@ -3,10 +3,10 @@
 # Author: Ben Goldstein
 # Date Last Updated: 11 July 2017
 # Program Purpose: To process user-defined datasets for use in the historical
-#                  energy extension. 
+#                  energy extension.
 # Input Files: U.*.csv, U.*-instructions.xslx, U.*-mapping.xslx
 # Output Files: None
-# Notes: 
+# Notes:
 ### TODO: If the function gives an error, we should not end the whole system,
 ###       all we need to do is reject this user-defined dataset and proceed
 ###       to the next one... Unless this would make it hard for the user
@@ -24,29 +24,29 @@
             break
         }
     }
-    
+
     PARAM_DIR <- "../code/parameters/"
 
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "CO2"
+    if ( is.na( em ) ) em <- "BC"
 
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( "data_functions.R" ,"emissions_scaling_functions.R" , "analysis_functions.R", 
+    headers <- c( "data_functions.R" ,"emissions_scaling_functions.R" , "analysis_functions.R",
                   "interpolation_extension_functions.R", "user_data_processing.R",
                   "user_extension_instr_processing.R", "user_data_inclusion_functions.R" ) # Additional function files required.
     log_msg <- paste0( "Calling inventory emission scaling stripts" ) # First message to be printed to the log
     script_name <- paste0( "add_user-defined_data.R" )
-    
+
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
-    
+
 # ------------------------------------------------------------------------------------
 # 0.5 Define functions
-    
+
 # identifyLevel
 # Brief: This is a helper function for the add_user-defined_data script.
 #        It performs a simple check of column names to determine the data
@@ -54,23 +54,20 @@
 # params:
 #    dataframe: the dataframe whose level you wish to identify
     identifyLevel <- function ( dataframe ) {
-        
-        column_names <- colnames(dataframe)
-        categorical <- column_names[ which( !isXYear(column_names) ) ]
-        
-        if ( "CEDS_sector" %in% column_names ) {
-            if ( "CEDS_fuel" %in% column_names ) return( 4 )
-            return( 5 )
-        }
-        else if ( "agg_sector" %in% column_names & 
-                  "CEDS_fuel" %in% column_names ) return( 3 )
-        else if ( "CEDS_fuel" %in% column_names ) return( 2 )
-        else if ( "agg_sector" %in% column_names) return( 6 )
-        else if ( "agg_fuel" %in% column_names ) return( 1 )
-        
-        return(0)
+
+        agg_level <- names(dataframe)
+
+        if (      "CEDS_sector" %in% agg_level &
+                  "CEDS_fuel"   %in% agg_level ) return( 4 )
+        else if ( "CEDS_sector" %in% agg_level ) return( 5 )
+        else if ( "CEDS_fuel"   %in% agg_level &
+                  "agg_sector"  %in% agg_level ) return( 3 )
+        else if ( "CEDS_fuel"   %in% agg_level ) return( 2 )
+        else if ( "agg_sector"  %in% agg_level ) return( 6 )
+        else if ( "agg_fuel"    %in% agg_level ) return( 1 )
+        else return(0)
     }
-    
+
 # is.invalid
 # Brief: This is a helper function for the add_user-defined_data script.
 #        Combination check for if a value is null, NA, or NaN
@@ -79,15 +76,15 @@
     is.invalid = function(x) {
       return( is.null(x) || is.na(x) || is.nan(x) )
     }
-    
+
 # is.nan.df
 # Brief: This is a helper function for the add_user-defined_data script.
-#        Makes up for the fact that R has no built-in vectorized check 
+#        Makes up for the fact that R has no built-in vectorized check
 #        for NaN.
 # params:
 #    x: a dataframe that may or may not contain NaN values
     is.nan.df <- function(x) {
-        do.call( cbind, lapply(x, is.nan) ) 
+        do.call( cbind, lapply(x, is.nan) )
     }
 
 # retrieveUserDataframeSubset
@@ -95,14 +92,14 @@
 #        Subsets a user-specified dataset based on user-specified instructions,
 #        so the only data processed is the data specified in instructions.
 # params:
-#    user_dataframe: 
+#    user_dataframe:
 #    working_instructions:
     retrieveUserDataframeSubset <- function( user_dataframe, working_instructions ) {
-        
+
     # initialize a subset dataframe
-        user_dataframe_subset <- user_dataframe[ which( user_dataframe$iso %in% 
+        user_dataframe_subset <- user_dataframe[ which( user_dataframe$iso %in%
                                                           working_instructions$iso ), ]
-        
+
     # Subset the dataframe based on which columns are present and filled out in the dataframe
         if ( !is.invalid( working_instructions$CEDS_sector ) && working_instructions$CEDS_sector != 'all' ) {
           user_dataframe_subset <- user_dataframe_subset[ which ( user_dataframe_subset$CEDS_sector %in%
@@ -111,9 +108,9 @@
           user_dataframe_subset <- user_dataframe_subset[ which ( user_dataframe_subset$agg_sector %in%
                                                                     working_instructions$agg_sector ), ]
         }
-        
+
         if ( !is.invalid( working_instructions$CEDS_fuel ) && working_instructions$CEDS_fuel != 'all' ) {
-          user_dataframe_subset <- user_dataframe_subset[ which ( user_dataframe_subset$CEDS_fuel %in% 
+          user_dataframe_subset <- user_dataframe_subset[ which ( user_dataframe_subset$CEDS_fuel %in%
                                                                     working_instructions$CEDS_fuel ), ]
         } else if ( !is.invalid( working_instructions$agg_fuel ) && working_instructions$agg_fuel != 'all' ) {
           user_dataframe_subset <- user_dataframe_subset[ which ( user_dataframe_subset$agg_fuel %in%
@@ -126,14 +123,14 @@
 # 1. Read in data
 
     MSL <- readData( "Master_Sector_Level_map", domain = "MAPPINGS" )
-    colnames( MSL )[ which( colnames( MSL ) == 'working_sectors_v1' ) ] <- 'CEDS_sector' 
+    names( MSL )[ names( MSL ) == 'working_sectors_v1' ] <- 'CEDS_sector'
     MCL <- readData( "Master_Country_List", domain = "MAPPINGS" )
-    MFL <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
-                    sheet_selection = "Fuels" )
-    comb_or_NC <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
-                           sheet_selection = "Sectors" )
-    comb_sectors_only <- comb_or_NC$sector[ which( comb_or_NC$type == "comb" ) ]
-    
+    MFL <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS",
+                     extension = ".xlsx", sheet_selection = "Fuels" )
+    comb_or_NC <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS",
+                            extension = ".xlsx", sheet_selection = "Sectors" )
+    comb_sectors_only <- comb_or_NC$sector[ comb_or_NC$type == "comb" ]
+
 
 # Gather default activity data
     default_activity <- readData( 'MED_OUT', paste0( 'H.', em, '_total_activity_extended_db' ) , meta = F) ### Eventually this will not require an emissions species.
@@ -145,25 +142,37 @@
 
 # Initialize an environment to track activity data
     activity_environment <- new.env()
-    
+
 # This script only operates on combustion emissions, so reduce the data to that form
     all_activity_data <- default_activity_mapped[ which( default_activity_mapped$CEDS_sector %in% comb_sectors_only ), ]
-    
+
     yearsAllowed <- colnames( all_activity_data )[ isXYear(colnames( all_activity_data ))]
-    
+
 # Read instructions files and create a procedure list
     instructions <- readInUserInstructions()
-    instructions[ which( is.na( instructions$agg_fuel ) ), c( "iso", "CEDS_fuel", "agg_fuel" ) ] <- 
-                            left_join( instructions[ which( is.na( instructions$agg_fuel ) ), 
-                                                     c( "iso", "CEDS_fuel" ) ], 
-                                       MFL[ , c( "aggregated_fuel", "fuel" ) ], 
-                                       by = c( "CEDS_fuel" = "fuel" ) )
-    
+
+    # The user may not have instructions covering all aggregation levels
+    sapply(c("agg_fuel", "agg_sector", "CEDS_fuel", "CEDS_sector"), function(l) {
+        if (l %!in% names(instructions)) instructions[[l]] <<- NA
+    })
+
+    # If the user data specifies CEDS_fuel but not the aggregate fuel type,
+    # join the aggregated fuel in
+    aggNA <- which(is.na(instructions$agg_fuel) & !is.na(instructions$CEDS_fuel))
+    if (length(aggNA) > 0) {
+        instructions[aggNA, ] <- instructions[aggNA, ] %>%
+            dplyr::left_join(MFL[ , c("aggregated_fuel", "fuel")],
+                             by = c("CEDS_fuel" = "fuel")) %>%
+            dplyr::mutate(agg_fuel = aggregated_fuel) %>%
+            dplyr::select(-aggregated_fuel)
+    }
+
+
 # Establish the activity_environment, an environment which will hold three
 # dataframes needed to be passed together
     activity_environment$all_activity_data <- all_activity_data
     activity_environment$old_activity_data <- all_activity_data
-    
+
     activity_environment <-
           initializeContinuityFactors( activity_environment,
                                        instructions )
@@ -173,28 +182,28 @@
 
 # This will store the final form of each instruction used, for diagnostics
     rows_completed <- instructions[ 0, ]
-    
+
 # This integer will track which batch number we're on, for informing diagnostics
     batch <- 0
-    
+
 # ------------------------------------------------------------------------------------
 # 3. Execute processing loop
-    
+
     while ( nrow( instructions ) > 0 ) {
-    
+
         all_activity_data <- activity_environment$all_activity_data
-        
+
         batch <- batch + 1
-    
+
     # Select the first instruction in the list for processing
         instructions <- orderInstructions( instructions )
         working_instructions <- instructions[ nrow( instructions ), ]
         instructions <- instructions[ -nrow( instructions ), ]
-        
+
         Xyears <- paste0( "X", working_instructions$start_year:
                                working_instructions$end_year )
         Xyears <- Xyears[ which( Xyears %in% yearsAllowed ) ]
-        
+
         if ( !any( working_instructions$bypass_processing ) ) {
         # call the processUserDefinedData function, which will execute mapping
         # and interpolation as necessary
@@ -204,19 +213,19 @@
             user_dataframe <- readData( working_instructions$data_file, domain = "EXT_IN",
                                         domain_extension = "user-defined-energy/" )
         }
-        
+
     # Extract the data from the dataframe that will refer to the specific
     # categories and years as defined by the
         user_dataframe_subset <- retrieveUserDataframeSubset( user_dataframe, working_instructions )
         agg_level <- identifyLevel( user_dataframe )
-        
+
     # Identify other instructions in the "batch" that will neeed to be
     # aggreagated as one.
         if ( agg_level == 4 ) {
             batch_data_instructions <- instructions[ which( instructions$iso %in% user_dataframe_subset$iso &
                                                             instructions$CEDS_sector %in% user_dataframe_subset$CEDS_sector &
                                                             instructions$agg_fuel
-                                                                        %in% user_dataframe_subset$agg_fuel ), ] 
+                                                                        %in% user_dataframe_subset$agg_fuel ), ]
             instructions <- instructions[ which( instructions$iso %!in% user_dataframe_subset$iso |
                                                     instructions$CEDS_sector %!in% user_dataframe_subset$CEDS_sector |
                                                     instructions$agg_fuel %!in% user_dataframe_subset$agg_fuel ), ]
@@ -254,30 +263,30 @@
                                    instructions %>% filter( agg_sector %!in% user_dataframe_subset$agg_sector ) )
             instructions <- unique( instructions )
         }
-    
+
     # Files only need to be batched if their year ranges overlap.
-        batch_instructions_overlap <- batch_data_instructions[ which( 
+        batch_instructions_overlap <- batch_data_instructions[ which(
                               batch_data_instructions$start_year < working_instructions$end_year &
                               batch_data_instructions$end_year > working_instructions$start_year ), ]
-        
+
     # Extract those that don't overlap and bind them back into instructions.
-        batch_instructions_no_overlap <- batch_data_instructions[ which( 
+        batch_instructions_no_overlap <- batch_data_instructions[ which(
                               batch_data_instructions$start_year > working_instructions$end_year |
                               batch_data_instructions$end_year < working_instructions$start_year ), ]
         instructions <- rbind( batch_instructions_no_overlap, instructions )  ### Should sort instructions at this point
-        
+
         batch_data_instructions <- batch_instructions_overlap
-    
+
     # If there are data in our instructions that will be in the current group's batch:
         if ( nrow( batch_data_instructions ) > 0 ) {
-            
-        # If our years haven't been properly subdivided by year, we'll need to 
+
+        # If our years haven't been properly subdivided by year, we'll need to
         # subdivide the whole batch and return back to the beginning of the
         # loop. The goal of this process is to be able to process subdivisions
-        # of datasets that only partially overlap. 
-            if ( length( unique( c(batch_data_instructions$start_year, 
+        # of datasets that only partially overlap.
+            if ( length( unique( c(batch_data_instructions$start_year,
                                    working_instructions$start_year) ) ) > 1 ||
-                 length( unique(  c(batch_data_instructions$end_year, 
+                 length( unique(  c(batch_data_instructions$end_year,
                                     working_instructions$end_year)  ) ) > 1 ) {
             # Identify all the breaks that will need to occur (each unique start
             # and end year)
@@ -289,12 +298,12 @@
             # Combine the working with the rest of the batch
                 whole_batch <- rbind( working_instructions, batch_data_instructions )
                 new_division_batch <- whole_batch[ 0, ]
-            
+
             # For each break: create a new instruction for any instruction that
             # encompasses this year range
                 for ( i in 1:( length( year_breaks ) - 1 ) ) {
                     new_year_span <- year_breaks[ i ]:( year_breaks[ i+1 ] - 1 )
-                    
+
                     rows_to_segment <- whole_batch[ which( whole_batch$start_year <=
                                                                   max( new_year_span ) &
                                                            whole_batch$end_year >=
@@ -305,15 +314,15 @@
                     if ( i != length( year_breaks ) - 1 ) {
                         rows_to_segment$end_continuity[ which( rows_to_segment$end_year != year_breaks[ i + 1 ] - 1 ) ] <- F
                     }
-                    
+
                     rows_to_segment$start_year <- min( new_year_span )
                     rows_to_segment$end_year <- max( new_year_span )
-                  
+
                     new_division_batch <- rbind( new_division_batch, rows_to_segment )
 
                 }
-                
-                
+
+
             # Tack all the newly-divided instructions onto the instructions df
                 instructions <- rbind( new_division_batch, instructions )
                 next
@@ -324,7 +333,7 @@
         #   source files.
             working_instructions <- rbind( working_instructions, batch_data_instructions )
             user_dataframe_subset <- user_dataframe_subset[ 0, ]
-            for ( row_num in 1:nrow( working_instructions ) ) { 
+            for ( row_num in 1:nrow( working_instructions ) ) {
                 file <- working_instructions$data_file[ row_num ]
                 bypass <- working_instructions$bypass_processing[ row_num ]
             # Process the data if necessary...
@@ -336,73 +345,73 @@
                 } else {
                     user_dataframe <- readData( file, domain = "EXT_IN",
                                                 domain_extension = "user-defined-energy/" )
-                }        
+                }
             # ...and append the relevant part to the dataframe
-                user_dataframe_subset <- rbind( retrieveUserDataframeSubset( user_dataframe, 
+                user_dataframe_subset <- rbind( retrieveUserDataframeSubset( user_dataframe,
                                                                       working_instructions ) )
             }
         }
-        
+
     # Identify the rows that will need adjusting. If the aggregation level is the lowest,
     #   this will be any rows that match to your row, and any row in the next-highest aggregation
     #   GROUP. For example, If I'm adjusting usa-coal_coke-1A1, I will need to edit all the
     #   usa-coal_coke-1A rows.
     #   If we're dealing with data on not the lowest aggregation level, you need any cells that
     #   can map to this cell.
-    # Basically, in all cases: figure out what level you're on, 
+    # Basically, in all cases: figure out what level you're on,
     #   then grab any rows that would be in the same group as yours one level up.
-    
+
         if ( agg_level == 4 ) {
             data_to_use <- all_activity_data[ which( all_activity_data$iso %in% user_dataframe_subset$iso &
                                                      all_activity_data$CEDS_sector %in% user_dataframe_subset$CEDS_sector &
                                                      all_activity_data$agg_fuel %in% MFL$aggregated_fuel[ which( MFL$fuel %in%
                                                                                                     user_dataframe_subset$CEDS_fuel ) ]
-                                                     ), c( colnames( all_activity_data[ which( !isXYear( 
+                                                     ), c( colnames( all_activity_data[ which( !isXYear(
                                                        colnames( all_activity_data ) ) ) ] ), Xyears ) ]
         } else if (agg_level == 3) {
             data_to_use <- all_activity_data[ which( all_activity_data$iso %in% user_dataframe_subset$iso &
                                                      all_activity_data$agg_sector %in% user_dataframe_subset$agg_sector &
-                                                     all_activity_data$agg_fuel == MFL$aggregated_fuel[ which(  MFL$fuel %in% 
-                                                                                                    user_dataframe_subset$CEDS_fuel ) ] 
-                                                     ), c( colnames( all_activity_data[ which( !isXYear( 
+                                                     all_activity_data$agg_fuel == MFL$aggregated_fuel[ which(  MFL$fuel %in%
+                                                                                                    user_dataframe_subset$CEDS_fuel ) ]
+                                                     ), c( colnames( all_activity_data[ which( !isXYear(
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
         } else if ( agg_level == 2 || agg_level == 1 ) {
             data_to_use <- all_activity_data[ which( all_activity_data$iso %in% user_dataframe_subset$iso &
                                                      all_activity_data$agg_fuel %in% user_dataframe_subset$agg_fuel
-                                                     ), c( colnames( all_activity_data[ which( !isXYear( 
+                                                     ), c( colnames( all_activity_data[ which( !isXYear(
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
         } else if ( agg_level == 5 ) {
             data_to_use <- all_activity_data %>% filter( agg_fuel %in% user_dataframe_subset$agg_fuel ) %>%
                                                  filter( iso %in% user_dataframe_subset$iso ) %>%
                                                  filter( agg_sector %in% user_dataframe_subset$agg_sector )
-            data_to_use <- data_to_use[ , c(colnames( all_activity_data[ which( !isXYear( 
+            data_to_use <- data_to_use[ , c(colnames( all_activity_data[ which( !isXYear(
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
         } else if ( agg_level == 6 ) {
             data_to_use <- all_activity_data %>% filter( agg_fuel %in% user_dataframe_subset$agg_fuel ) %>%
                                                  filter( iso %in% user_dataframe_subset$iso )
-            data_to_use <- data_to_use[ , c(colnames( all_activity_data[ which( !isXYear( 
+            data_to_use <- data_to_use[ , c(colnames( all_activity_data[ which( !isXYear(
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
         }
-        
+
     # Initialize diagnostics as NA, so if the function fails or returns nothing
     # it will still exist
-        diagnostics <- NA 
-    
+        diagnostics <- NA
+
     # Execute the normalizeAndIncludeData function in
     # user_data_inclusion_functions. This is the main point of the program; it
     # will normalize, disaggregate, and then incorporate the user-defined data
     # into activity_environment$all_activity_data
-        diagnostics <- normalizeAndIncludeData( Xyears, data_to_use, user_dataframe_subset, 
+        diagnostics <- normalizeAndIncludeData( Xyears, data_to_use, user_dataframe_subset,
                                                 all_activity_data,
                                                 working_instructions$override_normalization,
                                                 agg_level, working_instructions$data_file,
                                                 as.logical( working_instructions$specified_breakdowns ) )
-        
+
     # Tack on some diagnostics to the working instructions dataframe for
     # diagnostic output
         working_instructions$batch_id <- batch
         working_instructions$agg_level <- agg_level
-    
+
         if ( is.data.frame( diagnostics ) ) {
             working_instructions$nrow_changed <- diagnostics$rows_changed
             working_instructions$warnings <- diagnostics$warning_diag
@@ -417,14 +426,13 @@
 # ------------------------------------------------------------------------------------
 # 4. Write out the diagnostic data
     writeData( rows_completed, domain = "DIAG_OUT", fn = "user-ext-data_diagnostics" )
-    
+
     final_activity <- enforceContinuity( activity_environment, yearsAllowed )
-    
+
     # writeData( final_activity, paste0("H.", em,"-total-activity-))
-    
+
     logStop()
 
 #END
-    
-    
-    
+
+
