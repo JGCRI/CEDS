@@ -137,16 +137,12 @@
     colnames( default_activity )[ 1:3 ] <- c( "iso", "CEDS_sector", "CEDS_fuel" )
     default_activity_mapped <- mapToCEDS( default_activity, MSL, MCL, MFL, aggregate = F )
 
+    # We only operates on combustion emissions, so reduce the data to that form
+    combustion_rows <- default_activity_mapped$CEDS_sector %in% comb_sectors_only
+    all_activity_data <- default_activity_mapped[which(combustion_rows), ]
+
 # ------------------------------------------------------------------------------------
 # 2. Collect user-defined inputs and prepare processing loop
-
-# Initialize an environment to track activity data
-    activity_environment <- new.env()
-
-# This script only operates on combustion emissions, so reduce the data to that form
-    all_activity_data <- default_activity_mapped[ which( default_activity_mapped$CEDS_sector %in% comb_sectors_only ), ]
-
-    yearsAllowed <- colnames( all_activity_data )[ isXYear(colnames( all_activity_data ))]
 
 # Read instructions files and create a procedure list
     instructions <- readInUserInstructions()
@@ -157,7 +153,7 @@
     })
 
     # If the user data specifies CEDS_fuel but not the aggregate fuel type,
-    # join the aggregated fuel in
+    # join in the aggregated fuel
     aggNA <- which(is.na(instructions$agg_fuel) & !is.na(instructions$CEDS_fuel))
     if (length(aggNA) > 0) {
         instructions[aggNA, ] <- instructions[aggNA, ] %>%
@@ -168,22 +164,26 @@
     }
 
 
-# Establish the activity_environment, an environment which will hold three
-# dataframes needed to be passed together
-    activity_environment$all_activity_data <- all_activity_data
-    activity_environment$old_activity_data <- all_activity_data
+# Initialize script variables
+    # Master list used to track activity data. Contains three dataframes:
+    # 1. all_activity_data: changed activity data
+    # 2. old_activity_data: unchanged (the original) activity data
+    # 3. continuity_factors
+    activity <- list()
+    activity$all_activity_data <- all_activity_data
+    activity$old_activity_data <- all_activity_data
+    activity <- initializeContinuityFactors( activity, instructions )
 
-    activity_environment <-
-          initializeContinuityFactors( activity_environment,
-                                       instructions )
+    # Years the user is allowed to add data to
+    yearsAllowed <- colnames( all_activity_data )[ isXYear(colnames( all_activity_data ))]
 
-    instructions <- processTrendData( instructions )
+    # The user provided instructions for all supplemental data
+    instructions <- processTrendData( instructions, all_activity_data )
 
-
-# This will store the final form of each instruction used, for diagnostics
+    # This will store the final form of each instruction used, for diagnostics
     rows_completed <- instructions[ 0, ]
 
-# This integer will track which batch number we're on, for informing diagnostics
+    # This integer will track which batch number we're on, for informing diagnostics
     batch <- 0
 
 # ------------------------------------------------------------------------------------
@@ -191,7 +191,7 @@
 
     while ( nrow( instructions ) > 0 ) {
 
-        all_activity_data <- activity_environment$all_activity_data
+        all_activity_data <- activity$all_activity_data
 
         batch <- batch + 1
 
@@ -400,12 +400,15 @@
     # Execute the normalizeAndIncludeData function in
     # user_data_inclusion_functions. This is the main point of the program; it
     # will normalize, disaggregate, and then incorporate the user-defined data
-    # into activity_environment$all_activity_data
-        diagnostics <- normalizeAndIncludeData( Xyears, data_to_use, user_dataframe_subset,
-                                                all_activity_data,
-                                                working_instructions$override_normalization,
-                                                agg_level, working_instructions$data_file,
-                                                as.logical( working_instructions$specified_breakdowns ) )
+    # into activity$all_activity_data
+        normalized <- normalizeAndIncludeData( Xyears, data_to_use, user_dataframe_subset,
+                                               all_activity_data,
+                                               working_instructions$override_normalization,
+                                               agg_level, working_instructions$data_file,
+                                               as.logical( working_instructions$specified_breakdowns ) )
+
+        diagnostics <- normalized$diagnostics
+        activity$all_activity_data <- normalized$all_data
 
     # Tack on some diagnostics to the working instructions dataframe for
     # diagnostic output
@@ -427,9 +430,12 @@
 # 4. Write out the diagnostic data
     writeData( rows_completed, domain = "DIAG_OUT", fn = "user-ext-data_diagnostics" )
 
-    final_activity <- enforceContinuity( activity_environment, yearsAllowed )
+    final_activity <- enforceContinuity( activity, yearsAllowed )
 
-    # writeData( final_activity, paste0("H.", em,"-total-activity-))
+    writeData( final_activity, domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST"))
+    writeData( final_activity[which(final_activity$iso == 'deu'), ], domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST-small"))
+    default_short <- default_activity[which(default_activity$iso == 'deu'), ]
+    writeData( default_short, domain = "MED_OUT", paste0("H.", em,"-total-activity-original-short"))
 
     logStop()
 
