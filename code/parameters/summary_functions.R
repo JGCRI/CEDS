@@ -10,7 +10,8 @@
 # Notes: This functions are specifically written to serve CEDS Summary script(s) in Module S
 
 # -----------------------------------------------------------------------------
-
+# Load Packages
+loadPackage('openxlsx')
 
 # -----------------------------------------------------------------------------------
 # format_xlsx_numeric_data
