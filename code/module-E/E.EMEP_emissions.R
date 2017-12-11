@@ -4,25 +4,15 @@
 # Date Last Updated: March 21st , 2016
 # Program Purpose: To read in & reformat EMEP emissions data.
 # Input Files: All EMEP Emissions Data
-# Output Files: All Initial EMEP txt files resaved as csv files (in input folder), 
+# Output Files: All Initial EMEP txt files resaved as csv files (in input folder),
               # E.em_EMEP_inventory.csv, E.em_EMEP_inventory_Russia.csv
 # Notes: 1. EMEP Emissions are provided from 1980-2013
-# TODO: 
+# TODO:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
-# Set working directory to the CEDS “input” directory & define PARAM_DIR as the
-# location of the CEDS “parameters” directory, relative to the new working directory.
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if ( length( wd ) > 0 ) {
-            setwd( wd[ 1 ] )
-            break
-        }
-    }
-    INPUT <- paste( getwd() )
-    PARAM_DIR <- "../code/parameters/"
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
@@ -50,7 +40,7 @@
 
 # -----------------------------------------------------------------------------------------------------------
 # 0.75 Select EMEP level
-    
+
 # SELECT EMEP LEVEL - 'LEVEL1' OR 'LEVEL2'
     level <- 'LEVEL1'
   

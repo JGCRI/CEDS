@@ -6,25 +6,15 @@
 # Input Files: All REAS data
 # Output Files: E.em_REAS_inventory.csv
 # Notes: 1. added step 1.1 to manually remove mmr ncomb-industry-copper emissions:
-#           the copper emissions for mmr might be mixed with copper minning so being removed. 
+#           the copper emissions for mmr might be mixed with copper minning so being removed.
 # Notes: 2. also removed metal process SO2 emissions since we have better estimates, largely
 #           from country reports
-# TODO: 
+# TODO:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
-# Set working directory to the CEDS "input" directory and define PARAM_DIR as the
-# location of the CEDS "parameters" directory, relative to the new working directory.
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if ( length( wd ) > 0 ) {
-            setwd( wd[ 1 ] )
-            break
-        }
-    }
-    INPUT <- paste(getwd())
-    PARAM_DIR <- "../code/parameters/"
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
@@ -61,13 +51,12 @@
 # -----------------------------------------------------------------------------------------------------------
 # 1. Read in Data
     
-# set wd to REAS folder  
-    setwd( './emissions-inventories/REAS_2.1' )
-    inv_name <- "REAS"
 # create temporary folder to extract zipped files
-    zipfile_path <- paste0( './', em.read, '.zip' )
-    dir.name <- paste0( './', em, '_', inv_name, '_temp_folder' )
-    dir.create( dir.name )
+    reas_dir <- 'emissions-inventories/REAS_2.1/'
+    inv_name <- "REAS"
+    zipfile_path <- paste0(reas_dir, em.read, '.zip')
+    dir.name <- paste0(reas_dir, em, '_', inv_name, '_temp_folder')
+    dir.create(dir.name)
 # unzip files to temp folder  
     unzip( zipfile_path, exdir = dir.name )
     
@@ -79,9 +68,9 @@
     read_process_reas <- function ( file_name ) {
       
     # read files 
-        read_in_data <- read.table( paste0( './', em, '_', inv_name, 
-                                            '_temp_folder/', em.read, 
-                                            '/', file_name ) , 
+        read_in_data <- read.table( paste0(reas_dir,em,'_',inv_name,
+                                           '_temp_folder/',em.read,'/',
+                                           file_name) , 
                                     stringsAsFactors = FALSE,
                                     col.names = paste( 'temp_col', 1:50 ),
                                     strip.white = T,
@@ -192,7 +181,7 @@
         
         return ( all_data )
     }
-  
+
 
     if ( length( files ) > 0 ) {
     # apply function to list of files
@@ -204,10 +193,6 @@
    # delete temp folder
         unlink( dir.name, recursive = TRUE )
         
-   # reset workign directory
-        setwd( '../' ) 
-        setwd( '../' ) 
-       
     # bind all data together and cast to wide format 
         reas_data <- do.call( "rbind", reas_data_list )
        

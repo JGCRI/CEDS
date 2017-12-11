@@ -7,30 +7,21 @@
 #                  from 2000 and 2010. Units are initially in metric tonnes
 # Input Files: Argentina_Translation.xlsx, Argentina Inventario 1990-2012-ipcc1996.xlsx, 
 # Output Files: E.[em]_ARG_inventory.csv
-# Notes: 
+# Notes:
 # TODO: Re-write read-in so that order of years is taken from input data instead of assumed.
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 
-# Set working directory to the CEDS “input” directory and define PARAM_DIR as the
-# location of the CEDS “parameters” directory relative to the new working directory.
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if ( length( wd ) > 0 ) {
-            setwd( wd[ 1 ] )
-            break
-        }
-    } 
-    PARAM_DIR <- "../code/parameters/"
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Get emission species first so can name log appropriately
-    args_from_makefile <- commandArgs( TRUE )
-    em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "NOx"
-      
-# Call standard script header function to read in universal header files - 
+args_from_makefile <- commandArgs( TRUE )
+em <- args_from_makefile[1]
+if ( is.na( em ) ) em <- "NOx"
+
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( 'common_data.R', "data_functions.R", 
                   "emissions_scaling_functions.R", "analysis_functions.R" ) # Additional function files required.

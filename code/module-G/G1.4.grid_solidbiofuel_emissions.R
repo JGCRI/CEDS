@@ -12,21 +12,11 @@
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+  PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Set working directory to the CEDS "input" directory and define PARAM_DIR as the
-# location of the CEDS "parameters" directory, relative to the new working directory.
-  dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-  for ( i in 1:length( dirs ) ) {
-    setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-    wd <- grep( 'CEDS/input', list.dirs(), value = T )
-    if ( length( wd ) > 0 ) {
-      setwd( wd[ 1 ] )
-      break
-    }
-  }
-  PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
   headers <- c( 'gridding_functions.R', 'data_functions.R', 'nc_generation_functions.R' ) 
   log_msg <- "Gridding anthropogenic biomass emissions (excluding AIR) " 
@@ -65,7 +55,7 @@
 	
 # ------------------------------------------------------------------------------
 # 1. Read in files
-    
+
 # read in the emission data
   emissions <- readData( "MED_OUT", paste0( em, '_total_CEDS_emissions'  ) )
 
@@ -143,14 +133,14 @@
     } # END of for loop
   
 # -----------------------------------------------------------------------------
-# 4. Checksum 
+# 4. Checksum
     printLog( 'Start checksum check' )
-    
+
     ceds_gridding_mapping_fin <- ceds_gridding_mapping[ , c( 'CEDS_int_gridding_sector_short', 'CEDS_final_gridding_sector_short' ) ]
     ceds_gridding_mapping_fin <- unique( ceds_gridding_mapping_fin )
-    gridding_emissions_fin <- merge( gridding_emissions, ceds_gridding_mapping_fin, 
+    gridding_emissions_fin <- merge( gridding_emissions, ceds_gridding_mapping_fin,
                                      by.x = 'sector', by.y = 'CEDS_int_gridding_sector_short', all.x = T )
-    gridding_emissions_fin <- aggregate( gridding_emissions_fin[ paste0( 'X', year_list ) ], 
+    gridding_emissions_fin <- aggregate( gridding_emissions_fin[ paste0( 'X', year_list ) ],
                                          by = list( gridding_emissions_fin$CEDS_final_gridding_sector_short ),
                                          FUN = sum )
     colnames( gridding_emissions_fin ) <- c( 'sector', paste0( 'X', year_list ) )
@@ -162,10 +152,10 @@
     temp_df <- temp_df[ ,c( 'sector', paste0( 'X', year_list ) ) ]
     gridding_emissions_fin <- rbind( gridding_emissions_fin, temp_df)
     gridding_emissions_fin <- gridding_emissions_fin[ order( gridding_emissions_fin$sector ), ]
-    
+
     checksum_file_list <- list.files( path = output_dir, pattern = paste0( '_', em, '_solidbiofuel_anthro_' ) )
     checksum_file_list <- grep( '.csv', checksum_file_list, fixed = T, value = T )
-    checksum_res_list <- lapply( checksum_file_list, function( file_name ) { 
+    checksum_res_list <- lapply( checksum_file_list, function( file_name ) {
       temp_csv <- read.csv( paste0( output_dir, file_name  ), stringsAsFactors = F )
       } )
     checksum_df <- do.call( 'rbind', checksum_res_list )
@@ -174,20 +164,17 @@
     checksum_df <- cast( checksum_df, sector ~ year )
     colnames( checksum_df ) <- c( 'sector', paste0( 'X', year_list ) )
     checksum_df <- checksum_df[ order( checksum_df$sector ), ]
-    
+
     diag_diff_df <- cbind( checksum_df$sector, abs( gridding_emissions_fin[ paste0( 'X', year_list ) ] - checksum_df[ paste0( 'X', year_list ) ] ) )
     diag_per_df <- cbind( checksum_df$sector, ( diag_diff_df[ paste0( 'X', year_list ) ] / gridding_emissions_fin[ paste0( 'X', year_list ) ] ) * 100 )
     diag_per_df[ is.na( diag_per_df ) ] <- NA
-    
+
 # -----------------------------------------------------------------------------
-# 5. Write-out and Stop 
+# 5. Write-out and Stop
     out_name <- paste0( 'G.', em, '_solidfuel_emissions_checksum_comparison_diff' )
     writeData( diag_diff_df, "DIAG_OUT", out_name )
     out_name <- paste0( 'G.', em, '_solidfuel_emissions_checksum_comparison_per' )
     writeData( diag_per_df, "DIAG_OUT", out_name )
-    
-# Every script should finish with this line:
-logStop()  
 
-    
-    
+# Every script should finish with this line:
+logStop()

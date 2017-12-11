@@ -12,21 +12,11 @@
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+  PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Set working directory to the CEDS "input" directory and define PARAM_DIR as the
-# location of the CEDS "parameters" directory, relative to the new working directory.
-  dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-  for ( i in 1:length( dirs ) ) {
-    setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-    wd <- grep( 'CEDS/input', list.dirs(), value = T )
-    if ( length( wd ) > 0 ) {
-      setwd( wd[ 1 ] )
-      break
-    }
-  }
-  PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
   headers <- c( 'gridding_functions.R', 'data_functions.R', 'nc_generation_functions.R' ) 
   log_msg <- "VOC speciation gridding " 
@@ -66,7 +56,7 @@
 	
 # ------------------------------------------------------------------------------
 # 1. Read in files
-    
+
 # read in the emission data
   target_filename <- list.files( final_emissions_dir,
                                  pattern = paste0( ".*_", em, '_emissions_by_country_CEDS_sector.*' ) )
@@ -102,12 +92,12 @@
     gridding_emissions <- merge( emissions, ceds_gridding_mapping_int, by.x = 'sector', by.y = 'CEDS_working_sector' )
 # drop non-matched sectors
     gridding_emissions <- gridding_emissions[ !is.na( gridding_emissions$CEDS_int_gridding_sector_short ), ]
-# aggregate the emissions at gridding sectors 
-    gridding_emissions <- aggregate( gridding_emissions[ , paste0( 'X', year_list ) ], 
+# aggregate the emissions at gridding sectors
+    gridding_emissions <- aggregate( gridding_emissions[ , paste0( 'X', year_list ) ],
                                      by = list( gridding_emissions$iso, gridding_emissions$CEDS_int_gridding_sector_short ),
                                      FUN = sum )
 # change column names
-    colnames( gridding_emissions ) <- c( 'iso', 'sector', paste0( 'X', year_list ) ) 
+    colnames( gridding_emissions ) <- c( 'iso', 'sector', paste0( 'X', year_list ) )
 # remove AIR sector in data
     gridding_emissions <- gridding_emissions[ !gridding_emissions$sector == 'AIR', ]
 # apply VOC ratio
@@ -115,7 +105,7 @@
     ratio_mat <- matrix( rep( unlist( gridding_emissions[ VOC_em ] ), length( year_list ) ), ncol = length( year_list ) )
     gridding_emissions[ paste0( 'X', year_list ) ] <- gridding_emissions[ paste0( 'X', year_list ) ] * ratio_mat
     gridding_emissions[ em ] <- NULL
-    
+
 # ------------------------------------------------------------------------------
 # 3. Gridding and writing output data 
     
@@ -203,6 +193,3 @@
     
 # Every script should finish with this line:
   logStop()  
-
-    
-    

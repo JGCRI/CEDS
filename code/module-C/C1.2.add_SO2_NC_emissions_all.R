@@ -2,40 +2,28 @@
 # Program Name: C1.2.add_SO2_NC_emissions_all.R
 # Author: Jon Seibert
 # Date Last Modified: June 30, 2015
-# Program Purpose: To process and reformat default emissions data for non-combustion (process) 
+# Program Purpose: To process and reformat default emissions data for non-combustion (process)
 #     emissions, and to add it to the correct emissions database.
 # Input Files: Process_SO2_Emissions_to_2005.xlsx, Master_Fuel_Sector_List.xlsx,
 #              sector_input_mapping.xlsx
 # Output Files: C.[em]_NC_emissions_db.csv
-# Notes: 
+# Notes:
 # TODO:
 #-------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Before we can load headers we need some paths defined. They may be provided by
-#   a system environment variable or may have already been set in the workspace.
-# Set variable PARAM_DIR to be the data system directory
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if ( length( wd ) > 0 ) {
-            setwd( wd[ 1 ] )
-            break
-            
-        }
-    }
-    PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( "data_functions.R", "timeframe_functions.R", "process_db_functions.R", 
+    headers <- c( "data_functions.R", "timeframe_functions.R", "process_db_functions.R",
                   "analysis_functions.R" ) # Additional function files required.
     log_msg <- "Addition of multiple sets of emissions data to the emissions database" # First message to be printed to the log
     script_name <- "C1.2.add_SO2_NC_emissions_all.R"
-    
+
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
@@ -90,7 +78,7 @@ for( i in 1:data_length ){
     data$units <- "kt"
     data_list[[ i ]] <- cbind( data[ c( "iso","sector","fuel","units" ) ] ,
         data[ 2:( length( data ) - 3 ) ] )
-} 
+}
 
 x<-data_list[[2]]
 

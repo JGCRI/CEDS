@@ -5,33 +5,23 @@
 # Program Purpose: To create scaling factors and update emissions estimate for
 # Australia from latest emissions working copy by using Australia NEI data.
 # This data only contains data from 2000, 2006, 2012.
-# Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv, 
-#              F.[em]_scaled_emissions.csv, Australia_scaling_mapping.xlsx, 
+# Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
+#              F.[em]_scaled_emissions.csv, Australia_scaling_mapping.xlsx,
 # Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
-# Notes: 
-# TODO: 
+# Notes:
+# TODO:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
-
-# Set working directory to the CEDS "input" directory and define PARAM_DIR as the
-# location of the CEDS "parameters" directory, relative to the new working directory.
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if ( length(wd) > 0 ) {
-            setwd( wd[1] )
-            break
-        }
-    } 
-    PARAM_DIR <- "../code/parameters/"
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
     if ( is.na( em ) ) em <- "NOx"
-  
-# Call standard script header function to read in universal header files - 
+
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( 'common_data.R', "data_functions.R", 
                   "emissions_scaling_functions.R", "analysis_functions.R" ) # Additional function files required.
@@ -84,7 +74,7 @@
     ceds_data <- F.cedsAggregate( input_em, region, mapping_method )
 
 # ------------------------------------------------------------------------------
-# 4. Calculate Scaling Factors, reaggregate to CEDS sectors  
+# 4. Calculate Scaling Factors, reaggregate to CEDS sectors
 
 # Calculate and extend scaling factors
     scaling_factors_list <- F.scaling( ceds_data, inv_data, region, 

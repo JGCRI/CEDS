@@ -2,30 +2,20 @@
 # Program Name: G2.1.chunk_bulk_emissions.R
 # Author(s): Leyang Feng
 # Date Last Updated: May 3 2017
-# Program Purpose: Generate multi-year emissions chunks for bulk emissions.     
+# Program Purpose: Generate multi-year emissions chunks for bulk emissions.
 # Input Files: CEDS_[em]_anthro_[year]_0.5_[CEDS_version].nc
 # Output Files: FIN_OUT: [em]-em-anthro_input4MIPs_emissions_CMIP_CEDS-[CEDS_grid_version]_gn_[time_range].nc
-# Notes: 
-# TODO: 
+# Notes:
+# TODO:
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+  PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Set working directory to the CEDS "input" directory and define PARAM_DIR as the
-# location of the CEDS "parameters" directory, relative to the new working directory.
-  dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-  for ( i in 1:length( dirs ) ) {
-    setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-    wd <- grep( 'CEDS/input', list.dirs(), value = T )
-    if ( length( wd ) > 0 ) {
-      setwd( wd[ 1 ] )
-      break
-    }
-  }
-  PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
   headers <- c( 'gridding_functions.R', 'data_functions.R', 'nc_generation_functions.R' ) 
   log_msg <- "Generates chunk NetCDF files for bulk emissions"
@@ -86,7 +76,7 @@
   } # END of for loop 
 
 # -----------------------------------------------------------------------------
-# 2. Stop 
+# 2. Stop
 
 # Every script should finish with this line:
   logStop()  

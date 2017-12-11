@@ -2,27 +2,17 @@
 # Program Name: H3.1.base_EFs.R
 # Author: Rachel Hoesly
 # Program Purpose: Create base database to extend EFs backward
-# Input Files: H.", em, "_total_EFs_adjusted-sector              
+# Input Files: H.", em, "_total_EFs_adjusted-sector
 # Output Files:
 # TODO:
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Set working directory
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-    
-  }
-}
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R") # Additional function files may be required.
 log_msg <- "Creating database for CEDS EFs extension before 1960" # First message to be printed to the log
@@ -38,7 +28,7 @@ if ( is.na( em ) ) em <- "BC"
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-ceds_EFs <- readData( 'MED_OUT', paste0( "H.", em, "_total_EFs_adjusted-sector" )  )  
+ceds_EFs <- readData( 'MED_OUT', paste0( "H.", em, "_total_EFs_adjusted-sector" )  )
 extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF' )
 extension_drivers_activity <- readData("EXT_IN", 'CEDS_historical_extension_drivers_activity' )
 
@@ -76,4 +66,3 @@ ceds_EF_extended <- ceds_EF_extended[ c( 'iso' , 'sector' , 'fuel' , 'units' , X
  writeData( ceds_EF_extended, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'))
 
  logStop()
-

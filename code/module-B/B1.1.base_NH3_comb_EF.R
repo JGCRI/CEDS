@@ -1,48 +1,38 @@
 # ---------------------------------------------------------------------------
 # Program Name: B1.1.base_NH3_comb_EF.R
 # Author: Rachel Hoesly
-# Date Last Updated: 19 Jan 2016 
+# Date Last Updated: 19 Jan 2016
 # Program Purpose: Generate base emission factors for NH3 from NEI data
 # Input Files: NH3_Default_EF_US-NEI2011.xlsx - base efs estimated from US NEI
 #              A.total_activity.csv
 # Output Files: Default B.[em]_comb_EF_db.csv
-# Notes: 
+# Notes:
 # ---------------------------------------------------------------------------
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Before we can load headers we need some paths defined. They may be provided by
-#   a system environment variable or may have already been set in the workspace.
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if ( length( wd ) > 0 ) {
-            setwd( wd[ 1 ] )
-            break
-        }
-    }
-    PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( 'data_functions.R' ) 
+    headers <- c( 'data_functions.R' )
 # Additional function files may be required.
-    log_msg <- "Processing GAINS EMF-30 data. Using as base comb EF where appropriate" 
+    log_msg <- "Processing GAINS EMF-30 data. Using as base comb EF where appropriate"
 # First message to be printed to the log
     script_name <- 'B1.1.base_NH3_comb_EF.R'
 
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
-    
+
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
     if ( is.na( em ) ) em <- "NH3"
-    em_lc <- tolower( em )   
+    em_lc <- tolower( em )
 
 # Stop script if running for unsupported species
     if ( em %!in% c( 'NH3' ) ) {
-      stop ( paste( 'not supported for emission species', em, 
-                    'remove from script list in B1.2.add_comb_EF.R 
+      stop ( paste( 'not supported for emission species', em,
+                    'remove from script list in B1.2.add_comb_EF.R
                     and/or makefile' ) )
     }
 # ---------------------------------------------------------------------------
@@ -51,16 +41,16 @@
 # Read activity data calculated in Module A
     activity_data <- readData( "MED_OUT", "A.comb_activity" )
 # Read in NEI data
-    nei_ef <- readData ( "DEFAULT_EF_IN", 'NH3_Default_EF_US-NEI2011', 
+    nei_ef <- readData ( "DEFAULT_EF_IN", 'NH3_Default_EF_US-NEI2011',
                          '.xlsx', sheet = 'EF' )
 # Read in mapping file
     sector_map <- readData( "MAPPINGS", "NH3_EF_USNEI_mapping" )
 
 # ---------------------------------------------------------------------------
 # 2. Process NEI data
-#    Begin with raw NEI emissions factor inputs; end with NEI emissions factors 
+#    Begin with raw NEI emissions factor inputs; end with NEI emissions factors
 #    per fuel extended back to 1960
-    
+
 # Reformat NEI data with column names and units
     units <- 't/kt'
     names( nei_ef ) <- nei_ef[ 14, ]
@@ -75,35 +65,35 @@
     nei_ef_long <- melt( nei_ef, id.vars = c( 'CEDS_Sector', 'units' ) )
     names( nei_ef_long )[ which( names( nei_ef_long ) == 'value' ) ] <- 'ef'
     names( nei_ef_long )[ which( names( nei_ef_long ) == 'variable' ) ] <- 'fuel'
-    names( nei_ef_long )[ which( names( nei_ef_long ) == 'CEDS_Sector' ) ] <- 
+    names( nei_ef_long )[ which( names( nei_ef_long ) == 'CEDS_Sector' ) ] <-
           'scaling_sector'
 
 # Convert units to kt/kt
     nei_ef_long$ef <- nei_ef_long$ef / 1000
     nei_ef_long$units <- 'kt/kt'
-    
+
 # Extend NEI EFs continuously back through CEDS years
     nei_ef_extended <- nei_ef_long[ , c( 'scaling_sector', 'units', 'fuel' ) ]
-    nei_ef_extended[ , X_emissions_years ] <-  
+    nei_ef_extended[ , X_emissions_years ] <-
               replicate ( nei_ef_long$ef, n = length( X_emissions_years ) )
-    
+
 # Map to CEDS sectors
     sector_version <- 'v1'
-    nei_ef_extended <- 
+    nei_ef_extended <-
         merge( unique( sector_map[ , c( paste0( 'working_sectors_',
-                                                sector_version ), 
+                                                sector_version ),
                                         'EF_summary_sector' ) ] ),
-                             nei_ef_extended, 
+                             nei_ef_extended,
                              by.x = 'EF_summary_sector',
-                             by.y = 'scaling_sector', 
+                             by.y = 'scaling_sector',
                              all.x = TRUE )
-    
+
 # Rename working sector column
-    names( nei_ef_extended )[ which( names( nei_ef_extended ) == 
-                                     paste0( 'working_sectors_', 
+    names( nei_ef_extended )[ which( names( nei_ef_extended ) ==
+                                     paste0( 'working_sectors_',
                                              sector_version ) ) ] <- 'sector'
 # Trim unnecessary columns
-    nei_ef_extended <- nei_ef_extended[ , c( 'sector', 'fuel', 
+    nei_ef_extended <- nei_ef_extended[ , c( 'sector', 'fuel',
                                              'units', X_emissions_years ) ]
 
 # ---------------------------------------------------------------------------
@@ -121,15 +111,14 @@
                                          addEntries = FALSE )
 # Sort values
     printLog( 'Sorting' )
-    default_efs <-  default_efs[ with( default_efs, 
+    default_efs <-  default_efs[ with( default_efs,
                                        order( iso, sector, fuel ) ), ]
-    
+
 # ---------------------------------------------------------------------------
 # 6. Output
-    writeData( default_efs, 
-               domain = "MED_OUT", 
+    writeData( default_efs,
+               domain = "MED_OUT",
                fn = paste0( 'B.', em, '_comb_EF_db' ) )
-    
+
     logStop()
 # END
-

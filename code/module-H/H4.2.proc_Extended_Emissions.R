@@ -5,25 +5,15 @@
 # Program Purpose: Process extendtion EFs database to finalize and sort CEDS EFs database.
 # Input Files: None
 # Output Files: None
-# Notes: 
-# TODO: 
+# Notes:
+# TODO:
 # ------------------------------------------------------------------------------------
-# Before we can run other scripts we need some paths defined. They may be provided by
-#   a system environment variable or may have already been set in the workspace.
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length( wd ) > 0 ) {
-    setwd( wd[ 1 ] )
-    break
-    
-  }
-}
+# 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c('data_functions.R') # Additional function files required.
 log_msg <- paste0( "Processing CEDS extension EFs database" ) # First message to be printed to the log
@@ -69,57 +59,57 @@ if( em == 'SO2'){
   MODULE_H <- "../code/module-H/"
   source_child <- function( file_name ){ source( paste( MODULE_H, file_name, sep = "" ) ) }
   source_child ('H4.3.add_emissions_SO2_other_transformation.R' )
-  
+
   other_transformation_emissions_calculated <- readData('MED_OUT', 'H.SO2_calculated_other_transformation_emissions')
-  
+
   other_transformation_emissions_extended <- emissions[which(emissions$sector == "1A1bc_Other-transformation"),]
-  
+
   # Take Max of calculated and extended Other transformation emissions
   both_estimates <- rbind.fill(other_transformation_emissions_calculated,other_transformation_emissions_extended)[
-                                          , c('iso','sector','fuel',paste0('X',1750:end_year)) ] 
-  
+                                          , c('iso','sector','fuel',paste0('X',1750:end_year)) ]
+
   final_other_transformation <- aggregate(both_estimates[paste0('X',1750:end_year)],
                                          by = list(iso = both_estimates$iso,
                                                    sector = both_estimates$sector,
                                                    fuel = both_estimates$fuel),
                                          FUN = max)
-  
+
   emissions <- replaceValueColMatch(emissions, final_other_transformation,
                                     x.ColName = paste0('X',1750:end_year),
                                     match.x = c('iso','sector','fuel'),
                                     addEntries = F)
-  
+
  writeData(final_other_transformation , 'DIAG_OUT', 'H.SO2_final_other_tranformation_emissions')
- 
+
 }
 
 # CO2: Set CO2_1A1bc = max( 1A1bc_extended, CO2_Conversion )
 if (em == "CO2") {
   writeData( emissions, "MED_OUT" , paste0( 'H.', em,'_total_CEDS_emissions_before_other_transformation_replacement') )
-  
+
   MODULE_H <- "../code/module-H/"
   source_child <- function( file_name ){ source( paste( MODULE_H, file_name, sep = "" ) ) }
   source_child ('H4.3.add_emissions_CO2_other_transformation.R' )
-  
+
   other_transformation_emissions_calculated <- readData('MED_OUT', 'H.CO2_calculated_other_transformation_emissions')
-  
+
   other_transformation_emissions_extended <- emissions[which(emissions$sector == "1A1bc_Other-transformation"),]
-  
+
   # Take Max of calculated and extended Other transformation emissions
   both_estimates <- rbind.fill(other_transformation_emissions_calculated,other_transformation_emissions_extended)[
-    , c('iso','sector','fuel',paste0('X',1750:end_year)) ] 
-  
+    , c('iso','sector','fuel',paste0('X',1750:end_year)) ]
+
   final_other_transformation <- aggregate(both_estimates[paste0('X',1750:end_year)],
                                          by = list(iso = both_estimates$iso,
                                                    sector = both_estimates$sector,
                                                    fuel = both_estimates$fuel),
                                          FUN = max)
-  
+
   emissions <- replaceValueColMatch(emissions, final_other_transformation,
                                     x.ColName = paste0('X',1750:end_year),
                                     match.x = c('iso','sector','fuel'),
                                     addEntries = F)
-  
+
   writeData(final_other_transformation , 'DIAG_OUT', 'H.CO2_final_other_transformation_emissions')
 }
 
@@ -128,5 +118,3 @@ if (em == "CO2") {
 # 6. Write to file
 
 writeData( emissions, "MED_OUT" , paste0(em,'_total_CEDS_emissions') )
-
-

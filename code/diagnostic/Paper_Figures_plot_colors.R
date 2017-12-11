@@ -1,31 +1,21 @@
 # ------------------------------------------------------------------------------
 # Program Name: Paper_Figures_plot_colors.R
 # Author: Rachel Hoesly
-# Date Last Updated: 
-# Program Purpose: 
-#                  
-# Input Files: 
-# Output Files: 
-# Note: 
-# TODO: 
+# Date Last Updated:
+# Program Purpose:
+#
+# Input Files:
+# Output Files:
+# Note:
+# TODO:
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Set working directory
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-    
-  }
-}
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R",'process_db_functions.R',
               'common_data.R', 'data_functions.R') # Additional function files may be required.
@@ -50,7 +40,7 @@ Master_Fuel_list <- readData('MAPPINGS','Master_Fuel_Sector_List','.xlsx')[[2]]
 # regions <- regions[order(regions)]
 # if( 'International' %in% regions ) regions <- regions[which(regions != 'International')]
 # regions <- c(regions, 'International')
-regions <- c( "China","Other Asia/Pacific","North America","Europe", 
+regions <- c( "China","Other Asia/Pacific","North America","Europe",
               "Latin America", "Africa" ,"Former Soviet Union","International Air-Ship")
 
 # # order sectors
@@ -93,15 +83,15 @@ palette <- as.data.frame( matrix (c( "#73e600", "yellow green",
                                     "#ffe11a", "yellow",
                                     "#999999" , "light grey",
                                     "#990033" , "wine",
-                                    "#333333" , "dark grey") , ncol = 2,  byrow = T ) , stringsAsFactors = F) 
-names(palette) <- c('color', 'description') 
+                                    "#333333" , "dark grey") , ncol = 2,  byrow = T ) , stringsAsFactors = F)
+names(palette) <- c('color', 'description')
 
-# palette <- c("#E69F00", 
-#              "#56B4E9", 
-#              "#009E73", 
-#              "#F0E442", 
-#              "#0072B2", 
-#              "#D55E00", 
+# palette <- c("#E69F00",
+#              "#56B4E9",
+#              "#009E73",
+#              "#F0E442",
+#              "#0072B2",
+#              "#D55E00",
 #              "#CC79A7",
 #              "#999999",
 #              "#333333") #grey and black
@@ -118,5 +108,3 @@ fuel_colors$fuels <- fuels
 # ---------------------------------------------------------------------------
 # End
 logStop()
-
-

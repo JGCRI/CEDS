@@ -86,7 +86,7 @@
 
         # Count the frequency of each year/value/prepost occurance
             regional_counts <- meta_this_region %>%
-                                    dplyr::count( year, value, prepost )
+                                    count( year, value, prepost )
 
         # Make the years numeric so we can have a continunous x-axis
 
@@ -113,7 +113,7 @@
 
                 regional_counts <- merge( regional_counts_all, regional_counts,
                                               by = c("year", "value", "prepost"), all.x = T) %>%
-                                   dplyr::arrange(value)
+                                   arrange(value)
 
                 regional_counts$n[ is.na( regional_counts$n ) ] <- 0
 
@@ -192,7 +192,7 @@
 
         # Count the frequency of each year/value/prepost occurance
             sectoral_counts <- meta_this_sector %>%
-                                dplyr::count( year, value, prepost )
+                                count( year, value, prepost )
 
         # A list of column names that will be used for grouping and weighting
             id_cols <- c("year","value","prepost")
@@ -221,7 +221,7 @@
 
                 sectoral_counts <- merge( sectoral_counts_all, sectoral_counts,
                                               by = c("year", "value", "prepost"), all.x = T) %>%
-                                   dplyr::arrange(value)
+                                   arrange(value)
 
                 sectoral_counts$n[ is.na( sectoral_counts$n ) ] <- 0
 

@@ -6,33 +6,25 @@
 # Input Files: *_Problem_Scaling_Factors_*.csv
 # Output Files: Problem_Scaling_Factors_all.csv
 # Functions Defined:
-# Notes: 
-# TODO: 
+# Notes:
+# TODO:
 # ------------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
-  dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-  for ( i in 1:length( dirs ) ) {
-    setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-    wd <- grep( 'CEDS/input', list.dirs(), value = T )
-    if ( length( wd ) > 0 ) {
-      setwd( wd[ 1 ] )
-      break
-    }
-  }
-  
-  PARAM_DIR <- "../code/parameters/"
-  
-# Call standard script header function to read in universal header files - 
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
+
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
   headers <- c( "data_functions.R" ) # Additional function files required.
   log_msg <- paste0( "Combining problematic scaling factors files" ) # First message to be printed to the log
   script_name <- "Combine_Problem_Scaling_Factors.R"
-  
+
   source( paste0( PARAM_DIR, "header.R" ) )
   initialize( script_name, log_msg, headers )
-  
+
 # ------------------------------------------------------------------------------------
 # 1. Input
 
@@ -65,18 +57,18 @@ output <- subset( output, output$emission == "none" )
 
 for( problem_file in file_list ){
     input <- problem_file
-    
+
     fn <- fn_list_sans_ext[ i ]
-    
+
     split_fn <- strsplit( fn, ".", fixed = TRUE )[[ 1 ]][ 2 ]
     em_species <- strsplit( split_fn, "_", fixed = TRUE )[[ 1 ]][ 1 ]
-    
+
     split_fn <- strsplit( split_fn, "_", fixed = TRUE )[[ 1 ]]
     inv <- split_fn[ length( split_fn ) ]
-    
+
     input$emission <- em_species
     input$inventory <- inv
-    
+
     output <- rbind( output, input )
     i <- i + 1
 }
@@ -88,6 +80,6 @@ output <- output[ with( output, order( iso, scaling_sector, year, emission, inve
 # 3. Output
 
 writeData( output, domain = "DIAG_OUT", fn = "Problem_Scaling_Factors_all" )
-  
+
 logStop()
 # END

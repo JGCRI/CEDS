@@ -2,42 +2,31 @@
 # Program Name: Paper_Figures_emission_ratios_BC_to_CO.R
 # Author(s): Rachel Hoesly
 # Date Last Updated: 28 Dec 2016
-# Program Purpose: Produces diagnostic figures of emissions ratios BC and NOx over CO    
+# Program Purpose: Produces diagnostic figures of emissions ratios BC and NOx over CO
 # Input Files: [em]_total_CEDS_emissions.csv
 # Output Files: Figures in the diagnostic-output
-# Notes: 
-# TODO: 1. 
+# Notes:
+# TODO: 1.
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Set working directory to the CEDS “input” directory and define PARAM_DIR as the
-# location of the CEDS “parameters” directory, relative to the new working directory.
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-    
-  }
-}
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R",
               'common_data.R', 'IO_functions.R')# Any additional function files required
-log_msg <- "Paper figures for emission ratios" 
+log_msg <- "Paper figures for emission ratios"
 script_name <- "Paper_Figures_emission_ratios.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
 # ------------------------------------------------------------------------------
-# 0.5 Script Option 
+# 0.5 Script Option
 em <- 'BC'
 
 # ------------------------------------------------------------------------------
@@ -78,13 +67,13 @@ BC_total_reas['X2008'] <- BC_total_reas['X2008']*10^18
 # (10^9*10^6) is to convert from Gg to ug
 CO_total_reas['X2008'] <- CO_total_reas['X2008']*24.45*10^9*10^6/molar_mass_CO
 
-# Calculate 
+# Calculate
 BC_over_CO_total_reas <- BC_total_reas
 BC_over_CO_total_reas['X2008'] <- BC_total_reas['X2008']/CO_total_reas['X2008']
 
 BC_over_CO_total_reas <- melt(BC_over_CO_total_reas[c('iso','X2008')], id.vars = c('iso'))
-names(BC_over_CO_total_reas)[which(names(BC_over_CO_total_reas) == 'value')] <- 'ratio' 
-names(BC_over_CO_total_reas)[which(names(BC_over_CO_total_reas) == 'variable')] <- 'year' 
+names(BC_over_CO_total_reas)[which(names(BC_over_CO_total_reas) == 'value')] <- 'ratio'
+names(BC_over_CO_total_reas)[which(names(BC_over_CO_total_reas) == 'variable')] <- 'year'
 reas_results <- BC_over_CO_total_reas[which(BC_over_CO_total_reas$iso %in% countries),]
 
 # ------------------------------------------------------------------------------
@@ -108,18 +97,18 @@ BC_total[X_extended_years] <- BC_total[X_extended_years]*10^18
 # (10^9*10^6) is to convert from Gg to ug
 CO_total[X_extended_years] <- CO_total[X_extended_years]*24.45*10^9*10^6/molar_mass_CO
 
-# Calculate 
+# Calculate
 BC_over_CO_total <- BC_total
 BC_over_CO_total[X_extended_years] <- BC_total[X_extended_years]/CO_total[X_extended_years]
 
 BC_over_CO_ratio <- melt(BC_over_CO_total[which(BC_over_CO_total$iso %in% countries),
                                           c('iso','X2008')], id.vars = c('iso'))
-names(BC_over_CO_ratio)[which(names(BC_over_CO_ratio) == 'value')] <- 'ratio' 
-names(BC_over_CO_ratio)[which(names(BC_over_CO_ratio) == 'variable')] <- 'year' 
+names(BC_over_CO_ratio)[which(names(BC_over_CO_ratio) == 'value')] <- 'ratio'
+names(BC_over_CO_ratio)[which(names(BC_over_CO_ratio) == 'variable')] <- 'year'
 
 BC_over_CO_ratio_all <- melt(BC_over_CO_total[which(BC_over_CO_total$iso %in% countries),
                                               c('iso',X_years)], id.vars = c('iso'))
-names(BC_over_CO_ratio_all)[which(names(BC_over_CO_ratio_all) == 'value')] <- 'ratio' 
+names(BC_over_CO_ratio_all)[which(names(BC_over_CO_ratio_all) == 'value')] <- 'ratio'
 names(BC_over_CO_ratio_all)[which(names(BC_over_CO_ratio_all) == 'variable')] <- 'year'
 BC_over_CO_ratio_all_all <- aggregate(BC_over_CO_ratio_all['ratio'],
                                       by = list(iso = BC_over_CO_ratio_all$iso), mean)
@@ -161,4 +150,3 @@ kor_ratio
 # 6. End Script
 
 logStop()
-

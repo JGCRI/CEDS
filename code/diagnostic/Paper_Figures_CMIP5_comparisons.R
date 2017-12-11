@@ -1,15 +1,15 @@
 # ------------------------------------------------------------------------------
 # Program Name: Paper_Figres_Compare_to_RCP.R
 # Author: Rachel Hoesly, Linh Vu, Leyang Feng, Huong Nguyen
-# Date Last Updated: 17 January 
+# Date Last Updated: 17 January
 # Program Purpose: Produces comparison - diagnostic files and plots between CEDS and
 #                  RCP. Comparison by global totals, regions, sectors
-#                  Like with like comparison does not include 
+#                  Like with like comparison does not include
 #                       open burning (grassland and forest fires),
 #                       fossil-fuel fires,
 #                       international shipping (See Note (2) and (3))
 #                       aviation
-#                  
+#
 # Input Files: [em]_total_CEDS_emissions.csv
 # Output Files: figures in the diagnostic-output
 # Note: (1) Shipping emissions is included in global comparison.
@@ -19,21 +19,11 @@
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Set working directory
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-    
-  }
-}
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R",'process_db_functions.R',
               'common_data.R', 'IO_functions.R', 'data_functions.R', 'timeframe_functions.R') # Additional function files may be required.
@@ -78,16 +68,14 @@ em_list <- c('SO2','NOx','BC','OC','NH3','CO','NMVOC')
 global_sector_plot_list <- list()
 top_region_plot_list <- list()
 
-for( h in seq_along(em_list)){ 
-  wd <- getwd()
-  if( wd != "/Users/hoes919/Documents/CEDS/input") stop('working directiory')
+for( h in seq_along(em_list)){
   em <- em_list[h]
-  
+
 # footnotes
 footnote_v1 <- 'This figure shows a "like with like" comparison between CEDS and RCP emissions. \nThese totals, therefore, do not include open burning (grassland and forest fires), fossil-fuel fires, \nagricultural waste burning on fields, or aviation.'
 if ( em == 'OC' ) {
   footnote_v1 <- 'This figure shows a "like with like" comparison between CEDS and RCP emissions. \nThese totals, therefore, do not include open burning (grassland and forest fires), fossil-fuel fires, \nagricultural waste burning on fields, or aviation.\n(Note, OC emissions are in units of carbon, NOT total mass.)'
-}  
+}
 if ( em == "NH3" ) {
   footnote_v1 <- 'This figure shows a "like with like" comparison between CEDS and RCP emissions. \nThese totals, therefore, do not include open burning (grassland and forest fires), fossil-fuel fires, \nagricultural waste burning on fields, international shipping, or aviation.'
 }
@@ -105,8 +93,8 @@ Master_Country_List <- readData('MAPPINGS', 'Master_Country_List')
 
 Total_Emissions <- readData('MED_OUT', paste0(em,'_total_CEDS_emissions'))
 
-rcp_ship_emissions <- readData( domain = 'EM_INV', domain_extension = 'RCP/', 
-                                file_name = 'Historicalshipemissions_IPCC_FINAL_Jan09_updated_1850', 
+rcp_ship_emissions <- readData( domain = 'EM_INV', domain_extension = 'RCP/',
+                                file_name = 'Historicalshipemissions_IPCC_FINAL_Jan09_updated_1850',
                                 extension = '.xlsx',  sheet_selection = 'CO2Emis_TgC', skip_rows = 8 )[ 1:140, 1:12 ]
 
 # ---------------------------------------------------------------------------
@@ -119,14 +107,14 @@ ceds_remove_sectors <- c("1A3ai_International-aviation",
                          '1A3aii_Domestic-aviation',
                          '7A_Fossil-fuel-fires',
                          '3F_Agricultural-residue-burning-on-fields',
-                         '11A_Volcanoes', 
-                         '11B_Forest-fires', 
-                         '11C_Other-natural', 
+                         '11A_Volcanoes',
+                         '11B_Forest-fires',
+                         '11C_Other-natural',
                          '6B_Other-not-in-total')
 
 
 # if current em does not have ship emissions
-# for the RCP shipping emissions data Historicalshipemissions_IPCC_FINAL_Jan09_updated_1850.xlsx 
+# for the RCP shipping emissions data Historicalshipemissions_IPCC_FINAL_Jan09_updated_1850.xlsx
 # it doesn't contain data for NH3
 has_ship <- em != "NH3"
 
@@ -135,26 +123,26 @@ if ( has_ship ) {
                                   '1A3aii_Domestic-aviation',
                                   '7A_Fossil-fuel-fires',
                                   '3F_Agricultural-residue-burning-on-fields',
-                                  '11A_Volcanoes', 
-                                  '11B_Forest-fires', 
-                                  '11C_Other-natural', 
+                                  '11A_Volcanoes',
+                                  '11B_Forest-fires',
+                                  '11C_Other-natural',
                                   '6B_Other-not-in-total')
-  
+
 } else {
   ceds_remove_sectors_global <- ceds_remove_sectors
-  
+
 }
 
 # ---------------------------------------------------------------------------
 # 2. Load and process RCP files
-# set wd to REAS folder  
-setwd( './emissions-inventories/RCP')
+
+rcp_dir <- './emissions-inventories/RCP/'
 
 # create temporary folder to extract zipped files
-zipfile_path <- paste0('./',em,'.zip')
-dir.name <- paste0('./',em,'_RCP_temp_folder')
+zipfile_path <- paste0(rcp_dir, em, '.zip')
+dir.name <- paste0(rcp_dir, em, '_RCP_temp_folder')
 dir.create(dir.name)
-# unzip files to temp folder  
+# unzip files to temp folder
 unzip(zipfile_path, exdir = dir.name)
 
 # list files in the folder
@@ -163,7 +151,7 @@ files <- paste0(dir.name,'/',em,'/',files)
 
 rcp_files <- list()
 for (i in seq_along(rcp_years)){
-  rcp_files[i] <- files[grep(rcp_years[i], files)] 
+  rcp_files[i] <- files[grep(rcp_years[i], files)]
 }
 rcp_files <- unlist(rcp_files)
 
@@ -177,9 +165,6 @@ RCP_df <- do.call("rbind", RCP_df_list)
 # delete temp folder
 unlink(dir.name,recursive = TRUE)
 
-setwd('../')
-setwd('../')
-getwd()
 # ---------------------------------------------------------------------------
 # 3. Process RCP Emissions Data
 # ---------------------------------------------------------------------------
@@ -218,19 +203,19 @@ RCP <- RCP[,c('em','Region','Sector',x_rcp_years)]
 # ---------------------------------------------------------------------------
 # 3.2 Process RCP shipping emissions
 names( rcp_ship_emissions ) <- c( "year", "CO2", "fleet", "NOx", "SO2", "PM", "NMVOC", "CH4", "BC", "OC", "Refrigerants", "CO" )
-rcp_shipping_em_list <- c( "CO2", "NOx", "SO2", "NMVOC", "BC", "OC", "CO", "CH4" ) 
+rcp_shipping_em_list <- c( "CO2", "NOx", "SO2", "NMVOC", "BC", "OC", "CO", "CH4" )
 rcp_ship_emissions <- rcp_ship_emissions[ , c( "year", rcp_shipping_em_list ) ]
-# convert unit from TG to kt 
-rcp_ship_emissions [ , rcp_shipping_em_list ] <- rcp_ship_emissions [ , rcp_shipping_em_list ] * 1000 
+# convert unit from TG to kt
+rcp_ship_emissions [ , rcp_shipping_em_list ] <- rcp_ship_emissions [ , rcp_shipping_em_list ] * 1000
 rcp_ship_emissions$units <- "kt"
 rcp_ship_emissions$SO2 <- rcp_ship_emissions$SO2 * 2  #Convert from S to SO2 for SO2
 rcp_ship_emissions$NOx <- rcp_ship_emissions$NOx * 3.285  # Convert from N to NO2 for NOx
 
 # ---------------------------------------------------------------------------
-# 4. Process CEDS Emissions Data 
+# 4. Process CEDS Emissions Data
 x_years<-paste('X',CEDS_start_year:CEDS_end_year,sep="")
 
-CEDS <- Total_Emissions  
+CEDS <- Total_Emissions
 CEDS$em <- em
 
 # Create complete region map for CEDS to RCP
@@ -268,13 +253,13 @@ ceds_comparable_global <- CEDS [-which(CEDS$sector %in% ceds_remove_sectors_glob
 # 7.  Region Comparisons
 
 #Prime CEDS Data
-region_ceds <- aggregate(ceds_comparable[x_years], 
+region_ceds <- aggregate(ceds_comparable[x_years],
                          by = list(region = ceds_comparable$Region ),FUN=sum )
 region_ceds$Inventory <- 'CEDS'
 region_ceds_long <- melt(region_ceds, id.vars = c('region','Inventory'))
 
 #Prime RCP Data
-region_rcp <- aggregate(rcp_comparable[x_rcp_years], 
+region_rcp <- aggregate(rcp_comparable[x_rcp_years],
                         by = list(region = rcp_comparable$Region ),FUN=sum )
 region_rcp$Inventory <- 'RCP'
 region_rcp_long <- melt(region_rcp, id.vars = c('region','Inventory'))
@@ -302,8 +287,8 @@ regions_df_order <- data.frame(region=regions_list_order,
   plot_df$Inventory <- as.factor(plot_df$Inventory)
   plot_df$region <- as.factor(plot_df$region)
   max <- 1.2*(max(plot_df$total_emissions))
-  
-  plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region, 
+
+  plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = region,
                               shape=Inventory,linetype = Inventory)) +
     geom_line(data = subset(plot_df, Inventory =='CEDS'),size=1,aes(x=year,y=total_emissions, color = region), alpha= .5) +
     geom_point(data = subset(plot_df, Inventory =='RCP'),size=1,aes(x=year,y=total_emissions, color = region), alpha= .5) +
@@ -328,13 +313,13 @@ regions_df_order <- data.frame(region=regions_list_order,
 # 8.  Sector Comparisons
 
 #Prime CEDS Data
-sector_ceds <- aggregate(ceds_comparable[x_years], 
+sector_ceds <- aggregate(ceds_comparable[x_years],
                          by = list(sector = ceds_comparable$RCP_Sector ),FUN=sum )
 sector_ceds$Inventory <- 'CEDS'
 sector_ceds_long <- melt(sector_ceds, id.vars = c('sector','Inventory'))
 
 #Prime RCP Data
-sector_rcp <- aggregate(rcp_comparable[x_rcp_years], 
+sector_rcp <- aggregate(rcp_comparable[x_rcp_years],
                         by = list(sector = rcp_comparable$Sector ),FUN=sum )
 sector_rcp$Inventory <- 'RCP'
 sector_rcp_long <- melt(sector_rcp, id.vars = c('sector','Inventory'))
@@ -355,7 +340,7 @@ plot_df$Inventory <- as.factor(plot_df$Inventory)
 plot_df$sector <- as.factor(plot_df$sector)
 max <- 1.2*(max(plot_df$total_emissions))
 
-plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = sector, 
+plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = sector,
                             shape=Inventory,linetype = Inventory)) +
   geom_line(data = subset(plot_df, Inventory =='CEDS'),size=1,aes(x=year,y=total_emissions, color = sector), alpha= .5) +
   geom_point(data = subset(plot_df, Inventory =='RCP'),size=1,aes(x=year,y=total_emissions, color = sector), alpha= .5) +
@@ -374,7 +359,7 @@ plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = sector,
                         values = c('solid','blank'))
 global_sector_plot_list[[h]] <- plot
 
-} 
+}
 # End emissions loop
 
 # ---------------------------------------------------------------------------
@@ -385,7 +370,7 @@ top_region_plot_list <- lapply(top_region_plot_list, function(x) x + theme(legen
 pdf(paste0('../diagnostic-output/paper-figures/Supplement/CMIP5_Region_Comparison.pdf'),width=12,height=10,paper='special')
 grid.arrange(top_region_plot_list[[1]],top_region_plot_list[[2]],top_region_plot_list[[3]],
              top_region_plot_list[[4]],top_region_plot_list[[5]],top_region_plot_list[[6]],
-             top_region_plot_list[[7]],legend, 
+             top_region_plot_list[[7]],legend,
              ncol=3,top = 'CMIP5 vs CEDS - Top Emitting Regions')
 dev.off()
 
@@ -394,7 +379,7 @@ global_sector_plot_list <- lapply(global_sector_plot_list, function(x) x + theme
 pdf(paste0('../diagnostic-output/paper-figures/Supplement/CMIP5_Sector_Comparison.pdf'),width=12,height=10,paper='special')
 grid.arrange(global_sector_plot_list[[1]],global_sector_plot_list[[2]],global_sector_plot_list[[3]],
              global_sector_plot_list[[4]],global_sector_plot_list[[5]],global_sector_plot_list[[6]],
-             global_sector_plot_list[[7]],legend, 
+             global_sector_plot_list[[7]],legend,
              ncol=3,top = 'CMIP5 vs CEDS - Global Emissions by Sector')
 dev.off()
 
