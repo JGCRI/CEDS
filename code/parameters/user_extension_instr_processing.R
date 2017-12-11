@@ -45,6 +45,9 @@
 
     # Get a list of all the files in the directory
         files_present <- list.files( USER_DOM )
+        if ( length( files_present ) == 0 ) {
+            stop("No user defined energy files found")
+        }
 
         # The regex "^(?!~\\$)" ignores "~$": Excel's autosave files
         instruction_files <- grep( "^(?!~\\$).*-instructions", files_present, perl = T, value = T )

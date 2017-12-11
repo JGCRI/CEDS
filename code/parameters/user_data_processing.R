@@ -3,7 +3,11 @@
 # Author: Ben Goldstein
 # Date Last Updated: 21 June 2017
 # Program Purpose: To process user-defined datasets for use in the historical
-#                  energy extension.
+#                  energy extension. This function:
+#                   1. Cleans the user data replacing NAs with zero and casting
+#                      all data columns to numeric
+#                   2. Maps the user data to the proper (CEDS) format
+#                   3. Interpolates the data to fill missing years
 # Input Files: U.*, U.*-instructions, U.*-mapping
 # Output Files: None
 # Functions Defined: mapToCEDS, interpolateData, interpolateByTrend
@@ -19,96 +23,70 @@
     processUserDefinedData <- function( filename, MSL = NULL, MCL = NULL,
                                         MFL = NULL, comb_or_NC = NULL ) {
 
-    # Read in the interpolation instructions, saved with the default filename
-        interpolation_instructions <- NA
-        tryCatch( { interpolation_instructions <- readData( paste0 ( "user-defined-energy/",
-                                                  filename, "-instructions"),
-                                                  domain = "EXT_IN", extension = ".xlsx",
-                                                  sheet_selection = "Interpolation_instructions" ) },
-                  error = function(x) {
-                      message <- ("")
-                  } )
-
-
-    # Read in the data frame
-        dataframe <- readData( filename,
-                               domain = "EXT_IN",
-                               domain_extension = "user-defined-energy/")
-
-    # Take advantage of the isXYear function to isolate which columns are
-    # available. Since data is not yet interpolated we can't use the range.
-        Xyears <- colnames( dataframe )[ which( isXYear( colnames( dataframe ) ) ) ]
-
-    # Do some different row maneuvering to force all cells to be numeric.
-        if ( nrow( dataframe ) > 1 ) {
-            dataframe[ , Xyears ] <- as.data.frame( sapply( dataframe[ , Xyears ],
-                                                            as.numeric ) )
-        } else {
-            dataframe[ , Xyears ] <- sapply( dataframe[ , Xyears ], as.numeric )
-        }
-
-    # replace all NA values with 0s
-        dataframe[ is.na( dataframe ) ] <- 0
-
-    # initialize null dataframe
-        mapping_iso <- NULL
-        mapping_agg_sector <- NULL
-        mapping_ceds_sector <- NULL
-        mapping_agg_fuel <- NULL
-        mapping_ceds_fuel <- NULL
-
-    # read in each potential mapping sheet. Uses try() since some sheets may not
-    # be provided, which is allowed.
-        tryCatch( { mapping_iso <- readData( paste0( "user-defined-energy/", filename, "-mapping" ),
-                                      domain = "EXT_IN",
-                                      extension = ".xlsx",
-                                      sheet_selection = "iso" ) },
-                  error = function(x) { message( "" ) } )
-        tryCatch( { mapping_agg_sector <- readData( paste0( "user-defined-energy/", filename, "-mapping" ),
-                                             domain = "EXT_IN",
-                                             extension = ".xlsx",
-                                             sheet_selection = "agg_sector" ) },
-                  error = function(x) { message( "" ) } )
-        tryCatch( { mapping_ceds_sector <- readData( paste0( "user-defined-energy/", filename, "-mapping" ),
-                                              domain = "EXT_IN",
-                                              extension = ".xlsx",
-                                              sheet_selection = "CEDS_sector" ) },
-                  error = function(x) { message( "" ) } )
-        tryCatch( { mapping_agg_fuel <- readData( paste0( "user-defined-energy/", filename, "-mapping" ),
-                                           domain = "EXT_IN",
-                                           extension = ".xlsx",
-                                           sheet_selection = "agg_fuel" ) },
-                  error = function(x) { message( "" ) } )
-        tryCatch( { mapping_ceds_fuel <- readData( paste0( "user-defined-energy/", filename, "-mapping" ),
-                                            domain = "EXT_IN",
-                                            extension = ".xlsx",
-                                            sheet_selection = "CEDS_fuel" ) },
-                  error = function(x) { message( "" ) } )
-
-    # If master mapping files were not provided, they need to be read in.
-    # Master Sector List
+        # If master mapping files were not provided, they need to be read in.
+        # MSL = Master Sector List
+        # MCL = Master Country List
+        # MFL = Master Fuel List
         if ( is.null( MSL ) ) {
             MSL <- readData( "Master_Sector_Level_map", domain = "MAPPINGS" )
-            colnames( MSL )[ which( colnames( MSL ) == 'working_sectors_v1' ) ] <- 'CEDS_sector'
+            names( MSL )[ which( names( MSL ) == 'working_sectors_v1' ) ] <- 'CEDS_sector'
         }
-    # Master Country List
-        if ( is.null( MCL ) ) MCL <- readData("Master_Country_List", domain = "MAPPINGS")
-    # Master Fuel List
-        if ( is.null( MFL ) ) MFL <- readData("Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
-                                          sheet_selection = "Fuels")
+        if ( is.null( MCL ) )
+            MCL <- readData("Master_Country_List", domain = "MAPPINGS")
+        if ( is.null( MFL ) )
+            MFL <- readData("Master_Fuel_Sector_List", domain = "MAPPINGS",
+                            extension = ".xlsx", sheet_selection = "Fuels")
 
-    # Execute sub-functions; first map the dataframe, then interpolate this mapped dataframe.
-        mapped_dataframe <- mapToCEDS( dataframe, MSL, MCL, MFL,
-                                       iso_map = mapping_iso,
-                                       agg_sector_map = mapping_agg_sector,
-                                       CEDS_sector_map = mapping_ceds_sector,
-                                       agg_fuel_map = mapping_agg_fuel,
-                                       CEDS_fuel_map = mapping_ceds_fuel )
-        interp_dataframe <- interpolateData( mapped_dataframe,
-                                             interpolation_instructions,
-                                             MSL, MCL, MFL )
+        # Read in the interpolation instructions, saved with the default filename
+        interp_instr <- NA
+        tryCatch({
+            interp_instr <- readData( paste0 ( "user-defined-energy/",
+                                      filename, "-instructions"),
+                                      domain = "EXT_IN", extension = ".xlsx",
+                                      sheet_selection = "Interpolation_instructions" )
+        }, error = function(x) {
+            warning( paste0( "No sheet named 'Interpolation_instructions' found in ",
+                             filename, "-instructions.xlsx" ) )
+        })
 
-        return( interp_dataframe )
+        # Read in the actual user data file
+        usr_data <- readData( filename,
+                              domain = "EXT_IN",
+                              domain_extension = "user-defined-energy/")
+
+        # Take advantage of the isXYear function to isolate which columns are
+        # available. Since data is not yet interpolated we can't use the range.
+        Xyears <- colnames( usr_data )[ which( isXYear( colnames( usr_data ) ) ) ]
+
+        # Cast all year columns to be numeric.
+        if ( nrow( usr_data ) > 1 ) {
+            usr_data[ , Xyears ] <- as.data.frame( sapply( usr_data[ , Xyears ],
+                                                           as.numeric ) )
+        } else {
+            usr_data[ , Xyears ] <- sapply( usr_data[ , Xyears ], as.numeric )
+        }
+
+        # Replace all NA values with 0s
+        usr_data[ is.na( usr_data ) ] <- 0
+
+        # Read in each potential mapping sheet. Some sheets may not be provided,
+        # which is okay as mapToCEDS can handle NULL values for the sheets.
+        mappings <- readData( paste0( "user-defined-energy/", filename, "-mapping" ),
+                              domain = "EXT_IN",
+                              extension = ".xlsx" )
+
+        # Map the user data to CEDS format
+        mapped_df <- mapToCEDS( usr_data, MSL, MCL, MFL,
+                                iso_map         = mappings$iso,
+                                agg_sector_map  = mappings$agg_sector,
+                                CEDS_sector_map = mappings$ceds_sector,
+                                agg_fuel_map    = mappings$agg_fuel,
+                                CEDS_fuel_map   = mappings$ceds_fuel )
+
+        # Interpolate the mapped data
+        interp_df <- interpolateData( mapped_df, interp_instr, MSL, MCL, MFL )
+
+        return( interp_df )
     }
 
 
@@ -116,7 +94,7 @@
 
 #------------------------------------------------------------------------------
 # mapToCEDS()
-# Brief: Maps a user dataframe to CEDS lavel categories
+# Brief: Maps a user dataframe to CEDS level categories
 # Params:
 #   dataframe: The user dataframe
 #   MSL: Master sector list (default)
@@ -160,7 +138,7 @@
                        'CEDS_sector' %in% dataframe_categories ) {
             if ( 'CEDS_sector' %!in% dataframe_categories ) {
             # same join, same assumptions
-                dataframe_w_sector <- left_join( dataframe, CEDS_sector_map )
+                dataframe_w_sector <- dplyr::left_join( dataframe, CEDS_sector_map )
                 if ( nrow( dataframe_w_sector ) != nrow( dataframe ) ) {
                     stop( "Double-mapped sectors are not allowed." )
                 }
@@ -176,7 +154,7 @@
                 if ( 'agg_sector' %!in% dataframe_categories ) {
                     MSL_to_map <- unique( MSL[ , c( "CEDS_sector", "aggregate_sectors" ) ] )
                     colnames( MSL_to_map ) <- c( "CEDS_sector", "agg_sector" )
-                    dataframe <- left_join( dataframe, MSL_to_map )
+                    dataframe <- dplyr::left_join( dataframe, MSL_to_map )
                 }
             }
         }
@@ -189,7 +167,7 @@
             if ( 'agg_sector' %!in% dataframe_categories ) {
 
             # same join, same assumptions
-                dataframe_w_aggsec <- left_join( dataframe, agg_sector_map )
+                dataframe_w_aggsec <- dplyr::left_join( dataframe, agg_sector_map )
                 if ( nrow( dataframe_w_aggsec ) != nrow( dataframe ) ) {
                     stop( "Double-mapped sectors are not allowed." )
                 }
@@ -206,7 +184,7 @@
              'CEDS_fuel' %in% dataframe_categories ) {
             if ( 'CEDS_fuel' %!in% dataframe_categories ) {
               # same join, same assumptions
-              dataframe_w_fuel <- left_join( dataframe, CEDS_fuel_map )
+              dataframe_w_fuel <- dplyr::left_join( dataframe, CEDS_fuel_map )
               if ( nrow( dataframe_w_fuel ) != nrow( dataframe ) ) {
                   stop( "Double-mapped sectors are not allowed." )
               }
@@ -222,7 +200,7 @@
             if ( 'agg_fuel' %!in% dataframe_categories ) {
               MFL_to_map <- MFL[ , c( "fuel", "aggregated_fuel" ) ]
               colnames( MFL_to_map ) <- c( "CEDS_fuel", "agg_fuel" )
-              dataframe <- left_join( dataframe, MFL_to_map )
+              dataframe <- dplyr::left_join( dataframe, MFL_to_map )
             }
           }
         }
@@ -235,7 +213,7 @@
           if ( 'agg_fuel' %!in% dataframe_categories ) {
 
             # same join, same assumptions
-            dataframe_w_aggfuel <- left_join( dataframe, agg_fuel_map )
+            dataframe_w_aggfuel <- dplyr::left_join( dataframe, agg_fuel_map )
             if ( nrow( dataframe_w_aggfuel ) != nrow( dataframe ) ) {
               stop( "Double-mapped fuels are not allowed." )
             }
@@ -258,12 +236,12 @@
 
         dataframe <- dataframe[ , c( present_columns, Xyears ) ]
 
-        printLog( "Done with mapping file to CEDS categories" )
-
     # Aggregate data frames by categories
         if ( aggregate ) {
             dataframe <- ddply( dataframe, present_columns, function(x) colSums( x[ Xyears ] ) )
         }
+
+        printLog( "Done with mapping file to CEDS categories" )
 
         return( dataframe )
 
@@ -272,75 +250,77 @@
 
 #------------------------------------------------------------------------------
 # interpolateData()
-# A function defining standard interpolation methodology. This assumes that
-#     0 values are not holes; only missing values or NAs are holes.
-    interpolateData <- function( dataframe, interpolation_instructions, MSL, MCL, MFL ) {
+# Purpose: A function defining standard interpolation methodology. This assumes that 0
+#          values are not holes; only missing values or NAs are holes.
+# Params:
+#   df: A dataframe of user data that has been mapped to CEDS
+#   interp_instr: The interpolation instructions parsed from the instructions
+#                 file corresponding to the data
+# Returns:
+#------------------------------------------------------------------------------
+    interpolateData <- function( df, interp_instr, MSL, MCL, MFL ) {
 
     # Check if the data has any holes
 
-    # We can assume that all columns are in this form as the data
-    #   has already been processed by mapping
-        non_year_cols <- colnames( dataframe ) [ which( colnames( dataframe ) %in%
-                                                        c( "iso", "agg_sector", "CEDS_sector",
-                                                           "agg_fuel", "CEDS_fuel" ) ) ]
+        # We can assume that all columns are in this form as the data has
+        # already been processed by mapping
+        non_years <- c("iso", "agg_sector", "CEDS_sector", "agg_fuel", "CEDS_fuel")
+        non_year_cols <- names( df )[ names( df ) %in% non_years ]
+        year_cols <- names( df ) [ isXYear( names( df ) ) ]
 
-        if ( is.na( interpolation_instructions ) ) {
-            min_year <- colnames( dataframe )[ which( isXYear( colnames( dataframe ) ) ) ] %>%
-                        min() %>% substr( 2, 5 )
-            max_year <- colnames( dataframe )[ which( isXYear( colnames( dataframe ) ) ) ] %>%
-                        max() %>% substr( 2, 5 )
-            X_data_years <- paste0( "X", min_year:max_year )
-
+        if ( is.null( interp_instr ) ) {
+            min_year <- substr( min( year_cols ), 2, 5 )
+            max_year <- substr( max( year_cols ), 2, 5 )
         } else {
-            X_data_years <- paste0( "X", min( interpolation_instructions$start_year ):
-                                         max( interpolation_instructions$end_year ) )
+            min_year <- min(interp_instr$start_year)
+            max_year <- max(interp_instr$end_year)
         }
 
-        needed_Xyears <- X_data_years[ which( X_data_years %!in% colnames( dataframe ) ) ]
-        extra_Xyears <- colnames( dataframe )[ which( colnames( dataframe ) %!in% X_data_years &
-                                                      colnames( dataframe ) %!in% non_year_cols ) ]
+        # The range of years specified by the instructions file
+        X_data_years <- paste0( "X", min_year:max_year )
 
-        dataframe[ , needed_Xyears ] <- NA
+        # Add years that are specified in the instructions but aren't in the data
+        needed_Xyears <- X_data_years[ X_data_years %!in% year_cols ]
+        df[ , needed_Xyears ] <- NA
 
-        for ( year in extra_Xyears ) {
-            dataframe[[ year ]] <- NA
-        }
-        dataframe <- dataframe[ , c( non_year_cols, X_data_years ) ]
+        # Remove years that are in the data but aren't specified by the instructions
+        extra_Xyears <- year_cols[ year_cols %!in% X_data_years ]
+        df[ , extra_Xyears ] <- NULL # this used to be NA, will that cause probs?
 
-    # Now we can finally check if the data has a hole
-        if ( !any( apply ( dataframe, 1, function(r) any( is.na(r) ) ) ) ) {
+        # Rebuild the dataframe with the correct year columns
+        df <- df[ , c( non_year_cols, X_data_years ) ]
 
-        # In the event that there are no NAs we can return the data matched to the intended years.
+        # Checks if any row in the dataframe contains NA. In the event that there
+        # are no NAs we can return the data matched to the intended years.
+        if ( !any( apply ( df, 1, function(r) any( is.na(r) ) ) ) ) {
             return( dataframe )
-        # Otherwise, we have to continue on and fill the gaps.
         }
 
-    # Confirm that a valid method was specified. I'm making a list to store valid methods
-    #   so we can easily change them as they arise.
+    # The data has holes, so we have to continue on and fill the gaps.
+
+        # Confirm that a valid method was specified. Currently the only valid
+        # methods are match_to_trend, and linear.
         valid_methods <- c( "match_to_trend", "linear" )
 
-        if ( !is.na( interpolation_instructions ) &&
-             interpolation_instructions$method %!in% valid_methods ) {
-        # Throw an error if the method is invalid
+        if ( is.null( interp_instr ) || interp_instr$method == "linear" ) {
+            # CEDS already has a function for linear interpolation.
+            final_df <- df
+            final_df[ , X_data_years ] <- interpolate_NAs( final_df[ , X_data_years])
+        } else if ( interp_instr == "match_to_trend" ) {
+            # Execute trend-matching function
+            final_df <- interpolateByTrend( df,
+                                            interp_instr$matching_file_name,
+                                            interp_instr$domain,
+                                            MSL, MCL, MFL )
+        } else {
+            # Instructions exist but the method is invalid
             warning( paste0( "Specified interpolation method '",
-                       interpolation_instructions$method, "' is invalid; using linear" ) )
-            final_dataframe <- dataframe
-            final_dataframe[ , X_data_years ] <- interpolate_NAs( final_dataframe[ , X_data_years ] )
-        } else if ( !is.na( interpolation_instructions ) &&
-                    interpolation_instructions$method == "match_to_trend" ) {
-        # Execute trend-matching function
-            final_dataframe <- interpolateByTrend( dataframe,
-                                                 interpolation_instructions$matching_file_name,
-                                                 interpolation_instructions$domain,
-                                                 MSL, MCL, MFL )
-        } else if ( is.na( interpolation_instructions ) ||
-                    interpolation_instructions$method == "linear" ) {
-        # CEDS already has a function for linear interpolation.
-            final_dataframe <- dataframe
-            final_dataframe[ , X_data_years ] <- interpolate_NAs( final_dataframe[ , X_data_years ] )
+                             interp_instr$method, "' is invalid; using linear" ) )
+            final_df <- df
+            final_df[ , X_data_years ] <- interpolate_NAs( final_df[ , X_data_years ] )
         }
 
-        return( final_dataframe )
+        return( final_df )
 
     }
 
@@ -416,89 +396,95 @@
     processTrendData <- function( instructions, all_activity_data ) {
 
         trend_instructions <- instructions[ which( instructions$use_as_trend ), ]
+
+        # Don't do anything if no instructions should be used as trend data
+        if ( nrow( trend_instructions ) == 0) {
+            return(instructions)
+        }
+
+        # Remove all instructions being used as trend data
         instructions <- instructions[ which( !instructions$use_as_trend ), ]
 
-    # Because we'll have to write out a new file for each row, it is unrealistic
-    # to plan on doing this vectorized; a for loop is necessary.
-        if ( nrow( trend_instructions ) > 0 ) {
-            for ( row_num in 1:nrow( trend_instructions ) ) {
-                Xyears <- paste0( "X", trend_instructions[row_num, ]$start_year:
-                                       trend_instructions[row_num, ]$end_year)
+        # Because we'll have to write out a new file for each row, it is unrealistic
+        # to plan on doing this vectorized; a for loop is necessary.
+        for ( row_num in 1:nrow( trend_instructions ) ) {
+            Xyears <- paste0( "X", trend_instructions[row_num, ]$start_year:
+                                   trend_instructions[row_num, ]$end_year)
 
-            # call the processUserDefinedData function, which will execute mapping
+            # Call the processUserDefinedData function, which will execute mapping
             # and interpolation as necessary
-                user_dataframe <- processUserDefinedData( trend_instructions[row_num, ]$data_file,
-                                                          MSL, MCL, MFL )
+            user_dataframe <- processUserDefinedData( trend_instructions[row_num, ]$data_file,
+                                                      MSL, MCL, MFL )
 
             # Extract the data from the dataframe that will refer to the specific
             # categories and years as defined by the
-                user_specified_trend <- retrieveUserDataframeSubset( user_dataframe, trend_instructions[row_num, ] )
-                agg_level <- identifyLevel( user_specified_trend )
+            user_specified_trend <- subsetUserData( user_dataframe, trend_instructions[row_num, ] )
+            agg_level <- identifyLevel( user_specified_trend )
             # Using the agg_level, identify the important columns
-                if ( agg_level == 1 ) {
-                    cols_given <- c( "agg_fuel", "iso" )
-                } else if ( agg_level == 2 ) {
-                    cols_given <- c( "agg_fuel", "CEDS_fuel", "iso" )
-                } else if ( agg_level == 3 ) {
-                    cols_given <- c( "agg_fuel", "CEDS_fuel", "agg_sector", "iso" )
-                } else if ( agg_level == 4 ) {
-                    cols_given <- c( "agg_fuel", "CEDS_fuel", "agg_sector",
-                                     "CEDS_sector", "iso" )
-                } else if ( agg_level == 5 ) {
-                    cols_given <- c( "agg_fuel", "agg_sector", "CEDS_sector", "iso" )
-                } else if ( agg_level == 6 ) {
-                    cols_given <- c( "agg_fuel", "agg_sector", "iso" )
-                }
+            if ( agg_level == 1 ) {
+                cols_given <- c( "agg_fuel", "iso" )
+            } else if ( agg_level == 2 ) {
+                cols_given <- c( "agg_fuel", "CEDS_fuel", "iso" )
+            } else if ( agg_level == 3 ) {
+                cols_given <- c( "agg_fuel", "CEDS_fuel", "agg_sector", "iso" )
+            } else if ( agg_level == 4 ) {
+                cols_given <- c( "agg_fuel", "CEDS_fuel", "agg_sector",
+                                 "CEDS_sector", "iso" )
+            } else if ( agg_level == 5 ) {
+                cols_given <- c( "agg_fuel", "agg_sector", "CEDS_sector", "iso" )
+            } else if ( agg_level == 6 ) {
+                cols_given <- c( "agg_fuel", "agg_sector", "iso" )
+            }
 
             # Extract the activity data for this period
-                data_to_get_trended <- all_activity_data
-                for (col in cols_given) {
-                    data_to_get_trended <- data_to_get_trended[ data_to_get_trended[ , col ]
-                                                           == user_specified_trend[ , col ], ]
-                }
+            data_to_get_trended <- all_activity_data
+            for (col in cols_given) {
+                data_to_get_trended <- data_to_get_trended[ data_to_get_trended[ , col ]
+                                                            == user_specified_trend[ , col ], ]
+            }
 
             # Aggregate the data to the trend's aggregate level. Since the
             # output is new data, there will be no need to disaggregate.
-                data_to_get_trended <- ddply( data_to_get_trended, cols_given,
-                                              function(x) colSums( x[ Xyears ] ) )
+            data_to_get_trended <- ddply( data_to_get_trended, cols_given,
+                                          function(x) colSums( x[ Xyears ] ) )
 
             # Identify a fraction which can be used to bring the data in the
             # match year to be the same. The idea behind the match year is that
             # the "trend" will all become relative to a single value from the
             # original dataframe. The original trend is completely overwritten
             # except for the single absolute value.
-                match_year <- paste0( "X", trend_instructions[ row_num, ]$match_year )
-                scaling_fraction <- data_to_get_trended[ , match_year ] /
-                                    user_specified_trend[ , match_year ]
+            match_year <- paste0( "X", trend_instructions[ row_num, ]$match_year )
+            scaling_fraction <- data_to_get_trended[ , match_year ] /
+                user_specified_trend[ , match_year ]
 
             # Compute the trended data, as described above.
-                matched_trend <- user_specified_trend
-                matched_trend[ , Xyears ] <- user_specified_trend[ , Xyears ] * scaling_fraction
+            matched_trend <- user_specified_trend
+            matched_trend[ , Xyears ] <- user_specified_trend[ , Xyears ] * scaling_fraction
 
             # We have the trend. We now need to get the data into a state where it
             # can be handled by the system as raw data. To do this, we need to a)
             # add a new line to instructions, and b) write out a new .csv file.
-                new_instruction <- trend_instructions[ row_num, ]
+            new_instruction <- trend_instructions[ row_num, ]
             # This data no longer needs to be used as a trend as it has been
             # converted to activity data.
-                new_instruction$use_as_trend <- F
+            new_instruction$use_as_trend <- F
             # Create the name of the new/ouput file
-                new_instruction$data_file <- paste0( "Data_from_trend_",
-                                                     trend_instructions[ row_num, ]$data_file,
-                                                     "-", row_num )
+            new_instruction$data_file <- paste0( "Data_from_trend_",
+                                                 trend_instructions[ row_num, ]$data_file,
+                                                 "-", row_num )
             # This file will not need to be mapped or interpolated. This switch
             # will allow us to not create a *-instructions or *-mapping file.
-                new_instruction$bypass_processing <- T
+            new_instruction$bypass_processing <- T
 
             # Write out the new file.
-                writeData( matched_trend,
-                           domain = "EXT_IN", domain_extension = "user-defined-energy/",
-                           fn = new_instruction$data_file )
+            writeData( matched_trend,
+                       domain = "EXT_IN", domain_extension = "user-defined-energy/",
+                       fn = new_instruction$data_file )
             # Add the new instruction back into the main df.
-                instructions <- rbind( instructions, new_instruction )
-            }
+            instructions <- rbind( instructions, new_instruction )
         }
-    # Return the new version of the instructions.
+
+        # Return the new version of the instructions.
         return( instructions )
     }
 

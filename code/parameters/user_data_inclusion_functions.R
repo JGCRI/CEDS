@@ -170,7 +170,7 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
     # original total for the entire aggregate group, data will be normalized to
     # negative emissions. We need to force this to zero but make a note of it
     # (the negatives boolean will generate a warning later on)
-        if ( any( corrected_data < 0 ) ) {
+        if ( any( corrected_data < 0, na.rm = TRUE ) ) { # what do NAs mean here?
             corrected_data[ ( corrected_data < 0 ) ] <- 0
             negatives <- T
         }
@@ -577,7 +577,7 @@ enforceContinuity <- function( activity, yearsAllowed ) {
 #                 should be made continuous at each edge, if possible.
 # Returns: the activity, now holding a continuity_factors dataframe
 
-initializeContinuityFactors <- function( activity, instructions,
+initializeContinuityFactors <- function( activity, instructions, yearsAllowed,
                                          default_continuity_interval = 7 ) {
 
     activity$continuity_factors <- activity$all_activity_data
