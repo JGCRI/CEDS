@@ -87,36 +87,32 @@
         do.call( cbind, lapply(x, is.nan) )
     }
 
-# retrieveUserDataframeSubset
+# subsetUserData
 # Brief: This is a helper function for the add_user-defined_data script.
 #        Subsets a user-specified dataset based on user-specified instructions,
 #        so the only data processed is the data specified in instructions.
 # params:
-#    user_dataframe:
+#    user_df:
 #    working_instructions:
-    retrieveUserDataframeSubset <- function( user_dataframe, working_instructions ) {
+    subsetUserData <- function( user_df, working_instructions ) {
 
     # initialize a subset dataframe
-        user_dataframe_subset <- user_dataframe[ which( user_dataframe$iso %in%
-                                                          working_instructions$iso ), ]
+        subset <- user_dataframe[ which( user_dataframe$iso %in% working_instructions$iso ), ]
 
     # Subset the dataframe based on which columns are present and filled out in the dataframe
         if ( !is.invalid( working_instructions$CEDS_sector ) && working_instructions$CEDS_sector != 'all' ) {
-          user_dataframe_subset <- user_dataframe_subset[ which ( user_dataframe_subset$CEDS_sector %in%
-                                                                    working_instructions$CEDS_sector ), ]
+          subset <- subset[ which ( subset$CEDS_sector %in% working_instructions$CEDS_sector ), ]
         } else if ( !is.invalid( working_instructions$agg_sector ) && working_instructions$agg_sector != 'all' ) {
-          user_dataframe_subset <- user_dataframe_subset[ which ( user_dataframe_subset$agg_sector %in%
-                                                                    working_instructions$agg_sector ), ]
+          subset <- subset[ which ( subset$agg_sector %in% working_instructions$agg_sector ), ]
         }
 
         if ( !is.invalid( working_instructions$CEDS_fuel ) && working_instructions$CEDS_fuel != 'all' ) {
-          user_dataframe_subset <- user_dataframe_subset[ which ( user_dataframe_subset$CEDS_fuel %in%
-                                                                    working_instructions$CEDS_fuel ), ]
-        } else if ( !is.invalid( working_instructions$agg_fuel ) && working_instructions$agg_fuel != 'all' ) {
-          user_dataframe_subset <- user_dataframe_subset[ which ( user_dataframe_subset$agg_fuel %in%
-                                                                    working_instructions$agg_fuel ), ]
+          subset <- subset[ which ( subset$CEDS_fuel %in% working_instructions$CEDS_fuel ), ]
         }
-        return( user_dataframe_subset )
+        else if ( !is.invalid( working_instructions$agg_fuel ) && working_instructions$agg_fuel != 'all' ) {
+          subset <- subset[ which ( subset$agg_fuel %in% working_instructions$agg_fuel ), ]
+        }
+        return( subset )
     }
 
 # ------------------------------------------------------------------------------------
@@ -165,6 +161,9 @@
 
 
 # Initialize script variables
+    # Years the user is allowed to add data to
+    yearsAllowed <- colnames( all_activity_data )[ isXYear(colnames( all_activity_data ))]
+
     # Master list used to track activity data. Contains three dataframes:
     # 1. all_activity_data: changed activity data
     # 2. old_activity_data: unchanged (the original) activity data
@@ -172,10 +171,7 @@
     activity <- list()
     activity$all_activity_data <- all_activity_data
     activity$old_activity_data <- all_activity_data
-    activity <- initializeContinuityFactors( activity, instructions )
-
-    # Years the user is allowed to add data to
-    yearsAllowed <- colnames( all_activity_data )[ isXYear(colnames( all_activity_data ))]
+    activity <- initializeContinuityFactors( activity, instructions, yearsAllowed )
 
     # The user provided instructions for all supplemental data
     instructions <- processTrendData( instructions, all_activity_data )
@@ -189,38 +185,44 @@
 # ------------------------------------------------------------------------------------
 # 3. Execute processing loop
 
+
     while ( nrow( instructions ) > 0 ) {
 
         all_activity_data <- activity$all_activity_data
 
         batch <- batch + 1
 
-    # Select the first instruction in the list for processing
+        # Select and remove the last instruction in the list for processing
         instructions <- orderInstructions( instructions )
         working_instructions <- instructions[ nrow( instructions ), ]
         instructions <- instructions[ -nrow( instructions ), ]
 
-        Xyears <- paste0( "X", working_instructions$start_year:
-                               working_instructions$end_year )
-        Xyears <- Xyears[ which( Xyears %in% yearsAllowed ) ]
+        Xyears <- paste0( "X", working_instructions$start_year:working_instructions$end_year )
 
-        if ( !any( working_instructions$bypass_processing ) ) {
-        # call the processUserDefinedData function, which will execute mapping
-        # and interpolation as necessary
-            user_dataframe <- processUserDefinedData( working_instructions$data_file,
-                                                      MSL, MCL, MFL )
-        } else {
-            user_dataframe <- readData( working_instructions$data_file, domain = "EXT_IN",
-                                        domain_extension = "user-defined-energy/" )
+        # Filter out any years not in the CEDS range
+        if ( any( Xyears %!in% yearsAllowed )) {
+            warning(paste("Some data in", working_instructions$data_file,
+                          "are not in the allowed CEDS years and will be ignored"))
+            Xyears <- Xyears[ which( Xyears %in% yearsAllowed ) ]
         }
 
-    # Extract the data from the dataframe that will refer to the specific
-    # categories and years as defined by the
-        user_dataframe_subset <- retrieveUserDataframeSubset( user_dataframe, working_instructions )
+        if ( working_instructions$bypass_processing ) {
+            user_dataframe <- readData( working_instructions$data_file, domain = "EXT_IN",
+                                        domain_extension = "user-defined-energy/" )
+        } else {
+            # The processUserDefinedData function executes mapping and
+            # interpolation as necessary
+            user_dataframe <- processUserDefinedData( working_instructions$data_file,
+                                                      MSL, MCL, MFL )
+        }
+
+        # Extract the rows from the user's dataframe refers to the specific
+        # categories and years as defined by the current instructions
+        user_dataframe_subset <- subsetUserData( user_dataframe, working_instructions )
+
         agg_level <- identifyLevel( user_dataframe )
 
-    # Identify other instructions in the "batch" that will neeed to be
-    # aggreagated as one.
+        # Identify other instructions in the "batch" that will need to be aggregated as one.
         if ( agg_level == 4 ) {
             batch_data_instructions <- instructions[ which( instructions$iso %in% user_dataframe_subset$iso &
                                                             instructions$CEDS_sector %in% user_dataframe_subset$CEDS_sector &
@@ -232,16 +234,17 @@
 
         } else if ( agg_level == 3 ) {
             batch_data_instructions <- instructions[ which( instructions$iso %in% user_dataframe_subset$iso &
-                                                              instructions$agg_sector %in% user_dataframe_subset$agg_sector &
-                                                              instructions$agg_fuel
-                                                            %in% user_dataframe_subset$agg_fuel ), ]
+                                                            instructions$agg_sector %in% user_dataframe_subset$agg_sector &
+                                                            instructions$agg_fuel
+                                                                        %in% user_dataframe_subset$agg_fuel ), ]
             instructions <- instructions[ which( instructions$iso %!in% user_dataframe_subset$iso |
                                                    instructions$agg_sector %!in% user_dataframe_subset$agg_sector |
                                                    instructions$agg_fuel %!in% user_dataframe_subset$agg_fuel ), ]
         } else if ( agg_level == 6 ) {
-            batch_data_instructions <- instructions %>% filter( iso %in% user_dataframe_subset$iso ) %>%
-                                                    filter( agg_fuel %in% user_dataframe_subset$agg_fuel ) %>%
-                                                    filter( is.na( CEDS_sector ) )
+            batch_data_instructions <- instructions %>%
+                                       dplyr::filter( iso      %in% user_dataframe_subset$iso,
+                                                      agg_fuel %in% user_dataframe_subset$agg_fuel,
+                                                      is.na( CEDS_sector ) )
             instructions <- rbind( instructions %>% filter( iso %!in% user_dataframe_subset$iso ),
                                    instructions %>% filter( agg_fuel %!in% user_dataframe_subset$agg_fuel ),
                                    instructions %>% filter( !is.na( CEDS_sector ) ) )
@@ -347,7 +350,7 @@
                                                 domain_extension = "user-defined-energy/" )
                 }
             # ...and append the relevant part to the dataframe
-                user_dataframe_subset <- rbind( retrieveUserDataframeSubset( user_dataframe,
+                user_dataframe_subset <- rbind( subsetUserData( user_dataframe,
                                                                       working_instructions ) )
             }
         }
@@ -426,6 +429,7 @@
     # reviewing what changes occurred
         rows_completed <- rbind( rows_completed, working_instructions )
     }
+
 # ------------------------------------------------------------------------------------
 # 4. Write out the diagnostic data
     writeData( rows_completed, domain = "DIAG_OUT", fn = "user-ext-data_diagnostics" )
