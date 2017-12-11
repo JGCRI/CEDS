@@ -2,7 +2,7 @@
 # Program Name: G1.3.grid_aircraft_emissions.R
 # Author(s): Leyang Feng
 # Date Last Updated: May 5, 2017
-# Program Purpose: Grid aggregated emissions into NetCDF grids for aircraft emissions 
+# Program Purpose: Grid aggregated emissions into NetCDF grids for aircraft emissions
 # Input Files: CEDS_[em]_emissions_by_country_CEDS_sector_[CEDS_version].csv
 # Output Files: MED_OUT: CEDS_[em]_AIR_anthro_[year]_0.5_[CEDS_version].nc; CEDS_[em]_AIR_anthro_[year]_0.5_[CEDS_version].csv
 #               DIAG_OUT: G.[em]_AIR_emissions_checksum_comparison_diff.csv; G.[em]_AIR_emissions_checksum_comparison_per.csv
@@ -12,21 +12,11 @@
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+  PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Set working directory to the CEDS "input" directory and define PARAM_DIR as the
-# location of the CEDS "parameters" directory, relative to the new working directory.
-  dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-  for ( i in 1:length( dirs ) ) {
-    setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-    wd <- grep( 'CEDS/input', list.dirs(), value = T )
-    if ( length( wd ) > 0 ) {
-      setwd( wd[ 1 ] )
-      break
-    }
-  }
-  PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
   headers <- c( 'gridding_functions.R', 'data_functions.R', 'nc_generation_functions.R' ) 
   log_msg <- "Gridding anthropogenic aircraft emissions"
@@ -64,14 +54,14 @@
 	
 # ------------------------------------------------------------------------------
 # 1. Read in files
-    
+
 # read in the emission data
   target_filename <- list.files( final_emissions_dir,
                                  pattern = paste0( ".*_", em, '_emissions_by_country_CEDS_sector.*' ) )
   target_filename <- substr( target_filename, 1, ( nchar( target_filename ) - 4 ) )
   emissions <- readData( "FIN_OUT", domain_extension = "current-versions/", target_filename )
 
-# read in some mapping files 
+# read in some mapping files
 # read in the CEDS gridding sector mapping
   ceds_gridding_mapping <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', file_name = 'CEDS_sector_to_gridding_sector_mapping' )
 # read in the proxy mapping 
@@ -182,6 +172,3 @@
     
 # Every script should finish with this line:
   logStop( )  
-
-    
-    

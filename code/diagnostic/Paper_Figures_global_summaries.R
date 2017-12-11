@@ -1,15 +1,15 @@
 # ------------------------------------------------------------------------------
 # Program Name: Paper_Figures_global_summaries.R
 # Author: Rachel Hoesly, Linh Vu, Leyang Feng, Huong Nguyen
-# Date Last Updated: 28 October, 2016 
+# Date Last Updated: 28 October, 2016
 # Program Purpose: Produces comparison - diagnostic files and plots between CEDS and
 #                  RCP. Comparison by global totals, regions, sectors
-#                  Like with like comparison does not include 
+#                  Like with like comparison does not include
 #                       open burning (grassland and forest fires),
 #                       fossil-fuel fires,
 #                       international shipping (See Note (2) and (3))
 #                       aviation
-#                  
+#
 # Input Files: [em]_total_CEDS_emissions.csv
 # Output Files: figures in the diagnostic-output
 # Note: (1) Shipping emissions is included in global comparison, but removed in regional comparison
@@ -19,21 +19,11 @@
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Set working directory
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-    
-  }
-}
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R",'process_db_functions.R',
               'common_data.R', 'IO_functions.R', 'data_functions.R', 'timeframe_functions.R') # Additional function files may be required.
@@ -93,8 +83,8 @@ Map_sector <- readData( "EM_INV", domain_extension = 'RCP/',"RCP_CEDS_sector_map
 MSLevel <- readData('MAPPINGS', 'Master_Sector_Level_map')
 Master_Country_List <- readData('MAPPINGS', 'Master_Country_List')
 
-rcp_ship_emissions <- readData( domain = 'EM_INV', domain_extension = 'RCP/', 
-                                file_name = 'Historicalshipemissions_IPCC_FINAL_Jan09_updated_1850', 
+rcp_ship_emissions <- readData( domain = 'EM_INV', domain_extension = 'RCP/',
+                                file_name = 'Historicalshipemissions_IPCC_FINAL_Jan09_updated_1850',
                                 extension = '.xlsx',  sheet_selection = 'CO2Emis_TgC', skip_rows = 8 )[ 1:140, 1:12 ]
 
 cdiac <- readData('MED_OUT', 'E.CO2_CDIAC_Total_CO2')
@@ -104,10 +94,10 @@ source('../code/diagnostic/Paper_Figures_plot_colors.R')
 # ---------------------------------------------------------------------------
 # 1.5 Process RCP shipping emissions
 names( rcp_ship_emissions ) <- c( "year", "CO2", "fleet", "NOx", "SO2", "PM", "NMVOC", "CH4", "BC", "OC", "Refrigerants", "CO" )
-rcp_shipping_em_list <- c( "CO2", "NOx", "SO2", "NMVOC", "BC", "OC", "CO", "CH4" ) 
+rcp_shipping_em_list <- c( "CO2", "NOx", "SO2", "NMVOC", "BC", "OC", "CO", "CH4" )
 rcp_ship_emissions <- rcp_ship_emissions[ , c( "year", rcp_shipping_em_list ) ]
-# convert unit from TG to kt 
-rcp_ship_emissions [ , rcp_shipping_em_list ] <- rcp_ship_emissions [ , rcp_shipping_em_list ] * 1000 
+# convert unit from TG to kt
+rcp_ship_emissions [ , rcp_shipping_em_list ] <- rcp_ship_emissions [ , rcp_shipping_em_list ] * 1000
 rcp_ship_emissions$units <- "kt"
 rcp_ship_emissions$SO2 <- rcp_ship_emissions$SO2 * 2  #Convert from S to SO2 for SO2
 rcp_ship_emissions$NOx <- rcp_ship_emissions$NOx * 3.285  # Convert from N to NO2 for NOx
@@ -117,7 +107,7 @@ rcp_ship_emissions$NOx <- rcp_ship_emissions$NOx * 3.285  # Convert from N to NO
 
 #Aggregate CDIAC to Global
 cdiac$em <- 'CO2'
-cdiac_agg <- aggregate(cdiac[,x_cdiac_years], 
+cdiac_agg <- aggregate(cdiac[,x_cdiac_years],
                        by = list(em = cdiac$em ),
                        FUN=sum )
 cdiac_agg$Inventory <- 'CDIAC'
@@ -141,7 +131,7 @@ total_line_sector_list <- list()
 total_line_region_list <- list()
 total_line_fuel_list <- list()
 
-for( h in seq_along(em_list)){ 
+for( h in seq_along(em_list)){
 wd <- getwd()
 if( wd != "/Users/hoes919/Documents/CEDS/input") stop('working directiory')
 em <- em_list[h]
@@ -164,7 +154,7 @@ if (em == 'CH4') unit <- '[Tg CH4/year]'
 rcp_remove_sectors <- c('AWB','Tot_Ant')
 
 # if current em does not have ship emissions
-# for the RCP shipping emissions data Historicalshipemissions_IPCC_FINAL_Jan09_updated_1850.xlsx 
+# for the RCP shipping emissions data Historicalshipemissions_IPCC_FINAL_Jan09_updated_1850.xlsx
 # it doesn't contain data for NH3
 # CDIAC contains both shipping and aviation fuel use
 
@@ -175,9 +165,9 @@ if ( em %!in% c("NH3", 'CO2') ) { # RCP has shipping, but no aviation fuel us
                                   '1A3aii_Domestic-aviation',
                                   '7A_Fossil-fuel-fires',
                                   '3F_Agricultural-residue-burning-on-fields',
-                                  '11A_Volcanoes', 
-                                  '11B_Forest-fires', 
-                                  '11C_Other-natural', 
+                                  '11A_Volcanoes',
+                                  '11B_Forest-fires',
+                                  '11C_Other-natural',
                                   '6B_Other-not-in-total')
 }else if (em == 'NH3'){# RCP has no shipping for NH3, no aviation fuel us
   ceds_remove_sectors <- c("1A3ai_International-aviation",
@@ -185,33 +175,32 @@ if ( em %!in% c("NH3", 'CO2') ) { # RCP has shipping, but no aviation fuel us
                            '1A3aii_Domestic-aviation',
                            '7A_Fossil-fuel-fires',
                            '3F_Agricultural-residue-burning-on-fields',
-                           '11A_Volcanoes', 
-                           '11B_Forest-fires', 
-                           '11C_Other-natural', 
+                           '11A_Volcanoes',
+                           '11B_Forest-fires',
+                           '11C_Other-natural',
                            '6B_Other-not-in-total')
-  
+
 } else if (em == 'CO2'){ # CDIAC contains both aviation and fuel use
   ceds_remove_sectors <- c('7A_Fossil-fuel-fires',
                            '3F_Agricultural-residue-burning-on-fields',
-                           '11A_Volcanoes', 
-                           '11B_Forest-fires', 
-                           '11C_Other-natural', 
-                           '6B_Other-not-in-total') 
+                           '11A_Volcanoes',
+                           '11B_Forest-fires',
+                           '11C_Other-natural',
+                           '6B_Other-not-in-total')
 }
 
 ceds_remove_sectors_global <- ceds_remove_sectors
 
 # ---------------------------------------------------------------------------
 # 2. Load and process RCP files
-# set wd to RCP folder  
 if (em != 'CO2'){
-setwd( './emissions-inventories/RCP')
+rcp_dir <- './emissions-inventories/RCP'
 
 # create temporary folder to extract zipped files
-zipfile_path <- paste0('./',em,'.zip')
-dir.name <- paste0('./',em,'_RCP_temp_folder')
+zipfile_path <- paste0(rcp_dir, em, '.zip')
+dir.name <- paste0(rcp_dir, em, '_RCP_temp_folder')
 dir.create(dir.name)
-# unzip files to temp folder  
+# unzip files to temp folder
 unzip(zipfile_path, exdir = dir.name)
 
 # list files in the folder
@@ -220,7 +209,7 @@ files <- paste0(dir.name,'/',em,'/',files)
 
 rcp_files <- list()
 for (i in seq_along(rcp_years)){
-  rcp_files[i] <- files[grep(rcp_years[i], files)] 
+  rcp_files[i] <- files[grep(rcp_years[i], files)]
 }
 rcp_files <- unlist(rcp_files)
 
@@ -233,10 +222,6 @@ RCP_df <- do.call("rbind", RCP_df_list)
 
 # delete temp folder
 unlink(dir.name,recursive = TRUE)
-
-setwd('../')
-setwd('../')
-# setwd('../diagnostic-output')
 
 # ---------------------------------------------------------------------------
 # 3. Process RCP Emissions Data
@@ -276,13 +261,13 @@ RCP <- RCP[,c('em','Region','Sector',x_rcp_years)]
 writeData(RCP, 'MED_OUT', 'RCP_no_shipping')
 }
 # ---------------------------------------------------------------------------
-# 4. Load and Process CEDS Emissions Data 
+# 4. Load and Process CEDS Emissions Data
 
 Total_Emissions <- readData('MED_OUT', paste0(em,'_total_CEDS_emissions'))
 
 x_years<-paste('X',CEDS_start_year:CEDS_end_year,sep="")
 
-CEDS <- Total_Emissions  
+CEDS <- Total_Emissions
 CEDS$em <- em
 
 # rename other process emissions to tanker loading
@@ -326,7 +311,7 @@ ceds_comparable_global <- CEDS [-which(CEDS$sector %in% ceds_remove_sectors_glob
 
 #Aggregate CEDS to Global
 if ( em == 'CH4') x_years <- paste0('X',1750:2014)
-global_ceds <- aggregate(ceds_comparable_global[x_years], 
+global_ceds <- aggregate(ceds_comparable_global[x_years],
                          by = list(em = ceds_comparable_global$em ),
                          FUN=sum )
 
@@ -337,7 +322,7 @@ global_ceds_long$year <- as.numeric(gsub('X', '', global_ceds_long$year) )
 
 if (em != 'CO2'){
 #Aggregate RCP to Global
-rcp_agg <- aggregate(rcp_comparable[,x_rcp_years], 
+rcp_agg <- aggregate(rcp_comparable[,x_rcp_years],
                         by = list(em = rcp_comparable$em ),
                         FUN=sum )
 rcp_agg$Inventory <- 'CMIP5'
@@ -346,7 +331,7 @@ names(global_rcp_long) <- c("em","Inventory","year","total_emissions")
 
 # Add ship emissions to global RCP
 if ( has_ship ) {
-  # some cleaning up for selected rcp shipping emissions 
+  # some cleaning up for selected rcp shipping emissions
   rcp_ship_emissions_long <- rcp_ship_emissions[ , c( "year", em ) ]
   rcp_ship_emissions_long$year <- paste0( 'X', rcp_ship_emissions_long$year )
   rcp_ship_emissions_long$Inventory <- "CMIP5"
@@ -354,7 +339,7 @@ if ( has_ship ) {
   rcp_ship_emissions_long <- rcp_ship_emissions_long[, c( "em", "Inventory", "year", em ) ]
   names(rcp_ship_emissions_long) <- c("em","Inventory","year","total_emissions")
   rcp_ship_emissions_long <- rcp_ship_emissions_long[which( rcp_ship_emissions_long$year %in% x_rcp_years),]
-  # add rcp shipping emissions back to rcp emissions 
+  # add rcp shipping emissions back to rcp emissions
   global_rcp_long <- merge( global_rcp_long, rcp_ship_emissions_long, by = c( "em", "Inventory", "year" )  )
   global_rcp_long$total_emissions <- global_rcp_long$total_emissions.x + global_rcp_long$total_emissions.y
   global_rcp_long <- global_rcp_long[ , c( "em", "Inventory", "year","total_emissions" ) ]
@@ -379,7 +364,7 @@ if(em == 'CO2') {
 
 #--------------------------------------------------------------------------------------
 # 6.2 Sector Comparisons
-sector_ceds <- aggregate(ceds_comparable_global[x_years], 
+sector_ceds <- aggregate(ceds_comparable_global[x_years],
                          by = list(sector = ceds_comparable_global$agg_Sector ),FUN=sum )
 sector_ceds_long <- melt(sector_ceds, id.vars = c('sector'))
 names(sector_ceds_long) <- c('sector','year','total_emissions')
@@ -392,7 +377,7 @@ sector_ceds_long <- rbind.fill(sector_ceds_long,
 sector_ceds_long <- sector_ceds_long[!duplicated(sector_ceds_long[c('sector','year')]),]
 
 # 6.3 Region Comparisons
-region_ceds <- aggregate(ceds_comparable_global[x_years], 
+region_ceds <- aggregate(ceds_comparable_global[x_years],
                          by = list(region = ceds_comparable_global$Region ),FUN=sum )
 region_ceds_long <- melt(region_ceds, id.vars = c('region'))
 names(region_ceds_long) <- c('region','year','total_emissions')
@@ -406,7 +391,7 @@ region_ceds_long <- region_ceds_long[!duplicated(region_ceds_long[c('region','ye
 
 
 # 6.3 Fuel Comparisons
-fuel_ceds <- aggregate(ceds_comparable_global[x_years], 
+fuel_ceds <- aggregate(ceds_comparable_global[x_years],
                          by = list(fuel = ceds_comparable_global$fuel ),FUN=sum )
 fuel_ceds_long <- melt(fuel_ceds, id.vars = c('fuel'))
 names(fuel_ceds_long) <- c('fuel','year','total_emissions')
@@ -422,7 +407,7 @@ df$total_emissions <- df$total_emissions/1000
 if (em == 'CO2') df$total_emissions <- df$total_emissions/1000
 max <- 1.1*(max(df$total_emissions))
 if( em != 'CO2'){
-plot <- ggplot(df, aes(x=year,y=total_emissions,group=Inventory,shape=Inventory,linetype=Inventory)) + 
+plot <- ggplot(df, aes(x=year,y=total_emissions,group=Inventory,shape=Inventory,linetype=Inventory)) +
   geom_line(data = subset(df, Inventory=='CEDS'),size=1, color = 'black') +
   geom_point(data = subset(df, Inventory=='CMIP5'),color='dodgerblue1') +
   scale_x_continuous(limits = c(CEDS_start_year,2015 ),
@@ -443,7 +428,7 @@ plot <- ggplot(df, aes(x=year,y=total_emissions,group=Inventory,shape=Inventory,
                      values = c(NA,19))
 }
 if( em == 'CO2'){
-  plot <- ggplot(data = df, aes(x=year,y=total_emissions,linetype=Inventory, color =Inventory) ) + 
+  plot <- ggplot(data = df, aes(x=year,y=total_emissions,linetype=Inventory, color =Inventory) ) +
     geom_line(size=1) +
     scale_x_continuous(limits = c(CEDS_start_year,2015 ),
                        breaks= seq(from=CEDS_start_year, to=rcp_end_year, by=major),
@@ -491,7 +476,7 @@ writeData(df2, 'DIAG_OUT',paste0("summary_plot_data_",em,"sector_ceds"))
 # Legend Plot
 no_air_sectors <- sector_colors[which(sector_colors$sector != 'Air'),'sector']
 no_air_colors <- sector_colors[which(sector_colors$sector != 'Air'),'color']
-Sector_plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
+Sector_plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) +
   geom_area( data= df2, aes(x=year,y=total_emissions, fill = sector),  alpha = .7)+
   theme(legend.position="bottom")+
   guides(fill=guide_legend(nrow=1))+
@@ -500,7 +485,7 @@ Sector_plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) +
                     values = no_air_colors)
 # Stacked Plots
 if( em != 'CO2'){
-plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
+plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) +
   geom_area( data= df2, aes(x=year,y=total_emissions, fill = sector), alpha = .7,
              position = 'stack', linetype = 1, size = .05 ,colour="grey40")+
   geom_point(data = subset(df,Inventory=='CMIP5'), aes(x=year,y=total_emissions, shape = Inventory)) +
@@ -523,7 +508,7 @@ plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) +
 
 }
 if( em == 'CO2'){
-  Inventory_plot <- ggplot(data= df, aes(x=year,y=total_emissions, linetype = Inventory, shape = Inventory)) + 
+  Inventory_plot <- ggplot(data= df, aes(x=year,y=total_emissions, linetype = Inventory, shape = Inventory)) +
     geom_line(data = subset(df, Inventory == 'CDIAC'), aes(x=year,y=total_emissions)) +
     geom_point(data = subset(df, Inventory == 'CMIP5'), aes(x=year,y=total_emissions)) +
     theme(legend.position="bottom")+
@@ -537,8 +522,8 @@ if( em == 'CO2'){
     scale_linetype_manual("Inventory",
                           breaks=c('CDIAC','CMIP5'),
                           values = c('solid','blank'))
-  
-  plot <- ggplot(data= df, aes(x=year,y=total_emissions, linetype = Inventory, shape = Inventory)) + 
+
+  plot <- ggplot(data= df, aes(x=year,y=total_emissions, linetype = Inventory, shape = Inventory)) +
     geom_area( data= df2, aes(x=year,y=total_emissions, fill = sector),  alpha = .7,
                position = 'stack', linetype = 1, size = .05 ,colour="grey40")+
     geom_line(data = subset(df, Inventory == 'CDIAC'), aes(x=year,y=total_emissions, linetype = Inventory)) +
@@ -561,8 +546,8 @@ if( em == 'CO2'){
 
 total_stacked_sector_list[[h]] <- plot
 
-# Line Graph - no comparison to CMIP5 or CDIAC 
-total_line_sector_list[[h]] <- ggplot(data= df2, aes(x=year,y=total_emissions, color = sector)) + 
+# Line Graph - no comparison to CMIP5 or CDIAC
+total_line_sector_list[[h]] <- ggplot(data= df2, aes(x=year,y=total_emissions, color = sector)) +
   geom_line( size = 1, alpha = .7)+
   scale_x_continuous(limits = c(CEDS_start_year,CEDS_end_year ),
                      breaks= seq(from=CEDS_start_year, to=CEDS_end_year, by=major),
@@ -600,7 +585,7 @@ writeData(df, 'DIAG_OUT',paste0("summary_plot_data_",em,"region_rcp"))
 writeData(df2, 'DIAG_OUT',paste0("summary_plot_data_",em,"region_ceds"))
 
 if( em != 'CO2'){
-  plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
+  plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) +
     geom_area( data= df2, aes(x=year,y=total_emissions, fill = region), alpha = .7,
                position = 'stack', linetype = 1, size = .05 ,colour="grey40")+
     geom_point(data = df, aes(x=year,y=total_emissions, shape = Inventory)) +
@@ -622,16 +607,16 @@ if( em != 'CO2'){
                        values = c(19))
 }
 if( em == 'CO2'){
-  
-  Region_plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
+
+  Region_plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) +
     geom_area( data= df2, aes(x=year,y=total_emissions, fill = region),  alpha = .7)+
     theme(legend.position="bottom")+
     # guides(fill=guide_legend(nrow=1))+
     scale_fill_manual(name = 'Region',
                       breaks = region_colors$region,
                       values = region_colors$color)
-  
-  plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
+
+  plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) +
     geom_area( data= df2, aes(x=year,y=total_emissions, fill = region), alpha = .7,
                position = 'stack', linetype = 1, size = .05 ,colour="grey40")+
     geom_line(data = df, aes(x=year,y=total_emissions, linetype = Inventory)) +
@@ -655,8 +640,8 @@ if( em == 'CO2'){
 
 total_stacked_region_list[[h]] <- plot
 
-# Line Graph - no comparison to CMIP5 or CDIAC 
-total_line_region_list[[h]] <- ggplot(data= df2, aes(x=year,y=total_emissions, color = region)) + 
+# Line Graph - no comparison to CMIP5 or CDIAC
+total_line_region_list[[h]] <- ggplot(data= df2, aes(x=year,y=total_emissions, color = region)) +
   geom_line( size = 1, alpha = 0.7)+
   scale_x_continuous(limits = c(CEDS_start_year,CEDS_end_year ),
                      breaks= seq(from=CEDS_start_year, to=CEDS_end_year, by=major),
@@ -691,7 +676,7 @@ df2$fuel <- factor(df2$fuel , levels = fuels )
 df2 <- df2 %>% dplyr::arrange(fuel)
 
 if( em != 'CO2'){
-  plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
+  plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) +
     geom_area( data= df2, aes(x=year,y=total_emissions, fill = fuel), alpha = .7,
                position = 'stack', linetype = 1, size = .05 ,colour="grey40")+
     geom_point(data = df, aes(x=year,y=total_emissions, shape = Inventory)) +
@@ -713,16 +698,16 @@ if( em != 'CO2'){
                        values = c(19))
 }
 if( em == 'CO2'){
-  
-  Fuel_plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
+
+  Fuel_plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) +
        geom_area( data= df2, aes(x=year,y=total_emissions, fill = fuel),  alpha = .7)+
     theme(legend.position="bottom")+
     guides(fill=guide_legend(nrow=1))+
     scale_fill_manual(name = 'Fuel',
                       breaks = fuel_colors$fuel,
                       values = fuel_colors$color)
-  
-  plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) + 
+
+  plot <- ggplot(data= df2, aes(x=year,y=total_emissions)) +
     geom_area( data= df2, aes(x=year,y=total_emissions, fill = fuel), alpha = .7,
                position = 'stack', linetype = 1, size = .05 ,colour="grey40")+
     geom_line(data = df, aes(x=year,y=total_emissions, linetype = Inventory)) +
@@ -746,8 +731,8 @@ if( em == 'CO2'){
 
 total_stacked_fuel_list[[h]] <- plot
 
-# Line Graph - no comparison to CMIP5 or CDIAC 
-total_line_fuel_list[[h]] <- ggplot(data= df2, aes(x=year,y=total_emissions, color = fuel)) + 
+# Line Graph - no comparison to CMIP5 or CDIAC
+total_line_fuel_list[[h]] <- ggplot(data= df2, aes(x=year,y=total_emissions, color = fuel)) +
   geom_line( size = 1, alpha = .7)+
   scale_x_continuous(limits = c(CEDS_start_year,CEDS_end_year ),
                      breaks= seq(from=CEDS_start_year, to=CEDS_end_year, by=major),
@@ -766,7 +751,7 @@ total_line_fuel_list[[h]] <- ggplot(data= df2, aes(x=year,y=total_emissions, col
 
 # ---------------------------------------------------------------------------
 } # end emissions loop
-# 
+#
 # # Legend Processing
 # total_comparison_nolegend_list <- lapply(total_comparison_list, function(x) x + theme(legend.position="none"))
 # total_stacked_sector_nolegend_list <- lapply(total_stacked_sector_list, function(x) x + theme(legend.position="none"))
@@ -775,13 +760,13 @@ total_line_fuel_list[[h]] <- ggplot(data= df2, aes(x=year,y=total_emissions, col
 # total_line_sector_nolegend_list <- lapply(total_line_sector_list, function(x) x + theme(legend.position="none"))
 # total_line_region_nolegend_list <- lapply(total_line_region_list, function(x) x + theme(legend.position="none"))
 # total_line_fuel_nolegend_list <- lapply(total_line_fuel_list, function(x) x + theme(legend.position="none"))
-# 
+#
 # Inventory_plot_legend <- g_legend(Inventory_plot)
 # Sector_plot_legend <- g_legend(Sector_plot)
 # Region_plot_legend <- g_legend(Region_plot)
 # Fuel_plot_legend <- g_legend(Fuel_plot)
-# 
-# # Stacked Sector 
+#
+# # Stacked Sector
 # pdf(paste0('../diagnostic-output/paper-figures/Paper/Paper_Figures_sector_stacked.pdf'),width=10,height=10,paper='special', onefile=F)
 # grid.arrange(arrangeGrob(total_stacked_sector_nolegend_list[[1]],total_stacked_sector_nolegend_list[[2]],total_stacked_sector_nolegend_list[[3]],
 #                           total_stacked_sector_nolegend_list[[4]],total_stacked_sector_nolegend_list[[5]],total_stacked_sector_nolegend_list[[6]],
@@ -789,7 +774,7 @@ total_line_fuel_list[[h]] <- ggplot(data= df2, aes(x=year,y=total_emissions, col
 #             arrangeGrob(Sector_plot_legend,Inventory_plot_legend, ncol=1),
 #             ncol=1, heights = c(10,1))
 # dev.off()
-# 
+#
 # # Line Sector
 # pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_sector_line.pdf'),width=10,height=10,paper='special', onefile=F)
 # grid.arrange(arrangeGrob(total_line_sector_nolegend_list[[1]],total_line_sector_nolegend_list[[2]],total_line_sector_nolegend_list[[3]],
@@ -798,7 +783,7 @@ total_line_fuel_list[[h]] <- ggplot(data= df2, aes(x=year,y=total_emissions, col
 #              Sector_plot_legend,
 #              ncol=1, heights = c(10,1))
 # dev.off()
-# 
+#
 # # Stacked Region
 # pdf(paste0('../diagnostic-output/paper-figures/Paper/Paper_Figures_region_stacked.pdf'),width=10,height=10,paper='special', onefile=F)
 # grid.arrange(arrangeGrob(total_stacked_region_nolegend_list[[1]],total_stacked_region_nolegend_list[[2]],total_stacked_region_nolegend_list[[3]],
@@ -807,7 +792,7 @@ total_line_fuel_list[[h]] <- ggplot(data= df2, aes(x=year,y=total_emissions, col
 #              arrangeGrob(Region_plot_legend,Inventory_plot_legend, ncol=1),
 #              ncol=1, heights = c(10,1))
 # dev.off()
-# 
+#
 # # Line Region
 # pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_region_line.pdf'),width=10,height=10,paper='special', onefile=F)
 # grid.arrange(arrangeGrob(total_line_region_nolegend_list[[1]],total_line_region_nolegend_list[[2]],total_line_region_nolegend_list[[3]],
@@ -816,7 +801,7 @@ total_line_fuel_list[[h]] <- ggplot(data= df2, aes(x=year,y=total_emissions, col
 #              Region_plot_legend,
 #              ncol=1, heights = c(10,1))
 # dev.off()
-# 
+#
 # # Stacked fuel
 # pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_fuel_stacked.pdf'),width=10,height=10,paper='special', onefile=F)
 # grid.arrange(arrangeGrob(total_stacked_fuel_nolegend_list[[1]],total_stacked_fuel_nolegend_list[[2]],total_stacked_fuel_nolegend_list[[3]],
@@ -825,8 +810,8 @@ total_line_fuel_list[[h]] <- ggplot(data= df2, aes(x=year,y=total_emissions, col
 #              arrangeGrob(Fuel_plot_legend,Inventory_plot_legend, ncol=1),
 #              ncol=1, heights = c(10,1))
 # dev.off()
-# 
-# 
+#
+#
 # # Line Fuel
 # pdf(paste0('../diagnostic-output/paper-figures/Supplement/Paper_Figures_fuel_line.pdf'),width=10,height=10,paper='special', onefile=F)
 # grid.arrange(arrangeGrob(total_line_fuel_nolegend_list[[1]],total_line_fuel_nolegend_list[[2]],total_line_fuel_nolegend_list[[3]],

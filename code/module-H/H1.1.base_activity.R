@@ -4,26 +4,17 @@
 # Date Last Modified: 7 April 2016
 # Program Purpose: Extend CEDS activity backward
 # Input Files:  A.total_activity.csv, A.intl_shipping_en.csv
-# Output Files: 
-# TODO: 
+# Output Files:
+# TODO:
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+  PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Set working directory
-  dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-  for ( i in 1:length( dirs ) ) {
-    setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-    wd <- grep( 'CEDS/input', list.dirs(), value = T )
-    if ( length(wd) > 0 ) {
-      setwd( wd[1] )
-      break
-    }
-  } # END of for loop
-  PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
   headers <- c( "data_functions.R") 
   log_msg <- "Creating database for CEDS activity_data extension before 1960" 

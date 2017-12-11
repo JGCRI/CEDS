@@ -4,39 +4,41 @@
 # Date Last Updated: Nov 4, 2015
 # Program Purpose: performs some scaling diagnostics (scaling factors)
 # Input Files:   D.SO2_default_total_emissions.csv, F.SO2_scaled_emissions.csv
-# Output Files: 
-# Notes: 
-# TODO: 
+# Output Files:
+# Notes:
+# TODO:
 # ------------------------------------------------------------------------------
 
-#Set directory and paths
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-  }
-} 
+# 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+  PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-  setwd('../diagnostic-output')
+# Call standard script header function to read in universal header files -
+# provides logging, file support, and system functions - and start the script log.
+  headers <- c( "data_functions.R", "analysis_functions.R" ) # Any additional function files required
+  log_msg <- "Performing some scaling diagnostics" # First message to be printed to the log
+  script_name <- "Scaling Diagnostics.R"
+
+  source( paste0( PARAM_DIR, "header.R" ) )
+  initialize( script_name, log_msg, headers )
+
   MED_OUT <- '../intermediate-output/'
 
 # ------------------------------------------------------------------------------
 # 1. Load Files
 
-  default.in <- read.csv(paste(MED_OUT, "D.SO2_default_total_emissions.csv", sep=""), stringsAsFactors=FALSE)
-  scaled.in <- read.csv(paste(MED_OUT, "F.SO2_scaled_emissions.csv", sep=""), stringsAsFactors=FALSE)
+  default.in <- readData('MED_OUT', 'D.SO2_default_total_emissions')
+  scaled.in <- readData('MED_OUT', 'F.SO2_scaled_emissions')
 
 # Redefine list of regions/iso if "all"
-  if (country == 'all')  country <- unique(default.in$iso)
+  if (exists('country') && country == 'all')  country <- unique(default.in$iso)
 
 # ------------------------------------------------------------------------------
 # 2. Define Country to examine by iso code
 
   country <- c( "aus" , "aut" , "bel" , "bgr" , "blr" , "che" , "cyp" , "cze" , "deu" , "dnk" , "esp",
-              "est" , "fin" , "fra" , "gbr" , "grc" , "hrv" , "hun" , "irl" , "isl" , "ita" , "jpn",  
+              "est" , "fin" , "fra" , "gbr" , "grc" , "hrv" , "hun" , "irl" , "isl" , "ita" , "jpn",
               "ltu" , "lva" , "mlt" , "nld" , "nor" , "nzl" , "prt" , "rou" , "svk" , "svn" , "swe" ,
               "tur" , "ukr" , 'usa' ,  'can')
 
@@ -52,5 +54,4 @@ for ( i in 1:length( dirs ) ) {
 
 # ------------------------------------------------------------------------------
 # 4. Output
-  write.csv(ratio,'scaling_diagnostics.csv')
-
+  writeData(ratio, domain = 'DIAG_OUT', fn = 'scaling_diagnostics', meta = F)

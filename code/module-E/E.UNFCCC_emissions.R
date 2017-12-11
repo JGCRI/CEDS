@@ -8,23 +8,12 @@
 #               E.[EM]__UNFCCC_inventory.cvs
 #               E.[EM]_UNFCCC_filename_Sector_mapping.cvs
 # Notes: UNFCCC  Emissions are provided from 1990-2012.
-# TODO: 
+# TODO:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
-
-# Set working directory to the CEDS “input” directory & define PARAM_DIR as the
-# location of the CEDS “parameters” directory, relative to the new working directory.
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if ( length( wd ) > 0 ) {
-            setwd( wd[ 1 ] )
-            break
-        }
-    }
-    INPUT <- paste( getwd() )
-    PARAM_DIR <- "../code/parameters/"
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
@@ -61,7 +50,7 @@
 
 # Details: 
 #              * file_name_id: is the unique id, of the file, retrieved from the file's name
-#              * content_id: is the unique id, of the file, retrieve from within the file 
+#              * content_id: is the unique id, of the file, retrieve from within the file
 
 #              * file_name_specie: is the emission specie retrieved from the file's name
 #              * content_specie: is the emission specie column-header within the file
@@ -70,11 +59,11 @@
 #               the files content might contain another file's data; so a WARNING massage is printed
 
 #               This funtion also matches content_specie and file_name_specie. If they do not match a WARNING messages
-#               is printed; as this implies that the file may content data intended for a different emission specie. 
+#               is printed; as this implies that the file may content data intended for a different emission specie.
 
 # Parameter:     this function has two parameters 
 #               *UNFCCC_DF: A data frame that holds the (cvs) file(s) content
-#               *UNFCCC_FILE_NAMES: A list that holds only the names of the file(s) of the emmission within the 
+#               *UNFCCC_FILE_NAMES: A list that holds only the names of the file(s) of the emmission within the
 
 # Return   no return
 

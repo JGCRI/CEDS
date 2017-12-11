@@ -1,33 +1,23 @@
 # Program Name: gains EMF summary
 # Author: Rachel Hoesly
-# Date Last Updated: 16 Dec 2015 
-# Program Purpose: 
+# Date Last Updated: 16 Dec 2015
+# Program Purpose:
 # Input Files:    files in the EF_parameters folder contailing control_percent and em
-#               
-# Output Files:  
-# Notes: 
-# TODO: 
+#
+# Output Files:
+# Notes:
+# TODO:
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Before we can load headers we need some paths defined. They may be provided by
-#   a system environment variable or may have already been set in the workspace.
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length( wd ) > 0 ) {
-    setwd( wd[ 1 ] )
-    break
-  }
-}
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'process_db_functions.R','data_functions.R',
-              'interpolation_extension_functions.R','common_data.R') 
+              'interpolation_extension_functions.R','common_data.R')
 #                 Additional function files may be required.
 log_msg <- "Adding control percent data to data base" # First message to be printed to the log
 script_name <- "gains EMF summary.R"
@@ -38,14 +28,14 @@ initialize( script_name, log_msg, headers )
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "SO2"
-em_lc <- tolower( em )    
+em_lc <- tolower( em )
 
 # ---------------------------------------------------------------------------
 # 1. Load Data
 if ( em %in% c('SO2','BC','OC','CH4','CO2') ) {
   EMF30_ef <- readData( "DIAG_OUT" , paste0('B.',em,'_comb_EF_GAINS_EMF30'))
   }else if(em %in% c('NOx','NMVOC','CO')){
-  EMF30_ef <- readData( "MED_OUT" , paste0('B.',em,'_comb_EF_GAINS_EMF30'))  
+  EMF30_ef <- readData( "MED_OUT" , paste0('B.',em,'_comb_EF_GAINS_EMF30'))
 }
 
 
@@ -54,7 +44,7 @@ OECD_E_Stat <- readData( "ENERGY_IN", "OECD_E_Stat", ".csv" )
 
 
 # ---------------------------------------------------------------------------
-# 
+#
 all_ef <- EMF30_ef[,c('iso','sector','fuel','X2000','X2005','X2010')]
 years <- c('X2000','X2005','X2010')
 all_ef[,years] <- sapply(all_ef[,years],as.numeric)
@@ -62,7 +52,7 @@ all_ef[,years] <- sapply(all_ef[,years],as.numeric)
 # Denote OECD and Non OECD
 OECDlist <- unique(OECD_E_Stat$COUNTRY)
 all_ef <- merge (all_ef, MCL[,c('IEAName','iso')],
-                 all.x = TRUE, all.y = FALSE)                  
+                 all.x = TRUE, all.y = FALSE)
 all_ef <- all_ef[complete.cases(all_ef),]
 
 OECD <- all_ef[which(all_ef$IEAName %in% OECDlist),]
@@ -134,5 +124,3 @@ for(i in seq_along(fuels)){
 	out <- do.call(rbind, out)
 	writeData( out, "DIAG_OUT", paste0('GAINS-EF-summary/',em ,'_summary_',fuels[i]) )
 }
-
-                      

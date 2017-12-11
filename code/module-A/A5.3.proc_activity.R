@@ -2,41 +2,29 @@
 # Program Name: A5.3.proc_activity.R
 # Author: Jon Seibert
 # Date Last Modified: June 16, 2015
-# Program Purpose: To process and reformat non-combustion (process) activity activity_data 
+# Program Purpose: To process and reformat non-combustion (process) activity activity_data
 #                  and combine it with combustion activity activity_data to create a total
 #                  activity database.
-# Input Files: A.comb_activity.csv, A.NC_activity_db.csv, Master_Fuel_Sector_List.xlsx, 
+# Input Files: A.comb_activity.csv, A.NC_activity_db.csv, Master_Fuel_Sector_List.xlsx,
 #              Master_Country_List.csv
-# Output Files: A.NC_activity.csv, A.total_activity.csv, A.NC_missing_sectors.csv, 
+# Output Files: A.NC_activity.csv, A.total_activity.csv, A.NC_missing_sectors.csv,
 #               A.NC_dropoff_sectors.csv
-# Notes: 
-# TODO: 
+# Notes:
+# TODO:
 #-------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Before we can load headers we need some paths defined. They may be provided by
-# a system environment variable or may have already been set in the workspace.
-# Set variable PARAM_DIR to be the activity_data system directory.
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for( i in 1:length( dirs ) ){
-        setwd(  paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if( length( wd ) > 0 ){
-            setwd( wd[ 1 ] )
-            break
-        }
-    }
-    
-    PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "data_functions.R" ) # Additional function files required.
     log_msg <- "Final reformatting of process activity activity_data" # First message to be printed to the log
     script_name <- "A5.3.proc_activity.R"
-    
+
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
@@ -110,8 +98,8 @@ if ( 1 == 2 ) {
 	# This diagnostic output lists all iso-sector combinations for which all activity_data entries are 0.
 	# This serves to indicate which countries either did not report any activity corresponding to
 	# those sectors or reported zero activity for those sectors.
-	# 
-	# This diagnostic may return false positives, as some countries may have reported no activity 
+	#
+	# This diagnostic may return false positives, as some countries may have reported no activity
 	# for said sectors, which would have resulted in a row of all 0s just as if no report was made.
 	iso_list <- unique( nc_activity$iso )
 	sector_list <- unique( nc_activity$sector )
@@ -128,7 +116,7 @@ if ( 1 == 2 ) {
 
 	data_start <- findDataStart( nc_activity )
 
-	# Check whether ALL activity_data entries for each row are 0. 
+	# Check whether ALL activity_data entries for each row are 0.
 	# A row is only added to the list if it has no nonzero activity_data.
 	for( country in iso ){
 		super <- subset( nc_activity, nc_activity$iso == country )
@@ -139,7 +127,7 @@ if ( 1 == 2 ) {
 			if( !( FALSE %in% ( num_set[ data_start:length( num_set ) ] == 0 ) ) ){
 				no_data <- rbind( no_data, set[ 1:3 ] )
 			}
-			else if( ( TRUE %in% ( num_set[ length( num_set ) ] == 0 ) ) || 
+			else if( ( TRUE %in% ( num_set[ length( num_set ) ] == 0 ) ) ||
 					 ( TRUE %in% ( num_set[ data_start ] == 0 ) ) ){ # For next diagnostic
 				dropoff_data <- rbind( dropoff_data, set )
 			}
@@ -150,8 +138,8 @@ if ( 1 == 2 ) {
 	no_data <- no_data[ -1, ]
 	dropoff_data <- dropoff_data[ -1, ]
 
-	# The second diagnostic files would be one that lists countries where the driver 
-	# drops to zero at some point and stays there (indicating that there might be missing activity_data). 
+	# The second diagnostic files would be one that lists countries where the driver
+	# drops to zero at some point and stays there (indicating that there might be missing activity_data).
 	# This will happen in 1970 for most of the developing countries, but there might be other issues.
 
 	# Add columns to hold years at which the runs of 0s begin, remove units column.
@@ -160,21 +148,21 @@ if ( 1 == 2 ) {
 	L <- length( dropoff_data )
 	dropoff_data$dropoff_beg <- ""
 	dropoff_data$dropoff_end <- ""
-	dropoff_data <- cbind( dropoff_data[ 1:( data_start - 2 ) ], 
+	dropoff_data <- cbind( dropoff_data[ 1:( data_start - 2 ) ],
 		dropoff_data[ ( L + 1 ):( L + 2 ) ], dropoff_data[ data_start:L ] )
 
 	data_start <- findDataStart( dropoff_data )
-	
+
 	for( r in 1:nrow( dropoff_data ) ){
 		row <- dropoff_data[ r, ]
 		num_row <- as.numeric( row )
 		L <- length( row )
-	
+
 		zero_start <- L
 		zero_end <- data_start
 		prior_zero <- FALSE
 		seen_nonzero <- FALSE
-	
+
 		for( j in data_start:L ){
 			if( prior_zero ){
 				if( num_row[[ j ]] == 0 ){
@@ -195,7 +183,7 @@ if ( 1 == 2 ) {
 				}
 			}
 		}
-	
+
 		if( TRUE %in% ( num_row[ data_start ] == 0 ) ){
 			dropoff_data[ r,"dropoff_beg"] <- substr( names( dropoff_data )[[ zero_end ]], 2, 5 )
 		}
@@ -213,20 +201,20 @@ if ( 1 == 2 ) {
 
 	# Reorder columns so that the name column is first
 	no_data <- cbind( no_data[ length( no_data ) ], no_data[ 1:( length( no_data ) - 1 ) ] )
-	dropoff_data <- cbind( dropoff_data[ length( dropoff_data ) ], 
+	dropoff_data <- cbind( dropoff_data[ length( dropoff_data ) ],
 						   dropoff_data[ 1:( length( dropoff_data ) - 1 ) ] )
-					   
+
 	# Comments for diagnostic files
 	comments.no_data <- c( paste0( "Listing of those country-sector-fuel combinations with no activity_data." ) )
-	comments.dropoff_data <- paste0( "Listing of those country-sector-fuel combinations", 
-									 " whose activity_data cuts off at a certain year. All activity_data before (inclusive)", 
-									 " the dropoff_beg is 0 and all activity_data after (inclusive) the dropoff_end is 0.", 
+	comments.dropoff_data <- paste0( "Listing of those country-sector-fuel combinations",
+									 " whose activity_data cuts off at a certain year. All activity_data before (inclusive)",
+									 " the dropoff_beg is 0 and all activity_data after (inclusive) the dropoff_end is 0.",
 									 " A lack of entry for either indicates nonzero activity_data at that end.")
 
 	# Output
-	writeData( no_data, domain = "DIAG_OUT", fn = "A.NC_missing_sectors", 
+	writeData( no_data, domain = "DIAG_OUT", fn = "A.NC_missing_sectors",
 			   meta = F, comments = comments.no_data )
-	writeData( dropoff_data, domain = "DIAG_OUT", fn = "A.NC_dropoff_sectors", 
+	writeData( dropoff_data, domain = "DIAG_OUT", fn = "A.NC_dropoff_sectors",
 			   meta = F, comments = comments.dropoff_data )
 }
 

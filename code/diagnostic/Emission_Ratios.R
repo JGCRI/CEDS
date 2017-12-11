@@ -2,35 +2,24 @@
 # Program Name: Paper_Figures_emission_ratios.R
 # Author(s): Rachel Hoesly
 # Date Last Updated: 28 Dec 2016
-# Program Purpose: Produces diagnostic figures of emissions ratios BC adn NOx over CO    
+# Program Purpose: Produces diagnostic figures of emissions ratios BC adn NOx over CO
 # Input Files: [em]_total_CEDS_emissions.csv
 # Output Files: Figures in the diagnostic-output
-# Notes: 
-# TODO: 1. 
+# Notes:
+# TODO: 1.
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Set working directory to the CEDS “input” directory and define PARAM_DIR as the
-# location of the CEDS “parameters” directory, relative to the new working directory.
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-    
-  }
-}
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R",
               'common_data.R', 'IO_functions.R')# Any additional function files required
-log_msg <- "Paper figures for emission ratios" 
+log_msg <- "Paper figures for emission ratios"
 script_name <- "Paper_Figures_emission_ratios.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
@@ -74,12 +63,12 @@ em_road <- aggregate(em_road[X_extended_years], by = list(iso = em_road$iso), su
 #Check order
 if(!identical(CO_road$iso, em_road$iso)) stop('Data frames are not in identical order, please sort')
 
-# Calculate 
+# Calculate
 em_over_CO_road <- em_road
 em_over_CO_road[X_extended_years] <- em_road[X_extended_years]/CO_road[X_extended_years]
 em_over_CO_road <- melt(em_over_CO_road, id.vars = c('iso'))
-names(em_over_CO_road)[which(names(em_over_CO_road) == 'value')] <- 'ratio' 
-names(em_over_CO_road)[which(names(em_over_CO_road) == 'variable')] <- 'year' 
+names(em_over_CO_road)[which(names(em_over_CO_road) == 'value')] <- 'ratio'
+names(em_over_CO_road)[which(names(em_over_CO_road) == 'variable')] <- 'year'
 em_over_CO_road <- em_over_CO_road[-which(is.na(em_over_CO_road$ratio)),]
 # Mole Ratios
 if(ratio == 'mole') em_over_CO_road$ratio <- em_over_CO_road$ratio*molar_mass_CO/molar_mass_em
@@ -91,12 +80,12 @@ em_total <- aggregate(em_emissions[X_extended_years], by = list(iso = em_emissio
 #Check order
 if(!identical(CO_road$iso, em_road$iso)) stop('Data frames are not in identical order, please sort')
 
-# Calculate 
+# Calculate
 em_over_CO_total <- em_total
 em_over_CO_total[X_extended_years] <- em_total[X_extended_years]/CO_total[X_extended_years]
 em_over_CO_total <- melt(em_over_CO_total, id.vars = c('iso'))
-names(em_over_CO_total)[which(names(em_over_CO_total) == 'value')] <- 'ratio' 
-names(em_over_CO_total)[which(names(em_over_CO_total) == 'variable')] <- 'year' 
+names(em_over_CO_total)[which(names(em_over_CO_total) == 'value')] <- 'ratio'
+names(em_over_CO_total)[which(names(em_over_CO_total) == 'variable')] <- 'year'
 em_over_CO_total <- em_over_CO_total[-which(is.na(em_over_CO_total$ratio)),]
 # Mole Ratios
 if(ratio == 'mole') em_over_CO_total$ratio <- em_over_CO_total$ratio*molar_mass_CO/molar_mass_em
@@ -108,12 +97,12 @@ plot_countries <- c('usa')
 x_axis_start <- 1980
 x_axis_end <- 2014
 
-if(ratio == 'mass') unit <- paste0(em,'/CO [g/g]') 
-if(ratio == 'mole') unit <- paste0(em,'/CO [mole/mole]') 
+if(ratio == 'mass') unit <- paste0(em,'/CO [g/g]')
+if(ratio == 'mole') unit <- paste0(em,'/CO [mole/mole]')
 
 # road
 plot_df <- em_over_CO_road
-plot_df <- plot_df[which(plot_df$iso %in% plot_countries),]  
+plot_df <- plot_df[which(plot_df$iso %in% plot_countries),]
 plot_df$year <- as.numeric(gsub('X','',plot_df$year))
 
 plot_road <- ggplot( plot_df, aes(x=year,y=ratio,colour=iso)) +
@@ -130,7 +119,7 @@ plot_road <- ggplot( plot_df, aes(x=year,y=ratio,colour=iso)) +
 
 # total
 plot_df <- em_over_CO_total
-plot_df <- plot_df[which(plot_df$iso %in% plot_countries), ]  
+plot_df <- plot_df[which(plot_df$iso %in% plot_countries), ]
 plot_df$year <- as.numeric(gsub('X','',plot_df$year))
 
 plot_total <- ggplot( plot_df, aes(x=year,y=ratio,colour=iso)) +
@@ -159,4 +148,3 @@ writeData(em_over_CO_total, 'DIAG_OUT', paste0('Emission_ratios_',em,'_by_',rati
 # 6. End Script
 
 logStop()
-

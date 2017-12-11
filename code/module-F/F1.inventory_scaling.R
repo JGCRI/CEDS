@@ -7,24 +7,16 @@
 # Input Files: None
 # Output Files: None
 # Functions Defined: source_child
-# Notes: 
+# Notes:
 # TODO: Add conditionals and script specifications for other emissions types
 #       as they are added to the system.
 # ------------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if ( length( wd ) > 0 ) {
-            setwd( wd[ 1 ] )
-            break
-        }
-    }
-    
-    PARAM_DIR <- "../code/parameters/"
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
   
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
@@ -63,7 +55,7 @@
 # ------------------------------------------------------------------------------------
 # 2. Initialize base files
 
-# Create a base dataframe of scaled emissions and emissions factors for input into scaling  
+# Create a base dataframe of scaled emissions and emissions factors for input into scaling
 # modules - This is the working set of emissions and ef's that the scaling scripts alter.
 # Before scripts are run, these are identical to the default emissions.
 

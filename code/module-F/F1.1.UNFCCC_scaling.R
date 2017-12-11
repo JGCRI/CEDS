@@ -4,26 +4,17 @@
 # Date Last Modified: Oct 26, 2015
 # Program Purpose: To create scaling factors and update emissions estimate for
 # the UNFCCC regions from latest emissions working copy
-# Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv, 
-#              F.[em]_scaled_emissions.csv, UNFCCC_sector_mapping.xls, 
+# Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
+#              F.[em]_scaled_emissions.csv, UNFCCC_sector_mapping.xls,
 #              E.SO2_UNFCCC_inventory.csv
 # Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
 # Notes:
 # TODO:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
-# Set working directory to the CEDS “input” directory and define PARAM_DIR as the
-# location of the CEDS “parameters” directory relative to the new working directory.
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-        setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-        wd <- grep( 'CEDS/input', list.dirs(), value = T )
-        if ( length(wd) > 0 ) {
-            setwd( wd[1] )
-            break
-        }
-    } 
-    PARAM_DIR <- "../code/parameters/"
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )

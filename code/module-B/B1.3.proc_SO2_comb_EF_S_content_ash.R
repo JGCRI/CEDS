@@ -2,32 +2,22 @@
 # Program Name: B1.3.proc_SO2_comb_EF_S_content_ash.R.R
 # Authors: Leyang Feng
 # Date Last Updated: Nov 9, 2015
-# Program Purpose: Use sulfur content, ash retention database to 
+# Program Purpose: Use sulfur content, ash retention database to
 # generate sulfur EF database corresponding to the fuels and sectors in A.comb_activity.csv
-# Input Files: A.comb_activity.csv, B.SO2_S_Content_db.csv, 
-#              B.SO2_S_AshRet_db.csv,   
+# Input Files: A.comb_activity.csv, B.SO2_S_Content_db.csv,
+#              B.SO2_S_AshRet_db.csv,
 # Output Files: B.[em]_comb_EF_db.csv
-# Notes: 
-# TODO: 
+# Notes:
+# TODO:
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Before we can load headers we need some paths defined. They may be provided by
-#   a system environment variable or may have already been set in the workspace.
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length( wd ) > 0 ) {
-    setwd( wd[ 1 ] )
-    break
-  }
-}
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R" ) # Additional function files required.
 log_msg <- "Extrapolating default emissions factors to full dataset" # First message to be printed to the log
@@ -81,7 +71,7 @@ if (F %in% checkls == F){
 default_efs <- layout
 
 # ------------------------------------------------------------------------------
-# 3. Output    
+# 3. Output
 
 # Write out all three default databases
 writeData( default_efs, "MED_OUT", paste0( "B.", em ,"_", "comb", "_EF_db" ) )
@@ -89,5 +79,3 @@ writeData( default_efs, "MED_OUT", paste0( "B.", em ,"_", "comb", "_EF_db" ) )
 # Every script should finish with this line
 logStop()
 # END
-
-

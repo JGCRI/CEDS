@@ -15,16 +15,7 @@
 # Before we can load headers we need some paths defined. They may be provided 
 #   by a system environment variable or they may have been set in the workspace
 # Set variable PARAM_DIR to be the data system directory
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-      setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-      wd <- grep( 'CEDS/input', list.dirs(), value = T )
-      if ( length(wd) > 0 ) {
-        setwd( wd[1] )
-        break
-      }
-    }
-    PARAM_DIR <- "../code/parameters/"
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 
 # Call standard script header function to read in universal header files - 
@@ -52,11 +43,11 @@
 # ------------------------------------------------------------------------------
 # 1. Read in files
 
-    setwd( './emissions-inventories/RCP')
+    rcp_dir <- './emissions-inventories/RCP/'
 
 # create temporary folder to extract zipped files
-    zipfile_path <- paste0('./',em,'.zip')
-    dir.name <- paste0('./',em,'_RCP_temp_folder')
+    zipfile_path <- paste0(rcp_dir, em, '.zip')
+    dir.name <- paste0(rcp_dir, em, '_RCP_temp_folder')
     dir.create(dir.name)
 # unzip files to temp folder  
     unzip(zipfile_path, exdir = dir.name)
@@ -95,10 +86,6 @@
 # delete temp folder
     unlink(dir.name,recursive = TRUE)
     
-    setwd('../')
-    setwd('../')
-
-
 # Create mapping files for matching CEDS and RCP sectors and regions 
     Map_region_codes <- readData( "EM_INV", domain_extension = 'RCP/', "RCP Region Mapping", 
                                   ".xlsx", sheet_selection = 'Reg Codes',

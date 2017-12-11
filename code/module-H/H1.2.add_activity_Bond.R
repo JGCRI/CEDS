@@ -2,27 +2,17 @@
 # Program Name: H1.2.add_activity_Bond.R
 # Author: Rachel Hoesly
 # Program Purpose: Extend coal and biomass back with Bond data
-#               
+#
 # Output Files:
-# TODO: 
+# TODO:
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Set working directory
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-    
-  }
-}
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R","process_db_functions.R") # Additional function files may be required.
 log_msg <- "Extending coal and biomass activity_data before 1960 with CDIAC-Bond data" # First message to be printed to the log
@@ -214,12 +204,8 @@ activity <- replaceValueColMatch(activity, ceds_extended,
 # ---------------------------------------------------------------------------
 # 6. Write to database
 
-if( !(nrow(activity_all) == nrow(activity) & ncol(activity_all) == ncol(activity) ) ){ 
+if( !(nrow(activity_all) == nrow(activity) & ncol(activity_all) == ncol(activity) ) ){
   stop( "New and old activity do not match") } else{
     writeData( activity, "MED_OUT" , paste0('H.',em,'_total_activity_extended_db')) }
 
 logStop()
-
-
-
-
