@@ -3,25 +3,27 @@
 # Author: Ben Goldstein
 # Date Last Updated: 21 June 2017
 # Program Purpose: To process user-defined datasets for use in the historical
-#                  energy extension. This function:
-#                   1. Cleans the user data replacing NAs with zero and casting
-#                      all data columns to numeric
-#                   2. Maps the user data to the proper (CEDS) format
-#                   3. Interpolates the data to fill missing years
+#                  energy extension.
 # Input Files: U.*, U.*-instructions, U.*-mapping
 # Output Files: None
 # Functions Defined: mapToCEDS, interpolateData, interpolateByTrend
 # Notes:
-
 # ------------------------------------------------------------------------------------
-
-# ------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # processUserDefinedData()
-
-    processUserDefinedData <- function( filename, MSL = NULL, MCL = NULL,
-                                        MFL = NULL, comb_or_NC = NULL ) {
+# Brief:
+#   1. Cleans the user data replacing NAs with zero and casting
+#      all data columns to numeric
+#   2. Maps the user data to the proper (CEDS) format
+#   3. Interpolates the data to fill missing years
+# Params:
+#   filename: The non-extension part of the file containing user data
+#   MSL: Master sector list (default)
+#   MCL: Master country list (default)
+#   MFL: Master fuel list (default)
+# Returns: the data in filename as a mapped and interpolated dataframe
+    processUserDefinedData <- function( filename, MSL = NULL, MCL = NULL, MFL = NULL) {
 
         # If master mapping files were not provided, they need to be read in.
         # MSL = Master Sector List
@@ -88,9 +90,6 @@
 
         return( interp_df )
     }
-
-
-
 
 #------------------------------------------------------------------------------
 # mapToCEDS()
