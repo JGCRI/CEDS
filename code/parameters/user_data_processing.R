@@ -81,9 +81,9 @@
         mapped_df <- mapToCEDS( usr_data, MSL, MCL, MFL,
                                 iso_map         = mappings$iso,
                                 agg_sector_map  = mappings$agg_sector,
-                                CEDS_sector_map = mappings$ceds_sector,
+                                CEDS_sector_map = mappings$CEDS_sector,
                                 agg_fuel_map    = mappings$agg_fuel,
-                                CEDS_fuel_map   = mappings$ceds_fuel )
+                                CEDS_fuel_map   = mappings$CEDS_fuel )
 
         # Interpolate the mapped data
         interp_df <- interpolateData( mapped_df, interp_instr, MSL, MCL, MFL )
@@ -292,7 +292,7 @@
         # Checks if any row in the dataframe contains NA. In the event that there
         # are no NAs we can return the data matched to the intended years.
         if ( !any( apply ( df, 1, function(r) any( is.na(r) ) ) ) ) {
-            return( dataframe )
+            return( df )
         }
 
     # The data has holes, so we have to continue on and fill the gaps.
