@@ -12,18 +12,17 @@
 
 
 # orderInstructions
-# Sorts the instructions in order to ensure that all actions are performed in the right order
-    orderInstructions <- function( instructions ) {
+# Sorts user instructions ensure that all actions are performed in the right
+# order. The rows are arranged in ascending order by:
+#   1. priority
+#   2. CEDS_sector
+#   3. CEDS_fuel
+#   4. start_year
+orderInstructions <- function( instructions ) {
+    dplyr::arrange( instructions, priority, CEDS_sector, CEDS_fuel, start_year )
+}
 
-        instructions <- instructions %>%
-                        dplyr::arrange( start_year ) %>%
-                        dplyr::arrange( CEDS_fuel ) %>%
-                        dplyr::arrange( CEDS_sector ) %>%
-                        dplyr::arrange( priority )
-
-        return( instructions )
-    }
-
+# getInstructionLevel
     getInstructionLevel <- function(all_instr, level) {
         if (level %in% names(all_instr)) {
             instructions <- all_instr[ which( !is.na( all_instr[[level]] ) ), ] %>%
@@ -38,6 +37,8 @@
 
     }
 
+# readInUserInstructions
+# Searches the user-defined-energy directory for instructions
     readInUserInstructions <- function () {
     # At this point in the process, data has been maped & cleaned.
     # We need to build an instructions dataframe to pass forward.
