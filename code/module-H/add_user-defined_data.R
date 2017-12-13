@@ -202,24 +202,21 @@
         working_instructions <- instructions[ nrow( instructions ), ]
         instructions <- instructions[ -nrow( instructions ), ]
 
-        Xyears <- paste0( "X", working_instructions$start_year:working_instructions$end_year )
-
         # Filter out any years not in the CEDS range
+        Xyears <- paste0( "X", working_instructions$start_year:working_instructions$end_year )
         if ( any( Xyears %!in% yearsAllowed )) {
             warning(paste("Some data in", working_instructions$data_file,
                           "are not in the allowed CEDS years and will be ignored"))
             Xyears <- Xyears[ which( Xyears %in% yearsAllowed ) ]
         }
 
-        if ( working_instructions$bypass_processing ) {
+        # Execute mapping and interpolation unless user requests to bypass processing
+        if ( working_instructions$bypass_processing )
             user_dataframe <- readData( working_instructions$data_file, domain = "EXT_IN",
                                         domain_extension = "user-defined-energy/" )
-        } else {
-            # The processUserDefinedData function executes mapping and
-            # interpolation as necessary
+        else
             user_dataframe <- processUserDefinedData( working_instructions$data_file,
                                                       MSL, MCL, MFL )
-        }
 
         agg_level <- identifyLevel( user_dataframe )
 
@@ -231,18 +228,13 @@
         # aggregated as one.
         batch_data_instructions <- extractBatchInstructions(instructions, usrdata, agg_level)
 
-    # Files only need to be batched if their year ranges overlap.
-        batch_instructions_overlap <- batch_data_instructions[ which(
-                              batch_data_instructions$start_year < working_instructions$end_year &
-                              batch_data_instructions$end_year > working_instructions$start_year ), ]
+        # Files only need to be batched if their year ranges overlap.
+        batch_data_instructions <- dplyr::filter( batch_data_instructions,
+                                            start_year < working_instructions$end_year,
+                                            end_year > working_instructions$start_year)
 
-    # Extract those that don't overlap and bind them back into instructions.
-        batch_instructions_no_overlap <- batch_data_instructions[ which(
-                              batch_data_instructions$start_year > working_instructions$end_year |
-                              batch_data_instructions$end_year < working_instructions$start_year ), ]
-        instructions <- rbind( batch_instructions_no_overlap, instructions )  ### Should sort instructions at this point
-
-        batch_data_instructions <- batch_instructions_overlap
+        # Remove the batch instructions from the master instruction dataframe
+        instructions <- dplyr::setdiff(instructions, instruction_batch)
 
     # If there are data in our instructions that will be in the current group's batch:
         if ( nrow( batch_data_instructions ) > 0 ) {
