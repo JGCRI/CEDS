@@ -30,7 +30,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "BC"
+    if ( is.na( em ) ) em <- "CO2"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -129,13 +129,16 @@
 
 
 # Gather default activity data
-    default_activity <- readData( 'MED_OUT', paste0( 'H.', em, '_total_activity_extended_db' ) , meta = F) ### Eventually this will not require an emissions species.
+    default_activity <- readData( 'MED_OUT', paste0( 'H.', 'SO2', '_total_activity_extended_db' ) , meta = F) ### Eventually this will not require an emissions species.
     colnames( default_activity )[ 1:3 ] <- c( "iso", "CEDS_sector", "CEDS_fuel" )
     default_activity_mapped <- mapToCEDS( default_activity, MSL, MCL, MFL, aggregate = F )
 
     # We only operates on combustion emissions, so reduce the data to that form
     combustion_rows <- default_activity_mapped$CEDS_sector %in% comb_sectors_only
     all_activity_data <- default_activity_mapped[which(combustion_rows), ]
+
+    # I don't know why there are NAs, but for now let's zero them out:
+    all_activity_data[is.na(all_activity_data)] <- 0
 
 # ------------------------------------------------------------------------------------
 # 2. Collect user-defined inputs and prepare processing loop
@@ -165,9 +168,9 @@
     yearsAllowed <- colnames( all_activity_data )[ isXYear(colnames( all_activity_data ))]
 
     # Master list used to track activity data. Contains three dataframes:
-    # 1. all_activity_data: changed activity data
-    # 2. old_activity_data: unchanged (the original) activity data
-    # 3. continuity_factors
+    #   1. all_activity_data: changed activity data
+    #   2. old_activity_data: unchanged (the original) activity data
+    #   3. continuity_factors
     activity <- list()
     activity$all_activity_data <- all_activity_data
     activity$old_activity_data <- all_activity_data
@@ -192,8 +195,10 @@
 
         batch <- batch + 1
 
-        # Select and remove the last instruction in the list for processing
+        # Sort instructions
         instructions <- orderInstructions( instructions )
+
+        # Process the last row (lowest priority, most aggregate) first
         working_instructions <- instructions[ nrow( instructions ), ]
         instructions <- instructions[ -nrow( instructions ), ]
 
@@ -216,56 +221,15 @@
                                                       MSL, MCL, MFL )
         }
 
-        # Extract the rows from the user's dataframe refers to the specific
-        # categories and years as defined by the current instructions
-        user_dataframe_subset <- subsetUserData( user_dataframe, working_instructions )
-
         agg_level <- identifyLevel( user_dataframe )
 
-        # Identify other instructions in the "batch" that will need to be aggregated as one.
-        if ( agg_level == 4 ) {
-            batch_data_instructions <- instructions[ which( instructions$iso %in% user_dataframe_subset$iso &
-                                                            instructions$CEDS_sector %in% user_dataframe_subset$CEDS_sector &
-                                                            instructions$agg_fuel
-                                                                        %in% user_dataframe_subset$agg_fuel ), ]
-            instructions <- instructions[ which( instructions$iso %!in% user_dataframe_subset$iso |
-                                                    instructions$CEDS_sector %!in% user_dataframe_subset$CEDS_sector |
-                                                    instructions$agg_fuel %!in% user_dataframe_subset$agg_fuel ), ]
+        # Extract the rows from the user's dataframe refering to the specific
+        # categories and years as defined by the current instruction
+        usrdata <- subsetUserData( user_dataframe, working_instructions )
 
-        } else if ( agg_level == 3 ) {
-            batch_data_instructions <- instructions[ which( instructions$iso %in% user_dataframe_subset$iso &
-                                                            instructions$agg_sector %in% user_dataframe_subset$agg_sector &
-                                                            instructions$agg_fuel
-                                                                        %in% user_dataframe_subset$agg_fuel ), ]
-            instructions <- instructions[ which( instructions$iso %!in% user_dataframe_subset$iso |
-                                                   instructions$agg_sector %!in% user_dataframe_subset$agg_sector |
-                                                   instructions$agg_fuel %!in% user_dataframe_subset$agg_fuel ), ]
-        } else if ( agg_level == 6 ) {
-            batch_data_instructions <- instructions %>%
-                                       dplyr::filter( iso      %in% user_dataframe_subset$iso,
-                                                      agg_fuel %in% user_dataframe_subset$agg_fuel,
-                                                      is.na( CEDS_sector ) )
-            instructions <- rbind( instructions %>% filter( iso %!in% user_dataframe_subset$iso ),
-                                   instructions %>% filter( agg_fuel %!in% user_dataframe_subset$agg_fuel ),
-                                   instructions %>% filter( !is.na( CEDS_sector ) ) )
-            instructions <- unique( instructions )
-        } else if ( agg_level %in% c( 1, 2 ) ) {
-            batch_data_instructions <- instructions %>% filter( iso %in% user_dataframe_subset$iso ) %>%
-                                                    filter( agg_fuel %in% user_dataframe_subset$agg_fuel ) %>%
-                                                    filter( is.na( agg_sector ) )
-            instructions <- rbind( instructions %>% filter( iso %!in% user_dataframe_subset$iso ),
-                                   instructions %>% filter( agg_fuel %!in% user_dataframe_subset$agg_fuel ) )
-                                   instructions %>% filter( !is.na( agg_sector ) )
-            instructions <- unique( instructions )
-        } else if ( agg_level == 5 ) {
-            batch_data_instructions <- instructions %>% filter( iso %in% user_dataframe_subset$iso ) %>%
-                                                    filter( agg_fuel %in% user_dataframe_subset$agg_fuel ) %>%
-                                                    filter( agg_sector %in% user_dataframe_subset$agg_sector )
-            instructions <- rbind( instructions %>% filter( iso %!in% user_dataframe_subset$iso ),
-                                   instructions %>% filter( agg_fuel %!in% user_dataframe_subset$agg_fuel ),
-                                   instructions %>% filter( agg_sector %!in% user_dataframe_subset$agg_sector ) )
-            instructions <- unique( instructions )
-        }
+        # Identify other instructions in the "batch" that will need to be
+        # aggregated as one.
+        batch_data_instructions <- extractBatchInstructions(instructions, usrdata, agg_level)
 
     # Files only need to be batched if their year ranges overlap.
         batch_instructions_overlap <- batch_data_instructions[ which(
@@ -335,7 +299,7 @@
         #   user_defined_data dataframe. This may require drawing on multiple
         #   source files.
             working_instructions <- rbind( working_instructions, batch_data_instructions )
-            user_dataframe_subset <- user_dataframe_subset[ 0, ]
+            usrdata <- usrdata[ 0, ]
             for ( row_num in 1:nrow( working_instructions ) ) {
                 file <- working_instructions$data_file[ row_num ]
                 bypass <- working_instructions$bypass_processing[ row_num ]
@@ -350,7 +314,7 @@
                                                 domain_extension = "user-defined-energy/" )
                 }
             # ...and append the relevant part to the dataframe
-                user_dataframe_subset <- rbind( subsetUserData( user_dataframe,
+                usrdata <- rbind( subsetUserData( user_dataframe,
                                                                       working_instructions ) )
             }
         }
@@ -365,33 +329,33 @@
     #   then grab any rows that would be in the same group as yours one level up.
 
         if ( agg_level == 4 ) {
-            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% user_dataframe_subset$iso &
-                                                     all_activity_data$CEDS_sector %in% user_dataframe_subset$CEDS_sector &
+            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% usrdata$iso &
+                                                     all_activity_data$CEDS_sector %in% usrdata$CEDS_sector &
                                                      all_activity_data$agg_fuel %in% MFL$aggregated_fuel[ which( MFL$fuel %in%
-                                                                                                    user_dataframe_subset$CEDS_fuel ) ]
+                                                                                                    usrdata$CEDS_fuel ) ]
                                                      ), c( colnames( all_activity_data[ which( !isXYear(
                                                        colnames( all_activity_data ) ) ) ] ), Xyears ) ]
         } else if (agg_level == 3) {
-            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% user_dataframe_subset$iso &
-                                                     all_activity_data$agg_sector %in% user_dataframe_subset$agg_sector &
+            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% usrdata$iso &
+                                                     all_activity_data$agg_sector %in% usrdata$agg_sector &
                                                      all_activity_data$agg_fuel == MFL$aggregated_fuel[ which(  MFL$fuel %in%
-                                                                                                    user_dataframe_subset$CEDS_fuel ) ]
+                                                                                                    usrdata$CEDS_fuel ) ]
                                                      ), c( colnames( all_activity_data[ which( !isXYear(
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
         } else if ( agg_level == 2 || agg_level == 1 ) {
-            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% user_dataframe_subset$iso &
-                                                     all_activity_data$agg_fuel %in% user_dataframe_subset$agg_fuel
+            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% usrdata$iso &
+                                                     all_activity_data$agg_fuel %in% usrdata$agg_fuel
                                                      ), c( colnames( all_activity_data[ which( !isXYear(
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
         } else if ( agg_level == 5 ) {
-            data_to_use <- all_activity_data %>% filter( agg_fuel %in% user_dataframe_subset$agg_fuel ) %>%
-                                                 filter( iso %in% user_dataframe_subset$iso ) %>%
-                                                 filter( agg_sector %in% user_dataframe_subset$agg_sector )
+            data_to_use <- all_activity_data %>% filter( agg_fuel %in% usrdata$agg_fuel ) %>%
+                                                 filter( iso %in% usrdata$iso ) %>%
+                                                 filter( agg_sector %in% usrdata$agg_sector )
             data_to_use <- data_to_use[ , c(colnames( all_activity_data[ which( !isXYear(
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
         } else if ( agg_level == 6 ) {
-            data_to_use <- all_activity_data %>% filter( agg_fuel %in% user_dataframe_subset$agg_fuel ) %>%
-                                                 filter( iso %in% user_dataframe_subset$iso )
+            data_to_use <- all_activity_data %>% filter( agg_fuel %in% usrdata$agg_fuel ) %>%
+                                                 filter( iso %in% usrdata$iso )
             data_to_use <- data_to_use[ , c(colnames( all_activity_data[ which( !isXYear(
                                                        colnames(all_activity_data) ) ) ] ), Xyears ) ]
         }
@@ -404,7 +368,7 @@
     # user_data_inclusion_functions. This is the main point of the program; it
     # will normalize, disaggregate, and then incorporate the user-defined data
     # into activity$all_activity_data
-        normalized <- normalizeAndIncludeData( Xyears, data_to_use, user_dataframe_subset,
+        normalized <- normalizeAndIncludeData( Xyears, data_to_use, usrdata,
                                                all_activity_data,
                                                working_instructions$override_normalization,
                                                agg_level, working_instructions$data_file,
