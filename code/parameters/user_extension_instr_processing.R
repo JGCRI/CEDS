@@ -39,7 +39,7 @@ getInstructionLevel <- function(all_instr, level) {
 
 # getInstructionFilenames
 getInstructionFilenames <- function() {
-    USER_DOM <- "../input/extension/user-deefined-energy/"
+    USER_DOM <- "../input/extension/user-defined-energy/"
 
     # Get a list of all the files in the directory
     files_present <- list.files( USER_DOM )
@@ -124,4 +124,41 @@ readInUserInstructions <- function () {
 
     return ( all_instructions )
 }
+
+# extractBatchInstructions
+# Given a dataframe of instructions and a dataframe of energy extension values,
+# return the rows from the instructions dataframe that apply to the user data.
+extractBatchInstructions <- function( instructions, usrdf, agg_level ) {
+
+    if ( agg_level == 1 | agg_level == 2 ) {
+        matches <- "agg_fuel"
+        missing <- "agg_sector"
+    }
+    else if ( agg_level == 3 )
+        matches <- c( "agg_fuel", "agg_sector" )
+    else if ( agg_level == 4 )
+        matches <- c( "CEDS_sector", "agg_fuel" )
+    else if ( agg_level == 5 )
+        matches <- c( "agg_fuel", "agg_sector" )
+    else if ( agg_level == 6 ) {
+        matches <- "agg_fuel"
+        missing <- "CEDS_sector"
+    }
+    else
+        return( NULL )
+
+    # Filters the instructions to only the ones with corresponding data in the
+    # user's data set.
+    for ( column in c("iso", matches) ) {
+        instructions <- dplyr::filter(instructions, UQ(as.name(column)) %in% usrdf[[column]])
+    }
+
+    for ( column in missing ) {
+        instructions <- dplyr::filter(instructions, is.na(UQ(as.name(column))))
+    }
+
+    return (instructions)
+}
+
+
 
