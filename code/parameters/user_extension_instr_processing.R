@@ -148,14 +148,13 @@ extractBatchInstructions <- function( instructions, usrdf, agg_level ) {
         return( NULL )
 
     # Filters the instructions to only the ones with corresponding data in the
-    # user's data set.
+    # user's data set. Always filter to match iso.
     for ( column in c("iso", matches) ) {
         instructions <- dplyr::filter(instructions, UQ(as.name(column)) %in% usrdf[[column]])
     }
 
-    for ( column in missing ) {
-        instructions <- dplyr::filter(instructions, is.na(UQ(as.name(column))))
-    }
+    if ( is.character( missing ) )
+        instructions <- dplyr::filter(instructions, is.na(UQ(as.name(missing))))
 
     return (instructions)
 }
