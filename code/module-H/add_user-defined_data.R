@@ -234,39 +234,40 @@
                                             end_year > working_instructions$start_year)
 
         # Remove the batch instructions from the master instruction dataframe
-        instructions <- dplyr::setdiff(instructions, instruction_batch)
+        instructions <- dplyr::setdiff( instructions, batch_data_instructions )
 
-    # If there are data in our instructions that will be in the current group's batch:
+
+        # If there are data in our instructions that will be in the current group's batch:
         if ( nrow( batch_data_instructions ) > 0 ) {
 
-        # If our years haven't been properly subdivided by year, we'll need to
-        # subdivide the whole batch and return back to the beginning of the
-        # loop. The goal of this process is to be able to process subdivisions
-        # of datasets that only partially overlap.
+            # If our years haven't been properly subdivided by year, we'll need to
+            # subdivide the whole batch and return back to the beginning of the
+            # loop. The goal of this process is to be able to process subdivisions
+            # of datasets that only partially overlap.
             if ( length( unique( c(batch_data_instructions$start_year,
                                    working_instructions$start_year) ) ) > 1 ||
                  length( unique(  c(batch_data_instructions$end_year,
                                     working_instructions$end_year)  ) ) > 1 ) {
-            # Identify all the breaks that will need to occur (each unique start
-            # and end year)
+                # Identify all the breaks that will need to occur (each unique start
+                # and end year)
                 year_breaks <- unique( c( batch_data_instructions$start_year,
                                           working_instructions$start_year,
                                           batch_data_instructions$end_year + 1,
                                           working_instructions$end_year + 1 ) ) %>%
-                                  sort()
-            # Combine the working with the rest of the batch
+                    sort()
+                # Combine the working with the rest of the batch
                 whole_batch <- rbind( working_instructions, batch_data_instructions )
                 new_division_batch <- whole_batch[ 0, ]
 
-            # For each break: create a new instruction for any instruction that
-            # encompasses this year range
+                # For each break: create a new instruction for any instruction that
+                # encompasses this year range
                 for ( i in 1:( length( year_breaks ) - 1 ) ) {
                     new_year_span <- year_breaks[ i ]:( year_breaks[ i+1 ] - 1 )
 
                     rows_to_segment <- whole_batch[ which( whole_batch$start_year <=
-                                                                  max( new_year_span ) &
-                                                           whole_batch$end_year >=
-                                                                  min( new_year_span ) ), ]
+                                                               max( new_year_span ) &
+                                                               whole_batch$end_year >=
+                                                               min( new_year_span ) ), ]
                     if ( i != 1 ) {
                         rows_to_segment$start_continuity[ which( rows_to_segment$start_year != year_breaks[ i ] ) ] <- F
                     }
@@ -282,75 +283,36 @@
                 }
 
 
-            # Tack all the newly-divided instructions onto the instructions df
+                # Tack all the newly-divided instructions onto the instructions df
                 instructions <- rbind( new_division_batch, instructions )
                 next
             }
-            print("Got here")
-        # If our years are properly subdivided, we should re-retrieve our
-        #   user_defined_data dataframe. This may require drawing on multiple
-        #   source files.
+
+            # From here we know our years are properly subdivided, so we should
+            # re-retrieve our user_defined_data dataframe. This may require
+            # drawing on multiple source files.
             working_instructions <- rbind( working_instructions, batch_data_instructions )
             usrdata <- usrdata[ 0, ]
             for ( row_num in 1:nrow( working_instructions ) ) {
                 file <- working_instructions$data_file[ row_num ]
                 bypass <- working_instructions$bypass_processing[ row_num ]
-            # Process the data if necessary...
+                # Process the data if necessary...
                 if ( !bypass ) {
-                # call the processUserDefinedData function, which will execute mapping
-                # and interpolation as necessary
+                    # call the processUserDefinedData function, which will execute mapping
+                    # and interpolation as necessary
                     user_dataframe <- processUserDefinedData( file, MSL, MCL, MFL )
-            # Otherwise, read in the raw file...
+                    # Otherwise, read in the raw file...
                 } else {
                     user_dataframe <- readData( file, domain = "EXT_IN",
                                                 domain_extension = "user-defined-energy/" )
                 }
-            # ...and append the relevant part to the dataframe
+                # ...and append the relevant part to the dataframe
                 usrdata <- rbind( subsetUserData( user_dataframe,
-                                                                      working_instructions ) )
+                                                  working_instructions ) )
             }
         }
 
-    # Identify the rows that will need adjusting. If the aggregation level is the lowest,
-    #   this will be any rows that match to your row, and any row in the next-highest aggregation
-    #   GROUP. For example, If I'm adjusting usa-coal_coke-1A1, I will need to edit all the
-    #   usa-coal_coke-1A rows.
-    #   If we're dealing with data on not the lowest aggregation level, you need any cells that
-    #   can map to this cell.
-    # Basically, in all cases: figure out what level you're on,
-    #   then grab any rows that would be in the same group as yours one level up.
-
-        if ( agg_level == 4 ) {
-            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% usrdata$iso &
-                                                     all_activity_data$CEDS_sector %in% usrdata$CEDS_sector &
-                                                     all_activity_data$agg_fuel %in% MFL$aggregated_fuel[ which( MFL$fuel %in%
-                                                                                                    usrdata$CEDS_fuel ) ]
-                                                     ), c( colnames( all_activity_data[ which( !isXYear(
-                                                       colnames( all_activity_data ) ) ) ] ), Xyears ) ]
-        } else if (agg_level == 3) {
-            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% usrdata$iso &
-                                                     all_activity_data$agg_sector %in% usrdata$agg_sector &
-                                                     all_activity_data$agg_fuel == MFL$aggregated_fuel[ which(  MFL$fuel %in%
-                                                                                                    usrdata$CEDS_fuel ) ]
-                                                     ), c( colnames( all_activity_data[ which( !isXYear(
-                                                       colnames(all_activity_data) ) ) ] ), Xyears ) ]
-        } else if ( agg_level == 2 || agg_level == 1 ) {
-            data_to_use <- all_activity_data[ which( all_activity_data$iso %in% usrdata$iso &
-                                                     all_activity_data$agg_fuel %in% usrdata$agg_fuel
-                                                     ), c( colnames( all_activity_data[ which( !isXYear(
-                                                       colnames(all_activity_data) ) ) ] ), Xyears ) ]
-        } else if ( agg_level == 5 ) {
-            data_to_use <- all_activity_data %>% filter( agg_fuel %in% usrdata$agg_fuel ) %>%
-                                                 filter( iso %in% usrdata$iso ) %>%
-                                                 filter( agg_sector %in% usrdata$agg_sector )
-            data_to_use <- data_to_use[ , c(colnames( all_activity_data[ which( !isXYear(
-                                                       colnames(all_activity_data) ) ) ] ), Xyears ) ]
-        } else if ( agg_level == 6 ) {
-            data_to_use <- all_activity_data %>% filter( agg_fuel %in% usrdata$agg_fuel ) %>%
-                                                 filter( iso %in% usrdata$iso )
-            data_to_use <- data_to_use[ , c(colnames( all_activity_data[ which( !isXYear(
-                                                       colnames(all_activity_data) ) ) ] ), Xyears ) ]
-        }
+        data_to_use <- getRowsForAdjustment(all_activity_data, usrdata, MFL, agg_level)
 
     # Initialize diagnostics as NA, so if the function fails or returns nothing
     # it will still exist
