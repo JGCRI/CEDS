@@ -305,7 +305,7 @@
             # CEDS already has a function for linear interpolation.
             final_df <- df
             final_df[ , X_data_years ] <- interpolate_NAs( final_df[ , X_data_years])
-        } else if ( interp_instr == "match_to_trend" ) {
+        } else if ( interp_instr$method == "match_to_trend" ) {
             # Execute trend-matching function
             final_df <- interpolateByTrend( df,
                                             interp_instr$matching_file_name,
