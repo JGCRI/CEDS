@@ -564,7 +564,7 @@ enforceContinuity <- function( activity, yearsAllowed ) {
 
 
 #------------------------------------------------------------------------------
-# initializeContinuityFactors
+# initContinuityFactors
 # Brief: Creates a dataframe storing the "continuity factors", which tell
 #        what cells will need to be made continuous and what factor of scaling
 #        they require.
@@ -577,8 +577,8 @@ enforceContinuity <- function( activity, yearsAllowed ) {
 #                 should be made continuous at each edge, if possible.
 # Returns: the activity, now holding a continuity_factors dataframe
 
-initializeContinuityFactors <- function( activity, instructions, yearsAllowed,
-                                         default_continuity_interval = 7 ) {
+initContinuityFactors <- function( activity, instructions, yearsAllowed,
+                                   default_continuity_interval = 7 ) {
 
     activity$continuity_factors <- activity$all_activity_data
     activity$continuity_factors[ , yearsAllowed ] <- 1
@@ -615,38 +615,28 @@ initializeContinuityFactors <- function( activity, instructions, yearsAllowed,
     # The continuity step is by how much each value will increase each year
     # (ends at 1)
         continuity_step <- 1 / continuity_interval
+        continuity_vals <- 1:continuity_interval * continuity_step
 
-    # If continuity enforcement is required at the beginning of this dataset:
+        # If continuity enforcement is required at the beginning of this dataset:
         if ( this.row$start_continuity && start_year > historical_pre_extension_year ) {
-        # Define the first row of continuity factors
-            rows_to_adjust[ 1, paste0( "X", start_year:( start_year + continuity_interval - 1 ) ) ] <-
-                  ( 1:continuity_interval ) * continuity_step
-        # Apply this row's values to all rows
-            if ( nrow( rows_to_adjust ) > 1 ) {
-                rows_to_adjust[ 2:nrow(rows_to_adjust), paste0( "X", start_year:( start_year + continuity_interval - 1 ) ) ] <-
-                    rows_to_adjust[ 1, paste0( "X", start_year:( start_year + continuity_interval - 1 ) ) ]
-            }
+            intrvl_end <- start_year + continuity_interval - 1
+            year_range <- paste0( "X", start_year:intrvl_end )
+            rows_to_adjust[ , year_range ] <- rep( continuity_vals, each = NROW( rows_to_adjust ) )
 
         }
-    # If continuity enforcement is required at the end of this dataset:
-        if ( this.row$end_continuity && end_year < end_year ) {
-        # Define the first row of continuity factors
-            rows_to_adjust[ 1, paste0( "X", end_year:( end_year - continuity_interval + 1 ) ) ] <-
-                  ( 1:continuity_interval ) * continuity_step
-        # Apply this row's values to all rows
-            if ( nrow( rows_to_adjust ) > 1 ) {
-                rows_to_adjust[ 2:nrow(rows_to_adjust),
-                                paste0( "X", end_year:( end_year - continuity_interval + 1 ) ) ] <-
-                    rows_to_adjust[ 1, paste0( "X", end_year:( end_year - continuity_interval + 1 ) ) ]
-            }
+
+        # If continuity enforcement is required at the end of this dataset:
+        if ( this.row$end_continuity && end_year < historical_end_extension_year ) {
+            intrvl_end <- end_year - continuity_interval + 1
+            year_range <- paste0( "X", end_year:intrvl_end )
+            rows_to_adjust[ , year_range ] <- rep( continuity_vals, each = NROW( rows_to_adjust ) )
         }
-    # Incorporate the new adjusted rows into the greated dataframe
-        activity$continuity_factors[ which( activity$continuity_factors$iso %in%
-                                                          rows_to_adjust$iso &
-                                                        activity$continuity_factors$CEDS_sector %in%
-                                                          rows_to_adjust$CEDS_sector &
-                                                        activity$continuity_factors$CEDS_fuel %in%
-                                                          rows_to_adjust$CEDS_fuel ), ] <-
+
+
+    # Incorporate the new adjusted rows into the created dataframe
+        activity$continuity_factors[ activity$continuity_factors$iso %in% rows_to_adjust$iso &
+                                     activity$continuity_factors$CEDS_sector %in% rows_to_adjust$CEDS_sector &
+                                     activity$continuity_factors$CEDS_fuel %in% rows_to_adjust$CEDS_fuel, ] <-
                         rows_to_adjust
 
     }
