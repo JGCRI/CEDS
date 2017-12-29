@@ -93,85 +93,50 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
 #   b) no manual override of normalization was called.
     if ( !whole_group & !override_normalization ) {
 
-        pct_of_agg_group <- data_to_correct
-
-        # Create a vector containing unaltered sums of activity in the group for
-        # each year. drop = F keeps data as dataframe even if indexing one year.
-        year_totals <- colSums( activity_agg_to_level[ , Xyears, drop = F ] )
-        year_totals_user_rows <- colSums( activity_agg_to_level[ rows_to_replace, Xyears, drop = F ] )
-
-    # Find the sum of only rows which need to be normalized (were not specified)
-        year_totals_non_user_rows <- pct_of_agg_group
-        year_totals_non_user_rows[ 1, Xyears ] <- year_totals - year_totals_user_rows
-
-    # This data is stored in a dataframe of multiple identical rows for the
-    # purposes of mathematical operation
-        if ( nrow( year_totals_non_user_rows ) > 1 ) {
-            year_totals_non_user_rows[ 2:nrow(year_totals_non_user_rows), Xyears ] <-
-                    year_totals_non_user_rows[ 1, Xyears ]
-        }
-
-    # Divide each unedited row by the sum of these rows. This provides a
-    # fraction representing how much of a difference each row will need to
-    # absorb; it says what percent of the unedited aggregate group it is
-    # responsible for
-        pct_of_agg_group[ , Xyears ] <- data.matrix( pct_of_agg_group[ , Xyears ] ) /
-                                        data.matrix( year_totals_non_user_rows[ , Xyears ] )
-        pct_of_agg_group[ is.nan.df( pct_of_agg_group ) ] <- 0
-
-        test <- data_to_correct[ , Xyears ] %>% as.matrix()
-        test <- prop.table(test, margin = 2)
-        test[is.nan(test)] <- 0
-        test <- cbind(data_to_correct[ , cols_given ], test)
-        identical(test, pct_of_agg_group)
-        pct_of_agg_group <- test
+        # All calculations are just done with the year columns. Take those
+        # columns and replace the values with their proportion of the total
+        # value for the whole year. This provides a fraction representing how
+        # much of a difference each row ill need to absorb; it says what percent
+        # of the unedited aggregate group it is responsible for.
+        pct_of_agg_group <- data_to_correct[ , Xyears, drop = F ] %>%
+                            as.matrix() %>%
+                            prop.table( margin = 2 )
+        pct_of_agg_group[ is.nan( pct_of_agg_group ) ] <- 0
 
         # If all of the data in a year (that wasn't user-specified) is 0, this
         # is like having a "whole group" -- we do not need to (cannot) normalize
         # in this case. We will not compare these rows in the warnings check.
-        all_zero_years <- colSums( pct_of_agg_group[ , Xyears, drop = F ] ) == 0
-        all_zero_years <- names( which( all_zero_years ) )
+        all_zero_years <- names( which ( colSums( pct_of_agg_group ) == 0 ) )
 
-        # Calculate the sum of the data post-inclusion and pre-normalization
+        # Create vectors for the sums of activity in the group for each year
+        # before and after including the user data (pre-normalization). Note
+        # that 'drop = F' keeps data as dataframe even if indexing one year.
+        year_totals <- colSums( activity_agg_to_level[ , Xyears, drop = F ] )
         new_year_totals <- colSums( act_agg_changed[ , Xyears, drop = F ] )
 
-    # Likely, adding new data will change the sum of the aggregate group; the
-    # point of normalization is to eliminate this change. Annual diffs stores
-    # the yearly difference between pre- and post-inclusion data
-        annual_diffs <- pct_of_agg_group
-        annual_diffs[ 1, Xyears ] <- year_totals - new_year_totals
-        if ( nrow( year_totals_non_user_rows ) > 1 ) {
-            if (length( Xyears ) > 1) {
-                annual_diffs[ 2:nrow(annual_diffs), Xyears ] <-
-                      annual_diffs[ 1, Xyears ]
-            } else {
-                annual_diffs[ 2:nrow(annual_diffs), Xyears ] <-
-                      as.numeric( annual_diffs[ 1, Xyears ] )
-            }
-        }
-    # Each row linearly absorbs a percentage of the total difference
-        sums_to_add <- pct_of_agg_group
-        sums_to_add[ , Xyears ] <- data.matrix( pct_of_agg_group[ , Xyears ] ) *
-                                   data.matrix( annual_diffs[ , Xyears ] )
+        # Likely, adding new data will change the sum of the aggregate group;
+        # the point of normalization is to eliminate this change. The variable
+        # annual_diffs stores the yearly difference between pre- and post-
+        # inclusion data, for each aggregate group, for each year.
+        annual_diffs <- year_totals - new_year_totals
+        annual_diffs <- sweep( pct_of_agg_group, 2, annual_diffs, "*")
 
-    # "Corrected data" sums are added
-        corrected_data <- data_to_correct
-        corrected_data[ , Xyears ] <- data.matrix( data_to_correct[ , Xyears ] ) +
-                                          data.matrix( sums_to_add[ , Xyears ] )
+        # Simply add the adjustments to the original data
+        normalized <- data_to_correct[ , Xyears, drop = F ] + annual_diffs
 
-    # If the total provided for only the user-defined columns exceeds the
-    # original total for the entire aggregate group, data will be normalized to
-    # negative emissions. We need to force this to zero but make a note of it
-    # (the negatives boolean will generate a warning later on)
-        if ( any( corrected_data < 0, na.rm = TRUE ) ) { # what do NAs mean here?
-            corrected_data[ ( corrected_data < 0 ) ] <- 0
+        # If the total provided for only the user-defined columns exceeds the
+        # original total for the entire aggregate group, data will be normalized
+        # to negative emissions. We need to force this to zero but make a note
+        # of it (the negatives boolean will generate a warning later on).
+        if ( any( normalized < 0 ) ) {
+            normalized[ ( normalized < 0 ) ] <- 0
             negatives <- T
         }
 
-    # This dataframe now contains the user-defined data and normalized versions
-    # of the undefined rows
-        act_agg_changed[ which( act_agg_changed[[ id_col ]] %!in%
-                                  user_dataframe_subset[[ id_col ]]), ] <- corrected_data
+        # Add the normalized data into the dataframe containing the user-defined
+        # data. After this, it has both the user-defined data and normalized
+        # versions of the undefined rows
+        act_agg_changed[ !rows_to_replace, ] <- normalized
     }
 
     disagg_data_changed <- data_to_use
