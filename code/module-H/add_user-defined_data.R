@@ -30,7 +30,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "CO2"
+    if ( is.na( em ) ) em <- "TEST"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -129,7 +129,7 @@
 
 
 # Gather default activity data
-    default_activity <- readData( 'MED_OUT', paste0( 'H.', 'SO2', '_total_activity_extended_db' ) , meta = F) ### Eventually this will not require an emissions species.
+    default_activity <- readData( 'MED_OUT', paste0( 'H.', em, '_total_activity_extended_db' ) , meta = F) ### Eventually this will not require an emissions species.
     colnames( default_activity )[ 1:3 ] <- c( "iso", "CEDS_sector", "CEDS_fuel" )
     default_activity_mapped <- mapToCEDS( default_activity, MSL, MCL, MFL, aggregate = F )
 
@@ -174,7 +174,7 @@
     activity <- list()
     activity$all_activity_data <- all_activity_data
     activity$old_activity_data <- all_activity_data
-    activity <- initializeContinuityFactors( activity, instructions, yearsAllowed )
+    activity <- initContinuityFactors( activity, instructions, yearsAllowed )
 
     # The user provided instructions for all supplemental data
     instructions <- processTrendData( instructions, all_activity_data )
@@ -350,14 +350,36 @@
 
 # ------------------------------------------------------------------------------------
 # 4. Write out the diagnostic data
-    writeData( rows_completed, domain = "DIAG_OUT", fn = "user-ext-data_diagnostics" )
+    #writeData( rows_completed, domain = "DIAG_OUT", fn = "user-ext-data_diagnostics" )
 
     final_activity <- enforceContinuity( activity, yearsAllowed )
 
     writeData( final_activity, domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST"))
-    writeData( final_activity[which(final_activity$iso == 'deu'), ], domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST-small"))
-    default_short <- default_activity[which(default_activity$iso == 'deu'), ]
-    writeData( default_short, domain = "MED_OUT", paste0("H.", em,"-total-activity-original-short"))
+    #writeData( final_activity[which(final_activity$iso == 'deu'), ], domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST-small"))
+    #final_short <- final_activity[ final_activity$iso == 'deu', ]
+    #default_short <- default_activity[which(default_activity$iso == 'deu' & default_activity$CEDS_fuel != 'process'), ]
+    #writeData( default_short, domain = "MED_OUT", paste0("H.", em,"-total-activity-original-short"))
+
+
+# Result comparisons ------------------------------------------------------
+
+    # samecols <- "units"
+    # for (c in names(final_short)) {
+    #     if (identical(final_short[[c]], default_short[[c]])) {
+    #         samecols <- c(samecols, c)
+    #     }
+    # }
+    # samecols <- samecols[samecols %!in% c("agg_sector", "agg_fuel", "CEDS_sector", "CEDS_fuel", "iso")]
+    # original <- default_short[ , -which(names(default_short) %in% samecols)]
+    # changed <- final_short[ , -which(names(final_short) %in% samecols)]
+    #
+    # orig_rows <- dplyr::filter(original, X1937 != changed$X1937)
+    # changed_rows <- dplyr::filter(changed, X1937 != original$X1937) %>% dplyr::select(-agg_fuel, -agg_sector)
+    #
+    # sum(original$X1937[grepl('coal', original$CEDS_fuel)])
+    # sum(changed$X1937[changed$agg_fuel == 'coal'])
+    #
+    # sapply(final_short[final_short$agg_fuel == 'coal', paste0('X', 1941:1945)], sum)
 
     logStop()
 
