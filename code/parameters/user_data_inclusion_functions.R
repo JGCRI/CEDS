@@ -86,11 +86,11 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
     all_zero_years <- NA
     need_user_spec <- F
 
-# The block of code that deals with normalization (the process of modifying rows
-# that weren't directly specified in order to retain aggregate information) will
-# only be called if
-#   a) a whole group was not specified and
-#   b) no manual override of normalization was called.
+    # Normalization, the process of modifying rows that weren't directly
+    # specified in order to retain aggregate information, should only happen if
+    # both:
+    #   a) a whole group was not specified and
+    #   b) no manual override of normalization was called.
     if ( !whole_group & !override_normalization ) {
 
         # All calculations are just done with the year columns. Take those
@@ -119,7 +119,7 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
         # annual_diffs stores the yearly difference between pre- and post-
         # inclusion data, for each aggregate group, for each year.
         annual_diffs <- year_totals - new_year_totals
-        annual_diffs <- sweep( pct_of_agg_group, 2, annual_diffs, "*")
+        annual_diffs <- sweep( pct_of_agg_group, 2, annual_diffs, "*" )
 
         # Simply add the adjustments to the original data
         normalized <- data_to_correct[ , Xyears, drop = F ] + annual_diffs
@@ -136,7 +136,7 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
         # Add the normalized data into the dataframe containing the user-defined
         # data. After this, it has both the user-defined data and normalized
         # versions of the undefined rows
-        act_agg_changed[ !rows_to_replace, ] <- normalized
+        act_agg_changed[ !rows_to_replace, Xyears ] <- normalized
     }
 
     disagg_data_changed <- data_to_use
@@ -163,41 +163,48 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
     if ( any( activity_agg_to_level[ , Xyears ] == 0 &
               act_agg_changed[ , Xyears ] != 0 ) ) {
 
-    # zero_cells holds a boolean data frame used to identify cells which will
-    # have this issue (changed value is > 0 but original value is 0)
-        if ( length( Xyears ) > 1 ) {
-            zero_cells <- act_agg_changed[ which( rowSums( act_agg_changed[, Xyears] ) > 0 ), ]
-            zero_cells[ , Xyears ] <- activity_agg_to_level[ which( rowSums( act_agg_changed[, Xyears] ) > 0 ),
-                                                         Xyears ] == 0
-            any_zeros <- zero_cells[ apply( zero_cells[ , Xyears ], 1, any ), ]
-            all_zeros <- zero_cells[ apply( zero_cells[ , Xyears ], 1, all ), ]
-        } else {
-            zero_cells <- act_agg_changed[ which( act_agg_changed[, Xyears] > 0 ), ]
-            zero_cells[ , Xyears ] <- activity_agg_to_level[ which( act_agg_changed[, Xyears] > 0 ),
-                                                         Xyears ] == 0
-            all_zeros <- zero_cells[ which( zero_cells[, Xyears] ), ]
-            any_zeros <- all_zeros
-        }
+        # zero_cells holds a boolean data frame used to identify cells which
+        # will have this issue (changed value is > 0 but original value is 0)
+        orig_zeros <- activity_agg_to_level[ , Xyears, drop = F ] == 0
+        chgd_zeros <- act_agg_changed[ , Xyears, drop = F ] == 0
+        zero_cells <- cbind( act_agg_changed[ , cols_given ], orig_zeros & !chgd_zeros )
 
-        not_all_zeros <- rbind( all_zeros, any_zeros )
-        not_all_zeros <- not_all_zeros[ !duplicated( not_all_zeros ) &
-                                        seq( nrow( not_all_zeros ) ) > nrow( all_zeros ), ]
+        # Create two dataframes: all_zeros (all cells cause the issue) and
+        # some_zeros (those rows that have some, but not all, cells causing the
+        # issue)
+        any_zeros <- zero_cells[ apply( zero_cells[ , Xyears ], 1, any ), ]
+        all_zeros <- zero_cells[ apply( zero_cells[ , Xyears ], 1, all ), ]
+        some_zeros <- dplyr::setdiff( any_zeros, all_zeros )
 
-
-    # create two dataframes: not_all_zeros (those rows that have some, but not
-    # all, cells causing the issue) and all_zeros (all cells cause the issue)
+        # if ( length( Xyears ) > 1 ) {
+        #     zero_cells <- act_agg_changed[ rowSums( act_agg_changed[, Xyears] ) > 0, ]
+        #     zero_cells[ , Xyears ] <- activity_agg_to_level[ rowSums( act_agg_changed[, Xyears] ) > 0, Xyears ] == 0
+        #
+        #     any_zeros <- zero_cells[ apply( zero_cells[ , Xyears ], 1, any ), ]
+        #     all_zeros <- zero_cells[ apply( zero_cells[ , Xyears ], 1, all ), ]
+        # } else {
+        #     zero_cells <- act_agg_changed[ which( act_agg_changed[, Xyears] > 0 ), ]
+        #     zero_cells[ , Xyears ] <- activity_agg_to_level[ which( act_agg_changed[, Xyears] > 0 ),
+        #                                                  Xyears ] == 0
+        #     all_zeros <- zero_cells[ which( zero_cells[, Xyears] ), ]
+        #     any_zeros <- all_zeros
+        # }
+        #
+        # not_all_zeros <- rbind( all_zeros, any_zeros )
+        # not_all_zeros <- not_all_zeros[ !duplicated( not_all_zeros ) &
+        #                                 seq( nrow( not_all_zeros ) ) > nrow( all_zeros ), ]
 
 
     # For rows that have some but not all zero cells (some 0 rows available): we
     # can use interpolate_NA() to fill in percent breakdowns linearly, retaining
     # a total of 100 %
-        if ( nrow( not_all_zeros ) > 0 ) {
-        # Each row in not_all_zeros represents an aggregate row that needs to be
+        if ( nrow( some_zeros ) > 0 ) {
+        # Each row in some_zeros represents an aggregate row that needs to be
         # disaggregated; since we need to deal with the totals of each we will
         # iterate through them
-            for ( row_num in 1:nrow( not_all_zeros ) ) {
+            for ( row_num in 1:nrow( some_zeros ) ) {
             # Retrieve the row in question
-                operating_row <- not_all_zeros[ row_num, ]
+                operating_row <- some_zeros[ row_num, ]
             # retrieve the percent breakdowns corresponding to this aggregate row
                 breakdowns_to_correct <- disagg_pct_breakdown
                 for ( col in cols_given ) {
@@ -232,19 +239,18 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
             disagg_pct_breakdown[ which( disagg_pct_breakdown$CEDS_fuel %in% new_percent_breakdowns$CEDS_fuel &
                                          disagg_pct_breakdown$CEDS_sector %in% new_percent_breakdowns$CEDS_sector ), ] <-
                     new_percent_breakdowns
-
         }
 
     # For rows that have no non-zero years available: we will use global percent
     # breakdowns for this row as a default.
         if ( nrow( all_zeros ) > 0 ) {
-
-        # Isolate the rows in all_zeros
-            breakdowns_to_correct <- disagg_pct_breakdown
-            for ( col in cols_given ) {
-                breakdowns_to_correct <- breakdowns_to_correct[ breakdowns_to_correct[, col]
-                                                                %in% all_zeros[, col], ]
-            }
+            # Isolate the rows in all_zeros (row names should have persisted)
+            breakdowns_to_correct <- disagg_pct_breakdown[ row.names( all_zeros ) ]
+            # breakdowns_to_correct <- disagg_pct_breakdown
+            # for ( col in cols_given ) {
+            #     breakdowns_to_correct <- breakdowns_to_correct[ breakdowns_to_correct[, col]
+            #                                                     %in% all_zeros[, col], ]
+            # }
 
         # Use the sumAllActivityByFuelSector function to generate global totals
         # for each fuel x sector, ignoring iso
@@ -261,14 +267,16 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
         # the user needs to specify breakdowns
             if ( any( totals_by_agg_group[ , Xyears ] == 0 ) ) {
 
-            # Extract the rows to address with this fix
-                if ( length( Xyears ) > 1 ) {
-                    problem_rows <- totals_by_agg_group[ which( rowSums(
-                                 totals_by_agg_group[ , Xyears ] ) == 0 ), ]
-                } else {
-                    problem_rows <- totals_by_agg_group[ which(
-                                 totals_by_agg_group[ , Xyears ] == 0 ), ]
-                }
+                # Extract the rows to address with this fix
+                zrows <- rowSums( totals_by_agg_group[ , Xyears, drop = F ] ) == 0
+                problem_rows <- totals_by_agg_group[ zrows, ]
+                # if ( length( Xyears ) > 1 ) {
+                #     problem_rows <- totals_by_agg_group[ which( rowSums(
+                #                  totals_by_agg_group[ , Xyears ] ) == 0 ), ]
+                # } else {
+                #     problem_rows <- totals_by_agg_group[ which(
+                #                  totals_by_agg_group[ , Xyears ] == 0 ), ]
+                # }
 
             # Extract the corresponding disaggregated rows
                 problem_bd <- disagg_pct_breakdown
@@ -302,7 +310,7 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
             new_percent_breakdowns[ , Xyears ] <- breakdowns_to_correct[ , Xyears ] /
                                                   totals_by_agg_group[ , Xyears ]
 
-        #
+        # ???
             disagg_pct_breakdown[ which( disagg_pct_breakdown$CEDS_fuel %in% new_percent_breakdowns$CEDS_fuel &
                                          disagg_pct_breakdown$CEDS_sector %in% new_percent_breakdowns$CEDS_sector ), ] <-
                     new_percent_breakdowns
@@ -404,8 +412,12 @@ generateWarnings <- function ( Xyears, disagg_data_changed,
                                override_normalization, all_zero_years,
                                need_user_spec ) {
 
-# Exclude those years for which there is no non-user-specified data from generating warnings
-    years_to_compare <- Xyears[ which( Xyears %!in% all_zero_years ) ]
+    # Exclude those years for which there is no non-user-specified data from
+    # generating warnings
+    years_to_compare <- Xyears
+    if ( length( all_zero_years ) > 0 ) {
+        years_to_compare <- Xyears[ Xyears %!in% all_zero_years ]
+    }
 
     if ( length( years_to_compare ) == 0 ) {
         return( NA )
