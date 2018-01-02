@@ -40,6 +40,8 @@ testrun <- function(files, tnum) {
 
     if (!isTRUE(all.equal(result, expected))) {
         warning(paste("Test", tnum, "failed!"))
+    } else {
+        message(paste("Test", tnum, "passed."))
     }
 }
 
@@ -153,4 +155,4 @@ agglevel <- sapply(aggtests, identifyLevel)
 if (!identical(agglevel, c(0,1,2,2)))
     stop("Agg level tests failed.")
 
-logStop()
+for (i in 1:GCAM_SOURCE_RD) logStop()
