@@ -222,30 +222,26 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
                     new_percent_breakdowns
         }
 
-    # For rows that have no non-zero years available: we will use global percent
-    # breakdowns for this row as a default.
+        # For rows that have no non-zero years available: we will use global
+        # percent breakdowns for this row as a default.
         if ( nrow( all_zeros ) > 0 ) {
             # Isolate the rows in all_zeros (row names should have persisted)
             breakdowns_to_correct <- disagg_pct_breakdown[ row.names( all_zeros ), ]
-            # breakdowns_to_correct <- disagg_pct_breakdown
-            # for ( col in cols_given ) {
-            #     breakdowns_to_correct <- breakdowns_to_correct[ breakdowns_to_correct[, col]
-            #                                                     %in% all_zeros[, col], ]
-            # }
 
-        # Use the sumAllActivityByFuelSector function to generate global totals
-        # for each fuel x sector, ignoring iso
+            # Use the sumAllActivityByFuelSector function to generate global
+            # totals for each fuel x sector, ignoring iso
             for ( i in 1:nrow( breakdowns_to_correct ) ) {
                 breakdowns_to_correct[ i, Xyears ] <-
                          sumAllActivityByFuelSector( breakdowns_to_correct[ i, ], Xyears )
             }
 
+            # Aggregate the new breakdowns to the relevant aggregation level
             totals_by_agg_group <- ddply( breakdowns_to_correct, cols_given,
                                           function(x) colSums( x[ Xyears ] ) )
 
-        # If there are some rows that STILL have zeros, we'll divide them
-        # evenly among the breakdown categories and generate a warning that
-        # the user needs to specify breakdowns
+            # If there are some rows that STILL have zeros, we'll divide them
+            # evenly among the breakdown categories and generate a warning that
+            # the user needs to specify breakdowns
             if ( any( totals_by_agg_group[ , Xyears ] == 0 ) ) {
 
             # Extract the corresponding disaggregated rows
@@ -258,13 +254,18 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
             # performed evenly
                 problem_bd[ , Xyears ] <- 1
 
+                # All breakdowns needing correcting contain zeros, so we need
+                # to replace them with ones for even distribution
+                breakdowns_to_correct[ , Xyears ] <- 1
+
             # Replace new values into the disagg pct breakdown df
-                disagg_pct_breakdown[ which( disagg_pct_breakdown$CEDS_fuel %in% problem_bd$CEDS_fuel &
-                                         disagg_pct_breakdown$CEDS_sector %in% problem_bd$CEDS_sector ), ] <-
-                    problem_bd
-            # Re-calculate totals
-                totals_by_agg_group <- ddply( breakdowns_to_correct, cols_given,
-                                          function(x) colSums( x[ Xyears ] ) )
+                disagg_pct_breakdown[ disagg_pct_breakdown$CEDS_fuel %in% problem_bd$CEDS_fuel &
+                                      disagg_pct_breakdown$CEDS_sector %in% problem_bd$CEDS_sector, ] <- problem_bd
+
+                # Re-calculate totals
+                totals_by_agg_group <- ddply( problem_bd, cols_given,
+                                              function(x) colSums( x[ Xyears ] ) )
+
             # Make a note of the fact that the user needs to specify their own
             # pct breakdowns (will be passed to warning-generating function)
                 need_user_spec <- T
@@ -431,15 +432,15 @@ generateWarnings <- function ( Xyears, disagg_data_changed,
 
 #------------------------------------------------------------------------------
 # sumAllActivityByFuelSector
-# A helper function for enforcing percentage breakdowns in all-zero rows.
-#    Helps create a global default percentage breakdown for a given aggregation category.
+# Brief: A helper function for enforcing percentage breakdowns in all-zero rows.
+#        Given a row (containing all zero values), find all other rows in the
+#        default dataset with the same sector and fuel. Then, find the sum of
+#        the data for that fuel and sector, which helps create a global default
+#        percentage breakdown for a given aggregation category.
 sumAllActivityByFuelSector <- function( guide_row, years = Xyears, data = all_activity_data ) {
 
-    fuel_row <- as.character( guide_row[ names( guide_row ) == "CEDS_fuel"   ] )
-    sect_row <- as.character( guide_row[ names( guide_row ) == "CEDS_sector" ] )
-
-    df_to_sum <- dplyr::filter( data, CEDS_sector %in% sect_row,
-                                      CEDS_fuel %in% fuel_row )
+    df_to_sum <- dplyr::filter( data, CEDS_sector %in% guide_row$CEDS_sector,
+                                      CEDS_fuel   %in% guide_row$CEDS_fuel )
     df_to_sum <- df_to_sum[ , c( "iso", "CEDS_sector", "CEDS_fuel",
                                  "agg_sector", "agg_fuel", years ) ]
 
