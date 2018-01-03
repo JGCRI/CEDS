@@ -23,33 +23,12 @@ loadPackage <- function(pName, versions = NULL){
 }
 
 libs <- c( dplyr = "0.7.2", ggplot2 = "2.2.0", gridExtra = "2.2.1",
-           magrittr = "1.5", pbapply = "1.3-1", plyr = "1.8.4", 
+           magrittr = "1.5", pbapply = "1.3-1", plyr = "1.8.4",
            readxl = "1.0.0", reshape = "0.8.6", stringr = "1.1.0",
            tidyr = "0.6.3", openxlsx = "4.0.17", XML = "3.98-1.5", zoo = "1.7-14" )
 
 lapply(names(libs), loadPackage, libs)
 
-# # Excel output requires the xlsx package, which is dependent on rJava. rJava
-# #   requires an updated version of Java compatible with the version of R used
-# # If rJava can't be loaded, stop trying to load it at the start of each script.
-# # This block is currently commented out due to lack of use of the functions requiring rJava.
-
-# if( exists( 'RJAVA_PACKAGE_LOADED' ) == FALSE ) {
-    # # The first time the package is loaded, try to install
-    # require( "xlsx", lib.loc=libPath )
-    # if( !require( "xlsx", lib.loc=libPath ) ) {
-        # cat( "Couldn't load xlsx; trying to download it...\n" )
-        # try( install.packages( "xlsx", repos="http://cran.rstudio.com/" ) )
-    # }
-   # # Check if the install worked and mark the flag accordingly
-    # check <- library( "rJava" )
-    # if( exists( 'check' ) ) {
-        # RJAVA_PACKAGE_LOADED <<- TRUE
-    # } else {
-        # RJAVA_PACKAGE_LOADED <<- FALSE
-        # cat( "rJava can't be loaded. Excel output set to OFF" )
-    # }
-# } else if( RJAVA_PACKAGE_LOADED == TRUE ) require( "xlsx", lib.loc=libPath )
 
 # -----------------------------------------------------------------------------
 # Global settings (in CAPITALS)
