@@ -70,7 +70,7 @@ testpriority <- function(iname) {
     # Run script with new files, which should be the only ones used
     runscript()
 
-    al <- if(agg_level == 1) "agg_fuel" else "CEDS_fuel"
+    al <- if(agg_level %in% c(1, 5, 6)) "agg_fuel" else "CEDS_fuel"
     result <- readData( "MED_OUT", paste0("H.TEST-total-activity-TEST"), meta = F)
     ename <- gsub('-instructions.xlsx', '-expected.csv', iname) # expected file
     expected <- read.csv(ename, stringsAsFactors = F)
@@ -133,7 +133,7 @@ runtests <- function(limit = NULL) {
 
 if(rev(strsplit(getwd(), '/')[[1]])[1] != 'input') stop("Go to input directory")
 initialize("add_user_data_tests.R", "", NULL)
-runtests(c(3))
+runtests(2)
 
 
 # Aggregation Level Tests:
