@@ -93,24 +93,25 @@
 #        so the only data processed is the data specified in instructions.
 # params:
 #    user_df:
-#    working_instructions:
-    subsetUserData <- function( user_df, working_instructions ) {
+#    instructions:
+    subsetUserData <- function( user_df, instructions ) {
 
-    # initialize a subset dataframe
-        subset <- user_dataframe[ which( user_dataframe$iso %in% working_instructions$iso ), ]
+        # Initialize a subset dataframe
+        subset <- user_df[user_df$iso %in% instructions$iso, ]
 
-    # Subset the dataframe based on which columns are present and filled out in the dataframe
-        if ( !is.invalid( working_instructions$CEDS_sector ) && working_instructions$CEDS_sector != 'all' ) {
-          subset <- subset[ which ( subset$CEDS_sector %in% working_instructions$CEDS_sector ), ]
-        } else if ( !is.invalid( working_instructions$agg_sector ) && working_instructions$agg_sector != 'all' ) {
-          subset <- subset[ which ( subset$agg_sector %in% working_instructions$agg_sector ), ]
+        # Subset the dataframe based on which columns are specified in the 
+        # instructions
+        if ( !is.invalid( instructions$CEDS_sector ) && instructions$CEDS_sector != 'all' ) {
+          subset <- subset[ subset$CEDS_sector %in% instructions$CEDS_sector, ]
+        } else if ( !is.invalid( instructions$agg_sector ) && instructions$agg_sector != 'all' ) {
+          subset <- subset[ subset$agg_sector %in% instructions$agg_sector, ]
         }
 
-        if ( !is.invalid( working_instructions$CEDS_fuel ) && working_instructions$CEDS_fuel != 'all' ) {
-          subset <- subset[ which ( subset$CEDS_fuel %in% working_instructions$CEDS_fuel ), ]
+        if ( !is.invalid( instructions$CEDS_fuel ) && instructions$CEDS_fuel != 'all' ) {
+          subset <- subset[ subset$CEDS_fuel %in% instructions$CEDS_fuel, ]
         }
-        else if ( !is.invalid( working_instructions$agg_fuel ) && working_instructions$agg_fuel != 'all' ) {
-          subset <- subset[ which ( subset$agg_fuel %in% working_instructions$agg_fuel ), ]
+        else if ( !is.invalid( instructions$agg_fuel ) && instructions$agg_fuel != 'all' ) {
+          subset <- subset[ subset$agg_fuel %in% instructions$agg_fuel, ]
         }
         return( subset )
     }
@@ -165,7 +166,7 @@
 
 # Initialize script variables
     # Years the user is allowed to add data to
-    yearsAllowed <- colnames( all_activity_data )[ isXYear(colnames( all_activity_data ))]
+    yearsAllowed <- names( all_activity_data )[ isXYear(names( all_activity_data ))]
 
     # Master list used to track activity data. Contains three dataframes:
     #   1. all_activity_data: changed activity data
