@@ -113,6 +113,13 @@
         else if ( !is.invalid( instructions$agg_fuel ) && instructions$agg_fuel != 'all' ) {
           subset <- subset[ subset$agg_fuel %in% instructions$agg_fuel, ]
         }
+        
+        # Error checks
+        if ( nrow( subset ) == 0 ) {
+            err <- paste(as.character(instructions[1,]), collapse = " ")
+            stop(paste("No provided data matches instruction:\n", err))
+        }
+        
         return( subset )
     }
 
@@ -208,22 +215,29 @@
         if ( any( Xyears %!in% yearsAllowed )) {
             warning(paste("Some data in", working_instructions$data_file,
                           "are not in the allowed CEDS years and will be ignored"))
-            Xyears <- Xyears[ which( Xyears %in% yearsAllowed ) ]
+            Xyears <- Xyears[ Xyears %in% yearsAllowed ]
         }
 
         # Execute mapping and interpolation unless user requests to bypass processing
-        if ( working_instructions$bypass_processing )
+        if ( working_instructions$bypass_processing ) {
             user_dataframe <- readData( working_instructions$data_file, domain = "EXT_IN",
                                         domain_extension = "user-defined-energy/" )
-        else
+        }
+        else {
             user_dataframe <- processUserDefinedData( working_instructions$data_file,
                                                       MSL, MCL, MFL )
+            if ( working_instructions$start_year ) stop()
+        }
 
         agg_level <- identifyLevel( user_dataframe )
+        if ( agg_level == 0 )
+            stop("Aggregate fuel type not found in user data") 
 
         # Extract the rows from the user's dataframe refering to the specific
         # categories and years as defined by the current instruction
         usrdata <- subsetUserData( user_dataframe, working_instructions )
+        if ( Xyears %!in% names( usrdata ) )
+            stop("Not all years specified found in user data")
 
         # Identify other instructions in the "batch" that will need to be
         # aggregated as one.

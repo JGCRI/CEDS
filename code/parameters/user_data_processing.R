@@ -31,7 +31,7 @@
         # MFL = Master Fuel List
         if ( is.null( MSL ) ) {
             MSL <- readData( "Master_Sector_Level_map", domain = "MAPPINGS" )
-            names( MSL )[ which( names( MSL ) == 'working_sectors_v1' ) ] <- 'CEDS_sector'
+            names( MSL )[ names( MSL ) == 'working_sectors_v1' ] <- 'CEDS_sector'
         }
         if ( is.null( MCL ) )
             MCL <- readData("Master_Country_List", domain = "MAPPINGS")
@@ -47,8 +47,8 @@
                                       domain = "EXT_IN", extension = ".xlsx",
                                       sheet_selection = "Interpolation_instructions" )
         }, error = function(x) {
-            warning( paste0( "No sheet named 'Interpolation_instructions' found in ",
-                             filename, "-instructions.xlsx" ) )
+            stop( paste0( "No sheet named 'Interpolation_instructions' found ", 
+                          "in ", filename, "-instructions.xlsx" ) )
         })
 
         # Read in the actual user data file
@@ -58,15 +58,10 @@
 
         # Take advantage of the isXYear function to isolate which columns are
         # available. Since data is not yet interpolated we can't use the range.
-        Xyears <- colnames( usr_data )[ which( isXYear( colnames( usr_data ) ) ) ]
+        Xyears <- names( usr_data )[ isXYear( names( usr_data ) ) ]
 
         # Cast all year columns to be numeric.
-        if ( nrow( usr_data ) > 1 ) {
-            usr_data[ , Xyears ] <- as.data.frame( sapply( usr_data[ , Xyears ],
-                                                           as.numeric ) )
-        } else {
-            usr_data[ , Xyears ] <- sapply( usr_data[ , Xyears ], as.numeric )
-        }
+        usr_data <- dplyr::mutate_at(usr_data, Xyears, as.numeric)
 
         # Replace all NA values with 0s
         usr_data[ is.na( usr_data ) ] <- 0
@@ -267,56 +262,47 @@
         non_year_cols <- names( df )[ names( df ) %in% non_years ]
         year_cols <- names( df ) [ isXYear( names( df ) ) ]
 
-        if ( is.null( interp_instr ) ) {
-            min_year <- substr( min( year_cols ), 2, 5 )
-            max_year <- substr( max( year_cols ), 2, 5 )
-        } else {
-            min_year <- min(interp_instr$start_year)
-            max_year <- max(interp_instr$end_year)
-        }
+        min_year <- min(interp_instr$start_year)
+        max_year <- max(interp_instr$end_year)
 
         # The range of years specified by the instructions file
         X_data_years <- paste0( "X", min_year:max_year )
+        
+        # Validate years are ok
+        if ( min( X_data_years ) < min( year_cols ) )
+            stop("Specified start year earlier than years provided in data")
+        if ( max( X_data_years ) > max( year_cols ) )
+            stop("Specified end year later than years provided in data")
 
-        # Add years that are specified in the instructions but aren't in the data
-        needed_Xyears <- X_data_years[ X_data_years %!in% year_cols ]
-        df[ , needed_Xyears ] <- NA
+        # Rebuild dataframe with only years specified by the instructions
+        final_df <- df[ , non_year_cols ]
+        final_df[ , X_data_years ] <- NA
+        final_df[ , year_cols ] <- df[ , year_cols ]
 
-        # Remove years that are in the data but aren't specified by the instructions
-        extra_Xyears <- year_cols[ year_cols %!in% X_data_years ]
-        df[ , extra_Xyears ] <- NULL # this used to be NA, will that cause probs?
-
-        # Rebuild the dataframe with the correct year columns
-        df <- df[ , c( non_year_cols, X_data_years ) ]
-
-        # Checks if any row in the dataframe contains NA. In the event that there
-        # are no NAs we can return the data matched to the intended years.
-        if ( !any( apply ( df, 1, function(r) any( is.na(r) ) ) ) ) {
-            return( df )
+        # Checks if any row in the dataframe contains NA. In the event that
+        # there are no NAs we can return the data matched to the intended years.
+        if ( !any( apply ( final_df, 1, function(r) any( is.na(r) ) ) ) ) {
+            return( final_df )
         }
 
     # The data has holes, so we have to continue on and fill the gaps.
 
         # Confirm that a valid method was specified. Currently the only valid
         # methods are match_to_trend, and linear.
-        valid_methods <- c( "match_to_trend", "linear" )
+        method <- interp_instr$method
 
-        if ( is.null( interp_instr ) || interp_instr$method == "linear" ) {
+        if ( method == "linear" ) {
             # CEDS already has a function for linear interpolation.
-            final_df <- df
             final_df[ , X_data_years ] <- interpolate_NAs( final_df[ , X_data_years])
-        } else if ( interp_instr$method == "match_to_trend" ) {
+        } else if ( method == "match_to_default" ) {
+            stop("Not done with this option yet.")
+        } else if ( method == "match_to_trend" ) {
             # Execute trend-matching function
-            final_df <- interpolateByTrend( df,
-                                            interp_instr$matching_file_name,
-                                            interp_instr$domain,
-                                            MSL, MCL, MFL )
+            final_df <- interpolateByTrend( final_df, matching_file_name,
+                                            domain, MSL, MCL, MFL )
         } else {
             # Instructions exist but the method is invalid
-            warning( paste0( "Specified interpolation method '",
-                             interp_instr$method, "' is invalid; using linear" ) )
-            final_df <- df
-            final_df[ , X_data_years ] <- interpolate_NAs( final_df[ , X_data_years ] )
+            stop(paste( "Interpolation method '", method, "' not supported" ))
         }
 
         return( final_df )
