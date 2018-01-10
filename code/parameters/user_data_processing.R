@@ -23,23 +23,11 @@
 #   MCL: Master country list (default)
 #   MFL: Master fuel list (default)
 # Returns: the data in filename as a mapped and interpolated dataframe
-    processUserDefinedData <- function( filename, MSL = NULL, MCL = NULL, MFL = NULL) {
-
-        # If master mapping files were not provided, they need to be read in.
-        # MSL = Master Sector List
-        # MCL = Master Country List
-        # MFL = Master Fuel List
-        if ( is.null( MSL ) ) {
-            MSL <- readData( "Master_Sector_Level_map", domain = "MAPPINGS" )
-            names( MSL )[ names( MSL ) == 'working_sectors_v1' ] <- 'CEDS_sector'
-        }
-        if ( is.null( MCL ) )
-            MCL <- readData("Master_Country_List", domain = "MAPPINGS")
-        if ( is.null( MFL ) )
-            MFL <- readData("Master_Fuel_Sector_List", domain = "MAPPINGS",
-                            extension = ".xlsx", sheet_selection = "Fuels")
+    processUserDefinedData <- function( filename, MSL, MCL, MFL ) {
 
         # Read in the interpolation instructions, saved with the default filename
+        # TODO: Move this either outside processing loop, or into
+        #       interpolateData function
         interp_instr <- NA
         tryCatch({
             interp_instr <- readData( paste0 ( "user-defined-energy/",
@@ -52,6 +40,7 @@
         })
 
         # Read in the actual user data file
+        # TODO: Move this to outside processing loop
         usr_data <- readData( filename,
                               domain = "EXT_IN",
                               domain_extension = "user-defined-energy/")
@@ -68,6 +57,7 @@
 
         # Read in each potential mapping sheet. Some sheets may not be provided,
         # which is okay as mapToCEDS can handle NULL values for the sheets.
+        # TODO: Move this to outside processing loop
         mappings <- readData( paste0( "user-defined-energy/", filename, "-mapping" ),
                               domain = "EXT_IN",
                               extension = ".xlsx" )
@@ -255,6 +245,7 @@
     interpolateData <- function( df, interp_instr, MSL, MCL, MFL ) {
 
     # Check if the data has any holes
+    # TODO: Move this to processUserDefinedData function
 
         # We can assume that all columns are in this form as the data has
         # already been processed by mapping
@@ -295,7 +286,7 @@
             # CEDS already has a function for linear interpolation.
             final_df[ , X_data_years ] <- interpolate_NAs( final_df[ , X_data_years])
         } else if ( method == "match_to_default" ) {
-            stop("Not done with this option yet.")
+            
         } else if ( method == "match_to_trend" ) {
             # Execute trend-matching function
             final_df <- interpolateByTrend( final_df, matching_file_name,
@@ -313,55 +304,42 @@
 # interpolateByTrend()
 # This function takes a dataframe and the info to read in a matching file,
 #    then
-    interpolateByTrend <- function( dataframe, match_filename, match_domain, MSL, MCL, MFL ) {
+    interpolateByTrend <- function( usrdata, match_filename, match_domain, MSL, MCL, MFL ) {
 
+        # TODO: Check if provided match data is a string, and if so treat it as
+        #       the filename to get the trend data from. Otherwise, make sure it
+        #       is a dataframe and use that as the match data.
 
     # Read in the trend that we'll match our values to next to each gap
         dataToMatch <- readData( file_name = paste0("user-defined-energy/", match_filename ), domain = match_domain )
 
-        non_year_cols <- colnames( dataframe ) [ which (colnames( dataframe ) %in%
-                                                        c( "iso", "agg_sector", "CEDS_sector",
-                                                           "agg_fuel", "CEDS_fuel" ) ) ]
+        non_year_cols <- c( "iso", "agg_sector", "CEDS_sector", "agg_fuel", "CEDS_fuel" )
+        non_year_cols <- names( usrdata )[ names( usrdata ) %in% non_year_cols ]
+        all_Xyears <- names( usrdata )[ names( usrdata ) %!in% non_year_cols ]
         dataToMatch <- mapToCEDS( dataToMatch, MSL, MCL, MFL, iso_map = MCL, CEDS_sector_map = MSL )
 
-    # Trim the trend data to only those rows that correspond to a row in the dataframe
+    # Trim the trend data to only those rows that correspond to a row in the usrdata
+        # dplyr::left_join(usrdata[ , non_year_cols ], dataToMatch, by = non_year_cols)
         for ( col in non_year_cols ) {
-            dataToMatch <- dataToMatch[ which( dataToMatch[[ col ]] %in% dataframe[[ col ]] ), ]
+            dataToMatch <- dataToMatch[ dataToMatch[[ col ]] %in% usrdata[[ col ]], ]
         }
 
-
-    # Check that the specified trend data has data for all the years desired
-        all_Xyears <- colnames( dataframe )[ which( colnames( dataframe ) %in% paste0( "X", 1750:2016 ) ) ]
-        if ( any( all_Xyears %!in% colnames( dataToMatch ) ) ) {
+        # Check that the specified trend data has data for all the years desired
+        if ( any( names( usrdata ) %!in% names( dataToMatch ) ) )
             stop( "Error: Trend data did not have years available for specified date range." )
-        }
 
     # Assume the data is uniformly in need of interpolation (all rows have holes
     #     in the same years). Identify the years for which there is data.
-        row1_year_data <- dataframe[ 1, all_Xyears ]
-        years_with_data <- colnames( row1_year_data )[ which( !is.na( row1_year_data ) ) ]
-
-    # Trim trend data to the years of the dataframe
+    # Trim trend data to the years of the usrdata
         dataToMatch <- dataToMatch[ , c( non_year_cols, all_Xyears ) ]
 
-    # Initialize a multiplier dataframe
-        multiplier <- dataframe
-
-    # All yearly data set to NA
-        multiplier[ , all_Xyears ] <- NA
-
-    # Multiplier for years with original data set as given data / trend data
-        multiplier[ years_with_data ] <- dataframe[ years_with_data ] / dataToMatch [ years_with_data ]
-        multiplier[ all_Xyears ] <- replace( multiplier[ all_Xyears ], multiplier[ all_Xyears ] == Inf, 1 )
-    # Linearly interpolate the multiplier
-        multiplier[ , all_Xyears ] <- interpolate_NAs( multiplier[ , all_Xyears ] )  ### Thing to discuss: right now if a trend has a 0 value, that value will end up at 0 even if the data says otherwise.
-                                                                                     ###   Should we go in and change this, maybe replace all 0s (or even all values) that we already had data for
-                                                                                     ###   with the original data just to be safe? probably yes
-
-    # Apply the multiplier to the data; result is interpolated data
-        interpolated_data <- dataToMatch
-        interpolated_data[ , all_Xyears ] <- dataToMatch[ , all_Xyears ] * multiplier[ , all_Xyears ]
-        return( interpolated_data )
+    # Initialize a multiplier usrdata
+        multiplier <- usrdata[ , all_Xyears ] / dataToMatch[ , all_Xyears ]
+        multiplier[ multiplier == Inf ] <- 1
+        multiplier <- interpolate_NAs( multiplier )
+        
+        dataToMatch[ , all_Xyears ] <- dataToMatch[ , all_Xyears ] * multiplier
+        return( dataToMatch )
     }
 
 
