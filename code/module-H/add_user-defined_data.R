@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
-# Program Name: user_data_proc_pseudocode.R
-# Author: Ben Goldstein
-# Date Last Updated: 11 July 2017
+# Program Name: add_user-defined_data.R
+# Authors: Ben Goldstein, Caleb Braun
+# Date Last Updated: January 2018
 # Program Purpose: To process user-defined datasets for use in the historical
 #                  energy extension.
 # Input Files: U.*.csv, U.*-instructions.xslx, U.*-mapping.xslx
@@ -15,6 +15,7 @@
 
 # -----------------------------------------------------------------------------
 # 0. Read in global settings and headers
+# TODO: Change this to match the new format in master
     dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
     for ( i in 1:length( dirs ) ) {
         setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
