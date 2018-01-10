@@ -417,7 +417,7 @@ buildCEDSTemplate <- function( iso_list = NULL, sector_list = NULL, fuel_list = 
 # Output files: none
 
 interpolate_NAs <- function(df) {
-  if( class(df) != data.frame ) {
+  if( class(df) != 'data.frame' ) {
     warning("interpolate_NAs expects a data frame; attempting to convert")
     df <- as.data.frame(df)
   }
