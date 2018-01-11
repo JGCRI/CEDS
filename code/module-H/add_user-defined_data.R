@@ -130,10 +130,9 @@
     MSL <- readData( "Master_Sector_Level_map", domain = "MAPPINGS" )
     names( MSL )[ names( MSL ) == 'working_sectors_v1' ] <- 'CEDS_sector'
     MCL <- readData( "Master_Country_List", domain = "MAPPINGS" )
-    MFL <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS",
-                     extension = ".xlsx", sheet_selection = "Fuels" )
-    comb_or_NC <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS",
-                            extension = ".xlsx", sheet_selection = "Sectors" )
+    MFL <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx" )
+    comb_or_NC <- MFL$Sectors
+    MFL <- MFL$Fuels
     comb_sectors_only <- comb_or_NC$sector[ comb_or_NC$type == "comb" ]
 
 
@@ -153,7 +152,8 @@
 # 2. Collect user-defined inputs and prepare processing loop
 
 # Read instructions files and create a procedure list
-    instructions <- readInUserInstructions()
+    all_instr <- readInUserInstructions()
+    instructions <- processTrendInstructions( all_instr, comb_sectors_only )
 
     # The user may not have instructions covering all aggregation levels
     sapply(c("agg_fuel", "agg_sector", "CEDS_fuel", "CEDS_sector"), function(l) {
@@ -188,6 +188,12 @@
     # The user provided instructions for all supplemental data
     instructions <- processTrendData( instructions, all_activity_data )
 
+    # These two lists hold the user provided data and the associated  mapping
+    # file. They populate as instructions are processed, and are used as a
+    # lookup table, with the base filename (e.g. without 'mapping-') as the key.
+    usr_files <- list()
+    map_files <- list()
+        
     # This will store the final form of each instruction used, for diagnostics
     rows_completed <- instructions[ 0, ]
 
@@ -210,24 +216,35 @@
         # Process the last row (lowest priority, most aggregate) first
         working_instructions <- instructions[ nrow( instructions ), ]
         instructions <- instructions[ -nrow( instructions ), ]
+        
+        data_file <- working_instructions$data_file
 
         # Filter out any years not in the CEDS range
         Xyears <- paste0( "X", working_instructions$start_year:working_instructions$end_year )
-        if ( any( Xyears %!in% yearsAllowed )) {
-            warning(paste("Some data in", working_instructions$data_file,
-                          "are not in the allowed CEDS years and will be ignored"))
+        if ( any( Xyears %!in% yearsAllowed ) ) {
+            warning(paste("Some data in", data_file, "are not in the allowed",
+                          "CEDS years and will be ignored") )
             Xyears <- Xyears[ Xyears %in% yearsAllowed ]
         }
 
-        # Execute mapping and interpolation unless user requests to bypass processing
-        if ( working_instructions$bypass_processing ) {
-            user_dataframe <- readData( working_instructions$data_file, domain = "EXT_IN",
-                                        domain_extension = "user-defined-energy/" )
+        # Check if we have already loaded the user data; if not, add the data to
+        # the data list and the corresponding mappings to the mappings list
+        user_dataframe <- usr_files[[ data_file ]]
+        if ( is.null( user_dataframe ) ) {
+            fpath <- paste0( "user-defined-energy/", data_file )
+            user_df <- readData( fpath, domain = "EXT_IN" )
+            mapping <- readData( paste0( fpath, "-mapping" ), domain = "EXT_IN",
+                                 extension = ".xlsx" )
+            usr_files[[ data_file ]] <- user_df
+            map_files[[ data_file ]] <- mapping
         }
-        else {
-            user_dataframe <- processUserDefinedData( working_instructions$data_file,
+        
+        # Execute mapping and interpolation unless user requests to bypass processing
+        if ( !working_instructions$bypass_processing ) {
+            user_dataframe <- processUserDefinedData( usr_files[[ data_file ]],
+                                                      all_instr[[ data_file ]],
+                                                      map_files[[ data_file ]],
                                                       MSL, MCL, MFL )
-            if ( working_instructions$start_year ) stop()
         }
 
         agg_level <- identifyLevel( user_dataframe )
@@ -310,7 +327,7 @@
             working_instructions <- rbind( working_instructions, batch_data_instructions )
             usrdata <- usrdata[ 0, ]
             for ( row_num in 1:nrow( working_instructions ) ) {
-                file <- working_instructions$data_file[ row_num ]
+                file <- data_file[ row_num ]
                 bypass <- working_instructions$bypass_processing[ row_num ]
                 # Process the data if necessary...
                 if ( !bypass ) {
@@ -341,7 +358,7 @@
         normalized <- normalizeAndIncludeData( Xyears, data_to_use, usrdata,
                                                all_activity_data,
                                                working_instructions$override_normalization,
-                                               agg_level, working_instructions$data_file,
+                                               agg_level, data_file,
                                                as.logical( working_instructions$specified_breakdowns ) )
 
         diagnostics <- normalized$diagnostics

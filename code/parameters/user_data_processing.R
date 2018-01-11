@@ -18,32 +18,18 @@
 #   2. Maps the user data to the proper (CEDS) format
 #   3. Interpolates the data to fill missing years
 # Params:
-#   filename: The non-extension part of the file containing user data
+#   usr_data: A dataframe of user-defined data
+#   proc_instr: The instructions for processing the user-defined data
+#   mappings: The instructions for mapping the user-defined data to CEDS format
 #   MSL: Master sector list (default)
 #   MCL: Master country list (default)
 #   MFL: Master fuel list (default)
-# Returns: the data in filename as a mapped and interpolated dataframe
-    processUserDefinedData <- function( filename, MSL, MCL, MFL ) {
+# Returns: the data in usr_data as a mapped and interpolated dataframe
+    processUserDefinedData <- function( usr_data, proc_instr, mappings, MSL, MCL, MFL ) {
 
-        # Read in the interpolation instructions, saved with the default filename
-        # TODO: Move this either outside processing loop, or into
-        #       interpolateData function
-        interp_instr <- NA
-        tryCatch({
-            interp_instr <- readData( paste0 ( "user-defined-energy/",
-                                      filename, "-instructions"),
-                                      domain = "EXT_IN", extension = ".xlsx",
-                                      sheet_selection = "Interpolation_instructions" )
-        }, error = function(x) {
-            stop( paste0( "No sheet named 'Interpolation_instructions' found ", 
-                          "in ", filename, "-instructions.xlsx" ) )
-        })
-
-        # Read in the actual user data file
-        # TODO: Move this to outside processing loop
-        usr_data <- readData( filename,
-                              domain = "EXT_IN",
-                              domain_extension = "user-defined-energy/")
+        interp_instr <- proc_instr$Interpolation_instructions
+        if ( is.null( interp_instr ) )
+            stop( "No sheet named Interpolation_instructions found" )
 
         # Take advantage of the isXYear function to isolate which columns are
         # available. Since data is not yet interpolated we can't use the range.
@@ -54,13 +40,6 @@
 
         # Replace all NA values with 0s
         usr_data[ is.na( usr_data ) ] <- 0
-
-        # Read in each potential mapping sheet. Some sheets may not be provided,
-        # which is okay as mapToCEDS can handle NULL values for the sheets.
-        # TODO: Move this to outside processing loop
-        mappings <- readData( paste0( "user-defined-energy/", filename, "-mapping" ),
-                              domain = "EXT_IN",
-                              extension = ".xlsx" )
 
         # Map the user data to CEDS format
         mapped_df <- mapToCEDS( usr_data, MSL, MCL, MFL,
