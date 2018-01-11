@@ -30,29 +30,36 @@
         interp_instr <- proc_instr$Interpolation_instructions
         if ( is.null( interp_instr ) )
             stop( "No sheet named Interpolation_instructions found" )
-
-        # Take advantage of the isXYear function to isolate which columns are
-        # available. Since data is not yet interpolated we can't use the range.
-        Xyears <- names( usr_data )[ isXYear( names( usr_data ) ) ]
-
-        # Cast all year columns to be numeric.
-        usr_data <- dplyr::mutate_at(usr_data, Xyears, as.numeric)
-
-        # Replace all NA values with 0s
-        usr_data[ is.na( usr_data ) ] <- 0
-
-        # Map the user data to CEDS format
-        mapped_df <- mapToCEDS( usr_data, MSL, MCL, MFL,
+        
+        # Clean, map, and then interpolate the user data
+        interp_df <- cleanUserDefinedData( usr_data ) %>% 
+                     mapToCEDS( MSL, MCL, MFL,
                                 iso_map         = mappings$iso,
                                 agg_sector_map  = mappings$agg_sector,
                                 CEDS_sector_map = mappings$CEDS_sector,
                                 agg_fuel_map    = mappings$agg_fuel,
-                                CEDS_fuel_map   = mappings$CEDS_fuel )
-
-        # Interpolate the mapped data
-        interp_df <- interpolateData( mapped_df, interp_instr, MSL, MCL, MFL )
+                                CEDS_fuel_map   = mappings$CEDS_fuel ) %>%
+                     interpolateData( interp_instr, MSL, MCL, MFL )
 
         return( interp_df )
+    }
+
+#------------------------------------------------------------------------------
+# cleanUserDefinedData()
+# Brief: Cleans user-defined data for smooth mapping to CEDS format
+# Params:
+#   usr_df: The user dataframe
+# Returns: the cleaned dataframe
+    cleanUserDefinedData <- function(usr_df) {
+        
+        # Cast all year columns to be numeric.
+        year_cols <- names( usr_df )[ isXYear( names( usr_df ) ) ]
+        usr_df <- dplyr::mutate_at(usr_df, year_cols, as.numeric)
+
+        # Replace all NA values with 0s
+        usr_df[ is.na( usr_df ) ] <- 0
+        
+        return( usr_df )
     }
 
 #------------------------------------------------------------------------------
@@ -213,69 +220,51 @@
 
 #------------------------------------------------------------------------------
 # interpolateData()
-# Purpose: A function defining standard interpolation methodology. This assumes that 0
-#          values are not holes; only missing values or NAs are holes.
+# Purpose: A function defining standard interpolation methodology. This assumes
+#          that 0 values are not holes; only missing values or NAs are holes.
 # Params:
 #   df: A dataframe of user data that has been mapped to CEDS
 #   interp_instr: The interpolation instructions parsed from the instructions
 #                 file corresponding to the data
 # Returns:
-#------------------------------------------------------------------------------
     interpolateData <- function( df, interp_instr, MSL, MCL, MFL ) {
-
-    # Check if the data has any holes
-    # TODO: Move this to processUserDefinedData function
-
-        # We can assume that all columns are in this form as the data has
-        # already been processed by mapping
-        non_years <- c("iso", "agg_sector", "CEDS_sector", "agg_fuel", "CEDS_fuel")
-        non_year_cols <- names( df )[ names( df ) %in% non_years ]
-        year_cols <- names( df ) [ isXYear( names( df ) ) ]
-
+        
+        # X_data_years is the range of years specified by the instructions file
         min_year <- min(interp_instr$start_year)
         max_year <- max(interp_instr$end_year)
-
-        # The range of years specified by the instructions file
         X_data_years <- paste0( "X", min_year:max_year )
         
-        # Validate years are ok
-        if ( min( X_data_years ) < min( year_cols ) )
-            stop("Specified start year earlier than years provided in data")
-        if ( max( X_data_years ) > max( year_cols ) )
-            stop("Specified end year later than years provided in data")
-
-        # Rebuild dataframe with only years specified by the instructions
-        final_df <- df[ , non_year_cols ]
-        final_df[ , X_data_years ] <- NA
-        final_df[ , year_cols ] <- df[ , year_cols ]
-
+        df <- filterToYearRange( df, X_data_years )
+        
         # Checks if any row in the dataframe contains NA. In the event that
         # there are no NAs we can return the data matched to the intended years.
-        if ( !any( apply ( final_df, 1, function(r) any( is.na(r) ) ) ) ) {
-            return( final_df )
+        if ( !any( apply ( df, 1, function(r) any( is.na(r) ) ) ) ) {
+            return( df )
         }
 
-    # The data has holes, so we have to continue on and fill the gaps.
-
-        # Confirm that a valid method was specified. Currently the only valid
-        # methods are match_to_trend, and linear.
+        # If we didn't return, the data has holes that need interpolating. First
+        # find out what method to use, then call the corresponding interpolation
+        # function.
         method <- interp_instr$method
 
         if ( method == "linear" ) {
             # CEDS already has a function for linear interpolation.
-            final_df[ , X_data_years ] <- interpolate_NAs( final_df[ , X_data_years])
-        } else if ( method == "match_to_default" ) {
-            
-        } else if ( method == "match_to_trend" ) {
+            df[ , X_data_years ] <- interpolate_NAs( df[ , X_data_years])
+        }
+        else if ( method == "match_to_default" ) {
+            stop("we don't have this yet")    
+        }
+        else if ( method == "match_to_trend" ) {
             # Execute trend-matching function
-            final_df <- interpolateByTrend( final_df, matching_file_name,
-                                            domain, MSL, MCL, MFL )
-        } else {
+            df <- interpolateByTrend( df, matching_file_name, domain,
+                                      MSL, MCL, MFL )
+        }
+        else {
             # Instructions exist but the method is invalid
             stop(paste( "Interpolation method '", method, "' not supported" ))
         }
 
-        return( final_df )
+        return( df )
 
     }
 
@@ -473,4 +462,35 @@ getRowsForAdjustment <- function( all_activity_data, usrdata, MFL, agg_level ) {
                                          agg_fuel %in% MFL$aggregated_fuel[MFL$fuel %in% usrdata$CEDS_fuel] )
 
     return( data_to_adjust )
+}
+
+#------------------------------------------------------------------------------
+# filterToYearRange( df, X_data_years )
+# Purpose: Filters a CEDS-mapped dataframe to a range of years
+# Params:
+#   df: the source data to filter
+#   X_data_years: the range of years to filter to
+# Returns: the filtered dataframe
+filterToYearRange <- function( df, X_data_years ) {
+    
+    # We can assume that all columns are in this form as the data has already 
+    # been processed by mapping.
+    # TODO: Check if mapToCEDS removes extra non-year columns, and if so remove
+    #       the non_years list.
+    non_years <- c("iso", "agg_sector", "CEDS_sector", "agg_fuel", "CEDS_fuel")
+    non_year_cols <- names( df )[ names( df ) %in% non_years ]
+    year_cols <- names( df ) [ isXYear( names( df ) ) ]
+    
+    # Validate years are ok
+    if ( min( X_data_years ) < min( year_cols ) )
+        stop("Specified start year earlier than years provided in data")
+    if ( max( X_data_years ) > max( year_cols ) )
+        stop("Specified end year later than years provided in data")
+
+    # Rebuild dataframe with only years specified by the instructions
+    final_df <- df[ , non_year_cols ]
+    final_df[ , X_data_years ] <- NA
+    final_df[ , year_cols ] <- df[ , year_cols ]
+    
+    return( final_df )
 }

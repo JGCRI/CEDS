@@ -254,7 +254,7 @@
         # Extract the rows from the user's dataframe refering to the specific
         # categories and years as defined by the current instruction
         usrdata <- subsetUserData( user_dataframe, working_instructions )
-        if ( Xyears %!in% names( usrdata ) )
+        if ( any( Xyears %!in% names( usrdata ) ) )
             stop("Not all years specified found in user data")
 
         # Identify other instructions in the "batch" that will need to be
