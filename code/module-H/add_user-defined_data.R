@@ -244,7 +244,7 @@
             user_dataframe <- processUserDefinedData( usr_files[[ data_file ]],
                                                       all_instr[[ data_file ]],
                                                       map_files[[ data_file ]],
-                                                      MSL, MCL, MFL )
+                                                      MSL, MCL, MFL, all_activity_data )
         }
 
         agg_level <- identifyLevel( user_dataframe )
