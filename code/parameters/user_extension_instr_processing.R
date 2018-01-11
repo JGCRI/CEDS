@@ -37,7 +37,7 @@ getInstructionLevel <- function(all_instr, level) {
 
 }
 
-# getInstructionFilenames
+# getInstructionFilenames (without the .xlsx extension)
 getInstructionFilenames <- function() {
     USER_DOM <- "../input/extension/user-defined-energy/"
 
@@ -49,41 +49,53 @@ getInstructionFilenames <- function() {
 
     # The regex "^(?!~\\$)" ignores "~$": Excel's autosave files
     files <- grep( "^(?!~\\$).*-instructions", files_present, perl = T, value = T )
+    files <- sub( ".xlsx", "", files ) 
     return ( files )
 }
 
 # readInUserInstructions
 # Searches the user-defined-energy directory for instructions, filters out non-
 # combustion data, and adds defaults.
-readInUserInstructions <- function () {
+# 
+# CHANGE: Now returns list of lists. Outer list is named the base filename of
+#         the instructions. Inner lists contain two dataframes, one named
+#         Trend_instructions and the other Interpolation_instructions.
+readInUserInstructions <- function() {
 
-    comb_or_NC <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS",
-                            extension = ".xlsx", sheet_selection = "Sectors" )
-    comb_sectors_only <- comb_or_NC$sector[ which( comb_or_NC$type == "comb" ) ]
-    instruction_files <- getInstructionFilenames()
-    all_instructions <- NULL
+    instr_names <- getInstructionFilenames()
+    instr_files <- paste0( "user-defined-energy/" , instr_names ) %>% 
+                   sapply( readData, domain = "EXT_IN", extension = ".xlsx",
+                           simplify = F) %>% 
+                   setNames( sub( "-instructions", "", instr_names ) )
+    
+    return( instr_files )
+}
 
-    for ( file in instruction_files ) {
-        data_file <- gsub( "-instructions.xlsx", "", file )
+processTrendInstructions <- function( instructions, comb_sectors_only ) {
+   
+    # Extract the trend instructions and add the file they came from
+    instruction_list <- lapply( seq_along( instructions ), function( i ) {
+        fname <- names( instructions )[i]
+        instructions[[i]]$Trend_instructions$data_file <- fname
+        instructions[[i]]$Trend_instructions
+    })
 
-        use_instructions <- readData( paste0( "user-defined-energy/", data_file, "-instructions" ),
-                                      domain = "EXT_IN", extension = '.xlsx',
-                                      sheet_selection = "Trend_instructions" )
-        use_instructions$data_file <- data_file
+    # Combine all instructions into a single dataframe
+    all_instructions <- rbind.fill( instruction_list )
 
-        # Remove any non-combustion data as that is not supported
-        if ( "CEDS_sector" %in% names( use_instructions ) ) {
-            nc_rows <- dplyr::filter( use_instructions,
-                                      !is.na(CEDS_sector) & CEDS_sector %!in% comb_sectors_only)
-            if ( nrow( nc_rows ) > 0 ) {
-                use_instructions <- dplyr::setdiff( use_instructions, nc_rows )
-                warning( paste0( nrow( nc_rows )," instruction line(s) were rejected as non-combustion sectors" ) )
-            }
+    # Remove any non-combustion data as that is not supported
+    if ( "CEDS_sector" %in% names( all_instructions ) ) {
+        num_instructions <- nrow( all_instructions )
+        all_instructions <- dplyr::filter( all_instructions, is.na(CEDS_sector) |
+                                           CEDS_sector %in% comb_sectors_only)
+        num_removed = num_instructions - nrow( all_instructions )
+        
+        if ( num_removed  > 0 ) {
+            warning( paste( num_removed, "instruction line(s) were rejected as",
+                            "non-combustion sectors" ) )
         }
-
-        all_instructions <- rbind.fill( all_instructions, use_instructions )
     }
-
+    
     # First, determine batches. How will we indicate that a group of items is in a batch?
     ### The solution is probably just to sort them in a way that batched items are together...
     ### Okay, what makes a batch? A batch is any items that are a) on the same aggregation level
