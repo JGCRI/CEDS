@@ -1,12 +1,16 @@
 #------------------------------------------------------------------------------
 # Program Name: user_data_inclusion_functions.R
-# Author: Ben Goldstein
+# Author: Ben Goldstein, Caleb Braun
 # Date Last Updated: 11 July 2017
-# Program Purpose:
+# Program Purpose: Contains functions for including pre-processed user-defined
+#                  energy extension data. This file focuses mainly on the
+#                  functionality for the actual integration of user and default
+#                  datasets, leaving the pre-processing of either for other
+#                  functions.
 # Input Files:
 # Output Files: None
 # Functions Defined:
-# Notes:
+# Notes: See also user_extension_instr_processing.R and user_data_processing.R
 # ------------------------------------------------------------------------------------
 
 # normalizeAndIncludeData
@@ -20,6 +24,8 @@
 #    all_activity_data: the dataframe holding all activity
 #    override_normalization: a manual option for disabling normalization
 #    agg_level: an integer indicating the aggregate level of the data given
+# 
+#    TODO: Split this into many more functions
 
 normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
                                      all_activity_data, override_normalization,
@@ -86,6 +92,8 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
     all_zero_years <- NA
     need_user_spec <- F
 
+    # TODO: Break this out into separate function
+    # 
     # Normalization, the process of modifying rows that weren't directly
     # specified in order to retain aggregate information, should only happen if
     # both:
@@ -155,11 +163,23 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
 
     disagg_pct_breakdown[ is.nan.df(disagg_pct_breakdown) ] <- 0
 
-# This section of the function addresses an issue where user-specified emissions
-# would fail to replace zero-emissions cells, because they would be
-# disaggregated using factors of zero. It creates percent breakdowns one of a
-# few ways; they will be explained as they appear (all contained in the
-# following if statements).
+# TODO: Break this out into separate function
+# 
+# This section of the function addresses the case where user-specified emissions
+# fail to replace zero-emissions cells, because they would be disaggregated
+# using factors of zero. Three options are tried in order:
+#   1. Use data from other years to interpolate breakdowns:
+#      If other years in the same row have non-zero values, they can be used to
+#      determine the breakdowns for the years with zero values being replaced.
+#      In this case, the breakdowns are linearly interpolated.
+#   2. Interpolate using data from global default dataset:
+#      This is done in the case that the entire row in question contains zeros.
+#      In this case, the breakdowns are calculated from the default activity.
+#   3. Disaggregate with equal values:
+#      If the first two options didn't find values to interpolate breakdowns
+#      from, just breakdown evenly across all disaggregation levels. There is
+#      likely something wrong in this case, so throw a warning.
+    
     if ( any( activity_agg_to_level[ , Xyears ] == 0 &
               act_agg_changed[ , Xyears ] != 0 ) ) {
 
@@ -169,9 +189,9 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
         chgd_zeros <- act_agg_changed[ , Xyears, drop = F ] == 0
         zero_cells <- cbind( act_agg_changed[ , cols_given ], orig_zeros & !chgd_zeros )
 
-        # Create two dataframes: all_zeros (all cells cause the issue) and
-        # some_zeros (those rows that have some, but not all, cells causing the
-        # issue)
+        # Create two logical dataframes:
+        # 1. all_zeros (rows in integrated data that used to only have zeros)
+        # 2. some_zeros (rows in integrated data that used to have some zeros)
         any_zeros <- zero_cells[ apply( zero_cells[ , Xyears ], 1, any ), ]
         all_zeros <- zero_cells[ apply( zero_cells[ , Xyears ], 1, all ), ]
         some_zeros <- dplyr::setdiff( any_zeros, all_zeros )
@@ -437,6 +457,8 @@ generateWarnings <- function ( Xyears, disagg_data_changed,
 #        default dataset with the same sector and fuel. Then, find the sum of
 #        the data for that fuel and sector, which helps create a global default
 #        percentage breakdown for a given aggregation category.
+# 
+#        TODO: Remove global variable 'all_activity_data' as a default parameter
 sumAllActivityByFuelSector <- function( guide_row, years = Xyears, data = all_activity_data ) {
 
     df_to_sum <- dplyr::filter( data, CEDS_sector %in% guide_row$CEDS_sector,
