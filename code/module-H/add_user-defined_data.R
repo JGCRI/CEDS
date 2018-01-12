@@ -31,7 +31,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "TEST"
+    if ( is.na( em ) ) em <- "CO2"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -277,9 +277,9 @@
             # subdivide the whole batch and return back to the beginning of the
             # loop. The goal of this process is to be able to process subdivisions
             # of datasets that only partially overlap.
-            if ( length( unique( c(batch_data_instructions$start_year,
-                                   working_instructions$start_year) ) ) > 1 ||
-                 length( unique(  c(batch_data_instructions$end_year,
+            if ( length( unique( c( batch_data_instructions$start_year,
+                                    working_instructions$start_year) ) ) > 1 ||
+                 length( unique( c( batch_data_instructions$end_year,
                                     working_instructions$end_year)  ) ) > 1 ) {
                 # Identify all the breaks that will need to occur (each unique start
                 # and end year)
@@ -287,7 +287,7 @@
                                           working_instructions$start_year,
                                           batch_data_instructions$end_year + 1,
                                           working_instructions$end_year + 1 ) ) %>%
-                    sort()
+                               sort()
                 # Combine the working with the rest of the batch
                 whole_batch <- rbind( working_instructions, batch_data_instructions )
                 new_division_batch <- whole_batch[ 0, ]
@@ -297,24 +297,22 @@
                 for ( i in 1:( length( year_breaks ) - 1 ) ) {
                     new_year_span <- year_breaks[ i ]:( year_breaks[ i+1 ] - 1 )
 
-                    rows_to_segment <- whole_batch[ which( whole_batch$start_year <=
-                                                               max( new_year_span ) &
-                                                               whole_batch$end_year >=
-                                                               min( new_year_span ) ), ]
+                    rows_to_segment <- whole_batch[ whole_batch$start_year <=
+                                                      max( new_year_span ) &
+                                                    whole_batch$end_year >=
+                                                      min( new_year_span ), ]
                     if ( i != 1 ) {
-                        rows_to_segment$start_continuity[ which( rows_to_segment$start_year != year_breaks[ i ] ) ] <- F
+                        rows_to_segment$start_continuity[ rows_to_segment$start_year != year_breaks[ i ] ] <- F
                     }
                     if ( i != length( year_breaks ) - 1 ) {
-                        rows_to_segment$end_continuity[ which( rows_to_segment$end_year != year_breaks[ i + 1 ] - 1 ) ] <- F
+                        rows_to_segment$end_continuity[ rows_to_segment$end_year != year_breaks[ i + 1 ] - 1 ] <- F
                     }
 
                     rows_to_segment$start_year <- min( new_year_span )
                     rows_to_segment$end_year <- max( new_year_span )
 
                     new_division_batch <- rbind( new_division_batch, rows_to_segment )
-
                 }
-
 
                 # Tack all the newly-divided instructions onto the instructions df
                 instructions <- rbind( new_division_batch, instructions )
@@ -327,13 +325,17 @@
             working_instructions <- rbind( working_instructions, batch_data_instructions )
             usrdata <- usrdata[ 0, ]
             for ( row_num in 1:nrow( working_instructions ) ) {
-                file <- data_file[ row_num ]
+                file <- working_instructions$data_file[ row_num ]
                 bypass <- working_instructions$bypass_processing[ row_num ]
                 # Process the data if necessary...
                 if ( !bypass ) {
                     # call the processUserDefinedData function, which will execute mapping
                     # and interpolation as necessary
-                    user_dataframe <- processUserDefinedData( file, MSL, MCL, MFL )
+                    user_dataframe <- processUserDefinedData( usr_files[[ file ]],
+                                                              all_instr[[ file ]],
+                                                              map_files[[ file ]],
+                                                              MSL, MCL, MFL,
+                                                              all_activity_data )
                     # Otherwise, read in the raw file...
                 } else {
                     user_dataframe <- readData( file, domain = "EXT_IN",
