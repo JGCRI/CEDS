@@ -219,13 +219,8 @@
         
         data_file <- working_instructions$data_file
 
-        # Filter out any years not in the CEDS range
         Xyears <- paste0( "X", working_instructions$start_year:working_instructions$end_year )
-        if ( any( Xyears %!in% yearsAllowed ) ) {
-            warning(paste("Some data in", data_file, "are not in the allowed",
-                          "CEDS years and will be ignored") )
-            Xyears <- Xyears[ Xyears %in% yearsAllowed ]
-        }
+        Xyears <- Xyears[ Xyears %in% yearsAllowed ]
 
         # Check if we have already loaded the user data; if not, add the data to
         # the data list and the corresponding mappings to the mappings list
@@ -235,6 +230,15 @@
             user_df <- readData( fpath, domain = "EXT_IN" )
             mapping <- readData( paste0( fpath, "-mapping" ), domain = "EXT_IN",
                                  extension = ".xlsx" )
+            
+            # Filter out any years not in the CEDS range
+            bad_years <- isXYear( names( user_df ) ) & names( user_df ) %!in% yearsAllowed
+            if ( any( bad_years) ) {
+                warning( paste("Some data in", data_file, "are not in the",
+                               "allowed CEDS years and will be ignored") )
+                user_df <- user_df[ !bad_years ]
+            }
+            
             usr_files[[ data_file ]] <- user_df
             map_files[[ data_file ]] <- mapping
         }
