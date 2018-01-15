@@ -269,7 +269,6 @@
         # Remove the batch instructions from the master instruction dataframe
         instructions <- dplyr::setdiff( instructions, batch_data_instructions )
 
-
         # If there are data in our instructions that will be in the current group's batch:
         if ( nrow( batch_data_instructions ) > 0 ) {
 
@@ -389,7 +388,10 @@
 
     final_activity <- enforceContinuity( activity, yearsAllowed )
 
-    writeData( final_activity, domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST"))
+    # writeData( final_activity, domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST"))
+    final_short <- final_activity %>% dplyr::filter(iso == 'usa', agg_sector == '1A3_Transportation', agg_fuel == 'biomass')
+    default_short <- default_activity_mapped %>% dplyr::filter(iso == 'usa', agg_sector == '1A3_Transportation', agg_fuel == 'biomass')
+    
     #writeData( final_activity[which(final_activity$iso == 'deu'), ], domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST-small"))
     #final_short <- final_activity[ final_activity$iso == 'deu', ]
     #default_short <- default_activity[which(default_activity$iso == 'deu' & default_activity$CEDS_fuel != 'process'), ]

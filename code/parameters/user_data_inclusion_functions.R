@@ -1,14 +1,12 @@
 #------------------------------------------------------------------------------
 # Program Name: user_data_inclusion_functions.R
 # Author: Ben Goldstein, Caleb Braun
-# Date Last Updated: 11 July 2017
+# Date Last Updated: January, 2018
 # Program Purpose: Contains functions for including pre-processed user-defined
 #                  energy extension data. This file focuses mainly on the
 #                  functionality for the actual integration of user and default
 #                  datasets, leaving the pre-processing of either for other
 #                  functions.
-# Input Files:
-# Output Files: None
 # Functions Defined:
 # Notes: See also user_extension_instr_processing.R and user_data_processing.R
 # ------------------------------------------------------------------------------------
@@ -161,7 +159,7 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
     disagg_pct_breakdown[ , Xyears ] <- data_to_use[ , Xyears ] /
                                         agg_group_totals_unchanged[ , Xyears ]
 
-    disagg_pct_breakdown[ is.nan.df(disagg_pct_breakdown) ] <- 0
+    disagg_pct_breakdown[ is.nan.df( disagg_pct_breakdown ) ] <- 0
 
 # TODO: Break this out into separate function
 # 
@@ -197,15 +195,17 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
                                              by = cols_given )
             
             if ( all( bdown_4_row[ , Xyears ] == 0 ) ) {
-                # do all the things for all_zeros below
                 bdown_4_row <- breakdownFromGlobal(bdown_4_row, Xyears,
-                                                   cols_given, current_row) 
+                                                   cols_given, join_cols) 
             }
             else if ( any( bdown_4_row[ , Xyears ] == 0 ) ) {
-                # interpolate breakdowns from years that have them on either side
-                bdown_4_row <- interpBreakdowns(bdown_4_row, Xyears, 
-                                                cols_given, current_row)
+                bdown_4_row <- interpBreakdowns( bdown_4_row, Xyears )
             }
+            
+            # overwrite the rows to replace (r2r) with the new breakdowns
+            r2r <- disagg_pct_breakdown$CEDS_fuel %in% bdown_4_row$CEDS_fuel &
+                   disagg_pct_breakdown$CEDS_sector %in% bdown_4_row$CEDS_sector
+            disagg_pct_breakdown[ r2r, ] <- bdown_4_row
         }
     }
 
@@ -217,7 +217,7 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
                                         domain_extension = "user-defined-energy/" )
             user_breakdown <- as.data.frame(user_breakdown)
         }, error = function(e) {
-            stop( paste0( "No user specified breakdown found for ", filename ) )
+            stop( paste( "No user specified breakdown found for", filename ) )
         })
 
         # Do we still need this check?
@@ -364,13 +364,13 @@ generateWarnings <- function ( Xyears, disagg_data_changed,
 #        TODO: Remove global variable 'all_activity_data' as a default parameter
 sumAllActivityByFuelSector <- function( guide_row, years = Xyears, data = all_activity_data ) {
 
-    df_to_sum <- dplyr::filter( data, CEDS_sector %in% guide_row$CEDS_sector,
-                                      CEDS_fuel   %in% guide_row$CEDS_fuel )
+    df_to_sum <- dplyr::filter( data, CEDS_sector == guide_row[["CEDS_sector"]],
+                                      CEDS_fuel   == guide_row[["CEDS_fuel"]] )
     df_to_sum <- df_to_sum[ , c( "iso", "CEDS_sector", "CEDS_fuel",
                                  "agg_sector", "agg_fuel", years ) ]
 
     df_to_sum[ is.na( df_to_sum ) ] <- 0
-
+    
     return( colSums( df_to_sum[ , years, drop = F ] ) )
 }
 
@@ -486,102 +486,71 @@ initContinuityFactors <- function( activity, instructions, yearsAllowed,
 }
 
 
-# For rows that have no non-zero years available: we will use global
-# percent breakdowns for this row as a default.
-breakdownFromGlobal <- function( pct_breakdown, Xyears, cols_given, agg_cols ) {
-    breakdowns_to_correct <- pct_breakdown
-  
-    # Use the sumAllActivityByFuelSector function to generate global
-    # totals for each fuel x sector, ignoring iso
-    for ( i in 1:nrow( breakdowns_to_correct ) ) {
-        breakdowns_to_correct[ i, Xyears ] <-
-                 sumAllActivityByFuelSector( breakdowns_to_correct[ i, ], Xyears )
-    }
-
-    # Aggregate the new breakdowns to the relevant aggregation level
-    totals_by_agg_group <- ddply( breakdowns_to_correct, cols_given,
-                                  function(x) colSums( x[ Xyears ] ) )
-
-    # If there are some rows that STILL have zeros, we'll divide them
-    # evenly among the breakdown categories and generate a warning that
-    # the user needs to specify breakdowns
-    if ( any( totals_by_agg_group[ , Xyears ] == 0 ) ) {
-
-    # Extract the corresponding disaggregated rows
-        problem_bd <- pct_breakdown
-        for ( col in cols_given ) {
-            problem_bd <- problem_bd[ problem_bd[, col]
-                                      %in% totals_by_agg_group[, col], ]
-        }
-    # Assign the disaggregated rows a uniform "1" so division is
-    # performed evenly
-        problem_bd[ , Xyears ] <- 1
-
-        # All breakdowns needing correcting contain zeros, so we need
-        # to replace them with ones for even distribution
-        breakdowns_to_correct[ , Xyears ] <- 1
-
-    # Replace new values into the disagg pct breakdown df
-        pct_breakdown[ pct_breakdown$CEDS_fuel %in% problem_bd$CEDS_fuel &
-                              pct_breakdown$CEDS_sector %in% problem_bd$CEDS_sector, ] <- problem_bd
-
-        # Re-calculate totals
-        totals_by_agg_group <- ddply( problem_bd, cols_given,
-                                      function(x) colSums( x[ Xyears ] ) )
-
-    # Make a note of the fact that the user needs to specify their own
-    # pct breakdowns (will be passed to warning-generating function)
-        need_user_spec <- T
-    }
-
-# Arrange the totals by the breakdown rows they affect
-    totals_by_agg_group <- left_join( breakdowns_to_correct[ join_cols ],
-                                      totals_by_agg_group, by = cols_given )
-# Calculate new_percent_breakdowns by dividing each row by its group's total
-    new_percent_breakdowns <- totals_by_agg_group
-    new_percent_breakdowns[ , Xyears ] <- breakdowns_to_correct[ , Xyears ] /
-                                          totals_by_agg_group[ , Xyears ]
-
-# ???
-    pct_breakdown[ which( pct_breakdown$CEDS_fuel %in% new_percent_breakdowns$CEDS_fuel &
-                                 pct_breakdown$CEDS_sector %in% new_percent_breakdowns$CEDS_sector ), ] <-
-            new_percent_breakdowns
+# Given a level of aggregation, calculate how much each disaggregated row makes
+# up of the total, based on values for all countries
+# 
+# This should only be done for data that has no non-zero years available. If no
+# global percent breakdowns are found, breakdown equally across all rows.
+#
+# Params:
+#   pct_breakdown:  an all-zero subset of percentage breakdowns
+#   Xyears:         years to consider
+#   join_cols:      columns present in data's most disaggregated form
+#
+breakdownFromGlobal <- function( pct_breakdown, Xyears, cols_given, join_cols ) {
     
-    return(pct_breakdown)
+    # Use the sumAllActivityByFuelSector function to generate totals for each
+    # fuel x sector, ignoring iso.
+    global_totals <- apply( pct_breakdown, 1, sumAllActivityByFuelSector, Xyears )
+    global_totals <- t( global_totals )
+    
+    # If all the rows STILL have zero values for all years, give each year a
+    # uniform value of 1 across all rows. This causes them to be divided evenly
+    # among the breakdown categories by default, but is likely inaccurate so
+    # generates a warning that the user needs to specify breakdowns.
+    # 
+    # If only some rows still have zero values, interpolate from years with data
+    if ( all( colSums( global_totals ) == 0 ) ) {
+        global_totals[ , Xyears ] <- 1
+        warning( "No breakdowns found for aggregate data" )
+    }
+    else if ( any( colSums( global_totals ) == 0 ) ) {
+        global_totals <- data.frame( pct_breakdown[ join_cols ], global_totals )
+        return( interpBreakdowns( global_totals, Xyears ) )
+    }
+    
+    # Calculate new percent breakdowns by dividing each row by its group's total
+    new_breakdown <- prop.table( global_totals, margin = 2 )
+    new_breakdown <- data.frame( pct_breakdown[ join_cols ], new_breakdown )
+    
+    return( new_breakdown )
 }
 
 # For rows that have some but not all zero cells (some 0 rows available)
 # we can use interpolate_NA() to fill in percent breakdowns linearly,
 # making sure to retain a total of 100%.
-interpBreakdowns <- function( pct_breakdown, Xyears, cols_given, agg_cols ) {
-    breakdowns_to_correct <- pct_breakdown
+interpBreakdowns <- function( pct_breakdown, Xyears ) {
+    breakdowns_to_correct <- pct_breakdown[ , Xyears ]
     
     # All columns containing all zeros will be replaced with NA, so we can use
     # interpolate_NAs() to replace them
-    zcols <- colSums( breakdowns_to_correct[ , Xyears ] ) == 0
-    breakdowns_to_correct[ , 5 + which( zcols ) ] <- NA
-    new_percent_breakdowns <- breakdowns_to_correct
+    zcols <- colSums( breakdowns_to_correct ) == 0
+    breakdowns_to_correct[ , zcols ] <- NA
 
-    # If the first or last year is NA this will make complete
-    # interpolation impossible. We will therefore come up with a default
-    # if it is NA; we will use the nearest cell with values.
-    if ( all( is.na( breakdowns_to_correct[ , Xyears[1] ] ) ) ) {
-        first_non_NA <- min( which( !is.na( breakdowns_to_correct[ 1, Xyears ] ))) + 5
-        breakdowns_to_correct[ , Xyears[1] ] <- breakdowns_to_correct[, first_non_NA]
+    # If the first or last year is NA this will make complete interpolation
+    # impossible. We will therefore come up with a default if it is NA; we will
+    # use the nearest cell with values.
+    if ( zcols[1] ) {
+        first_non_NA <- min( which( !zcols ) )
+        breakdowns_to_correct[ , 1 ] <- breakdowns_to_correct[ , first_non_NA ]
     }
-    if ( all( is.na( breakdowns_to_correct[ , Xyears[ length(Xyears) ] ] ) ) ) {
-        first_non_NA <- max( which( !is.na( breakdowns_to_correct[ 1, Xyears ] ))) + 5
-        breakdowns_to_correct[ , Xyears[ length(Xyears) ] ] <-
-                breakdowns_to_correct[, first_non_NA]
+    if ( zcols[ length( zcols ) ] ) {
+        last_non_NA <- max( which( !zcols ) )
+        breakdowns_to_correct[ , length( zcols ) ] <- breakdowns_to_correct[ , last_non_NA ]
     }
 
     # Interpolate and assign the values to new_percent_breakdowns
-    new_percent_breakdowns[ , Xyears ] <- interpolate_NAs( breakdowns_to_correct[ , Xyears ] )
+    pct_breakdown[ , Xyears ] <- interpolate_NAs( breakdowns_to_correct )
 
-    # Replace into the disagg_pct_breakdown master dataframe
-    pct_breakdown[ which( pct_breakdown$CEDS_fuel %in% new_percent_breakdowns$CEDS_fuel &
-                                 pct_breakdown$CEDS_sector %in% new_percent_breakdowns$CEDS_sector ), ] <-
-            new_percent_breakdowns
-    
     return( pct_breakdown )
 }

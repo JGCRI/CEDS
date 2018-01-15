@@ -33,8 +33,11 @@
         if ( is.null( interp_instr ) )
             stop( "No sheet named Interpolation_instructions found" )
         
+        # Get year columns to cast as numeric
+        year_cols <- names( usr_data )[ isXYear( names( usr_data ) ) ]
+        
         # Clean, map, and then interpolate the user data
-        interp_df <- cleanUserDefinedData( usr_data ) %>% 
+        interp_df <- dplyr::mutate_at(usr_data, year_cols, as.numeric) %>% 
                      mapToCEDS( MSL, MCL, MFL,
                                 iso_map         = mappings$iso,
                                 agg_sector_map  = mappings$agg_sector,
@@ -54,12 +57,6 @@
 # Returns: the cleaned dataframe
     cleanUserDefinedData <- function(usr_df) {
         
-        # Cast all year columns to be numeric.
-        year_cols <- names( usr_df )[ isXYear( names( usr_df ) ) ]
-        usr_df <- dplyr::mutate_at(usr_df, year_cols, as.numeric)
-
-        # Replace all NA values with 0s
-        usr_df[ is.na( usr_df ) ] <- 0
         
         return( usr_df )
     }
@@ -251,7 +248,7 @@
         # If we didn't return, the data has holes that need interpolating. First
         # find out what method to use, then call the corresponding interpolation
         # function.
-        method <- interp_instr$method
+        method <- unique( interp_instr$method )
 
         if ( method == "linear" ) {
             # CEDS already has a function for linear interpolation.
@@ -271,7 +268,7 @@
         }
         else {
             # Instructions exist but the method is invalid
-            stop(paste( "Interpolation method '", method, "' not supported" ))
+            stop( paste( "Interpolation method '", method, "' not supported" ) )
         }
 
         return( df )
