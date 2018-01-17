@@ -31,34 +31,6 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
 
     override_normalization <- any( override_normalization, na.rm = T )
 
-    # For each aggregate level, column names are specified that will guide
-    # normalization and processing. Because of this flexible architecture,
-    # specific aggregate levels can be easily adjusted or added without changing
-    # the design of the function. However, there may only be one column in
-    # cols_given that isn't present in normalizeTo; you can only ever normalize
-    # by a single "level" of aggregation. This is a law of the function, not of
-    # the process, and may be worth changing down the line.
-    aggLevelToCols <- function(agg_level) {
-        switch(agg_level,
-            c("iso", "agg_fuel"),                                           # 1
-            c("iso", "agg_fuel", "CEDS_fuel"),                              # 2
-            c("iso", "agg_fuel", "CEDS_fuel", "agg_sector"),                # 3
-            c("iso", "agg_fuel", "CEDS_fuel", "agg_sector", "CEDS_sector"), # 4
-            c("iso", "agg_fuel", "agg_sector", "CEDS_sector"),              # 5
-            c("iso", "agg_fuel", "agg_sector")                              # 6
-        )
-    }
-    aggLevelToNormalize <- function(agg_level) {
-        switch(agg_level,
-            c("iso"),                                          # 1
-            c("iso", "agg_fuel"),                              # 2
-            c("iso", "agg_fuel", "agg_sector"),                # 3
-            c("iso", "agg_fuel", "agg_sector", "CEDS_sector"), # 4
-            c("iso", "agg_fuel", "agg_sector"),                # 5
-            c("iso", "agg_fuel")                               # 6
-        )
-    }
-
     cols_given <- aggLevelToCols(agg_level)
     if(is.null(cols_given)) stop( paste( "agg_level", agg_level, "not supported" ) )
 
@@ -553,4 +525,33 @@ interpBreakdowns <- function( pct_breakdown, Xyears ) {
     pct_breakdown[ , Xyears ] <- interpolate_NAs( breakdowns_to_correct )
 
     return( pct_breakdown )
+}
+
+
+# For each aggregate level, column names are specified that will guide
+# normalization and processing. Because of this flexible architecture,
+# specific aggregate levels can be easily adjusted or added without changing
+# the design of the function. However, there may only be one column in
+# cols_given that isn't present in normalizeTo; you can only ever normalize
+# by a single "level" of aggregation. This is a law of the function, not of
+# the process, and may be worth changing down the line.
+aggLevelToCols <- function(agg_level) {
+    switch(agg_level,
+        c("iso", "agg_fuel"),                                           # 1
+        c("iso", "agg_fuel", "CEDS_fuel"),                              # 2
+        c("iso", "agg_fuel", "CEDS_fuel", "agg_sector"),                # 3
+        c("iso", "agg_fuel", "CEDS_fuel", "agg_sector", "CEDS_sector"), # 4
+        c("iso", "agg_fuel", "agg_sector", "CEDS_sector"),              # 5
+        c("iso", "agg_fuel", "agg_sector")                              # 6
+    )
+}
+aggLevelToNormalize <- function(agg_level) {
+    switch(agg_level,
+        c("iso"),                                          # 1
+        c("iso", "agg_fuel"),                              # 2
+        c("iso", "agg_fuel", "agg_sector"),                # 3
+        c("iso", "agg_fuel", "agg_sector", "CEDS_sector"), # 4
+        c("iso", "agg_fuel", "agg_sector"),                # 5
+        c("iso", "agg_fuel")                               # 6
+    )
 }
