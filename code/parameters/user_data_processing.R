@@ -36,7 +36,7 @@
         # Get year columns to cast as numeric
         year_cols <- names( usr_data )[ isXYear( names( usr_data ) ) ]
         
-        # Clean, map, and then interpolate the user data
+        # Clean, map, validate, and then interpolate the user data
         interp_df <- dplyr::mutate_at(usr_data, year_cols, as.numeric) %>% 
                      mapToCEDS( MSL, MCL, MFL,
                                 iso_map         = mappings$iso,
@@ -44,22 +44,12 @@
                                 CEDS_sector_map = mappings$CEDS_sector,
                                 agg_fuel_map    = mappings$agg_fuel,
                                 CEDS_fuel_map   = mappings$CEDS_fuel ) %>%
+                     validateUserData( proc_instr$Trend_instructions ) %>% 
                      interpolateData( interp_instr, MSL, MCL, MFL, trend_data )
 
         return( interp_df )
     }
 
-#------------------------------------------------------------------------------
-# cleanUserDefinedData()
-# Brief: Cleans user-defined data for smooth mapping to CEDS format
-# Params:
-#   usr_df: The user dataframe
-# Returns: the cleaned dataframe
-    cleanUserDefinedData <- function(usr_df) {
-        
-        
-        return( usr_df )
-    }
 
 #------------------------------------------------------------------------------
 # mapToCEDS()
@@ -241,9 +231,12 @@
         
         # Checks if any row in the dataframe contains NA. In the event that
         # there are no NAs we can return the data matched to the intended years.
-        if ( !any( apply ( df, 1, function(r) any( is.na(r) ) ) ) ) {
-            return( df )
-        }
+        if ( !any( is.na( df ) ) ) return( df )
+        
+        # If the NAs are in the data's final year, we can't interpolate between
+        # points, and instead need to extend the data
+        # if ( any( is.na( df[[ length( df ) ]] ) ) ) {
+        # }
 
         # If we didn't return, the data has holes that need interpolating. First
         # find out what method to use, then call the corresponding interpolation
@@ -283,19 +276,16 @@
 # rows have holes in the same years).
     interpolateByTrend <- function( usrdata, trend_data ) {
         
-        non_years <- c( "iso", "agg_sector", "CEDS_sector", "agg_fuel", "CEDS_fuel" )
-        non_year_cols <- names( usrdata )[ names( usrdata ) %in% non_years ]
+        agg_cols <- c( "iso", "agg_sector", "CEDS_sector", "agg_fuel", "CEDS_fuel" )
+        agg_cols <- names( usrdata )[ names( usrdata ) %in% agg_cols ]
         all_Xyears <- names( usrdata )[ isXYear( names( usrdata ) ) ]
         
         # Trim the trend data to only those rows and columns that correspond to
         # entries in the usrdata dataframe
         trend_data <- filterToYearRange( trend_data, all_Xyears)
-        trend_data <- dplyr::left_join( usrdata[ , non_year_cols ], trend_data,
-                                        by = non_year_cols)
-
-        # Check that the specified trend data has data for all the years desired
-        if ( any( names( usrdata ) %!in% names( trend_data ) ) )
-            stop( "Error: Trend data did not have years available for specified date range." )
+        trend_data <- dplyr::left_join( usrdata[ , agg_cols ], trend_data,
+                                        by = agg_cols) %>% 
+                      ddply( agg_cols, function(x) colSums( x[ all_Xyears ] ) )
 
         # Multiply the trend data by the correct ratios such that all user data
         # present is included as-is, and all missing user data is interpolated.
@@ -485,9 +475,40 @@ filterToYearRange <- function( df, X_data_years ) {
         stop("Specified end year later than years provided in data")
 
     # Rebuild dataframe with only years specified by the instructions
-    final_df <- df[ , non_year_cols ]
-    final_df[ , X_data_years ] <- NA
-    final_df[ , year_cols ] <- df[ , year_cols ]
+    final_df <- df[ , c(non_year_cols, X_data_years) ]
     
     return( final_df )
+}
+
+#------------------------------------------------------------------------------
+# validateUserData
+# Purpose: Ensures user data matches specifications in Trend_instructions sheet
+# Params:
+#   df: a dataframe that has been mapped to CEDS
+#   trend_instr: the Trend_instructions sheet
+# Returns: the validated dataframe (allowing use in a chain)
+validateUserData <- function( df, trend_instr ) {
+    
+    # Go through instructions line by line
+    apply( trend_instr, 1, function( instr ) {
+        instr <- as.data.frame( t( instr ), stringsAsFactors = FALSE )
+        join_cols <- dplyr::intersect( names( instr ), names( df ) ) 
+        instr_data <- dplyr::left_join( instr[ join_cols ], df, by = join_cols )
+       
+        err <- paste0( "Error in instruction:\n\t", 
+                        paste( instr_data[ join_cols ], collapse = " "), "\n " )
+        
+        # Tests!
+        if ( paste0( "X", instr$start_year ) %!in% names( instr_data ) )
+            stop( paste( err, "Start year earlier than any year in data" ) )
+        if ( paste0( "X", instr$end_year ) %!in% names( instr_data ) )
+            stop( paste( err, "End year earlier than any year in data" ) )
+        if ( is.na( instr_data[[ paste0( "X", instr$start_year ) ]] ) )
+            stop( paste( err, "Data at start year is NA" ) )
+        if ( is.na( instr_data[[ paste0( "X", instr$end_year ) ]] ) )
+            stop( paste( err, "Data at end year is NA" ) )
+            
+    }) 
+    
+    return( df )
 }

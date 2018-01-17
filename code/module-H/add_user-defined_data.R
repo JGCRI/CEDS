@@ -244,6 +244,7 @@
         }
         
         # Execute mapping and interpolation unless user requests to bypass processing
+        # TODO: Do this only once per file
         if ( !working_instructions$bypass_processing ) {
             user_dataframe <- processUserDefinedData( usr_files[[ data_file ]],
                                                       all_instr[[ data_file ]],
@@ -393,8 +394,8 @@
     final_activity <- enforceContinuity( activity, yearsAllowed )
 
     # writeData( final_activity, domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST"))
-    final_short <- final_activity %>% dplyr::filter(iso == 'usa', agg_sector == '1A3_Transportation', agg_fuel == 'biomass')
-    default_short <- default_activity_mapped %>% dplyr::filter(iso == 'usa', agg_sector == '1A3_Transportation', agg_fuel == 'biomass')
+    final_short <- final_activity %>% dplyr::filter(iso == 'usa', agg_sector == '1A4_Stationary_RCO', agg_fuel == 'coal')
+    default_short <- default_activity_mapped %>% dplyr::filter(iso == 'usa', agg_sector == '1A4_Stationary_RCO', agg_fuel == 'coal')
     
     #writeData( final_activity[which(final_activity$iso == 'deu'), ], domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST-small"))
     #final_short <- final_activity[ final_activity$iso == 'deu', ]
