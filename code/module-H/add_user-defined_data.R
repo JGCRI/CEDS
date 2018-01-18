@@ -205,99 +205,80 @@
 
 
     while ( nrow( instructions ) > 0 ) {
-
-        all_activity_data <- activity$all_activity_data
-
+        # Update variables for each run of the loop
         batch <- batch + 1
-
-        # Sort instructions
-        instructions <- orderInstructions( instructions )
+        all_activity_data <- activity$all_activity_data
+        instructions <- orderInstructions( instructions ) # Sort instructions
 
         # Process the last row (lowest priority, most aggregate) first
         working_instructions <- instructions[ nrow( instructions ), ]
         instructions <- instructions[ -nrow( instructions ), ]
         
         data_file <- working_instructions$data_file
-
-        Xyears <- paste0( "X", working_instructions$start_year:working_instructions$end_year )
-        Xyears <- Xyears[ Xyears %in% yearsAllowed ]
+        user_dataframe <- usr_files[[ data_file ]]
 
         # Check if we have already loaded the user data; if not, add the data to
         # the data list and the corresponding mappings to the mappings list
-        user_dataframe <- usr_files[[ data_file ]]
         if ( is.null( user_dataframe ) ) {
-            fpath <- paste0( "user-defined-energy/", data_file )
-            user_df <- readData( fpath, domain = "EXT_IN" )
-            mapping <- readData( paste0( fpath, "-mapping" ), domain = "EXT_IN",
-                                 extension = ".xlsx" )
+            user_dataframe <- readInUserData( data_file, yearsAllowed )
+            map_files[[ data_file ]] <- user_dataframe$mapping
             
-            # Filter out any years not in the CEDS range
-            bad_years <- isXYear( names( user_df ) ) & names( user_df ) %!in% yearsAllowed
-            if ( any( bad_years) ) {
-                warning( paste("Some data in", data_file, "are not in the",
-                               "allowed CEDS years and will be ignored") )
-                user_df <- user_df[ !bad_years ]
+            # Execute mapping and interpolation unless user requests not to
+            if ( !working_instructions$bypass_processing ) {
+                user_dataframe <- procUsrData( user_dataframe$user_df,
+                                               all_instr[[ data_file ]],
+                                               map_files[[ data_file ]],
+                                               MSL, MCL, MFL, all_activity_data )
             }
             
-            usr_files[[ data_file ]] <- user_df
-            map_files[[ data_file ]] <- mapping
-        }
-        
-        # Execute mapping and interpolation unless user requests to bypass processing
-        # TODO: Do this only once per file
-        if ( !working_instructions$bypass_processing ) {
-            user_dataframe <- processUserDefinedData( usr_files[[ data_file ]],
-                                                      all_instr[[ data_file ]],
-                                                      map_files[[ data_file ]],
-                                                      MSL, MCL, MFL, all_activity_data )
+            if ( identifyLevel( user_dataframe ) == 0 )
+                stop("Fuel type not found in user data") 
+            
+            usr_files[[ data_file ]] <- user_dataframe
         }
 
         agg_level <- identifyLevel( user_dataframe )
-        if ( agg_level == 0 )
-            stop("Aggregate fuel type not found in user data") 
+        
+        s_year <- working_instructions$start_year
+        e_year <- working_instructions$end_year
+        Xyears <- yearsAllowed[ yearsAllowed %in% paste0( "X", s_year:e_year ) ]
 
         # Extract the rows from the user's dataframe refering to the specific
         # categories and years as defined by the current instruction
-        usrdata <- subsetUserData( user_dataframe, working_instructions )
-        if ( any( Xyears %!in% names( usrdata ) ) )
-            stop("Not all years specified found in user data")
+        usrdata <- subsetUserData( user_dataframe, working_instructions ) %>% 
+                   validateUserData( working_instructions )
 
         # Identify other instructions in the "batch" that will need to be
-        # aggregated as one.
-        batch_data_instructions <- extractBatchInstructions(instructions, usrdata, agg_level)
-
-        # Files only need to be batched if their year ranges overlap.
-        batch_data_instructions <- dplyr::filter( batch_data_instructions,
-                                            start_year < working_instructions$end_year,
-                                            end_year > working_instructions$start_year)
+        # aggregated as one. Files only need to be batched if their year ranges
+        # overlap.
+        batch_instructions <- instructions %>% 
+                              extractBatchInstructions( usrdata, agg_level ) %>% 
+                              dplyr::filter( start_year < e_year, end_year > s_year)
 
         # Remove the batch instructions from the master instruction dataframe
-        instructions <- dplyr::setdiff( instructions, batch_data_instructions )
+        instructions <- dplyr::setdiff( instructions, batch_instructions )
 
-        # If there are data in our instructions that will be in the current group's batch:
-        if ( nrow( batch_data_instructions ) > 0 ) {
+        # Process the batch of instructions (if there is a batch)
+        if ( nrow( batch_instructions ) > 0 ) {
 
-            # If our years haven't been properly subdivided by year, we'll need to
-            # subdivide the whole batch and return back to the beginning of the
-            # loop. The goal of this process is to be able to process subdivisions
-            # of datasets that only partially overlap.
-            if ( length( unique( c( batch_data_instructions$start_year,
-                                    working_instructions$start_year) ) ) > 1 ||
-                 length( unique( c( batch_data_instructions$end_year,
-                                    working_instructions$end_year)  ) ) > 1 ) {
-                # Identify all the breaks that will need to occur (each unique start
-                # and end year)
-                year_breaks <- unique( c( batch_data_instructions$start_year,
-                                          working_instructions$start_year,
-                                          batch_data_instructions$end_year + 1,
-                                          working_instructions$end_year + 1 ) ) %>%
+            # If our years haven't been properly subdivided by year, we'll need
+            # to subdivide the whole batch and return back to the beginning of
+            # the loop. The goal of this process is to be able to process
+            # subdivisions of datasets that only partially overlap.
+            if ( length( unique( c( batch_instructions$start_year, s_year ) ) ) > 1 ||
+                 length( unique( c( batch_instructions$end_year, e_year ) ) ) > 1 ) {
+                # Identify all the breaks that will need to occur (each unique
+                # start and end year)
+                year_breaks <- unique( c( batch_instructions$start_year, s_year,
+                                          batch_instructions$end_year + 1,
+                                          e_year + 1 ) ) %>%
                                sort()
                 # Combine the working with the rest of the batch
-                whole_batch <- rbind( working_instructions, batch_data_instructions )
+                whole_batch <- rbind( working_instructions, batch_instructions )
                 new_division_batch <- whole_batch[ 0, ]
 
-                # For each break: create a new instruction for any instruction that
-                # encompasses this year range
+                # For each break: create a new instruction for any instruction
+                # that encompasses this year range
                 for ( i in 1:( length( year_breaks ) - 1 ) ) {
                     new_year_span <- year_breaks[ i ]:( year_breaks[ i+1 ] - 1 )
 
@@ -326,20 +307,20 @@
             # From here we know our years are properly subdivided, so we should
             # re-retrieve our user_defined_data dataframe. This may require
             # drawing on multiple source files.
-            working_instructions <- rbind( working_instructions, batch_data_instructions )
+            working_instructions <- rbind( working_instructions, batch_instructions )
             usrdata <- usrdata[ 0, ]
             for ( row_num in 1:nrow( working_instructions ) ) {
                 file <- working_instructions$data_file[ row_num ]
                 bypass <- working_instructions$bypass_processing[ row_num ]
                 # Process the data if necessary...
                 if ( !bypass ) {
-                    # call the processUserDefinedData function, which will execute mapping
+                    # call the procUsrData function, which will execute mapping
                     # and interpolation as necessary
-                    user_dataframe <- processUserDefinedData( usr_files[[ file ]],
-                                                              all_instr[[ file ]],
-                                                              map_files[[ file ]],
-                                                              MSL, MCL, MFL,
-                                                              all_activity_data )
+                    user_dataframe <- procUsrData( usr_files[[ file ]],
+                                                   all_instr[[ file ]],
+                                                   map_files[[ file ]],
+                                                   MSL, MCL, MFL,
+                                                   all_activity_data )
                     # Otherwise, read in the raw file...
                 } else {
                     user_dataframe <- readData( file, domain = "EXT_IN",
@@ -353,22 +334,17 @@
 
         data_to_use <- getRowsForAdjustment(all_activity_data, usrdata, MFL, agg_level)
 
-    # Initialize diagnostics as NA, so if the function fails or returns nothing
-    # it will still exist
-        diagnostics <- NA
-
-    # Execute the normalizeAndIncludeData function in
-    # user_data_inclusion_functions. This is the main point of the program; it
-    # will normalize, disaggregate, and then incorporate the user-defined data
-    # into activity$all_activity_data
+        # Call the normalizeAndIncludeData function. This is the main point of
+        # the program; it will normalize, disaggregate, and then incorporate the
+        # user-defined data, returning a list with both the data and diagnostics
         normalized <- normalizeAndIncludeData( Xyears, data_to_use, usrdata,
                                                all_activity_data,
                                                working_instructions$override_normalization,
                                                agg_level, data_file,
-                                               as.logical( working_instructions$specified_breakdowns ) )
+                                               working_instructions$specified_breakdowns )
 
-        diagnostics <- normalized$diagnostics
         activity$all_activity_data <- normalized$all_data
+        diagnostics <- normalized$diagnostics
 
     # Tack on some diagnostics to the working instructions dataframe for
     # diagnostic output

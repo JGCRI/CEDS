@@ -8,10 +8,36 @@
 # Output Files: None
 # Functions Defined: mapToCEDS, interpolateData, interpolateByTrend
 # Notes:
-# ------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
-# processUserDefinedData()
+# readInUserData()
+# Brief: Given a root filename, reads in a data file and mapping file
+# Params:
+#   fname: The filename
+#   yearsAllowed: A vector of the CEDS Xyears; any input years outside this
+#                 range are filtered out
+# Returns: A two-element list containing the data and mapping files
+    readInUserData <- function( fname, yearsAllowed ) {
+        # Read in files
+        fpath <- paste0( "user-defined-energy/", fname )
+        mpath <- paste0( fpath, "-mapping" )
+        user_df <- readData( fpath, domain = "EXT_IN" )
+        mapping <- readData( mpath, domain = "EXT_IN", extension = ".xlsx" )
+        
+        # Filter out any years not in the CEDS range
+        bad_years <- isXYear( names( user_df ) ) & names( user_df ) %!in% yearsAllowed
+        if ( any( bad_years) ) {
+            warning( paste("Some data in", data_file, "are not in the",
+                           "allowed CEDS years and will be ignored") )
+            user_df <- user_df[ !bad_years ]
+        }
+        
+        return( list( user_df = user_df, mapping = mapping ) )
+    }
+
+#------------------------------------------------------------------------------
+# procUsrData()
 # Brief:
 #   1. Cleans the user data replacing NAs with zero and casting
 #      all data columns to numeric
@@ -26,8 +52,8 @@
 #   MFL: Master fuel list (default)
 #   trend_data: If interpolating to trend, a dataframe containing that trend
 # Returns: the data in usr_data as a mapped and interpolated dataframe
-    processUserDefinedData <- function( usr_data, proc_instr, mappings,
-                                        MSL, MCL, MFL, trend_data = NULL ) {
+    procUsrData <- function( usr_data, proc_instr, mappings,
+                             MSL, MCL, MFL, trend_data = NULL ) {
 
         interp_instr <- proc_instr$Interpolation_instructions
         if ( is.null( interp_instr ) )
@@ -223,20 +249,18 @@
     interpolateData <- function( df, interp_instr, MSL, MCL, MFL, trend = NULL ) {
         
         # X_data_years is the range of years specified by the instructions file
-        min_year <- min(interp_instr$start_year)
-        max_year <- max(interp_instr$end_year)
+        min_year <- min( interp_instr$start_year )
+        max_year <- max( interp_instr$end_year )
         X_data_years <- paste0( "X", min_year:max_year )
         
+        # Subset data years to correct range and fill in missing years with NAs
         df <- filterToYearRange( df, X_data_years )
+        df[ , X_data_years[ X_data_years %!in% names( df ) ] ] <- NA
+        df <- df[ order( names( df) ) ]
         
         # Checks if any row in the dataframe contains NA. In the event that
         # there are no NAs we can return the data matched to the intended years.
         if ( !any( is.na( df ) ) ) return( df )
-        
-        # If the NAs are in the data's final year, we can't interpolate between
-        # points, and instead need to extend the data
-        # if ( any( is.na( df[[ length( df ) ]] ) ) ) {
-        # }
 
         # If we didn't return, the data has holes that need interpolating. First
         # find out what method to use, then call the corresponding interpolation
@@ -245,7 +269,7 @@
 
         if ( method == "linear" ) {
             # CEDS already has a function for linear interpolation.
-            df[ , X_data_years ] <- interpolate_NAs( df[ , X_data_years])
+            df[ , X_data_years ] <- interpolate_NAs( df[ , X_data_years ] )
         }
         else if ( method == "match_to_default" ) {
             df <- interpolateByTrend( df, trend )
@@ -329,9 +353,9 @@
             Xyears <- paste0( "X", trend_instructions[row_num, ]$start_year:
                                    trend_instructions[row_num, ]$end_year)
 
-            # Call the processUserDefinedData function, which will execute mapping
-            # and interpolation as necessary
-            user_dataframe <- processUserDefinedData( trend_instructions[row_num, ]$data_file,
+            # Call the procUsrData function, which will execute mapping and
+            # interpolation as necessary
+            user_dataframe <- procUsrData( trend_instructions[row_num, ]$data_file,
                                                       MSL, MCL, MFL )
 
             # Extract the data from the dataframe that will refer to the specific
@@ -475,7 +499,8 @@ filterToYearRange <- function( df, X_data_years ) {
         stop("Specified end year later than years provided in data")
 
     # Rebuild dataframe with only years specified by the instructions
-    final_df <- df[ , c(non_year_cols, X_data_years) ]
+    cols_in_range <- year_cols[ year_cols %in% X_data_years ]
+    final_df <- df[ , c( non_year_cols, cols_in_range ) ]
     
     return( final_df )
 }
