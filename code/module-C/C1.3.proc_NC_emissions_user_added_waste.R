@@ -76,6 +76,13 @@ if ( is.na( em ) ) em <- "NH3"
                                 sheet_selection = "Table S1",
                                 skip_rows = 2 )[ , c( 1:3, 5:6, 8, 10 ) ]
     
+    waste_column_names <- colnames(readData( domain = "EM_INV", 
+                                file_name = "Global_Emissions_of_Pollutants_from_Open_Burning_of_Domestic_Waste",
+                                extension = ".xlsx",
+                                sheet_selection = "Table S3",
+                                skip_rows = 1
+                                ) )
+    
 # Emissions factors, from Wiedinmyer et al. Table 1
     emissions_factors <- readData( domain = "EM_INV", file_name = "Wiedinmyer_domestic_waste_EF" )
     colnames( emissions_factors ) [ 2 ] <- "EF"
@@ -148,6 +155,7 @@ if ( is.na( em ) ) em <- "NH3"
     total_burning_em <- subset( total_burning_em, select = c( Country, 1:25 ) )
     
     waste_input <- total_burning_em
+    colnames(waste_input) <- waste_column_names
     
 # ------------------------------------------------------------------------------
 # 4. Process and convert to standard CEDS format
@@ -244,12 +252,12 @@ if ( is.na( em ) ) em <- "NH3"
 # ------------------------------------------------------------------------------
 # 6. Output
     writeData( waste_inventory_no_wiedinmyer, "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
-               fn = paste0( "C.", em, "_NC_waste_emissions_no_wiedinmyer_user_added" ) )
+               fn = paste0( "C.", em, "_NC_waste_emissions_no_wiedinmyer_user_added_compare" ) )
 
     writeData( waste_inventory_wiedinmyer_no_trend, "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
-               fn = paste0( "C.", em, "_NC_waste_emissions_wiedinmyer_no_trend_user_added" ) )
+               fn = paste0( "C.", em, "_NC_waste_emissions_wiedinmyer_no_trend_user_added_compare" ) )
 
     writeData( waste_inventory_wiedinmyer_trend, "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
-               fn = paste0( "C.", em, "_NC_waste_emissions_wiedinmyer_trend_user_added" ) )
+               fn = paste0( "C.", em, "_NC_waste_emissions_wiedinmyer_trend_user_added_compare" ) )
 
 logStop()
