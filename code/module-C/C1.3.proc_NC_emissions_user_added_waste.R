@@ -145,6 +145,10 @@ if ( is.na( em ) ) em <- "NH3"
     colnames( total_burning_em ) <- emissions_factors$compound
     total_burning_em$Country <- all_waste_data$Country
     
+    total_burning_em <- subset( total_burning_em, select = c( Country, 1:25 ) )
+    
+    waste_input <- total_burning_em
+    
 # ------------------------------------------------------------------------------
 # 4. Process and convert to standard CEDS format
 # Add ISO code
