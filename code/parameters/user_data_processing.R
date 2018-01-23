@@ -27,7 +27,7 @@
         
         # Filter out any years not in the CEDS range
         bad_years <- isXYear( names( user_df ) ) & names( user_df ) %!in% yearsAllowed
-        if ( any( bad_years) ) {
+        if ( any( bad_years ) ) {
             warning( paste("Some data in", data_file, "are not in the",
                            "allowed CEDS years and will be ignored") )
             user_df <- user_df[ !bad_years ]
@@ -115,8 +115,6 @@
         # Throw out data that has NAs for iso
             dataframe <- dataframe[ which( !is.na( dataframe$iso ) ), ]
         }
-
-        printLog( "mapToCEDS: iso mapping complete" )
 
     # If a CEDS sector map was provided:
         if ( !is.null( CEDS_sector_map ) |
@@ -226,10 +224,7 @@
             dataframe <- ddply( dataframe, present_columns, function(x) colSums( x[ Xyears ] ) )
         }
 
-        printLog( "Done with mapping file to CEDS categories" )
-
         return( dataframe )
-
     }
 
 
@@ -265,7 +260,20 @@
         # If we didn't return, the data has holes that need interpolating. First
         # find out what method to use, then call the corresponding interpolation
         # function.
+        # 
+        # TODO: Figure out what to do in the case that interp_instr specifies
+        #       different methods for different instructions
+        # Idea:
+        #   1. filter to specific interp type:
+        #      mtt <- dplyr::filter(interp_instr, method == "match_to_default")
+        #   2. get rows in df that match that specific method:
+        #      join_cols <- aggLevelToCols(identifyLevel(df))
+        #   3. Interpolate whole df with that method, but only replace rows that
+        #      specified that method
+        #   4. Repeat with all methods
         method <- unique( interp_instr$method )
+        if ( length( method ) > 1 )
+            stop( "Multiple interpolation methods is currently unsupported" )
 
         if ( method == "linear" ) {
             # CEDS already has a function for linear interpolation.
@@ -527,7 +535,7 @@ validateUserData <- function( df, trend_instr ) {
         if ( paste0( "X", instr$start_year ) %!in% names( instr_data ) )
             stop( paste( err, "Start year earlier than any year in data" ) )
         if ( paste0( "X", instr$end_year ) %!in% names( instr_data ) )
-            stop( paste( err, "End year earlier than any year in data" ) )
+            stop( paste( err, "End year later than any year in data" ) )
         if ( is.na( instr_data[[ paste0( "X", instr$start_year ) ]] ) )
             stop( paste( err, "Data at start year is NA" ) )
         if ( is.na( instr_data[[ paste0( "X", instr$end_year ) ]] ) )

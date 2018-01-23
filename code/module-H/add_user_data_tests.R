@@ -93,12 +93,12 @@ runscript <- function() {
 
     # Manipulate command line arguments for our test input file
     commandArgsOrig <- commandArgs
-    commandArgs <- function(bool) { return(c(em = 'TEST')) }
+    assign("commandArgs", function(bool) { return(c(em = 'TEST')) }, envir = .GlobalEnv )
 
     debugSource('../code/module-H/add_user-defined_data.R')
 
     # Reset command line args function
-    commandArgs <- commandArgsOrig
+    commandArgs <<- commandArgsOrig
 }
 
 runtests <- function(limit = NULL) {
@@ -133,7 +133,7 @@ runtests <- function(limit = NULL) {
 
 if(rev(strsplit(getwd(), '/')[[1]])[1] != 'input') stop("Go to input directory")
 initialize("add_user_data_tests.R", "", NULL)
-runtests(2)
+runtests(1)
 
 
 # Aggregation Level Tests:

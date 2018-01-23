@@ -74,7 +74,7 @@
 #        Combination check for if a value is null, NA, or NaN
 # params:
 #    x: some non-list object
-    is.invalid = function(x) {
+    is.invalid <- function(x) {
       return( is.null(x) || is.na(x) || is.nan(x) )
     }
 
@@ -369,9 +369,12 @@
 
     final_activity <- enforceContinuity( activity, yearsAllowed )
 
-    # writeData( final_activity, domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST"))
-    final_short <- final_activity %>% dplyr::filter(iso == 'usa', agg_sector == '1A4_Stationary_RCO', agg_fuel == 'coal')
-    default_short <- default_activity_mapped %>% dplyr::filter(iso == 'usa', agg_sector == '1A4_Stationary_RCO', agg_fuel == 'coal')
+    writeData( final_activity, domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST"))
+    final_short <- final_activity %>% dplyr::filter(iso == 'usa', agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
+    default_short <- default_activity_mapped %>% dplyr::filter(iso == 'usa', agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
+    View(default_short[, c(1:5, 250:270)])
+    final_short <- final_short[, c(1:5, 250:270)]
+    View(final_short)
     
     #writeData( final_activity[which(final_activity$iso == 'deu'), ], domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST-small"))
     #final_short <- final_activity[ final_activity$iso == 'deu', ]
