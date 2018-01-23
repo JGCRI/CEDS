@@ -418,12 +418,17 @@ initContinuityFactors <- function( activity, instructions, yearsAllowed,
         ok_cols <- c( "iso", "CEDS_fuel", "CEDS_sector", "agg_sector", "agg_fuel" )
         cols_given <- names( instructions )[ !is.na( this.row ) & names( instructions ) %in% ok_cols ]
 
-    # Extract the subset of disaggregated rows corresponding to the data
-        rows_to_adjust <- activity$continuity_factors
-        for ( col in cols_given ) {
-            rows_to_adjust <- rows_to_adjust[ rows_to_adjust[, col]
-                                      %in% this.row[, col], ]
+    # Extract the subset of disaggregated rows corresponding to the data and
+    # confirm that the data actually exists.
+        rows_to_adjust <- activity$continuity_factors %>% 
+                          dplyr::left_join( this.row[ , cols_given ], .,
+                                            by = cols_given )
+        if ( sum( !is.na( rows_to_adjust ) ) == length( cols_given ) ) {
+            stop( paste0( "Error in instruction:\n\t", 
+                  paste( this.row[ cols_given ], collapse = " " ), "\n ",
+                  "No default data found for iso/fuel/sector specified" ) )
         }
+        
 
     # The continuity step is by how much each value will increase each year
     # (ends at 1)
