@@ -184,6 +184,10 @@ if ( is.na( em ) ) em <- "NH3"
     waste_input$iso[ waste_input$`Country Name` == "Wallis and Futuna" ] <- "wlf"
     waste_input <- filter( waste_input, !is.na( iso ) ) %>%  # drop countries not in CEDS
       dplyr::arrange( iso )
+    
+    drop_countries <- c( "Cyprus", "Luxembourg", "Malta", "Singapore", "Slovakia" )
+    waste_input <- filter( waste_input, `Country Name` %!in% drop_countries ) %>%  # drop 5 countries with no vals (to match pre-Wiedinmyer)
+      dplyr::arrange( iso )
 
 # Keep relevant emissions (TODO)
     waste_input <- select( waste_input, iso, `Sulfur Dioxide (SO2)`, `Nitrogen Oxides (NOx as NO)`,
