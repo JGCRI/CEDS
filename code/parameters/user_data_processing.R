@@ -64,7 +64,7 @@
         
         # Clean, map, validate, and then interpolate the user data
         interp_df <- dplyr::mutate_at(usr_data, year_cols, as.numeric) %>% 
-                     mapToCEDS( MSL, MCL, MFL,
+                     mapToCEDS( MSL, MFL,
                                 iso_map         = mappings$iso,
                                 agg_sector_map  = mappings$agg_sector,
                                 CEDS_sector_map = mappings$CEDS_sector,
@@ -83,148 +83,74 @@
 # Params:
 #   dataframe: The user dataframe
 #   MSL: Master sector list (default)
-#   MCL: Master country list (default)
 #   MFL: Master fuel list (default)
+#   aggregate: Boolean - should the data be aggregated after joining?
 #   iso_map, agg_sector_map, CEDS_sector_map, agg_fuel_map, CEDS_fuel_map:
 #        Specified mapping files corresponding to sheets in a mapping
 #        spreadsheet. Should have one column that's the CEDS column and one
 #        that matches the column in the user dataframe.
 # Returns: the mapped dataframe
-    mapToCEDS <- function( dataframe, MSL, MCL, MFL, iso_map = NULL,
+    mapToCEDS <- function( usrdata, MSL, MFL, aggregate = TRUE, iso_map = NULL,
                            agg_sector_map = NULL, CEDS_sector_map = NULL,
-                           agg_fuel_map = NULL, CEDS_fuel_map = NULL, aggregate = TRUE ) {
-    # Divide the present column names into
-        dataframe_categories <- colnames( dataframe )[ which( !isXYear( colnames( dataframe ) ) ) ]
-        Xyears <- colnames( dataframe )[ which( isXYear( colnames( dataframe ) ) ) ]
+                           agg_fuel_map = NULL, CEDS_fuel_map = NULL ) {
+        
+        # Make sure iso is accounted for
+        if ( is.null( iso_map ) & 'iso' %!in% names( usrdata ) )
+            stop( "iso not in data, but no iso map provided" )
+        
+        # The only accepted non-year columns
+        CEDS_COLS <- c( "iso", "agg_sector", "CEDS_sector", "agg_fuel", "CEDS_fuel" )
+        
+        # Ensure mapping files are correctly formatted
+        maps = list( iso_map, agg_sector_map, CEDS_sector_map, agg_fuel_map, CEDS_fuel_map )
+        sapply( maps, validateUserMap, CEDS_COLS )
 
-    # If the iso is not already in the data, map to it
-        if ( 'iso' %!in% dataframe_categories ) {
-            if ( is.null( iso_map ) ) {
-                stop( "Error in mapToCEDS: iso not in data, but no iso map provided" )
-            }
-
-        # Merge the datasets together. This assumes that the name of the non-iso country column
-        #   in each dataset is the same. Can we make this assumption? It seems like yes, as that's
-        #   the point of a mapping file.
-            dataframe_w_iso <- left_join( dataframe, iso_map )  ### Do anti-join first, print a warning with the unmatchable country-level data
-            if ( nrow( dataframe_w_iso ) != nrow( dataframe ) ) {
-                stop( "Double-mapped isos are not allowed." )
-            }
-            dataframe <- dataframe_w_iso
-
-        # Throw out data that has NAs for iso
-            dataframe <- dataframe[ which( !is.na( dataframe$iso ) ), ]
-        }
-
-    # If a CEDS sector map was provided:
-        if ( !is.null( CEDS_sector_map ) |
-                       'CEDS_sector' %in% dataframe_categories ) {
-            if ( 'CEDS_sector' %!in% dataframe_categories ) {
-            # same join, same assumptions
-                dataframe_w_sector <- dplyr::left_join( dataframe, CEDS_sector_map )
-                if ( nrow( dataframe_w_sector ) != nrow( dataframe ) ) {
-                    stop( "Double-mapped sectors are not allowed." )
-                }
-                dataframe <- dataframe_w_sector
-
-            # Throw out data that has NAs for CEDS_sector
-                dataframe <- dataframe[ which( !is.na( dataframe$CEDS_sector ) ), ]
-            }
-
-        # if a CEDS sector map was provided but an agg sector map was not,
-        #   we can automatically map to agg sector based on CEDS sectors and MSL
-            if ( is.null( agg_sector_map ) ) {
-                if ( 'agg_sector' %!in% dataframe_categories ) {
-                    MSL_to_map <- unique( MSL[ , c( "CEDS_sector", "aggregate_sectors" ) ] )
-                    colnames( MSL_to_map ) <- c( "CEDS_sector", "agg_sector" )
-                    dataframe <- dplyr::left_join( dataframe, MSL_to_map )
-                }
+        # Extract the unmapped non-year column names
+        user_cnames <- names( usrdata )[ !isXYear( names( usrdata ) ) ]
+        
+        # Loop through maps and join with data (if the column is not already
+        # present)
+        for ( i in seq_along( maps ) ) {
+            mp <- maps[[i]]
+            map_col <- CEDS_COLS[i]
+            
+            if ( !is.null( mp ) & map_col %!in% user_cnames ) {
+                # Merge the datasets together and throw out data that has NAs
+                key_col <- names( mp )[ names( mp ) != map_col ][1]
+                usrdata <- dplyr::left_join( usrdata, mp, by = key_col ) %>%
+                           dplyr::filter( !is.na( UQ( as.name( map_col ) ) ) )
             }
         }
-
-    # There are three possibilities. If neither CEDS nor agg sector maps are provided,
-    #   agg_sector_map never gets assigned. If only CEDS_sector_map is provided,
-    #   agg_sector_map happens above. If agg_sector_map is provided, it will be
-    #   mapped below.
-        if ( !is.null( agg_sector_map ) ) {
-            if ( 'agg_sector' %!in% dataframe_categories ) {
-
-            # same join, same assumptions
-                dataframe_w_aggsec <- dplyr::left_join( dataframe, agg_sector_map )
-                if ( nrow( dataframe_w_aggsec ) != nrow( dataframe ) ) {
-                    stop( "Double-mapped sectors are not allowed." )
-                }
-                dataframe <- dataframe_w_aggsec
-
-            # Throw out data that has NAs for CEDS_sector
-                dataframe <- dataframe[ which( !is.na( dataframe$agg_sector ) ), ]
-
-            }
+        
+        mapped_cnames <- names( usrdata )
+        
+        # Join in the higher agg level column, if not already mapped by user
+        # TODO: Create a function that does this instead of doing twice here
+        disagg <- 'CEDS_sector'
+        if ( 'agg_sector' %!in% mapped_cnames & disagg %in% mapped_cnames ) {
+            MSL_to_map <- unique( MSL[ , c( disagg, "aggregate_sectors" ) ] )
+            names( MSL_to_map ) <- c( disagg, "agg_sector" )
+            usrdata <- dplyr::left_join( usrdata, MSL_to_map, by = disagg )
         }
-
-        # If a CEDS fuel map was provided:
-        if ( !is.null( CEDS_fuel_map ) |
-             'CEDS_fuel' %in% dataframe_categories ) {
-            if ( 'CEDS_fuel' %!in% dataframe_categories ) {
-              # same join, same assumptions
-              dataframe_w_fuel <- dplyr::left_join( dataframe, CEDS_fuel_map )
-              if ( nrow( dataframe_w_fuel ) != nrow( dataframe ) ) {
-                  stop( "Double-mapped sectors are not allowed." )
-              }
-              dataframe <- dataframe_w_fuel
-
-              # Throw out data that has NAs for CEDS_fuel
-              dataframe <- dataframe[ which( !is.na( dataframe$CEDS_fuel ) ), ]
-          }
-
-          # if a CEDS fuel map was provided but an agg fuel map was not,
-          #   we can automatically map to agg fuel based on CEDS fuel and MSL
-          if ( is.null( agg_fuel_map ) ) {
-            if ( 'agg_fuel' %!in% dataframe_categories ) {
-              MFL_to_map <- MFL[ , c( "fuel", "aggregated_fuel" ) ]
-              colnames( MFL_to_map ) <- c( "CEDS_fuel", "agg_fuel" )
-              dataframe <- dplyr::left_join( dataframe, MFL_to_map )
-            }
-          }
+        
+        disagg <- 'CEDS_fuel'
+        if ( 'agg_fuel' %!in% mapped_cnames & disagg %in% mapped_cnames ) {
+            MFL_to_map <- MFL[ , c( "fuel", "aggregated_fuel" ) ]
+            names( MFL_to_map ) <- c( disagg, "agg_fuel" )
+            usrdata <- dplyr::left_join( usrdata, MFL_to_map, by = disagg )
         }
+         
+        # Order the results correctly
+        Xyears <- names( usrdata )[ isXYear( names( usrdata ) ) ]
+        agg_cols <- names( usrdata )[ names( usrdata ) %in% CEDS_COLS ]
+        usrdata <- usrdata[ , c( agg_cols, Xyears ) ]
 
-        # There are three possibilities. If neither CEDS nor agg sector maps are provided,
-        #   agg_sector_map never gets assigned. If only CEDS_sector_map is provided,
-        #   agg_sector_map happens above. If agg_sector_map is provided, it will be
-        #   mapped below.
-        if ( !is.null( agg_fuel_map ) ) {
-          if ( 'agg_fuel' %!in% dataframe_categories ) {
-
-            # same join, same assumptions
-            dataframe_w_aggfuel <- dplyr::left_join( dataframe, agg_fuel_map )
-            if ( nrow( dataframe_w_aggfuel ) != nrow( dataframe ) ) {
-              stop( "Double-mapped fuels are not allowed." )
-            }
-            dataframe <- dataframe_w_aggfuel
-
-            # Throw out data that has NAs for CEDS_sector
-            dataframe <- dataframe[ which( !is.na( dataframe$agg_fuel ) ), ]
-
-          }
-        }
-
-
-    # The pseudocode for agg_fuel and CEDS_fuel mapping should be identical to the
-    #   sectoral mapping, so I won't reproduce it. Imagine that what follows occurs
-    #   after fuel mapping is complete.
-
-        present_columns <- colnames( dataframe ) [ which ( colnames( dataframe ) %in%
-                                                        c( "iso", "agg_sector", "CEDS_sector",
-                                                           "agg_fuel", "CEDS_fuel" ) ) ]
-
-        dataframe <- dataframe[ , c( present_columns, Xyears ) ]
-
-    # Aggregate data frames by categories
+        # Aggregate data frames by categories
         if ( aggregate ) {
-            dataframe <- ddply( dataframe, present_columns, function(x) colSums( x[ Xyears ] ) )
+            usrdata <- ddply( usrdata, agg_cols, function(x) colSums( x[ Xyears ] ) )
         }
 
-        return( dataframe )
+        return( usrdata )
     }
 
 
@@ -251,7 +177,7 @@
         # Subset data years to correct range and fill in missing years with NAs
         df <- filterToYearRange( df, X_data_years )
         df[ , X_data_years[ X_data_years %!in% names( df ) ] ] <- NA
-        df <- df[ order( names( df) ) ]
+        df <- df[ order( names( df ) ) ]
         
         # Checks if any row in the dataframe contains NA. In the event that
         # there are no NAs we can return the data matched to the intended years.
@@ -287,7 +213,7 @@
             # TODO: Error checking
             trend <- readData( interp_instr$match_file_name, domain = "EXT_IN",
                                domain_extension = "user-defined-energy/" )
-            trend <- mapToCEDS( trend, MSL, MCL, MFL, iso_map = MCL,
+            trend <- mapToCEDS( trend, MSL, MFL, iso_map = MCL,
                                 CEDS_sector_map = MSL )
             df <- interpolateByTrend( df, trend )
         }
@@ -544,4 +470,36 @@ validateUserData <- function( df, trend_instr ) {
     }) 
     
     return( df )
+}
+
+
+#------------------------------------------------------------------------------
+# validateUserMap
+# Purpose: Ensures a user mapping file follows the correct format
+# Params:
+#   user_map: a dataframe containing the mapping information
+#   trend_instr: the Trend_instructions sheet
+# Returns: the validated dataframe (allowing use in a chain)
+validateUserMap <- function( user_map, CEDS_COLS ) {
+    
+    if ( is.null( user_map ) ) return( NULL )
+    
+    usr_cols <- names( user_map )
+    col_name <- usr_cols[ usr_cols %in% CEDS_COLS ]    
+    map_key <- usr_cols[ usr_cols %!in% CEDS_COLS ][1]
+    
+    if ( length( col_name ) != 1 )
+        stop( paste( c( "ambiguous mapping:", usr_cols ), collapse = " " ) )
+    
+    map_type <- tail( strsplit( col_name, '_' )[[1]], 1 )
+    
+    if ( length( usr_cols ) < 2 )
+        stop( paste( "not enough columns in", map_type, "map" ) )
+    if ( length( usr_cols ) > 2 )
+        warning( paste( "extra columns found in ", map_type, "map; only using",
+                        "columns", col_name, "and", map_key ) )
+    if ( length( unique( user_map[[ map_key ]] ) ) != nrow( user_map ) )
+        stop( paste0( "double-mapped ", map_type, "s are not allowed" ) )
+    
+    return( user_map )
 }

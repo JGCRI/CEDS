@@ -128,18 +128,17 @@
 # 1. Read in data
 
     MSL <- readData( "Master_Sector_Level_map", domain = "MAPPINGS" )
-    names( MSL )[ names( MSL ) == 'working_sectors_v1' ] <- 'CEDS_sector'
     MCL <- readData( "Master_Country_List", domain = "MAPPINGS" )
     MFL <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx" )
     comb_or_NC <- MFL$Sectors
-    MFL <- MFL$Fuels
     comb_sectors_only <- comb_or_NC$sector[ comb_or_NC$type == "comb" ]
-
+    MFL <- MFL$Fuels
+    names( MSL )[ names( MSL ) == 'working_sectors_v1' ] <- 'CEDS_sector'
 
 # Gather default activity data
     default_activity <- readData( 'MED_OUT', paste0( 'H.', em, '_total_activity_extended_db' ) , meta = F) ### Eventually this will not require an emissions species.
     colnames( default_activity )[ 1:3 ] <- c( "iso", "CEDS_sector", "CEDS_fuel" )
-    default_activity_mapped <- mapToCEDS( default_activity, MSL, MCL, MFL, aggregate = F )
+    default_activity_mapped <- mapToCEDS( default_activity, MSL, MFL, aggregate = F )
 
     # We only operates on combustion emissions, so reduce the data to that form
     combustion_rows <- default_activity_mapped$CEDS_sector %in% comb_sectors_only
