@@ -1,13 +1,12 @@
 #------------------------------------------------------------------------------
 # Program Name: user_extension_instr_processing.R
 # Author: Ben Goldstein
-# Date Last Updated: 9 June 2017
-# Program Purpose: To process user-defined datasets for use in the historical
-#                  energy extension.
+# Date Last Updated: 26 January 2018
+# Program Purpose: Provides functions for the add_user-defined_data script that
+#                  help process the instructions for handling user-defined
+#                  datasets.
 # Input Files: U.*, U.*-instructions, U.*-mapping
 # Output Files: None
-# Functions Defined:
-# Notes:
 # ------------------------------------------------------------------------------------
 
 
@@ -22,10 +21,11 @@ orderInstructions <- function( instructions ) {
     dplyr::arrange( instructions, priority, CEDS_sector, CEDS_fuel, start_year )
 }
 
+
 # getInstructionLevel
 getInstructionLevel <- function(all_instr, level) {
-    if (level %in% names(all_instr)) {
-        instructions <- all_instr[ which( !is.na( all_instr[[level]] ) ), ] %>%
+    if ( level %in% names( all_instr ) ) {
+        instructions <- all_instr[ !is.na( all_instr[[ level ]] ), ] %>%
             dplyr::arrange(iso) %>%
             dplyr::arrange(-end_year) %>%
             dplyr::arrange(-priority)
@@ -34,8 +34,8 @@ getInstructionLevel <- function(all_instr, level) {
     else {
         return(NULL)
     }
-
 }
+
 
 # getInstructionFilenames (without the .xlsx extension)
 getInstructionFilenames <- function() {
@@ -50,18 +50,19 @@ getInstructionFilenames <- function() {
     # The regex "^(?!~\\$)" ignores "~$": Excel's autosave files
     files <- grep( "^(?!~\\$).*-instructions", files_present, perl = T, value = T )
     files <- sub( ".xlsx", "", files ) 
-    return ( files )
+    return( files )
 }
+
 
 # readInUserInstructions
 # Searches the user-defined-energy directory for instructions, filters out non-
 # combustion data, and adds defaults.
 # 
-# CHANGE: Now returns list of lists. Outer list is named the base filename of
-#         the instructions. Inner lists contain two dataframes, one named
-#         Trend_instructions and the other Interpolation_instructions.
+# Returns a list of lists. Outer list is named the base filename of the
+# instructions. Inner lists contain two dataframes, one named Trend_instructions
+# and the other Interpolation_instructions.
 readInUserInstructions <- function() {
-
+    
     instr_names <- getInstructionFilenames()
     instr_files <- paste0( "user-defined-energy/" , instr_names ) %>% 
                    sapply( readData, domain = "EXT_IN", extension = ".xlsx",
@@ -132,10 +133,12 @@ processTrendInstructions <- function( instructions, comb_sectors_only ) {
         class(all_instructions[[o]]) <<- class(opts[[o]])
     })
 
+    # TODO: allow this to be a real argument?
     all_instructions$bypass_processing <- F
 
-    return ( all_instructions )
+    return( all_instructions )
 }
+
 
 # extractBatchInstructions
 # Given a dataframe of instructions and a dataframe of energy extension values,
@@ -168,8 +171,24 @@ extractBatchInstructions <- function( instructions, usrdf, agg_level ) {
     if ( is.character( missing ) )
         instructions <- dplyr::filter(instructions, is.na(UQ(as.name(missing))))
 
-    return (instructions)
+    return( instructions )
 }
 
+# mapInstructions
+# The instruction processing loop expects all aggregation columns to be present
+# for each instruction (even if their value is NA). This function maps on higher
+# aggregation values, if missing, and fills in missing columns.
+mapInstructions <- function( instructions, MSL, MFL ) {
+    
+    # Get agg_fuel or agg_sector from CEDS_fuel or CEDS_sector, respectively
+    agg_cols <- c( "iso", "agg_fuel", "agg_sector", "CEDS_fuel", "CEDS_sector" )
+    usr_cols <- instructions[ , names( instructions ) %in% agg_cols ] %>% 
+                mapToCEDS( MSL, MFL, aggregate = F )
 
-
+    # The user may not have instructions covering all aggregation levels
+    emty_cols <- agg_cols[ agg_cols %!in% names( instructions ) ]
+    instructions[ , emty_cols ] <- NA
+    instructions[ , names( usr_cols ) ] <- usr_cols
+    
+    return( instructions )
+}
