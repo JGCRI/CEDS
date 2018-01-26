@@ -6,11 +6,11 @@
 #                  energy extension.
 # Input Files: U.*.csv, U.*-instructions.xslx, U.*-mapping.xslx
 # Output Files: None
-# Notes:
-### TODO: If the function gives an error, we should not end the whole system,
-###       all we need to do is reject this user-defined dataset and proceed
-###       to the next one... Unless this would make it hard for the user
-###       to see that their changes are being rejected?
+# Notes: Relies on funcitons from the following files:
+#   - parameters/user_data_inclusion_functions.R
+#   - parameters/user_data_processing.R
+#   - parameters/user_extension_instr_processing.R
+# TODO: Move data functions in this file to data_functions.R
 # -----------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------
@@ -47,27 +47,6 @@
 
 # ------------------------------------------------------------------------------------
 # 0.5 Define functions
-
-# identifyLevel
-# Brief: This is a helper function for the add_user-defined_data script.
-#        It performs a simple check of column names to determine the data
-#        frame's level of aggregation.
-# params:
-#    dataframe: the dataframe whose level you wish to identify
-    identifyLevel <- function ( dataframe ) {
-
-        agg_level <- names(dataframe)
-
-        if (      "CEDS_sector" %in% agg_level &
-                  "CEDS_fuel"   %in% agg_level ) return( 4 )
-        else if ( "CEDS_sector" %in% agg_level ) return( 5 )
-        else if ( "CEDS_fuel"   %in% agg_level &
-                  "agg_sector"  %in% agg_level ) return( 3 )
-        else if ( "CEDS_fuel"   %in% agg_level ) return( 2 )
-        else if ( "agg_sector"  %in% agg_level ) return( 6 )
-        else if ( "agg_fuel"    %in% agg_level ) return( 1 )
-        else return(0)
-    }
 
 # is.invalid
 # Brief: This is a helper function for the add_user-defined_data script.
@@ -125,7 +104,7 @@
     }
 
 # ------------------------------------------------------------------------------------
-# 1. Read in data
+# 1. Read in data and filter out non-combustion data
 
     MSL <- readData( "Master_Sector_Level_map", domain = "MAPPINGS" )
     MCL <- readData( "Master_Country_List", domain = "MAPPINGS" )
@@ -135,14 +114,14 @@
     MFL <- MFL$Fuels
     names( MSL )[ names( MSL ) == 'working_sectors_v1' ] <- 'CEDS_sector'
 
-# Gather default activity data
+    # Gather default activity data
     default_activity <- readData( 'MED_OUT', paste0( 'H.', em, '_total_activity_extended_db' ) , meta = F) ### Eventually this will not require an emissions species.
-    colnames( default_activity )[ 1:3 ] <- c( "iso", "CEDS_sector", "CEDS_fuel" )
-    default_activity_mapped <- mapToCEDS( default_activity, MSL, MFL, aggregate = F )
+    names( default_activity )[ 1:3 ] <- c( "iso", "CEDS_sector", "CEDS_fuel" )
+    default_mapped <- mapToCEDS( default_activity, MSL, MFL, aggregate = F )
 
-    # We only operates on combustion emissions, so reduce the data to that form
-    combustion_rows <- default_activity_mapped$CEDS_sector %in% comb_sectors_only
-    all_activity_data <- default_activity_mapped[which(combustion_rows), ]
+    # We only operate on combustion emissions, so reduce the data to that form
+    combustion_rows <- default_mapped$CEDS_sector %in% comb_sectors_only
+    all_activity_data <- default_mapped[ combustion_rows, ]
 
     # I don't know why there are NAs, but for now let's zero them out:
     all_activity_data[is.na(all_activity_data)] <- 0
@@ -150,58 +129,40 @@
 # ------------------------------------------------------------------------------------
 # 2. Collect user-defined inputs and prepare processing loop
 
-# Read instructions files and create a procedure list
+    # Read instructions files that give the user-provided instructions for all
+    # supplemental data. 
     all_instr <- readInUserInstructions()
-    instructions <- processTrendInstructions( all_instr, comb_sectors_only )
-
-    # The user may not have instructions covering all aggregation levels
-    sapply(c("agg_fuel", "agg_sector", "CEDS_fuel", "CEDS_sector"), function(l) {
-        if (l %!in% names(instructions)) instructions[[l]] <<- NA
-    })
-
-    # If the user data specifies CEDS_fuel but not the aggregate fuel type,
-    # join in the aggregated fuel
-    aggNA <- which(is.na(instructions$agg_fuel) & !is.na(instructions$CEDS_fuel))
-    if (length(aggNA) > 0) {
-        instructions[aggNA, ] <- instructions[aggNA, ] %>%
-            dplyr::left_join(MFL[ , c("aggregated_fuel", "fuel")],
-                             by = c("CEDS_fuel" = "fuel")) %>%
-            dplyr::mutate(agg_fuel = aggregated_fuel) %>%
-            dplyr::select(-aggregated_fuel)
-    }
-
-
+    instructions <- processTrendInstructions( all_instr, comb_sectors_only ) %>% 
+                    mapInstructions( MSL, MFL ) %>% 
+                    processTrendData( all_activity_data )
+   
 # Initialize script variables
     # Years the user is allowed to add data to
-    yearsAllowed <- names( all_activity_data )[ isXYear(names( all_activity_data ))]
+    yearsAllowed <- names( all_activity_data )[ isXYear( names( all_activity_data ) ) ]
 
     # Master list used to track activity data. Contains three dataframes:
-    #   1. all_activity_data: changed activity data
-    #   2. old_activity_data: unchanged (the original) activity data
-    #   3. continuity_factors
+    # 1. all_activity_data:    changed activity data
+    # 2. old_activity_data:    unchanged (the original) activity data
+    # 3. continuity_factors:   percent weight given to unchanged data
     activity <- list()
     activity$all_activity_data <- all_activity_data
     activity$old_activity_data <- all_activity_data
     activity <- initContinuityFactors( activity, instructions, yearsAllowed )
 
-    # The user provided instructions for all supplemental data
-    instructions <- processTrendData( instructions, all_activity_data )
-
-    # These two lists hold the user provided data and the associated  mapping
+    # These two lists hold the user provided data and the associated mapping
     # file. They populate as instructions are processed, and are used as a
     # lookup table, with the base filename (e.g. without 'mapping-') as the key.
     usr_files <- list()
     map_files <- list()
         
-    # This will store the final form of each instruction used, for diagnostics
+    # This stores the final form of each instruction used, for diagnostics
     rows_completed <- instructions[ 0, ]
 
-    # This integer will track which batch number we're on, for informing diagnostics
+    # This integer tracks which batch number we're on, for informing diagnostics
     batch <- 0
 
 # ------------------------------------------------------------------------------------
 # 3. Execute processing loop
-
 
     while ( nrow( instructions ) > 0 ) {
         # Update variables for each run of the loop
@@ -370,7 +331,7 @@
 
     writeData( final_activity, domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST"))
     final_short <- final_activity %>% dplyr::filter(iso == 'usa', agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
-    default_short <- default_activity_mapped %>% dplyr::filter(iso == 'usa', agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
+    default_short <- default_mapped %>% dplyr::filter(iso == 'usa', agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
     View(default_short[, c(1:5, 250:270)])
     final_short <- final_short[, c(1:5, 250:270)]
     View(final_short)

@@ -463,6 +463,7 @@ initContinuityFactors <- function( activity, instructions, yearsAllowed,
 }
 
 
+#------------------------------------------------------------------------------
 # Given a level of aggregation, calculate how much each disaggregated row makes
 # up of the total, based on values for all countries
 # 
@@ -503,6 +504,7 @@ breakdownFromGlobal <- function( pct_breakdown, Xyears, cols_given, join_cols ) 
     return( new_breakdown )
 }
 
+#------------------------------------------------------------------------------
 # For rows that have some but not all zero cells (some 0 rows available)
 # we can use interpolate_NA() to fill in percent breakdowns linearly,
 # making sure to retain a total of 100%.
@@ -558,5 +560,29 @@ aggLevelToNormalize <- function(agg_level) {
         c("iso", "agg_fuel", "agg_sector", "CEDS_sector"), # 4
         c("iso", "agg_fuel", "agg_sector"),                # 5
         c("iso", "agg_fuel")                               # 6
+    )
+}
+
+#------------------------------------------------------------------------------
+# identifyLevel
+# Brief: Performs a simple check of column names to determine the data frame's
+#        level of aggregation. The CEDS level of aggregation is the most
+#        disaggregated allowed, and is specified by CEDS_COLS.
+# params:
+#    dataframe: the dataframe whose level you wish to identify
+identifyLevel <- function ( dataframe ) {
+    
+    CEDS_COLS <- c( "agg_fuel", "CEDS_fuel", "agg_sector", "CEDS_sector" )
+    agg_level <- names( dataframe )[ names( dataframe ) %in% CEDS_COLS ] %>% 
+                 paste( collapse = " " ) # for visual clarity
+    
+    switch(agg_level,
+        "agg_fuel"                                  = 1, # most disaggregated
+        "agg_fuel CEDS_fuel"                        = 2,
+        "agg_fuel CEDS_fuel agg_sector"             = 3,
+        "agg_fuel CEDS_fuel agg_sector CEDS_sector" = 4, # most aggregated
+        "agg_fuel agg_sector CEDS_sector"           = 5,
+        "agg_fuel agg_sector"                       = 6,
+        0
     )
 }
