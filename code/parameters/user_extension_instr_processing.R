@@ -72,10 +72,10 @@ readInUserInstructions <- function() {
     return( instr_files )
 }
 
-# processTrendInstructions
-# Prepares the raw trend instruction for use in the main processing loop.
+# processInstructions
+# Prepares the raw trend instructions for use in the main processing loop.
 # Outputs a dataframe containing all user instructions
-processTrendInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
+processInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
    
     # Extract the trend instructions, add the file they came from, and map to
     # the standard CEDS format
