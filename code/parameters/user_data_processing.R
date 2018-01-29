@@ -427,14 +427,50 @@ filterToYearRange <- function( df, X_data_years ) {
     return( final_df )
 }
 
+# subsetUserData
+# Purpose: Subsets a user-specified dataset based on user-specified
+#          instructions, checking for validity and removing any irrelevant data.
+# params:
+#    user_df: Entire user dataset associated with the given instruction(s)
+#    instructions: Dataframe of instructions
+subsetUserData <- function( user_df, instructions ) {
+
+    # Initialize a subset dataframe
+    subset <- user_df[user_df$iso %in% instructions$iso, ]
+
+    # Subset the dataframe based on which columns are specified in the 
+    # instructions
+    if ( !is.invalid( instructions$CEDS_sector ) && instructions$CEDS_sector != 'all' ) {
+      subset <- subset[ subset$CEDS_sector %in% instructions$CEDS_sector, ]
+    } else if ( !is.invalid( instructions$agg_sector ) && instructions$agg_sector != 'all' ) {
+      subset <- subset[ subset$agg_sector %in% instructions$agg_sector, ]
+    }
+
+    if ( !is.invalid( instructions$CEDS_fuel ) && instructions$CEDS_fuel != 'all' ) {
+      subset <- subset[ subset$CEDS_fuel %in% instructions$CEDS_fuel, ]
+    }
+    else if ( !is.invalid( instructions$agg_fuel ) && instructions$agg_fuel != 'all' ) {
+      subset <- subset[ subset$agg_fuel %in% instructions$agg_fuel, ]
+    }
+    
+    # Error checks
+    validateUserData( subset, instructions )
+}
+
+
 #------------------------------------------------------------------------------
 # validateUserData
 # Purpose: Ensures user data matches specifications in Trend_instructions sheet
 # Params:
 #   df: a dataframe that has been mapped to CEDS
 #   trend_instr: the Trend_instructions sheet
-# Returns: the validated dataframe (allowing use in a chain)
+# Returns: the validated dataframe
 validateUserData <- function( df, trend_instr ) {
+    
+    if ( nrow( df ) == 0 ) {
+        err <- paste( as.character( trend_instr[ 1, ] ), collapse = " " )
+        stop(paste("No provided data matches instruction:\n", err))
+    }
     
     # Go through instructions line by line
     apply( trend_instr, 1, function( instr ) {
@@ -454,7 +490,6 @@ validateUserData <- function( df, trend_instr ) {
             stop( paste( err, "Data at start year is NA" ) )
         if ( is.na( instr_data[[ paste0( "X", instr$end_year ) ]] ) )
             stop( paste( err, "Data at end year is NA" ) )
-            
     }) 
     
     return( df )

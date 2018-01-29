@@ -67,42 +67,6 @@
         do.call( cbind, lapply(x, is.nan) )
     }
 
-# subsetUserData
-# Brief: This is a helper function for the add_user-defined_data script.
-#        Subsets a user-specified dataset based on user-specified instructions,
-#        so the only data processed is the data specified in instructions.
-# params:
-#    user_df:
-#    instructions:
-    subsetUserData <- function( user_df, instructions ) {
-
-        # Initialize a subset dataframe
-        subset <- user_df[user_df$iso %in% instructions$iso, ]
-
-        # Subset the dataframe based on which columns are specified in the 
-        # instructions
-        if ( !is.invalid( instructions$CEDS_sector ) && instructions$CEDS_sector != 'all' ) {
-          subset <- subset[ subset$CEDS_sector %in% instructions$CEDS_sector, ]
-        } else if ( !is.invalid( instructions$agg_sector ) && instructions$agg_sector != 'all' ) {
-          subset <- subset[ subset$agg_sector %in% instructions$agg_sector, ]
-        }
-
-        if ( !is.invalid( instructions$CEDS_fuel ) && instructions$CEDS_fuel != 'all' ) {
-          subset <- subset[ subset$CEDS_fuel %in% instructions$CEDS_fuel, ]
-        }
-        else if ( !is.invalid( instructions$agg_fuel ) && instructions$agg_fuel != 'all' ) {
-          subset <- subset[ subset$agg_fuel %in% instructions$agg_fuel, ]
-        }
-        
-        # Error checks
-        if ( nrow( subset ) == 0 ) {
-            err <- paste(as.character(instructions[1,]), collapse = " ")
-            stop(paste("No provided data matches instruction:\n", err))
-        }
-        
-        return( subset )
-    }
-
 # ------------------------------------------------------------------------------------
 # 1. Read in data and filter out non-combustion data
 
@@ -132,8 +96,7 @@
     # Read instructions files that give the user-provided instructions for all
     # supplemental data. 
     all_instr <- readInUserInstructions()
-    instructions <- processTrendInstructions( all_instr, comb_sectors_only ) %>% 
-                    mapInstructions( MSL, MFL ) %>% 
+    instructions <- processTrendInstructions( all_instr, comb_sectors_only, MSL, MFL ) %>% 
                     processTrendData( all_activity_data )
    
 # Initialize script variables
@@ -198,15 +161,14 @@
         }
 
         agg_level <- identifyLevel( user_dataframe )
+
+        # Extract the rows from the user's dataframe refering to the specific
+        # categories and years as defined by the current instruction
+        usrdata <- subsetUserData( user_dataframe, working_instructions )
         
         s_year <- working_instructions$start_year
         e_year <- working_instructions$end_year
         Xyears <- yearsAllowed[ yearsAllowed %in% paste0( "X", s_year:e_year ) ]
-
-        # Extract the rows from the user's dataframe refering to the specific
-        # categories and years as defined by the current instruction
-        usrdata <- subsetUserData( user_dataframe, working_instructions ) %>% 
-                   validateUserData( working_instructions )
 
         # Identify other instructions in the "batch" that will need to be
         # aggregated as one. Files only need to be batched if their year ranges

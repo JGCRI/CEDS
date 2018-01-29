@@ -72,30 +72,31 @@ readInUserInstructions <- function() {
     return( instr_files )
 }
 
-processTrendInstructions <- function( instructions, comb_sectors_only ) {
+# processTrendInstructions
+# Prepares the raw trend instruction for use in the main processing loop.
+# Outputs a dataframe containing all user instructions
+processTrendInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
    
-    # Extract the trend instructions and add the file they came from
+    # Extract the trend instructions, add the file they came from, and map to
+    # the standard CEDS format
     instruction_list <- lapply( seq_along( instructions ), function( i ) {
-        fname <- names( instructions )[i]
-        instructions[[i]]$Trend_instructions$data_file <- fname
-        instructions[[i]]$Trend_instructions
+        instruction <- instructions[[i]]$Trend_instructions
+        instr_dfile <- names( instructions )[i]
+        instruction$data_file <- instr_dfile
+        
+        mapped <- mapToCEDS( instruction, MSL, MFL, aggregate = F )
+        instruction[ names( mapped ) ] <- mapped
+        return( instruction )
     })
 
     # Combine all instructions into a single dataframe
     all_instructions <- rbind.fill( instruction_list )
 
-    # Remove any non-combustion data as that is not supported
-    if ( "CEDS_sector" %in% names( all_instructions ) ) {
-        num_instructions <- nrow( all_instructions )
-        all_instructions <- dplyr::filter( all_instructions, is.na(CEDS_sector) |
-                                           CEDS_sector %in% comb_sectors_only)
-        num_removed = num_instructions - nrow( all_instructions )
-        
-        if ( num_removed  > 0 ) {
-            warning( paste( num_removed, "instruction line(s) were rejected as",
-                            "non-combustion sectors" ) )
-        }
-    }
+    # Add in any aggregation levels the user has not provided
+    all_cols <- c( "iso", "agg_fuel", "agg_sector", "CEDS_fuel", "CEDS_sector" )
+    all_instructions[ all_cols %!in% names( all_instructions ) ] <- NA
+    
+    all_instructions <- removeNonComb( all_instructions, comb_sectors_only )
     
     # First, determine batches. How will we indicate that a group of items is in a batch?
     ### The solution is probably just to sort them in a way that batched items are together...
@@ -174,21 +175,18 @@ extractBatchInstructions <- function( instructions, usrdf, agg_level ) {
     return( instructions )
 }
 
-# mapInstructions
-# The instruction processing loop expects all aggregation columns to be present
-# for each instruction (even if their value is NA). This function maps on higher
-# aggregation values, if missing, and fills in missing columns.
-mapInstructions <- function( instructions, MSL, MFL ) {
-    
-    # Get agg_fuel or agg_sector from CEDS_fuel or CEDS_sector, respectively
-    agg_cols <- c( "iso", "agg_fuel", "agg_sector", "CEDS_fuel", "CEDS_sector" )
-    usr_cols <- instructions[ , names( instructions ) %in% agg_cols ] %>% 
-                mapToCEDS( MSL, MFL, aggregate = F )
 
-    # The user may not have instructions covering all aggregation levels
-    emty_cols <- agg_cols[ agg_cols %!in% names( instructions ) ]
-    instructions[ , emty_cols ] <- NA
-    instructions[ , names( usr_cols ) ] <- usr_cols
+# removeNonComb
+# Removes any non-combustion data, as that is not supported
+removeNonComb <- function( df, comb_sectors_only ) {
+    num_instructions <- nrow( df )
+    df <- dplyr::filter( df, is.na( CEDS_sector ) |
+                             CEDS_sector %in% comb_sectors_only )
+    num_removed = num_instructions - nrow( df )
     
-    return( instructions )
+    if ( num_removed > 0 ) {
+        warning( paste( num_removed, "instruction line(s) were rejected as",
+                        "non-combustion sectors" ) )
+    }
+    return( df )    
 }
