@@ -96,8 +96,8 @@
     # Read instructions files that give the user-provided instructions for all
     # supplemental data. 
     all_instr <- readInUserInstructions()
-    instructions <- processTrendInstructions( all_instr, comb_sectors_only, MSL, MFL ) %>% 
-                    processTrendData( all_activity_data )
+    instructions <- processInstructions( all_instr, comb_sectors_only, MSL, MFL )
+    instructions <- processTrendData( instructions, all_activity_data )
    
 # Initialize script variables
     # Years the user is allowed to add data to
