@@ -12,28 +12,33 @@
 
 #------------------------------------------------------------------------------
 # readInUserData()
-# Brief: Given a root filename, reads in a data file and mapping file
+# Brief: Given a root filename, reads in an extension data file, or optionally
+#        an associated instructions, mapping, or breakdowns file.
 # Params:
 #   fname: The filename
 #   yearsAllowed: A vector of the CEDS Xyears; any input years outside this
 #                 range are filtered out
+#   
 # Returns: A two-element list containing the data and mapping files
-    readInUserData <- function( fname, yearsAllowed ) {
+    readInUserData <- function( fname, yearsAllowed, ftype = NULL ) {
         # Read in files
-        fpath <- paste0( "user-defined-energy/", fname )
-        mpath <- paste0( fpath, "-mapping" )
-        user_df <- readData( fpath, domain = "EXT_IN" )
-        mapping <- readData( mpath, domain = "EXT_IN", extension = ".xlsx" )
+        fpath <- paste0( "user-defined-energy/", fname, ftype )
+        if ( !is.null( ftype ) && ftype == "-mapping" )
+            user_df <- readData( fpath, domain = "EXT_IN", extension = ".xlsx" )
+        else 
+            user_df <- readData( fpath, domain = "EXT_IN" )
         
         # Filter out any years not in the CEDS range
-        bad_years <- isXYear( names( user_df ) ) & names( user_df ) %!in% yearsAllowed
+        bad_years <- isXYear( names( user_df ) ) &
+                     names( user_df ) %!in% yearsAllowed
+        
         if ( any( bad_years ) ) {
             warning( paste("Some data in", data_file, "are not in the",
                            "allowed CEDS years and will be ignored") )
             user_df <- user_df[ !bad_years ]
         }
         
-        return( list( user_df = user_df, mapping = mapping ) )
+        return( user_df )
     }
 
 #------------------------------------------------------------------------------
@@ -55,10 +60,6 @@
     procUsrData <- function( usr_data, proc_instr, mappings,
                              MSL, MCL, MFL, trend_data = NULL ) {
 
-        interp_instr <- proc_instr$Interpolation_instructions
-        if ( is.null( interp_instr ) )
-            stop( "No sheet named Interpolation_instructions found" )
-        
         # Get year columns to cast as numeric
         year_cols <- names( usr_data )[ isXYear( names( usr_data ) ) ]
         
@@ -70,9 +71,12 @@
                                 CEDS_sector_map = mappings$CEDS_sector,
                                 agg_fuel_map    = mappings$agg_fuel,
                                 CEDS_fuel_map   = mappings$CEDS_fuel ) %>%
-                     validateUserData( proc_instr$Trend_instructions ) %>% 
-                     interpolateData( interp_instr, MSL, MCL, MFL, trend_data )
+                     validateUserData( proc_instr ) %>% 
+                     interpolateData( proc_instr, MSL, MCL, MFL, trend_data )
 
+        if ( identifyLevel( interp_df ) == 0 )
+            stop("Fuel type not found in user data") 
+        
         return( interp_df )
     }
 

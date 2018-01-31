@@ -37,19 +37,19 @@ getInstructionLevel <- function(all_instr, level) {
 }
 
 
-# getInstructionFilenames (without the .xlsx extension)
+# getInstructionFilenames
+# Instruction files are specified as all files in the user-defined-energy
+# directory with the name [filename]-instructions.csv
 getInstructionFilenames <- function() {
     USER_DOM <- "../input/extension/user-defined-energy/"
 
     # Get a list of all the files in the directory
     files_present <- list.files( USER_DOM )
-    if ( length( files_present ) == 0 ) {
-        message("No user defined energy files found; using default data")
-    }
+    if ( !length( files_present ) )
+        message( "No user defined energy files found; using default data" )
 
-    # The regex "^(?!~\\$)" ignores "~$": Excel's autosave files
-    files <- grep( "^(?!~\\$).*-instructions", files_present, perl = T, value = T )
-    files <- sub( ".xlsx", "", files ) 
+    files <- grep( ".+-instructions.csv", files_present, value = T )
+    files <- sub( ".csv", "", files ) 
     return( files )
 }
 
@@ -65,8 +65,7 @@ readInUserInstructions <- function() {
     
     instr_names <- getInstructionFilenames()
     instr_files <- paste0( "user-defined-energy/" , instr_names ) %>% 
-                   sapply( readData, domain = "EXT_IN", extension = ".xlsx",
-                           simplify = F) %>% 
+                   sapply( readData, domain = "EXT_IN", simplify = F ) %>% 
                    setNames( sub( "-instructions", "", instr_names ) )
     
     return( instr_files )
@@ -80,13 +79,20 @@ processInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
     # Extract the trend instructions, add the file they came from, and map to
     # the standard CEDS format
     instruction_list <- lapply( seq_along( instructions ), function( i ) {
-        instruction <- instructions[[i]]$Trend_instructions
+        instruction <- instructions[[i]]
         instr_dfile <- names( instructions )[i]
         instruction$data_file <- instr_dfile
         
         mapped <- mapToCEDS( instruction, MSL, MFL, aggregate = F )
         instruction[ names( mapped ) ] <- mapped
-        return( instruction )
+        
+        # Remove any invalid instructions
+        invld_instr <- is.na( instruction$iso ) | is.na( instruction$agg_fuel )
+        instruction <- instruction[ !invld_instr, ]
+        if ( any( invld_instr ) )
+            warning( paste0( sum( invld_instr ), " instruction(s) invalid in ",
+                             instr_dfile, "-instructions.csv" ) )
+        instruction
     })
 
     # Combine all instructions into a single dataframe
@@ -133,9 +139,6 @@ processInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
         all_instructions[[o]][is.na(all_instructions[[o]])] <<- opts[[o]]
         class(all_instructions[[o]]) <<- class(opts[[o]])
     })
-
-    # TODO: allow this to be a real argument?
-    all_instructions$bypass_processing <- F
 
     return( all_instructions )
 }
