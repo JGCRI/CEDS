@@ -133,7 +133,7 @@ runtests <- function(limit = NULL) {
 
 if(rev(strsplit(getwd(), '/')[[1]])[1] != 'input') stop("Go to input directory")
 initialize("add_user_data_tests.R", "", NULL)
-runtests(2)
+runtests()
 
 
 # Aggregation Level Tests:

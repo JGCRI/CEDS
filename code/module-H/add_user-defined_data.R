@@ -94,11 +94,14 @@
 # 2. Collect user-defined inputs and prepare processing loop
 
     # Read instructions files that give the user-provided instructions for all
-    # supplemental data. 
+    # supplemental data.
     all_instr <- readInUserInstructions()
     instructions <- processInstructions( all_instr, comb_sectors_only, MSL, MFL )
-    instructions <- processTrendData( instructions, all_activity_data )
-   
+
+    # TODO: Figure out how/where/why to process trend data without roundabout
+    #       file writing and bypassing processing
+    # instructions <- processTrendData( instructions, all_activity_data )
+
 # Initialize script variables
     # Years the user is allowed to add data to
     yearsAllowed <- names( all_activity_data )[ isXYear( names( all_activity_data ) ) ]
@@ -112,19 +115,24 @@
     activity$old_activity_data <- all_activity_data
     activity <- initContinuityFactors( activity, instructions, yearsAllowed )
 
-    # These two lists hold the user provided data and the associated mapping
-    # file. They populate as instructions are processed, and are used as a
-    # lookup table, with the base filename (e.g. without 'mapping-') as the key.
-    usr_files <- list()
-    map_files <- list()
-        
+    # The lists usr_files and map_files hold the user provided data and the
+    # associated mapping files. They are used as lookup tables, with the base
+    # filename (e.g. without '-mapping' and '.csv') as the key.
+    filenames <- unique( instructions$data_file )
+    map_files <- sapply( filenames, readInUserData, yearsAllowed, '-mapping' )
+    usr_files <- sapply( filenames, function( data_file ) {
+        procUsrData( readInUserData( data_file, yearsAllowed ),
+                     all_instr[[ data_file ]], map_files[[ data_file ]],
+                     MSL, MCL, MFL, all_activity_data )
+    })
+
     # This stores the final form of each instruction used, for diagnostics
     rows_completed <- instructions[ 0, ]
 
     # This integer tracks which batch number we're on, for informing diagnostics
     batch <- 0
 
-# ------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # 3. Execute processing loop
 
     while ( nrow( instructions ) > 0 ) {
@@ -136,36 +144,15 @@
         # Process the last row (lowest priority, most aggregate) first
         working_instructions <- instructions[ nrow( instructions ), ]
         instructions <- instructions[ -nrow( instructions ), ]
-        
+
+        # Get the actual data referred to by this instruction
         data_file <- working_instructions$data_file
         user_dataframe <- usr_files[[ data_file ]]
-
-        # Check if we have already loaded the user data; if not, add the data to
-        # the data list and the corresponding mappings to the mappings list
-        if ( is.null( user_dataframe ) ) {
-            user_dataframe <- readInUserData( data_file, yearsAllowed )
-            map_files[[ data_file ]] <- user_dataframe$mapping
-            
-            # Execute mapping and interpolation unless user requests not to
-            if ( !working_instructions$bypass_processing ) {
-                user_dataframe <- procUsrData( user_dataframe$user_df,
-                                               all_instr[[ data_file ]],
-                                               map_files[[ data_file ]],
-                                               MSL, MCL, MFL, all_activity_data )
-            }
-            
-            if ( identifyLevel( user_dataframe ) == 0 )
-                stop("Fuel type not found in user data") 
-            
-            usr_files[[ data_file ]] <- user_dataframe
-        }
-
-        agg_level <- identifyLevel( user_dataframe )
 
         # Extract the rows from the user's dataframe refering to the specific
         # categories and years as defined by the current instruction
         usrdata <- subsetUserData( user_dataframe, working_instructions )
-        
+
         s_year <- working_instructions$start_year
         e_year <- working_instructions$end_year
         Xyears <- yearsAllowed[ yearsAllowed %in% paste0( "X", s_year:e_year ) ]
@@ -173,8 +160,9 @@
         # Identify other instructions in the "batch" that will need to be
         # aggregated as one. Files only need to be batched if their year ranges
         # overlap.
-        batch_instructions <- instructions %>% 
-                              extractBatchInstructions( usrdata, agg_level ) %>% 
+        agg_level <- identifyLevel( user_dataframe )
+        batch_instructions <- instructions %>%
+                              extractBatchInstructions( usrdata, agg_level ) %>%
                               dplyr::filter( start_year < e_year, end_year > s_year)
 
         # Remove the batch instructions from the master instruction dataframe
@@ -232,23 +220,10 @@
             working_instructions <- rbind( working_instructions, batch_instructions )
             usrdata <- usrdata[ 0, ]
             for ( row_num in 1:nrow( working_instructions ) ) {
-                file <- working_instructions$data_file[ row_num ]
-                bypass <- working_instructions$bypass_processing[ row_num ]
-                # Process the data if necessary...
-                if ( !bypass ) {
-                    # call the procUsrData function, which will execute mapping
-                    # and interpolation as necessary
-                    user_dataframe <- procUsrData( usr_files[[ file ]],
-                                                   all_instr[[ file ]],
-                                                   map_files[[ file ]],
-                                                   MSL, MCL, MFL,
-                                                   all_activity_data )
-                    # Otherwise, read in the raw file...
-                } else {
-                    user_dataframe <- readData( file, domain = "EXT_IN",
-                                                domain_extension = "user-defined-energy/" )
-                }
-                # ...and append the relevant part to the dataframe
+                data_file <- working_instructions$data_file[ row_num ]
+                user_dataframe <- usr_files[[ data_file ]]
+
+                # Append the relevant part to the dataframe
                 usrdata <- rbind( subsetUserData( user_dataframe,
                                                   working_instructions ) )
             }
@@ -297,7 +272,7 @@
     View(default_short[, c(1:5, 250:270)])
     final_short <- final_short[, c(1:5, 250:270)]
     View(final_short)
-    
+
     #writeData( final_activity[which(final_activity$iso == 'deu'), ], domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST-small"))
     #final_short <- final_activity[ final_activity$iso == 'deu', ]
     #default_short <- default_activity[which(default_activity$iso == 'deu' & default_activity$CEDS_fuel != 'process'), ]
