@@ -22,7 +22,7 @@
 #    all_activity_data: the dataframe holding all activity
 #    override_normalization: a manual option for disabling normalization
 #    agg_level: an integer indicating the aggregate level of the data given
-# 
+#
 #    TODO: Split this into many more functions
 
 normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
@@ -63,7 +63,7 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
     need_user_spec <- F
 
     # TODO: Break this out into separate function
-    # 
+    #
     # Normalization, the process of modifying rows that weren't directly
     # specified in order to retain aggregate information, should only happen if
     # both:
@@ -134,9 +134,9 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
     disagg_pct_breakdown[ is.nan.df( disagg_pct_breakdown ) ] <- 0
 
 # TODO: Break this out into separate function
-# 
+#
 # This section of the function addresses the case where user-specified emissions
-# replace zero-emissions cells. The user data cannot be disaggregated using 
+# replace zero-emissions cells. The user data cannot be disaggregated using
 # factors of zero, so the percent breakdowns must be calculated by other means.
 # Three options are tried:
 #   1. Use data from other years to interpolate breakdowns:
@@ -150,7 +150,7 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
 #      If the first two options didn't find values to interpolate breakdowns
 #      from, just breakdown evenly across all disaggregation levels. There is
 #      likely something wrong in this case, so throw a warning.
-    
+
     if ( any( activity_agg_to_level[ , Xyears ] == 0 &
               act_agg_changed[ , Xyears ] != 0 ) ) {
 
@@ -160,20 +160,20 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
         chgd_zeros <- act_agg_changed[ , Xyears, drop = F ] == 0
         zero_cells <- cbind( act_agg_changed[ , cols_given ], orig_zeros & !chgd_zeros )
         any_zeros <- zero_cells[ apply( zero_cells[ , Xyears ], 1, any ), ]
-        
+
         for ( row_num in 1:nrow(any_zeros) ) {
             current_row <- any_zeros[row_num, cols_given]
             bdown_4_row <- dplyr::left_join( current_row, disagg_pct_breakdown,
                                              by = cols_given )
-            
+
             if ( all( bdown_4_row[ , Xyears ] == 0 ) ) {
                 bdown_4_row <- breakdownFromGlobal(bdown_4_row, Xyears,
-                                                   cols_given, join_cols) 
+                                                   cols_given, join_cols)
             }
             else if ( any( bdown_4_row[ , Xyears ] == 0 ) ) {
                 bdown_4_row <- interpBreakdowns( bdown_4_row, Xyears )
             }
-            
+
             # overwrite the rows to replace (r2r) with the new breakdowns
             r2r <- disagg_pct_breakdown$CEDS_fuel %in% bdown_4_row$CEDS_fuel &
                    disagg_pct_breakdown$CEDS_sector %in% bdown_4_row$CEDS_sector
@@ -332,7 +332,7 @@ generateWarnings <- function ( Xyears, disagg_data_changed,
 #        default dataset with the same sector and fuel. Then, find the sum of
 #        the data for that fuel and sector, which helps create a global default
 #        percentage breakdown for a given aggregation category.
-# 
+#
 #        TODO: Remove global variable 'all_activity_data' as a default parameter
 sumAllActivityByFuelSector <- function( guide_row, years = Xyears, data = all_activity_data ) {
 
@@ -342,7 +342,7 @@ sumAllActivityByFuelSector <- function( guide_row, years = Xyears, data = all_ac
                                  "agg_sector", "agg_fuel", years ) ]
 
     df_to_sum[ is.na( df_to_sum ) ] <- 0
-    
+
     return( colSums( df_to_sum[ , years, drop = F ] ) )
 }
 
@@ -386,80 +386,77 @@ enforceContinuity <- function( activity, yearsAllowed ) {
 #        what cells will need to be made continuous and what factor of scaling
 #        they require.
 # Params:
-#   activity: the list holding activity and factors
+#   activity: the list holding activity
 #   instructions: The master instruction list. This will be used to identify
 #                 the beginning and end of each row of data, so as to enforce
 #                 continuity at dataframe boundaries
-#   default_continuity_interval: an optional value storing how many years
-#                 should be made continuous at each edge, if possible.
+#   interval_len: an optional value storing how many years should be made
+#                 continuous at each edge, if possible.
 # Returns: the activity, now holding a continuity_factors dataframe
 
-initContinuityFactors <- function( activity, instructions, yearsAllowed,
-                                   default_continuity_interval = 7 ) {
+addContinuityFactors <- function( activity, instructions, all_yrs, interval_len = 7 ) {
 
-    activity$continuity_factors <- activity$all_activity_data
-    activity$continuity_factors[ , yearsAllowed ] <- 1
+    cfs <- activity$all_activity_data
+    cfs[ , all_yrs ] <- 1
 
-    for ( row_num in 1:nrow( instructions ) ) {
-    # Select the row for initializating continuity
+    for ( row_num in seq_along( nrow( instructions ) ) ) {
+        # Select the row for initializating continuity
         this.row <- instructions[ row_num, ]
-        start_year <- this.row$start_year
-        end_year <- this.row$end_year
-        continuity_interval <- default_continuity_interval
-    # Determine the years of the data
-        data_years <- paste0( "X", start_year:end_year )
-        data_years <- data_years[ data_years %in% names( activity$all_activity_data ) ]
-    # If the data year length is less than twice the continuity interval, the interval will need to be reduced.
-        if ( length( data_years ) < continuity_interval * 2 ) {
-            continuity_interval <- floor( length( data_years ) / 2 )
-        }
+        s_year <- this.row$start_year
+        e_year <- this.row$end_year
 
-    # Determine which columns are present (bypass needing agg_level)
-        ok_cols <- c( "iso", "CEDS_sector", "CEDS_fuel", "agg_sector", "agg_fuel" )
-        cols_given <- names( instructions )[ !is.na( this.row ) & names( instructions ) %in% ok_cols ]
+        # Determine the years of the data
+        len_data_years <- sum( paste0( "X", s_year:e_year ) %in% all_yrs )
 
-    # Extract the subset of disaggregated rows corresponding to the data and
-    # confirm that the data actually exists.
-        rows_to_adjust <- dplyr::left_join( this.row[ , cols_given ],
-                                            activity$continuity_factors,
-                                            by = cols_given ) %>% 
-                          dplyr::select( ok_cols, dplyr::everything() )
-        if ( sum( !is.na( rows_to_adjust ) ) == length( cols_given ) ) {
-            stop( paste( "Error in instruction:\n\t", 
-                  paste( this.row[ cols_given ], collapse = " " ), "\n",
+        # If the number of years of data is less than twice the length of the
+        # continuity interval, the interval will need to be reduced.
+        if ( len_data_years < interval_len * 2 )
+            continuity_interval <- floor( len_data_years / 2 )
+        else
+            continuity_interval <- interval_len
+
+        # Determine the aggregation columns for this instruction
+        ceds_cols <- c( "iso", "CEDS_sector", "CEDS_fuel", "agg_sector", "agg_fuel" )
+        join_cols <- c( ceds_cols[ !is.na( this.row[ , ceds_cols ] ) ] )
+
+        # Extract the subset of disaggregated rows corresponding to the data and
+        # confirm that the data actually exists.
+        rows_to_adjust <- dplyr::left_join( this.row[ , join_cols ], cfs,
+                                            by = join_cols ) %>%
+                          dplyr::select( ceds_cols, dplyr::everything() )
+        if ( any( is.na( rows_to_adjust ) ) ) {
+            stop( paste( "Error in instruction:\n\t",
+                  paste( this.row[ join_cols ], collapse = " " ), "\n",
                   "No default data found for iso/fuel/sector specified" ) )
         }
-        
 
-    # The continuity step is by how much each value will increase each year
-    # (ends at 1)
+        # The continuity step is by how much each value will increase each year
+        # (ends at 1)
         continuity_step <- 1 / continuity_interval
         continuity_vals <- 1:continuity_interval * continuity_step
 
-        # If continuity enforcement is required at the beginning of this dataset:
-        if ( this.row$start_continuity && start_year > historical_pre_extension_year ) {
+        # Enforce continuity at beginning and end of dataset, as specified by
+        # the instruction. Note that `historical_pre_extension_year` and
+        # `historical_end_extension_year` are global CEDS variables.
+        if ( this.row$start_continuity && s_year > historical_pre_extension_year ) {
             interval_end <- start_year + continuity_interval - 1
             year_range <- paste0( "X", start_year:interval_end )
             rows_to_adjust[ , year_range ] <- rep( continuity_vals, each = NROW( rows_to_adjust ) )
 
         }
-
-        # If continuity enforcement is required at the end of this dataset:
-        if ( this.row$end_continuity && end_year < historical_end_extension_year ) {
+        if ( this.row$end_continuity && e_year < historical_end_extension_year ) {
             interval_end <- end_year - continuity_interval + 1
             year_range <- paste0( "X", end_year:interval_end )
             rows_to_adjust[ , year_range ] <- rep( continuity_vals, each = NROW( rows_to_adjust ) )
         }
 
-
-    # Incorporate the new adjusted rows into the created dataframe
-        activity$continuity_factors[ activity$continuity_factors$iso %in% rows_to_adjust$iso &
-                                     activity$continuity_factors$CEDS_sector %in% rows_to_adjust$CEDS_sector &
-                                     activity$continuity_factors$CEDS_fuel %in% rows_to_adjust$CEDS_fuel, ] <-
-                        rows_to_adjust
-
+        # Incorporate the new adjusted rows into the created dataframe
+        cfs[ cfs$iso         %in% rows_to_adjust$iso &
+             cfs$CEDS_sector %in% rows_to_adjust$CEDS_sector &
+             cfs$CEDS_fuel   %in% rows_to_adjust$CEDS_fuel, ] <- rows_to_adjust
     }
 
+    activity$continuity_factors <- cfs
     return( activity )
 }
 
@@ -467,7 +464,7 @@ initContinuityFactors <- function( activity, instructions, yearsAllowed,
 #------------------------------------------------------------------------------
 # Given a level of aggregation, calculate how much each disaggregated row makes
 # up of the total, based on values for all countries
-# 
+#
 # This should only be done for data that has no non-zero years available. If no
 # global percent breakdowns are found, breakdown equally across all rows.
 #
@@ -477,17 +474,17 @@ initContinuityFactors <- function( activity, instructions, yearsAllowed,
 #   join_cols:      columns present in data's most disaggregated form
 #
 breakdownFromGlobal <- function( pct_breakdown, Xyears, cols_given, join_cols ) {
-    
+
     # Use the sumAllActivityByFuelSector function to generate totals for each
     # fuel x sector, ignoring iso.
     global_totals <- apply( pct_breakdown, 1, sumAllActivityByFuelSector, Xyears )
     global_totals <- t( global_totals )
-    
+
     # If all the rows STILL have zero values for all years, give each year a
     # uniform value of 1 across all rows. This causes them to be divided evenly
     # among the breakdown categories by default, but is likely inaccurate so
     # generates a warning that the user needs to specify breakdowns.
-    # 
+    #
     # If only some rows still have zero values, interpolate from years with data
     if ( all( colSums( global_totals ) == 0 ) ) {
         global_totals[ , Xyears ] <- 1
@@ -497,11 +494,11 @@ breakdownFromGlobal <- function( pct_breakdown, Xyears, cols_given, join_cols ) 
         global_totals <- data.frame( pct_breakdown[ join_cols ], global_totals )
         return( interpBreakdowns( global_totals, Xyears ) )
     }
-    
+
     # Calculate new percent breakdowns by dividing each row by its group's total
     new_breakdown <- prop.table( global_totals, margin = 2 )
     new_breakdown <- data.frame( pct_breakdown[ join_cols ], new_breakdown )
-    
+
     return( new_breakdown )
 }
 
@@ -511,7 +508,7 @@ breakdownFromGlobal <- function( pct_breakdown, Xyears, cols_given, join_cols ) 
 # making sure to retain a total of 100%.
 interpBreakdowns <- function( pct_breakdown, Xyears ) {
     breakdowns_to_correct <- pct_breakdown[ , Xyears ]
-    
+
     # All columns containing all zeros will be replaced with NA, so we can use
     # interpolate_NAs() to replace them
     zcols <- colSums( breakdowns_to_correct ) == 0
@@ -572,11 +569,11 @@ aggLevelToNormalize <- function(agg_level) {
 # params:
 #    dataframe: the dataframe whose level you wish to identify
 identifyLevel <- function ( dataframe ) {
-    
+
     CEDS_COLS <- c( "agg_fuel", "CEDS_fuel", "agg_sector", "CEDS_sector" )
-    agg_level <- names( dataframe )[ names( dataframe ) %in% CEDS_COLS ] %>% 
+    agg_level <- names( dataframe )[ names( dataframe ) %in% CEDS_COLS ] %>%
                  paste( collapse = " " ) # for visual clarity
-    
+
     switch(agg_level,
         "agg_fuel"                                  = 1, # most disaggregated
         "agg_fuel CEDS_fuel"                        = 2,
