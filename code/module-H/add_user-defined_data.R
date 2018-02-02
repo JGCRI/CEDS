@@ -104,7 +104,7 @@
 
 # Initialize script variables
     # Years the user is allowed to add data to
-    yearsAllowed <- names( all_activity_data )[ isXYear( names( all_activity_data ) ) ]
+    all_yrs <- names( all_activity_data )[ isXYear( names( all_activity_data ) ) ]
 
     # Master list used to track activity data. Contains three dataframes:
     # 1. all_activity_data:    changed activity data
@@ -113,15 +113,16 @@
     activity <- list()
     activity$all_activity_data <- all_activity_data
     activity$old_activity_data <- all_activity_data
-    activity <- initContinuityFactors( activity, instructions, yearsAllowed )
+    activity <- addContinuityFactors( activity, instructions, all_yrs )
+
 
     # The lists usr_files and map_files hold the user provided data and the
     # associated mapping files. They are used as lookup tables, with the base
     # filename (e.g. without '-mapping' and '.csv') as the key.
     filenames <- unique( instructions$data_file )
-    map_files <- sapply( filenames, readInUserData, yearsAllowed, '-mapping' )
+    map_files <- sapply( filenames, readInUserData, all_yrs, '-mapping' )
     usr_files <- sapply( filenames, function( data_file ) {
-        procUsrData( readInUserData( data_file, yearsAllowed ),
+        procUsrData( readInUserData( data_file, all_yrs ),
                      all_instr[[ data_file ]], map_files[[ data_file ]],
                      MSL, MCL, MFL, all_activity_data )
     })
@@ -155,7 +156,7 @@
 
         s_year <- working_instructions$start_year
         e_year <- working_instructions$end_year
-        Xyears <- yearsAllowed[ yearsAllowed %in% paste0( "X", s_year:e_year ) ]
+        Xyears <- all_yrs[ all_yrs %in% paste0( "X", s_year:e_year ) ]
 
         # Identify other instructions in the "batch" that will need to be
         # aggregated as one. Files only need to be batched if their year ranges
@@ -264,7 +265,7 @@
 # 4. Write out the diagnostic data
     #writeData( rows_completed, domain = "DIAG_OUT", fn = "user-ext-data_diagnostics" )
 
-    final_activity <- enforceContinuity( activity, yearsAllowed )
+    final_activity <- enforceContinuity( activity, all_yrs )
 
     writeData( final_activity, domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST"))
     final_short <- final_activity %>% dplyr::filter(iso == 'usa', agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
