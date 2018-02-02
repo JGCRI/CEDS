@@ -49,7 +49,7 @@ getInstructionFilenames <- function() {
         message( "No user defined energy files found; using default data" )
 
     files <- grep( ".+-instructions.csv", files_present, value = T )
-    files <- sub( ".csv", "", files ) 
+    files <- sub( ".csv", "", files )
     return( files )
 }
 
@@ -57,17 +57,17 @@ getInstructionFilenames <- function() {
 # readInUserInstructions
 # Searches the user-defined-energy directory for instructions, filters out non-
 # combustion data, and adds defaults.
-# 
+#
 # Returns a list of lists. Outer list is named the base filename of the
 # instructions. Inner lists contain two dataframes, one named Trend_instructions
 # and the other Interpolation_instructions.
 readInUserInstructions <- function() {
-    
+
     instr_names <- getInstructionFilenames()
-    instr_files <- paste0( "user-defined-energy/" , instr_names ) %>% 
-                   sapply( readData, domain = "EXT_IN", simplify = F ) %>% 
+    instr_files <- paste0( "user-defined-energy/" , instr_names ) %>%
+                   sapply( readData, domain = "EXT_IN", simplify = F ) %>%
                    setNames( sub( "-instructions", "", instr_names ) )
-    
+
     return( instr_files )
 }
 
@@ -75,17 +75,17 @@ readInUserInstructions <- function() {
 # Prepares the raw trend instructions for use in the main processing loop.
 # Outputs a dataframe containing all user instructions
 processInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
-   
+
     # Extract the trend instructions, add the file they came from, and map to
     # the standard CEDS format
     instruction_list <- lapply( seq_along( instructions ), function( i ) {
         instruction <- instructions[[i]]
         instr_dfile <- names( instructions )[i]
         instruction$data_file <- instr_dfile
-        
+
         mapped <- mapToCEDS( instruction, MSL, MFL, aggregate = F )
         instruction[ names( mapped ) ] <- mapped
-        
+
         # Remove any invalid instructions
         invld_instr <- is.na( instruction$iso ) | is.na( instruction$agg_fuel )
         instruction <- instruction[ !invld_instr, ]
@@ -94,16 +94,21 @@ processInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
                              instr_dfile, "-instructions.csv" ) )
         instruction
     })
-
-    # Combine all instructions into a single dataframe
-    all_instructions <- rbind.fill( instruction_list )
+    all_instructions <- rbind.fill( instruction_list ) # Combine into single df
 
     # Add in any aggregation levels the user has not provided
     all_cols <- c( "iso", "agg_fuel", "agg_sector", "CEDS_fuel", "CEDS_sector" )
     all_instructions[ all_cols %!in% names( all_instructions ) ] <- NA
-    
     all_instructions <- removeNonComb( all_instructions, comb_sectors_only )
-    
+
+    # Preprocess any data that needs it
+    if ( !is.null( all_instructions$preprocessing_script ) ) {
+        preproc <- unique( all_instructions$preprocessing_script )
+        preproc <- paste0( "user-defined-energy/", preproc)
+        sapply( preproc, source, local = T )
+        all_instructions$preprocessing_script <- NULL
+    }
+
     # First, determine batches. How will we indicate that a group of items is in a batch?
     ### The solution is probably just to sort them in a way that batched items are together...
     ### Okay, what makes a batch? A batch is any items that are a) on the same aggregation level
@@ -186,10 +191,10 @@ removeNonComb <- function( df, comb_sectors_only ) {
     df <- dplyr::filter( df, is.na( CEDS_sector ) |
                              CEDS_sector %in% comb_sectors_only )
     num_removed = num_instructions - nrow( df )
-    
+
     if ( num_removed > 0 ) {
         warning( paste( num_removed, "instruction line(s) were rejected as",
                         "non-combustion sectors" ) )
     }
-    return( df )    
+    return( df )
 }
