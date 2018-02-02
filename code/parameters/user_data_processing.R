@@ -15,29 +15,32 @@
 # Brief: Given a root filename, reads in an extension data file, or optionally
 #        an associated instructions, mapping, or breakdowns file.
 # Params:
-#   fname: The filename
+#   fname: The filename without extension
 #   yearsAllowed: A vector of the CEDS Xyears; any input years outside this
 #                 range are filtered out
-#   
+#   ftype: A string to add on to fname that specifies a support (non-data) file
+#
 # Returns: A two-element list containing the data and mapping files
     readInUserData <- function( fname, yearsAllowed, ftype = NULL ) {
         # Read in files
         fpath <- paste0( "user-defined-energy/", fname, ftype )
         if ( !is.null( ftype ) && ftype == "-mapping" )
-            user_df <- readData( fpath, domain = "EXT_IN", extension = ".xlsx" )
-        else 
+            user_df <- tryCatch(
+                readData( fpath, domain = "EXT_IN", extension = ".xlsx" ),
+                error = function(e) NULL )
+        else
             user_df <- readData( fpath, domain = "EXT_IN" )
-        
+
         # Filter out any years not in the CEDS range
         bad_years <- isXYear( names( user_df ) ) &
                      names( user_df ) %!in% yearsAllowed
-        
+
         if ( any( bad_years ) ) {
-            warning( paste("Some data in", data_file, "are not in the",
+            warning( paste("Some data in", fname, "are not in the",
                            "allowed CEDS years and will be ignored") )
             user_df <- user_df[ !bad_years ]
         }
-        
+
         return( user_df )
     }
 
@@ -49,12 +52,13 @@
 #   2. Maps the user data to the proper (CEDS) format
 #   3. Interpolates the data to fill missing years
 # Params:
-#   usr_data: A dataframe of user-defined data
-#   proc_instr: The instructions for processing the user-defined data
-#   mappings: The instructions for mapping the user-defined data to CEDS format
-#   MSL: Master sector list (default)
-#   MCL: Master country list (default)
-#   MFL: Master fuel list (default)
+#   usr_data: A dataframe of user-defined data.
+#   proc_instr: The instructions for processing the user-defined data.
+#   mappings: The instructions for mapping the user-defined data to CEDS format.
+#             If NULL, data is expected to be already correctly mapped.
+#   MSL: Master CEDS sector list.
+#   MCL: Master CEDS country (iso) list.
+#   MFL: Master CEDS fuel list.
 #   trend_data: If interpolating to trend, a dataframe containing that trend
 # Returns: the data in usr_data as a mapped and interpolated dataframe
     procUsrData <- function( usr_data, proc_instr, mappings,
@@ -62,21 +66,23 @@
 
         # Get year columns to cast as numeric
         year_cols <- names( usr_data )[ isXYear( names( usr_data ) ) ]
-        
+
         # Clean, map, validate, and then interpolate the user data
-        interp_df <- dplyr::mutate_at(usr_data, year_cols, as.numeric) %>% 
-                     mapToCEDS( MSL, MFL,
-                                iso_map         = mappings$iso,
-                                agg_sector_map  = mappings$agg_sector,
-                                CEDS_sector_map = mappings$CEDS_sector,
-                                agg_fuel_map    = mappings$agg_fuel,
-                                CEDS_fuel_map   = mappings$CEDS_fuel ) %>%
-                     validateUserData( proc_instr ) %>% 
+        interp_df <- dplyr::mutate_at(usr_data, year_cols, as.numeric)
+        if ( !is.null( mappings ) ) {
+            interp_df <- mapToCEDS( interp_df, MSL, MFL,
+                                    iso_map         = mappings$iso,
+                                    agg_sector_map  = mappings$agg_sector,
+                                    CEDS_sector_map = mappings$CEDS_sector,
+                                    agg_fuel_map    = mappings$agg_fuel,
+                                    CEDS_fuel_map   = mappings$CEDS_fuel )
+        }
+        interp_df <- validateUserData( interp_df, proc_instr ) %>%
                      interpolateData( proc_instr, MSL, MCL, MFL, trend_data )
 
         if ( identifyLevel( interp_df ) == 0 )
-            stop("Fuel type not found in user data") 
-        
+            stop("Fuel type not found in user data")
+
         return( interp_df )
     }
 
@@ -97,27 +103,27 @@
     mapToCEDS <- function( usrdata, MSL, MFL, aggregate = TRUE, iso_map = NULL,
                            agg_sector_map = NULL, CEDS_sector_map = NULL,
                            agg_fuel_map = NULL, CEDS_fuel_map = NULL ) {
-        
+
         # Make sure iso is accounted for
         if ( is.null( iso_map ) & 'iso' %!in% names( usrdata ) )
             stop( "iso not in data, but no iso map provided" )
-        
+
         # The only accepted non-year columns
         CEDS_COLS <- c( "iso", "agg_sector", "CEDS_sector", "agg_fuel", "CEDS_fuel" )
-        
+
         # Ensure mapping files are correctly formatted
         maps <- list( iso_map, agg_sector_map, CEDS_sector_map, agg_fuel_map, CEDS_fuel_map )
         sapply( maps, validateUserMap, CEDS_COLS )
 
         # Extract the unmapped non-year column names
         user_cnames <- names( usrdata )[ !isXYear( names( usrdata ) ) ]
-        
+
         # Loop through maps and join with data (if the column is not already
         # present)
         for ( i in seq_along( maps ) ) {
             mp <- maps[[i]]
             map_col <- CEDS_COLS[i]
-            
+
             if ( !is.null( mp ) & map_col %!in% user_cnames ) {
                 # Merge the datasets together and throw out data that has NAs
                 key_col <- names( mp )[ names( mp ) != map_col ][1]
@@ -125,9 +131,9 @@
                            dplyr::filter( !is.na( UQ( as.name( map_col ) ) ) )
             }
         }
-        
+
         mapped_cnames <- names( usrdata )
-        
+
         # Join in the higher agg level column, if not already mapped by user
         # TODO: Create a function that does this instead of doing twice here
         disagg <- 'CEDS_sector'
@@ -136,14 +142,14 @@
             names( MSL_to_map ) <- c( disagg, "agg_sector" )
             usrdata <- dplyr::left_join( usrdata, MSL_to_map, by = disagg )
         }
-        
+
         disagg <- 'CEDS_fuel'
         if ( 'agg_fuel' %!in% mapped_cnames & disagg %in% mapped_cnames ) {
             MFL_to_map <- MFL[ , c( "fuel", "aggregated_fuel" ) ]
             names( MFL_to_map ) <- c( disagg, "agg_fuel" )
             usrdata <- dplyr::left_join( usrdata, MFL_to_map, by = disagg )
         }
-         
+
         # Order the results correctly
         Xyears <- names( usrdata )[ isXYear( names( usrdata ) ) ]
         agg_cols <- names( usrdata )[ names( usrdata ) %in% CEDS_COLS ]
@@ -172,17 +178,17 @@
 #   trend_data: If interpolating to trend, a dataframe containing that trend
 # Returns:
     interpolateData <- function( df, interp_instr, MSL, MCL, MFL, trend = NULL ) {
-        
+
         # X_data_years is the range of years specified by the instructions file
         min_year <- min( interp_instr$start_year )
         max_year <- max( interp_instr$end_year )
         X_data_years <- paste0( "X", min_year:max_year )
-        
+
         # Subset data years to correct range and fill in missing years with NAs
         df <- filterToYearRange( df, X_data_years )
         df[ , X_data_years[ X_data_years %!in% names( df ) ] ] <- NA
         df <- df[ order( names( df ) ) ]
-        
+
         # Checks if any row in the dataframe contains NA. In the event that
         # there are no NAs we can return the data matched to the intended years.
         if ( !any( is.na( df ) ) ) return( df )
@@ -190,7 +196,7 @@
         # If we didn't return, the data has holes that need interpolating. First
         # find out what method to use, then call the corresponding interpolation
         # function.
-        # 
+        #
         # TODO: Figure out what to do in the case that interp_instr specifies
         #       different methods for different instructions
         # Idea:
@@ -231,22 +237,22 @@
 
 #------------------------------------------------------------------------------
 # interpolateByTrend()
-# This function takes an incomplete dataframe and data to use as a trend. It 
+# This function takes an incomplete dataframe and data to use as a trend. It
 # matches to the trend and fills in values.
-# 
+#
 # Note: It is assumed that the data is uniformly in need of interpolation (all
 # rows have holes in the same years).
     interpolateByTrend <- function( usrdata, trend_data ) {
-        
+
         agg_cols <- c( "iso", "agg_sector", "CEDS_sector", "agg_fuel", "CEDS_fuel" )
         agg_cols <- names( usrdata )[ names( usrdata ) %in% agg_cols ]
         all_Xyears <- names( usrdata )[ isXYear( names( usrdata ) ) ]
-        
+
         # Trim the trend data to only those rows and columns that correspond to
         # entries in the usrdata dataframe
         trend_data <- filterToYearRange( trend_data, all_Xyears)
         trend_data <- dplyr::left_join( usrdata[ , agg_cols ], trend_data,
-                                        by = agg_cols) %>% 
+                                        by = agg_cols) %>%
                       ddply( agg_cols, function(x) colSums( x[ all_Xyears ] ) )
 
         # Multiply the trend data by the correct ratios such that all user data
@@ -255,7 +261,7 @@
         multiplier[ multiplier == Inf ] <- 1
         multiplier <- interpolate_NAs( multiplier )
         trend_data[ , all_Xyears ] <- trend_data[ , all_Xyears ] * multiplier
-        
+
         return( trend_data )
     }
 
@@ -300,10 +306,10 @@
             # categories and years as defined by the
             user_specified_trend <- subsetUserData( user_dataframe, trend_instructions[row_num, ] )
             agg_level <- identifyLevel( user_specified_trend )
-            
+
             # Using the agg_level, identify the important columns
             cols_given <- aggLevelToCols( agg_level )
-            
+
             # Extract the activity data for this period
             # TODO: use join instead of for loop
             data_to_get_trended <- all_activity_data
@@ -409,15 +415,15 @@ getRowsForAdjustment <- function( all_activity_data, usrdata, MFL, agg_level ) {
 #   X_data_years: the range of years to filter to
 # Returns: the filtered dataframe
 filterToYearRange <- function( df, X_data_years ) {
-    
-    # We can assume that all columns are in this form as the data has already 
+
+    # We can assume that all columns are in this form as the data has already
     # been processed by mapping.
     # TODO: Check if mapToCEDS removes extra non-year columns, and if so remove
     #       the non_years list.
     non_years <- c("iso", "agg_sector", "CEDS_sector", "agg_fuel", "CEDS_fuel")
     non_year_cols <- names( df )[ names( df ) %in% non_years ]
     year_cols <- names( df ) [ isXYear( names( df ) ) ]
-    
+
     # Validate years are ok
     if ( min( X_data_years ) < min( year_cols ) )
         stop("Specified start year earlier than years provided in data")
@@ -427,7 +433,7 @@ filterToYearRange <- function( df, X_data_years ) {
     # Rebuild dataframe with only years specified by the instructions
     cols_in_range <- year_cols[ year_cols %in% X_data_years ]
     final_df <- df[ , c( non_year_cols, cols_in_range ) ]
-    
+
     return( final_df )
 }
 
@@ -442,7 +448,7 @@ subsetUserData <- function( user_df, instructions ) {
     # Initialize a subset dataframe
     subset <- user_df[user_df$iso %in% instructions$iso, ]
 
-    # Subset the dataframe based on which columns are specified in the 
+    # Subset the dataframe based on which columns are specified in the
     # instructions
     if ( !is.invalid( instructions$CEDS_sector ) && instructions$CEDS_sector != 'all' ) {
       subset <- subset[ subset$CEDS_sector %in% instructions$CEDS_sector, ]
@@ -456,7 +462,7 @@ subsetUserData <- function( user_df, instructions ) {
     else if ( !is.invalid( instructions$agg_fuel ) && instructions$agg_fuel != 'all' ) {
       subset <- subset[ subset$agg_fuel %in% instructions$agg_fuel, ]
     }
-    
+
     # Error checks
     validateUserData( subset, instructions )
 }
@@ -470,21 +476,21 @@ subsetUserData <- function( user_df, instructions ) {
 #   trend_instr: the Trend_instructions sheet
 # Returns: the validated dataframe
 validateUserData <- function( df, trend_instr ) {
-    
+
     if ( nrow( df ) == 0 ) {
         err <- paste( as.character( trend_instr[ 1, ] ), collapse = " " )
         stop(paste("No provided data matches instruction:\n", err))
     }
-    
+
     # Go through instructions line by line
     apply( trend_instr, 1, function( instr ) {
         instr <- as.data.frame( t( instr ), stringsAsFactors = FALSE )
-        join_cols <- dplyr::intersect( names( instr ), names( df ) ) 
+        join_cols <- dplyr::intersect( names( instr ), names( df ) )
         instr_data <- dplyr::left_join( instr[ join_cols ], df, by = join_cols )
-       
-        err <- paste0( "Error in instruction:\n\t", 
+
+        err <- paste0( "Error in instruction:\n\t",
                         paste( instr_data[ join_cols ], collapse = " "), "\n " )
-        
+
         # Tests!
         if ( paste0( "X", instr$start_year ) %!in% names( instr_data ) )
             stop( paste( err, "Start year earlier than any year in data" ) )
@@ -494,8 +500,8 @@ validateUserData <- function( df, trend_instr ) {
             stop( paste( err, "Data at start year is NA" ) )
         if ( is.na( instr_data[[ paste0( "X", instr$end_year ) ]] ) )
             stop( paste( err, "Data at end year is NA" ) )
-    }) 
-    
+    })
+
     return( df )
 }
 
@@ -508,18 +514,18 @@ validateUserData <- function( df, trend_instr ) {
 #   trend_instr: the Trend_instructions sheet
 # Returns: the validated dataframe (allowing use in a chain)
 validateUserMap <- function( user_map, CEDS_COLS ) {
-    
+
     if ( is.null( user_map ) ) return( NULL )
-    
+
     usr_cols <- names( user_map )
-    col_name <- usr_cols[ usr_cols %in% CEDS_COLS ]    
+    col_name <- usr_cols[ usr_cols %in% CEDS_COLS ]
     map_key <- usr_cols[ usr_cols %!in% CEDS_COLS ][1]
-    
+
     if ( length( col_name ) != 1 )
         stop( paste( c( "ambiguous mapping:", usr_cols ), collapse = " " ) )
-    
+
     map_type <- tail( strsplit( col_name, '_' )[[1]], 1 )
-    
+
     if ( length( usr_cols ) < 2 )
         stop( paste( "not enough columns in", map_type, "map" ) )
     if ( length( usr_cols ) > 2 )
@@ -527,6 +533,6 @@ validateUserMap <- function( user_map, CEDS_COLS ) {
                         "columns", col_name, "and", map_key ) )
     if ( length( unique( user_map[[ map_key ]] ) ) != nrow( user_map ) )
         stop( paste0( "double-mapped ", map_type, "s are not allowed" ) )
-    
+
     return( user_map )
 }
