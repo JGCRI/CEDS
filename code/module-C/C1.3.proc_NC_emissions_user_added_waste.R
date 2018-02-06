@@ -35,7 +35,7 @@ if ( is.na( em ) ) em <- "NH3"
 # ------------------------------------------------------------------------------
 # 0.5 Initialize constants and prepare equations for Wiedinmyer replication
     
-    B_frac = 0.6 # Paper's estimate--we might adjust
+    burned_fraction = 0.6 # Paper's estimate--we might adjust
 
     
 # The following are the general equations (taken from Wiedinmyer et al.)
@@ -118,13 +118,13 @@ if ( is.na( em ) ) em <- "NH3"
                                               ( all_waste_data$Waste_gen_rate *
                                                 all_waste_data$Urban_pop *
                                                 all_waste_data$Frac_not_collected
-                                               ) ) * B_frac )[ developing ]
+                                               ) ) * burned_fraction )[ developing ]
                                          
 # Residential waste burning in developed countries: non-collected rural pop only
     all_waste_data$WB_res[ developed ] <- ( all_waste_data$Waste_gen_rate * 
                                             all_waste_data$Rural_pop *
                                             all_waste_data$Frac_not_collected *
-                                            B_frac )[ developed ]
+                                            burned_fraction )[ developed ]
                                          
     
 # Initialize open dump burning at 0; high-income countries are assumed to have
@@ -135,7 +135,7 @@ if ( is.na( em ) ) em <- "NH3"
     all_waste_data$WB_dump[ developing ] <- ( all_waste_data$Waste_gen_rate * 
                                               all_waste_data$Urban_pop *
                                               ( all_waste_data$`Collection-efficiency` ) *
-                                              B_frac )[ developing ]
+                                              burned_fraction )[ developing ]
     
     all_waste_data$total_WB <- all_waste_data$WB_dump + all_waste_data$WB_res
     all_waste_data$pct_burned <- all_waste_data$total_WB / all_waste_data$total_waste
@@ -185,6 +185,7 @@ if ( is.na( em ) ) em <- "NH3"
     waste_input <- filter( waste_input, !is.na( iso ) ) %>%  # drop countries not in CEDS
       dplyr::arrange( iso )
     
+### TODO: add these countries in. We have population values in CEDS, and could just use per-capita values from a comparable country.
     drop_countries <- c( "Cyprus", "Luxembourg", "Malta", "Singapore", "Slovakia" )
     waste_input <- filter( waste_input, `Country Name` %!in% drop_countries ) %>%  # drop 5 countries with no vals (to match pre-Wiedinmyer)
       dplyr::arrange( iso )
@@ -256,12 +257,12 @@ if ( is.na( em ) ) em <- "NH3"
 # ------------------------------------------------------------------------------
 # 6. Output
     writeData( waste_inventory_no_wiedinmyer, "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
-               fn = paste0( "C.", em, "_NC_waste_emissions_no_wiedinmyer_user_added_compare" ) )
+               fn = paste0( "C.", em, "_NC_waste_emissions_no_wiedinmyer_user_added" ) )
 
     writeData( waste_inventory_wiedinmyer_no_trend, "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
-               fn = paste0( "C.", em, "_NC_waste_emissions_wiedinmyer_no_trend_user_added_compare" ) )
+               fn = paste0( "C.", em, "_NC_waste_emissions_wiedinmyer_no_trend_user_added" ) )
 
     writeData( waste_inventory_wiedinmyer_trend, "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
-               fn = paste0( "C.", em, "_NC_waste_emissions_wiedinmyer_trend_user_added_compare" ) )
+               fn = paste0( "C.", em, "_NC_waste_emissions_wiedinmyer_trend_user_added" ) )
 
 logStop()
