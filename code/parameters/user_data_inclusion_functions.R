@@ -50,9 +50,6 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
     act_agg_changed <- activity_agg_to_level
     act_agg_changed[ rows_to_replace, Xyears ] <- user_dataframe_subset[ , Xyears ]
 
-    # Select the rows from the original data which were not directly changed
-    data_to_correct <- activity_agg_to_level[ !rows_to_replace, c( cols_given, Xyears ) ]
-
     # If all the rows were directly changed then we've specified data for an
     # entire aggregate group and therefore can't normalize
     whole_group <- all( rows_to_replace )
@@ -70,6 +67,10 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
     #   a) a whole group was not specified and
     #   b) no manual override of normalization was called.
     if ( !whole_group & !override_normalization ) {
+
+        # Select the rows from the original data which were not directly changed
+        data_to_correct <- activity_agg_to_level[ !rows_to_replace,
+                                                  c( cols_given, Xyears ) ]
 
         # All calculations are just done with the year columns. Take those
         # columns and replace the values with their proportion of the total
@@ -575,10 +576,10 @@ identifyLevel <- function ( dataframe ) {
                  paste( collapse = " " ) # for visual clarity
 
     switch(agg_level,
-        "agg_fuel"                                  = 1, # most disaggregated
+        "agg_fuel"                                  = 1, # most aggregate
         "agg_fuel CEDS_fuel"                        = 2,
         "agg_fuel CEDS_fuel agg_sector"             = 3,
-        "agg_fuel CEDS_fuel agg_sector CEDS_sector" = 4, # most aggregated
+        "agg_fuel CEDS_fuel agg_sector CEDS_sector" = 4, # most disaggregate
         "agg_fuel agg_sector CEDS_sector"           = 5,
         "agg_fuel agg_sector"                       = 6,
         0
