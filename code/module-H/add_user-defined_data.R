@@ -71,7 +71,7 @@
 # 1. Read in data and filter out non-combustion data
 
     MSL <- readData( "Master_Sector_Level_map", domain = "MAPPINGS" )
-    MCL <- readData( "Master_Country_List", domain = "MAPPINGS" )
+    MCL <- readData( "Master_Country_List",     domain = "MAPPINGS" )
     MFL <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx" )
     comb_or_NC <- MFL$Sectors
     comb_sectors_only <- comb_or_NC$sector[ comb_or_NC$type == "comb" ]
@@ -161,7 +161,7 @@
         # Identify other instructions in the "batch" that will need to be
         # aggregated as one. Files only need to be batched if their year ranges
         # overlap.
-        agg_level <- identifyLevel( user_dataframe )
+        agg_level <- identifyLevel( usrdata )
         batch_instructions <- instructions %>%
                               extractBatchInstructions( usrdata, agg_level ) %>%
                               dplyr::filter( start_year < e_year, end_year > s_year)
@@ -268,10 +268,10 @@
     final_activity <- enforceContinuity( activity, all_yrs )
 
     writeData( final_activity, domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST"))
-    final_short <- final_activity %>% dplyr::filter(iso == 'usa', agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
-    default_short <- default_mapped %>% dplyr::filter(iso == 'usa', agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
-    View(default_short[, c(1:5, 250:270)])
-    final_short <- final_short[, c(1:5, 250:270)]
+    final_short <- final_activity %>% dplyr::filter(iso == 'gbr', agg_fuel == 'coal')#agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
+    default_short <- default_mapped %>% dplyr::filter(iso == 'gbr', agg_fuel == 'coal')#agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
+    View(default_short[, c(1:5, 199:217)])
+    final_short <- final_short[, c(1:5, 199:217)]
     View(final_short)
 
     #writeData( final_activity[which(final_activity$iso == 'deu'), ], domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST-small"))

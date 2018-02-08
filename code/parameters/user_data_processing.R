@@ -68,16 +68,16 @@
         year_cols <- names( usr_data )[ isXYear( names( usr_data ) ) ]
 
         # Clean, map, validate, and then interpolate the user data
-        interp_df <- dplyr::mutate_at(usr_data, year_cols, as.numeric)
+        mapped_df <- dplyr::mutate_at(usr_data, year_cols, as.numeric)
         if ( !is.null( mappings ) ) {
-            interp_df <- mapToCEDS( interp_df, MSL, MFL,
+            mapped_df <- mapToCEDS( mapped_df, MSL, MFL,
                                     iso_map         = mappings$iso,
                                     agg_sector_map  = mappings$agg_sector,
                                     CEDS_sector_map = mappings$CEDS_sector,
                                     agg_fuel_map    = mappings$agg_fuel,
                                     CEDS_fuel_map   = mappings$CEDS_fuel )
         }
-        interp_df <- validateUserData( interp_df, proc_instr ) %>%
+        interp_df <- validateUserData( mapped_df, proc_instr ) %>%
                      interpolateData( proc_instr, MSL, MCL, MFL, trend_data )
 
         if ( identifyLevel( interp_df ) == 0 )
@@ -153,6 +153,7 @@
         # Order the results correctly
         Xyears <- names( usrdata )[ isXYear( names( usrdata ) ) ]
         agg_cols <- names( usrdata )[ names( usrdata ) %in% CEDS_COLS ]
+        # dplyr::select( usrdata, dplyr::one_of( CEDS_COLS, Xyears ) )
         usrdata <- usrdata[ , c( agg_cols, Xyears ) ]
 
         # Aggregate data frames by categories
@@ -445,12 +446,23 @@ filterToYearRange <- function( df, X_data_years ) {
 #    instructions: Dataframe of instructions
 subsetUserData <- function( user_df, instructions ) {
 
-    # Initialize a subset dataframe
-    subset <- user_df[user_df$iso %in% instructions$iso, ]
+    # Determine which aggregation columns are present in the instructions
+    na_cols <- colSums( !is.na( instructions ) ) == 0
+    yr_cols <- setdiff( names( user_df ), names( instructions ) )
+    agg_cols <- intersect( names( user_df ), names( instructions[ !na_cols ] ) )
+
+    # Initialize a subset dataframe based on matching isos between the user
+    # instructions and actual data. Then aggregate the user data to the same
+    # level of detail specified in the instructions
+    subset <- dplyr::select( user_df, agg_cols, yr_cols ) %>%
+              dplyr::filter( iso %in% instructions$iso ) %>%
+              dplyr::group_by_at( agg_cols ) %>%
+              dplyr::summarise_all(sum) %>%
+              dplyr::ungroup() %>% data.frame()
 
     # Subset the dataframe based on which columns are specified in the
     # instructions
-    if ( !is.invalid( instructions$CEDS_sector ) && instructions$CEDS_sector != 'all' ) {
+    if ( !is.invalid( subset$CEDS_sector ) && instructions$CEDS_sector != 'all' ) {
       subset <- subset[ subset$CEDS_sector %in% instructions$CEDS_sector, ]
     } else if ( !is.invalid( instructions$agg_sector ) && instructions$agg_sector != 'all' ) {
       subset <- subset[ subset$agg_sector %in% instructions$agg_sector, ]
@@ -485,21 +497,24 @@ validateUserData <- function( df, trend_instr ) {
     # Go through instructions line by line
     apply( trend_instr, 1, function( instr ) {
         instr <- as.data.frame( t( instr ), stringsAsFactors = FALSE )
+        instr <- instr[ 1, !is.na( instr ) ]
         join_cols <- dplyr::intersect( names( instr ), names( df ) )
         instr_data <- dplyr::left_join( instr[ join_cols ], df, by = join_cols )
 
         err <- paste0( "Error in instruction:\n\t",
-                        paste( instr_data[ join_cols ], collapse = " "), "\n " )
+                        paste( instr[ join_cols ], collapse = " "), "\n " )
 
         # Tests!
+        if ( all( is.na( instr_data[ , isXYear( names( instr_data ) ) ] ) ) )
+            stop( paste( err, "No data found for instruction"))
         if ( paste0( "X", instr$start_year ) %!in% names( instr_data ) )
             stop( paste( err, "Start year earlier than any year in data" ) )
         if ( paste0( "X", instr$end_year ) %!in% names( instr_data ) )
             stop( paste( err, "End year later than any year in data" ) )
-        if ( is.na( instr_data[[ paste0( "X", instr$start_year ) ]] ) )
-            stop( paste( err, "Data at start year is NA" ) )
-        if ( is.na( instr_data[[ paste0( "X", instr$end_year ) ]] ) )
-            stop( paste( err, "Data at end year is NA" ) )
+        if ( any( is.na( instr_data[[ paste0( "X", instr$start_year ) ]] ) ) )
+            stop( paste( err, "Some data is NA at start year" ) )
+        if ( any( is.na( instr_data[[ paste0( "X", instr$end_year ) ]] ) ) )
+            stop( paste( err, "Some data is NA at end year" ) )
     })
 
     return( df )

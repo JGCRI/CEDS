@@ -96,16 +96,19 @@ processInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
     })
     all_instructions <- rbind.fill( instruction_list ) # Combine into single df
 
-    # Add in any aggregation levels the user has not provided
-    all_cols <- c( "iso", "agg_fuel", "agg_sector", "CEDS_fuel", "CEDS_sector" )
-    all_instructions[ all_cols %!in% names( all_instructions ) ] <- NA
+    # Add in any aggregation levels the user has not provided (iso and agg_fuel
+    # are required and should be present from calling mapToCEDS)
+    stopifnot( c( "iso", "agg_fuel" ) %in% names( all_instructions ) )
+    add_cols <- c( "agg_sector", "CEDS_fuel", "CEDS_sector" )
+    all_instructions[ setdiff( add_cols, names( all_instructions ) ) ] <- NA
     all_instructions <- removeNonComb( all_instructions, comb_sectors_only )
 
     # Preprocess any data that needs it
     if ( !is.null( all_instructions$preprocessing_script ) ) {
         preproc <- unique( all_instructions$preprocessing_script )
-        preproc <- paste0( "user-defined-energy/", preproc)
-        sapply( preproc, source, local = T )
+        preproc <- preproc[ !is.na( preproc ) ]
+        preproc <- paste0( "extension/user-defined-energy/", preproc)
+        sapply( preproc, source, local = T, chdir = T )
         all_instructions$preprocessing_script <- NULL
     }
 
