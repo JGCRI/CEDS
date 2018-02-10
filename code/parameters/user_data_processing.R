@@ -462,16 +462,16 @@ subsetUserData <- function( user_df, instructions ) {
 
     # Subset the dataframe based on which columns are specified in the
     # instructions
-    if ( !is.invalid( subset$CEDS_sector ) && instructions$CEDS_sector != 'all' ) {
+    if ( !is.invalid( subset$CEDS_sector ) ) {
       subset <- subset[ subset$CEDS_sector %in% instructions$CEDS_sector, ]
-    } else if ( !is.invalid( instructions$agg_sector ) && instructions$agg_sector != 'all' ) {
+    } else if ( !is.invalid( instructions$agg_sector ) ) {
       subset <- subset[ subset$agg_sector %in% instructions$agg_sector, ]
     }
 
-    if ( !is.invalid( instructions$CEDS_fuel ) && instructions$CEDS_fuel != 'all' ) {
+    if ( !is.invalid( instructions$CEDS_fuel ) ) {
       subset <- subset[ subset$CEDS_fuel %in% instructions$CEDS_fuel, ]
     }
-    else if ( !is.invalid( instructions$agg_fuel ) && instructions$agg_fuel != 'all' ) {
+    else if ( !is.invalid( instructions$agg_fuel ) ) {
       subset <- subset[ subset$agg_fuel %in% instructions$agg_fuel, ]
     }
 

@@ -111,7 +111,7 @@ runtests <- function(limit = NULL) {
         files <- grep(paste0('^(?!~\\$)TEST_lvl', tnum), dir('tests'), perl = T, value = T)
         fpaths <- paste0('tests/', files)
 
-        if (length(files) != 4) {
+        if (length(files) < 4) {
             warning(paste("Not all files present for test level", tnum))
             next
         }
@@ -120,8 +120,8 @@ runtests <- function(limit = NULL) {
         instr_file <- fpaths[grep(paste0(tnum, '-instr'), fpaths)]
 
         testrun(files, tnum)
-        testlvl(instr_file, tnum)
-        testpriority(instr_file)
+        # testlvl(instr_file, tnum)
+        # testpriority(instr_file)
         # testcontinuity()
         # testnormalization()
         # testbreakdowns()
@@ -133,26 +133,6 @@ runtests <- function(limit = NULL) {
 
 if(rev(strsplit(getwd(), '/')[[1]])[1] != 'input') stop("Go to input directory")
 initialize("add_user_data_tests.R", "", NULL)
-runtests()
-
-
-# Aggregation Level Tests:
-# Options:
-#   agg_fuel                    1
-#   agg_fuel    agg_sector      6
-#   agg_fuel    CEDS_sector     5
-#   CEDS_fuel                   2
-#   CEDS_fuel   agg_sector      3
-#   CEDS_fuel   CEDS_sector     4
-l0.0 <- data.frame("X1750" = 0)
-l1.0 <- data.frame("agg_fuel" = 0)
-l2.0 <- data.frame("CEDS_fuel" = 0)
-l2.1 <- data.frame("CEDS_fuel" = 0, "agg_fuel" = 0)
-
-aggtests <- list(l0.0, l1.0, l2.0, l2.1)
-agglevel <- sapply(aggtests, identifyLevel)
-
-if (!identical(agglevel, c(0,1,2,2)))
-    stop("Agg level tests failed.")
+runtests(1)
 
 for (i in 1:GCAM_SOURCE_RD) logStop()
