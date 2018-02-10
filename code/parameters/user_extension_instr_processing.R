@@ -64,6 +64,7 @@ getInstructionFilenames <- function() {
 readInUserInstructions <- function() {
 
     instr_names <- getInstructionFilenames()
+    if ( length( instr_names ) == 0 ) return( NULL )
     instr_files <- paste0( "user-defined-energy/" , instr_names ) %>%
                    sapply( readData, domain = "EXT_IN", simplify = F ) %>%
                    setNames( sub( "-instructions", "", instr_names ) )
@@ -97,10 +98,13 @@ processInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
     all_instructions <- rbind.fill( instruction_list ) # Combine into single df
 
     # Add in any aggregation levels the user has not provided (iso and agg_fuel
-    # are required and should be present from calling mapToCEDS)
+    # are required and should be present from calling mapToCEDS).
+    # Note that an instruction requesting all sectors or fuels to be included is
+    # the same as leaving out that column.
     stopifnot( c( "iso", "agg_fuel" ) %in% names( all_instructions ) )
     add_cols <- c( "agg_sector", "CEDS_fuel", "CEDS_sector" )
     all_instructions[ setdiff( add_cols, names( all_instructions ) ) ] <- NA
+    all_instructions[ all_instructions == 'all' ] <- NA
     all_instructions <- removeNonComb( all_instructions, comb_sectors_only )
 
     # Preprocess any data that needs it
@@ -188,11 +192,11 @@ extractBatchInstructions <- function( instructions, usrdf, agg_level ) {
 
 
 # removeNonComb
-# Removes any non-combustion data, as that is not supported
+# Removes any non-combustion data, as that is not supported.
 removeNonComb <- function( df, comb_sectors_only ) {
     num_instructions <- nrow( df )
     df <- dplyr::filter( df, is.na( CEDS_sector ) |
-                             CEDS_sector %in% comb_sectors_only )
+                             CEDS_sector %in% comb_sectors_only)
     num_removed = num_instructions - nrow( df )
 
     if ( num_removed > 0 ) {

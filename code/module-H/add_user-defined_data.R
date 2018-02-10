@@ -96,6 +96,7 @@
     # Read instructions files that give the user-provided instructions for all
     # supplemental data.
     all_instr <- readInUserInstructions()
+    stopifnot( !is.null( all_instr ) )
     instructions <- processInstructions( all_instr, comb_sectors_only, MSL, MFL )
 
     # TODO: Figure out how/where/why to process trend data without roundabout
@@ -120,12 +121,13 @@
     # associated mapping files. They are used as lookup tables, with the base
     # filename (e.g. without '-mapping' and '.csv') as the key.
     filenames <- unique( instructions$data_file )
-    map_files <- sapply( filenames, readInUserData, all_yrs, '-mapping' )
+    map_files <- sapply( filenames, readInUserData, all_yrs, '-mapping',
+                         simplify = F )
     usr_files <- sapply( filenames, function( data_file ) {
         procUsrData( readInUserData( data_file, all_yrs ),
                      all_instr[[ data_file ]], map_files[[ data_file ]],
                      MSL, MCL, MFL, all_activity_data )
-    })
+    }, simplify = F )
 
     # This stores the final form of each instruction used, for diagnostics
     rows_completed <- instructions[ 0, ]
@@ -268,11 +270,11 @@
     final_activity <- enforceContinuity( activity, all_yrs )
 
     writeData( final_activity, domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST"))
-    final_short <- final_activity %>% dplyr::filter(iso == 'gbr', agg_fuel == 'coal')#agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
-    default_short <- default_mapped %>% dplyr::filter(iso == 'gbr', agg_fuel == 'coal')#agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
-    View(default_short[, c(1:5, 199:217)])
-    final_short <- final_short[, c(1:5, 199:217)]
-    View(final_short)
+    # final_short <- final_activity %>% dplyr::filter(iso == 'gbr', agg_fuel == 'coal')#agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
+    # default_short <- default_mapped %>% dplyr::filter(iso == 'gbr', agg_fuel == 'coal')#agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
+    # View(default_short[, c(1:5, 199:217)])
+    # final_short <- final_short[, c(1:5, 199:217)]
+    # View(final_short)
 
     #writeData( final_activity[which(final_activity$iso == 'deu'), ], domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST-small"))
     #final_short <- final_activity[ final_activity$iso == 'deu', ]

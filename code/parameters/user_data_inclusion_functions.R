@@ -572,7 +572,7 @@ aggLevelToNormalize <- function(agg_level) {
 identifyLevel <- function ( dataframe ) {
 
     CEDS_COLS <- c( "agg_fuel", "CEDS_fuel", "agg_sector", "CEDS_sector" )
-    agg_level <- names( dataframe )[ names( dataframe ) %in% CEDS_COLS ] %>%
+    agg_level <- dplyr::intersect( CEDS_COLS, names( dataframe ) ) %>%
                  paste( collapse = " " ) # for visual clarity
 
     switch(agg_level,
