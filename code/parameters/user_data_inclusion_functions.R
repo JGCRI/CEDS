@@ -440,14 +440,13 @@ addContinuityFactors <- function( activity, instructions, all_yrs, interval_len 
         # the instruction. Note that `historical_pre_extension_year` and
         # `historical_end_extension_year` are global CEDS variables.
         if ( this.row$start_continuity && s_year > historical_pre_extension_year ) {
-            interval_end <- start_year + continuity_interval - 1
-            year_range <- paste0( "X", start_year:interval_end )
+            interval_end <- s_year + continuity_interval - 1
+            year_range <- paste0( "X", s_year:interval_end )
             rows_to_adjust[ , year_range ] <- rep( continuity_vals, each = NROW( rows_to_adjust ) )
-
         }
         if ( this.row$end_continuity && e_year < historical_end_extension_year ) {
-            interval_end <- end_year - continuity_interval + 1
-            year_range <- paste0( "X", end_year:interval_end )
+            interval_end <- e_year - continuity_interval + 1
+            year_range <- paste0( "X", e_year:interval_end )
             rows_to_adjust[ , year_range ] <- rep( continuity_vals, each = NROW( rows_to_adjust ) )
         }
 
