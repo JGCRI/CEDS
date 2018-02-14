@@ -116,7 +116,6 @@
     activity$old_activity_data <- all_activity_data
     activity <- addContinuityFactors( activity, instructions, all_yrs )
 
-
     # The lists usr_files and map_files hold the user provided data and the
     # associated mapping files. They are used as lookup tables, with the base
     # filename (e.g. without '-mapping' and '.csv') as the key.
@@ -250,14 +249,8 @@
     # diagnostic output
         working_instructions$batch_id <- batch
         working_instructions$agg_level <- agg_level
-
-        if ( is.data.frame( diagnostics ) ) {
-            working_instructions$nrow_changed <- diagnostics$rows_changed
-            working_instructions$warnings <- diagnostics$warning_diag
-        } else {
-            working_instructions$nrow_changed <- 0
-            working_instructions$warnings <- "Normalize and Include function not called"
-        }
+        working_instructions$warnings <- diagnostics$warning_diag
+        working_instructions$nrow_changed <- diagnostics$rows_changed
     # Add working instructions to rows_completed, which will be a diagnostic for
     # reviewing what changes occurred
         rows_completed <- rbind( rows_completed, working_instructions )
