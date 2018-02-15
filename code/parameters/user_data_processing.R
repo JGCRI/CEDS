@@ -68,16 +68,14 @@
         year_cols <- names( usr_data )[ isXYear( names( usr_data ) ) ]
 
         # Clean, map, validate, and then interpolate the user data
-        mapped_df <- dplyr::mutate_at(usr_data, year_cols, as.numeric)
-        if ( !is.null( mappings ) ) {
-            mapped_df <- mapToCEDS( mapped_df, MSL, MFL,
-                                    iso_map         = mappings$iso,
-                                    agg_sector_map  = mappings$agg_sector,
-                                    CEDS_sector_map = mappings$CEDS_sector,
-                                    agg_fuel_map    = mappings$agg_fuel,
-                                    CEDS_fuel_map   = mappings$CEDS_fuel )
-        }
-        interp_df <- validateUserData( mapped_df, proc_instr ) %>%
+        interp_df <- dplyr::mutate_at(usr_data, year_cols, as.numeric) %>%
+                     mapToCEDS( MSL, MFL,
+                                iso_map         = mappings$iso,
+                                agg_sector_map  = mappings$agg_sector,
+                                CEDS_sector_map = mappings$CEDS_sector,
+                                agg_fuel_map    = mappings$agg_fuel,
+                                CEDS_fuel_map   = mappings$CEDS_fuel ) %>%
+                     validateUserData( proc_instr ) %>%
                      interpolateData( proc_instr, MSL, MCL, MFL, trend_data )
 
         if ( identifyLevel( interp_df ) == 0 )
