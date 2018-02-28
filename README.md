@@ -10,8 +10,9 @@ Current issues with the data or system are documented in the [CEDS Issues](https
 Further information can also be found at the [project web site](http://www.globalchange.umd.edu/ceds/).
 
 # Journal Papers
-[Hoesly et al, Historical (1750–2014) anthropogenic emissions of reactive gases and aerosols from the Community Emission Data System (CEDS). Geosci. Model Dev. Discuss.](https://www.geosci-model-dev-discuss.net/gmd-2017-43/). *In Review*
+[Hoesly et al, Historical (1750–2014) anthropogenic emissions of reactive gases and aerosols from the Community Emissions Data System (CEDS). Geosci. Model Dev. 11, 369-408, 2018.](https://www.geosci-model-dev.net/11/369/2018/gmd-11-369-2018.html)
 
+Note that the paper suppliment (zip file) contains annual emissions estimates by country and sector.
 
 # <a name="license-section"></a>License
 Copyright © 2017, Battelle Memorial Institute
