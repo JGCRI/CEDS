@@ -13,7 +13,7 @@
 # to the "input" directory.
 PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-headers <- c( "summary_functions.R" )
+headers <- c( "data_functions.R", "summary_functions.R" )
 log_msg <- "Aggregate emissions into summary files" # First message to be printed to the log
 script_name <- "S1.2.aggregate_summary_data.R"
 
@@ -24,9 +24,16 @@ initialize( script_name, log_msg, headers )
 # ---------------------------------------------------------------------------
 # 1. Combine diagnostic files
 
-"global_.+_emissions_by_CEDS_sector\\.csv" %>%
-    grep( dir( "../final-emissions/diagnostics/" ), value = T ) %>%
-    sub( '.csv', '', . ) %>%
-    paste0( "diagnostics/", . ) %>%
-    lapply( readData, domain = "FIN_OUT" ) %>%
-    lapply( write_global_emissions_by_sector )
+fpath <- "../final-emissions/"
+fregex <- "diagnostics/global_.+_emissions_by_CEDS_sector\\.csv"
+fnames <- grep( fregex, dir( fpath, recursive = T ), value = T )
+
+sub( '.csv', '', fnames ) %>%
+lapply( readData, domain = "FIN_OUT" ) %>%
+lapply( write_global_emissions_by_sector )
+
+# Remove the .csv files
+file.remove( paste0( fpath, fnames ) )
+
+
+logStop()
