@@ -105,7 +105,6 @@ write_global_emissions_by_sector <- function( em_by_sector ) {
 
     # join data to existing sheet if it exists
     if( tab_name %in% names( global_em_workbook ) ) {
-      printLog( "Updating sheet: '", tab_name, "' in", global_em_workbook_path )
       temp <- openxlsx::read.xlsx( global_em_workbook, sheet = tab_name )
       temp[emission] <- tab[emission]
       tab <- temp
@@ -117,7 +116,6 @@ write_global_emissions_by_sector <- function( em_by_sector ) {
     }
 
     # write out the data
-    printLog( "Writing sheet: '", tab_name, "' to", global_em_workbook_path )
     openxlsx::writeData( global_em_workbook, sheet = tab_name, x = tab )
   })
 
@@ -125,7 +123,7 @@ write_global_emissions_by_sector <- function( em_by_sector ) {
   formatted_workbook <- format_xlsx_numeric_data( workbook = global_em_workbook,
                                                   columnIndices = 3:ncols )
 
-  printLog( "Saving file: ", global_em_workbook_path )
+  printLog( "Updating", emission, "emissions in", global_em_workbook_path )
   openxlsx::saveWorkbook( formatted_workbook, file = global_em_workbook_path,
                           overwrite = T )
 
