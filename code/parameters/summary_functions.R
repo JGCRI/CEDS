@@ -132,33 +132,27 @@ create_tab_of_global_emission_by_sector <- function( year, Em_by_CEDS_Sector_tab
 # Dependencies: None
 # Author(s): Presley Muwan
 # Params:   workbook - the targeted excel file
-#           CEDS_version - The version of the current run
 #           website - CEDS web url
+#           CEDS_version - The version of the current run
 #
 # Return: Excel workbook
 # Input Files:  any excel workbook
 # Output Files:
-update_readme_sheet <- function(workbook, website, CEDS_version){
+update_readme_sheet <- function(workbook, website, CEDS_version) {
 
-  #add a "README" tab to global_total_emission_wb
+  # add a "README" tab to global_total_emission_wb
   old_sheets <- names(workbook)
 
-  #initialize CEDS_version column
+  # initialize CEDS_version column
   ceds_version_df <- data.frame(CEDS_Version = c(CEDS_version), Project_Website = c(website))
 
-
-  #check if tab exist
-  if( length(old_sheets) < 2 ){
-    #create new sheet
-
-    readme_sheet <-  openxlsx::addWorksheet(global_total_emission_wb, "README")
-
+  # if tab does not exist, create new sheet
+  if( length( old_sheets ) < 2 ) {
+    workbook <- openxlsx::addWorksheet(workbook, "README")
   }
 
-  #add it if it does not exist
-  openxlsx::writeData(workbook, sheet = "README", x= ceds_version_df, startCol = 2)
-
+  # write sheet to workbook
+  openxlsx::writeData(workbook, sheet = "README", x = ceds_version_df, startCol = 2)
 
   return(workbook)
-
-}#updata_readme_sheet() Ends
+}
