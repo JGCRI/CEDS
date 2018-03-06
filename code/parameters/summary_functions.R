@@ -113,13 +113,15 @@ create_tab_of_global_emission_by_sector <- function( year, Em_by_CEDS_Sector_tab
   }
 
   # write out the data
-  printLog( "Writing sheet : '", tab_name, "' to", global_em_workbook_path )
+  printLog( "Writing sheet: '", tab_name, "' to", global_em_workbook_path )
   openxlsx::writeData( global_em_workbook, tab_name, emission_tab )
 
   # update workbook's cell conditional formatting
+  printLog( "Updating fmat: '", tab_name, "' to", global_em_workbook_path )
   formatted_workbook <- format_xlsx_numeric_data( workbook = global_em_workbook,
                                                   columnIndices = 2:ncol( emission_tab ) )
 
+  printLog( "Saving sheet : '", tab_name, "' to", global_em_workbook_path )
   openxlsx::saveWorkbook( formatted_workbook, file=global_em_workbook_path, overwrite = T )
 
 } #create_tab_of_global_emission_by_sector() Ends
