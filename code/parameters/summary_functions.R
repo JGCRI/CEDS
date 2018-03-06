@@ -68,9 +68,10 @@ format_xlsx_numeric_data <- function ( workbook, rowIndices=c(2:58), columnIndic
 #          names and CEDS sectors as row names
 # Dependencies: None
 # Author(s): Presley Muwan, Caleb Braun
-# Params:   year - the year from which data is extracted to create the tab (or sheet)
-#           Em_by_CEDS_Sector_tabs - Long formated data frame with emission data arranged
-#                                    for all CEDS sector and all years
+# Params: em_by_sector - Long formated data frame with emission data arranged
+#         all_years - A numeric vector of all years from which data should be
+#                     extracted to create a tab
+#         emission - The emission (e.g. "CO")
 #
 # Return: none
 # Input Files:  global_emissions_by_CEDS_sector.xlsx - if it exists
@@ -92,8 +93,9 @@ write_global_emissions_by_sector <- function( em_by_sector, all_years, emission 
   lapply( all_years, function( y ) {
     tab <- dplyr::filter( em_by_sector, year == y ) %>%
       dplyr::select( sector, units, value ) %>%
-      dplyr::rename( !!emission:= value ) %>%
-      rbind( c( "Total", unique( .[['units']] ), sum( .[emission] ) ) )
+      rbind( c( "Total", unique( .$units ), sum( .$value ) ) ) %>%
+      dplyr::mutate( value = as.numeric( value ) ) %>%
+      dplyr::rename( !!emission := value )
 
     # the tab (sheet) name is just the year; remove leading 'X'
     tab_name <- substr( y, 2, 5 )
