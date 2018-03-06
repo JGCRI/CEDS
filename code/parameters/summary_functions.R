@@ -76,10 +76,11 @@ format_xlsx_numeric_data <- function ( workbook, rowIndices=c(2:58), columnIndic
 # Return: none
 # Input Files:  global_emissions_by_CEDS_sector.xlsx - if it exists
 # Output Files: global_emissions_by_CEDS_sector.xlsx
-write_global_emissions_by_sector <- function( em_by_sector, all_years, emission ) {
+write_global_emissions_by_sector <- function( em_by_sector ) {
+
+  global_em_workbook_path <- "../final-emissions/diagnostics/global_emissions_by_CEDS_sector.xlsx"
 
   # load the file or create a new workbook if it doesn't exist
-  global_em_workbook_path <- "../final-emissions/diagnostics/global_emissions_by_CEDS_sector.xlsx"
   if( file.exists( global_em_workbook_path ) ) {
     global_em_workbook <- openxlsx::loadWorkbook( global_em_workbook_path )
   }
@@ -87,6 +88,8 @@ write_global_emissions_by_sector <- function( em_by_sector, all_years, emission 
     global_em_workbook <- openxlsx::createWorkbook()
   }
 
+  all_years <- unique( em_by_sector$year )
+  emission <- unique( em_by_sector$em )
   ncols <- 3
 
   # split data into tabs for each year specified
@@ -106,13 +109,12 @@ write_global_emissions_by_sector <- function( em_by_sector, all_years, emission 
       temp <- openxlsx::read.xlsx( global_em_workbook, sheet = tab_name )
       temp[emission] <- tab[emission]
       tab <- temp
+      ncols <<- ncol( tab )
     }
     else {
       printLog( "Creating sheet: '", tab_name, "' in", global_em_workbook_path )
       openxlsx::addWorksheet( global_em_workbook, tab_name )
     }
-
-    ncols <<- ncol(tab)
 
     # write out the data
     printLog( "Writing sheet: '", tab_name, "' to", global_em_workbook_path )

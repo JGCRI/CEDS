@@ -162,10 +162,11 @@ if ( WRITE_CEDS_SECTORS ) {
 	# Define the interval years
 	all_years <- paste0( "X", c( seq( 1750, 1950, 50 ), seq( 1960, 2010, 10 ), end_year ) )
 
-	Em_by_CEDS_Sector_long <- tidyr::gather( Em_by_CEDS_Sector, "year", "value", X_write_years )
-
-	# Create global_emissions_by_sector.xlsx workbook with tabs for each year
-	write_global_emissions_by_sector( Em_by_CEDS_Sector_long, all_years, em )
+	# Create global_EM_emissions_by_CEDS_sector files
+	fname <- paste0( "diagnostics/global_", em, "_emissions_by_CEDS_sector" )
+	tidyr::gather( Em_by_CEDS_Sector, "year", "value", X_write_years ) %>%
+	dplyr::filter( year %in% all_years ) %>%
+	writeData( "FIN_OUT", fname, meta = F )
 
 	# Global Emmission by specie
 	global_total_emission <- aggregate( final_emissions[X_write_years],
