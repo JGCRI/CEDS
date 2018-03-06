@@ -164,8 +164,8 @@ if ( WRITE_CEDS_SECTORS ) {
 
 	Em_by_CEDS_Sector_long <- tidyr::gather( Em_by_CEDS_Sector, "year", "value", X_write_years )
 
-	# Create global_emission_by_sector xlsx workbook with tabs
-	lapply(all_years, FUN = create_tab_of_global_emission_by_sector, Em_by_CEDS_Sector_long)
+	# Create global_emissions_by_sector.xlsx workbook with tabs for each year
+	write_global_emissions_by_sector( Em_by_CEDS_Sector_long, all_years, em )
 
 	# Global Emmission by specie
 	global_total_emission <- aggregate( final_emissions[X_write_years],
