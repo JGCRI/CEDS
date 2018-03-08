@@ -179,14 +179,12 @@ write_global_emissions_by_species <- function( em_by_species ) {
                                                     columnIndices = 3:ncol( em_by_species ) )
 
 	# update the file's README tab
-	formatted_workbook <- update_readme_sheet(formatted_workbook, ceds_website,
-	                                          version_stamp )
+	formatted_workbook <- update_readme_sheet( formatted_workbook )
 
     printLog( "Updating", em_by_species_path )
     openxlsx::saveWorkbook( formatted_workbook, file = em_by_species_path,
                             overwrite = T )
 }
-
 
 
 # -----------------------------------------------------------------------------------
@@ -202,21 +200,24 @@ write_global_emissions_by_species <- function( em_by_species ) {
 # Return: Excel workbook
 # Input Files:  any excel workbook
 # Output Files:
-update_readme_sheet <- function(workbook, website, CEDS_version) {
+update_readme_sheet <- function( workbook ) {
+
+  # initialize CEDS_version column
+  ceds_website <- "http://www.globalchange.umd.edu/ceds/"
+  ceds_version_df <- data.frame( CEDS_Version = version_stamp, # a global var
+                                 Project_Website = ceds_website )
 
   # add a "README" tab to global_total_emission_wb
   old_sheets <- names(workbook)
-
-  # initialize CEDS_version column
-  ceds_version_df <- data.frame(CEDS_Version = c(CEDS_version), Project_Website = c(website))
+  readme <- "README"
 
   # if tab does not exist, create new sheet
-  if( length( old_sheets ) < 2 ) {
-    openxlsx::addWorksheet(workbook, "README")
+  if( readme %!in% old_sheets ) {
+    openxlsx::addWorksheet(workbook, readme)
   }
 
   # write sheet to workbook
-  openxlsx::writeData(workbook, sheet = "README", x = ceds_version_df, startCol = 2)
+  openxlsx::writeData(workbook, sheet = readme, x = ceds_version_df, startCol = 2)
 
   return(workbook)
 }
