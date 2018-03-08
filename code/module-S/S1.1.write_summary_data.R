@@ -17,8 +17,8 @@
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R", "analysis_functions.R",'process_db_functions.R', "summary_functions.R",
-              'common_data.R', 'IO_functions.R', 'data_functions.R', 'timeframe_functions.R') # Additional function files may be required.
+headers <- c( "data_functions.R", "analysis_functions.R", 'process_db_functions.R',
+              "summary_functions.R", 'common_data.R', 'timeframe_functions.R')
 log_msg <- "Writes Final summary data" # First message to be printed to the log
 script_name <- "S1.1.write_summary_data.R"
 
