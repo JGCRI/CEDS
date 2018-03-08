@@ -31,7 +31,6 @@ if ( is.na( em ) ) em <- "CO"
 
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
-ceds_website <- "http://www.globalchange.umd.edu/ceds/"
 write_years <- 1750:end_year
 
 # Define functions to move a list of files (full path name)
@@ -169,8 +168,7 @@ if ( WRITE_CEDS_SECTORS ) {
 	fname <- paste0( "../final-emissions/diagnostics/global_total_emissions_for_", em, ".Rd" )
 	names( Em_global_total ) <- sub( "X", "", names( Em_global_total) )
     saveRDS( Em_global_total, file = fname ) # Save as R data object
-
-}#if Ends
+}
 
 # ---------------------------------------------------------------------------
 # 3. Write summary and diagnostics outputs

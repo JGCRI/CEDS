@@ -13,7 +13,7 @@
 # to the "input" directory.
 PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-headers <- c( "data_functions.R", "summary_functions.R" )
+headers <- c( "data_functions.R", "summary_functions.R", "global_settings.R" )
 log_msg <- "Aggregate emissions into summary files" # First message to be printed to the log
 script_name <- "S1.2.aggregate_summary_data.R"
 
