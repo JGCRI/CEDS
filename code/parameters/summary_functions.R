@@ -60,7 +60,7 @@ format_xlsx_numeric_data <- function ( workbook, rowIndices=c(2:58), columnIndic
 
 
 # -----------------------------------------------------------------------------------
-# create_tab_of_global_emission_by_sector
+# write_global_emissions_by_sector
 # Brief:  This function creates data tabs (or sheets) containing emission by
 #         ceds sector within an xlsx file
 # Details: The tab (sheet) created has the name "year" (specified by the
@@ -128,6 +128,65 @@ write_global_emissions_by_sector <- function( em_by_sector ) {
                           overwrite = T )
 
 } #create_tab_of_global_emission_by_sector() Ends
+
+
+# -----------------------------------------------------------------------------------
+# write_global_emissions_by_species
+# Brief:  This function creates or modifies an xlsx file containing aggregate
+#         emissions by species and a README sheet
+# Details: Data for the species are expected to be in the following form (where
+#          2014 should be the CEDS end year):
+#          |  em  | units | 1750 | 1751 | ... | 2014 |
+#
+# Dependencies: None
+# Author(s): Caleb Braun
+# Params: ems_by_species - a data frame containing total emissions for one or
+#                          more species
+#
+# Output Files: global_total_emissions_by_species.xlsx
+write_global_emissions_by_species <- function( em_by_species ) {
+
+	# Read global_total_emissions_for_species file (if it exists) and update it
+	# with the new data
+	em_by_species_path <- "../final-emissions/diagnostics/global_total_emissions_for_species.xlsx"
+	main_sheet <- "global_totals"
+
+	# load the file or create a new workbook if it doesn't exist
+	if ( file.exists( em_by_species_path ) ) {
+	    global_em_workbook <- openxlsx::loadWorkbook( em_by_species_path )
+	}
+	else {
+	    global_em_workbook <- openxlsx::createWorkbook()
+	}
+
+	# join data to existing sheet if it exists
+	if ( main_sheet %in% names( global_em_workbook ) ) {
+	    old <- openxlsx::read.xlsx( global_em_workbook, sheet = main_sheet )
+	    old[ old$em %in% em_by_species$em, ] <- em_by_species
+	    em_by_species <- old
+	} else {
+	    printLog( "Creating sheet: '", main_sheet, "' in", em_by_species_path )
+	    openxlsx::addWorksheet( global_em_workbook, main_sheet )
+	}
+
+	# write out the data
+	openxlsx::writeData( global_em_workbook, sheet = main_sheet, x = em_by_species )
+
+	# format global_total_emission_for_species: remove decimal points, use
+	# commas for values greater than 1, and show only two decimal places
+    formatted_workbook <- format_xlsx_numeric_data( workbook = global_em_workbook,
+                                                    rowIndices = 2:nrow( em_by_species ),
+                                                    columnIndices = 3:ncol( em_by_species ) )
+
+	# update the file's README tab
+	formatted_workbook <- update_readme_sheet(formatted_workbook, ceds_website,
+	                                          version_stamp )
+
+    printLog( "Updating", em_by_species_path )
+    openxlsx::saveWorkbook( formatted_workbook, file = em_by_species_path,
+                            overwrite = T )
+}
+
 
 
 # -----------------------------------------------------------------------------------

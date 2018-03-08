@@ -24,16 +24,27 @@ initialize( script_name, log_msg, headers )
 # ---------------------------------------------------------------------------
 # 1. Combine diagnostic files
 
+# Combine all global_EM_emissions_by_CEDS_sector files into one excel file
 fpath <- "../final-emissions/"
 fregex <- "diagnostics/global_.+_emissions_by_CEDS_sector\\.csv"
 fnames <- grep( fregex, dir( fpath, recursive = T ), value = T )
 
-sub( '.csv', '', fnames ) %>%
-lapply( readData, domain = "FIN_OUT" ) %>%
-lapply( write_global_emissions_by_sector )
+if ( length( fnames ) ) {
+    sub( '.csv', '', fnames ) %>%
+    lapply( readData, domain = "FIN_OUT" ) %>%
+    lapply( write_global_emissions_by_sector )
 
-# Remove the .csv files
-file.remove( paste0( fpath, fnames ) )
+    file.remove( paste0( fpath, fnames ) ) # Remove the .csv files
+}
+
+
+# Combine all global_total_emissions_for_EM files into one excel file
+fregex <- "diagnostics/global_total_emissions_for_.+\\.Rd"
+fnames <- grep( fregex, dir( fpath, recursive = T ), value = T )
+fnames <- paste0( fpath, fnames )
+
+write_global_emissions_by_species( do.call( rbind, lapply( fnames, readRDS ) ) )
+file.remove( fnames )
 
 
 logStop()
