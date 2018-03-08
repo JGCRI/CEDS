@@ -13,7 +13,7 @@
 # to the "input" directory.
 PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-headers <- c( "data_functions.R", "summary_functions.R", "global_settings.R" )
+headers <- c( "data_functions.R", "summary_functions.R" )
 log_msg <- "Aggregate emissions into summary files" # First message to be printed to the log
 script_name <- "S1.2.aggregate_summary_data.R"
 
@@ -34,7 +34,7 @@ if ( length( fnames ) ) {
     lapply( readData, domain = "FIN_OUT" ) %>%
     lapply( write_global_emissions_by_sector )
 
-    file.remove( paste0( fpath, fnames ) ) # Remove the .csv files
+    invisible( file.remove( paste0( fpath, fnames ) ) ) # Remove the .csv files
 }
 
 
@@ -44,7 +44,7 @@ fnames <- grep( fregex, dir( fpath, recursive = T ), value = T )
 fnames <- paste0( fpath, fnames )
 
 write_global_emissions_by_species( do.call( rbind, lapply( fnames, readRDS ) ) )
-file.remove( fnames )
+invisible( file.remove( fnames ) )
 
 
 logStop()
