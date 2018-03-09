@@ -22,7 +22,6 @@ loadPackage('openxlsx')
 # Author(s): Presley Muwan
 # Params:   workbook - the xlsl file to be formatted (use loadworkbook(filepath) function from xlsx package
 #                       to extract the xlsl workbook)
-#           sheetName - name of the sheet, within the workbook, whose cells will be formated
 #           rowIndices  - indeces of the rows to be formatted
 #           columnIndices - indeces of the columns to be formatted
 #
@@ -61,18 +60,16 @@ format_xlsx_numeric_data <- function ( workbook, rowIndices=c(2:58), columnIndic
 
 # -----------------------------------------------------------------------------------
 # write_global_emissions_by_sector
-# Brief:  This function creates data tabs (or sheets) containing emission by
-#         ceds sector within an xlsx file
-# Details: The tab (sheet) created has the name "year" (specified by the
-#          parameter). The tab is formatted to have emission species as column
-#          names and CEDS sectors as row names
+# Brief:  Create an excel file containing emissions by sector, with separate
+#         sheets for each year provded.
+# Details: Each sheet (tab) created is named by the year that it has data for.
+#          The sheet is formatted to have emission species as column names and
+#          CEDS sectors as row names
 # Dependencies: None
 # Author(s): Presley Muwan, Caleb Braun
-# Params: em_by_sector - Long formated data frame with emission data arranged
-#         all_years - A numeric vector of all years from which data should be
-#                     extracted to create a tab
-#         emission - The emission (e.g. "CO")
-#
+# Params: em_by_sector - Data for a single emissions species; expected to be in
+#                        the following form:
+#                        | sector |  em  | units | year | value |
 # Return: none
 # Input Files:  global_emissions_by_CEDS_sector.xlsx - if it exists
 # Output Files: global_emissions_by_CEDS_sector.xlsx
@@ -137,11 +134,10 @@ write_global_emissions_by_sector <- function( em_by_sector ) {
 # Details: Data for the species are expected to be in the following form (where
 #          2014 should be the CEDS end year):
 #          |  em  | units | 1750 | 1751 | ... | 2014 |
-#
 # Dependencies: None
 # Author(s): Caleb Braun
-# Params: ems_by_species - a data frame containing total emissions for one or
-#                          more species
+# Params: em_by_species - a data frame containing total emissions for one or
+#                         more species
 #
 # Output Files: global_total_emissions_by_species.xlsx
 write_global_emissions_by_species <- function( em_by_species ) {
@@ -193,10 +189,7 @@ write_global_emissions_by_species <- function( em_by_species ) {
 # Details: The README Sheet contains the version number of the latest run and CEDS url website
 # Dependencies: None
 # Author(s): Presley Muwan
-# Params:   workbook - the targeted excel file
-#           website - CEDS web url
-#           CEDS_version - The version of the current run
-#
+# Params: workbook - the targeted excel file
 # Return: Excel workbook
 # Input Files:  any excel workbook
 # Output Files:
