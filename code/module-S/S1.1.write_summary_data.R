@@ -33,6 +33,9 @@ if ( is.na( em ) ) em <- "CO"
 # 0.5. Script Options
 write_years <- 1750:end_year
 
+# Option to also write out data by CEDS sectors
+WRITE_CEDS_SECTORS = TRUE
+
 # Define functions to move a list of files (full path name)
 moveFile <- function( fn, new_dir ) {
   fn_base <- basename( fn )
@@ -42,13 +45,6 @@ moveFile <- function( fn, new_dir ) {
 moveFileList <- function( fn_list, new_dir ) {
   lapply( fn_list, function( fn ) moveFile( fn, new_dir ) )
 }
-
-
-# Option to also write out data by CEDS sectors
-WRITE_CEDS_SECTORS = TRUE
-
-# writeSummary()  # defined in 3
-
 
 # ---------------------------------------------------------------------------
 # 1. Load files
@@ -69,14 +65,12 @@ empty_sectors <- c( "11A_Volcanoes", "11B_Forest-fires", "11C_Other-natural" )
 final_emissions <- final_emissions[ -which( final_emissions$sector %in% empty_sectors ) , ]
 
 # save shipping and aviation emissions
-bunker_emissions <- final_emissions[ which( final_emissions$sector %in%
-                    c( "1A3ai_International-aviation", "1A3aii_Domestic-aviation",
-                       "1A3di_International-shipping" ) ) , ]
+shp_av_sectors <- c( "1A3di_International-shipping", "1A3aii_Domestic-aviation",
+                     "1A3ai_International-aviation" )
+bunker_emissions <- final_emissions[ final_emissions$sector %in% shp_av_sectors, ]
 
 # remove international shipping and aviation emissions
-final_emissions <- final_emissions[ -which( final_emissions$sector %in%
-                   c( "1A3ai_International-aviation", "1A3aii_Domestic-aviation",
-                      "1A3di_International-shipping" ) ) , ]
+final_emissions <- final_emissions[ final_emissions$sector %!in% shp_av_sectors, ]
 
 # add summary sectors
 final_emissions$summary_sector <- Master_Sector_Level_map[match(final_emissions$sector,
@@ -175,8 +169,7 @@ if ( WRITE_CEDS_SECTORS ) {
 # Compare emissions summary from the current run and the last run. If values
 # change over a threshold, move last-run files to previous-versions, write out
 # current-run files, and write out comparison diagnostics.
-  FILENAME_POSTSCRIPT <- paste( "_v", substr( Sys.Date(), 1, 4 ), substr( Sys.Date(), 6, 7 ),
-                                substr( Sys.Date(), 9, 10 ), sep = "_" )  # "_v_yyyy_mm_dd"
+  FILENAME_POSTSCRIPT <- paste( "_v", version_stamp )  # "_v_yyyy_mm_dd"
 
 # Create output folders (if not already exist) and define values
   dir.create( "../final-emissions/current-versions", showWarnings = F )
