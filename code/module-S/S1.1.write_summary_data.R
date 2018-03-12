@@ -1,7 +1,8 @@
 
 # ------------------------------------------------------------------------------
 # Program Name: S1.1.write_summary_data.R
-# Author: Rachel Hoesly, Steve Smith, Linh Vu, Presley Muwan, Leyang Feng
+# Authors: Rachel Hoesly, Steve Smith, Linh Vu, Presley Muwan, Leyang Feng,
+#          Caleb Braun
 # Date Last Updated: Aug 8 2017
 # Program Purpose: Produces summary output
 #
@@ -132,7 +133,7 @@ Em_by_Country_Sector <- aggregate(final_emissions[X_write_years],
 #Sort
 Em_by_Country_Sector <- Em_by_Country_Sector[ with( Em_by_Country_Sector, order( iso , sector ) ), ]
 
-# Write out final diagnostic files for emissions by country and CEDS sector
+# Create files for emissions by country and CEDS sector
 if ( WRITE_CEDS_SECTORS ) {
 	# Aggregate emissions by CEDS sector, country, and species total
     Em_by_Country_CEDS_Sector <- final_emissions %>%
