@@ -22,29 +22,38 @@ initialize( script_name, log_msg, headers )
 
 
 # ---------------------------------------------------------------------------
-# 1. Combine diagnostic files
+# 1. Combine all global_EM_emissions_by_CEDS_sector files into one excel file
 
-# Combine all global_EM_emissions_by_CEDS_sector files into one excel file
 fpath <- "../final-emissions/diagnostics"
-fregex <- "global_.+_emissions_by_CEDS_sector\\.csv"
-fnames <- list.files( fpath, fregex, recursive = T )
 
-if ( length( fnames ) ) {
-    sub( '.csv', '', fnames ) %>%
+# Create a vector of the desired file names. The regex symbols '.+' match one
+# or more character, so file names for all emissions should be captured.
+file_regex <- "global_.+_emissions_by_CEDS_sector\\.csv"
+file_names <- list.files( fpath, file_regex, recursive = T )
+
+# Write the contents of each .csv file into a tabbed excel file
+if ( length( file_names ) ) {
+    sub( '.csv', '', file_names ) %>%
     lapply( readData, domain = "FIN_OUT", domain_extension = "diagnostics/" ) %>%
     lapply( write_global_emissions_by_sector )
 
     # Remove the .csv files
-    invisible( file.remove( paste0( fpath, "/", fnames ) ) )
+    invisible( file.remove( paste0( fpath, "/", file_names ) ) )
 }
 
+# ---------------------------------------------------------------------------
+# 2. Combine all global_total_emissions_for_EM files into one excel file
 
-# Combine all global_total_emissions_for_EM files into one excel file
-fregex <- "global_total_emissions_for_.+\\.Rd"
-fnames <- list.files( fpath, fregex, full.names = T, recursive = T )
+file_regex <- "global_total_emissions_for_.+\\.Rd"
+file_names <- list.files( fpath, file_regex, full.names = T, recursive = T )
 
-write_global_emissions_by_species( do.call( rbind, lapply( fnames, readRDS ) ) )
-invisible( file.remove( fnames ) )
+# Read final emissions output from saved R data objects into single dataframe,
+# then write it out to an excel file
+global_total_ems <- do.call( rbind, lapply( file_names, readRDS ) )
+write_global_emissions_by_species( global_total_ems )
+
+# Remove the saved R data objects
+invisible( file.remove( file_names ) )
 
 
 logStop()

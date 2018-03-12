@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: File Summary functions
-# Author(s): Presley Muwan
+# Authors: Presley Muwan, Caleb Braun
 # Last Updated: 19 June 2017
 
 # This file must be sourced by CEDS summary R scripts
