@@ -7,12 +7,12 @@ Documentation of CEDS assumptions and system operation are available at the [CED
 
 Current issues with the data or system are documented in the [CEDS Issues](https://github.com/JGCRI/CEDS/issues) system in this gitHub repository (current issues as of September 2017 are also listed in the "Known Issues" section of the Data and Assumptions wiki). Users can submit issues using this system. These can include anomalies found in the aggregate or gridded emissions data. Please use an appropriate tag for any submitted issues. Note that by default only unresolved issues are shown. All issues, including resolved issues, can be viewed by removing the "is:open" filter. Issues relevant for CMIP6 data releases are tagged with a “CMIP6” label (note that some of these will be closed if resolved in subsequent CEDS data releases.)
 
-Further information can also be found at the [project web site](http://www.globalchange.umd.edu/ceds/).
+Further information can also be found at the [project web site](http://www.globalchange.umd.edu/ceds/), including a [CMIP6 page](http://www.globalchange.umd.edu/ceds/ceds-cmip6-data/) that provides details for obtaining gridded emission datasets produced by this project. 
 
 # Journal Papers
 [Hoesly et al, Historical (1750–2014) anthropogenic emissions of reactive gases and aerosols from the Community Emissions Data System (CEDS). Geosci. Model Dev. 11, 369-408, 2018.](https://www.geosci-model-dev.net/11/369/2018/gmd-11-369-2018.html)
 
-Note that the paper suppliment (zip file) contains annual emissions estimates by country and sector.
+Note that the paper zip file supplement contains annual emissions estimates by country and sector.
 
 # <a name="license-section"></a>License
 Copyright © 2017, Battelle Memorial Institute
