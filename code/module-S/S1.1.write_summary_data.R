@@ -1,7 +1,8 @@
 
 # ------------------------------------------------------------------------------
 # Program Name: S1.1.write_summary_data.R
-# Author: Rachel Hoesly, Steve Smith, Linh Vu, Presley Muwan, Leyang Feng
+# Authors: Rachel Hoesly, Steve Smith, Linh Vu, Presley Muwan, Leyang Feng,
+#          Caleb Braun
 # Date Last Updated: Aug 8 2017
 # Program Purpose: Produces summary output
 #
@@ -17,8 +18,8 @@
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R", "analysis_functions.R",'process_db_functions.R', "summary_functions.R",
-              'common_data.R', 'IO_functions.R', 'data_functions.R', 'timeframe_functions.R') # Additional function files may be required.
+headers <- c( "data_functions.R", "analysis_functions.R", 'process_db_functions.R',
+              "summary_functions.R", 'common_data.R', 'timeframe_functions.R')
 log_msg <- "Writes Final summary data" # First message to be printed to the log
 script_name <- "S1.1.write_summary_data.R"
 
@@ -31,8 +32,10 @@ if ( is.na( em ) ) em <- "CO"
 
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
-ceds_website <- "http://www.globalchange.umd.edu/ceds/"
 write_years <- 1750:end_year
+
+# Option to also write out data by CEDS sectors
+WRITE_CEDS_SECTORS = TRUE
 
 # Define functions to move a list of files (full path name)
 moveFile <- function( fn, new_dir ) {
@@ -43,13 +46,6 @@ moveFile <- function( fn, new_dir ) {
 moveFileList <- function( fn_list, new_dir ) {
   lapply( fn_list, function( fn ) moveFile( fn, new_dir ) )
 }
-
-
-# Option to also write out data by CEDS sectors
-WRITE_CEDS_SECTORS = TRUE
-
-# writeSummary()  # defined in 3
-
 
 # ---------------------------------------------------------------------------
 # 1. Load files
@@ -70,14 +66,12 @@ empty_sectors <- c( "11A_Volcanoes", "11B_Forest-fires", "11C_Other-natural" )
 final_emissions <- final_emissions[ -which( final_emissions$sector %in% empty_sectors ) , ]
 
 # save shipping and aviation emissions
-bunker_emissions <- final_emissions[ which( final_emissions$sector %in%
-                    c( "1A3ai_International-aviation", "1A3aii_Domestic-aviation",
-                       "1A3di_International-shipping" ) ) , ]
+shp_av_sectors <- c( "1A3di_International-shipping", "1A3aii_Domestic-aviation",
+                     "1A3ai_International-aviation" )
+bunker_emissions <- final_emissions[ final_emissions$sector %in% shp_av_sectors, ]
 
 # remove international shipping and aviation emissions
-final_emissions <- final_emissions[ -which( final_emissions$sector %in%
-                   c( "1A3ai_International-aviation", "1A3aii_Domestic-aviation",
-                      "1A3di_International-shipping" ) ) , ]
+final_emissions <- final_emissions[ final_emissions$sector %!in% shp_av_sectors, ]
 
 # add summary sectors
 final_emissions$summary_sector <- Master_Sector_Level_map[match(final_emissions$sector,
@@ -139,92 +133,44 @@ Em_by_Country_Sector <- aggregate(final_emissions[X_write_years],
 #Sort
 Em_by_Country_Sector <- Em_by_Country_Sector[ with( Em_by_Country_Sector, order( iso , sector ) ), ]
 
-# Emissions by country and CEDS sector
-
+# Create files for emissions by country and CEDS sector
 if ( WRITE_CEDS_SECTORS ) {
-	# Total Emissions by CEDS Sector and Country
-	Em_by_Country_CEDS_Sector <- aggregate(final_emissions[X_write_years],
-								   by=list(iso=final_emissions$iso,
-										   sector=final_emissions$sector,
-										   em= final_emissions$em,
-										   units=final_emissions$units),sum )
-	#Sort
-	Em_by_Country_CEDS_Sector <- Em_by_Country_CEDS_Sector[ with( Em_by_Country_CEDS_Sector, order( iso , sector ) ), ]
+	# Aggregate emissions by CEDS sector, country, and species total
+    Em_by_Country_CEDS_Sector <- final_emissions %>%
+        dplyr::group_by( iso, sector, em, units ) %>%
+        dplyr::summarise_at( vars( X_write_years ), sum ) %>%
+        dplyr::arrange( iso, sector )
 
-	# Global Emissions by CEDS Sector 
-	Em_by_CEDS_Sector <- aggregate(final_emissions[X_write_years],
-								   by=list(sector=final_emissions$sector,
-										   em= final_emissions$em,
-										   units=final_emissions$units),sum )
-	#Sort
-	Em_by_CEDS_Sector <- Em_by_CEDS_Sector[ with( Em_by_CEDS_Sector, order( sector ) ), ]
+    Em_by_CEDS_Sector <- Em_by_Country_CEDS_Sector %>%
+        dplyr::group_by( sector, em, units ) %>%
+        dplyr::summarise_at( vars( X_write_years ), sum )
 
-	#define the interval years 
-	all_years <- c(paste0("X",1750+(50*(0:4))), paste0("X",c(1950+(10*(1:6)),2014)))
-	
-	Em_by_CEDS_Sector_long <- melt( Em_by_CEDS_Sector, id = c("sector", "em", "units"), variable_name = "year" )
-	
-	#create  global_emission_by_sector xlsx workbook with tabs 
-	lapply(all_years, FUN = create_tab_of_global_emission_by_sector, Em_by_CEDS_Sector_long)
-	
-	
-	#Global Emmission by specie 
-	global_total_emission <- aggregate( final_emissions[X_write_years],
-	                                    by=list(em= final_emissions$em,
-	                                            units=final_emissions$units),sum )
-	
-	# remove 'X' from  global_total_emission header 
-	xColumnYears <- names(global_total_emission)[names( global_total_emission ) %!in% c( "em","units" )]
-	columnYears <- sapply(xColumnYears, FUN = function( xColumnYear ){gsub("X","",xColumnYear, ignore.case = T)} )
-	names(global_total_emission) <- c("em", "units", columnYears)
-	
-	# Read global_total_emission_for_species file (if it exist) and append the new specie record to it
-	global_total_emission_for_species_path <- "../final-emissions/diagnostics/global_total_emission_for_species.xlsx"
-	global_em_for_species_sheet <- "global_total_emission"
-	if( file.exists( global_total_emission_for_species_path ) ){
-	  
-	  global_total_emission_for_species <- readData( domain = "FIN_OUT", file_name = 'global_total_emission_for_species',
-	                                                 domain_extension = "diagnostics/" ,extension = ".xlsx", 
-	                                                 sheet_selection = global_em_for_species_sheet )
-	  #remove sheet to avoid write-coanflict
-	  global_em_workbook <- openxlsx::loadWorkbook( global_total_emission_for_species_path )
-	  openxlsx::saveWorkbook( global_em_workbook,global_total_emission_for_species_path, overwrite = T)
-	  
-	  #remove existing specie row
-	  global_total_emission_for_species <- global_total_emission_for_species[ which( global_total_emission_for_species$em != em),]
-	  
-	  #add the em specie's record to the data frame
-	  global_total_emission <- dplyr::bind_rows( global_total_emission_for_species, global_total_emission )
-	  
-	}#if Ends 
-	
-	#write out global_total_emission data 
-	printLog( "Writing ", global_total_emission_for_species_path )
-	write.xlsx( global_total_emission,global_total_emission_for_species_path, 
-	           sheetName= global_em_for_species_sheet, append=F, row.names = F )
-	
-	#format global_total_emission_for_species; remove decimal points and use comma sperator for values greateer than 1
-	#For values less than 1, show only two decimal places 
-	global_total_emission_wb <- openxlsx::loadWorkbook( global_total_emission_for_species_path )
-	global_total_emission_wb  <- format_xlsx_numeric_data( global_total_emission_wb,
-	                                                       rowIndices = 2:(nrow(global_total_emission)+1),
-                                                         columnIndices = 3:ncol(global_total_emission) )
-	
-	# update workbooks 'README' data 
-	global_total_emission_wb <- update_readme_sheet(global_total_emission_wb, ceds_website, version_stamp )
-	
-	# save global_total_emission_wb
-	openxlsx::saveWorkbook( global_total_emission_wb, global_total_emission_for_species_path, overwrite = T)
-	
-}#if Ends 
+    Em_global_total <- Em_by_CEDS_Sector %>%
+        dplyr::group_by( em, units ) %>%
+        dplyr::summarise_at( vars( X_write_years ), sum )
+
+	# Define the interval years
+	global_sector_years <- paste0( "X", c( seq( 1750, 1950, 50 ),
+	                                       seq( 1960, 2010, 10 ), end_year ) )
+
+	# Create global_EM_emissions_by_CEDS_sector files
+	fname <- paste0( "diagnostics/global_", em, "_emissions_by_CEDS_sector" )
+	tidyr::gather( Em_by_CEDS_Sector, "year", "value", X_write_years ) %>%
+	dplyr::filter( year %in% global_sector_years ) %>%
+	writeData( "FIN_OUT", fname, meta = F )
+
+	# Create global_total_emissions_for_EM files
+	fname <- paste0( "../final-emissions/diagnostics/global_total_emissions_for_", em, ".Rd" )
+	names( Em_global_total ) <- sub( "X", "", names( Em_global_total) )
+    saveRDS( Em_global_total, file = fname ) # Save as R data object
+}
 
 # ---------------------------------------------------------------------------
 # 3. Write summary and diagnostics outputs
 # Compare emissions summary from the current run and the last run. If values
 # change over a threshold, move last-run files to previous-versions, write out
 # current-run files, and write out comparison diagnostics.
-  FILENAME_POSTSCRIPT <- paste( "_v", substr( Sys.Date(), 1, 4 ), substr( Sys.Date(), 6, 7 ),
-                                substr( Sys.Date(), 9, 10 ), sep = "_" )  # "_v_yyyy_mm_dd"
+  FILENAME_POSTSCRIPT <- paste( "_v", version_stamp )  # "_v_yyyy_mm_dd"
 
 # Create output folders (if not already exist) and define values
   dir.create( "../final-emissions/current-versions", showWarnings = F )
@@ -361,8 +307,8 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
 # ---------------------------------------------------------------------------
 
 # source figure and comparison files to print figures
-source('../code/diagnostic/Figures.R') 
-  
+source('../code/diagnostic/Figures.R')
+
 if (em != 'CO2')  source('../code/diagnostic/Compare_to_RCP.R')
 if( em %!in% c( 'CO2', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')
 
