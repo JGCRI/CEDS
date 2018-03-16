@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: File Summary functions
-# Author(s): Presley Muwan
+# Authors: Presley Muwan, Caleb Braun
 # Last Updated: 19 June 2017
 
 # This file must be sourced by CEDS summary R scripts
@@ -17,151 +17,170 @@ loadPackage('openxlsx')
 # format_xlsx_numeric_data
 # Brief:    This function formats numeric data cells of an xlsx workbook
 # Details: This function formats the numeric values of an xlsx cell to use comma seperator
-#           for values all values greater than 0. And grays out values equall 0.
+#           for values all values greater than 0. And grays out values equal to 0.
 # Dependencies: None
 # Author(s): Presley Muwan
 # Params:   workbook - the xlsl file to be formatted (use loadworkbook(filepath) function from xlsx package
 #                       to extract the xlsl workbook)
-#           sheetName - name of the sheet, within the workbook, whose cells will be formated
-#           rowIndex  - Index of the row to be formatted
-#           columnIndext - index  of the column to be formatted
-#        
-# Return: xlsx_workbook  
+#           rowIndices  - indeces of the rows to be formatted
+#           columnIndices - indeces of the columns to be formatted
+#
+# Return: xlsx_workbook
 # Input Files:  none
 # Output Files: none
-format_xlsx_numeric_data <- function ( workbook, rowIndices=c(2:58),  columnIndices){
+format_xlsx_numeric_data <- function ( workbook, rowIndices=c(2:58), columnIndices ) {
 
   # style to use for cells whose value is greater than one
   comma_seperator_style <- openxlsx::createStyle( numFmt = "NUMBER")
-  
+
   # style to use for cells with zero value
   highlight_zoro_style <- openxlsx::createStyle(fontColour = "#BDBDBD" )
-  
+
   # top border style to be added to the last row ('Total' row)
   topborder <- openxlsx::createStyle( border = "top",borderStyle = 'thin')
   sheets <- names(workbook)
-  # apply conditional formating to each sheet 
+  # apply conditional formating to each sheet
   for(sheet in sheets){
-    # get the rows and rows' cells, along with their values 
+    # get the rows and rows' cells, along with their values
     openxlsx::conditionalFormatting(workbook, sheet , cols=columnIndices, rows = rowIndices, rule="==0", style = highlight_zoro_style)
     openxlsx::conditionalFormatting(workbook, sheet , cols=columnIndices, rows = rowIndices, rule=">0", style = comma_seperator_style)
-    
-    # add freeze pane 
+
+    # add freeze pane
     openxlsx::freezePane(workbook, sheet, firstActiveRow = 2, firstActiveCol = 3)
-    
+
     # add top border to the last row ('Total' row)
     openxlsx::addStyle( workbook, sheet , cols=c(1,2,columnIndices), rows = 58, style = topborder)
-    
-  }#For Ends 
+
+  }#For Ends
   #return the workbook
   return(workbook)
-  
-}#format_xlsx_data() Ends 
+
+}#format_xlsx_data() Ends
 
 
 # -----------------------------------------------------------------------------------
-# create_tab_of_global_emission_by_sector
-# Brief:  This function creates data tabs (or sheets) containing emission by ceds sector
-#         within an xlsx file
-# Details: The tab (sheet) created has the name "year" (specified by the parameter).
-#          The tabe is formated to have emission species as columns names and CEDS sectors
-#          as row names
+# write_global_emissions_by_sector
+# Brief:  Create an excel file containing emissions by sector, with separate
+#         sheets for each year provded.
+# Details: Each sheet (tab) created is named by the year that it has data for.
+#          The sheet is formatted to have emission species as column names and
+#          CEDS sectors as row names
 # Dependencies: None
-# Author(s): Presley Muwan
-# Params:   year - the year from which data is extracted to create the tab (or sheet)
-#           Em_by_CEDS_Sector_tabs - Long formated data frame with emission data arranged 
-#                                    for all CEDS sector and all years 
-#        
-# Return: none  
-
-# Input Files:  global_emissions_by_CEDS_sector.xlsx - if it exist
+# Author(s): Presley Muwan, Caleb Braun
+# Params: em_by_sector - Data for a single emissions species; expected to be in
+#                        the following form:
+#                        | sector |  em  | units | year | value |
+# Return: none
+# Input Files:  global_emissions_by_CEDS_sector.xlsx - if it exists
 # Output Files: global_emissions_by_CEDS_sector.xlsx
-create_tab_of_global_emission_by_sector <- function( year , Em_by_CEDS_Sector_tabs ){
-  #year <- "X1750"
-  #Em_by_CEDS_Sector_tabs <- Em_by_CEDS_Sector_long
+write_global_emissions_by_sector <- function( em_by_sector ) {
 
-  #select dataset only for this year
-  emission_tab <- Em_by_CEDS_Sector_tabs[ which(Em_by_CEDS_Sector_tabs$year %in% year ),]
-  
-  #get emission type
-  emission <- unique( emission_tab$em )
-
-  #get the tab (sheet) name (year)
-  tab_name <- gsub( "x", "", year, ignore.case = T )
-
-  #re-arrange dataframe columns
-  names(emission_tab) <- c( "sector", "em","units","year", emission )
-
-  #remove the 'em' and the 'year' column
-  emission_tab <- select( emission_tab, -em, -year, -units )
-
-  # add a row that holds the total sum of the emission data
-  em_year_total <- data.frame(sector="Total", emission=sum(emission_tab[emission]))
-  names(em_year_total) <- names(emission_tab)
-  emission_tab <- bind_rows(emission_tab, em_year_total)
-
-  #------------------------if file exist ------------------------#
-  #check if file exist
   global_em_workbook_path <- "../final-emissions/diagnostics/global_emissions_by_CEDS_sector.xlsx"
-  if( file.exists( global_em_workbook_path ) ){
-    
-    global_em_workbook <- openxlsx::loadWorkbook(global_em_workbook_path)
-    
-    sheets <- names(global_em_workbook)
-    #append data to existing sheet
-    if( tab_name %in% sheets ){
-      
-      #read the global_em_by_CEDS_sector file
-      printLog( "Reading sheet: '",tab_name,"' from", global_em_workbook_path ) 
-     
-       # global_em_by_CEDS_sector <- xlsx::read.xlsx( file = global_em_workbook_path, sheetName = tab_name )
-      global_em_by_CEDS_sector <- openxlsx::read.xlsx( xlsxFile = global_em_workbook_path, sheet = tab_name )
-      
 
-      global_em_by_CEDS_sector <- select( global_em_by_CEDS_sector,-contains("NA.") )
+  # load the file or create a new workbook if it doesn't exist
+  if( file.exists( global_em_workbook_path ) ) {
+    global_em_workbook <- openxlsx::loadWorkbook( global_em_workbook_path )
+  }
+  else {
+    global_em_workbook <- openxlsx::createWorkbook()
+  }
 
-      #remove old emission data and replace with the current one
-      if( em %in% colnames(global_em_by_CEDS_sector) ){
-        global_em_by_CEDS_sector <- select( global_em_by_CEDS_sector, -contains(em) )
-      }#if ends
+  all_years <- unique( em_by_sector$year )
+  emission <- unique( em_by_sector$em )
+  ncols <- 3
 
-      #add new column to exisiting data
-      emission_tab <- full_join( global_em_by_CEDS_sector, emission_tab, by = c("sector") ) %>%
-        dplyr::mutate( units = "kt" ) #add the "unit" column and initialize it with "kt"
+  # split data into tabs for each year specified
+  lapply( all_years, function( y ) {
+    tab <- dplyr::filter( em_by_sector, year == y ) %>%
+      dplyr::select( sector, units, value ) %>%
+      rbind( c( "Total", unique( .$units ), sum( .$value ) ) ) %>%
+      dplyr::mutate( value = as.numeric( value ) ) %>%
+      dplyr::rename( !!emission := value )
 
-      em_species <- names(emission_tab)[(names(emission_tab) %!in% c("sector", "units"))]
-      emission_tab <- emission_tab[ c( c("sector", "units", em_species) ) ]
+    # the tab (sheet) name is just the year; remove leading 'X'
+    tab_name <- substr( y, 2, 5 )
 
-      #delete the sheet for this year (to prevent conflicting error when writing new data)
-
-      openxlsx::removeWorksheet( global_em_workbook, sheet = tab_name )
-      
-      #TODO:check if FileOverride boolean can do the job of the line above 
-      openxlsx::saveWorkbook( global_em_workbook, global_em_workbook_path, overwrite = T )
-    
+    # join data to existing sheet if it exists
+    if( tab_name %in% names( global_em_workbook ) ) {
+      temp <- openxlsx::read.xlsx( global_em_workbook, sheet = tab_name )
+      temp[emission] <- tab[emission]
+      tab <- temp
+      ncols <<- ncol( tab )
     }
-    
-    openxlsx::addWorksheet(global_em_workbook, tab_name)
-    
-    
-  }else{
-    global_em_workbook <- openxlsx::createWorkbook() 
-    openxlsx::addWorksheet(global_em_workbook, tab_name)
-  } 
-  
-  
-  #write out the data 
-  printLog( "Writing sheet : '",tab_name,"' to", global_em_workbook_path )
-  
-  openxlsx::writeData(x=emission_tab, wb=global_em_workbook, sheet = tab_name)
-  
-  # update workbook's cell conditional formatting 
-  formatted_workbook <- format_xlsx_numeric_data( workbook=global_em_workbook, columnIndices = 2:ncol(emission_tab))
-  
-  openxlsx::saveWorkbook( formatted_workbook, file=global_em_workbook_path, overwrite = T )
-  
-}#create_tab_of_global_emission_by_sector() Ends 
+    else {
+      printLog( "Creating sheet: '", tab_name, "' in", global_em_workbook_path )
+      openxlsx::addWorksheet( global_em_workbook, tab_name )
+    }
 
+    # write out the data
+    openxlsx::writeData( global_em_workbook, sheet = tab_name, x = tab )
+  })
+
+  # update workbook's cell conditional formatting
+  formatted_workbook <- format_xlsx_numeric_data( workbook = global_em_workbook,
+                                                  columnIndices = 3:ncols )
+
+  printLog( "Updating", emission, "emissions in", global_em_workbook_path )
+  openxlsx::saveWorkbook( formatted_workbook, file = global_em_workbook_path,
+                          overwrite = T )
+
+} #create_tab_of_global_emission_by_sector() Ends
+
+
+# -----------------------------------------------------------------------------------
+# write_global_emissions_by_species
+# Brief:  This function creates or modifies an xlsx file containing aggregate
+#         emissions by species and a README sheet
+# Details: Data for the species are expected to be in the following form (where
+#          2014 should be the CEDS end year):
+#          |  em  | units | 1750 | 1751 | ... | 2014 |
+# Dependencies: None
+# Author(s): Caleb Braun
+# Params: em_by_species - a data frame containing total emissions for one or
+#                         more species
+#
+# Output Files: global_total_emissions_by_species.xlsx
+write_global_emissions_by_species <- function( em_by_species ) {
+
+	# Read global_total_emissions_for_species file (if it exists) and update it
+	# with the new data
+	em_by_species_path <- "../final-emissions/diagnostics/global_total_emissions_for_species.xlsx"
+	main_sheet <- "global_totals"
+
+	# load the file or create a new workbook if it doesn't exist
+	if ( file.exists( em_by_species_path ) ) {
+	    global_em_workbook <- openxlsx::loadWorkbook( em_by_species_path )
+	}
+	else {
+	    global_em_workbook <- openxlsx::createWorkbook()
+	}
+
+	# join data to existing sheet if it exists
+	if ( main_sheet %in% names( global_em_workbook ) ) {
+	    old <- openxlsx::read.xlsx( global_em_workbook, sheet = main_sheet )
+	    old[ old$em %in% em_by_species$em, ] <- em_by_species
+	    em_by_species <- old
+	} else {
+	    printLog( "Creating sheet: '", main_sheet, "' in", em_by_species_path )
+	    openxlsx::addWorksheet( global_em_workbook, main_sheet )
+	}
+
+	# write out the data
+	openxlsx::writeData( global_em_workbook, sheet = main_sheet, x = em_by_species )
+
+	# format global_total_emission_for_species: remove decimal points, use
+	# commas for values greater than 1, and show only two decimal places
+    formatted_workbook <- format_xlsx_numeric_data( workbook = global_em_workbook,
+                                                    rowIndices = 2:nrow( em_by_species ),
+                                                    columnIndices = 3:ncol( em_by_species ) )
+
+	# update the file's README tab
+	formatted_workbook <- update_readme_sheet( formatted_workbook )
+
+    printLog( "Updating", em_by_species_path )
+    openxlsx::saveWorkbook( formatted_workbook, file = em_by_species_path,
+                            overwrite = T )
+}
 
 
 # -----------------------------------------------------------------------------------
@@ -170,34 +189,28 @@ create_tab_of_global_emission_by_sector <- function( year , Em_by_CEDS_Sector_ta
 # Details: The README Sheet contains the version number of the latest run and CEDS url website
 # Dependencies: None
 # Author(s): Presley Muwan
-# Params:   workbook - the targeted excel file
-#           CEDS_version - The version of the current run
-#           website - CEDS web url
-#
+# Params: workbook - the targeted excel file
 # Return: Excel workbook
 # Input Files:  any excel workbook
 # Output Files:
-update_readme_sheet <- function(workbook, website, CEDS_version){
+update_readme_sheet <- function( workbook ) {
 
-  #add a "README" tab to global_total_emission_wb
+  # initialize CEDS_version column
+  ceds_website <- "http://www.globalchange.umd.edu/ceds/"
+  ceds_version_df <- data.frame( CEDS_Version = version_stamp, # a global var
+                                 Project_Website = ceds_website )
+
+  # add a "README" tab to global_total_emission_wb
   old_sheets <- names(workbook)
-  
-  #initialize CEDS_version column 
-  ceds_version_df <- data.frame(CEDS_Version = c(CEDS_version), Project_Website = c(website))
+  readme <- "README"
 
- 
-  #check if tab exist
-  if( length(old_sheets) < 2 ){
-    #create new sheet
-
-    readme_sheet <-  openxlsx::addWorksheet(global_total_emission_wb, "README")
-    
+  # if tab does not exist, create new sheet
+  if( readme %!in% old_sheets ) {
+    openxlsx::addWorksheet(workbook, readme)
   }
-  
-  #add it if it does not exist 
-  openxlsx::writeData(workbook, sheet = "README", x= ceds_version_df, startCol = 2)
-  
+
+  # write sheet to workbook
+  openxlsx::writeData(workbook, sheet = readme, x = ceds_version_df, startCol = 2)
 
   return(workbook)
-
-}#updata_readme_sheet() Ends
+}
