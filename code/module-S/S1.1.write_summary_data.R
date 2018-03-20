@@ -170,18 +170,17 @@ if ( WRITE_CEDS_SECTORS ) {
 # Compare emissions summary from the current run and the last run. If values
 # change over a threshold, move last-run files to previous-versions, write out
 # current-run files, and write out comparison diagnostics.
-  FILENAME_POSTSCRIPT <- paste( "_v", version_stamp )  # "_v_yyyy_mm_dd"
 
 # Create output folders (if not already exist) and define values
   dir.create( "../final-emissions/current-versions", showWarnings = F )
   dir.create( "../final-emissions/previous-versions", showWarnings = F )
   dir.create( "../final-emissions/diagnostics", showWarnings = F )
   base_fn <- paste0( "CEDS_", em ,"_emissions_by_country_sector" )
-  summary_fn <- paste0( "CEDS_", em , "_emissions_by_country_sector", FILENAME_POSTSCRIPT )
-  summary_fn1 <- paste0( "CEDS_", em , "_emissions_by_country", FILENAME_POSTSCRIPT )
-  summary_fn2 <- paste0( "CEDS_", em , "_global_emissions_by_fuel", FILENAME_POSTSCRIPT )
-  summary_fn3 <- paste0( "CEDS_", em , "_emissions_by_country_CEDS_sector", FILENAME_POSTSCRIPT )
-  summary_fn4 <- paste0( "CEDS_", em , "_global_emissions_by_CEDS_sector", FILENAME_POSTSCRIPT )
+  summary_fn <- paste( "CEDS", em , "emissions_by_country_sector", version_stamp, sep = "_" )
+  summary_fn1 <- paste( "CEDS", em , "emissions_by_country", version_stamp, sep = "_" )
+  summary_fn2 <- paste( "CEDS", em , "global_emissions_by_fuel", version_stamp, sep = "_" )
+  summary_fn3 <- paste( "CEDS", em , "emissions_by_country_CEDS_sector", version_stamp, sep = "_" )
+  summary_fn4 <- paste( "CEDS", em , "global_emissions_by_CEDS_sector", version_stamp, sep = "_" )
   THRESHOLD_PERCENT <- 1
 
 # Define function to write summary files
