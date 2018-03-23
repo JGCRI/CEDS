@@ -1,0 +1,26 @@
+compound,emission factor (g kg-1 waste burned),uncertainty,ref
+CO2,1453,69,Akagi et al.
+CO,38,19,Akagi et al.
+CH4,3.7,4.4,Akagi et al.
+NMOC (identified),7.5,7.6,Akagi et al.
+NMOC (identified + unidentified),22.6,NA,Akagi et al.
+C2H2,0.4,0.28,Akagi et al.
+C2H4,1.26,1.04,Akagi et al.
+C3H6,1.26,1.42,Akagi et al.
+CH3OH,0.94,1.25,Akagi et al.
+HCHO,0.62,0.13,Akagi et al.
+CH3COOH,2.42,3.32,Akagi et al.
+HCOOH,0.18,0.12,Akagi et al.
+HCl,3.61,3.27,Akagi et al.
+HCN,0.47,NA,Akagi et al.
+C6H6,0.9,0.21,Woodall et al.
+total PAH,0.3,0.14,Woodall et al.
+NH3,1.12,1.21,Akagi et al.
+SO2,0.5,NA,Akagi et al.
+Nox,3.74,1.48,Akagi et al.
+PM2.5,9.8,5.7,Akagi et al.
+PM10,11.9,NA,Woodall et al.
+BC,0.65,0.27,Akagi et al.
+OC,5.27,4.89,Akagi et al.
+Hg,2.10E-04,NA,Chen et al.
+PCBs,1.30E-04,NA,Lemieux et al.
