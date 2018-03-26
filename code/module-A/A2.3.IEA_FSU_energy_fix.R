@@ -42,10 +42,10 @@
 # -------------------------------------------------------------------------------------------
 
     loadPackage('zoo')
-    loadPackage('ggplot2')
-    loadPackage('plyr')
-    loadPackage('scales')
-    loadPackage('gridExtra')
+    # loadPackage('ggplot2')
+    # loadPackage('plyr')
+    # loadPackage('scales')
+    # loadPackage('gridExtra')
 
     end_BP_year <- 2013
 
@@ -57,13 +57,13 @@
     MSLevel <- readData( "MAPPINGS", "Master_Sector_Level_map" )
     MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
     un_pop <- readData( "MED_OUT", "A.UN_pop_master" )
-    bp_oil_full  <- readData( "ENERGY_IN", "BP_energy_data", ".xlsx", sheet_selection = 7 ) 
+    bp_oil_full  <- readData( "ENERGY_IN", "BP_energy_data", ".xlsx", sheet_selection = 7 )
     printLog( c( "Read in BP data sheet: ", names( bp_oil_full )[[1]] ) )
 # Oil Consumption- Million Tonnes = 10^3 kt
-    bp_gas_full  <- readData( "ENERGY_IN", "BP_energy_data", ".xlsx", sheet_selection = 24 ) 
+    bp_gas_full  <- readData( "ENERGY_IN", "BP_energy_data", ".xlsx", sheet_selection = 24 )
     printLog( c( "Read in BP data sheet: ", names( bp_gas_full )[[1]] ) )
 # Gas Consumption – tonnes
-    bp_coal_full <- readData( "ENERGY_IN", "BP_energy_data", ".xlsx", sheet_selection = 33 ) 
+    bp_coal_full <- readData( "ENERGY_IN", "BP_energy_data", ".xlsx", sheet_selection = 33 )
     printLog( c( "Read in BP data sheet: ", names( bp_coal_full )[[1]] ) )
 # Coal Consumption -  Mtoe
 
@@ -326,7 +326,7 @@
 
     # Fix names of columns; they get messed up because BP has useless rows
     #   at the top of their files and R makes the top row the name of the column
-        names( bp_data_clean[[i]] ) <- c( "BPName", paste0( "X", 
+        names( bp_data_clean[[i]] ) <- c( "BPName", paste0( "X",
                                           bp_data_full[[i]][ 2, 2:ncol(bp_data_full[[i]]) ] ) )
     # remove rows with NA iso codes
         bp_data_clean[[i]] <- bp_data_clean[[i]][ -which( is.na( bp_data_clean[[i]]['BPName'] ) ), ]
@@ -350,10 +350,10 @@
 
     # Aggregate the 3 corrected files into one data frame, bp_data
     bp_data <- do.call( rbind, bp_data_clean )
-    
+
     # Remove countries that are not in the FSU
     bp_data <- bp_data[ which( bp_data$iso %in% c( FSU, 'ussr' ) ) , ]
-    
+
     # Remove data from before 1985
     bp_data <- bp_data[, c( 'iso', 'bp_fuel', paste0( 'X', 1985:end_BP_year ) ) ]
 
@@ -1088,15 +1088,14 @@
     summary <-melt(summary)
     summary <- cast( summary, fuel + variable ~ set )
     summary <- summary[ -which( summary$fuel %in% c( 'biomass', 'process' ) ), ]
-    writeData( summary, 'DIAG_OUT', 'A.FSU_energy_corrected_summary', meta=F )
+
 
 # -------------------------------------------------------------------------------------------
 # 14. Combine New FSU data and other energy data
 
-    Final_activity <- rbind ( original_activity_other, FSU_final )
-
-# add non-combustion FSU activity back to final_activity
-    Final_activity <- rbind ( Final_activity, original_activity_FSU_nc )
+    Final_activity <- rbind ( original_activity_other,
+                              FSU_final,
+                              original_activity_FSU_nc)
 
 # Replace biomass with original data
     Final_activity[ which( Final_activity$fuel == 'biomass' ), X_IEA_years ] <- 0
@@ -1117,6 +1116,7 @@
 
     writeData( summary, 'DIAG_OUT', 'FSU_corrected_summary' )
     writeData( Final_activity, 'MED_OUT', 'A.en_biomass_fsu_fix' )
+    writeData( summary, 'DIAG_OUT', 'A.FSU_energy_corrected_summary', meta=F )
 
     logStop()
 
