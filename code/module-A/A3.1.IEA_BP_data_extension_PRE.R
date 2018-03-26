@@ -256,9 +256,9 @@
 
     IEA_BP_ext<-aggregate ( IEA_BP_ext[
                             X_emissions_years ],
-                            by = list( fuel = IEA_BP_ext$fuel,
+                            by = list( iso = IEA_BP_ext$iso,
                                        sector = IEA_BP_ext$sector,
-                                       iso = IEA_BP_ext$iso,
+                                       fuel = IEA_BP_ext$fuel,
                                        units= IEA_BP_ext$units ),
                             sum )
 

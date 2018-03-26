@@ -32,7 +32,7 @@
 # ------------------------------------------------------------------------------
 # 1. Read in files
 
-    iea_data_full <- readData( "MED_OUT", "A.en_biomass_fsu_fix" )
+    iea_data_full <- readData( "MED_OUT", "A.comb_othertrans_activity.csv" )
     bp_energy_data <- readData( "ENERGY_IN","BP_energy_data", ".xlsx")
     ctry_mapping <- readData( "MAPPINGS", "Master_Country_List" )
     fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
@@ -130,9 +130,9 @@
     printLog( "Reformatting combined data" )
 
 # Aggregate IEA over fuel -> oil, gas, coal, biomass, other
-        oil_fuels <- fuel_list[fuel_list$aggregated_fuel == "oil", "fuel"]
+        oil_fuels <- c( fuel_list[fuel_list$aggregated_fuel == "oil", "fuel"] , 'oil' )
         gas_fuels <- fuel_list[fuel_list$aggregated_fuel == "gas", "fuel"]
-       coal_fuels <- fuel_list[fuel_list$aggregated_fuel == "coal", "fuel"]
+       coal_fuels <- c( fuel_list[fuel_list$aggregated_fuel == "coal", "fuel"] , 'coal' )
     biomass_fuels <- fuel_list[fuel_list$aggregated_fuel == "biomass", "fuel"]
       other_fuels <- subset( unique( iea_data$fuel ), unique( iea_data$fuel )
           %!in% c( oil_fuels, gas_fuels, coal_fuels, biomass_fuels ) )
@@ -239,9 +239,9 @@
 
  IEA_BP_ext<-aggregate ( IEA_BP_ext[
    X_emissions_years],
-   by = list( fuel = IEA_BP_ext$fuel,
+   by = list( iso = IEA_BP_ext$iso,
               sector = IEA_BP_ext$sector,
-              iso = IEA_BP_ext$iso,
+              fuel = IEA_BP_ext$fuel,
               units= IEA_BP_ext$units), sum )
 
 # ------------------------------------------------------------------------------
