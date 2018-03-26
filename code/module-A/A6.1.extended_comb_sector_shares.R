@@ -24,7 +24,7 @@ initialize( script_name, log_msg, headers )
 # ---------------------------------------------------------------------------
 # 1. Load files
 
-bond_sector_percentages <- readData( 'EXT_IN', 'CD.Bond_sector_percentages')
+bond_sector_percentages <- readData( 'EXT_IN', 'CD.Bond_sector_percentages.csv.zip')
 bond_percent_1850 <- readData( 'EXT_IN', 'Bond_sector_extension_percents_1850')
 ext_sector_percents_start <- readData( 'EXT_IN', 'ext_sector_percents_start', ".xlsx", sheet_selection = 'coal',meta = F )
 
