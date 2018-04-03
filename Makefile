@@ -320,7 +320,6 @@ $(MED_OUT)/A.coal_heat_content.csv : \
 	$(ENERGY_DATA)/NonOECD_Conversion_Factors_Full.csv
 	Rscript $< $(EM) --nosave --no-restore
 
-
 # aa2-1
 # Converts IEA energy data to CEDS standard format
 # Corrects inconsistencies in residential biomass consumption
@@ -352,12 +351,23 @@ $(MED_OUT)/A.en_biomass_fsu_fix.csv : \
 	$(MED_OUT)/A.en_biomass_fix.csv
 	Rscript $< $(EM) --nosave --no-restore
 
+$(MED_OUT)/A.IEA_CEDS_hard_coal_difference.csv : \
+	$(MOD_A)/A2.3.write_IEA_diff.R \
+	$(MED_OUT)/A.IEA_en_stat_ctry_hist.csv
+	Rscript $< $(EM) --nosave --no-restore
+
+$(MED_OUT)/A.comb_othertrans_activity.csv : \
+	$(MOD_A)/A2.4.combine_combustion_and_other_energy.R \
+	$(MED_OUT)/A.en_biomass_fsu_fix.csv \
+	$(MED_OUT)/A.IEA_CEDS_hard_coal_difference.csv
+	Rscript $< $(EM) --nosave --no-restore
+
 # aa3-1
 # Extends IEA data with BP data
 $(MED_OUT)/A.IEA_BP_energy_ext.csv : \
 	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
 	$(MOD_A)/A3.2.Adjust_Shipping_Fuel_Cons.R \
-	$(MED_OUT)/A.en_biomass_fsu_fix.csv \
+	$(MED_OUT)/A.comb_othertrans_activity.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(ENERGY_DATA)/BP_energy_data.xlsx \
 	$(ENERGY_DATA)/Shipping_Fuel_Consumption.xlsx
@@ -375,6 +385,14 @@ $(MED_OUT)/A.IEA_CEDS_coal_difference.csv : \
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv : \
+	$(MED_OUT)/A.IEA_CEDS_coal_difference.csv
+
+# Write out difference between IEA and CEDS coal
+#$(MED_OUT)/A.IEA_CEDS_coal_difference.csv : \
+	$(MED_OUT)/A.IEA_BP_energy_ext.csv
+#	Rscript $< $(EM) --nosave --no-restore
+
+#$(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv : \
 	$(MED_OUT)/A.IEA_CEDS_coal_difference.csv
 
 # aa3-3
@@ -400,6 +418,9 @@ $(MED_OUT)/A.comb_activity.csv : \
 $(MED_OUT)/A.NC_activity_energy.csv : \
 	$(MED_OUT)/A.comb_activity.csv
 
+$(MED_OUT)/A.other_IEA_energy_values.csv	 : \
+	$(MED_OUT)/A.comb_activity.csv
+
 # aa5-1
 # BRANCH BLOCK
 # Generates the process activity database
@@ -419,6 +440,7 @@ $(MED_OUT)/A.NC_activity_db.csv : \
 	$(PARAMS)/timeframe_functions.R \
 	$(PARAMS)/process_db_functions.R \
 	$(MAPPINGS)/activity_input_mapping.csv \
+	$(MED_OUT)/A.other_IEA_energy_values.csv \
 	$(MAPPINGS)/NC_EDGAR_sector_mapping.csv \
 	$(MAPPINGS)/2011_NC_SO2_ctry.csv \
 	$(ACTIV)/Smelter-Feedstock-Sulfur.xlsx \
@@ -451,6 +473,42 @@ $(MED_OUT)/A.total_activity.csv : \
 # aa5-2b
 $(MED_OUT)/A.NC_activity.csv : \
 	$(MED_OUT)/A.total_activity.csv
+
+# aa6-
+$(MED_OUT)/ A.final_sector_shares_coal.csv : \
+	$(MOD_A)/A6.1.extended_comb_sector_shares_coal.R \
+	Rscript $< $(EM) --nosave --no-restore
+
+$(MED_OUT)/ A.final_sector_shares_natural_gas.csv : \
+	$(MOD_A)/A6.1.extended_comb_sector_shares_natural_gas.R \
+	Rscript $< $(EM) --nosave --no-restore
+
+$(MED_OUT)/ A.final_sector_shares_petroleum.csv : \
+	$(MOD_A)/A6.1.extended_comb_sector_shares_petroleum.R \
+	Rscript $< $(EM) --nosave --no-restore
+
+$(MED_OUT)/A.CEDS_combustion_activity_coal_by_sector.csv : \
+	$(MOD_A)/A6.2.extended_default_activity_coal.R \
+	Rscript $< $(EM) --nosave --no-restore
+
+$(MED_OUT)/A.CEDS_combustion_activity_natural_gas_by_sector.csv : \
+	$(MOD_A)/A6.2.extended_default_activity_natural_gas.R \
+	Rscript $< $(EM) --nosave --no-restore
+
+$(MED_OUT)/A.CEDS_combustion_activity_petroleum_by_sector.csv : \
+	$(MOD_A)/A6.2.extended_default_activity_petroleum.R \
+	Rscript $< $(EM) --nosave --no-restore
+
+$(MED_OUT)/ A.total_default_activity_extended.csv : \
+	$(MOD_A)/A6.3.extended_default_activity.R \
+	$(MED_OUT)/A.CEDS_combustion_activity_coal_by_sector.csv \
+	$(MED_OUT)/A.CEDS_combustion_activity_natural_gas_by_sector.csv \
+	$(MED_OUT)/A.CEDS_combustion_activity_petroleum_by_sector.csv \
+	$(MED_OUT)/A.total_activity.csv \
+	$(MED_OUT)/A.intl_shipping_en.csv \
+	$(MED_OUT)/A.CEDS_default_actvity_biomass \
+	Rscript $< $(EM) --nosave --no-restore
+
 
 # bb1-1
 #$(MED_OUT)/B.$(EM)_comb_EF_GAINS_EMF30.csv : \
