@@ -8,15 +8,15 @@
 #   activityCheck, sectorCheck, fuelCheck, CountryCheck, mapCEDS_sector_fuel
 
 # ----------------------------------------------------------------------------------
-# activityCheck 
-# Brief:         Checks whether all the activities in the given dataset are in the 
-# 		         master list, and whether all activities in the master list are present 
-#		         in the data. 
-# Details:       Uses printlog functions to print out detailed results: must be called 
+# activityCheck
+# Brief:         Checks whether all the activities in the given dataset are in the
+# 		         master list, and whether all activities in the master list are present
+#		         in the data.
+# Details:       Uses printlog functions to print out detailed results: must be called
 #                while the log is running.
 # Dependencies:  IO_functions.R
-# Author(s):     Tyler Pitkanen, Jon Seibert  
-# Params: 
+# Author(s):     Tyler Pitkanen, Jon Seibert
+# Params:
 #   x:        data frame to check, containing activity column [required]
 #   colname:     name of the column containing activity designations [default: "activity"]
 #   check_valid: boolean to control whether the function checks that all present activities
@@ -29,19 +29,21 @@
 
 activityCheck <- function( x, colname = "activity", check_valid = TRUE, check_all = TRUE ){
 
-	activity_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", 
+    if( nrow(x) == 0 ) return(TRUE)
+
+	activity_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx",
                                 sheet_selection = "Sectors", mute = TRUE )
 
     valid <- TRUE
-    
+
     sec_col <- x[ , names( x ) == colname ]
-    
+
     # Check that all activities in set x exist in the master activity list. Ignore blank
     #   spaces / NA values
     if( check_valid ){
-        
+
         printLog( "Checking activity validity ", cr=F )
-    
+
         invalid_activities <- list()
         n <- 1
         for( i in 1:length( sec_col ) ) {
@@ -82,20 +84,20 @@ activityCheck <- function( x, colname = "activity", check_valid = TRUE, check_al
             printLog( "...OK. All activities present.", ts=F )
         }
     }
-    
+
     return( valid )
 }
 
 # ----------------------------------------------------------------------------------
-# sectorCheck 
-# Brief:         Checks whether all the sectors in the given dataset are in the 
-# 		         master list, and whether all sectors in the master list are present 
-#		         in the data. 
-# Details:       Uses printlog functions to print out detailed results: must be called 
+# sectorCheck
+# Brief:         Checks whether all the sectors in the given dataset are in the
+# 		         master list, and whether all sectors in the master list are present
+#		         in the data.
+# Details:       Uses printlog functions to print out detailed results: must be called
 #                while the log is running.
 # Dependencies:  IO_functions.R
-# Author(s):     Tyler Pitkanen, Jon Seibert  
-# Params: 
+# Author(s):     Tyler Pitkanen, Jon Seibert
+# Params:
 #   x:        data frame to check, containing sector column [required]
 #   colname:     name of the column containing sector designations [default: "sector"]
 #   check_valid: boolean to control whether the function checks that all present sectors
@@ -108,19 +110,19 @@ activityCheck <- function( x, colname = "activity", check_valid = TRUE, check_al
 
 sectorCheck <- function( x, colname = "sector", check_valid = TRUE, check_all = TRUE ){
 
-	sector_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", 
+	sector_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx",
                               sheet_selection = "Sectors", mute = TRUE )
 
     valid <- TRUE
-    
+
     sec_col <- x[ , names( x ) == colname ]
-    
+
     # Check that all sectors in set x exist in the master sector list. Ignore blank
     #   spaces / NA values
     if( check_valid ){
-        
+
         printLog( "Checking sector validity ", cr=F )
-    
+
         invalid_sectors <- list()
         n <- 1
         for( i in 1:length( sec_col ) ) {
@@ -161,20 +163,20 @@ sectorCheck <- function( x, colname = "sector", check_valid = TRUE, check_all = 
             printLog( "...OK. All sectors present.", ts=F )
         }
     }
-    
+
     return( valid )
 }
 
 # ---------------------------------------------------------------------------------
 # fuelCheck
-# Brief:         Checks whether all the fuels in the given dataset are in the 
-# 		            master list, and whether all fuels in the master list are present in 
+# Brief:         Checks whether all the fuels in the given dataset are in the
+# 		            master list, and whether all fuels in the master list are present in
 #	  	            the data.
-# Details:       Uses printlog functions to print out detailed results: must be called 
+# Details:       Uses printlog functions to print out detailed results: must be called
 #                   while the log is running.
 # Dependencies:  IO_functions.R
-# Author(s):     Tyler Pitkanen, Jon Seibert  
-# Params: 
+# Author(s):     Tyler Pitkanen, Jon Seibert
+# Params:
 #   x:           Data frame to check, containing fuel column [required]
 # Return:        Boolean indicating pass or failure on all checks run, collectively.
 # Input Files:   none
@@ -182,15 +184,15 @@ sectorCheck <- function( x, colname = "sector", check_valid = TRUE, check_all = 
 
 fuelCheck <- function( x ){
 
-	fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", 
+	fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx",
                             sheet_selection = "Fuels", mute = TRUE )
-                            
+
     valid <- TRUE
 
 # Check that all fuels in set x exist in the master fuel list. Ignore blank
 #   spaces / NA values
 	printLog( "Checking fuel validity ", cr=F )
-    
+
     invalid_fuels <- list()
     n <- 1
 	for( i in 1:length( x$fuel ) ) {
@@ -202,7 +204,7 @@ fuelCheck <- function( x ){
     invalid_fuels <- unique( invalid_fuels )
     if( length( invalid_fuels ) > 0 ) {
         valid <- FALSE
-        printLog( "...Invalid fuels found:", paste( invalid_fuels, 
+        printLog( "...Invalid fuels found:", paste( invalid_fuels,
             collapse=', ' ), ts=F )
     } else {
         printLog( "...OK. All fuels valid.", ts=F )
@@ -226,12 +228,12 @@ fuelCheck <- function( x ){
     missing_fuels <- missing_fuels[ !is.na( missing_fuels ) ]
     if( length( missing_fuels ) > 0 ) {
         valid <- FALSE
-		printLog( "...Fuels missing:", paste( missing_fuels, 
+		printLog( "...Fuels missing:", paste( missing_fuels,
         collapse=', ' ), ts=F )
 	} else {
         printLog( "...OK. All fuels present.", ts=F )
     }
-    
+
     return( valid )
 }
 
@@ -240,21 +242,21 @@ fuelCheck <- function( x ){
 # countryCheck
 # Brief:         Checks whether all the countries in the given dataset are in the master list,
 # 		            and whether all countries in the master list are present in the data.
-# Details:       Uses printlog functions to print out detailed results: must be called 
+# Details:       Uses printlog functions to print out detailed results: must be called
 #                   while the log is running.
 # Dependencies:  IO_functions.R
 # Author(s):     Tyler Pitkanen
-# Params: 
+# Params:
 #   data:        Data frame to check, containing iso column [required]
-#   cols:        
+#   cols:
 # Return:        Boolean indicating pass or failure on all checks run, collectively.
 # Input Files:   none
 # Output Files:  none
 
 countryCheck <- function( data, cols = 1, convention = "ISO" ) {
 # Generally, there will be one region column per data set and it will be the first
-#   column in that data set, so cols = 1 by default. 
-# Naming convention can be specified with the convention argument set as "ISO", 
+#   column in that data set, so cols = 1 by default.
+# Naming convention can be specified with the convention argument set as "ISO",
 #   "IEA", "IEA_Fert", or "BP" (not case-sensitive).
 
     valid <- TRUE
@@ -263,18 +265,18 @@ countryCheck <- function( data, cols = 1, convention = "ISO" ) {
 
     conv_list    <- c( "ISO", "IEA", "IEA_Fert", "BP" )
     conv_col_num <- match( convention, conv_list )
-    
+
 # Choose sections of reference country list to search based on user input
     if ( is.na( conv_col_num ) == T ) {  # if convention is invalid or unspecified
         ref_names <- unlist( country_list )
         valid <- FALSE
         printLog( "Country check failed. Specify naming convention." )
     } else {  # if a valid convention is specified
-        ref_names <- country_list[ , conv_col_num ]  
+        ref_names <- country_list[ , conv_col_num ]
     }
-    
+
     printLog( "Checking col(s)", cols, "for", convention, "names", cr=F )
-    
+
 # Check for name matching between data and reference section
     unmatched_names <- list()
     n = 1
@@ -285,17 +287,17 @@ countryCheck <- function( data, cols = 1, convention = "ISO" ) {
             n = n + 1
         }
     }
-    
+
 # Print output to log
     if ( length( unmatched_names ) > 0 ) {
         valid <- FALSE
-        unmatched_string <- paste( unmatched_names, collapse = ", " ) 
-        printLog( "...Invalid names found for ", 
+        unmatched_string <- paste( unmatched_names, collapse = ", " )
+        printLog( "...Invalid names found for ",
             convention, " naming: ", paste( unmatched_string, collapse = ', ' ), ts=F )
     } else {
         printLog( "...OK. All countries valid.", ts=F )
-    }   
-    
+    }
+
     return( valid )
 }
 
@@ -303,14 +305,14 @@ countryCheck <- function( data, cols = 1, convention = "ISO" ) {
 
 # ----------------------------------------------------------------------------------
 # EDGARcheck
-# Brief:         Checks whether all the sectors in an EDGAR dataset are in the 
-# 		         master list, and whether all sectors in the master list are present 
-#		         in the data. 
-# Details:       Uses printlog functions to print out detailed results: must be called 
+# Brief:         Checks whether all the sectors in an EDGAR dataset are in the
+# 		         master list, and whether all sectors in the master list are present
+#		         in the data.
+# Details:       Uses printlog functions to print out detailed results: must be called
 #                while the log is running.
 # Dependencies:  IO_functions.R
-# Author(s):     Jon Seibert  
-# Params: 
+# Author(s):     Jon Seibert
+# Params:
 #   x:           data frame to check, containing edgar_sector column [required]
 #   colname:     name of the column containing sector designations [default: "edgar_sector"]
 #   check_valid: boolean to control whether the function checks that all present sectors
@@ -326,15 +328,15 @@ EDGARcheck <- function( x, colname = "edgar_sector", check_valid = TRUE, check_a
 	sector_list <- readData( "MAPPINGS", "Master_EDGAR_sector_mapping", mute = TRUE )
 
     valid <- TRUE
-    
+
     sec_col <- x[ , names( x ) == colname ]
-    
+
     # Check that all sectors in set x exist in the master sector list. Ignore blank
     #   spaces / NA values
     if( check_valid ){
-        
+
         printLog( "Checking EDGAR sector validity ", cr=F )
-    
+
         invalid_sectors <- list()
         n <- 1
         for( i in 1:length( sec_col ) ) {
@@ -375,34 +377,34 @@ EDGARcheck <- function( x, colname = "edgar_sector", check_valid = TRUE, check_a
             printLog( "...OK. All EDGAR sectors present.", ts=F )
         }
     }
-    
+
     return( valid )
 }
 
 # ---------------------------------------------------------------------------------
 
 # mapCEDS_sector_fuel
-# Brief:        map to CEDS sectors and/or fuels      
-# Details:      Map any data to CEDS sectors (sectors and fuels are seperate in original 
+# Brief:        map to CEDS sectors and/or fuels
+# Details:      Map any data to CEDS sectors (sectors and fuels are seperate in original
 #               data and thus map sererately in two steps) or to CEDS sectors and fuels
 #               (original data notes a sector and a fuel and must map in one step, such as IEA FLOWS)
 # Dependencies: None
 # Author(s):    Rachel Hoesly
-# Params:       
+# Params:
 #       mapping_data: original data (not in CEDS format)
 #       mapping_file: mapping file specific to original data
 #       data_match_col: name(s) of the matching columns in the data file (by.x) ex: c('sector')
 #       map_match_col: name(s) of the matching data label column in the mapping file (by.y) ex: c('data_sector')
 #       map_merge_col: name of the column in the mapping file to merge with original data: ex: ('ceds_sector')
 #       new_col_names: name of the merged column (ceds sector or fuel) in the output c('sector')
-#       level_map_in: aggregation of the scaling map. Should always map to detailed when possible 
+#       level_map_in: aggregation of the scaling map. Should always map to detailed when possible
 #                     possible choices:'working_sectors_v1', 'working_sectors_v2', 'detailed_sectors'
-#       level_out: aggregation of the output file 
+#       level_out: aggregation of the output file
 #                     possible choices:'working_sectors_v1', 'working_sectors_v2', 'detailed_sectors'
 #       aggregate: boolean T/F, aggregate data by output sectors/fuels?
 #       aggregate_col: col or columns to aggregate data over, usually 'years' or vector of column names of data
 #       oneToOne: does the data map 1:1 with the mapping file. Now, The function only works for data used for emission factors, where
-#                 there is no danger of double counting emissions. 
+#                 there is no danger of double counting emissions.
 #       agg.fun = function used to aggergate (default is sum)
 # Examples: used in B1.2.add_GAINS_EMF-30.R
 #               mapCEDS_sector_fuel(mapping_data = emissions_ceds,
@@ -430,10 +432,10 @@ EDGARcheck <- function( x, colname = "edgar_sector", check_valid = TRUE, check_a
 #                                      aggregate_col = c('X2005'),
 #                                      oneToOne = FALSE,
 #                                      agg.fun = mean)
-# 
+#
 # Return:       mapped data to ceds sectors and fuels and designated level
-# Input Files:  
-# Output Files: 
+# Input Files:
+# Output Files:
 
 mapCEDS_sector_fuel <- function(mapping_data,
                                 mapping_file,
@@ -448,7 +450,7 @@ mapCEDS_sector_fuel <- function(mapping_data,
                                 oneToOne,
                                 agg.fun=NA){
   ceds_sector_map <- readData('MAPPINGS','Master_Sector_Level_map')
-  
+
   #Check Input options
   # match columns exist in input files
   # valid method
@@ -470,11 +472,11 @@ mapCEDS_sector_fuel <- function(mapping_data,
   # levels
   if ( level_map_in %!in% names(ceds_sector_map)) stop('level_map_in not in ceds_sector_map')
   if ( level_out %!in% names(ceds_sector_map)) stop('level_out not in ceds_sector_map')
-  
-  
-  
+
+
+
   if(oneToOne ){stop("mapCEDS_sector_fuel does not have oneToOne functionality yet")}
-  
+
   out <- merge(x=mapping_data, y=mapping_file,
                by.x = data_match_col,
                by.y = map_match_col,
@@ -482,13 +484,13 @@ mapCEDS_sector_fuel <- function(mapping_data,
   # remove unmatched rows
   # here to write out unmapped values
   out <- out[complete.cases(out[,map_merge_col]),]
-  
+
   if( aggregate){
     # Aggregate
     mapping_data_names <- names(mapping_data)
     new_mapping_data_names <- mapping_data_names[which(mapping_data_names %!in% c(aggregate_col,data_match_col))]
     by_cols <- c(map_merge_col,new_mapping_data_names)
-    
+
     by.list <- list()
     for(i in seq_along(by_cols)) by.list[[i]] <- out[,by_cols[i]]
     names(by.list) <- by_cols
@@ -497,12 +499,12 @@ mapCEDS_sector_fuel <- function(mapping_data,
                       FUN = agg.fun, na.rm=TRUE)
     names(out)[which(names(out)=='x')] <- aggregate_col
   }
-  
+
   # rename columns
   if(!any(is.na(new_col_names))){
     names(out)[which(names(out) %in% map_merge_col)] <- new_col_names }
-  
-  # Aggregate to Working Level if noted 
+
+  # Aggregate to Working Level if noted
   if ( level_map_in != level_out){
     out <- merge(x=out, y=ceds_sector_map[,c(level_map_in,level_out)],
                  by.x = new_col_names,
@@ -511,7 +513,7 @@ mapCEDS_sector_fuel <- function(mapping_data,
     # remove unmatched rows
     # here to write out unmapped values
     out <- out[complete.cases(out[,level_out]),]
-    
+
     if( aggregate){
       # Aggregate
       out_data_names <- names(out)
@@ -527,7 +529,7 @@ mapCEDS_sector_fuel <- function(mapping_data,
     if(!is.na(new_col_names)){
       names(out)[which(names(out) == level_out)] <- new_col_names }
   }
-  
+
   return(out)
   }
 

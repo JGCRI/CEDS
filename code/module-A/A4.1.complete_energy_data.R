@@ -1,15 +1,14 @@
 #------------------------------------------------------------------------------
 # Program Name: A4.1.complete_energy_data.R
-# Author(s): Jon Seibert, Linh Vu
+# Author(s): Jon Seibert, Linh Vu, Rachel Hoesly
 # Date Last Modified: 21 December 2015
 # Program Purpose: To expand IEA_BP energy data to include entries for all possible
 #                  id combinations.
 # Input Files: A.IEA_BP_energy_ext.csv, Master_Fuel_Sector_List.xlsx,
-#              Master_Country_List.csv
+#              Master_Country_List.csv, Master_Fuel_Sector_List.xlsx
 # Output Files: A.comb_activity.csv , A.NC_activity_energy
 # Notes:
-# TODO: DEAL WITH BIOMASS NA SECTOR,
-#       DEAL WITH "PROCESS" SECTORS IN ENERGY_DATA- MAKE PROCESS-ONLY / TREAT AS PROCESS DATA?
+# TODO:
 #-------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -30,40 +29,30 @@
 # ------------------------------------------------------------------------------
 # 1. Read in files
 
-    input_path <- paste0( getwd(), "/mappings/" )
     energy_data <- readData( "MED_OUT", "A.IEA_BP_energy_ext" )
+
     MFL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
     MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
     MCL <- readData( "MAPPINGS", "Master_Country_List" )
 
 # ------------------------------------------------------------------------------
-# 2. Separate combustion and activity energy data
+# 2. Separate combustion and activity energy data, seperate other transformation
+
+# Seperate CEDS combustion and other transformation from other tracked
+#    IEA energy trends (ex: domestic supply)
+
+    IEA_other_energy_trends <- energy_data %>%
+        filter( sector %!in% MSL$sector )
+    other_transformation <- energy_data %>%
+        filter( sector %in% c( "1A1bc_Other-feedstocks", "1A1bc_Other-transformation" ))
+    energy_data <- energy_data %>%
+        filter( sector %!in% c( "1A1bc_Other-feedstocks", "1A1bc_Other-transformation"),
+                sector %in% MSL$sector )
 
     energy_data_combustion <- energy_data[ energy_data$fuel != 'process', ]
-    energy_data_activity <- energy_data[ energy_data$fuel == 'process', ]
 
 # ------------------------------------------------------------------------------
-# 3. Process energy production as activity/driver data
-
-# Reformat & remove fuel column
-    energy_data_activity <- energy_data_activity[ , c( 'iso',
-                                                       'sector',
-                                                       'units',
-                                                       X_emissions_years ) ]
-# Rename sector column
-    names( energy_data_activity ) <- c( 'iso', 'activity', 'units', X_emissions_years )
-
-# Remove negative values from refinery and natural gas
-    energy_data_activity[ which( energy_data_activity$activity ==
-                                   "refinery-and-natural-gas" ), ] <-
-    replace( energy_data_activity[ which( energy_data_activity$activity ==
-                                            "refinery-and-natural-gas" ), ],
-             energy_data_activity[ which( energy_data_activity$activity ==
-                                            "refinery-and-natural-gas" ), ] < 0,
-             0 )
-
-# ------------------------------------------------------------------------------
-# 4. Create combustion activity database - Populate missing iso-sector-fuel combinations
+# 3. Create combustion activity database - Populate missing iso-sector-fuel combinations
 
 # Build empty energy data database with all combinations
 
@@ -81,7 +70,8 @@
         na.omit( energy_data_combustion[ energy_data_combustion$sector != "NA", ] )
 
 # Use header function to generate blank template data frame
-    template <- buildCEDSTemplate( iso_list, sector_list, fuel_list )
+    template <- buildCEDSTemplate( iso_list, sector_list, fuel_list ) %>%
+        filter( sector %!in% c( "1A1bc_Other-feedstock", "1A1bc_Other-transformation") )
 
 # Insert existing data into blank template
     full_energy_data_combustion <- merge( template,    ### Could use a dplyr join instead
@@ -106,18 +96,49 @@
                                            order( iso, sector, fuel ) ), ]
 
 # ------------------------------------------------------------------------------
-# 3. Output
+# 5. Aggregate fuel summary
+
+    other_transformation_aggregate <- other_transformation %>%
+        mutate(fuel = replace(fuel, fuel == 'hard_coal', 'coal')) %>%
+        mutate(fuel = replace(fuel, fuel == 'brown_coal', 'coal')) %>%
+        mutate(fuel = replace(fuel, fuel == 'natural_gas', 'gas')) %>%
+        mutate(fuel = replace(fuel, fuel == 'petroleum', 'oil')) %>%
+        arrange(  iso, sector, fuel) %>%
+        group_by(iso, fuel, sector, units) %>%
+        summarize_all(funs(sum))
+
+    total_fuel_consumption <- full_energy_data_combustion %>%
+        left_join(MFL[c('fuel','aggregated_fuel')], by = "fuel") %>%
+        mutate(fuel = ifelse(is.na(aggregated_fuel), "coal", aggregated_fuel)) %>%
+        select(-aggregated_fuel) %>%
+        rbind.fill(other_transformation_aggregate) %>%
+        select(-sector) %>%
+        group_by(iso, fuel, units) %>%
+        summarize_all(funs(sum))
+
+# ------------------------------------------------------------------------------
+# 6. Output
 # Add comments for each table
     comments.A.comb_activity <- c( paste0( "IEA energy statistics",
             " by intermediate sector / intermediate fuel / historical year,",
             " extended with BP data and filled out with all combustion",
             " iso-sector-fuel combinations." ) )
-
+    comments.A.other_IEA_energy_values <- c( paste0( "IEA energy statistics values that are not",
+                                                 " specific energy trends by sector/fuel (ie domestic supply),",
+                                                 " extended with BP data and filled out with all combustion",
+                                                 " iso-sector-fuel combinations." ) )
 # write out data
     writeData( full_energy_data_combustion, domain = "MED_OUT",
                fn = "A.comb_activity", comments = comments.A.comb_activity )
-    writeData( energy_data_activity, domain = "MED_OUT",
-               fn = "A.NC_activity_energy", comments = comments.A.comb_activity )
+    writeData( other_transformation, domain = "MED_OUT",
+               fn = "A.Other_transformation_fuel")
+    writeData( other_transformation_aggregate, domain = "MED_OUT",
+               fn = "A.Other_transformation_agg_fuel")
+    writeData( total_fuel_consumption, domain = "MED_OUT",
+               fn = "A.total_agg_fuel")
+    writeData( IEA_other_energy_trends, domain = "MED_OUT",
+               fn = "A.other_IEA_energy_values",
+               comments = comments.A.other_IEA_energy_values)
 
     logStop()
 

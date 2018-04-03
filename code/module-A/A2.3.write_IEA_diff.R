@@ -4,7 +4,7 @@
 # Date Last Modified: 16 May 2016
 # Program Purpose:    Write out difference between IEA DOMSUP and CEDS
 #                     consumption for coal, natural gas, petroleum
-# Input Files: A.IEA_en_stat_ctry_hist.csv, A.IEA_BP_energy_ext.csv
+# Input Files: A.IEA_en_stat_ctry_hist.csv, A.IEA_pre_bp_ext.csv
 # Output Files: A.IEA_CEDS_coal_difference.csv, A.IEA_CEDS_natural_gas_difference.csv,
 #               A.IEA_CEDS_petroleum_difference.csv
 # Notes:  The purpose of this script is to quantify how much fuel is consumed in the
@@ -31,7 +31,7 @@
 # ------------------------------------------------------------------------------
 # 1. Read in files
     IEA_en_stat_ctry_hist <- readData( "MED_OUT", "A.IEA_en_stat_ctry_hist" )
-    IEA_BP_energy_ext <- readData( "MED_OUT", "A.IEA_BP_energy_ext" )
+    IEA_pre_bp_ext <- readData( "MED_OUT", "A.en_biomass_fsu_fix" )
     IEA_product_fuel <- readData( "MAPPINGS", "IEA_product_fuel", domain_extension = "energy/" )
     IEA_flow_sector <- readData( "MAPPINGS", "IEA_flow_sector", domain_extension = "energy/" )
 
@@ -41,6 +41,7 @@
                         "Sub-bituminous coal (kt)", "Lignite (kt)", "Anthracite (kt)",
                         "Patent fuel (kt)" )
     CEDS_coal_list <- c( "hard_coal", "brown_coal", "coal_coke" )
+    ### need to pay attention to primary and secondary fuels - refinery gas is a secondary fuel
 
     IEA_natural_gas_list <- c( "Gas works gas (TJ-gross)", "Coke oven gas (TJ-gross)",
                                "Blast furnace gas (TJ-gross)", "Other recovered gases (TJ-gross)",
@@ -173,13 +174,25 @@
       conversionFactor_naturalgas_TJ_per_kt
 
 # Coal
-    out <- writeDiff( IEA_en_stat_ctry_hist, IEA_BP_energy_ext, IEA_coal_list, CEDS_coal_list,
+    out <- writeDiff( IEA_en_stat_ctry_hist, IEA_pre_bp_ext, IEA_coal_list, CEDS_coal_list,
                       "coal", "DOMSUP", NA )
     diff_coal <- out[[ "diff" ]]
     subzero_coal <- out[[ "subzero" ]]
+# hard coal
+    out <- writeDiff( IEA_en_stat_ctry_hist, IEA_pre_bp_ext, c("Hard coal (if no detail) (kt)", "Anthracite (kt)", "Patent fuel (kt)" ), c('hard_coal'),
+                      "hard_coal", "DOMSUP", NA )
+    diff_hard_coal <- out[[ "diff" ]]
+    subzero_hard_coal <- out[[ "subzero" ]]
+# brown coal
+    out <- writeDiff( IEA_en_stat_ctry_hist, IEA_pre_bp_ext,
+                      c("Other bituminous coal (kt)", "Brown coal (if no detail) (kt)", "Sub-bituminous coal (kt)","Lignite (kt)" ), c('hard_coal'),
+                      "brown_coal", "DOMSUP", NA )
+    diff_brown_coal <- out[[ "diff" ]]
+    subzero_brown_coal <- out[[ "subzero" ]]
+
 
 # Natural gas
-    out <- writeDiff( IEA_en_stat_ctry_hist, IEA_BP_energy_ext, IEA_natural_gas_list, CEDS_natural_gas_list,
+    out <- writeDiff( IEA_en_stat_ctry_hist, IEA_pre_bp_ext, IEA_natural_gas_list, CEDS_natural_gas_list,
                       "natural_gas", "DOMSUP", "NONENUSE" )
     diff_natural_gas <- out[[ "diff" ]]
     subzero_natural_gas <- out[[ "subzero" ]]
@@ -193,7 +206,7 @@
     IEA_oil <- bind_rows( IEA_oil_primary, IEA_oil_secondary ) %>%
           group_by( iso ) %>%
           summarise_each( "sum" )
-    CEDS_oil <- filter( IEA_BP_energy_ext, fuel %in% CEDS_oil_list ) %>%
+    CEDS_oil <- filter( IEA_pre_bp_ext, fuel %in% CEDS_oil_list ) %>%
                                     select( -fuel, -sector, -units ) %>%
                                                      group_by( iso ) %>%
                                              summarise_each( "sum" )
@@ -216,14 +229,28 @@
     IEA_nonenergy$sector <- IEA_flow_sector$sector[ match( IEA_nonenergy$FLOW, IEA_flow_sector$flow_code ) ]
     IEA_nonenergy$fuel <- IEA_product_fuel$fuel[ match( IEA_nonenergy$PRODUCT, IEA_product_fuel$product ) ]
     IEA_nonenergy$units <- "kt"
-    diag_nonenergy <- filter( IEA_nonenergy, fuel %in% CEDS_fuels ) %>% 
+    diag_nonenergy <- filter( IEA_nonenergy, fuel %in% CEDS_fuels ) %>%
                                       dplyr::arrange( iso, FLOW, PRODUCT )
     diag_nonenergy <- diag_nonenergy[ c( "iso", "FLOW", "PRODUCT", "sector", "fuel", "units", X_IEA_years ) ]
 
 # ------------------------------------------------------------------------------
-# 3. Output
+# 3. Add Other Coal into Energy Data
+
+# Add Other coal to IEA_pre_bp_ext
+    IEA_pre_bp_ext_with_other <- IEA_pre_bp_ext %>%
+        rbind( diff_coal, diff_natural_gas, diff_oil)
+    IEA_pre_bp_ext_with_other <- IEA_pre_bp_ext_with_other[ c( "iso", "sector", "fuel", "units", X_IEA_years ) ]
+
+# ------------------------------------------------------------------------------
+# 4. Output
     writeData( diff_coal, "MED_OUT", "A.IEA_CEDS_coal_difference" )
     writeData( subzero_coal, "DIAG_OUT", "A.IEA_CEDS_coal_difference_subzero" )
+
+    writeData( diff_hard_coal, "MED_OUT", "A.IEA_CEDS_hard_coal_difference" )
+    writeData( subzero_hard_coal, "DIAG_OUT", "A.IEA_CEDS_hard_coal_difference_subzero" )
+
+    writeData( diff_brown_coal, "MED_OUT", "A.IEA_CEDS_brown_coal_difference" )
+    writeData( subzero_brown_coal, "DIAG_OUT", "A.IEA_CEDS_brown_coal_difference_subzero" )
 
     writeData( diff_natural_gas, "MED_OUT", "A.IEA_CEDS_natural_gas_difference" )
     writeData( subzero_natural_gas, "DIAG_OUT", "A.IEA_CEDS_natural_gas_difference_subzero" )
@@ -231,10 +258,13 @@
     writeData( diff_oil, "MED_OUT", "A.IEA_CEDS_petroleum_difference" )
     writeData( subzero_oil, "DIAG_OUT", "A.IEA_CEDS_petroleum_difference_subzero" )
 
+    writeData(IEA_pre_bp_ext_with_other, "MED_OUT", "A.en_biomass_fsu_fix" )
+
 # Diagnostics
     writeData( diag_ratio, "DIAG_OUT", "A.IEA_CEDS_petroleum_difference_ratio" )
     diag_nonenergy[ is.na( diag_nonenergy ) ] <- ""
     writeData( diag_nonenergy, "DIAG_OUT", "A.IEA_en_stat_ctry_hist-NonEnergy-Oil&Gas" )
 
     logStop()
+
 # END

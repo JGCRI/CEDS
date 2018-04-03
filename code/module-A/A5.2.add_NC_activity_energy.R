@@ -30,7 +30,7 @@
 # 0.5. Settings
 
 # Input file
-    input_name <- "A.NC_activity_energy"
+    input_name <- "A.other_IEA_energy_values"
     input_ext <- ".csv"
     input <- paste0( input_name, input_ext )
 
@@ -52,7 +52,7 @@
 # 2. Reformatting
 
 # Applies activity and unit assignments, and reorders columns to standard form
-
+    activity_data$activity <- activity_data$sector
     results <- cbind( activity_data[ c( "iso", "activity", "units" ) ] ,
                       activity_data[ X_IEA_years ] )
 
