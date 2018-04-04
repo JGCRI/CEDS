@@ -556,7 +556,12 @@ calculate_correct_shares <- function(a.input_data,
     # replace_with_zeros = T
 
 
-    #
+    # a.input_data = extended_breakdown_complete
+    # a.id_columns = c('iso', 'fuel', 'ext_sector')
+    # a.target_column = c('sector')
+    # a.corrections = ext_sector_breakdown_assumptions
+    # replace_with_zeros = T
+
     # ---------------------------
     # 1. Input parameter checks
     # id and target columns
@@ -590,6 +595,7 @@ calculate_correct_shares <- function(a.input_data,
 
     # ---------------------------
     # 3. Replace zero sums with NAs
+    a.input_data[is.na(a.input_data)] <- 0
 
     # Select unique ids that have zero sum breakdowns in any year
     input_data_long <- a.input_data %>%
@@ -614,6 +620,7 @@ calculate_correct_shares <- function(a.input_data,
 
     # replace all zeros in zero sum breakdowns with NAs
     # interpolate NAs
+    if( nrow(to_correct_years)>0){
     correcting_years <- replace(to_correct_years, to_correct_years == 0, NA ) %>%
         rbind(already_correct_years) %>%
         unique %>%
@@ -621,7 +628,7 @@ calculate_correct_shares <- function(a.input_data,
         interpolate_NAs
     # last observation carried forward
     correcting_years[X_years] <- t(na.locf(t(correcting_years[X_years])))
-
+    } else( correcting_years <- to_correct_years )
     correcting_years_long <- gather(correcting_years, year, breakdown, -a.id_columns, - a.target_column)
 
     # add corrected values to already_correct_years
@@ -655,7 +662,18 @@ calculate_correct_shares <- function(a.input_data,
     out.df.renormalized <- calculate_shares( corrected_years,
                                              a.id_columns,
                                              a.target_column)
-    # 5. return value
+    # 5. Check ouput
+    check_values <- out.df.renormalized %>%
+        select(-one_of(a.target_column)) %>%
+        group_by(.dots = a.id_columns) %>%
+        summarise_all(funs(sum)) %>%
+        ungroup() %>%
+        select(-one_of(a.id_columns))
+
+    if( ! nrow(check_values)*ncol(check_values) == sum(check_values) ) stop( "In calculate_correct_shares: all shares do not sum to 1 over id columns.")
+
+
+    # 6. return value
     return( out.df.renormalized )
 
 }

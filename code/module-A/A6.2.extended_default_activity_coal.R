@@ -86,7 +86,7 @@ CED_UN_coal_disaggregated_fuel <- Fuel_break_down( ceds_un_coal_data$un_ceds ,
                                                    cdiac_solid_fuel )
 
 # ------------------------------------------------------------------------------------------------
-# 3. s fuel_types into sector split.
+# 3. CEDS fuel_types into sector split.
 #
 #    Disaggregate_to_CEDS_Sectors function is called to disaggregrate fuel values into CEDS sectors.
 #   The default break down values (sector ratios) are read from default_sector_breakdown csv file
