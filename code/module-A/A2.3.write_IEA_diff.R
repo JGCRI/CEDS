@@ -86,7 +86,7 @@
         CEDS_subset <- filter( CEDS_data, fuel %in% CEDS_fuel_list ) %>%
                                     select( -fuel, -sector, -units ) %>%
                                                      group_by( iso ) %>%
-                                             summarise_each( "sum" )
+                                             summarise_all( sum )
         return ( computeDiff( IEA_subset, CEDS_subset, fuel_name ) )
     }
 
@@ -103,7 +103,7 @@
     # out = IEA_data[FLOW = IEA_flow_list, PRODUCT = IEA_fuel_list]
         out <- filter( IEA_data, FLOW %in% IEA_flow_list, PRODUCT %in% IEA_fuel_list ) %>%
           select( -PRODUCT, -FLOW ) %>% group_by( iso ) %>%
-          summarise_each( "sum" ) %>% data.frame()
+          summarise_all( sum ) %>% data.frame()
 
     # If necessary, subtract consumption from IEA_flow_list_exclude
         if ( !is.na ( IEA_flow_list_exclude ) ) {
@@ -113,7 +113,7 @@
             excluded <- filter( IEA_data, FLOW %in% IEA_flow_list_exclude, PRODUCT %in% IEA_fuel_list ) %>%  # select only rows of IEA_flow_list_exclude and IEA_fuel_list
               select( -PRODUCT, -FLOW ) %>%   # drop columns PRODUCT and FLOW
                         group_by( iso ) %>%   # group table by iso (ID column)
-                summarise_each( "sum" ) %>%   # aggregate by iso
+                summarise_all( sum ) %>%   # aggregate by iso
                            data.frame() %>%   # convert grouped table to df to avoid later issues
               melt( measure = X_IEA_years )   # (refer to dplyr package documentation for more functions) ### Use gather() esp. since this is typically small
 
@@ -205,11 +205,11 @@
                                            c( "IMPORTS", "EXPORTS" ), "NONENUSE" )
     IEA_oil <- bind_rows( IEA_oil_primary, IEA_oil_secondary ) %>%
           group_by( iso ) %>%
-          summarise_each( "sum" )
+          summarise_all( sum )
     CEDS_oil <- filter( IEA_pre_bp_ext, fuel %in% CEDS_oil_list ) %>%
                                     select( -fuel, -sector, -units ) %>%
                                                      group_by( iso ) %>%
-                                             summarise_each( "sum" )
+                                             summarise_all( sum )
 
     out <- computeDiff( IEA_oil, CEDS_oil, "petroleum" )
     diff_oil <- out[[ "diff" ]]
@@ -243,20 +243,20 @@
 
 # ------------------------------------------------------------------------------
 # 4. Output
-    writeData( diff_coal, "MED_OUT", "A.IEA_CEDS_coal_difference" )
-    writeData( subzero_coal, "DIAG_OUT", "A.IEA_CEDS_coal_difference_subzero" )
+    writeData( diff_coal          , "MED_OUT" , "A.IEA_CEDS_coal_difference"                )
+    writeData( subzero_coal       , "DIAG_OUT", "A.IEA_CEDS_coal_difference_subzero"        )
 
-    writeData( diff_hard_coal, "MED_OUT", "A.IEA_CEDS_hard_coal_difference" )
-    writeData( subzero_hard_coal, "DIAG_OUT", "A.IEA_CEDS_hard_coal_difference_subzero" )
+    writeData( diff_hard_coal     , "MED_OUT" , "A.IEA_CEDS_hard_coal_difference"           )
+    writeData( subzero_hard_coal  , "DIAG_OUT", "A.IEA_CEDS_hard_coal_difference_subzero"   )
 
-    writeData( diff_brown_coal, "MED_OUT", "A.IEA_CEDS_brown_coal_difference" )
-    writeData( subzero_brown_coal, "DIAG_OUT", "A.IEA_CEDS_brown_coal_difference_subzero" )
+    writeData( diff_brown_coal    , "MED_OUT" , "A.IEA_CEDS_brown_coal_difference"          )
+    writeData( subzero_brown_coal , "DIAG_OUT", "A.IEA_CEDS_brown_coal_difference_subzero"  )
 
-    writeData( diff_natural_gas, "MED_OUT", "A.IEA_CEDS_natural_gas_difference" )
+    writeData( diff_natural_gas   , "MED_OUT" , "A.IEA_CEDS_natural_gas_difference"         )
     writeData( subzero_natural_gas, "DIAG_OUT", "A.IEA_CEDS_natural_gas_difference_subzero" )
 
-    writeData( diff_oil, "MED_OUT", "A.IEA_CEDS_petroleum_difference" )
-    writeData( subzero_oil, "DIAG_OUT", "A.IEA_CEDS_petroleum_difference_subzero" )
+    writeData( diff_oil           , "MED_OUT" , "A.IEA_CEDS_petroleum_difference"           )
+    writeData( subzero_oil        , "DIAG_OUT", "A.IEA_CEDS_petroleum_difference_subzero"   )
 
     writeData(IEA_pre_bp_ext_with_other, "MED_OUT", "A.en_biomass_fsu_fix" )
 

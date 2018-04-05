@@ -108,7 +108,7 @@
 # Standardize format, drop rows of NA, short ton to metric ton, etc.
     names( spew ) <- make.names( names( spew ) )
     spew_pre <- group_by( spew_pre, iso ) %>%
-            summarise_each( funs( sum ) )
+            summarise_all( sum )
     spew_pre <- subset( spew_pre, rowSums( spew_pre[, grepl("X", names( spew_pre ) ) ], na.rm = T ) != 0 )  # drop NA rows
     mitchell$units <- NULL
     mitchell$iso[ mitchell$iso == "rus" ] <- "ussr"  # Change rus to ussr
