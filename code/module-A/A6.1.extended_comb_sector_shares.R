@@ -14,7 +14,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R","process_db_functions.R") # Additional function files may be required.
+headers <- c( "data_functions.R","process_db_functions.R" ) # Additional function files may be required.
 log_msg <- "Extending Combustion data with bond and IEA" # First message to be printed to the log
 script_name <- "A6.1.extended_comb_sector_shares.R"
 
@@ -24,7 +24,7 @@ initialize( script_name, log_msg, headers )
 # ---------------------------------------------------------------------------
 # 1. Load files
 
-bond_sector_percentages <- readData( 'EXT_IN', 'CD.Bond_sector_percentages.csv', ".zip", extract_all = TRUE)[[1]]
+bond_sector_percentages <- readData( 'EXT_IN', 'CD.Bond_sector_percentages.csv', ".zip", 'CD.Bond_sector_percentages')
 ext_sector_breakdown_assumptions <- readData( 'EXT_IN', 'ext_sector_breakdown_assumptions')
 ext_sector_percents_start_assumptions <- readData( 'EXT_IN', 'ext_sector_percents_start_assumptions',meta = F )
 
@@ -39,29 +39,33 @@ ext_sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_secto
 # ---------------------------------------------------------------------------
 # 3. Define Variables, select options
 
-# bond merge year : year when aggregate sectors are 100% bond data. Will slowly transition
-# from bond to ceds after this year , 100% ceds in start year (either 1960 or 1971 varies by iso)
+##CR: did you mean to describe bond_merge_start?
+# bond merge year : year when aggregate sectors are 100% Bond data. Will slowly transition
+# from Bond to CEDS after this year, 100% CEDS in start year (either 1960 or 1971 varies by iso)
 
+##CR: why not use value from common_data.R?
 bond_merge_start <- 1850
-if ( bond_merge_start %!in% 1850:1959) stop('bond_merge_start must be between 1850 and 1959')
+if (bond_merge_start %!in% 1850:1959) stop('bond_merge_start must be between 1850 and 1959')
 
-ceds_extension_fuels <- c("hard_coal", "brown_coal", "coal_coke", "natural_gas", "heavy_oil", "diesel_oil", "light_oil")
-coal_fuels <- c("hard_coal" ,  "brown_coal" , "coal_coke")
+ceds_extension_fuels <- c("hard_coal", "brown_coal", "coal_coke", "natural_gas",
+                          "heavy_oil", "diesel_oil", "light_oil")
+coal_fuels <- c("hard_coal", "brown_coal", "coal_coke")
 
 all_countries <- unique(activity_all$iso)
 all_countries <- all_countries[all_countries != 'global']
 
-start_years <- c(1960,1971)
+start_years <- c(1960, 1971)
 ext_sectors <- unique(ext_sector_map$ext_sector)
 
-# add other_transformation data to acticity data and filter for fuels
+# add other_transformation data to activity data and filter for fuels
 activity <- bind_rows(activity_all, other_transformation ) %>%
     filter( fuel != 'biomass')
 
+#CR: update numbering
 # ---------------------------------------------------------------------------
 # 3. Calculate CEDS aggregate sector splits
 #    Total fuel -> extenstion sectors
-#    Industry, Power, RCO, Shipping, Transportation, Other_feedstocks, Pther_transformation,
+#    Industry, Power, RCO, Shipping, Transportation, Other_feedstocks, Other_transformation,
 #    1A4c_Agriculture-forestry-fishing
 printLog('Calculating CEDS sector breakdowns')
 
@@ -71,8 +75,9 @@ printLog('Calculating CEDS sector breakdowns')
         group_by(iso, fuel, ext_sector) %>%
         summarize_if(is.numeric, sum)
 
-    ceds_agg_percent_all <- calculate_shares(ceds_aggregate_sectors, id_columns = c('iso','fuel'),
-                                         target_column = c('ext_sector') )
+    ceds_agg_percent_all <- calculate_shares(ceds_aggregate_sectors,
+                                             id_columns = c('iso','fuel'),
+                                             target_column = c('ext_sector') )
 
 # add column with the start year percent
     ceds_agg_percent <- ceds_agg_percent_all %>%
@@ -90,8 +95,9 @@ combined_sector_percentages_list <- list()
 for ( i in seq_along(start_years)) {
   year0 <- bond_merge_start
   years <- year0:start_years[i]
-  countries <- iea_start_year[which( iea_start_year$start_year == start_years[i]),'iso' ]
+  countries <- iea_start_year[which(iea_start_year$start_year == start_years[i]), 'iso']
 
+  ##CR: Replace 1750 with global CEDS start year
   combined_percentages <- merge(bond_sector_percentages[,c('iso','ext_sector','fuel',paste0('X',1750: (year0 - 1) ))],
                                 ceds_agg_percent[,c('iso','ext_sector','fuel','percent')] )
   names(combined_percentages)[which(names(combined_percentages) == 'percent' )] <- paste0('X',start_years[i])
@@ -99,10 +105,10 @@ for ( i in seq_along(start_years)) {
   combined_percentages <- combined_percentages[which( combined_percentages$iso %in% countries),]
 
   # percent ( year n ) =
-      for ( n in seq_along( years)){
+      for (n in seq_along(years)){
         ceds_fraction <- (n-1)*(1/(length(years)-1))
         bond_fraction <- 1-ceds_fraction
-
+        ##CR: this could be clarified by using a dplyr chain and/or comments
         bond_split <- bond_sector_percentages[ match( paste(combined_percentages$iso, combined_percentages$fuel, combined_percentages$ext_sector)  ,
                                                       paste(bond_sector_percentages$iso, bond_sector_percentages$fuel, bond_sector_percentages$ext_sector) ),
                                                c(paste0('X',years[n]) )]
@@ -115,6 +121,7 @@ for ( i in seq_along(start_years)) {
       }
 
       # If start year is 1960, add in CEDS split for 1960 - 1971
+      ##CR: reformat this please
       if( start_years[i]==1960){
         combined_percentages[paste0('X', 1961:1970)] <-      ceds_split <- ceds_agg_percent_all[ match( paste(combined_percentages$iso, combined_percentages$fuel, combined_percentages$ext_sector)  ,
                                                                                                     paste( ceds_agg_percent_all$iso,  ceds_agg_percent_all$fuel, ceds_agg_percent_all$ext_sector) )
@@ -122,11 +129,20 @@ for ( i in seq_along(start_years)) {
       }
       combined_sector_percentages_list[[i]] <- combined_percentages
 
-    }
+}
+    #CR: These 3 lines seem roundabout.
+    #    - Instead of making the list of 2 dataframes, why not just rbind them
+    #      together as they are processed?
+    #    - Using rbind.fill implies the two dfs have different columns, which
+    #      they don't
+    #    - The columns being selected are all of them
+    #    - Why are there NAs? They are only in the second df and it would be
+    #      clearer to address them where they arise.
     combined_sector_percentages <- do.call(rbind.fill,combined_sector_percentages_list)
     combined_sector_percentages <- combined_sector_percentages[, c('iso','ext_sector','fuel',paste0('X',1750:1970))]
     combined_sector_percentages[is.na(combined_sector_percentages)] <- 0
 
+#CR: clarify this comment
 # Add to dataframe with all combinations
     combined_sector_percentages_all <- rbind( expand.grid(iso = all_countries,
                                    ext_sector = unique(ext_sector_map %>% filter(ext_sector != "Other_transformation") %>% select(ext_sector)) %>% unlist,
@@ -159,7 +175,7 @@ printLog('Calculating CEDS detailed sector splits')
 
     CEDS_sector_ext_sector_shares <- calculate_shares(input_data = activity,
                      id_columns = c('iso', 'fuel', 'ext_sector'),
-                     target_column = c('sector') )%>%
+                     target_column = c('sector') ) %>%
         select(iso, fuel, ext_sector, sector, starts_with('X'))
     ceds_extsector_percentages_corrected <-CEDS_sector_ext_sector_shares
     # ceds_extsector_percentages_corrected <- calculate_correct_shares(a.input_data = CEDS_sector_ext_sector_shares,
@@ -189,7 +205,7 @@ printLog('Calculating CEDS detailed sector splits')
 
     # Make sure all combinations are included
     # Create template with all combinations
-
+    ##CR: this template is duplicate code from above (line 147)
     template <- rbind( expand.grid(iso = all_countries,
                                    ext_sector = unique(ext_sector_map %>% filter(ext_sector != "Other_transformation") %>% select(ext_sector)) %>% unlist,
                                    fuel = ceds_extension_fuels),
@@ -233,7 +249,7 @@ printLog('Calculating CEDS detailed sector splits')
     final_percentages_corrected <- calculate_shares(input_data = final_percentages,
                                                     id_columns = c('iso', 'fuel'),
                                                     target_column = c('sector'))
-
+##CR: that what?
 # final check to make sure that
     final_test <- final_percentages_corrected %>%
         group_by(iso, fuel) %>%
