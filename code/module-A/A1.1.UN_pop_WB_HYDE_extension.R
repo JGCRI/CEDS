@@ -5,8 +5,7 @@
 # Program Purpose: Produce input population data for CEDS emissions system from
 #                  United Nations data, World Bank (WB) data, and the History
 #                  Database of the Global Environment (HYDE) data.
-#                  Output are 1700-2100 population and urban population
-#                  share.
+#                  Output are 1700-2100 population and urban population share.
 # Input Files: WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.XLS;
 #              WUP2014-F21-Proportion_Urban_Annual.xls;
 #              WB_SP.POP.TOTL.csv; WB_SP.URB.TOTL;
@@ -86,11 +85,9 @@
 
 # Read HYDE population and urban population
     HYDE_pop_raw <- readData( "GEN_IN", "urbanpop_2004Rev_tcm61-36007", ".xlsx",
-                          sheet_selection = "total numbers", skip_rows = 2 )[ 1:233, 2:109 ] %>%
-      data.frame()
+                              sheet_selection = "total numbers", skip_rows = 2 )[ 1:233, 2:109 ]
     HYDE_urban_share_raw <- readData( "GEN_IN", "urbanpop_2004Rev_tcm61-36007", ".xlsx",
-                                sheet_selection = "% urban", skip_rows = 1 )[ 1:233, 3:110 ] %>%
-      data.frame()
+                                      sheet_selection = "% urban", skip_rows = 1 )[ 1:233, 3:110 ]
 
 # Read master country list
     Master_Country_List <- readData( "MAPPINGS", "Master_Country_List" )
@@ -131,24 +128,27 @@
     UN_urban_share_raw$urban_share <- UN_urban_share_raw$urban_share / 100  # percent to decimal
     UN_urban_share_raw$year <- as.numeric( as.character( UN_urban_share_raw$year ) )
 
-    # Check that all countries with UN population have UN urban share
-    no_UN_urban <- setdiff( UN_pop_raw$iso, UN_urban_share_raw$iso )  # should be empty
+    # Assert that all countries with UN population have UN urban share
+    stopifnot( length( setdiff( UN_pop_raw$iso, UN_urban_share_raw$iso ) ) == 0 )
 
     # Merge total population and urban share in one df and compute urban population
-    UN_pop <- merge( UN_pop_raw, UN_urban_share_raw, all.x = T ) %>%
-      dplyr::mutate( urban_pop = pop * urban_share )
+    UN_pop <- dplyr::left_join( UN_pop_raw, UN_urban_share_raw,
+                                by = c( "UN_code", "iso", "year" ) ) %>%
+        dplyr::mutate( urban_pop = pop * urban_share )
 
     # Fix missing/outdated ISO codes
-    UN_pop$iso <- tolower( UN_pop$iso )  # lowercase ISO
-    UN_pop$country[ UN_pop$UN_code == "158" ] <- "Taiwan"  # pull Taiwan from "Other non-specified areas"
-    UN_pop$iso[ UN_pop$UN_code == 156 ] <- "chn"  # add ISO for China
-    UN_pop$iso[ UN_pop$iso == "zar" ] <- "cod"  # update ISO of Democratic Republic of Congo
-    UN_pop$iso[ UN_pop$iso == "tmp" ] <- "tls"  # update ISO of Timor-Leste
-    UN_pop$iso[ UN_pop$iso == "rom" ] <- "rou"  # update ISO of Romania
-    UN_pop$iso[ UN_pop$iso == "ado" ] <- "and"  # update ISO of Andorra
-    UN_pop$iso[ UN_pop$iso == "imy" ] <- "imn"  # update ISO of Isle of Man
-    UN_pop <- filter( UN_pop, UN_code < 900 )  # skip aggregated regions
-    UN_pop <- dplyr::arrange( UN_pop, scenario, iso, year )
+    # Taiwan gets pulled from "Other non-specified areas"
+    UN_pop <- UN_pop %>%
+        dplyr::filter( UN_code < 900 ) %>% # skip aggregated regions
+        dplyr::mutate( country = if_else( UN_code == 158, "Taiwan", country ) ) %>%
+        dplyr::mutate( iso = tolower( iso ),
+                       iso = if_else( UN_code == 156, "chn", iso ), # add ISO for China
+                       iso = sub( "zar", "cod", iso ), # update DRC
+                       iso = sub( "tmp", "tls", iso ), # update Timor-Leste
+                       iso = sub( "rom", "rou", iso ), # update Romania
+                       iso = sub( "ado", "and", iso ), # update Andorra
+                       iso = sub( "imy", "imn", iso ) ) %>% # update Isle of Man
+        dplyr::arrange( scenario, iso, year )
 
 # Prepare WB population
     # Merge WB pop and urban pop into one df and reformat
@@ -561,9 +561,9 @@
                                 year, pop, urban_share ) %>%
       dplyr::arrange( iso, scenario, year )
 
-#  # Check that there is no NA pop or urban_share left
-#     any( is.na( pop_master_final$pop ) )          # should be F
-#     any( is.na( pop_master_final$urban_share ) )  # should be F
+    # Assert that there is no NA pop or urban_share left
+    stopifnot( all( !is.na( pop_master_final$pop ) ) )
+    stopifnot( all( !is.na( pop_master_final$urban_share ) ) )
 
     pop_master_final[ is.na( pop_master_final ) ] <- ""
 
