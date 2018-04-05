@@ -5,9 +5,9 @@
 # Program Purpose: Combine IEA combustion data with calculated other transformation
 #                  other feedstock fuel use
 # Input Files: A.en_biomass_fsu_fix.csv
-# Output Files: 
+# Output Files:
 # Notes:
-# TODO: 
+# TODO:
 
 #-------------------------------------------------------------------------------
 
@@ -39,17 +39,18 @@ diff_petroleum <- readData( "MED_OUT", "A.IEA_CEDS_petroleum_difference" )
 # ------------------------------------------------------------------------------
 # 2. Combine
 
-combined <- energy_data %>% 
-  rbind(diff_hard_coal, diff_brown_coal, diff_nat_gas, diff_petroleum) %>% 
+combined <- energy_data %>%
+  rbind(diff_hard_coal, diff_brown_coal, diff_nat_gas, diff_petroleum) %>%
   arrange(iso, sector, fuel)
 
-
+##CR: Renumber
 # ------------------------------------------------------------------------------
 # 6. Output
 # Add comments for each table
 comments.A.comb_othertrans_activity <- c( paste0( "IEA energy statistics",
                                        " by intermediate sector / intermediate fuel / historical year,",
                                        " including other tranformation and other feedstocks." ) )
+##CR: Remove '.csv' from file name
 # write out data
 writeData( combined, domain = "MED_OUT",
            fn = "A.comb_othertrans_activity.csv", comments = comments.A.comb_othertrans_activity )

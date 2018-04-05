@@ -63,7 +63,8 @@ printLog('Extending Total Coal Values with CDIAC')
 
 
 # Call function to extend process and combine ceds and cdiac data
-
+##CR: a function should never have 'and' in the name as it should fundamentally
+##  only do one thing.
 ceds_un_coal_data <- process_and_combine_un_ced_data( A.comb_activity_with_other, cdiac_solid_fuel,
                                                       UNSD_Energy_Final_Consumption,
                                                       extension_start_year = 1750,
@@ -107,7 +108,7 @@ CEDS_default_actvity_coal_other <- CEDS_default_actvity_coal %>% filter(sector %
 #----------------------------------------------------------------------------------------------
 # 4. Produce data by fuel and by country
 x_names <- names(CEDS_default_actvity_coal)[grepl("X",names(CEDS_default_actvity_coal))]
-
+##CR: dplyr::group_by + summarise much faster than aggregate
 CED_UN_coal_by_iso_all <- aggregate(CEDS_default_actvity_coal[x_names], list(
                                 iso = CEDS_default_actvity_coal$iso), FUN = sum)
 

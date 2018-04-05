@@ -1,10 +1,11 @@
+##CR: rename file or update header information
 #------------------------------------------------------------------------------
 # Program Name: A3.3.write_IEA_diff.R
 # Authors Names: Linh Vu
 # Date Last Modified: 16 May 2016
 # Program Purpose:    Write out difference between IEA DOMSUP and CEDS
 #                     consumption for coal, natural gas, petroleum
-# Input Files: A.IEA_en_stat_ctry_hist.csv, A.IEA_pre_bp_ext.csv
+# Input Files: A.IEA_en_stat_ctry_hist.csv, A.en_biomass_fsu_fix.csv
 # Output Files: A.IEA_CEDS_coal_difference.csv, A.IEA_CEDS_natural_gas_difference.csv,
 #               A.IEA_CEDS_petroleum_difference.csv
 # Notes:  The purpose of this script is to quantify how much fuel is consumed in the
@@ -36,6 +37,7 @@
     IEA_flow_sector <- readData( "MAPPINGS", "IEA_flow_sector", domain_extension = "energy/" )
 
 # Define values
+    ##CR: Some IEA DOMSUP categories (e.g. "BKB (kt)") are not accounted for, is this okay?
     IEA_coal_list <- c( "Brown coal (if no detail) (kt)", "Coking coal (kt)",
                         "Hard coal (if no detail) (kt)", "Other bituminous coal (kt)",
                         "Sub-bituminous coal (kt)", "Lignite (kt)", "Anthracite (kt)",

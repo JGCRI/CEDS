@@ -563,6 +563,7 @@ calculate_correct_shares <- function(a.input_data,
     # replace_with_zeros = T
 
     # ---------------------------
+    #CR: Re-use the parameter verification in calculate_shares
     # 1. Input parameter checks
     # id and target columns
     same_id_target = F
@@ -599,7 +600,7 @@ calculate_correct_shares <- function(a.input_data,
 
     # Select unique ids that have zero sum breakdowns in any year
     input_data_long <- a.input_data %>%
-        gather(year, breakdown, -a.id_columns, - a.target_column)
+        gather(year, breakdown, -a.id_columns, -a.target_column)
 
     to_correct_ids_years_df <- input_data_long %>%
         group_by_at(vars(a.id_columns, 'year')) %>%
@@ -613,6 +614,10 @@ calculate_correct_shares <- function(a.input_data,
     already_correct_years <- input_data_long[which( apply( input_data_long[c(a.id_columns,'year')], 1, paste, collapse='-') %!in% to_correct_ids_years_vector  ),]
     to_correct_years <- input_data_long[which( apply( input_data_long[c(a.id_columns,'year')], 1, paste, collapse='-') %in% to_correct_ids_years_vector  ),]
 
+    ##CR: can simplify from line 605 by keeping above all dplyr e.g.:
+    ##  already_correct_years <- input_data_long %>% group_by_at(vars(a.id_columns, 'year')) %>% filter(sum(breakdown) != 0)
+    ##  to_correct_years <- setdiff(input_data_long, already_correct_years)
+
     # check to make sure to_correct years are all zero
     check_sum <- to_correct_years %>%
         summarise(sum = sum(breakdown))
@@ -621,15 +626,18 @@ calculate_correct_shares <- function(a.input_data,
     # replace all zeros in zero sum breakdowns with NAs
     # interpolate NAs
     if( nrow(to_correct_years)>0){
-    correcting_years <- replace(to_correct_years, to_correct_years == 0, NA ) %>%
-        rbind(already_correct_years) %>%
-        unique %>%
-        spread(year, breakdown) %>%
-        interpolate_NAs
-    # last observation carried forward
-    correcting_years[X_years] <- t(na.locf(t(correcting_years[X_years])))
-    } else( correcting_years <- to_correct_years )
-    correcting_years_long <- gather(correcting_years, year, breakdown, -a.id_columns, - a.target_column)
+        correcting_years <- replace(to_correct_years, to_correct_years == 0, NA ) %>%
+            rbind(already_correct_years) %>%
+            unique %>% ##CR: shouldn't the df already not contain duplicates?
+            spread(year, breakdown) %>%
+            interpolate_NAs ##CR: interpolate_NAs is slow -- we should look into speeding it up
+        # last observation carried forward
+        correcting_years[X_years] <- t(na.locf(t(correcting_years[X_years])))
+    } else {
+        correcting_years <- to_correct_years ##CR: If there isn't anything to correct shouldn't it just return?
+    }
+
+    correcting_years_long <- gather(correcting_years, year, breakdown, -a.id_columns, -a.target_column)
 
     # add corrected values to already_correct_years
     already_correct_years <- already_correct_years %>%
