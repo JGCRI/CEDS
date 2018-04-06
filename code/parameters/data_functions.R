@@ -98,7 +98,22 @@ replaceValueColMatch <- function( x,y,x.ColName,y.ColName = x.ColName,
   return(out)
 }
 
+# -----------------------------------------------------------------------------
+# is.invalid
+# Brief: Combination check for if a value is null, NA, or NaN
+# Params:
+#    x: some non-list object
+# Return:       Input vector of strings with pattern replaced by its replacement.
+# is.invalid
+is.invalid <- function(x) return( is.null(x) || is.na(x) || is.nan(x) )
 
+# -----------------------------------------------------------------------------
+# is.nan.df
+# Brief: Makes up for the fact that R has no built-in vectorized check for NaN.
+# Params:
+#    x: a dataframe that may or may not contain NaN values
+is.nan.df <- function(x) do.call( cbind, lapply(x, is.nan) )
+    
 # -----------------------------------------------------------------------------
 # gsub2
 # Brief:        Pattern replacement in a vector.
