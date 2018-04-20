@@ -64,14 +64,15 @@ replaceValueColMatch <- function( x,y,x.ColName,y.ColName = x.ColName,
 
   out <- x
   n<-length(match.x)
+  if ( n > 1) {
   x.match.cols <- x[,match.x[1]]
   y.match.cols <- y[,match.y[1]]
-
+}
   if ( n > 1) {
-  for (i in 2:n){
-    x.match.cols <- paste(x.match.cols, x[,match.x[i]]  )
-    y.match.cols <- paste(y.match.cols, y[,match.y[i]]  )
-  }}
+    x.match.cols <- apply(X = x[match.x], MARGIN = 1, FUN = paste, collapse = '-')
+    y.match.cols <- apply(X = y[match.y], MARGIN = 1, FUN = paste, collapse = '-')
+      }
+
 
   out[,x.ColName] <- y[match(x.match.cols,y.match.cols),
                        y.ColName]
@@ -562,6 +563,11 @@ calculate_correct_shares <- function(a.input_data,
     # a.corrections = ext_sector_breakdown_assumptions
     # replace_with_zeros = T
 
+    # a.input_data = un_fuel_shares_complete
+    # a.id_columns = 'iso'
+    # a.target_column = 'fuel'
+    # a.corrections = a.default_fuel_share
+
     # ---------------------------
     #CR: Re-use the parameter verification in calculate_shares
     # 1. Input parameter checks
@@ -600,7 +606,7 @@ calculate_correct_shares <- function(a.input_data,
 
     # Select unique ids that have zero sum breakdowns in any year
     input_data_long <- a.input_data %>%
-        gather(year, breakdown, -a.id_columns, -a.target_column)
+        gather(year, breakdown, -a.id_columns, - a.target_column)
 
     to_correct_ids_years_df <- input_data_long %>%
         group_by_at(vars(a.id_columns, 'year')) %>%
@@ -626,18 +632,15 @@ calculate_correct_shares <- function(a.input_data,
     # replace all zeros in zero sum breakdowns with NAs
     # interpolate NAs
     if( nrow(to_correct_years)>0){
-        correcting_years <- replace(to_correct_years, to_correct_years == 0, NA ) %>%
-            rbind(already_correct_years) %>%
-            unique %>% ##CR: shouldn't the df already not contain duplicates?
-            spread(year, breakdown) %>%
-            interpolate_NAs ##CR: interpolate_NAs is slow -- we should look into speeding it up
-        # last observation carried forward
-        correcting_years[X_years] <- t(na.locf(t(correcting_years[X_years])))
-    } else {
-        correcting_years <- to_correct_years ##CR: If there isn't anything to correct shouldn't it just return?
-    }
-
-    correcting_years_long <- gather(correcting_years, year, breakdown, -a.id_columns, -a.target_column)
+    correcting_years <- replace(to_correct_years, to_correct_years == 0, NA ) %>%
+        rbind(already_correct_years) %>%
+        unique %>%
+        spread(year, breakdown) %>%
+        interpolate_NAs
+    # last observation carried forward
+    correcting_years[X_years] <- t(na.locf(t(correcting_years[X_years])))
+    } else( correcting_years <- to_correct_years )
+    correcting_years_long <- gather(correcting_years, year, breakdown, -a.id_columns, - a.target_column)
 
     # add corrected values to already_correct_years
     already_correct_years <- already_correct_years %>%
@@ -705,7 +708,10 @@ calculate_correct_shares <- function(a.input_data,
 # TODO: merge, switch to extend_data_on_trend_cdiac
 
 extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnostics = F,
-                                 IEA_mode = F, iea_start, iea_start_years_df){
+                                 IEA_mode = F,
+                                 iea_start,
+                                 iea_start_years_df){
+
 
   # Expand fuels - all-comb
   expand <- driver_trend[which(driver_trend$fuel == 'all' ) ,]
@@ -780,12 +786,13 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
   ceds_extended[ extension_years ] <- ceds_extended$ratio * ceds_extended[ extension_years ]
 
   # add to final extension template
-  input_data <- replaceValueColMatch(input_data, ceds_extended,
+  output_data <- replaceValueColMatch(input_data, ceds_extended,
                                      x.ColName = extension_years,
                                      match.x = c('iso','sector','fuel'),
-                                     addEntries = FALSE)
+                                     addEntries = FALSE) %>%
+      select( one_of(names(input_data)))
 
-  return(input_data)
+  return(output_data)
 }
 # -----------------------------------------------------------------------------
 # extend_data_on_trend_range
@@ -818,17 +825,6 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
       # must have at least 2 id variables
       # switch/merge with extend_data_on_trend
 
-# driver_trend=driver_trend_for_ratios
-# input_data=input_data1
-# start = dis_start_year
-# end = dis_end_year
-# expand = F
-# range = range_cdiac
-# id_match.driver = c('iso','temp')
-# id_match.input = c('iso','fuel')
-# ratio_start_year = 1948
-#
-
 extend_data_on_trend_range <- function(iea_start_year, driver_trend, input_data,
                                        start, end,
                                        extend_fwd_by_BP_years = F,
@@ -840,15 +836,21 @@ extend_data_on_trend_range <- function(iea_start_year, driver_trend, input_data,
                                  IEA_mode = F, iea_start_years_df) {
 
 
-  # driver_trend = driver_trend_for_ratios
-  # input_data = ceds_extension_ratios
-  # start = dis_start_year
-  # end = dis_end_year
-  # ratio_start_year = ratio_start_year
-  # expand = F
-  # range = ratio_range_length
-  # id_match.driver = trend_match_cols
-  # id_match.input = c('iso',match_cols)
+    # driver_trend = a.CDIAC_data
+    # input_data = CEDS_UN_data_extended
+    # start = a.extension_start_year
+    # end = 1950
+    # IEA_mode = F
+    # diagnostics = F
+    #
+    #  extend_fwd_by_BP_years = F
+    # ratio_start_year = (end + 1)
+    # expand = T
+    # range = 5
+    # id_match.driver = c('iso','fuel')
+    # id_match.input = id_match.driver
+    # IEA_mode = F
+
 
   input_years <- names(input_data)[grep('X',names(input_data))]
   extra_id <- names(input_data)[names(input_data) %!in% c(input_years, id_match.driver, id_match.input, paste0('X',start:end))]
