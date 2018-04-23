@@ -64,7 +64,7 @@ replaceValueColMatch <- function( x,y,x.ColName,y.ColName = x.ColName,
 
   out <- x
   n<-length(match.x)
-  if ( n > 1) {
+  if ( n == 1) {
   x.match.cols <- x[,match.x[1]]
   y.match.cols <- y[,match.y[1]]
 }
