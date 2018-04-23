@@ -5,9 +5,10 @@
 # Program Purpose: Reads in BP data for years not yet covered by IEA data
 #                  Alters BP data to agree with IEA data labels
 #                  Adds recent BP-projected data to historical years data
-# Input Files: A.en_biomass_fsu_fix.csv, BP_energy_data.xlsx,
+# Input Files: A.comb_othertrans_activity.csv, BP_energy_data.xlsx,
 #              Master_Country_List.csv, Master_Fuel_Sector_List.xlsx,
-# Output Files: A.comb_activity.csv, A.IEA_BP_sum_comparison.csv, A.IEA_BP_trend_comparison.csv
+# Output Files: A.IEA_BP_energy_ext.csv, A.IEA_BP_sum_comparison.csv,
+#               A.IEA_BP_trend_comparison.csv
 # Notes: IEA_years, BP_years, end_year and X_ variants defined in common_data.R
 # TODO: Clean up formatting and section breaks, add subsections
 #       Maybe expand on comments
@@ -31,7 +32,7 @@
 
 # ------------------------------------------------------------------------------
 # 1. Read in files
-
+    ##CR: Remove .csv from filename
     iea_data_full <- readData( "MED_OUT", "A.comb_othertrans_activity.csv" )
     bp_energy_data <- readData( "ENERGY_IN","BP_energy_data", ".xlsx")
     ctry_mapping <- readData( "MAPPINGS", "Master_Country_List" )
@@ -130,9 +131,9 @@
     printLog( "Reformatting combined data" )
 
 # Aggregate IEA over fuel -> oil, gas, coal, biomass, other
-        oil_fuels <- c( fuel_list[fuel_list$aggregated_fuel == "oil", "fuel"] , 'oil' )
+        oil_fuels <- c( fuel_list[fuel_list$aggregated_fuel == "oil", "fuel"], 'oil' )
         gas_fuels <- fuel_list[fuel_list$aggregated_fuel == "gas", "fuel"]
-       coal_fuels <- c( fuel_list[fuel_list$aggregated_fuel == "coal", "fuel"] , 'coal' )
+       coal_fuels <- c( fuel_list[fuel_list$aggregated_fuel == "coal", "fuel"], 'coal' )
     biomass_fuels <- fuel_list[fuel_list$aggregated_fuel == "biomass", "fuel"]
       other_fuels <- subset( unique( iea_data$fuel ), unique( iea_data$fuel )
           %!in% c( oil_fuels, gas_fuels, coal_fuels, biomass_fuels ) )

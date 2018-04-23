@@ -1,3 +1,4 @@
+##CR: Update header date and and purpose
 #------------------------------------------------------------------------------
 # Program Name: A4.1.complete_energy_data.R
 # Author(s): Jon Seibert, Linh Vu, Rachel Hoesly
@@ -36,11 +37,11 @@
     MCL <- readData( "MAPPINGS", "Master_Country_List" )
 
 # ------------------------------------------------------------------------------
-# 2. Separate combustion and activity energy data, seperate other transformation
+# 2. Separate combustion and activity energy data, separate other transformation
 
-# Seperate CEDS combustion and other transformation from other tracked
+# Separate CEDS combustion and other transformation from other tracked
 #    IEA energy trends (ex: domestic supply)
-
+##CR: why combine other transformation in the first place (A2.3) if we're just separating it again?
     IEA_other_energy_trends <- energy_data %>%
         filter( sector %!in% MSL$sector )
     other_transformation <- energy_data %>%
@@ -70,6 +71,7 @@
         na.omit( energy_data_combustion[ energy_data_combustion$sector != "NA", ] )
 
 # Use header function to generate blank template data frame
+    ##CR: more efficient to filter sectors before building template
     template <- buildCEDSTemplate( iso_list, sector_list, fuel_list ) %>%
         filter( sector %!in% c( "1A1bc_Other-feedstock", "1A1bc_Other-transformation") )
 
@@ -97,13 +99,14 @@
 
 # ------------------------------------------------------------------------------
 # 5. Aggregate fuel summary
-
+##CR: fix numbering ^
+##CR: avoid plyr/dplyr conflicts with mutate function by using dplyr::mutate
     other_transformation_aggregate <- other_transformation %>%
         mutate(fuel = replace(fuel, fuel == 'hard_coal', 'coal')) %>%
         mutate(fuel = replace(fuel, fuel == 'brown_coal', 'coal')) %>%
         mutate(fuel = replace(fuel, fuel == 'natural_gas', 'gas')) %>%
         mutate(fuel = replace(fuel, fuel == 'petroleum', 'oil')) %>%
-        arrange(  iso, sector, fuel) %>%
+        arrange( iso, sector, fuel ) %>%
         group_by(iso, fuel, sector, units) %>%
         summarize_all(funs(sum))
 
@@ -139,7 +142,7 @@
     writeData( IEA_other_energy_trends, domain = "MED_OUT",
                fn = "A.other_IEA_energy_values",
                comments = comments.A.other_IEA_energy_values)
-
+##CR: just in general we need a consistent naming convention for files wrt capitalization
     logStop()
 
 # END

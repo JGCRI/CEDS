@@ -64,14 +64,15 @@ replaceValueColMatch <- function( x,y,x.ColName,y.ColName = x.ColName,
 
   out <- x
   n<-length(match.x)
+  if ( n == 1) {
   x.match.cols <- x[,match.x[1]]
   y.match.cols <- y[,match.y[1]]
-
+}
   if ( n > 1) {
-  for (i in 2:n){
-    x.match.cols <- paste(x.match.cols, x[,match.x[i]]  )
-    y.match.cols <- paste(y.match.cols, y[,match.y[i]]  )
-  }}
+    x.match.cols <- apply(X = x[match.x], MARGIN = 1, FUN = paste, collapse = '-')
+    y.match.cols <- apply(X = y[match.y], MARGIN = 1, FUN = paste, collapse = '-')
+      }
+
 
   out[,x.ColName] <- y[match(x.match.cols,y.match.cols),
                        y.ColName]
@@ -559,8 +560,19 @@ calculate_correct_shares <- function(a.input_data,
     # replace_with_zeros = T
 
 
-    #
+    # a.input_data = extended_breakdown_complete
+    # a.id_columns = c('iso', 'fuel', 'ext_sector')
+    # a.target_column = c('sector')
+    # a.corrections = ext_sector_breakdown_assumptions
+    # replace_with_zeros = T
+
+    # a.input_data = un_fuel_shares_complete
+    # a.id_columns = 'iso'
+    # a.target_column = 'fuel'
+    # a.corrections = a.default_fuel_share
+
     # ---------------------------
+    #CR: Re-use the parameter verification in calculate_shares
     # 1. Input parameter checks
     # id and target columns
     same_id_target = F
@@ -593,6 +605,7 @@ calculate_correct_shares <- function(a.input_data,
 
     # ---------------------------
     # 3. Replace zero sums with NAs
+    a.input_data[is.na(a.input_data)] <- 0
 
     # Select unique ids that have zero sum breakdowns in any year
     input_data_long <- a.input_data %>%
@@ -610,6 +623,10 @@ calculate_correct_shares <- function(a.input_data,
     already_correct_years <- input_data_long[which( apply( input_data_long[c(a.id_columns,'year')], 1, paste, collapse='-') %!in% to_correct_ids_years_vector  ),]
     to_correct_years <- input_data_long[which( apply( input_data_long[c(a.id_columns,'year')], 1, paste, collapse='-') %in% to_correct_ids_years_vector  ),]
 
+    ##CR: can simplify from line 605 by keeping above all dplyr e.g.:
+    ##  already_correct_years <- input_data_long %>% group_by_at(vars(a.id_columns, 'year')) %>% filter(sum(breakdown) != 0)
+    ##  to_correct_years <- setdiff(input_data_long, already_correct_years)
+
     # check to make sure to_correct years are all zero
     check_sum <- to_correct_years %>%
         summarise(sum = sum(breakdown))
@@ -617,6 +634,7 @@ calculate_correct_shares <- function(a.input_data,
 
     # replace all zeros in zero sum breakdowns with NAs
     # interpolate NAs
+    if( nrow(to_correct_years)>0){
     correcting_years <- replace(to_correct_years, to_correct_years == 0, NA ) %>%
         rbind(already_correct_years) %>%
         unique %>%
@@ -624,7 +642,7 @@ calculate_correct_shares <- function(a.input_data,
         interpolate_NAs
     # last observation carried forward
     correcting_years[X_years] <- t(na.locf(t(correcting_years[X_years])))
-
+    } else( correcting_years <- to_correct_years )
     correcting_years_long <- gather(correcting_years, year, breakdown, -a.id_columns, - a.target_column)
 
     # add corrected values to already_correct_years
@@ -658,7 +676,18 @@ calculate_correct_shares <- function(a.input_data,
     out.df.renormalized <- calculate_shares( corrected_years,
                                              a.id_columns,
                                              a.target_column)
-    # 5. return value
+    # 5. Check ouput
+    check_values <- out.df.renormalized %>%
+        select(-one_of(a.target_column)) %>%
+        group_by(.dots = a.id_columns) %>%
+        summarise_all(funs(sum)) %>%
+        ungroup() %>%
+        select(-one_of(a.id_columns))
+
+    if( ! nrow(check_values)*ncol(check_values) == sum(check_values) ) stop( "In calculate_correct_shares: all shares do not sum to 1 over id columns.")
+
+
+    # 6. return value
     return( out.df.renormalized )
 
 }
@@ -682,7 +711,10 @@ calculate_correct_shares <- function(a.input_data,
 # TODO: merge, switch to extend_data_on_trend_cdiac
 
 extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnostics = F,
-                                 IEA_mode = F, iea_start, iea_start_years_df){
+                                 IEA_mode = F,
+                                 iea_start,
+                                 iea_start_years_df){
+
 
   # Expand fuels - all-comb
   expand <- driver_trend[which(driver_trend$fuel == 'all' ) ,]
@@ -754,12 +786,13 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
   ceds_extended[ extension_years ] <- ceds_extended$ratio * ceds_extended[ extension_years ]
 
   # add to final extension template
-  input_data <- replaceValueColMatch(input_data, ceds_extended,
+  output_data <- replaceValueColMatch(input_data, ceds_extended,
                                      x.ColName = extension_years,
                                      match.x = c('iso','sector','fuel'),
-                                     addEntries = FALSE)
+                                     addEntries = FALSE) %>%
+      select( one_of(names(input_data)))
 
-  return(input_data)
+  return(output_data)
 }
 # -----------------------------------------------------------------------------
 # extend_data_on_trend_range
@@ -802,15 +835,16 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
 # TODO:
       # must have at least 2 id variables
       # switch/merge with extend_data_on_trend
-extend_data_on_trend_range <- function(input_data, driver_trend, start, end,
-                                       ratio_start_year = (end + 1),
-                                       expand = T,
-                                       range = 5,
-                                       id_match.driver = c('iso','sector','fuel'),
-                                       id_match.input = id_match.driver,
+
+extend_data_on_trend_range <- function(iea_start_year, driver_trend, input_data,
+                                       start, end,
                                        extend_fwd_by_BP_years = F,
-                                       IEA_mode = F, iea_start_year = NULL,
-                                       iea_start_years_df = NULL) {
+                                       ratio_start_year = (end + 1),
+                                 expand = T,
+                                 range = 5,
+                                 id_match.driver = c('iso','sector','fuel'),
+                                 id_match.input = id_match.driver,
+                                 IEA_mode = F, iea_start_years_df) {
 
   # define extension columns, extension data years, and extra id columns
   extension_years <- paste0('X', start:end)
@@ -818,6 +852,7 @@ extend_data_on_trend_range <- function(input_data, driver_trend, start, end,
   extra_id <- names(input_data)[names(input_data) %!in% c(input_years, id_match.driver, id_match.input, extension_years)]
 
   if( expand ){
+
     if( any('fuel' %in% names(driver_trend))){
       # Expand fuels - all-comb
       expand <- driver_trend[which(driver_trend$fuel == 'all' ) ,]

@@ -21,18 +21,10 @@ script_name <- "H1.2.add_activity_CDIAC.R"
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
-args_from_makefile <- commandArgs( TRUE )
-em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NH3"
-
-# ---------------------------------------------------------------------------
-# 0.5 Load Packages
-
-
 # ---------------------------------------------------------------------------
 # 1. Load files
 
-activity_all <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended_db') )
+activity_all <- readData( 'MED_OUT', 'A.NC_activity_extended_db' )
 extension_drivers_all <- readData("EXT_IN", 'CEDS_historical_extension_drivers_activity')
 
 cdiac_fuel_map <- readData('EM_INV', domain_extension = "CDIAC/",  'CDIAC_fuel_map'  )
@@ -149,6 +141,6 @@ for (i in seq_along(year_intervals)) {
 
 if( !(nrow(activity_all) == nrow(activity) & ncol(activity_all) == ncol(activity) ) ){
   stop( "New and old activity do not match") } else{
-    writeData( activity, "MED_OUT" , paste0('H.',em,'_total_activity_extended_db')) }
+    writeData( activity, "MED_OUT" , paste0('A.NC_activity_extended_db')) }
 
 logStop()
