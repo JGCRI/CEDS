@@ -4,7 +4,7 @@
 # Date Last Modified: Sept 21, 2015
 # Program Purpose: To process and reformat non-combustion (process) GDP activity_data,
 #                  and add it to the activity database.
-# Input Files: A.NC_activty_db.csv, activity_input_mapping.csv, A
+# Input Files: A.other_IEA_energy_values.csv, activity_input_mapping.csv,
 # Output Files: A.NC_activty_db.csv
 # Notes:
 # TODO:
