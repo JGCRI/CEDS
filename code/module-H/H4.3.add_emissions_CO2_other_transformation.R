@@ -226,11 +226,15 @@ if( em != 'CO2') {
   CO2_Coalgases_driver_trend <- H.Extended_total_natural_gas
 
   # b. Extend CO2 coalgas emmissions backward to 1850, from 1960 for OECD countries and 1971 for Non-OECD countries, and forward from 2013 - 2014
-  CO2_Coalgases_as_ng_for_total_natural_gas_list = lapply(unique(iea_start$start_year), FUN = extend_data_on_trend_range,
-                                                         driver_trend = CO2_Coalgases_driver_trend,
-                                                         input_data = CO2_Coalgases_as_ng, start = 1850, end = 1970, expand = F,
-                                                         id_match.driver = c('iso'), IEA_mode = T,
-                                                         iea_start_years = iea_start, extend_fwd_by_BP_years = T)
+  CO2_Coalgases_as_ng_for_total_natural_gas_list = lapply(unique(iea_start$start_year), function(sy) {
+      extend_data_on_trend_range(input_data = CO2_Coalgases_as_ng,
+                                 driver_trend = CO2_Coalgases_driver_trend,
+                                 start = 1950, end = 1970, expand = F,
+                                 id_match.driver = c('iso'),
+                                 extend_fwd_by_BP_years = T,
+                                 IEA_mode = T, iea_start_year = sy,
+                                 iea_start_years_df = iea_start)
+  })
 
   #Rebind the list and aggregate data for duplicate countries
   CO2_Coalgases_as_ng_for_total_natural_gas <- do.call( rbind, CO2_Coalgases_as_ng_for_total_natural_gas_list) %>%
@@ -281,11 +285,15 @@ if( em != 'CO2') {
 
 
   # extend IEA coke back to 1750, from 1960 for OECD countries and 1971 for Non-OECD countries and forward from 2013 - 2014
-  iea_extended_coke_list = lapply(unique(iea_start$start_year), FUN = extend_data_on_trend_range,
-                                  driver_trend = extended_coke, start = 1750, end = 1959,
-                                  input_data = IEA_coke, expand = F,
-                                  id_match.driver = c('iso'), IEA_mode = T,
-                                  iea_start_years = iea_start, extend_fwd_by_BP_years = T)
+  iea_extended_coke_list = lapply(unique(iea_start$start_year), function(sy) {
+      extend_data_on_trend_range(input_data = IEA_coke,
+                                 driver_trend = extended_coke,
+                                 start = 1750, end = 1959, expand = F,
+                                 id_match.driver = c('iso'),
+                                 extend_fwd_by_BP_years = T,
+                                 IEA_mode = T, iea_start_year = sy,
+                                 iea_start_years_df = iea_start)
+  })
 
   #Rebind the list and add the units column to the dataframe
   iea_extended_coke <- do.call( rbind, iea_extended_coke_list) %>%
@@ -463,7 +471,7 @@ if( em != 'CO2') {
 
 
   # combine components of CO2-other transformation for diagnostics
-  CO2_components_other_tranformation <- rbind.fill( 
+  CO2_components_other_tranformation <- rbind.fill(
     CO2_Coal_Total %>% dplyr::mutate(value = paste0('Total_',fuel)) %>% select(-fuel),
     CO2_Coal_Combustion %>% dplyr::mutate(value = paste0('combustion_',fuel)) %>% select(-fuel) ,
     CO2_Coal_NEuse %>% dplyr::mutate(value = paste0('NEuse_',fuel)) %>% select(-fuel),

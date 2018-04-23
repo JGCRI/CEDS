@@ -407,32 +407,35 @@ buildCEDSTemplate <- function( iso_list = NULL, sector_list = NULL, fuel_list = 
     return( template )
 }
 
-# ----------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------
 # interpolate_NAs
 # Brief: Linearly interpolate over NA values
-# Details:
-# Dependencies:
 # Author: Rachel hoesly
 # Parameters:
 # 	df: data frame of numeric values (no id columns)
 # Return: data frame of same size as df, with interpolated values
 # Input files: none
 # Output files: none
-#
-# Usage examples:
 
-interpolate_NAs <- function( df){
-    value.cols <- names(df)[grep('X',names(df))]
-  df <- as.data.frame(df)
-  interpolate_rows<- c()
-  for ( i in seq_along(df[,1] )) {
-    row <- df[i,  value.cols]
+interpolate_NAs <- function(df) {
+  if( class(df) != 'data.frame' ) {
+    warning("interpolate_NAs expects a data frame; attempting to convert")
+    df <- as.data.frame(df)
+  }
 
-    logical <- ( length(rle(is.na(c(NA,row,NA)))$values)>3 ) &&  ( length(row) - sum(sapply(row, is.character) ) - sum(is.na(row)) > 1)
-    if(  logical ) {interpolate_rows <- c(interpolate_rows, i) }}
-  if( length(interpolate_rows)>0){
-  df[ interpolate_rows ,  value.cols] <- t( na.approx(t(df[ interpolate_rows ,  value.cols]), na.rm = F)   )}
+  value.cols <- sapply(df, is.numeric)
+  interpolate_rows <- c()
+  for ( i in seq_along(df[ , 1]) ) {
+    row <- df[i, ]
+    if( length(rle(is.na(c(NA, row, NA)))$values) > 3 &&
+        length(row) - sum(is.na(row)) > 1) {
+      interpolate_rows <- c(interpolate_rows, i)
+    }
+  }
+
+  if( length(interpolate_rows) > 0 ) {
+    df[interpolate_rows, ] <- t( na.approx(t(df[ interpolate_rows , ]), na.rm = F))
+  }
   return (df)
 }
 
@@ -735,12 +738,9 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
 
     #initialize end variable to IEA start year
     end <- iea_start
-
-    #initialize ratio year
-    ratio_start_year = (end + 1)
   }#if Ends
 
-  ratio_years <- paste0('X',c(end+1,end+2,end+3,end+4,end+5))
+  ratio_years <- paste0('X',c(end + 1:5))
   ext_start_year <- start
   ext_end_year <- end
   extension_years <- paste0('X',ext_start_year:ext_end_year)
@@ -797,8 +797,10 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
 # -----------------------------------------------------------------------------
 # extend_data_on_trend_range
 # Brief:     extends data based on trend of other data
-# Details:     Calculates an average ratio of input:trend data in specified ratio years.
-#           Extended Data (year x) = input data(average ratio years)/trend data(ratio years)*trend data (year x)
+# Details:   Calculates an average ratio of input:trend data in specified ratio
+#            years.
+#            Extended Data (year x) = input data(average ratio years) /
+#                                     trend data(ratio years) * trend data (year x)
 # Dependencies:
 # Author(s):   Rachel Hoesly
 #
@@ -807,15 +809,24 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
 # driver_trend - trend by which to extend input data
 # input_data - data to be extended
 # start - start of extension range (earliest year to be extended)
-# end - end of extension range (lastest year to be extended)
-# expand = T, if input data has "all" or "all-combustion" for fuel, then is expands the data
-# range = 5 - the length of the range of ratio years (calculates the average ratio)
-# ratio_start_year - earliest year of ratio years, defaults to the the year following extendtion end year
-# id_match.driver = c('iso','sector','fuel') : identifiers that match between driver and input (ex for extension with population, iso and temp variable. Must be at least 2)
-# id_match.input = id_match.driver : id columns for the original data, if different than id driver . (ex cdiac, iso and fuel - but extended with iso and temp (population)) - used
-#                                   to match adn replace variables in final part of function
-# extend_fwd_by_BP_years - Boolean specifying whether or not forward extension should be carried out.
-# IEA_mode - Boolean indicating whether or not the function should tread input and driver data as IEA data
+# end - end of extension range (latest year to be extended)
+# expand - if input data has "all" or "all-combustion" for fuel, then this
+#          expands the data; defaults to TRUE
+# range - the length of the range of ratio years (calculates the average ratio);
+#         defaults to 5
+# ratio_start_year - earliest year of ratio years, defaults to the the year
+#                    following extension end year
+# id_match.driver - identifiers that match between driver and input (ex. for
+#                   extension with population, iso and temp variable. Must be at
+#                   least 2), defaults to c('iso','sector','fuel')
+# id_match.input - id columns for the original data, if different than id driver
+#                  (ex. cdiac, iso and fuel - but extended with iso and temp
+#                  (population)) - used to match and replace variables in final
+#                  part of function; defaults to value of id_match.driver
+# extend_fwd_by_BP_years - Boolean specifying whether or not forward extension
+#                          should be carried out; defaults to FALSE
+# IEA_mode - Boolean indicating whether or not the function should treat input
+#            and driver data as IEA data
 # iea_start_years_df - Dataframe containing IEA start year from all countries
 
 # Return:
@@ -835,37 +846,24 @@ extend_data_on_trend_range <- function(iea_start_year, driver_trend, input_data,
                                  id_match.input = id_match.driver,
                                  IEA_mode = F, iea_start_years_df) {
 
+  # define extension columns, extension data years, and extra id columns
+  extension_years <- paste0('X', start:end)
+  input_years <- names(input_data)[isXYear(names(input_data))]
+  extra_id <- names(input_data)[names(input_data) %!in% c(input_years, id_match.driver, id_match.input, extension_years)]
 
-    # driver_trend = a.CDIAC_data
-    # input_data = CEDS_UN_data_extended
-    # start = a.extension_start_year
-    # end = 1950
-    # IEA_mode = F
-    # diagnostics = F
-    #
-    #  extend_fwd_by_BP_years = F
-    # ratio_start_year = (end + 1)
-    # expand = T
-    # range = 5
-    # id_match.driver = c('iso','fuel')
-    # id_match.input = id_match.driver
-    # IEA_mode = F
+  if( expand ){
 
-
-  input_years <- names(input_data)[grep('X',names(input_data))]
-  extra_id <- names(input_data)[names(input_data) %!in% c(input_years, id_match.driver, id_match.input, paste0('X',start:end))]
-
-  if( expand == T){
     if( any('fuel' %in% names(driver_trend))){
-    # Expand fuels - all-comb
-    expand <- driver_trend[which(driver_trend$fuel == 'all' ) ,]
-    driver_trend <- driver_trend[which(driver_trend$fuel != 'all' ) ,]
-    comb_fuels <- c('biomass', 'hard_coal','brown_coal','coal_coke','natural_gas','heavy_oil','diesel_oil','light_oil')
-    for (i in seq_along(comb_fuels)){
-      expand$fuel <- rep(comb_fuels[i], times= nrow(expand) )
-      driver_trend <- rbind( driver_trend, expand )
+      # Expand fuels - all-comb
+      expand <- driver_trend[which(driver_trend$fuel == 'all' ) ,]
+      driver_trend <- driver_trend[which(driver_trend$fuel != 'all' ) ,]
+      comb_fuels <- c('biomass', 'hard_coal','brown_coal','coal_coke','natural_gas','heavy_oil','diesel_oil','light_oil')
+      for (i in seq_along(comb_fuels)){
+        expand$fuel <- rep(comb_fuels[i], times= nrow(expand) )
+        driver_trend <- rbind( driver_trend, expand )
+      }
     }
-  }}#if Ends
+  }#if Ends
 
   #Check if the function is operating on IEA mode
   if(IEA_mode == T){
@@ -902,12 +900,12 @@ extend_data_on_trend_range <- function(iea_start_year, driver_trend, input_data,
 
   # create vectors of input and driver data we want to use with match() to extend data
   driver_lines <- unique( driver_trend[ , id_match.driver ] )
-  if ( length(id_match.driver) > 1 ) driver_lines <- unique( apply( driver_trend[ , id_match.driver ] , 1 , paste , collapse = "-" ) )
+  if ( length(id_match.driver) > 1 ) driver_lines <- unique( apply( driver_trend[ , id_match.driver ], 1, paste, collapse = "-" ) )
   input_lines <- input_data[ , id_match.driver ]
-  if ( length(id_match.driver) > 1 ) input_lines <- apply( input_data[ , id_match.driver ] , 1 , paste , collapse = "-" )
+  if ( length(id_match.driver) > 1 ) input_lines <- apply( input_data[ , id_match.driver ], 1, paste, collapse = "-" )
 
   # select ceds data to extend
-  extension_ratios <- input_data[ which( input_lines %in% driver_lines  ) , ]
+  extension_ratios <- input_data[ which( input_lines %in% driver_lines ) , ]
 
   #extended data template
   extension_ratios <- extension_ratios[,unique(c(id_match.driver,id_match.input,extra_id,ratio_years))]
@@ -927,7 +925,7 @@ extend_data_on_trend_range <- function(iea_start_year, driver_trend, input_data,
   extension_ratios <- replace(extension_ratios, is.na(extension_ratios), 0)
 
   #compute the ratio mean
-  extension_ratios$ratio <-  rowMeans(extension_ratios[ ratio_years ])
+  extension_ratios$ratio <- rowMeans(extension_ratios[ ratio_years ])
 
   # add driver data and use ratio to calculate extended value
   ceds_extended <- extension_ratios[,unique(c(id_match.driver,id_match.input_original,extra_id,'ratio'))]
@@ -1421,4 +1419,3 @@ disaggregate_country <- function(original_data,
 
   return(split_data)
 }
-

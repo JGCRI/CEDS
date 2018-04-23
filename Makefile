@@ -379,6 +379,15 @@ $(MED_OUT)/A.intl_shipping_en.csv : \
 
 # aa3-2
 # Write out difference between IEA and CEDS coal
+$(MED_OUT)/A.IEA_CEDS_coal_difference.csv : \
+	$(MOD_A)/A3.3.write_IEA_diff.R \
+	$(MED_OUT)/A.IEA_BP_energy_ext.csv
+	Rscript $< $(EM) --nosave --no-restore
+
+$(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv : \
+	$(MED_OUT)/A.IEA_CEDS_coal_difference.csv
+
+# Write out difference between IEA and CEDS coal
 #$(MED_OUT)/A.IEA_CEDS_coal_difference.csv : \
 	$(MED_OUT)/A.IEA_BP_energy_ext.csv
 #	Rscript $< $(EM) --nosave --no-restore
@@ -778,6 +787,7 @@ $(MED_OUT)/H.$(EM)_total_activity_extended.csv : \
 	$(MOD_H)/H1.1.base_activity.R \
 	$(MOD_H)/H1.2.add_activity.R \
 	$(MOD_H)/H1.3.proc_activity.R \
+	$(MOD_H)/add_user-defined_data.R \
 	$(MOD_H)/H1.2.add_activity_CDIAC.R \
 	$(MOD_H)/H1.2.add_activity_Fernandez.R \
 	$(MOD_H)/H1.2.add_activity_population.R \
@@ -802,6 +812,9 @@ $(MED_OUT)/H.$(EM)_total_activity_extended.csv : \
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
+	Rscript $(word 4,$^) $(EM) --nosave --no-restore
+
+
 
 $(MED_OUT)/H.$(EM)_total_EFs_adjusted-sector.csv : \
 	$(MOD_H)/H2.1.replace_EF_sectors.R \
