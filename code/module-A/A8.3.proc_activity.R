@@ -1,8 +1,8 @@
 #------------------------------------------------------------------------------
-# Program Name: H1.3.proc_activity.R
+# Program Name: A8.3.proc_activity.R
 # Author: Rachel Hoesly
 # Date Last Updated: March 22, 2016
-# Program Purpose: Process extendtion activity database to finalize and sort CEDS activity database.
+# Program Purpose: Process extention activity database to finalize and sort CEDS activity database.
 # Input Files: None
 # Output Files: None
 # Notes:
@@ -17,22 +17,15 @@
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "process_db_functions.R" ) # Additional function files required.
 log_msg <- paste0( "Processing CEDS extension activity database" ) # First message to be printed to the log
-script_name <- "H1.3.proc_activity"
+script_name <- "A8.3.proc_activity"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
-args_from_makefile <- commandArgs( TRUE )
-em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NH3"
-
-# ------------------------------------------------------------------------------------
-
-
 # ---------------------------------------------------------------------------
 # 1. Load files
 
-activity_all <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended_db') )
+activity_all <- readData( 'MED_OUT',paste0('A.NC_activity_extended_db') )
 
 # ---------------------------------------------------------------------------
 # 2. Replace NAs
@@ -63,6 +56,6 @@ final <- activity_all[ with( activity_all, order( iso, sector, fuel ) ), ]
 # ---------------------------------------------------------------------------
 # 5. Write to file
 
-writeData( final, "MED_OUT", paste0('H.',em,'_total_activity_extended'))
+writeData( final, "MED_OUT", 'A.NC_activity_extended')
 
 logStop()
