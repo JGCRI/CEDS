@@ -211,7 +211,7 @@
     ship_out[ is.na( ship_out ) ] <- 0
     ship_out <- ship_out[ c( "iso", "sector", "fuel", "units", X_extended_years ) ]
     ship_out <- group_by( ship_out, iso, sector, fuel, units ) %>%
-      summarise_each( fun = "max" )
+      summarise_all( max )
 
 # Separate for output
     global_shipping <- ship_out[which(ship_out$iso == 'global'),]

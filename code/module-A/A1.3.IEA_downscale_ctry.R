@@ -123,8 +123,7 @@
 
     adj_list <- list.files( path = "energy/energy-data-adjustment", pattern = "*.csv" ) %>% file_path_sans_ext()
     adj_list <- adj_list[ !grepl( "metadata", adj_list ) ]  # remove metadata
-    adj_list <- lapply ( adj_list, FUN = readData, domain = "ENERGY_IN", domain_extension = "energy-data-adjustment/" )
-
+    adj_list <- lapply( adj_list, FUN = readData, domain = "ENERGY_IN", domain_extension = "energy-data-adjustment/" )
 
     options( warn = w )
 
@@ -192,20 +191,20 @@
           "Other kerosene (kt)"
 
 # Adjust IEA energy stat according to instruction files in energy-data-adjustment folder
-  	printLog( "Adjusting IEA Energy Statistics" )
   	if ( length( adj_list ) > 0 ) {
+      	printLog( "Adjusting IEA Energy Statistics" )
 
   	# Extend adjustment values to all IEA years
-    	  adj_en_ext <- lapply( adj_list, FUN = extendAdjValues )
-    	  adj_en_ext <- do.call( rbind, adj_en_ext )
+    	adj_en_ext <- lapply( adj_list, FUN = extendAdjValues )
+    	adj_en_ext <- do.call( rbind, adj_en_ext )
 
   	# Keep only ID and Xyear columns
-  	    adj_en_ext <- cbind( adj_en_ext[ , IEA_IDcodes ], adj_en_ext[ , grepl( "X", names( adj_en_ext ) ) ] )
+  	    adj_en_ext <- adj_en_ext[ , c( IEA_IDcodes, grep( "X", names( adj_en_ext ), value = T ) ) ]
 
   	# Adjustment files may repeat COUNTRY+FLOW+PRODUCT, so multiply adjustment
     # values by COUNTRY+FLOW+PRODUCT and year (note that method=multiplier)
   	    adj_en_ext <- group_by( adj_en_ext, COUNTRY, FLOW, PRODUCT ) %>%
-  	        summarise_each( "prod" )
+  	        summarise_all( prod )
 
   	# Make adjustment to relevant COUNTRY+FLOW+PRODUCT
   	    IEA_to_adjust <- filter( A.IEAfull, paste0( COUNTRY, FLOW, PRODUCT ) %in%

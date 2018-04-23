@@ -177,8 +177,8 @@
 
   weighted_average_heat_content <- combined_df[ c( 'iso', 'fuel', conversion_years ) ] %>%
     group_by( iso, fuel ) %>%
-    summarise_each( funs( sum( ., na.rm = T ) ) )
-   
+    summarise_all( funs( sum( ., na.rm = T ) ) )
+
   hc_coal <- weighted_average_heat_content %>%
     dplyr::mutate( units = 'kJ/kg' )
   hc_coal <- replace( hc_coal, hc_coal == 0, NA )
@@ -190,11 +190,10 @@
 # Remaining iso+fuel duplicates seem mostly composite/broken up countries that cover
 # separate years, so okay to combine by summing these rows.
   hc_coal_all <- group_by( hc_coal_all, iso, fuel, units ) %>%
-    summarise_each( funs( mean( ., na.rm = T ) ) ) %>%
-    data.frame( )
+    summarise_all( funs( mean( ., na.rm = T ) ) )
 
 # Interpolate NAs, extend last non-NAs forward/backward
-  hc_coal_all_ext <- hc_coal_all
+  hc_coal_all_ext <- data.frame( hc_coal_all )
   hc_coal_all_ext[ , X_emissions_years ] <- interpolate_NAs( hc_coal_all_ext[ , X_emissions_years ] )
   hc_coal_all_ext <- melt( hc_coal_all_ext, id = c( "iso", "fuel", "units" ) )
   hc_coal_all_ext <- ddply( hc_coal_all_ext, .( iso, fuel, units ), function( df ) {
