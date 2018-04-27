@@ -7,7 +7,9 @@
 #                  id combinations.
 # Input Files: A.IEA_BP_energy_ext.csv, Master_Fuel_Sector_List.xlsx,
 #              Master_Country_List.csv, Master_Fuel_Sector_List.xlsx
-# Output Files: A.comb_activity.csv , A.NC_activity_energy
+# Output Files: A.comb_activity.csv, A.Other_transformation_fuel,
+#               A.Other_transformation_agg_fuel, A.total_agg_fuel,
+#               A.other_IEA_energy_values",
 # Notes:
 # TODO:
 #-------------------------------------------------------------------------------
@@ -43,7 +45,9 @@
 #    IEA energy trends (ex: domestic supply)
 ##CR: why combine other transformation in the first place (A2.3) if we're just separating it again?
     IEA_other_energy_trends <- energy_data %>%
-        filter( sector %!in% MSL$sector )
+        filter( sector %!in% MSL$sector ) %>%
+        mutate_at( grep( 'X\\d{4}', names( energy_data ) ),
+                   funs( if_else( sector == 'refinery-and-natural-gas' & . < 0, 0, .)))
     other_transformation <- energy_data %>%
         filter( sector %in% c( "1A1bc_Other-feedstocks", "1A1bc_Other-transformation" ))
     energy_data <- energy_data %>%
