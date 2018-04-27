@@ -24,7 +24,7 @@ initialize( script_name, log_msg, headers )
 # ---------------------------------------------------------------------------
 # 1. Load files
 
-# activity_all <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended_db') , meta=F)
+ceds_comb_activity <- readData( 'MED_OUT', paste0( 'A.total_activity' ) )
 
 bond_ctypes = c(rep("text", 5), rep("numeric", 4), "skip") # last column contains value in last cell: set option to skip
 bond_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/" ,"160227_SPEW_BCOCemission", ".xlsx", column_types = bond_ctypes, meta = T )
@@ -92,7 +92,8 @@ return(corrected)
 # ---------------------------------------------------------------------------
 # 2. Select data to extend based on extension drivers
 
-activity <- activity_all
+activity <- ceds_comb_activity
+activity[paste0('X',1750:1959)] <- NA
 
 start_years <- c(1960,1971)
 
@@ -300,39 +301,9 @@ for ( i in seq_along((start_years))){
   final_extended_biomass <- final_extended_biomass[,c('iso','sector','fuel',paste0('X',1750:1970))]
 
 
-# ---------------------------------------------------------------------------
-# 6. Add to Activity Database
-#
-# activity.replace <- activity[ which(activity$sector %in% industry_sectors &
-#                                    activity$fuel == 'biomass'),]
-# activity.done <- activity[ which(activity$sector %!in% industry_sectors |
-#                                       activity$fuel != 'biomass'),]
-#
-# # loop over IEA data start years
-# for ( i in seq_along ( start_years ) ){
-#   countries <- iea_start_year[which( iea_start_year$start_year == start_years[i]),'iso']
-#
-#   if( i == 1) biomass <- final_extended_1960
-#   if( i == 2) biomass <- final_extended_1971
-#
-#   new_activity <- activity.replace[ which( activity.replace$iso %in% countries),]
-#   activity.replace <- activity.replace[ which( activity.replace$iso %!in% countries),]
-#
-#   new_activity [ paste0('X',1750:(start_years[i]-1)) ] <- biomass[ match( paste(new_activity$iso, new_activity$fuel, new_activity$sector ),
-#                                                                        paste(biomass$iso, biomass$fuel, biomass$sector ) )  , paste0('X',1750:(start_years[i]-1)) ]
-#   activity.done <- rbind( activity.done, new_activity)
-# }
-#
-# activity <- rbind( activity.done,activity.replace)
+  # ---------------------------------------------------------------------------
+  # 4. Write to database
 
+  writeData( final_extended_biomass, "MED_OUT" , 'A.industrial_biomass_extended')
 
-# ---------------------------------------------------------------------------
-# 7. Write to database
-
-writeData( final_extended_biomass,
-           'MED_OUT', paste0('A.other_biomass_extended'))
-# writeData(blended_biomass, 'DIAG_OUT', paste0('H.',em,'_extended_total_industrial_biomass'))
-
-
-
-logStop()
+    logStop()
