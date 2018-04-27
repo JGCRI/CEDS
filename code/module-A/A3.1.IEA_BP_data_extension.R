@@ -33,7 +33,7 @@
 # ------------------------------------------------------------------------------
 # 1. Read in files
     ##CR: Remove .csv from filename
-    iea_data_full <- readData( "MED_OUT", "A.comb_othertrans_activity.csv" )
+    iea_data_full <- readData( "MED_OUT", "A.comb_othertrans_activity" )
     bp_energy_data <- readData( "ENERGY_IN","BP_energy_data", ".xlsx")
     ctry_mapping <- readData( "MAPPINGS", "Master_Country_List" )
     fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )

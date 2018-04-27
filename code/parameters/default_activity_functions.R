@@ -297,9 +297,7 @@ fuel_breakdown <- function(  a.UN_data = UNSD_Energy_Final_Consumption,
     # a.extension_start_year = 1750
     # a.aggregate_fuel = aggregate_fuel_name
     # a.default_fuel_share = default_fuel_share
-    # a.ceds_extension_fuels = ceds_extension_fuels
     # a.UN_start = 1950
-    # a.extension_start_year = 1750
     # a.iea_start_years = iea_start_year
 
     #-------------------

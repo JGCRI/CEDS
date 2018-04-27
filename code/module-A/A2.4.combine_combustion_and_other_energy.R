@@ -53,7 +53,7 @@ comments.A.comb_othertrans_activity <- c( paste0( "IEA energy statistics",
 ##CR: Remove '.csv' from file name
 # write out data
 writeData( combined, domain = "MED_OUT",
-           fn = "A.comb_othertrans_activity.csv", comments = comments.A.comb_othertrans_activity )
+           fn = "A.comb_othertrans_activity", comments = comments.A.comb_othertrans_activity )
 
 
 logStop()

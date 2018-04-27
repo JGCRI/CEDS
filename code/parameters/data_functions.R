@@ -434,7 +434,7 @@ interpolate_NAs <- function(df) {
   }
 
   if( length(interpolate_rows) > 0 ) {
-    df[interpolate_rows, ] <- t( na.approx(t(df[ interpolate_rows , ]), na.rm = F))
+    df[interpolate_rows, value.cols] <- t( na.approx(t(df[ interpolate_rows , value.cols]), na.rm = F))
   }
   return (df)
 }
@@ -571,6 +571,27 @@ calculate_correct_shares <- function(a.input_data,
     # a.target_column = 'fuel'
     # a.corrections = a.default_fuel_share
 
+    # a.input_data = combined_sector_percentages_all
+    # a.id_columns = c("iso","fuel")
+    # a.target_column = c('ext_sector')
+    # replace_with_zeros = T
+    # a.corrections = ext_sector_percents_start_assumptions
+    # a.match_columns = a.target_column
+
+    # a.input_data = extended_breakdown_complete
+    # a.id_columns = c('iso', 'fuel', 'ext_sector')
+    # a.target_column = c('sector')
+    # a.corrections = ext_sector_breakdown_assumptions
+    # replace_with_zeros = T
+    # a.match_columns = a.target_column
+
+    # a.input_data = ceds_shares_complete
+    # a.id_columns = 'iso'
+    # a.target_column = 'fuel'
+    # a.corrections = a.default_fuel_share
+    # replace_with_zeros = T
+    # a.match_columns = a.target_column
+
     # ---------------------------
     #CR: Re-use the parameter verification in calculate_shares
     # 1. Input parameter checks
@@ -602,78 +623,96 @@ calculate_correct_shares <- function(a.input_data,
     # ---------------------------
     # 2. Define useful variables
     X_years <- names(a.input_data)[grep('X',names(a.input_data))]
-
+    a.input_data_long <- a.input_data %>% gather(year, breakdown, -a.id_columns, - a.target_column)
     # ---------------------------
-    # 3. Replace zero sums with NAs
+    # 3. Separate input data into dataframes - those with zero sum breakdowns (to correct)
+    # and those with non zero sum breakdowns (already correct), then
+    # Replace zero sums (already correct df) with NAs
+
+    # Start by replacing NAs with zero (makes sorting easier)
     a.input_data[is.na(a.input_data)] <- 0
 
-    # Select unique ids that have zero sum breakdowns in any year
-    input_data_long <- a.input_data %>%
-        gather(year, breakdown, -a.id_columns, - a.target_column)
+    # Separate input data into 2 data frames
+    # already_correct_years - non zero sums (set aside and add back to output later)
+    # to_correct_years - zero sum data (will replace zeros with NAs then replace NAs with corrections)
 
-    to_correct_ids_years_df <- input_data_long %>%
-        group_by_at(vars(a.id_columns, 'year')) %>%
-        dplyr::summarise(sum = sum(breakdown)) %>%
-        filter(sum == 0) %>%
-        select(one_of(a.id_columns, 'year')) %>%
-        distinct
+    already_correct_years <- a.input_data_long %>% group_by_at(vars(a.id_columns, 'year')) %>% filter(sum(breakdown, na.rm = T) != 0)
+    to_correct_years <- setdiff(a.input_data_long, already_correct_years)
 
-    to_correct_ids_years_vector <- apply(to_correct_ids_years_df, 1, paste, collapse='-')
-    # Select zero sum breakdowns
-    already_correct_years <- input_data_long[which( apply( input_data_long[c(a.id_columns,'year')], 1, paste, collapse='-') %!in% to_correct_ids_years_vector  ),]
-    to_correct_years <- input_data_long[which( apply( input_data_long[c(a.id_columns,'year')], 1, paste, collapse='-') %in% to_correct_ids_years_vector  ),]
-
-    ##CR: can simplify from line 605 by keeping above all dplyr e.g.:
-    ##  already_correct_years <- input_data_long %>% group_by_at(vars(a.id_columns, 'year')) %>% filter(sum(breakdown) != 0)
-    ##  to_correct_years <- setdiff(input_data_long, already_correct_years)
-
-    # check to make sure to_correct years are all zero
+    # check to make sure to_correct_years are all zero
     check_sum <- to_correct_years %>%
-        summarise(sum = sum(breakdown))
+        summarise(sum = sum(breakdown, na.rm = T))
     if( check_sum != 0) stop('In calculate_correct_shares(), correction years selected include non zero breakdowns. Please check.')
 
-    # replace all zeros in zero sum breakdowns with NAs
-    # interpolate NAs
-    if( nrow(to_correct_years)>0){
-    correcting_years <- replace(to_correct_years, to_correct_years == 0, NA ) %>%
-        rbind(already_correct_years) %>%
-        unique %>%
+    # Check for all entries
+    if( nrow(a.input_data_long) != (nrow(already_correct_years) + nrow(to_correct_years)) ) stop("In calculate_correct_shares(), some entries are dropped. Please check.")
+
+
+    # ---------------------------
+    # 4. Correct to_correcet_years
+    #
+    # 4.1 Correct with interpolation
+    # interpolate between non NA values, and carry last observation forward
+    # 1. Replace zeros with NA (in to_correct_correct years)
+    # 2. add back in the non zero shares (alerady_correct_years) so there are values to interpolate over
+    # 3. interpolate over NAs
+    # 4. carry last observation forward over NAs
+    if( nrow(to_correct_years)>0 ){
+    correcting_years <- to_correct_years %>%
+        replace(to_correct_years == 0, NA ) %>%
+        rbind(data.frame(already_correct_years)) %>%
         spread(year, breakdown) %>%
         interpolate_NAs
     # last observation carried forward
     correcting_years[X_years] <- t(na.locf(t(correcting_years[X_years])))
-    } else( correcting_years <- to_correct_years )
-    correcting_years_long <- gather(correcting_years, year, breakdown, -a.id_columns, - a.target_column)
 
-    # add corrected values to already_correct_years
-    already_correct_years <- already_correct_years %>%
-        rbind( correcting_years_long[ which(!is.na(correcting_years_long$breakdown)), ] )
-    # remove duplicates (some duplicated from interpolating)
-    already_correct_years <- already_correct_years[!duplicated(already_correct_years[c(a.id_columns, a.target_column, 'year')]),]
+    correcting_years_long <- gather(correcting_years, year, breakdown, -a.id_columns, - a.target_column) %>%
+        unique
 
-    correcting_years_long <- correcting_years_long[ which(is.na(correcting_years_long$breakdown)), ]
+    # Again, seperate out non zero sum breakdowns into
+    # already_corrected2 and to_correct2
 
-    if( !all(is.na(correcting_years_long$breakdown)) ) stop( 'In calculate_correct_shares(), overwritting non NA percent breakdown, please check.')
+    already_correct_years2 <- correcting_years_long %>%
+        group_by_at(vars(a.id_columns, 'year')) %>%
+        filter(sum(breakdown) != 0)
+    to_correct_years2 <- setdiff(correcting_years_long, already_correct_years2)
 
-    #check for duplicates
-    if( any( apply( correcting_years_long[c(a.id_columns,a.target_column,'year')], 1, paste, collapse='-') %in% apply( already_correct_years[c(a.id_columns,a.target_column,'year')], 1, paste, collapse='-') ) ){
-        stop( 'In calculate_correct_shares(), duplicates in correcting percent breakdowns, please check.')
+    } else{
+        # If there are no lines to correct with interpolation, then pass to new Dfs to renomalized below
+        already_correct_years2 <- already_correct_years
+        to_correct_years2 <- to_correct_years
     }
 
-    # ---------------------------
-    # 3. Replace NAs with default
+    # Check for all entries
+    if( nrow(a.input_data_long) != (nrow(already_correct_years2) + nrow(to_correct_years2)) ){
+        stop("In calculate_correct_shares(), some entries are dropped in while correcting shares through interpolation. Please check.")
+}
+    # Check for NAs in already correct
+    if( any(is.na(already_correct_years2$breakdown)) ) stop( 'In calculate_correct_shares(), NA is default correction breakdowns, please check.')
 
-    correcting_years_long$breakdown <- a.corrections[match( apply(correcting_years_long[a.match_columns], 1, paste, collapse='-') ,
+    # Check that to_correct_years 2 are all NAs
+    if( !all(is.na(to_correct_years2$breakdown)) ) stop( 'In calculate_correct_shares(), overwritting non NA percent breakdown, please check.')
+
+    # ---------------------------
+    # 3. Replace remaining NAs with default
+
+    to_correct_years2$breakdown <- a.corrections[match( apply(to_correct_years2[a.match_columns], 1, paste, collapse='-') ,
                                                             apply(a.corrections[a.match_columns], 1, paste, collapse='-') ) , 'breakdown']
 
-    if( any(is.na(correcting_years_long$breakdown)) ) stop( 'In calculate_correct_shares(), NA is default correction breakdowns, please check.')
+    if( any(is.na(to_correct_years2$breakdown)) ) stop( 'In calculate_correct_shares(), NA is default correction breakdowns, please check.')
 
+    all_corrected_years <- bind_rows(to_correct_years2, already_correct_years2) %>%
+        spread(year, breakdown) %>%
+        arrange_at(vars(a.id_columns, a.target_column))
 
-    corrected_years <- rbind(correcting_years_long, already_correct_years) %>%
-        spread(year, breakdown)
+    # Check for all entries again
+    if( nrow(a.input_data_long) != (nrow(already_correct_years2) + nrow(to_correct_years2)) ){
+        stop("In calculate_correct_shares(), some entries are dropped in while correcting shares through interpolation. Please check.")
+    }
+
 
     # 4. Renormalize to 1
-    out.df.renormalized <- calculate_shares( corrected_years,
+    out.df.renormalized <- calculate_shares( all_corrected_years,
                                              a.id_columns,
                                              a.target_column)
     # 5. Check ouput
