@@ -17,20 +17,20 @@
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
     PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
-  
+
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
     if ( is.na( em ) ) em <- "NH3"
-  
-# Call standard script header function to read in universal header files - 
+
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "data_functions.R", "emissions_scaling_functions.R",
-                  "analysis_functions.R", 
+                  "analysis_functions.R",
                   "interpolation_extension_functions.R" ) # Additional function files required.
     log_msg <- paste0( "Calling inventory emission scaling stripts" ) # First message to be printed to the log
     script_name <- paste0( em, "-F1.1.inventory_scaling.R" )
-    
+
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
@@ -44,11 +44,9 @@
 
 # ------------------------------------------------------------------------------------
 # 1. Define emission species and read in files
-  
-    em_lc <- tolower( em ) 
-    
+
     MODULE_F <- "../code/module-F/"
-  
+
     EF  <- readData( "MED_OUT", paste0( "D.", em, "_default_total_EF" ) )
     emissions <- readData( "MED_OUT", paste0( "D.", em, "_default_total_emissions" ) )
 
@@ -59,89 +57,89 @@
 # modules - This is the working set of emissions and ef's that the scaling scripts alter.
 # Before scripts are run, these are identical to the default emissions.
 
-    writeData( EF, domain = "MED_OUT", 
+    writeData( EF, domain = "MED_OUT",
                fn = paste0( "F.", em, "_scaled_EF" ), meta = TRUE )
-    writeData( emissions, domain = "MED_OUT", 
+    writeData( emissions, domain = "MED_OUT",
                fn = paste0( "F.", em, "_scaled_emissions" ), meta = TRUE )
 
 # Initialize blank value_metadata file
     F.initializeMeta( EF )
-  
+
 # ------------------------------------------------------------------------------------
 # 3. Call scaling scripts for various species.
 #    Depending on the emissions species, this section of code accumulates in a
 #    list the names of all scripts that correspond to that em.
     scripts <- c()
-   
+
 # EDGAR 4.3 PEGASOS
-    if ( em %in% c( 'NOx', 'NMVOC', 'CO', "NH3" ) ) scripts <- 
+    if ( em %in% c( 'NOx', 'NMVOC', 'CO', "NH3" ) ) scripts <-
               c( scripts, 'F1.1.Edgar_PEGASOS_scaling.R' )
-  
+
 # EDGAR 4.2
-    if ( em %in% c( 'CH4' ) ) scripts <- 
+    if ( em %in% c( 'CH4' ) ) scripts <-
               c( scripts, 'F1.1.Edgar_scaling.R')
-  
+
 # EMEP NFR09 (older data - use because has more sectors and goes back further)
-    if ( em %in% c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2' ) ) scripts <- 
+    if ( em %in% c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2' ) ) scripts <-
               c( scripts,'F1.1.EMEP_NFR09_scaling.R' )
-  
+
 # EMEP NFR14
-    if ( em %in% c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2' ) ) scripts <- 
+    if ( em %in% c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2' ) ) scripts <-
               c( scripts, 'F1.1.EMEP_NFR14_scaling.R' )
-  
+
 # UNFCCC
-    if ( em %in% c( 'SO2', 'CO', 'NMVOC', 'NOx', 'CO2' ) ) scripts <- 
+    if ( em %in% c( 'SO2', 'CO', 'NMVOC', 'NOx', 'CO2' ) ) scripts <-
               c( scripts, 'F1.1.UNFCCC_scaling.R' )
-  
+
 # REAS
   if ( em %in% c('SO2','CO','NMVOC','NOx', 'NH3') ) scripts <- c(scripts, 'F1.1.REAS_scaling.R')
 
 # CAN
-    if ( em %in% c('SO2','NOx','NMVOC','CO','PM10','PM25' ) ) scripts <- 
+    if ( em %in% c('SO2','NOx','NMVOC','CO','PM10','PM25' ) ) scripts <-
               c( scripts, 'F1.1.CAN_scaling_olderData.R' )
 
 # Newer data must run latter
-    if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) scripts <- 
+    if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) scripts <-
               c( scripts, 'F1.1.CAN_scaling_newerData.R' )
-  
+
 # USA
-    if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO', 
-                           'NH3', 'PM10', 'PM25' ) ) scripts <- 
+    if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO',
+                           'NH3', 'PM10', 'PM25' ) ) scripts <-
               c( scripts, 'F1.1.US_scaling.R' )
-  
+
 # US EPA
-    if ( em %in% c( 'CO2' ) ) scripts <- 
+    if ( em %in% c( 'CO2' ) ) scripts <-
               c( scripts, 'F1.1.US-EPA_scaling.R' )
 
 # China
-    if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO' ) ) scripts <- 
-              c( scripts, 'F1.1.China_scaling.R' ) 
-  
+    if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO' ) ) scripts <-
+              c( scripts, 'F1.1.China_scaling.R' )
+
 # Argentina
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ) scripts <- 
+    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ) scripts <-
               c( scripts, 'F1.1.Argentina_scaling.R' )
 
 # Japan
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3' ) ) scripts <- 
+    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3' ) ) scripts <-
               c(scripts, 'F1.1.Japan_scaling.R')
-  
+
 # South Korea
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ) scripts <- 
+    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ) scripts <-
               c( scripts, 'F1.1.South_korea_scaling.R' )
-  
+
 # Taiwan
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ) scripts <- 
+    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ) scripts <-
               c( scripts, 'F1.1.Taiwan_scaling.R' )
-  
+
 # Australia
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ) scripts <- 
+    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ) scripts <-
               c( scripts, 'F1.1.Australia_scaling.R' )
-  
-  
+
+
 # ------------------------------------------------------------------------------------
 # 4. Run all scripts for the given emissions type
 
     invisible( lapply( scripts, source_child ) )
-   
+
     logStop()
 # END

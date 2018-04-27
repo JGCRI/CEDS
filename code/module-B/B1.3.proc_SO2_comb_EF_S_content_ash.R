@@ -32,9 +32,6 @@ args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "SO2"
 
-# "em" is defined from parent script
-em_lc <- tolower( em )
-
 S_content <- readData( "MED_OUT", "B.SO2_S_Content_db" )
 ash_ret <- readData( "MED_OUT", "B.SO2_AshRet_db" )
 
