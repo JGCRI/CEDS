@@ -28,7 +28,6 @@ initialize( script_name, log_msg, headers )
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "SO2"
-em_lc <- tolower( em )
 
 dir.create(  "../diagnostic-output/country-sector", showWarnings = F )
 out_dir <- filePath( 'DIAG_OUT', 'country-sector/', extension = "" )
