@@ -29,32 +29,27 @@ args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "NOx"
 
-# ------------------------------------------------------------------------------
-# 0.5 Load Packages
-
-loadPackage('tools')
-
 # ---------------------------------------------------------------------------
 # 1. Reading data and mapppings into script
 
 MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
 
 # Read in parameter files
-
-files_list <- list.files(path =  './default-emissions-data/non-combustion-emissions',
-                         pattern = '*.csv')
-files_list <- file_path_sans_ext( files_list )
+files <- list.files(path = './default-emissions-data/non-combustion-emissions',
+                    pattern = '*.csv')
+files <- tools::file_path_sans_ext( files )
 
 #de select meta-data
-if (length(grep(pattern = "metadata", files_list )) > 0)
-      files_list <- files_list[-grep(pattern = "metadata", files_list )]
+if (length(grep(pattern = "metadata", files )) > 0)
+      files <- files[-grep(pattern = "metadata", files )]
 
 # select emission
-files_list <- files_list[grep(pattern = paste0( '\\.', em, '_' ), files_list )]
+files <- files[grep(pattern = paste0( '\\.', em, '_' ), files )]
 
-emissions_list <- lapply ( X = files_list, FUN = readData,
+emissions_list <- lapply ( X = files, FUN = readData,
                     domain = "DEFAULT_EF_IN" ,
                     domain_extension = "non-combustion-emissions/")
+
 # ---------------------------------------------------------------------------
 # 2. Interpolate, select process-fuel, convert list to one df
 process_sectors <- MSL[which(MSL$type == 'NC'),'sector']
@@ -86,7 +81,8 @@ process_emissions <- function( e_data ){
 if ( length(emissions_list) > 0 & any( sapply( FUN=nrow, X=emissions_list) > 0 ) ){
 
   emissions_extended <- lapply( X= emissions_list, FUN = process_emissions)
-  emissions <- do.call("rbind.fill", emissions_extended) }
+  emissions <- do.call(rbind.fill, emissions_extended)
+}
 
 if ( !exists( "emissions" ) ) emissions <- data.frame( iso = character(0),
                                                      sector = character(0),
