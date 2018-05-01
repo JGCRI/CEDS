@@ -42,6 +42,7 @@
 # -------------------------------------------------------------------------------------------
 
     loadPackage('zoo')
+    ##CR: remove extra packages
     # loadPackage('ggplot2')
     # loadPackage('plyr')
     # loadPackage('scales')
@@ -1093,21 +1094,21 @@
 # -------------------------------------------------------------------------------------------
 # 14. Combine New FSU data and other energy data
 
-    Final_activity <- rbind ( original_activity_other,
+    final_activity <- rbind ( original_activity_other,
                               FSU_final,
                               original_activity_FSU_nc)
 
 # Replace biomass with original data
-    Final_activity[ which( Final_activity$fuel == 'biomass' ), X_IEA_years ] <- 0
-    Final_activity <- replaceValueColMatch( Final_activity, biomass_activity,
+    final_activity[ which( final_activity$fuel == 'biomass' ), X_IEA_years ] <- 0
+    final_activity <- replaceValueColMatch( final_activity, biomass_activity,
                                             x.ColName = X_IEA_years,
                                             match.x = c( 'iso', 'sector', 'fuel', 'units' ),
                                             addEntries = FALSE )
 # remove zero rows
-    Final_activity <- Final_activity[ which( rowSums( Final_activity[X_IEA_years] ) != 0 ), ]
+    final_activity <- final_activity[ which( rowSums( final_activity[X_IEA_years] ) != 0 ), ]
 
 # sort
-    Final_activity <- Final_activity[ with( Final_activity, order( iso, sector, fuel ) ), ]
+    final_activity <- final_activity[ with( final_activity, order( iso, sector, fuel ) ), ]
 
 
 
@@ -1115,7 +1116,7 @@
 # 15. Write Output
 
     writeData( summary, 'DIAG_OUT', 'FSU_corrected_summary' )
-    writeData( Final_activity, 'MED_OUT', 'A.en_biomass_fsu_fix' )
+    writeData( final_activity, 'MED_OUT', 'A.en_biomass_fsu_fix' )
     writeData( summary, 'DIAG_OUT', 'A.FSU_energy_corrected_summary', meta=F )
 
     logStop()

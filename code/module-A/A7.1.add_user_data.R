@@ -5,7 +5,7 @@
 # Program Purpose: To process user-defined datasets for use in the historical
 #                  energy extension.
 # Input Files: U.*.csv, U.*-instructions.xslx, U.*-mapping.xslx
-# Output Files: None
+# Output Files: A.total_activity.csv
 # Notes: Relies on funcitons from the following files:
 #   - parameters/user_data_inclusion_functions.R
 #   - parameters/user_data_processing.R
@@ -27,7 +27,7 @@ script_name <- paste0( "A7.1.add_user_data.R" )
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
-# ------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # 1. Read in data and filter out non-combustion data
 
 MSL <- readData( "Master_Sector_Level_map", domain = "MAPPINGS" )
@@ -47,7 +47,7 @@ all_activity_data <- readData( 'MED_OUT', 'A.total_activity', meta = F ) %>%
     
 stopifnot( all( !is.na( all_activity_data ) ) ) # Data should all be valid
 
-# ------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # 2. Collect user-defined inputs and prepare processing loop
 
     # Read instructions files that give the user-provided instructions for all
@@ -68,9 +68,8 @@ stopifnot( all( !is.na( all_activity_data ) ) ) # Data should all be valid
     # 1. all_activity_data:    changed activity data
     # 2. old_activity_data:    unchanged (the original) activity data
     # 3. continuity_factors:   percent weight given to unchanged data
-    activity <- list()
-    activity$all_activity_data <- all_activity_data
-    activity$old_activity_data <- all_activity_data
+    activity <- list( all_activity_data = all_activity_data,
+                      old_activity_data = all_activity_data )
     activity <- addContinuityFactors( activity, instructions, all_yrs )
 
     # The lists usr_files and map_files hold the user provided data and the
@@ -253,7 +252,3 @@ stopifnot( all( !is.na( all_activity_data ) ) ) # Data should all be valid
     # sapply(final_short[final_short$agg_fuel == 'coal', paste0('X', 1941:1945)], sum)
 
     logStop()
-
-#END
-
-

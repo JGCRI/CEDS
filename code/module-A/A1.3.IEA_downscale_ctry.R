@@ -6,9 +6,10 @@
 # Date Last Modified: 23 March 2016
 # Program Purpose: Reads in the initial IEA energy data.
 #				   Splits the composite data into individual countries.
-# 				 Maps the aggregate coal consumption in earlier years to
+# 				   Maps the aggregate coal consumption in earlier years to
 #                      specific coal types.
-# Input Files: A.UN_pop_master.csv, OECD_E_stat.csv, NonOECD_E_stat.csv, Master_Country_List.csv
+# Input Files: A.UN_pop_master.csv, OECD_E_stat.csv, NonOECD_E_stat.csv,
+#              Master_Country_List.csv, E.CO2_CDIAC_inventory
 # Output Files: A.IEA_en_stat_ctry_hist.csv
 # Notes: IEA_years and X_IEA_years are now defined in
 #           common_data.R, and range from 1960-2010.

@@ -129,7 +129,7 @@ if ( em == 'CH4' ){
   bp <- Master_Country_List %>%
     select(iso, BPName) %>%
     filter(!is.na(BPName), BPName != 'ussr') %>%
-    unique() %>% 
+    unique() %>%
     filter(!duplicated(iso)) %>%
     unique() %>%
     left_join( BP_energy_data, by = 'BPName') %>%

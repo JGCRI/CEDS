@@ -1,9 +1,9 @@
 # ------------------------------------------------------------------------------
-# Program Name: H1.1.base_activity.R
+# Program Name: A7.1.base_activity.R
 # Author: Rachel Hoesly
-# Date Last Modified: 7 April 2016
+# Date Last Modified: 20 April 2018
 # Program Purpose: Extend CEDS activity backward
-# Input Files:  A.total_activity.csv, A.intl_shipping_en.csv
+# Input Files:  A.NC_activity.csv
 # Output Files:
 # TODO:
 # ---------------------------------------------------------------------------
@@ -16,43 +16,29 @@
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-  headers <- c( "data_functions.R") 
-  log_msg <- "Creating database for CEDS activity_data extension before 1960" 
-  script_name <- "H1.1.base_activity.R"
+  headers <- c( "data_functions.R")
+  log_msg <- "Creating database for CEDS process_activity_data extension before 1960"
+  script_name <- "A7.1.base_activity.R"
 
   source( paste0( PARAM_DIR, "header.R" ) )
   initialize( script_name, log_msg, headers )
 
-# Set up the emission species to be processed 
-  args_from_makefile <- commandArgs( TRUE )
-  em <- args_from_makefile[ 1 ]
-  if ( is.na( em ) ) em <- "NH3"
 
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-  ceds_activity <- readData( 'MED_OUT', paste0( 'A.total_activity' ) )
-  shipping_fuel <- readData( 'MED_OUT', 'A.intl_shipping_en' )
+  ceds_activity <- readData( 'MED_OUT', paste0( 'A.NC_activity' ) )
 
 # ---------------------------------------------------------------------------
 # 2. Extend Data frame
 
   ceds_activity[ paste0('X', historical_pre_extension_year: 1959)] <- NA
   ceds_activity <- ceds_activity[ c( 'iso' , 'sector' , 'fuel' , 'units' , X_extended_years ) ]
-  ceds_activity[ which( ceds_activity$sector == '1A3di_International-shipping' ), paste0( 'X', 1750 : 1959 ) ] <- 0
-
-# ---------------------------------------------------------------------------
-# 3. Add Shipping Fuel
-  
-  ceds_activity <- replaceValueColMatch( ceds_activity, shipping_fuel,
-                                         x.ColName = paste0( 'X', 1750 : 1959 ),
-                                         match.x = c( 'iso', 'sector', 'fuel', 'units' ),
-                                         addEntries = F )
 
 # ---------------------------------------------------------------------------
 # 3. Output
 
- writeData( ceds_activity, "MED_OUT" , paste0( 'H.', em, '_total_activity_extended_db' ) )
+ writeData( ceds_activity, "MED_OUT" , paste0( 'A.NC_activity_extended_db' ) )
 
  logStop( )
 

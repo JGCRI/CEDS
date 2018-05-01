@@ -1,11 +1,9 @@
 # ------------------------------------------------------------------------------
-# Program Name: H1.2.add_activity_pulp_paper_consumption.R
-# Author: Linh Vu
-# Date Last Modified: 28 June 2016
-# Program Purpose: Extend CEDS activity backward with pulp and paper consumption data
-# Input Files:   H.[em]_total_activity_extended_db.csv, CEDS_historical_extension_drivers_activity.csv,
-#               A.pulp_paper_consumption_full.csv
-# Output Files: H.[em]_total_activity_extended_db.csv
+# Program Name: A7.2.add_activity_population.R
+# Author: Rachel Hoesly
+# Program Purpose: Extend CEDS activity backward with population data
+#
+# Output Files:
 # TODO:
 # ---------------------------------------------------------------------------
 
@@ -17,44 +15,42 @@
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R","process_db_functions.R") # Additional function files may be required.
-log_msg <- "Extending CEDS activity_data before 1961 with pulp and paper consumption data" # First message to be printed to the log
-script_name <- "H1.2.add_activity_pulp_paper_consumption.R"
+log_msg <- "Extending CEDS activity_data before 1960 with population data" # First message to be printed to the log
+script_name <- "A7.2.add_activity_population.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
-args_from_makefile <- commandArgs( TRUE )
-em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "BC"
-
-# ---------------------------------------------------------------------------
-# 0.5 Load Packages
-
-
 # ---------------------------------------------------------------------------
 # 1. Load files
 
-activity_all <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended_db') )
+activity_all <- readData( 'MED_OUT', 'A.NC_activity_extended_db' )
 extension_drivers_all <- readData("EXT_IN", 'CEDS_historical_extension_drivers_activity')
-pp_consumption <- readData( "MED_OUT" , 'A.pulp_paper_consumption_full' )
+un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' )
 
 # ---------------------------------------------------------------------------
 # 2. Select data to extend based on extension drivers
 
-drivers <- extension_drivers_all[which( extension_drivers_all$driver_data_source == 'pulp_paper_consumption' ), ]
+extension_drivers <- extension_drivers_all[which( extension_drivers_all$driver_data_source == 'population' ), ]
 activity <- activity_all
 
 # ---------------------------------------------------------------------------
 # 3. Driver data processing
-pp_id_cols <- names( pp_consumption )[ !grepl( "X", names( pp_consumption ) ) ]
-pp <- pp_consumption[, c( pp_id_cols, paste0("X", historical_pre_extension_year:end_year ) ) ]
 
+# un population
+un_pop$X_year <- paste0( "X" , un_pop$year)
+population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_year:end_year ) , ] ,
+                    iso ~ X_year, value = 'pop')
 
 # ---------------------------------------------------------------------------
 # 4. Extend Data
+
+  drivers <- extension_drivers[ which( extension_drivers$driver_data_source == 'population'), ]
+
   ratio_year <- unique(drivers[,'ext_end_year'])
   ext_start_year <- unique(drivers[,'ext_start_year'])
   extension_years <- paste0('X',ext_start_year:ratio_year)
+
 
   # select extension data for current method
   sectors <- drivers[, c('sector','fuel') ]
@@ -63,8 +59,8 @@ pp <- pp_consumption[, c( pp_id_cols, paste0("X", historical_pre_extension_year:
   # select ceds data to extend
   ceds_extension <- activity[ which( paste(activity$sector, activity$fuel, sep="-") %in% sectors  ) , ]
 
-  # add pulp and paper
-  ceds_extension[extension_years] <- pp[match(ceds_extension$iso, pp$iso)  , extension_years ]
+  # add population
+  ceds_extension[extension_years] <- population[match(ceds_extension$iso, population$iso)  , extension_years ]
 
   # add to final activity
   activity <- replaceValueColMatch(activity, ceds_extension,
@@ -78,6 +74,6 @@ pp <- pp_consumption[, c( pp_id_cols, paste0("X", historical_pre_extension_year:
 
 if( !(nrow(activity_all) == nrow(activity) & ncol(activity_all) == ncol(activity) ) ){
   stop( "New and old activity do not match") } else{
-    writeData( activity, "MED_OUT" , paste0('H.',em,'_total_activity_extended_db')) }
+    writeData( activity, "MED_OUT" , 'A.NC_activity_extended_db' ) }
 
 logStop()
