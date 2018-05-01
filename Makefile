@@ -451,9 +451,7 @@ $(MED_OUT)/A.NC_activity_db.csv : \
 	$(ACTIV)/Smelter-Feedstock-Sulfur.xlsx \
 	$(ACTIV)/Wood_Pulp_Consumption.xlsx \
 	$(ACTIV)/GDP.xlsx \
-	$(MED_OUT)/A.NC_activity_energy.csv \
-	#(ACTIV)/FAO_wood_pulp_activity.csv \
-	$(MED_OUT)/A.UN_pop_master.csv
+	$(MED_OUT)/A.NC_activity_energy.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
@@ -489,7 +487,7 @@ $(MED_OUT)/A.final_sector_shares.csv : \
 	$(EXT_IN)/ext_sector_percents_start_assumptions.csv
 	Rscript $< $(EM) --nosave --no-restore
 
-$(MED_OUT)/A.CEDS_combustion_activity_extended_coal.csv : \
+$(MED_OUT)/A.comb_activity_extended_coal.csv : \
 	$(MOD_A)/A6.2.extended_default_activity_coal.R \
 	$(MED_OUT)/A.final_sector_shares.csv \
 	$(MED_OUT)/A.Other_transformation_fuel.csv \
@@ -497,7 +495,7 @@ $(MED_OUT)/A.CEDS_combustion_activity_extended_coal.csv : \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv
 	Rscript $< $(EM) --nosave --no-restore
 
-$(MED_OUT)/A.CEDS_combustion_activity_extended_natural_gas.csv : \
+$(MED_OUT)/A.comb_activity_extended_natural_gas.csv : \
 	$(MOD_A)/A6.2.extended_default_activity_natural_gas.R \
 	$(MED_OUT)/A.final_sector_shares.csv \
 	$(MED_OUT)/A.Other_transformation_fuel.csv \
@@ -505,7 +503,7 @@ $(MED_OUT)/A.CEDS_combustion_activity_extended_natural_gas.csv : \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv
 	Rscript $< $(EM) --nosave --no-restore
 
-$(MED_OUT)/A.CEDS_combustion_activity_extended_petroleum.csv : \
+$(MED_OUT)/A.comb_activity_extended_petroleum.csv : \
 	$(MOD_A)/A6.2.extended_default_activity_petroleum.R \
 	$(MED_OUT)/A.final_sector_shares.csv \
 	$(MED_OUT)/A.Other_transformation_fuel.csv \
@@ -524,11 +522,11 @@ $(MED_OUT)/A.other_biomass_extended.csv : \
 	Rscript $< $(EM) --nosave --no-restore
 
 # combine all combustion extension data
-$(MED_OUT)/A.total_default_activity_extended.csv : \
+$(MED_OUT)/A.comb_default_activity_extended.csv : \
 	$(MOD_A)/A6.4.extended_default_comb_activity.R \
-	$(MED_OUT)/A.CEDS_combustion_activity_extended_coal.csv \
-	$(MED_OUT)/A.CEDS_combustion_activity_extended_natural_gas.csv \
-	$(MED_OUT)/A.CEDS_combustion_activity_extended_petroleum.csv \
+	$(MED_OUT)/A.comb_activity_extended_coal.csv \
+	$(MED_OUT)/A.comb_activity_extended_natural_gas.csv \
+	$(MED_OUT)/A.comb_activity_extended_petroleum.csv \
 	$(MED_OUT)/A.total_activity.csv \
 	$(MED_OUT)/A.intl_shipping_en.csv \
 	$(MED_OUT)/A.residential_biomass_full.csv \
@@ -537,24 +535,31 @@ $(MED_OUT)/A.total_default_activity_extended.csv : \
 	Rscript $< $(EM) --nosave --no-restore
 
 # Non Combustion activity data
-	$(MED_OUT)/A.NC_activity_extended_db.csv : \
-		$(MOD_H)/A8.1.base_activity.R \
-		$(MOD_H)/A8.2.add_activity.R \
-		$(MOD_H)/A8.3.proc_activity.R \
-		$(MOD_H)/A8.2.add_activity_CDIAC.R \
-		$(MOD_H)/A8.2.add_activity_population.R \
-		$(MOD_H)/A8.2.add_activity_pulp_paper_consumption.R \
-		$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
-		$(MED_OUT)/A.pulp_paper_consumption_full.csv \
-		$(EXT_IN)/CEDS_historical_extension_drivers_activity.csv
-		Rscript $< $(EM) --nosave --no-restore
-		Rscript $(word 2,$^) $(EM) --nosave --no-restore
-		Rscript $(word 3,$^) $(EM) --nosave --no-restore
-		Rscript $(word 4,$^) $(EM) --nosave --no-restore
+$(MED_OUT)/A.NC_activity_extended_db.csv : \
+	$(MOD_A)/A7.1.base_activity.R \
+	$(MOD_A)/A7.2.add_activity.R \
+	$(MOD_A)/A7.3.proc_activity.R \
+	$(MOD_A)/A7.2.add_activity_CDIAC.R \
+	$(MOD_A)/A7.2.add_activity_population.R \
+	$(MOD_A)/A7.2.add_activity_pulp_paper_consumption.R \
+	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
+	$(MED_OUT)/A.pulp_paper_consumption_full.csv \
+	$(EXT_IN)/CEDS_historical_extension_drivers_activity.csv
+	Rscript $< $(EM) --nosave --no-restore
+	Rscript $(word 2,$^) $(EM) --nosave --no-restore
+	Rscript $(word 3,$^) $(EM) --nosave --no-restore
+	Rscript $(word 4,$^) $(EM) --nosave --no-restore
 
+$(MED_OUT)/A.NC_default_activity_extended.csv : \
+	$(MOD_A)/A7.3.proc_activity.R \
+	$(MED_OUT)/A.NC_activity_extended_db.csv
+	Rscript $< $(EM) --nosave --no-restore
 
-
-
+$(MED_OUT)/A.total_default_activity_extended.csv : \
+	$(MOD_A)/A8.1.combine_extended_activity.R \
+	$(MED_OUT)/A.NC_default_activity_extended.csv \
+	$(MED_OUT)/A.comb_default_activity_extended.csv
+	Rscript $< $(EM) --nosave --no-restore
 
 # bb1-1
 #$(MED_OUT)/B.$(EM)_comb_EF_GAINS_EMF30.csv : \

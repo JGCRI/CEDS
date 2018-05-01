@@ -42,9 +42,9 @@ source_child <- function( file_name ){ source( paste( MODULE, file_name, sep = "
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-    A.natural_gas_extended <- readData( 'MED_OUT',paste0("A.CEDS_combustion_activity_extended_natural_gas") , meta = F)
-    A.petroleum_extended <- readData( 'MED_OUT',paste0("A.CEDS_combustion_activity_extended_petroleum") , meta = F)
-    A.coal_extended <- readData( 'MED_OUT',paste0("A.CEDS_combustion_activity_extended_coal") , meta = F)
+    A.natural_gas_extended <- readData( 'MED_OUT', "A.comb_activity_extended_natural_gas" , meta = F)
+    A.petroleum_extended <- readData( 'MED_OUT', "A.comb_activity_extended_petroleum" , meta = F)
+    A.coal_extended <- readData( 'MED_OUT', "A.comb_activity_extended_coal" , meta = F)
     A.residential_biomass_extended <- readData('MED_OUT','A.residential_biomass_full')
     A.industrial_biomass_extended <- readData('MED_OUT','A.Fernandes_residential_biomass')
     A.other_biomass_extended <- readData('MED_OUT','A.other_biomass_extended')
@@ -129,12 +129,12 @@ source_child <- function( file_name ){ source( paste( MODULE, file_name, sep = "
 
     # For now, replace NAs with zero
     # Should change this when industrial bimass is added
-    ceds_comb_extended <- replace(NA, 0)
+    ceds_comb_extended <- replace(ceds_comb_extended, ceds_comb_extended==NA, 0)
 
 # ----------------------------------------------------------------------------
 
 # Write out the data
-writeData( ceds_comb_extended , "MED_OUT", "A.combustion_default_activity_extended" )
+writeData( ceds_comb_extended , "MED_OUT", "A.comb_default_activity_extended" )
 
 logStop()
 # END
