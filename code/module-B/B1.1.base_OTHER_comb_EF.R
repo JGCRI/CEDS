@@ -39,7 +39,6 @@
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
     if ( is.na( em ) ) em <- "NMVOC"
-    em_lc <- tolower( em )
 
 # Stop script if running for unsupported species
     if ( em %!in% c( 'NOx', 'NMVOC', 'CH4', 'CO', 'CH4' ) ) {

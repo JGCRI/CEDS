@@ -96,8 +96,7 @@ extendFF <- function( df, ext_years ){
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO2"
-em_lc <- tolower( em )
+if ( is.na( em ) ) em <- "CO"
 
 activity_data <- readData( "MED_OUT", "A.NC_activity" )
 
@@ -262,7 +261,7 @@ if( length ( check ) > 0 ) {
 
 # Add back unchanged EFs
   new_efs_corrected_user_added <- rbind( new_efs_corrected_user_added, new_efs_excl ) %>%
-    dplyr::arrange( iso, sector, fuel, units )    
+    dplyr::arrange( iso, sector, fuel, units )
 
 # Logic Check for negative emissions factors
 if (any(new_efs_corrected_user_added < 0) ) stop('There are negative EFs in ', paste0( "C.", em, "_", "NC", "_EF" ))

@@ -41,7 +41,6 @@
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
     if ( is.na( em ) ) em <- "SO2"
-    em_lc <- tolower( em )
 
 # Stop script if running for unsupported species
     if ( em %!in% c('SO2','NOx','NMVOC','BC','OC','CH4','CO','CO2') ) {
@@ -403,7 +402,7 @@
 
 # Replace new brown coal values into main EF dataframe
     gainsEMF30_all <- filter( gainsEMF30_all, fuel != "brown_coal" ) %>%
-                                           rbind( gains_brown_coal ) %>% 
+                                           rbind( gains_brown_coal ) %>%
                                         dplyr::arrange( iso, sector, fuel )
 
 # Separate process and combustion

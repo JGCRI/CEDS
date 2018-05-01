@@ -31,10 +31,6 @@ args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "NOx"
 
-# "em" is defined from parent script
-em_lc <- tolower( em )
-
-
 control_frac <- readData( "MED_OUT", paste0("B.",em,'_ControlFrac_db' ))
 EF_db <- readData("MED_OUT", paste0( "B.", em ,"_", "comb", "_EF_db" ))
 
