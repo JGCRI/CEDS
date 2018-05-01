@@ -134,7 +134,7 @@ CEDS_default_actvity <- sector_breakdown(a.fuel_totals = all_disaggregate_fuel,
 
 #-----------------------------------------------------------------------------------------------
 # 3. Print output
-writeData( CEDS_default_actvity , "MED_OUT", "A.CEDS_combustion_activity_extended_coal" )
+writeData( CEDS_default_actvity , "MED_OUT", "A.comb_activity_extended_coal" )
 
 logStop()
 # END

@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Program Name: A8.2.add_activity.R
+# Program Name: A7.2.add_activity.R
 # Author: Rachel Hoesly
 # Date Last Updated: 28 June 2016
 # Program Purpose: To select and run the correct script(s) to extend CEDS activity data.
@@ -20,7 +20,7 @@
 # provide logging, file support, and system functions - and start the script log.
 headers <- c('data_functions.R') # Additional function files required.
 log_msg <- paste0( "Calling species-specific child script to extend CEDS activity data" ) # First message to be printed to the log
-script_name <- "A8.2.add_activity.R"
+script_name <- "A7.2.add_activity.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -53,14 +53,14 @@ initialize( script_name, log_msg, headers )
   all_drivers <- unique(extension_drivers$driver_data_source)
 
   # Get list of extension (add_activity)
-  driver_scripts <- list.files(path =  '../code/module-A',pattern = 'A8.2.add_activity_*')
+  driver_scripts <- list.files(path =  '../code/module-A',pattern = 'A7.2.add_activity_*')
   driver_scripts <- file_path_sans_ext( driver_scripts )
-  driver_scripts <- gsub("A8.2.add_activity_","",driver_scripts)
-  driver_scripts <- driver_scripts[ driver_scripts %!in% c("A8.2.add_activity") ]
+  driver_scripts <- gsub("A7.2.add_activity_","",driver_scripts)
+  driver_scripts <- driver_scripts[ driver_scripts %!in% c("A7.2.add_activity") ]
 
   drivers_without_scripts <- all_drivers[ all_drivers %!in% c(driver_scripts,NA) ]
   scripts_without_drivers <- driver_scripts[ driver_scripts %!in% c(all_drivers) ]
-  if( length(scripts_without_drivers) > 0 ) scripts_without_drivers <- paste0('A8.2.add_activity_',scripts_without_drivers,'.R')
+  if( length(scripts_without_drivers) > 0 ) scripts_without_drivers <- paste0('A7.2.add_activity_',scripts_without_drivers,'.R')
 
   if ( length(drivers_without_scripts)>0 & length(scripts_without_drivers) == 0 ) {
           stop(paste0("The following extension drivers are specified in extension/CEDS_historical_extension_drivers.csv without corresponding scripts: ",
@@ -80,9 +80,9 @@ printLog('Running add_activity scripts to extend activity data')
 # scripts have to be called in order of time period, most recent to most historical -
 # Bond-CDIAC must be called before CDIAC fuels
 
-  scripts <- c( "A8.2.add_activity_population.R",
-                "A8.2.add_activity_pulp_paper_consumption.R",
-                "A8.2.add_activity_CDIAC.R")
+  scripts <- c( "A7.2.add_activity_population.R",
+                "A7.2.add_activity_pulp_paper_consumption.R",
+                "A7.2.add_activity_CDIAC.R")
 
 
 # Run all child scripts for the given emissions type. The call to
