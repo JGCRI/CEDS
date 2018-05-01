@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 # Program Name: A6.3.extend_other_biomass.R
-# Author: Rachel Hoesly
+# Authors: Rachel Hoesly, Caleb Braun
 # Program Purpose: Extend other Biomass back with population to zero by certain date.
 #
 # Output Files:''

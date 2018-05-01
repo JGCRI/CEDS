@@ -1,33 +1,35 @@
-# ------------------------------------------------------------------------------
-# Program Name: A6.3.extend_industrial_biomass.R
-# Author: Rachel Hoesly
-# Program Purpose: Extend Industrial Biomass with bond data. Transition from ceds to bond values
+# A6.3.extend_industrial_biomass.R ---------------------------------------------
 #
-# Output Files:'A.total_activity_extended_db'
-# TODO:
-# ---------------------------------------------------------------------------
+# Program Name:  A6.3.extend_industrial_biomass.R
+# Authors:       Rachel Hoesly, Caleb Braun
+# Last Modified: April 30, 2018
+# Purpose:       Extend Industrial Biomass with Bond data.
+#                Transition from CEDS to Bond values
+#
+# Output Files:  A.industrial_biomass_extended
+# ------------------------------------------------------------------------------
 
-# 0. Read in global settings and headers
-# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
-# to the "input" directory.
-    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
+# 0. Read in global settings and headers ----------------------------------
+PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Call standard script header function to read in universal header files -
-# provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R","process_db_functions.R") # Additional function files may be required.
-log_msg <- "Extending biomass activity_data before 1960 with CDIAC-Bond data" # First message to be printed to the log
+# Read in additional header files and start the script log
+headers <- c( "data_functions.R","process_db_functions.R")
+log_msg <- "Extending biomass activity_data before 1960 with CDIAC-Bond data"
 script_name <- "A6.3.extend_industrial_biomass.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
-# ---------------------------------------------------------------------------
-# 1. Load files
+
+# 1. Load files -----------------------------------------------------------
 
 ceds_comb_activity <- readData( 'MED_OUT', paste0( 'A.total_activity' ) )
 
-bond_ctypes = c(rep("text", 5), rep("numeric", 4), "skip") # last column contains value in last cell: set option to skip
-bond_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/" ,"160227_SPEW_BCOCemission", ".xlsx", column_types = bond_ctypes, meta = T )
+# Read in the bond data.
+bond_ctypes = c(rep("text", 5), rep("numeric", 4), "skip")
+bond_historical <- readData( "EM_INV", "160227_SPEW_BCOCemission", ".xlsx",
+                             domain_extension = "Bond-BCOC/",
+                             column_types = bond_ctypes, meta = T )
 
 iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_country_map", meta = F )
 fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_fuel_map", meta = F )
@@ -36,61 +38,61 @@ iea_start_year <- readData( 'ENERGY_IN' , 'IEA_iso_start_data', meta = F )
 
 un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' , meta = F )
 
-# ---------------------------------------------------------------------------
-# 1. Definte Fuction
+
+# 2. Define Functions -----------------------------------------------------
 
 # un population
-un_pop$X_year <- paste0( "X" , un_pop$year)
-un_pop$pop <- as.numeric(un_pop$pop)
-population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_year:end_year ) , ] ,
-                    iso ~ X_year, value = 'pop')
+population <- un_pop %>%
+    dplyr::select( iso, year, pop ) %>%
+    dplyr::filter( year %in% historical_pre_extension_year:end_year ) %>%
+    tidyr::spread( year, pop ) %>%
+    setNames( make.names( names( . ) ) )
 
+disaggregate_countries <- function(original_data, aggregate_country,
+                                   disaggregate_countries, aggregate_end_year,
+                                   data_start_year = 1850,
+                                   id_cols=c('iso','fuel'), population) {
 
+    aggregate_country_data <- original_data[ which( original_data$iso == aggregate_country),]
+    disaggregate_years <- paste0('X', data_start_year:aggregate_end_year)
 
-disaggregate_countries <- function(original_data,aggregate_country,disaggregate_countries, aggregate_end_year,
-                                   data_start_year = 1850, id_cols=c('iso','fuel'), population){
+    # template for extended disaggregate - fill
+    disaggregate_extended <- original_data[ which( original_data$iso %in% disaggregate_countries), id_cols]
 
-aggregate_country_data <- original_data[ which( original_data$iso == aggregate_country),]
-disaggregate_years <- paste0('X', data_start_year:aggregate_end_year)
+    # driver data - population disaggregate and aggregate_country
+    #part of the ratio - disaggregate population
+    disaggregate_population <- disaggregate_extended
+    disaggregate_population <- population[ match(disaggregate_population $iso,population$iso) , disaggregate_years]
+    #part of the ratio - aggregate_country population
+    aggregate_country_pop <- population[ which( population$iso %in% disaggregate_countries), c('iso',disaggregate_years)]
+    aggregate_country_pop <- rbind(aggregate_country_pop,c(aggregate_country,colSums(aggregate_country_pop[disaggregate_years])))
+    aggregate_country_pop[disaggregate_years] <- sapply(aggregate_country_pop[disaggregate_years],FUN=as.numeric)
+    aggregate_country_population <- disaggregate_extended
+    aggregate_country_population[disaggregate_years] <- aggregate_country_pop[ match(rep( x=aggregate_country,times=nrow(aggregate_country_population)),
+                                                  aggregate_country_pop$iso) , disaggregate_years]
 
-# template for extended disaggregate - fill
-disaggregate_extended <- original_data[ which( original_data$iso %in% disaggregate_countries), id_cols]
+    #TODO: matches by fuel, not robust (will work for this script)
+    # multiplyer - aggregate_country CDIAC data
+    aggregate_country_cdiac_multiplier <- disaggregate_extended[id_cols]
+    aggregate_country_cdiac_multiplier[disaggregate_years] <- aggregate_country_data[ match(aggregate_country_cdiac_multiplier$fuel,aggregate_country_data$fuel),
+                                                   disaggregate_years]
 
-# driver data - population disaggregate and aggregate_country
-#part of the ratio - disaggregate population
-disaggregate_population <- disaggregate_extended
-disaggregate_population <- population[ match(disaggregate_population $iso,population$iso) , disaggregate_years]
-#part of the ratio - aggregate_country population
-aggregate_country_pop <- population[ which( population$iso %in% disaggregate_countries), c('iso',disaggregate_years)]
-aggregate_country_pop <- rbind(aggregate_country_pop,c(aggregate_country,colSums(aggregate_country_pop[disaggregate_years])))
-aggregate_country_pop[disaggregate_years] <- sapply(aggregate_country_pop[disaggregate_years],FUN=as.numeric)
-aggregate_country_population <- disaggregate_extended
-aggregate_country_population[disaggregate_years] <- aggregate_country_pop[ match(rep( x=aggregate_country,times=nrow(aggregate_country_population)),
-                                              aggregate_country_pop$iso) , disaggregate_years]
+    #Extend Data
+    disaggregate_extended[disaggregate_years] <- as.matrix(aggregate_country_cdiac_multiplier[disaggregate_years]) *
+      as.matrix(disaggregate_population[disaggregate_years]) / as.matrix(aggregate_country_population[disaggregate_years])
 
-#TODO: matches by fuel, not robust (will work for this script)
-# multiplyer - aggregate_country CDIAC data
-aggregate_country_cdiac_multiplier <- disaggregate_extended[id_cols]
-aggregate_country_cdiac_multiplier[disaggregate_years] <- aggregate_country_data[ match(aggregate_country_cdiac_multiplier$fuel,aggregate_country_data$fuel),
-                                               disaggregate_years]
-
-#Extend Data
-disaggregate_extended[disaggregate_years] <- as.matrix(aggregate_country_cdiac_multiplier[disaggregate_years]) *
-  as.matrix(disaggregate_population[disaggregate_years]) / as.matrix(aggregate_country_population[disaggregate_years])
-
-# add back to full data
-corrected <- replaceValueColMatch(original_data,disaggregate_extended,
-                                             x.ColName = disaggregate_years,
-                                             match.x = id_cols,
-                                             addEntries = FALSE)
-#remove aggregate_country from final cdiac data to prevent double counting
-corrected <- corrected[-which(corrected$iso == aggregate_country),]
-return(corrected)
+    # add back to full data
+    corrected <- replaceValueColMatch(original_data,disaggregate_extended,
+                                                 x.ColName = disaggregate_years,
+                                                 match.x = id_cols,
+                                                 addEntries = FALSE)
+    #remove aggregate_country from final cdiac data to prevent double counting
+    corrected <- corrected[-which(corrected$iso == aggregate_country),]
+    return(corrected)
 }
 
 
-# ---------------------------------------------------------------------------
-# 2. Select data to extend based on extension drivers
+# 3. Select data to extend based on extension drivers ---------------------
 
 activity <- ceds_comb_activity
 activity[paste0('X',1750:1959)] <- NA
@@ -99,8 +101,8 @@ start_years <- c(1960,1971)
 
 iea_start_year$start_year <- 1971
 iea_start_year[which(iea_start_year$iso %in% c('usa','aus','swe','can','prt','pol')),'start_year'] <- 1960
-# ---------------------------------------------------------------------------
-# 3. Bond Data processing
+
+# 4. Bond Data processing -------------------------------------------------
 
 # Industrial Biomass
 bond <- merge( bond_historical, iso_map[,c('iso','Country')])
@@ -125,8 +127,7 @@ bond_industrial_biomass <- bond_industrial_biomass[ , c('iso','fuel',paste0('X',
 bond_industrial_biomass[ , c(paste0('X',1850:2000))] <- interpolate_NAs(bond_industrial_biomass[ , c(paste0('X',1850:2000))])
 
 
-# ---------------------------------------------------------------------------
-# 3. CEDS Data processing
+# 5. CEDS Data processing ---------------------------------------------------
 
 industry_sectors <- c( '1A2a_Ind-Comb-Iron-steel',
                        '1A2b_Ind-Comb-Non-ferrous-metals',
@@ -150,8 +151,7 @@ ceds_industrial_biomass_agg <- aggregate( ceds_industrial_biomass[ X_emissions_y
                                                  fuel = ceds_industrial_biomass$fuel),
                                       FUN = sum)
 
-# ---------------------------------------------------------------------------
-# 3. Disaggregate Bond Data - FSU and USSR
+# 6. Disaggregate Bond Data - FSU and USSR ----------------------------------
 
 bond_industrial_biomass_fsu<- disaggregate_countries(original_data = bond_industrial_biomass,
                                                      aggregate_country = 'ussr',
@@ -167,8 +167,7 @@ bond_industrial_biomass_yug<- disaggregate_countries(original_data = bond_indust
                                                      data_start_year = 1850, id_cols=c('iso','fuel'), population)
 
 
-# ---------------------------------------------------------------------------
-# 3. Total Industry Biomass
+# 7. Total Industry Biomass -------------------------------------------------
 
 # Merge bond and ceds industrial biomass
 
@@ -218,8 +217,7 @@ for ( i in seq_along(start_years ) ) {
 blended_biomass <- blended_biomass[ , c('iso','fuel',paste0('X',1850:end_year))]
 
 
-# ---------------------------------------------------------------------------
-# 6. Calculate sector breakdown
+# 8. Calculate sector breakdown ---------------------------------------------
 
 ceds_sector_breakdown_list <- list()
 for ( i in seq_along((start_years))){
@@ -249,8 +247,7 @@ ceds_sector_breakdown [ paste0('X',1850:1971)[ paste0('X',1850:1971) %!in% names
 ceds_sector_breakdown <- ceds_sector_breakdown[ , c('iso','sector','fuel',paste0('X',1850:1971))]
 ceds_sector_breakdown[ , paste0('X',1850:1971)] <- interpolate_NAs(ceds_sector_breakdown[ , paste0('X',1850:1971)])
 
-# ---------------------------------------------------------------------------
-# 6. Disaggregate to CEDS sectors
+# 9. Disaggregate to CEDS sectors -------------------------------------------
 
 for ( i in seq_along((start_years))){
   countries <- iea_start_year[which( iea_start_year$start_year == start_years[i]),'iso']
@@ -274,8 +271,7 @@ for ( i in seq_along((start_years))){
 
   }
 
-# ---------------------------------------------------------------------------
-# 6. Extend 1750 to 1750 with Population
+# 10. Extend 1750 to 1750 with Population ------------------------------------
 
 # set up extension data (population)
   extension_data_1960 <- dissagregate_biomass_1960[,c('iso','sector','fuel')]
@@ -301,8 +297,7 @@ for ( i in seq_along((start_years))){
   final_extended_biomass <- final_extended_biomass[,c('iso','sector','fuel',paste0('X',1750:1970))]
 
 
-  # ---------------------------------------------------------------------------
-  # 4. Write to database
+# 11. Write to database -----------------------------------------------------
 
   writeData( final_extended_biomass, "MED_OUT" , 'A.industrial_biomass_extended')
 
