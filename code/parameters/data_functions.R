@@ -418,15 +418,17 @@ buildCEDSTemplate <- function( iso_list = NULL, sector_list = NULL, fuel_list = 
 # Output files: none
 
 interpolate_NAs <- function(df) {
-  if( class(df) != 'data.frame' ) {
+  if( 'data.frame' %!in% class(df) ) {
     warning("interpolate_NAs expects a data frame; attempting to convert")
     df <- as.data.frame(df)
   }
 
   value.cols <- sapply(df, is.numeric)
   interpolate_rows <- c()
-  for ( i in seq_along(df[ , 1]) ) {
+  for ( i in seq_along(1:nrow(df))) {
     row <- df[i, ]
+    # Check if 1) there are NAs surrounded on either side by values and
+    #          2) there are at least 2 non-NA elements (redundant check?)
     if( length(rle(is.na(c(NA, row, NA)))$values) > 3 &&
         length(row) - sum(is.na(row)) > 1) {
       interpolate_rows <- c(interpolate_rows, i)

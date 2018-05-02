@@ -42,11 +42,11 @@ un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' , meta = F )
 # 2. Define Functions -----------------------------------------------------
 
 # un population
-population <- un_pop %>%
+population2 <- un_pop %>%
     dplyr::select( iso, year, pop ) %>%
     dplyr::filter( year %in% historical_pre_extension_year:end_year ) %>%
     tidyr::spread( year, pop ) %>%
-    setNames( make.names( names( . ) ) )
+    dplyr::rename_all( make.names )
 
 disaggregate_countries <- function(original_data, aggregate_country,
                                    disaggregate_countries, aggregate_end_year,
@@ -99,32 +99,32 @@ activity[paste0('X',1750:1959)] <- NA
 
 start_years <- c(1960,1971)
 
+bond_cutoff_year <- 2000
+X_bond_range <- paste0( 'X', bond_start:bond_cutoff_year )
+
 iea_start_year$start_year <- 1971
 iea_start_year[which(iea_start_year$iso %in% c('usa','aus','swe','can','prt','pol')),'start_year'] <- 1960
 
 # 4. Bond Data processing -------------------------------------------------
 
-# Industrial Biomass
-bond <- merge( bond_historical, iso_map[,c('iso','Country')])
-bond <- bond[which( bond$Tech %in% c( " Category       ") &
-                      bond$Sector %in% c( " Industrial  ")  ) ,]
-bond <- merge( bond, fuel_map)
-bond <- bond[which( bond[,'Fuel (kt)'] > 0),]
-bond <- bond[which( bond$fuel == 'biomass'),]
-bond <- bond[which( bond[,'Year'] < 2005),]
-bond$Year <- paste0('X',bond$Year)
+bond_industrial_biomass <- bond_historical %>%
+    dplyr::filter( Tech == " Category       ", Sector == " Industrial  " ) %>%
+    dplyr::inner_join( iso_map[ , c( 'iso', 'Country' ) ], by = 'Country' ) %>%
+    dplyr::inner_join( fuel_map, by = 'Fuel' ) %>%
+    dplyr::filter( !is.na( iso ),
+                   `Fuel (kt)` > 0,
+                   fuel == 'biomass',
+                   Year <= bond_cutoff_year ) %>%
+    dplyr::group_by( iso, Year, fuel ) %>%
+    dplyr::summarise( `Fuel (kt)` = sum( `Fuel (kt)` ) ) %>%
+    dplyr::ungroup() %>%
+    tidyr::spread( Year, `Fuel (kt)` ) %>%
+    dplyr::mutate_at( setdiff( X_bond_range, X_bond_years ), funs( +NA ) ) %>%
+    dplyr::rename_all( make.names ) %>%
+    dplyr::select( iso, fuel, X_bond_range )
 
-bond <- aggregate(bond["Fuel (kt)"],
-                  by = list(iso = bond$iso,
-                            Year = bond$Year),
-                  FUN = sum)
-bond_industrial_biomass <- cast(bond, iso ~ Year, value = 'Fuel (kt)')
-bond_industrial_biomass$fuel <- 'biomass'
-# Intepolate years
-bond_industrial_biomass[ paste0('X',1850:2000)[ paste0('X',1850:2000)  %!in% names(bond_industrial_biomass)]  ] <- NA
-bond_industrial_biomass <- bond_industrial_biomass[ , c('iso','fuel',paste0('X',1850:2000))]
-
-bond_industrial_biomass[ , c(paste0('X',1850:2000))] <- interpolate_NAs(bond_industrial_biomass[ , c(paste0('X',1850:2000))])
+# Interpolate years
+bond_industrial_biomass[ , X_bond_range] <- interpolate_NAs( bond_industrial_biomass[ , X_bond_range] )
 
 
 # 5. CEDS Data processing ---------------------------------------------------
