@@ -28,7 +28,7 @@ initialize( script_name, log_msg, headers )
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-A.comb_default_activity_extended <- readData('MED_OUT','A.comb_default_activity_extended')
+A.comb_default_activity_extended <- readData('MED_OUT','A.comb_user_added')
 A.NC_default_activity_extended <- readData('MED_OUT','A.NC_default_activity_extended')
 
 
@@ -36,9 +36,11 @@ A.NC_default_activity_extended <- readData('MED_OUT','A.NC_default_activity_exte
 # 2. Combine combustion and non combustion extended activity data
 
 
-total <- rbind(A.comb_default_activity_extended,
-               A.NC_default_activity_extended) %>%
-  arrange(iso, sector, fuel)
+total <- A.comb_default_activity_extended %>%
+    dplyr::rename( sector = CEDS_sector, fuel = CEDS_fuel ) %>%
+    dplyr::select( -agg_sector, -agg_fuel) %>%
+    dplyr::bind_rows( A.NC_default_activity_extended ) %>%
+    dplyr::arrange(iso, sector, fuel)
 
 # ----------------------------------------------------------------------------
 

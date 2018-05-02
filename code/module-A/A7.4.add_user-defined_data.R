@@ -68,7 +68,8 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     names( MSL )[ names( MSL ) == 'working_sectors_v1' ] <- 'CEDS_sector'
 
     # Gather default activity data
-    default_activity <- readData( 'MED_OUT', paste0( 'H.', em, '_total_activity_extended_db' ) , meta = F) ### Eventually this will not require an emissions species.
+    #default_activity <- readData( 'MED_OUT', paste0( 'H.', em, '_total_activity_extended_db' ) , meta = F) ### Eventually this will not require an emissions species.
+    default_activity <- readData( 'MED_OUT', 'A.comb_default_activity_extended', meta = F)
     names( default_activity )[ 1:3 ] <- c( "iso", "CEDS_sector", "CEDS_fuel" )
     default_mapped <- mapToCEDS( default_activity, MSL, MFL, aggregate = F )
 
@@ -251,7 +252,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
     final_activity <- enforceContinuity( activity, all_yrs )
 
-    writeData( final_activity, domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST"))
+    writeData( final_activity, domain = "MED_OUT", "A.comb_user_added" )
     # final_short <- final_activity %>% dplyr::filter(iso == 'gbr', agg_fuel == 'coal')#agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
     # default_short <- default_mapped %>% dplyr::filter(iso == 'gbr', agg_fuel == 'coal')#agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
     # View(default_short[, c(1:5, 199:217)])

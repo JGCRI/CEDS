@@ -555,10 +555,15 @@ $(MED_OUT)/A.NC_default_activity_extended.csv : \
 	$(MED_OUT)/A.NC_activity_extended_db.csv
 	Rscript $< $(EM) --nosave --no-restore
 
+$(MED_OUT)/A.comb_user_added.csv : \
+	$(MOD_A)/A7.4.add_user-defined_data.R \
+	$(MED_OUT)/A.comb_default_activity_extended.csv
+	Rscript $< $(EM) --nosave --no-restore
+
 $(MED_OUT)/A.total_default_activity_extended.csv : \
 	$(MOD_A)/A8.1.combine_extended_activity.R \
 	$(MED_OUT)/A.NC_default_activity_extended.csv \
-	$(MED_OUT)/A.comb_default_activity_extended.csv
+	$(MED_OUT)/A.comb_user_added.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 # bb1-1
