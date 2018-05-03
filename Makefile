@@ -450,8 +450,7 @@ $(MED_OUT)/A.NC_activity_db.csv : \
 	$(MAPPINGS)/2011_NC_SO2_ctry.csv \
 	$(ACTIV)/Smelter-Feedstock-Sulfur.xlsx \
 	$(ACTIV)/Wood_Pulp_Consumption.xlsx \
-	$(ACTIV)/GDP.xlsx \
-	$(MED_OUT)/A.NC_activity_energy.csv
+	$(ACTIV)/GDP.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
