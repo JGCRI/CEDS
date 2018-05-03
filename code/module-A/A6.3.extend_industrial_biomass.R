@@ -275,6 +275,6 @@ for ( i in seq_along( start_years ) ) {
 
 # 10. Write to database -----------------------------------------------------
 
-  writeData( final_extended_biomass, "MED_OUT" , 'A.industrial_biomass_extended')
+writeData( final_extended_biomass, "MED_OUT", 'A.industrial_biomass_extended' )
 
-  logStop()
+logStop()
