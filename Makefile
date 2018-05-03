@@ -381,6 +381,15 @@ $(MED_OUT)/A.intl_shipping_en.csv : \
 
 # aa3-2
 # Write out difference between IEA and CEDS coal
+$(MED_OUT)/A.IEA_CEDS_coal_difference.csv : \
+	$(MOD_A)/A3.3.write_IEA_diff.R \
+	$(MED_OUT)/A.IEA_BP_energy_ext.csv
+	Rscript $< $(EM) --nosave --no-restore
+
+$(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv : \
+	$(MED_OUT)/A.IEA_CEDS_coal_difference.csv
+
+# Write out difference between IEA and CEDS coal
 #$(MED_OUT)/A.IEA_CEDS_coal_difference.csv : \
 	$(MED_OUT)/A.IEA_BP_energy_ext.csv
 #	Rscript $< $(EM) --nosave --no-restore
@@ -546,10 +555,15 @@ $(MED_OUT)/A.NC_default_activity_extended.csv : \
 	$(MED_OUT)/A.NC_activity_extended_db.csv
 	Rscript $< $(EM) --nosave --no-restore
 
+$(MED_OUT)/A.comb_user_added.csv : \
+	$(MOD_A)/A7.4.add_user-defined_data.R \
+	$(MED_OUT)/A.comb_default_activity_extended.csv
+	Rscript $< $(EM) --nosave --no-restore
+
 $(MED_OUT)/A.total_default_activity_extended.csv : \
 	$(MOD_A)/A8.1.combine_extended_activity.R \
 	$(MED_OUT)/A.NC_default_activity_extended.csv \
-	$(MED_OUT)/A.comb_default_activity_extended.csv
+	$(MED_OUT)/A.comb_user_added.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 # bb1-1
