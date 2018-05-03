@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: A8.2.add_activity_population.R
+# Program Name: A7.2.add_activity_population.R
 # Author: Rachel Hoesly
 # Program Purpose: Extend CEDS activity backward with population data
 #
@@ -16,7 +16,7 @@
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R","process_db_functions.R") # Additional function files may be required.
 log_msg <- "Extending CEDS activity_data before 1960 with population data" # First message to be printed to the log
-script_name <- "A8.2.add_activity_population.R"
+script_name <- "A7.2.add_activity_population.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )

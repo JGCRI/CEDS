@@ -26,7 +26,7 @@ orderInstructions <- function( instructions ) {
 # Instruction files are specified as all files in the user-defined-energy
 # directory with the name [filename]-instructions.csv
 getInstructionFilenames <- function() {
-    USER_DOM <- "../input/extension/user-defined-energy/"
+    USER_DOM <- "extension/user-defined-energy/"
 
     # Get a list of all the files in the directory
     files_present <- list.files( USER_DOM )
