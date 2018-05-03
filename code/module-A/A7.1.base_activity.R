@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: A8.1.base_activity.R
+# Program Name: A7.1.base_activity.R
 # Author: Rachel Hoesly
 # Date Last Modified: 20 April 2018
 # Program Purpose: Extend CEDS activity backward
@@ -18,7 +18,7 @@
 # provide logging, file support, and system functions - and start the script log.
   headers <- c( "data_functions.R")
   log_msg <- "Creating database for CEDS process_activity_data extension before 1960"
-  script_name <- "A8.1.base_activity.R"
+  script_name <- "A7.1.base_activity.R"
 
   source( paste0( PARAM_DIR, "header.R" ) )
   initialize( script_name, log_msg, headers )
