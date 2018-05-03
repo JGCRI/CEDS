@@ -1,11 +1,11 @@
 #------------------------------------------------------------------------------
-# Program Name: add_user-defined_data.R
+# Program Name: A7.4.add_user-defined_data.R
 # Authors: Ben Goldstein, Caleb Braun
-# Date Last Updated: January 2018
+# Date Last Updated: May 2018
 # Program Purpose: To process user-defined datasets for use in the historical
 #                  energy extension.
 # Input Files: U.*.csv, U.*-instructions.xslx, U.*-mapping.xslx
-# Output Files: None
+# Output Files: A.comb_user_added.csv
 # Notes: Relies on funcitons from the following files:
 #   - parameters/user_data_inclusion_functions.R
 #   - parameters/user_data_processing.R
@@ -17,68 +17,37 @@
 # 0. Read in global settings and headers
 PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Get emission species first so can name log appropriately
-    args_from_makefile <- commandArgs( TRUE )
-    em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "CO2"
+# Call standard script header function to read in universal header files
+headers <- c( "data_functions.R", "emissions_scaling_functions.R",
+              "analysis_functions.R", "interpolation_extension_functions.R",
+              "user_data_processing.R", "user_extension_instr_processing.R",
+              "user_data_inclusion_functions.R" )
+log_msg <- "Adding user-defined energy data."
+script_name <- "A7.4.add_user-defined_data.R"
 
-# Call standard script header function to read in universal header files -
-# provide logging, file support, and system functions - and start the script log.
-    headers <- c( "data_functions.R" ,"emissions_scaling_functions.R" , "analysis_functions.R",
-                  "interpolation_extension_functions.R", "user_data_processing.R",
-                  "user_extension_instr_processing.R", "user_data_inclusion_functions.R" ) # Additional function files required.
-    log_msg <- paste0( "Calling inventory emission scaling stripts" ) # First message to be printed to the log
-    script_name <- paste0( "add_user-defined_data.R" )
-
-    source( paste0( PARAM_DIR, "header.R" ) )
-    initialize( script_name, log_msg, headers )
-
-
-# ------------------------------------------------------------------------------------
-# 0.5 Define functions
-
-# is.invalid
-# Brief: This is a helper function for the add_user-defined_data script.
-#        Combination check for if a value is null, NA, or NaN
-# params:
-#    x: some non-list object
-    is.invalid <- function(x) {
-      return( is.null(x) || is.na(x) || is.nan(x) )
-    }
-
-# is.nan.df
-# Brief: This is a helper function for the add_user-defined_data script.
-#        Makes up for the fact that R has no built-in vectorized check
-#        for NaN.
-# params:
-#    x: a dataframe that may or may not contain NaN values
-    is.nan.df <- function(x) {
-        do.call( cbind, lapply(x, is.nan) )
-    }
+source( paste0( PARAM_DIR, "header.R" ) )
+initialize( script_name, log_msg, headers )
 
 # ------------------------------------------------------------------------------------
 # 1. Read in data and filter out non-combustion data
 
-    MSL <- readData( "Master_Sector_Level_map", domain = "MAPPINGS" )
-    MCL <- readData( "Master_Country_List",     domain = "MAPPINGS" )
-    MFL <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx" )
-    comb_or_NC <- MFL$Sectors
-    comb_sectors_only <- comb_or_NC$sector[ comb_or_NC$type == "comb" ]
-    MFL <- MFL$Fuels
-    names( MSL )[ names( MSL ) == 'working_sectors_v1' ] <- 'CEDS_sector'
+MSL <- readData( "Master_Sector_Level_map", domain = "MAPPINGS" )
+MCL <- readData( "Master_Country_List",     domain = "MAPPINGS" )
+MFL <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx" )
+all_sectors <- MFL$Sectors
+comb_sectors <- all_sectors$sector[ all_sectors$type == "comb" ]
+MFL <- MFL$Fuels
+MSL <- dplyr::rename( MSL, CEDS_sector = working_sectors_v1 )
 
-    # Gather default activity data
-    #default_activity <- readData( 'MED_OUT', paste0( 'H.', em, '_total_activity_extended_db' ) , meta = F) ### Eventually this will not require an emissions species.
-    default_activity <- readData( 'MED_OUT', 'A.comb_default_activity_extended', meta = F)
-    names( default_activity )[ 1:3 ] <- c( "iso", "CEDS_sector", "CEDS_fuel" )
-    default_mapped <- mapToCEDS( default_activity, MSL, MFL, aggregate = F )
+# Remove non-combustion activity from the default data then map it to the
+# standard CEDS format
+all_activity_data <- readData( 'MED_OUT', 'A.comb_default_activity_extended', meta = F ) %>%
+    dplyr::rename( CEDS_sector = sector, CEDS_fuel = fuel ) %>%
+    dplyr::filter( CEDS_sector %in% comb_sectors ) %>%
+    mapToCEDS( MSL, MFL, aggregate = F )
 
-    # We only operate on combustion emissions, so reduce the data to that form
-    combustion_rows <- default_mapped$CEDS_sector %in% comb_sectors_only
-    all_activity_data <- default_mapped[ combustion_rows, ]
+stopifnot( all( !is.na( all_activity_data ) ) ) # Data should all be valid
 
-    # I don't know why there are NAs, but for now let's zero them out:
-    all_activity_data[is.na(all_activity_data)] <- 0
 
 # ------------------------------------------------------------------------------------
 # 2. Collect user-defined inputs and prepare processing loop
@@ -87,7 +56,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     # supplemental data.
     all_instr <- readInUserInstructions()
     stopifnot( !is.null( all_instr ) )
-    instructions <- processInstructions( all_instr, comb_sectors_only, MSL, MFL )
+    instructions <- processInstructions( all_instr, comb_sectors, MSL, MFL )
 
     # TODO: Figure out how/where/why to process trend data without roundabout
     #       file writing and bypassing processing
@@ -101,9 +70,8 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     # 1. all_activity_data:    changed activity data
     # 2. old_activity_data:    unchanged (the original) activity data
     # 3. continuity_factors:   percent weight given to unchanged data
-    activity <- list()
-    activity$all_activity_data <- all_activity_data
-    activity$old_activity_data <- all_activity_data
+    activity <- list( all_activity_data = all_activity_data,
+                      old_activity_data = all_activity_data )
     activity <- addContinuityFactors( activity, instructions, all_yrs )
 
     # The lists usr_files and map_files hold the user provided data and the
