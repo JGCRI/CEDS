@@ -46,9 +46,9 @@ source_child <- function( file_name ){ source( paste( MODULE, file_name, sep = "
     A.petroleum_extended <- readData( 'MED_OUT', "A.comb_activity_extended_petroleum" , meta = F)
     A.coal_extended <- readData( 'MED_OUT', "A.comb_activity_extended_coal" , meta = F)
     A.residential_biomass_extended <- readData('MED_OUT','A.residential_biomass_full')
-    A.industrial_biomass_extended <- readData('MED_OUT','A.Fernandes_residential_biomass')
+    A.industrial_biomass_extended <- readData('MED_OUT','A.industrial_biomass_extended')
     A.other_biomass_extended <- readData('MED_OUT','A.other_biomass_extended')
-    ceds_comb_activity <- readData( 'MED_OUT', paste0( 'A.total_activity' ) )
+    ceds_comb_activity <- readData( 'MED_OUT', paste0( 'A.comb_activity' ) )
     shipping_fuel <- readData( 'MED_OUT', 'A.intl_shipping_en' )
 
     iea_start_year <- readData( 'ENERGY_IN' , 'IEA_iso_start_data')
@@ -119,14 +119,23 @@ source_child <- function( file_name ){ source( paste( MODULE, file_name, sep = "
 
 # ---------------------------------------------------------------------------
 # 3. Add Industrial Biomass
+    ceds_comb_extended <- add_extended_activity_by_iea(A.industrial_biomass_extended)
 
 # ---------------------------------------------------------------------------
 # 3. Add Other Biomass
 
-
+    ceds_comb_extended <- add_extended_activity_by_iea(A.other_biomass_extended)
 
 # ----------------------------------------------------------------------------
+# Arrange and check for NAs
+    ceds_comb_extended <- ceds_comb_extended %>%
+        select(iso, sector, fuel, units, one_of(X_extended_years)) %>%
+        arrange(iso, sector, fuel)
 
+    test <- ceds_comb_extended %>%
+        filter(is.na(X1750))
+
+    any(is.na(ceds_comb_extended))
     # For now, replace NAs with zero
     # Should change this when industrial bimass is added
     ceds_comb_extended <- replace(ceds_comb_extended, ceds_comb_extended==NA, 0)
