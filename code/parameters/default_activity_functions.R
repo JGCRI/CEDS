@@ -454,7 +454,7 @@ fuel_breakdown <- function(  a.UN_data = UNSD_Energy_Final_Consumption,
 #
 # Dependencies:
 #
-# Author(s): Rachel
+# Author(s): Rachel Hoesly
 #
 # Parameters:
 #
@@ -475,6 +475,7 @@ sector_breakdown <- function(a.fuel_totals = all_disaggregate_fuel,
   # a.iea_start_years = iea_start_year
   # a.ceds_extension_fuels = ceds_extension_fuels
   # a.extension_start_year = 1750
+
 
   #-------------------
 
@@ -506,5 +507,5 @@ sector_breakdown <- function(a.fuel_totals = all_disaggregate_fuel,
     disagregate_sector_list <- lapply(unique(a.iea_start_years$start_year),disagregate_sector)
     disagregate_sector_activity <- do.call(rbind.fill, disagregate_sector_list) %>%
         arrange(iso)
-}
+} # end sector_breakdown()
 

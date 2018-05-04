@@ -114,7 +114,7 @@ is.invalid <- function(x) return( is.null(x) || is.na(x) || is.nan(x) )
 # Params:
 #    x: a dataframe that may or may not contain NaN values
 is.nan.df <- function(x) do.call( cbind, lapply(x, is.nan) )
-    
+
 # -----------------------------------------------------------------------------
 # gsub2
 # Brief:        Pattern replacement in a vector.
@@ -566,46 +566,12 @@ calculate_correct_shares <- function(a.input_data,
 
 ){
 
-    # a.input_data <- CEDS_sector_ext_sector_shares
-    # a.id_columns <- c('iso', 'fuel', 'ext_sector')
-    # a.target_column <- c('sector')
-    # a.corrections <- bond_percent_1850 %>%
-    #     dplyr::rename(breakdown = X1850)
-    # a.match_columns = c('ext_sector','sector')
-    # replace_with_zeros = T
-
-
-    # a.input_data = extended_breakdown_complete
-    # a.id_columns = c('iso', 'fuel', 'ext_sector')
-    # a.target_column = c('sector')
-    # a.corrections = ext_sector_breakdown_assumptions
-    # replace_with_zeros = T
-
-    # a.input_data = un_fuel_shares_complete
-    # a.id_columns = 'iso'
-    # a.target_column = 'fuel'
-    # a.corrections = a.default_fuel_share
-
-    # a.input_data = combined_sector_percentages_all
+    # a.input_data = bond_sector_percentages_full
     # a.id_columns = c("iso","fuel")
     # a.target_column = c('ext_sector')
     # replace_with_zeros = T
     # a.corrections = ext_sector_percents_start_assumptions
-    # a.match_columns = a.target_column
-
-    # a.input_data = extended_breakdown_complete
-    # a.id_columns = c('iso', 'fuel', 'ext_sector')
-    # a.target_column = c('sector')
-    # a.corrections = ext_sector_breakdown_assumptions
-    # replace_with_zeros = T
-    # a.match_columns = a.target_column
-
-    # a.input_data = ceds_shares_complete
-    # a.id_columns = 'iso'
-    # a.target_column = 'fuel'
-    # a.corrections = a.default_fuel_share
-    # replace_with_zeros = T
-    # a.match_columns = a.target_column
+    # a.match_columns = c('fuel', 'ext_sector')
 
     # ---------------------------
     #CR: Re-use the parameter verification in calculate_shares
@@ -635,6 +601,16 @@ calculate_correct_shares <- function(a.input_data,
                         summarise_all(funs(sum))
                     if( !all(sum$breakdown == 1) ) stop('breakdown must sum to 1 over target variable, check corrections')}
 
+    # Check to see if there are corrections for all combinations in input data - Do not stop, but through warning if there are not defaults for all
+    # combinations
+
+    no_defaults <- setdiff( apply(a.input_data[a.match_columns], 1, paste, collapse = "-" ) %>% unique,
+             apply(a.corrections[a.match_columns], 1, paste, collapse = "-" ) %>% unique )
+
+    if ( length(no_defaults) > 0 ) stop(
+        paste( 'In calculate_correct_shares: defaults are not provided for all breakdowns. The following do not have defautls: ' ,
+                                              paste(no_defaults, collapse = ", ") ) )
+
     # ---------------------------
     # 2. Define useful variables
     X_years <- names(a.input_data)[grep('X',names(a.input_data))]
@@ -661,7 +637,6 @@ calculate_correct_shares <- function(a.input_data,
 
     # Check for all entries
     if( nrow(a.input_data_long) != (nrow(already_correct_years) + nrow(to_correct_years)) ) stop("In calculate_correct_shares(), some entries are dropped. Please check.")
-
 
     # ---------------------------
     # 4. Correct to_correcet_years
