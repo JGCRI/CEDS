@@ -272,10 +272,9 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
 #    negatives: a logical indicating whether any negative values were reset to 0
 #    override_normalization: a logical indicating whether normalization was
 #                            manually skipped
-generateWarnings <- function ( Xyears, disagg_data_changed,
-                               data_to_use, negatives, whole_group,
-                               override_normalization, all_zero_years,
-                               need_user_spec ) {
+generateWarnings <- function ( Xyears, disagg_data_changed, data_to_use,
+                               negatives, whole_group, override_normalization,
+                               all_zero_years, need_user_spec ) {
 
     # Exclude those years for which there is no non-user-specified data from
     # generating warnings
@@ -512,7 +511,7 @@ interpBreakdowns <- function( pct_breakdown, Xyears ) {
     # All columns containing all zeros will be replaced with NA, so we can use
     # interpolate_NAs() to replace them
     zcols <- colSums( breakdowns_to_correct ) == 0
-    breakdowns_to_correct[ , zcols ] <- NA
+    breakdowns_to_correct[ , zcols ] <- NA_real_
 
     # If the first or last year is NA this will make complete interpolation
     # impossible. We will therefore come up with a default if it is NA; we will
