@@ -132,9 +132,15 @@ CEDS_default_actvity <- sector_breakdown(a.fuel_totals = all_disaggregate_fuel,
                                          a.ceds_extension_fuels = ceds_extension_fuels,
                                          a.extension_start_year = 1750)
 
+# ------------------------------------------------------------------------------------------------
+# 4. Arrange final df
+CEDS_default_actvity_final <- CEDS_default_actvity %>%
+    mutate(units = 'kt') %>%
+    arrange(iso, sector, fuel, units)
+
 #-----------------------------------------------------------------------------------------------
-# 3. Print output
-writeData( CEDS_default_actvity , "MED_OUT", "A.comb_activity_extended_natural_gas" )
+# 5. Print output
+writeData( CEDS_default_actvity_final , "MED_OUT", "A.comb_activity_extended_natural_gas" )
 
 logStop()
 # END

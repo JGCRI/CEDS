@@ -66,6 +66,9 @@ source_child <- function( file_name ){ source( paste( MODULE, file_name, sep = "
 
 # write function to replace values based on IEA years
     add_extended_activity_by_iea <- function(new_data, a.ceds_comb_extended = ceds_comb_extended){
+        # new_data <- A.coal_extended
+        # a.ceds_comb_extended = ceds_comb_extended
+
         iea1971 <- iea_start_year %>%
             filter(start_year == 1971) %>%
             pull(iso)
@@ -74,7 +77,7 @@ source_child <- function( file_name ){ source( paste( MODULE, file_name, sep = "
             filter(start_year == 1960) %>%
             pull(iso)
 
-        activity1960 <-  replaceValueColMatch( ceds_comb_extended,
+        activity1960 <-  replaceValueColMatch( a.ceds_comb_extended,
                                                new_data %>% filter ( iso %in% iea1960),
                                              x.ColName = paste0('X',1750:1959),
                                              match.x = c('iso','sector','fuel'),
@@ -84,12 +87,15 @@ source_child <- function( file_name ){ source( paste( MODULE, file_name, sep = "
                                              x.ColName = paste0('X',1750:1970),
                                              match.x = c('iso','sector','fuel'),
                                              addEntries = F)
+        if( nrow(activity1971) != nrow(a.ceds_comb_extended) ) stop()
+
          return(activity1971)
     }
 # Add extended coal, oil, gas data
-    ceds_comb_extended <- add_extended_activity_by_iea(A.natural_gas_extended) %>%
-            add_extended_activity_by_iea(A.petroleum_extended) %>%
-            add_extended_activity_by_iea(A.coal_extended)
+    ceds_comb_extended <- add_extended_activity_by_iea(A.natural_gas_extended)
+    ceds_comb_extended <- add_extended_activity_by_iea(A.petroleum_extended)
+    ceds_comb_extended <- add_extended_activity_by_iea(A.coal_extended)
+
 
 
 # ---------------------------------------------------------------------------
@@ -131,11 +137,10 @@ source_child <- function( file_name ){ source( paste( MODULE, file_name, sep = "
     ceds_comb_extended <- ceds_comb_extended %>%
         select(iso, sector, fuel, units, one_of(X_extended_years)) %>%
         arrange(iso, sector, fuel)
+# # UNCOMMENT WHEN BIOMASS IS DONE
+# # Check for NAs
+#     if( any(is.na(ceds_comb_extended)) ) stop('NAs in final extended combustion data. Please Check')
 
-    test <- ceds_comb_extended %>%
-        filter(is.na(X1750))
-
-    any(is.na(ceds_comb_extended))
     # For now, replace NAs with zero
     # Should change this when industrial bimass is added
     ceds_comb_extended <- replace(ceds_comb_extended, ceds_comb_extended==NA, 0)

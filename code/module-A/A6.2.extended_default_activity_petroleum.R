@@ -154,14 +154,18 @@ other_transformation_check2 <- CEDS_default_actvity %>%
     sum()
 if(other_transformation_check2 != 0) stop('In petroleum extension, light, disel, or heavy oil is disaggregated to Other-tranformation. Shomuld only be "petroleum". Please check.')
 
+#-----------------------------------------------------------------------------------------------
+# 4. Arrange Final DF
 
 # filter out uneeded sectors
 CEDS_default_actvity_final <- CEDS_default_actvity %>%
+    mutate(units = 'kt') %>%
     filter( !(sector == "1A1bc_Other-transformation" & fuel != "petroleum" ),
-            !(sector != "1A1bc_Other-transformation" & fuel == "petroleum" ))
+            !(sector != "1A1bc_Other-transformation" & fuel == "petroleum" )) %>%
+    arrange(iso, sector, fuel, units)
 
 #-----------------------------------------------------------------------------------------------
-# 3. Print output
+# 5. Print output
 writeData( CEDS_default_actvity_final , "MED_OUT", "A.comb_activity_extended_petroleum" )
 
 logStop()
