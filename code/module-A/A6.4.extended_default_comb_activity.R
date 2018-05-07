@@ -125,11 +125,8 @@ iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
 # ---------------------------------------------------------------------------
 # 6. Add Industrial Biomass
 
-    ceds_comb_extended <- replaceValueColMatch(ceds_comb_extended,
-                                               A.industrial_biomass_extended,
-                                               x.ColName = extension_years,
-                                               match.x = c('iso','sector','fuel'),
-                                               addEntries = F)
+    ceds_comb_extended <- add_extended_activity_by_iea(A.industrial_biomass_extended,
+                                                       ceds_comb_extended)
 
 
 # ---------------------------------------------------------------------------
