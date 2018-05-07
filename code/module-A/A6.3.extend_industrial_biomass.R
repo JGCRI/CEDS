@@ -9,6 +9,11 @@
 # Input Files:   A.total_activity, A.UN_pop_master, IEA_iso_start_data
 #                CD.Bond_country_industrial_biomass
 # Output Files:  A.industrial_biomass_extended
+# Method Summary: 1. Disaggregate Bond data in CEDS Countries
+#                 2. Blend Bond and CEDS biomass totals
+#                 3. Calculate CEDS sector breakdowns
+#                 4. Apply sector breakdowns to total Biomass
+#                 5. Extend other (no bond data) with population
 # ------------------------------------------------------------------------------
 
 
@@ -58,7 +63,7 @@ disaggregate_countries <- function(original_data, aggregate_country,
                                                   aggregate_country_pop$iso) , disaggregate_years]
 
     #TODO: matches by fuel, not robust (will work for this script)
-    # multiplyer - aggregate_country CDIAC data
+    # multiplier - aggregate_country CDIAC data
     aggregate_country_cdiac_multiplier <- disaggregate_extended[id_cols]
     aggregate_country_cdiac_multiplier[disaggregate_years] <- aggregate_country_data[ match(aggregate_country_cdiac_multiplier$fuel,aggregate_country_data$fuel),
                                                    disaggregate_years]
@@ -220,8 +225,11 @@ ceds_sector_breakdown[which(ceds_sector_breakdown$sector == '1A2g_Ind-Comb-other
 # Intepolate years (keep 5 year intervals, fill in missing data)
 ceds_sector_breakdown [ paste0('X',1850:1971)[ paste0('X',1850:1971) %!in% names(ceds_sector_breakdown) ] ] <- NA
 ceds_sector_breakdown <- ceds_sector_breakdown[ , c('iso','sector','fuel',paste0('X',1850:1971))]
-ceds_sector_breakdown[ , paste0('X',1850:1971)] <- interpolate_NAs(ceds_sector_breakdown[ , paste0('X',1850:1971)])
 
+ceds_sector_breakdown <- ceds_sector_breakdown %>%
+    group_by(iso, sector, fuel) %>%
+    mutate_all(as.numeric) %>%
+    interpolate_NAs
 
 # 8. Disaggregate to CEDS sectors -------------------------------------------
 
@@ -272,8 +280,14 @@ for ( i in seq_along( start_years ) ) {
   final_extended_biomass <- rbind.fill(final_extended_1960, final_extended_1971)
   final_extended_biomass <- final_extended_biomass[,c('iso','sector','fuel',paste0('X',1750:1970))]
 
+# 10. Arrange and Check -----------------------------------------------------
 
-# 10. Write to database -----------------------------------------------------
+  final_extended_biomass <- final_extended_biomass %>%
+      arrange(iso, sector, fuel)
+
+  if( any(is.na(final_extended_biomass[paste0('X',1750:1959) ]))) stop('NAs in final industrial biomass data. Please Check.')
+
+# 11. Write to database -----------------------------------------------------
 
 writeData( final_extended_biomass, "MED_OUT", 'A.industrial_biomass_extended' )
 
