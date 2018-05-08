@@ -7,16 +7,21 @@
 #                  - Coal, Natural Gas, Oil
 #                  - Residential Biomass (Fernandez) (previously extended in earlier mod A script)
 #                  - Shipping (IMO) (previously extended in earlier mod A script)
-#                  - Industrial and Other Biomass
-# Input Files: A.CEDS_combustion_activity_extended_natural_gas.csv,
-#              A.CEDS_combustion_activity_extended_coal.csv,
-#              A.CEDS_combustion_activity_extended_petroleum.csv
+#                  - Industrial and Other Bionass
+# Input Files: A.comb_activity_extended_natural_gas.csv,
+#              A.comb_activity_extended_coal.csv,
+#              A.comb_activity_extended_petroleum.csv
+#              A.residential_biomass_full
+#              A.industrial_biomass_extended
+#              A.other_biomass_extended
+#              A.comb_activity
+#              A.intl_shipping_en
 # Output Files: A.combustion_default_activity_extended
 # Notes: industrial biomass and other biomass need to be added
-# ------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 
-# ------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
@@ -31,7 +36,7 @@ script_name <- "A6.4.extended_default_activity.R"
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
-# ------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # 0.5 Load Packages, Define Functions
 loadPackage('tools')
 
@@ -53,12 +58,11 @@ A.industrial_biomass_extended  <- readData('MED_OUT', 'A.industrial_biomass_exte
 A.residential_biomass_extended <- readData('MED_OUT', 'A.residential_biomass_full')
 
 shipping_fuel      <- readData('MED_OUT', 'A.intl_shipping_en')
-ceds_comb_activity <- readData('MED_OUT', 'A.total_activity')
+ceds_comb_activity <- readData('MED_OUT', 'A.comb_activity')
 iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
 
 
-# ---------------------------------------------------------------------------
-# 2. Extend Dataframe template
+# 2. Extend Dataframe template ------------------------------------------------
 
     extension_years <- paste0('X', historical_pre_extension_year:1959)
     ceds_comb_extended  <- ceds_comb_activity
@@ -66,11 +70,14 @@ iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
     ceds_comb_extended <- ceds_comb_extended[ c( 'iso', 'sector', 'fuel', 'units', X_extended_years ) ]
 
 
-# ---------------------------------------------------------------------------
-# 3. Add Extended coal, oil, gas fuels
+
+# 3. Add Extended coal, oil, gas fuels ----------------------------------------
 
 # write function to replace values based on IEA years
     add_extended_activity_by_iea <- function(new_data, a.ceds_comb_extended = ceds_comb_extended){
+        # new_data <- A.coal_extended
+        # a.ceds_comb_extended = ceds_comb_extended
+
         iea1971 <- iea_start_year %>%
             filter(start_year == 1971) %>%
             pull(iso)
@@ -79,7 +86,7 @@ iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
             filter(start_year == 1960) %>%
             pull(iso)
 
-        activity1960 <-  replaceValueColMatch( ceds_comb_extended,
+        activity1960 <-  replaceValueColMatch( a.ceds_comb_extended,
                                                new_data %>% filter ( iso %in% iea1960),
                                              x.ColName = extension_years,
                                              match.x = c('iso','sector','fuel'),
@@ -89,25 +96,29 @@ iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
                                              x.ColName = paste0('X',1750:1970),
                                              match.x = c('iso','sector','fuel'),
                                              addEntries = F)
+
+        if( nrow(activity1971) != nrow(a.ceds_comb_extended) ) stop()
+
         return(activity1971)
     }
+
 # Add extended coal, oil, gas data
-    ceds_comb_extended <- add_extended_activity_by_iea(A.natural_gas_extended) %>%
-            add_extended_activity_by_iea(A.petroleum_extended) %>%
-            add_extended_activity_by_iea(A.coal_extended)
+    ceds_comb_extended <- add_extended_activity_by_iea(A.natural_gas_extended)
+    ceds_comb_extended <- add_extended_activity_by_iea(A.petroleum_extended)
+    ceds_comb_extended <- add_extended_activity_by_iea(A.coal_extended)
 
 
-# ---------------------------------------------------------------------------
-# 4. Add Shipping Fuel
-    ceds_comb_extended[ ceds_comb_extended$sector == '1A3di_International-shipping', extension_years ] <- NA
+
+# 4. Add Shipping Fuel --------------------------------------------------------
+    ceds_comb_extended[ ceds_comb_extended$sector == '1A3di_International-shipping', paste0('X',1750:1959) ] <- NA
 
     ceds_comb_extended <- replaceValueColMatch( ceds_comb_extended, shipping_fuel,
                                            x.ColName = extension_years,
                                            match.x = c('iso','sector','fuel','units'),
                                            addEntries = F)
 
-# ---------------------------------------------------------------------------
-# 5. Add Extended Residential Biomass (Fernandes data)
+
+# 5. Add Extended Residential Biomass (Fernandes data) ------------------------
 
     residential_biomass <- A.residential_biomass_extended %>%
         dplyr::select( iso, year, units, ceds_tot_final ) %>%
@@ -122,32 +133,31 @@ iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
                                                addEntries = FALSE)
 
 
-# ---------------------------------------------------------------------------
-# 6. Add Industrial Biomass
-
+# 6. Add Industrial Biomass ---------------------------------------------------------------
     ceds_comb_extended <- add_extended_activity_by_iea(A.industrial_biomass_extended,
                                                        ceds_comb_extended)
 
 
-# ---------------------------------------------------------------------------
-# 7. Add Other Biomass
+# 7. Add Other Biomass ---------------------------------------------------------------
 
-    ceds_comb_extended <- replaceValueColMatch(ceds_comb_extended,
-                                               A.other_biomass_extended,
-                                               x.ColName = extension_years,
-                                               match.x = c('iso','sector','fuel'),
-                                               addEntries = F)
+    ceds_comb_extended <- add_extended_activity_by_iea(A.other_biomass_extended,
+                                                       ceds_comb_extended)
 
-# ----------------------------------------------------------------------------
 
-    # For now, replace NAs with zero
-    # Should change this when industrial biomass is added
-    ceds_comb_extended <- replace(ceds_comb_extended, is.na(ceds_comb_extended), 0)
+# 8. Arrange and check for NAs ---------------------------------------------------------------
 
-# ----------------------------------------------------------------------------
+    ceds_comb_extended <- ceds_comb_extended %>%
+        select(iso, sector, fuel, units, one_of(X_extended_years)) %>%
+        arrange(iso, sector, fuel)
 
-# Write out the data
-writeData( ceds_comb_extended , "MED_OUT", "A.comb_default_activity_extended" )
+    # Check for NAs
+    if( any(is.na(ceds_comb_extended)) ) stop('NAs in final extended combustion data. Please Check')
 
-logStop()
+
+# 9. Write out the data ---------------------------------------------------------------
+
+    writeData( ceds_comb_extended , "MED_OUT", "A.comb_default_activity_extended" )
+
+    logStop()
+
 # END
