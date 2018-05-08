@@ -132,9 +132,41 @@ CEDS_default_actvity <- sector_breakdown(a.fuel_totals = all_disaggregate_fuel,
                                          a.ceds_extension_fuels = ceds_extension_fuels,
                                          a.extension_start_year = 1750)
 
+# Because the functions are robust enough for the extension of all fuels, petroleum - Other_tranformation has a few extra zero rows
+# Check to make sure that those rows sum to zero and delete
+# the aggregate 'petroleum' fuel should only be for other-tranformation
+# in other fuels, we were able to seperate other tranformation into fuel types (ie hard coal and brown coal)
+other_transformation_check1 <- CEDS_default_actvity %>%
+    filter(fuel != 'petroleum' & sector == '1A1bc_Other-transformation') %>%
+    group_by(sector) %>%
+    summarize_if(is.numeric, sum, na.rm = T) %>%
+    ungroup() %>%
+    select( -sector) %>%
+    sum()
+if(other_transformation_check1 != 0) stop('In petroleum extension, light, disel, or heavy oil is disaggregated to Other-tranformation. Shomuld only be "petroleum". Please check.')
+
+other_transformation_check2 <- CEDS_default_actvity %>%
+    filter(fuel == 'petroleum' & sector != '1A1bc_Other-transformation') %>%
+    group_by(sector) %>%
+    summarize_if(is.numeric, sum, na.rm = T) %>%
+    ungroup() %>%
+    select( -sector) %>%
+    sum()
+if(other_transformation_check2 != 0) stop('In petroleum extension, light, disel, or heavy oil is disaggregated to Other-tranformation. Shomuld only be "petroleum". Please check.')
+
 #-----------------------------------------------------------------------------------------------
-# 3. Print output
-writeData( CEDS_default_actvity , "MED_OUT", "A.comb_activity_extended_petroleum" )
+# 4. Arrange Final DF
+
+# filter out uneeded sectors
+CEDS_default_actvity_final <- CEDS_default_actvity %>%
+    mutate(units = 'kt') %>%
+    filter( !(sector == "1A1bc_Other-transformation" & fuel != "petroleum" ),
+            !(sector != "1A1bc_Other-transformation" & fuel == "petroleum" )) %>%
+    arrange(iso, sector, fuel, units)
+
+#-----------------------------------------------------------------------------------------------
+# 5. Print output
+writeData( CEDS_default_actvity_final , "MED_OUT", "A.comb_activity_extended_petroleum" )
 
 logStop()
 # END

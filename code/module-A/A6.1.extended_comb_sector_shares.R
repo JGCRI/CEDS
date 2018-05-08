@@ -158,6 +158,7 @@ for ( i in seq_along(start_years)) {
     combined_agg_sector_percentages_corrected <- calculate_correct_shares ( a.input_data = combined_sector_percentages_all,
                                    a.id_columns = c("iso","fuel"),
                                    a.target_column = c('ext_sector'),
+                                   a.match_columns = c('fuel', 'ext_sector'),
                                    replace_with_zeros = T,
                                    a.corrections = ext_sector_percents_start_assumptions  )
 

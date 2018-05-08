@@ -480,6 +480,7 @@ $(MED_OUT)/A.NC_activity.csv : \
 # Combustion data
 $(MED_OUT)/A.final_sector_shares.csv : \
 	$(MOD_A)/A6.1.extended_comb_sector_shares.R \
+	$(EXT_IN)/CD.Bond_sector_percentages.csv.zip \
 	$(MED_OUT)/A.Other_transformation_fuel.csv \
 	$(MED_OUT)/A.comb_activity.csv \
 	$(EXT_IN)/ext_sector_breakdown_assumptions.csv \
@@ -555,7 +556,7 @@ $(MED_OUT)/A.NC_default_activity_extended.csv : \
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.comb_user_added.csv : \
-	$(MOD_A)/A7.4.add_user-defined_data.R \
+	$(MOD_A)/A8.1.add_user-defined_data.R \
 	$(MED_OUT)/A.comb_default_activity_extended.csv
 	Rscript $< $(EM) --nosave --no-restore
 
