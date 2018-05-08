@@ -61,7 +61,7 @@ activity : $(MED_OUT)/A.total_activity.csv \
 	$(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv \
 	$(MED_OUT)/A.coal_heat_content.csv
 
-extended-activity : $(MED_OUT)/A.total_default_activity_extended.csv
+extended-activity : $(MED_OUT)/A.total_activity_extended.csv
 
 else
 
@@ -560,8 +560,8 @@ $(MED_OUT)/A.comb_user_added.csv : \
 	$(MED_OUT)/A.comb_default_activity_extended.csv
 	Rscript $< $(EM) --nosave --no-restore
 
-$(MED_OUT)/A.total_default_activity_extended.csv : \
-	$(MOD_A)/A8.1.combine_extended_activity.R \
+$(MED_OUT)/A.total_activity_extended.csv : \
+	$(MOD_A)/A8.2.combine_extended_activity.R \
 	$(MED_OUT)/A.NC_default_activity_extended.csv \
 	$(MED_OUT)/A.comb_user_added.csv
 	Rscript $< $(EM) --nosave --no-restore

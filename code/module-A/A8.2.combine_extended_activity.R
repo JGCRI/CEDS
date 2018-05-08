@@ -45,7 +45,7 @@ total <- A.comb_default_activity_extended %>%
 # ----------------------------------------------------------------------------
 
 # Write out the data
-writeData( total , "MED_OUT", "A.total_default_activity_extended" )
+writeData( total , "MED_OUT", "A.total_activity_extended" )
 
 logStop()
 # END
