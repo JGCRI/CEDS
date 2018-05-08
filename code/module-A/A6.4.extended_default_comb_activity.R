@@ -69,7 +69,8 @@ iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
     ceds_comb_extended[extension_years] <- NA
     ceds_comb_extended <- ceds_comb_extended[ c( 'iso', 'sector', 'fuel', 'units', X_extended_years ) ]
 
-
+# Fill in 'global" iso with zeros. Will replace international shipping later
+    ceds_comb_extended[ ceds_comb_extended$iso == 'global' , paste0('X',1750:1959) ] <- 0
 
 # 3. Add Extended coal, oil, gas fuels ----------------------------------------
 
@@ -110,7 +111,13 @@ iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
 
 
 # 4. Add Shipping Fuel --------------------------------------------------------
-    ceds_comb_extended[ ceds_comb_extended$sector == '1A3di_International-shipping', paste0('X',1750:1959) ] <- NA
+# overwrite historical extension with NAs
+    ceds_comb_extended[ ceds_comb_extended$sector == '1A3di_International-shipping' &
+                            ceds_comb_extended$iso == 'global'    , paste0('X',1750:1959) ] <- NA
+# international shipping biomass to zero
+    ceds_comb_extended[ ceds_comb_extended$sector == '1A3di_International-shipping' &
+                            ceds_comb_extended$fuel %in% c( 'biomass','brown_coal','coal_coke','light_oil','natural_gas' )  ,
+                        paste0('X',1750:1959) ] <- 0
 
     ceds_comb_extended <- replaceValueColMatch( ceds_comb_extended, shipping_fuel,
                                            x.ColName = extension_years,
@@ -131,7 +138,10 @@ iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
                                                x.ColName = extension_years,
                                                match.x = c('iso','sector','fuel'),
                                                addEntries = FALSE)
-
+    # Fill in biomass - pse with zero
+    ceds_comb_extended[ ceds_comb_extended$sector == '1A4b_Residential' &
+                            ceds_comb_extended$iso == 'pse' &
+                            ceds_comb_extended$fuel == 'biomass'   , paste0('X',1750:1959) ] <-0
 
 # 6. Add Industrial Biomass ---------------------------------------------------------------
     ceds_comb_extended <- add_extended_activity_by_iea(A.industrial_biomass_extended,
@@ -153,6 +163,7 @@ iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
     # Check for NAs
     if( any(is.na(ceds_comb_extended)) ) stop('NAs in final extended combustion data. Please Check')
 
+    ceds_comb_extended %>% filter( is.na(X1751))
 
 # 9. Write out the data ---------------------------------------------------------------
 
