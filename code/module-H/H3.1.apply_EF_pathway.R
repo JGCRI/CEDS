@@ -1,4 +1,4 @@
-# Program Name: H4.1.apply_EF_pathway.R
+# Program Name: H3.1.apply_EF_pathway.R
 # Author: Linh Vu
 # Date Last Updated: 8 Nov 2016
 # Program Purpose: Apply minimum/maximum EF pathway to extended EF
@@ -17,7 +17,7 @@
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'data_functions.R', 'timeframe_functions.R', 'common_data.R')
 log_msg <- "Apply emissions factor pathway"
-script_name <- "H4.1.apply_EF_pathway.R"
+script_name <- "H3.1.apply_EF_pathway.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -64,7 +64,7 @@ if( length( fl ) > 0 ){
     pathway_full_long <- melt( pathway_full, id = id_cols ) %>%
       dplyr::arrange( iso, sector, fuel )
     pathway_full_long <- group_by( pathway_full_long, iso, sector, fuel ) %>%
-      dplyr::mutate( value = na.locf( value, fromLast = T, na.rm = F ), 
+      dplyr::mutate( value = na.locf( value, fromLast = T, na.rm = F ),
               value = na.locf( value, na.rm = F ) )
     pathway_full <- cast( pathway_full_long )
 

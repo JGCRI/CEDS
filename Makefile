@@ -841,20 +841,19 @@ $(MED_OUT)/F.$(EM)_scaled_EF.csv : \
 # Module H
 
 $(MED_OUT)/H.$(EM)_total_EFs_adjusted-sector.csv : \
-	$(MOD_H)/H2.1.replace_EF_sectors.R \
-	$(MED_OUT)/F.$(EM)_scaled_EF.csv \
-	$(MED_OUT)/H.$(EM)_total_activity_extended.csv
+	$(MOD_H)/H1.1.replace_EF_sectors.R \
+	$(MED_OUT)/F.$(EM)_scaled_EF.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/H.$(EM)_total_EFs_extended.csv : \
-	$(MOD_H)/H3.1.base_EFs.R \
-	$(MOD_H)/H3.2.add_EFs.R \
-	$(MOD_H)/H3.3.proc_EFs.R \
-	$(MOD_H)/H3.2.add_EFs_constant.R \
-	$(MOD_H)/H3.2.add_EFs_default.R \
-	$(MOD_H)/H3.2.add_EFs_EF-converge.R \
-	$(MOD_H)/H3.2.add_EFs_EF-trend.R \
-	$(MOD_H)/H3.2.add_EFs_Emissions-trend.R \
+	$(MOD_H)/H2.1.base_EFs.R \
+	$(MOD_H)/H2.2.add_EFs.R \
+	$(MOD_H)/H2.3.proc_EFs.R \
+	$(MOD_H)/H2.2.add_EFs_constant.R \
+	$(MOD_H)/H2.2.add_EFs_default.R \
+	$(MOD_H)/H2.2.add_EFs_EF-converge.R \
+	$(MOD_H)/H2.2.add_EFs_EF-trend.R \
+	$(MOD_H)/H2.2.add_EFs_Emissions-trend.R \
 	$(EXT_IN)/CEDS_historical_extension_methods_EF.csv \
 	$(EXT_IN)/extension-data/A.Pig_Iron_Production.csv \
 	$(MED_OUT)/H.$(EM)_total_EFs_adjusted-sector.csv \
@@ -864,17 +863,17 @@ $(MED_OUT)/H.$(EM)_total_EFs_extended.csv : \
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 
 $(MED_OUT)/H.$(EM)_total_EFs_extended_adjusted-pathway.csv : \
-	$(MOD_H)/H4.1.apply_EF_pathway.R \
+	$(MOD_H)/H3.1.apply_EF_pathway.R \
 	$(MAPPINGS)/Master_Country_List.csv \
 	$(MED_OUT)/H.$(EM)_total_EFs_extended.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/$(EM)_total_CEDS_emissions.csv : \
-	$(MOD_H)/H4.2.proc_Extended_Emissions.R \
+	$(MOD_H)/H3.2.proc_Extended_Emissions.R \
 	$(MED_OUT)/H.$(EM)_total_EFs_extended_adjusted-pathway.csv \
 	$(MED_OUT)/H.$(EM)_total_activity_extended.csv \
-	$(MOD_H)/H4.3.add_emissions_SO2_other_transformation.R \
-	$(MOD_H)/H4.3.add_emissions_CO2_other_transformation.R
+	$(MOD_H)/H3.3.add_emissions_SO2_other_transformation.R \
+	$(MOD_H)/H3.3.add_emissions_CO2_other_transformation.R
 	Rscript $< $(EM) --nosave --no-restore
 
 $(FINAL_OUT)/current-versions/CEDS_$(EM)_emissions_by_country_sector_%.csv : \
