@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: H3.2.add_EFs_Emissions-trend.R
+# Program Name: H2.2.add_EFs_Emissions-trend.R
 # Author: Rachel Hoesly
 # Program Purpose: Create base database to extend EFs backward
 #
@@ -10,13 +10,13 @@
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
+PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R",'ModH_extension_functions.R') # Additional function files may be required.
 log_msg <- "Creating database for CEDS EFs extension before 1960" # First message to be printed to the log
-script_name <- "H3.2.add_EFs_Emissions-trend.R"
+script_name <- "H2.2.add_EFs_Emissions-trend.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -28,11 +28,11 @@ if ( is.na( em ) ) em <- "SO2"
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-activity <- readData("MED_OUT", paste0('H.',em,'_total_activity_extended') , meta = T )
-extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = T )
-MCL <- readData("MAPPINGS",'Master_Country_List', meta = T )
+activity <- readData("MED_OUT", 'A.total_activity_extended', meta = T)
+extension_drivers_EF <- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = T )
+MCL <- readData("MAPPINGS",'Master_Country_List', meta = T)
 # read in population data used for later extension of drivers_method_data_list
-pop <- readData( "MED_OUT", "A.UN_pop_master" , meta = T )
+pop <- readData("MED_OUT", "A.UN_pop_master", meta = T)
 
 final_iso <- unique(MCL[which(MCL$final_data_flag == 1),'iso'])
 
