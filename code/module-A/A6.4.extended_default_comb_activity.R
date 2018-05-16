@@ -59,6 +59,7 @@ A.residential_biomass_extended <- readData('MED_OUT', 'A.residential_biomass_ful
 
 shipping_fuel      <- readData('MED_OUT', 'A.intl_shipping_en')
 ceds_comb_activity <- readData('MED_OUT', 'A.comb_activity')
+other_transformation <- readData('MED_OUT', 'A.Other_transformation_fuel')
 iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
 
 
@@ -75,10 +76,8 @@ iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
 # 3. Add Extended coal, oil, gas fuels ----------------------------------------
 
 # write function to replace values based on IEA years
-    add_extended_activity_by_iea <- function(new_data, a.ceds_comb_extended = ceds_comb_extended){
-        # new_data <- A.coal_extended
-        # a.ceds_comb_extended = ceds_comb_extended
-
+    add_extended_activity_by_iea <- function(new_data,
+                                             a.ceds_comb_extended = ceds_comb_extended){
         iea1971 <- iea_start_year %>%
             filter(start_year == 1971) %>%
             pull(iso)
@@ -89,7 +88,7 @@ iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
 
         activity1960 <-  replaceValueColMatch( a.ceds_comb_extended,
                                                new_data %>% filter ( iso %in% iea1960),
-                                             x.ColName = extension_years,
+                                             x.ColName = paste0('X',1750:1959),
                                              match.x = c('iso','sector','fuel'),
                                              addEntries = F)
         activity1971 <-  replaceValueColMatch( activity1960,
@@ -163,11 +162,27 @@ iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
     # Check for NAs
     if( any(is.na(ceds_comb_extended)) ) stop('NAs in final extended combustion data. Please Check')
 
-    ceds_comb_extended %>% filter( is.na(X1751))
 
-# 9. Write out the data ---------------------------------------------------------------
+# 9. Compile extended other transformation ---------------------------------------------
+
+    other_transformation_extended <- A.coal_extended  %>%
+        bind_rows(A.petroleum_extended) %>%
+        bind_rows(A.natural_gas_extended) %>%
+        filter( sector %in% c("1A1bc_Other-transformation", "1A1bc_Other-feedstocks")) %>%
+        arrange(iso, fuel, sector)
+
+    other_transformation_extended_full <- other_transformation
+    other_transformation_extended_full[extension_years] <- NA
+    other_transformation_extended_full <- other_transformation_extended_full[ c( 'iso', 'sector', 'fuel', 'units', X_extended_years ) ]
+
+    other_transformation_extended_full <- add_extended_activity_by_iea(other_transformation_extended ,
+                                                         other_transformation_extended_full)
+
+
+# 10. Write out the data ---------------------------------------------------------------
 
     writeData( ceds_comb_extended , "MED_OUT", "A.comb_default_activity_extended" )
+    writeData( other_transformation_extended , "MED_OUT", "A.other_tranformation_extended" )
 
     logStop()
 

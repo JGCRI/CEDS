@@ -50,7 +50,6 @@ combined <- energy_data %>%
 comments.A.comb_othertrans_activity <- c( paste0( "IEA energy statistics",
                                        " by intermediate sector / intermediate fuel / historical year,",
                                        " including other tranformation and other feedstocks." ) )
-##CR: Remove '.csv' from file name
 # write out data
 writeData( combined, domain = "MED_OUT",
            fn = "A.comb_othertrans_activity", comments = comments.A.comb_othertrans_activity )
