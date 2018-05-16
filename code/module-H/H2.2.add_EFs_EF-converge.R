@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: H3.2.add_EFs_EF-converge.R
+# Program Name: H2.2.add_EFs_EF-converge.R
 # Author: Rachel Hoesly
 # Program Purpose: extend EF back by converging to a given value
 # Input Files : H.EM_total_EFs_extended_db.csv,CEDS_historical_extension_methods_EF.csv,
@@ -17,7 +17,7 @@
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R",'ModH_extension_functions.R') # Additional function files may be required.
 log_msg <- "Converging EFs to given values" # First message to be printed to the log
-script_name <- "H3.2.add_EFs_EF-converge.R"
+script_name <- "H2.2.add_EFs_EF-converge.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )

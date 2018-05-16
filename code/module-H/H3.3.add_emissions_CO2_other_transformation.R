@@ -1,4 +1,4 @@
-# Program Name: H4.3.add_emissions_CO2_other_transformation.R
+# Program Name: H3.3.add_emissions_CO2_other_transformation.R
 # Author: Linh Vu, Presley Muwan
 # Date Last Updated: 1st May 2017
 # Program Purpose: Compute CO2 other transformation coal:
@@ -26,7 +26,7 @@
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'data_functions.R')
 log_msg <- "Calculating CO2 emissions conversion for 1A1bc-Other-transformation coal"
-script_name <- 'H4.3.add_emissions_CO2_other_transformation.R'
+script_name <- 'H2.3.add_emissions_CO2_other_transformation.R'
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -38,7 +38,7 @@ if ( is.na( em ) ) em <- "CO2"
 # Stop script if running for unsupported species
 if( em != 'CO2') {
   stop('This script should not run for emission species other than
-       CO2, please check H4.1.proc_Extended_Emissions')
+       CO2, please check H3.1.proc_Extended_Emissions')
 }
 
 # ---------------------------------------------------------------------------

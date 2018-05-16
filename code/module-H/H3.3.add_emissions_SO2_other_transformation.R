@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: H4.3.add_emissions_SO2_other_transformation.R
+# Program Name: H3.3.add_emissions_SO2_other_transformation.R
 # Author: Rachel Hoesly
 # Program Purpose: Extend emissions back for 1A1bc Other transformation for SO2
 #
@@ -16,7 +16,7 @@
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R",'ModH_extension_functions.R') # Additional function files may be required.
 log_msg <- "Extending SO2 emissions for 1A1bc-Other-transformation" # First message to be printed to the log
-script_name <- "H4.3.add_emissions_SO2_other_transformation.R"
+script_name <- "H3.3.add_emissions_SO2_other_transformation.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers, clear_metadata = FALSE )

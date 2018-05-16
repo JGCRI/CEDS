@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: H3.2.add_EFs_EF-trend.R
+# Program Name: H2.2.add_EFs_EF-trend.R
 # Author: Rachel Hoesly
 # Program Purpose: Extend EFs back by EF trend
 #
@@ -16,7 +16,7 @@
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R",'ModH_extension_functions.R') # Additional function files may be required.
 log_msg <- "Extending emissions factors 1960 using EF trend" # First message to be printed to the log
-script_name <- "H3.2.add_EFs_EF-trend.R"
+script_name <- "H2.2.add_EFs_EF-trend.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
