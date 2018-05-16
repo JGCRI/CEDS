@@ -1,22 +1,22 @@
 # ------------------------------------------------------------------------------
-# Program Name: H3.1.base_EFs.R
+# Program Name: H2.1.base_EFs.R
 # Author: Rachel Hoesly
 # Program Purpose: Create base database to extend EFs backward
 # Input Files: H.", em, "_total_EFs_adjusted-sector
 # Output Files:
-# TODO:
+# TODO: change default to NA and have a better check method for EF drivers
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
+PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R") # Additional function files may be required.
 log_msg <- "Creating database for CEDS EFs extension before 1960" # First message to be printed to the log
-script_name <- "H3.1.base_EFs.R"
+script_name <- "H2.1.base_EFs.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )

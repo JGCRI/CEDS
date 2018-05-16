@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Program Name: H4.2.proc_Extended_Emissions.R
+# Program Name: H3.2.proc_Extended_Emissions.R
 # Author: Rachel Hoesly
 # Date Last Updated: 15 Nov 2016
 # Program Purpose: Process extendtion EFs database to finalize and sort CEDS EFs database.
@@ -17,7 +17,7 @@
 # provide logging, file support, and system functions - and start the script log.
 headers <- c('data_functions.R') # Additional function files required.
 log_msg <- paste0( "Processing CEDS extension EFs database" ) # First message to be printed to the log
-script_name <- "H4.2.proc_Extended_Emissions.R"
+script_name <- "H3.2.proc_Extended_Emissions.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
