@@ -355,7 +355,8 @@ $(MED_OUT)/A.en_biomass_fsu_fix.csv : \
 
 $(MED_OUT)/A.IEA_CEDS_hard_coal_difference.csv : \
 	$(MOD_A)/A2.3.write_IEA_diff.R \
-	$(MED_OUT)/A.IEA_en_stat_ctry_hist.csv
+	$(MED_OUT)/A.IEA_en_stat_ctry_hist.csv \
+	$(MED_OUT)/A.en_biomass_fsu_fix.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.comb_othertrans_activity.csv : \
@@ -544,6 +545,7 @@ $(MED_OUT)/A.NC_activity_extended_db.csv : \
 	$(MOD_A)/A7.2.add_activity_pulp_paper_consumption.R \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
 	$(MED_OUT)/A.pulp_paper_consumption_full.csv \
+	$(MED_OUT)/A.NC_activity.csv \
 	$(EXT_IN)/CEDS_historical_extension_drivers_activity.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore

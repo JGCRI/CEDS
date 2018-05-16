@@ -1,7 +1,7 @@
 ##CR: rename file or update header information
 #------------------------------------------------------------------------------
 # Program Name: A3.3.write_IEA_diff.R
-# Authors Names: Linh Vu
+# Authors Names: Linh Vu, Rachel Hoesly
 # Date Last Modified: 16 May 2016
 # Program Purpose:    Write out difference between IEA DOMSUP and CEDS
 #                     consumption for coal, natural gas, petroleum
@@ -37,11 +37,10 @@
     IEA_flow_sector <- readData( "MAPPINGS", "IEA_flow_sector", domain_extension = "energy/" )
 
 # Define values
-    ##CR: Some IEA DOMSUP categories (e.g. "BKB (kt)") are not accounted for, is this okay?
     IEA_coal_list <- c( "Brown coal (if no detail) (kt)", "Coking coal (kt)",
                         "Hard coal (if no detail) (kt)", "Other bituminous coal (kt)",
                         "Sub-bituminous coal (kt)", "Lignite (kt)", "Anthracite (kt)",
-                        "Patent fuel (kt)" )
+                        "Patent fuel (kt)") # Include only primary fuels (not secondary fuels)
     CEDS_coal_list <- c( "hard_coal", "brown_coal", "coal_coke" )
     ### need to pay attention to primary and secondary fuels - refinery gas is a secondary fuel
 
@@ -181,13 +180,13 @@
     diff_coal <- out[[ "diff" ]]
     subzero_coal <- out[[ "subzero" ]]
 # hard coal
-    out <- writeDiff( IEA_en_stat_ctry_hist, IEA_pre_bp_ext, c("Hard coal (if no detail) (kt)", "Anthracite (kt)", "Patent fuel (kt)" ), c('hard_coal'),
+    out <- writeDiff( IEA_en_stat_ctry_hist, IEA_pre_bp_ext, c("Hard coal (if no detail) (kt)", "Coking coal (kt)","Anthracite (kt)", "Patent fuel (kt)" ), c('hard_coal', 'coal_coke'),
                       "hard_coal", "DOMSUP", NA )
     diff_hard_coal <- out[[ "diff" ]]
     subzero_hard_coal <- out[[ "subzero" ]]
 # brown coal
     out <- writeDiff( IEA_en_stat_ctry_hist, IEA_pre_bp_ext,
-                      c("Other bituminous coal (kt)", "Brown coal (if no detail) (kt)", "Sub-bituminous coal (kt)","Lignite (kt)" ), c('hard_coal'),
+                      c("Other bituminous coal (kt)", "Brown coal (if no detail) (kt)", "Sub-bituminous coal (kt)","Lignite (kt)" ), c('brown_coal'),
                       "brown_coal", "DOMSUP", NA )
     diff_brown_coal <- out[[ "diff" ]]
     subzero_brown_coal <- out[[ "subzero" ]]
@@ -245,22 +244,16 @@
 
 # ------------------------------------------------------------------------------
 # 4. Output
-    writeData( diff_coal          , "MED_OUT" , "A.IEA_CEDS_coal_difference"                )
-    writeData( subzero_coal       , "DIAG_OUT", "A.IEA_CEDS_coal_difference_subzero"        )
-
     writeData( diff_hard_coal     , "MED_OUT" , "A.IEA_CEDS_hard_coal_difference"           )
-    writeData( subzero_hard_coal  , "DIAG_OUT", "A.IEA_CEDS_hard_coal_difference_subzero"   )
-
     writeData( diff_brown_coal    , "MED_OUT" , "A.IEA_CEDS_brown_coal_difference"          )
-    writeData( subzero_brown_coal , "DIAG_OUT", "A.IEA_CEDS_brown_coal_difference_subzero"  )
+
+    writeData( subzero_coal       , "DIAG_OUT", "A.IEA_CEDS_coal_difference_subzero"        )
 
     writeData( diff_natural_gas   , "MED_OUT" , "A.IEA_CEDS_natural_gas_difference"         )
     writeData( subzero_natural_gas, "DIAG_OUT", "A.IEA_CEDS_natural_gas_difference_subzero" )
 
     writeData( diff_oil           , "MED_OUT" , "A.IEA_CEDS_petroleum_difference"           )
     writeData( subzero_oil        , "DIAG_OUT", "A.IEA_CEDS_petroleum_difference_subzero"   )
-
-    writeData(IEA_pre_bp_ext_with_other, "MED_OUT", "A.en_biomass_fsu_fix" )
 
 # Diagnostics
     writeData( diag_ratio, "DIAG_OUT", "A.IEA_CEDS_petroleum_difference_ratio" )
