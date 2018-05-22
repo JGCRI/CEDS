@@ -83,7 +83,8 @@
    # a.X_bond_years = X_bond_years
    #
    # import data and mapping files
-   bond_import <- readData( "EM_INV", domain_extension = "Bond-BCOC/" ,"160227_SPEW_BCOCemission", ".xlsx", meta = T )
+   # bond_import <- readData( "EM_INV", domain_extension = "Bond-BCOC/" ,"160227_SPEW_BCOCemission", ".xlsx", meta = T )
+   bond_import <- readData( 'EXT_IN', 'CD.Bond_country_industrial_biomass' )
    fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_fuel_map", meta = F )
    bond_sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_ext_map", ".xlsx", sheet_selection = 'Bond_to_ext',meta = F )
 

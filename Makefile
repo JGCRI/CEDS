@@ -519,6 +519,7 @@ $(MED_OUT)/A.industrial_biomass_extended.csv : \
 
 $(MED_OUT)/A.other_biomass_extended.csv : \
 	$(MOD_A)/A6.3.extend_other_biomass.R \
+	$(EXT_IN)/CD.Bond_country_industrial_biomass.csv \
 	$(MED_OUT)/A.comb_activity.csv
 	Rscript $< $(EM) --nosave --no-restore
 

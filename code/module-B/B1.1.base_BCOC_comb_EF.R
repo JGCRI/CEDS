@@ -88,9 +88,10 @@
 # Read in Bond data and mappings; this is a proprietary dataset that will not
 #   be released in the final version of CEDS
     bond_ctypes = c(rep("text", 5), rep("numeric", 4), "skip")
-    bcoc_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/",
-                                 "160227_SPEW_BCOCemission", ".xlsx",
-                                 column_types = bond_ctypes, meta = T )
+    bcoc_historical <- readData( 'EXT_IN', 'CD.Bond_country_industrial_biomass' )
+    # bcoc_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/",
+    #                              "160227_SPEW_BCOCemission", ".xlsx",
+    #                              column_types = bond_ctypes, meta = T )
     sector_map <- readData( "MAPPINGS", domain_extension = "Bond/",
                             "Bond_sector_map", meta = F )
     iso_map <- readData( "MAPPINGS", domain_extension = "Bond/",
