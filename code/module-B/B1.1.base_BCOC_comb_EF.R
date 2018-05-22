@@ -89,9 +89,9 @@
 #   be released in the final version of CEDS
     bond_ctypes = c(rep("text", 5), rep("numeric", 4), "skip")
     bcoc_historical <- readData( 'EXT_IN', 'CD.Bond_country_industrial_biomass' )
-    # bcoc_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/",
-    #                              "160227_SPEW_BCOCemission", ".xlsx",
-    #                              column_types = bond_ctypes, meta = T )
+    bcoc_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/",
+                                 "160227_SPEW_BCOCemission", ".xlsx",
+                                 column_types = bond_ctypes, meta = T )
     sector_map <- readData( "MAPPINGS", domain_extension = "Bond/",
                             "Bond_sector_map", meta = F )
     iso_map <- readData( "MAPPINGS", domain_extension = "Bond/",
@@ -125,6 +125,7 @@
 # map to ceds fuel
 # map to ceds sector
     bond$fuel <- fuel_map[ match( bond$Fuel, fuel_map$Fuel ), 'fuel' ]
+    # bond2 <- left_join(bond, fuel_map, by = 'Fuel')
     bond <- merge( bond, sector_map, all = TRUE )
     bond <- bond[ which( bond$fuel != 'NA' ), ]
 
@@ -140,8 +141,7 @@
 
 # Remove estimates for biomass after 2000
 #      (bond data doesn't update emission factors after 2000)
-    bond <- bond[ -which( bond$fuel %in%
-                          'biomass' & bond$Year > 2000 ), ]
+    bond <- bond[ -which( bond$fuel %in% 'biomass' & bond$Year > 2000 ), ]
 
 # Reformat year column to Xyears
     bond$Year <- paste0( 'X', bond$Year )

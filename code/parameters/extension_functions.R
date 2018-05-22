@@ -103,18 +103,22 @@
    ext_sectors <- unique(bond_sector_map$Ext_Sector)[!is.na(unique(bond_sector_map$Ext_Sector))]
    ext_sectors <- ext_sectors[order(ext_sectors)]
 
-   if(a.extension_fuel_category == 'coal' ){ iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_country_map", meta = F )
-   } else{  warning('Bond mapping double counts energy use. Totals are no longer real values.')
-            iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_historical_country_map", meta = F )}
+   if(a.extension_fuel_category == 'coal' ) {
+       iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_country_map", meta = F )
+   }
+   else {
+       warning('Bond mapping double counts energy use. Totals are no longer real values.')
+       iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_historical_country_map", meta = F )
+   }
 
    iso_map$Country <- trimws(iso_map$Country, which=c("both"))
    # map to ceds iso, sector, fuels
-   if(a.extension_fuel_category == 'coal' ){
-            bond <- merge( bond_import, iso_map[,c('iso','Country')], all.x=T, all.y=F)} else{
-
-            bond <- merge( bond_import, iso_map[,c('iso','Country')], all.x=T, all.y=T)
-            }
-
+   if(a.extension_fuel_category == 'coal' ) {
+       bond <- merge( bond_import, iso_map[,c('iso','Country')], all.x=T, all.y=F)
+   }
+   else {
+       bond <- merge( bond_import, iso_map[,c('iso','Country')], all.x=T, all.y=T)
+   }
 
    bond <- merge( bond, fuel_map, all.x=T, all.y=F)
    bond <- merge( bond, bond_sector_map, all.x=T, all.y=F)

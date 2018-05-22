@@ -182,7 +182,7 @@ iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
 # 10. Write out the data ---------------------------------------------------------------
 
     writeData( ceds_comb_extended , "MED_OUT", "A.comb_default_activity_extended" )
-    writeData( other_transformation_extended , "MED_OUT", "A.other_tranformation_extended" )
+    writeData( other_transformation_extended , "MED_OUT", "A.other_transformation_extended" )
 
     logStop()
 
