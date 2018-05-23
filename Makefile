@@ -613,7 +613,7 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(MAPPINGS)/Bond/Bond_country_map.csv \
 	$(MAPPINGS)/Bond/Bond_fuel_map.csv \
 	$(MAPPINGS)/Bond/Bond_sector_map.csv \
-	$(INV_DATA)/Bond-BCOC/160227_SPEW_BCOCemission.xlsx \
+	$(EXT_IN)/CD.Bond_country_industrial_biomass.csv \
 	$(MED_OUT)/A.comb_activity.csv \
 	$(MED_OUT)/A.coal_heat_content.csv \
 	$(EF_DATA)/CO2_base_EF.xlsx

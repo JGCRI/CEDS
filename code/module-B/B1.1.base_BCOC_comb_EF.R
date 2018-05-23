@@ -4,18 +4,21 @@
 # Date Last Updated: 21 April 2016
 # Program Purpose: 1. Produce OC emissions factors from SPEW (i.e. Bond) data.
 #
-# Input Files: Bond_ctry_mapping.csv, Bond_fuel_mapping.csv, Bond_sector_mapping.csv,
-#              A.comb_activity.csv, 160227_SPEW_BCOCemission.xlsx
-# Output Files: B.[em]_comb_EF_db.csv, B.[em]_SPEW_comb_EF.csv, B.[em]_SPEW_NC_em.csv
-# Notes: 1. Emission factors (ef) are calculated as emissions divided by consumption.
-#           Missing (zero or NA) ef are replaced using the following rules, in order:
-#           a. FSU residential coal-oil-gas replaced with FSU industrial coal oil gas
-#           b. resdiential biomass replaced with iso sector fuel where available
-#           c. others replaced with Region sector fuel EF where available
-#           d. then replace with region fuel average
-#           e. then global sector fuel average
-#           f. then global fuel average
-
+# Input Files:  A.comb_activity.csv
+#               Bond_country_map.csv
+#               CD.Bond_mapped_sector_fuel.csv
+# Output Files: B.[em]_comb_EF_db.csv
+#               B.[em]_SPEW_comb_EF.csv
+#               B.[em]_SPEW_NC_em.csv
+# Notes: Emission factors (ef) are calculated as emissions divided by
+#        consumption. Missing (zero or NA) ef are replaced using the following
+#        rules, in order:
+#          a. FSU residential coal-oil-gas replaced with FSU industrial coal oil gas
+#          b. resdiential biomass replaced with iso sector fuel where available
+#          c. others replaced with Region sector fuel EF where available
+#          d. then replace with region fuel average
+#          e. then global sector fuel average
+#          f. then global fuel average
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -27,7 +30,7 @@
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "data_functions.R", "analysis_functions.R", "process_db_functions.R",
-                  "interpolation_extension_functions.R" ) # Additional function files required.
+                  "interpolation_extension_functions.R" )
     log_msg <- "Produce OC BC emissions factors from SPEW data" # First message to be printed to the log
     script_name <- "B1.1.base_BCOC_comb_EF.R"
 
@@ -79,25 +82,15 @@
     activity_data <- readData( "MED_OUT", "A.comb_activity" )
 
 # Read in mapping files
-    MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx",
-                     sheet_selection = "Sectors" , meta = F )
-    sector_level_map <- readData( "MAPPINGS", "Master_Sector_Level_map", meta = F )
-    MCL <- readData( "MAPPINGS", "Master_Country_List" )
+    MCL <-     readData( "MAPPINGS", "Master_Country_List" )
     MSLevel <- readData( "MAPPINGS", "Master_Sector_Level_map" )
+    MSL <-     readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx",
+                         sheet_selection = "Sectors" , meta = F )
 
-# Read in Bond data and mappings; this is a proprietary dataset that will not
-#   be released in the final version of CEDS
-    bond_ctypes = c(rep("text", 5), rep("numeric", 4), "skip")
-    bcoc_historical <- readData( 'EXT_IN', 'CD.Bond_country_industrial_biomass' )
-    bcoc_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/",
-                                 "160227_SPEW_BCOCemission", ".xlsx",
-                                 column_types = bond_ctypes, meta = T )
-    sector_map <- readData( "MAPPINGS", domain_extension = "Bond/",
-                            "Bond_sector_map", meta = F )
-    iso_map <- readData( "MAPPINGS", domain_extension = "Bond/",
-                         "Bond_country_map", meta = F )
-    fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/",
-                          "Bond_fuel_map", meta = F )
+# Read in Bond data and region mapping
+    bcoc_historical <- readData( "EXT_IN", "CD.Bond_mapped_sector_fuel" )
+    bond_iso_map <-    readData( "MAPPINGS", domain_extension = "Bond/",
+                                 "Bond_country_map", meta = F )
 
 # ------------------------------------------------------------------------------
 # 2. Bond EFs
@@ -112,46 +105,19 @@
     X_bond_years <- paste0( 'X', seq( 1850, 2000, 5 ) )
     Xyears_full <- paste0( "X", 1850:2014 )
 
-# Add column headers to the Bond dataframe
-    bond <- bcoc_historical
-    names( bond ) <- c( "Region", "Country", "Fuel", "Tech",
-                        "Sector", "Year", "Fuel_kt", "BC_kt", "OC_kt" )
+# Remove weird data and data we don't use (this data used in section 6)
+    bond_everything <- dplyr::filter( bcoc_historical, BC_kt > 0, OC_kt > 0 )
 
-# convert natural gas from TJ to kt
-    bond[ which( bond$Fuel == " Natural Gas    " ), 'Fuel_kt' ] <-
-      bond[ which( bond$Fuel == " Natural Gas    " ), 'Fuel_kt' ] /
-      conversionFactor_naturalgas_TJ_per_kt
-
-# map to ceds fuel
-# map to ceds sector
-    bond$fuel <- fuel_map[ match( bond$Fuel, fuel_map$Fuel ), 'fuel' ]
-    # bond2 <- left_join(bond, fuel_map, by = 'Fuel')
-    bond <- merge( bond, sector_map, all = TRUE )
-    bond <- bond[ which( bond$fuel != 'NA' ), ]
-
-# remove weird data and data we don't use
-    bond <- bond[ which( bond$Fuel_kt > 0 &
-                           bond$BC_kt > 0 &
-                           bond$OC_kt > 0 ), ]
-# Set aside this reformatted complete Bond dataframe
-    bond_everything <- bond
-
-# Set aside only process and natural gas processes
-    bond <- bond[ which( bond$fuel %!in% c( 'process', 'natural_gas' ) ), ]
-
-# Remove estimates for biomass after 2000
-#      (bond data doesn't update emission factors after 2000)
-    bond <- bond[ -which( bond$fuel %in% 'biomass' & bond$Year > 2000 ), ]
-
-# Reformat year column to Xyears
-    bond$Year <- paste0( 'X', bond$Year )
-
-# remove small values rows (they make bad efs because the values are so small)
-    bond <- bond[ which( bond$Fuel_kt > 7 ), ]
-
-# Map iso to bond dataframe
-    bond <- merge( bond, iso_map[ , c( 'iso', 'Country' ) ], all = TRUE )
-    bond <- bond[ complete.cases( bond ), ]
+# 1. Set aside only process and natural gas processes
+# 2. Remove estimates for biomass after 2000 (Bond data doesn't update emission
+#    factors after 2000)
+# 3. Remove small values rows (they make bad efs when the values are so small)
+# 4. Reformat year column to Xyears
+    bond <- bond_everything %>%
+        dplyr::filter( fuel %!in% c( 'process', 'natural_gas' ),
+                       fuel != 'biomass' | Year <= 2000,
+                       Fuel_kt > 7) %>%
+        dplyr::mutate( Year = paste0( 'X', Year ) )
 
 # Map CEDS agg_sector to Bond dataframe
     bond$agg_sector <- MSLevel[ match( bond$sector,
@@ -164,17 +130,20 @@
 # fuel totals
     bond_all$EF <- bond_all[ , em_col ] / bond_all[ , 'Fuel_kt' ]
 
-# Cast to wide form
-    bond_all_cast <- cast( bond_all, iso + fuel + sector ~ Year, value = 'EF',
-                           fun.aggregate = mean, rm.na = T )
+    bond_all_wide <- bond %>%
+        dplyr::mutate( EF = !!as.name( em_col ) / Fuel_kt ) %>%
+        dplyr::group_by( iso, fuel, sector, Year ) %>%
+        dplyr::summarise( EF = mean( EF, na.rm = T ) ) %>%
+        dplyr::ungroup() %>%
+        tidyr::spread( Year, EF )
+
 # Remove data that doesn't have values for 2005 or 2010 but not for earlier years
     bond_remove_values <-
-        bond_all_cast[ which( ( !is.na( bond_all_cast$X2005 ) |
-                                !is.na( bond_all_cast$X2010 ) ) &
-                                ( apply( X = bond_all_cast[ X_bond_years ],
+        bond_all_wide[ which( ( !is.na( bond_all_wide$X2005 ) |
+                                !is.na( bond_all_wide$X2010 ) ) &
+                                ( apply( X = bond_all_wide[ X_bond_years ],
                                          FUN = all.na, MARGIN = 1 ) ) ),
-                       c( 'iso', 'sector', 'fuel',
-                          X_bond_years_recent ) ]
+                       c( 'iso', 'sector', 'fuel', X_bond_years_recent ) ]
 
 # Add and reorder yearly columns
     bond_remove_values [ paste0( 'X', 2001:end_year )[
@@ -307,8 +276,8 @@
 
 # Subset residential biomass activity
     EF_residential_biomass <-
-        bond_EF_country[ which( bond_EF_country$fuel %in% c( "biomass" ) &
-        bond_EF_country$sector == '1A4b_Residential' ), ]
+        bond_EF_country[ bond_EF_country$fuel   == "biomass" &
+                         bond_EF_country$sector == '1A4b_Residential', ]
 
 
 # ------------------------------------------------------------------------------
@@ -324,8 +293,8 @@
     ef_template[ Xyears ] <- NA
 
 # Map Region, sector information to the EF template
-    ef_template$Region <- iso_map[ match( ef_template$iso, iso_map$iso ),
-                                   'Region' ]
+    ef_template$Region <- bond_iso_map[ match( ef_template$iso,
+                                               bond_iso_map$iso ), 'Region' ]
     ef_template$agg_sector <- MSLevel[ match( ef_template$sector,
                                               MSLevel$working_sectors_v1 ),
                                        "aggregate_sectors" ]
@@ -434,10 +403,7 @@
 
 # Return to dataframe set aside earlier; convert years to XYears
     bond_everything$Year <- paste0( 'X', bond_everything$Year )
-# Add country data
-    bond_everything <- merge( bond_everything,
-                              iso_map[ , c( 'iso', 'Country' ) ],
-                              all = TRUE )
+
 # Aggregate to iso/sector/fuel/year
     bond_everything <- aggregate( bond_everything[ paste0( em, '_kt' ) ],
                                   by = list( iso = bond_everything$iso,
@@ -445,6 +411,7 @@
                                              fuel = bond_everything$fuel,
                                              Year = bond_everything$Year ),
                                   FUN = sum )
+
 # Drop columns without emissions data
     bond_everything <-
         bond_everything[ which( !is.na( bond_everything[ , em_col ] ) ), ]
@@ -487,12 +454,19 @@
 # ------------------------------------------------------------------------------
 # 7. Write output
 
-    writeData( final_out , "MED_OUT", paste0( "B.", em, "_comb_EF_db" ) )
-    writeData( final_full, "EXT_IN", paste0( "B.", em, "_SPEW_comb_EF" ),
-               domain_extension = "extension-data/" )
-    writeData( bond_process_extend , "DEFAULT_EF_IN",
-               domain_extension = 'non-combustion-emissions/',
+    writeData( final_out , "MED_OUT", paste0( "B.", em, "_comb_EF_db" ),
+               domain_extension = "tmp/" )
+    writeData( final_full, "MED_OUT", paste0( "B.", em, "_SPEW_comb_EF" ),
+               domain_extension = "tmp/" )
+    writeData( bond_process_extend, "MED_OUT",
+               domain_extension = 'tmp/',
                fn = paste0( "B.", em, "_SPEW_NC_em" ) , meta = F )
+    # writeData( final_out , "MED_OUT", paste0( "B.", em, "_comb_EF_db" ) )
+    # writeData( final_full, "EXT_IN", paste0( "B.", em, "_SPEW_comb_EF" ),
+    #            domain_extension = "extension-data/" )
+    # writeData( bond_process_extend, "DEFAULT_EF_IN",
+    #            domain_extension = 'non-combustion-emissions/',
+    #            fn = paste0( "B.", em, "_SPEW_NC_em" ) , meta = F )
 
 # Every script should finish with this line
     logStop()
