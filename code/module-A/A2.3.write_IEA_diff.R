@@ -4,10 +4,10 @@
 # Authors Names: Linh Vu, Rachel Hoesly
 # Date Last Modified: 16 May 2016
 # Program Purpose:    Write out difference between IEA DOMSUP and CEDS
-#                     consumption for coal, natural gas, petroleum
+#                     consumption for coal, natural gas, oil
 # Input Files: A.IEA_en_stat_ctry_hist.csv, A.en_biomass_fsu_fix.csv
 # Output Files: A.IEA_CEDS_coal_difference.csv, A.IEA_CEDS_natural_gas_difference.csv,
-#               A.IEA_CEDS_petroleum_difference.csv
+#               A.IEA_CEDS_oil_difference.csv
 # Notes:  The purpose of this script is to quantify how much fuel is consumed in the
 #         transformation sector and, therefore, not accounted for in CEDS fuel consumption.
 #         This is then used for balancing fuel consumption and extending emissions back in time.
@@ -212,7 +212,7 @@
                                                      group_by( iso ) %>%
                                              summarise_all( sum )
 
-    out <- computeDiff( IEA_oil, CEDS_oil, "petroleum" )
+    out <- computeDiff( IEA_oil, CEDS_oil, "oil" )
     diff_oil <- out[[ "diff" ]]
     subzero_oil <- out[[ "subzero" ]]
 
@@ -252,11 +252,11 @@
     writeData( diff_natural_gas   , "MED_OUT" , "A.IEA_CEDS_natural_gas_difference"         )
     writeData( subzero_natural_gas, "DIAG_OUT", "A.IEA_CEDS_natural_gas_difference_subzero" )
 
-    writeData( diff_oil           , "MED_OUT" , "A.IEA_CEDS_petroleum_difference"           )
-    writeData( subzero_oil        , "DIAG_OUT", "A.IEA_CEDS_petroleum_difference_subzero"   )
+    writeData( diff_oil           , "MED_OUT" , "A.IEA_CEDS_oil_difference"           )
+    writeData( subzero_oil        , "DIAG_OUT", "A.IEA_CEDS_oil_difference_subzero"   )
 
 # Diagnostics
-    writeData( diag_ratio, "DIAG_OUT", "A.IEA_CEDS_petroleum_difference_ratio" )
+    writeData( diag_ratio, "DIAG_OUT", "A.IEA_CEDS_oil_difference_ratio" )
     diag_nonenergy[ is.na( diag_nonenergy ) ] <- ""
     writeData( diag_nonenergy, "DIAG_OUT", "A.IEA_en_stat_ctry_hist-NonEnergy-Oil&Gas" )
 

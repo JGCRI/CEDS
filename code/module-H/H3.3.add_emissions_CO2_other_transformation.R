@@ -45,7 +45,6 @@ if( em != 'CO2') {
 # 1. Input
   A.IEA_en_stat_ctry_hist <- readData( "MED_OUT", "A.IEA_en_stat_ctry_hist" )
   A.en_stat_sector_fuel <-readData( "MED_OUT", "A.en_stat_sector_fuel" )
-  H.Extended_coal_by_fuel_all <- readData( "DIAG_OUT", "H.Extended_coal_by_fuel_all" )
   CO2_total_CEDS_emissions <- readData( "MED_OUT", paste0( 'H.', em,'_total_CEDS_emissions_before_other_transformation_replacement') )
   coal_ef <- readData( "DIAG_OUT", "B.CO2_comb_EF_non-bunker" )
   IEA_product_fuel <- readData( "MAPPINGS", "/energy/IEA_product_fuel" )
@@ -55,8 +54,10 @@ if( em != 'CO2') {
                                  sheet_selection = "Fraction_Oxidized" )
   MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
   iea_start <- readData('EXT_IN','IEA_start_date', ".xlsx", sheet_selection = "coal")
-  H.Extended_total_coal <- readData( "DIAG_OUT", "H.Extended_total_coal" )
-  H.Extended_total_natural_gas <- readData( "DIAG_OUT", "H.Extended_total_natural_gas" )
+
+  A.full_comb_activity_extended_coal <- readData( "MED_OUT", "A.full_comb_activity_extended_coal" )
+  A.total_activity_extended_coal_ <- readData( "MED_OUT", "A.total_activity_extended_coal" )
+  A.total_activity_extended_natural_gas <- readData( "MED_OUT", "A.total_activity_extended_natural_gas" )
 
 # Define values
   ceds_coal_fuels <- c( "brown_coal", "coal_coke", "hard_coal" )
@@ -222,7 +223,7 @@ if( em != 'CO2') {
   CO2_Coalgases_as_ng <- do.call( rbind, CO2_Coalgases_em_as_ng_list) %>%  dplyr::arrange(iso) %>% ddply("iso",numcolwise(sum))
 
   #Extension driver data
-  CO2_Coalgases_driver_trend <- H.Extended_total_natural_gas
+  CO2_Coalgases_driver_trend <- A.total_activity_extended_natural_gas
 
   # b. Extend CO2 coalgas emmissions backward to 1850, from 1960 for OECD countries and 1971 for Non-OECD countries, and forward from 2013 - 2014
   CO2_Coalgases_as_ng_for_total_natural_gas_list = lapply(unique(iea_start$start_year), function(sy) {
@@ -255,42 +256,48 @@ if( em != 'CO2') {
   # (production + imports - exports)
 
 # a. Add other transformation coal as hard coal
-  # H.Extended_coal_by_fuel_all
-  extended_coal <- H.Extended_coal_by_fuel_all
-  extended_coal[which(extended_coal$fuel == 'coal'),'fuel'] <- 'hard_coal'
-  extended_coal$units <- "kt"
+  # A.full_comb_activity_extended_coal
+  extended_coal <- A.full_comb_activity_extended_coal
   extended_coal <- extended_coal[ c( "iso", "fuel", "units", X_extended_years ) ]
   extended_coal <- group_by( extended_coal, iso, fuel, units ) %>%
     summarise_each( funs( sum(., na.rm = T ) ) ) %>% data.frame()
 
 # b. Extend Coal Coke (imports - exports) with extended coal coke (production + imports - exports)
   # extended total coal coke value
-  extended_coke <- H.Extended_coal_by_fuel_all %>% filter(fuel == 'coal_coke') %>%
+  extended_coke <- A.full_comb_activity_extended_coal %>% filter(fuel == 'coal_coke') %>%
+      group_by(iso, fuel, units) %>%
+      summarize_if(is.numeric,sum) %>%
     dplyr::mutate(value = 'ceds_coke') %>%
     dplyr::arrange(iso)
 
   # calculate IEA coke (imports - exports)
   IEA_coke <- filter( A.IEA_en_stat_ctry_hist, FLOW %in% c("IMPORTS", "EXPORTS"), fuel=="coal_coke" ) %>%
     select( -FLOW, -PRODUCT ) %>% group_by( iso, fuel ) %>%
-    summarise_each( funs( sum(., na.rm = T ) ) ) %>% data.frame() %>% dplyr::mutate(value = 'iea_coke')
+    summarise_all( funs( sum(., na.rm = T ) ) ) %>%
+    data.frame() %>%
+    mutate(value = 'iea_coke')
 
   # add countries with zero data
   zero_coke_countries <- unique( extended_coke$iso[ extended_coke$iso %!in% IEA_coke$iso ] )
   add_zero_coke_countries <- data.frame( iso = zero_coke_countries, fuel = 'coal_coke', value = 'iea_coke' )
   add_zero_coke_countries[ X_IEA_years ] <- 0
-  IEA_coke <- rbind(IEA_coke, add_zero_coke_countries) %>% dplyr::arrange(iso)
+  IEA_coke <- rbind(IEA_coke, add_zero_coke_countries) %>%
+      arrange(iso)
 
   if ( any( extended_coke$iso != IEA_coke$iso ) ) { stop('Rows do not match for ') }
 
 
   # extend IEA coke back to 1750, from 1960 for OECD countries and 1971 for Non-OECD countries and forward from 2013 - 2014
   iea_extended_coke_list = lapply(unique(iea_start$start_year), function(sy) {
+
+
       extend_data_on_trend_range(input_data = IEA_coke,
                                  driver_trend = extended_coke,
-                                 start = 1750, end = 1959, expand = F,
-                                 id_match.driver = c('iso'),
+                                 start = 1750, end = (sy-1), expand = F,
+                                 id_match.driver = c('iso','fuel'),
                                  extend_fwd_by_BP_years = T,
-                                 IEA_mode = T, iea_start_year = sy,
+                                 IEA_mode = T,
+                                 iea_start_year = sy,
                                  iea_start_years_df = iea_start)
   })
 
@@ -459,6 +466,13 @@ if( em != 'CO2') {
   # subtract 1B1 and 2c from conversion
   CO2_Conversion_1B1and2c <- CO2_Conversion
   CO2_Conversion_1B1and2c[X_extended_years] <- CO2_Conversion_1B1and2c[X_extended_years] - CO2_1B1and2c[X_extended_years]
+
+  # Make negative values zero. Keep diagnostics of negative values
+  diag_subzero_1B1and2c <- melt( CO2_Conversion_1B1and2c, id=c( "iso", "units" ) ) %>%
+      filter( value < 0 ) %>% cast()
+  diag_subzero_1B1and2c[ is.na( diag_subzero_1B1and2c ) ] <- ""
+  CO2_Conversion_1B1and2c[ CO2_Conversion_1B1and2c < 0 ] <- 0
+
 
 # ---------------------------------------------------------------------------
 # 10. Diagnostics

@@ -34,13 +34,13 @@ energy_data <- readData( "MED_OUT", "A.en_biomass_fsu_fix" )
 diff_hard_coal <- readData( "MED_OUT", "A.IEA_CEDS_hard_coal_difference" )
 diff_brown_coal <- readData( "MED_OUT", "A.IEA_CEDS_brown_coal_difference" )
 diff_nat_gas <- readData( "MED_OUT", "A.IEA_CEDS_natural_gas_difference" )
-diff_petroleum <- readData( "MED_OUT", "A.IEA_CEDS_petroleum_difference" )
+diff_oil <- readData( "MED_OUT", "A.IEA_CEDS_oil_difference" )
 
 # ------------------------------------------------------------------------------
 # 2. Combine
 
 combined <- energy_data %>%
-  rbind(diff_hard_coal, diff_brown_coal, diff_nat_gas, diff_petroleum) %>%
+  rbind(diff_hard_coal, diff_brown_coal, diff_nat_gas, diff_oil) %>%
   arrange(iso, sector, fuel)
 
 ##CR: Renumber

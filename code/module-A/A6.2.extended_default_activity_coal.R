@@ -29,7 +29,7 @@ initialize( script_name, log_msg, headers )
 
 UNSD_Energy_Final_Consumption_all <- readData( 'EXT_IN',"CDA1_UNSD_Energy_Final_Consumption_by_Ctry" , meta = F)
 other_transformation_all <- readData( 'MED_OUT','A.Other_transformation_fuel' )
-A.comb_activity_all <- readData( 'MED_OUT', paste0("A.comb_activity") , meta = F)
+A.comb_activity_all <- readData( 'MED_OUT', paste0("A.comb_activity_with_other") , meta = F)
 final_sector_shares_all <- readData( 'MED_OUT', 'A.final_sector_shares')
 cdiac_fuel_all <- readData( 'MED_OUT' , 'E.CO2_CDIAC_inventory')
 iea_start_year_all <- readData( 'ENERGY_IN' , 'IEA_iso_start_data')

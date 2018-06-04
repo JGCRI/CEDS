@@ -33,13 +33,21 @@ if ( is.na( em ) ) em <- "CO2"
 # 1. Load files
 
 EFs <- readData( 'MED_OUT',paste0('H.',em,'_total_EFs_extended_adjusted-pathway') )
-activity <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended') )
+activity <- readData( 'MED_OUT', 'A.total_activity_extended' )
 
 # ---------------------------------------------------------------------------
 # 2. Sort
+# remove other transformation from EFs
+EFs <- EFs %>%
+    filter( !(sector == '1A1bc_Other-transformation' &
+              fuel != 'process') ) %>%
+    filter( sector != '1A1bc_Other-feedstocks') %>%
+    arrange(iso, sector, fuel)
 
-EFs <- EFs[ with( EFs, order( iso, sector, fuel ) ), ]
-activity <- activity[ with( activity, order( iso, sector, fuel ) ), ]
+activity <- activity %>%
+    filter( sector != '1A1bc_Other-feedstocks') %>%
+    arrange(iso, sector, fuel)
+
 
 check_iso <- identical( activity$iso, EFs$iso)
 check_sector <- identical( activity$sector, EFs$sector)
@@ -58,7 +66,7 @@ emissions[X_extended_years] <- EFs[X_extended_years] * activity[X_extended_years
 if( em == 'SO2'){
   MODULE_H <- "../code/module-H/"
   source_child <- function( file_name ){ source( paste( MODULE_H, file_name, sep = "" ) ) }
-  source_child ('H4.3.add_emissions_SO2_other_transformation.R' )
+  source_child ('H3.3.add_emissions_SO2_other_transformation.R' )
 
   other_transformation_emissions_calculated <- readData('MED_OUT', 'H.SO2_calculated_other_transformation_emissions')
 
@@ -89,7 +97,7 @@ if (em == "CO2") {
 
   MODULE_H <- "../code/module-H/"
   source_child <- function( file_name ){ source( paste( MODULE_H, file_name, sep = "" ) ) }
-  source_child ('H4.3.add_emissions_CO2_other_transformation.R' )
+  source_child ('H3.3.add_emissions_CO2_other_transformation.R' )
 
   other_transformation_emissions_calculated <- readData('MED_OUT', 'H.CO2_calculated_other_transformation_emissions')
 

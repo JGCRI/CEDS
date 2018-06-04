@@ -130,8 +130,7 @@
 # fuel totals
     bond_all$EF <- bond_all[ , em_col ] / bond_all[ , 'Fuel_kt' ]
 
-    bond_all_wide <- bond %>%
-        dplyr::mutate( EF = !!as.name( em_col ) / Fuel_kt ) %>%
+    bond_all_wide <- bond_all %>%
         dplyr::group_by( iso, fuel, sector, Year ) %>%
         dplyr::summarise( EF = mean( EF, na.rm = T ) ) %>%
         dplyr::ungroup() %>%
@@ -454,19 +453,10 @@
 # ------------------------------------------------------------------------------
 # 7. Write output
 
-    writeData( final_out , "MED_OUT", paste0( "B.", em, "_comb_EF_db" ),
-               domain_extension = "tmp/" )
-    writeData( final_full, "MED_OUT", paste0( "B.", em, "_SPEW_comb_EF" ),
-               domain_extension = "tmp/" )
+    writeData( final_out , "MED_OUT", paste0( "B.", em, "_comb_EF_db" ))
+    writeData( final_full, "MED_OUT", paste0( "B.", em, "_SPEW_comb_EF" ))
     writeData( bond_process_extend, "MED_OUT",
-               domain_extension = 'tmp/',
                fn = paste0( "B.", em, "_SPEW_NC_em" ) , meta = F )
-    # writeData( final_out , "MED_OUT", paste0( "B.", em, "_comb_EF_db" ) )
-    # writeData( final_full, "EXT_IN", paste0( "B.", em, "_SPEW_comb_EF" ),
-    #            domain_extension = "extension-data/" )
-    # writeData( bond_process_extend, "DEFAULT_EF_IN",
-    #            domain_extension = 'non-combustion-emissions/',
-    #            fn = paste0( "B.", em, "_SPEW_NC_em" ) , meta = F )
 
 # Every script should finish with this line
     logStop()

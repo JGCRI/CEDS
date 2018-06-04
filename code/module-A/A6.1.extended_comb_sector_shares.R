@@ -28,7 +28,7 @@ bond_sector_percentages <- readData( 'EXT_IN', 'CD.Bond_sector_percentages.csv',
 ext_sector_breakdown_assumptions <- readData( 'EXT_IN', 'ext_sector_breakdown_assumptions')
 ext_sector_percents_start_assumptions <- readData( 'EXT_IN', 'ext_sector_percents_start_assumptions',meta = F )
 
-activity_all <- readData( 'MED_OUT',paste0('A.comb_activity') , meta = F)
+activity_all <- readData( 'MED_OUT',paste0('A.comb_activity_with_other') , meta = F)
 other_transformation <- readData( 'MED_OUT','A.Other_transformation_fuel' )
 
 iea_start_year <- readData( 'ENERGY_IN' , 'IEA_iso_start_data')
@@ -148,7 +148,7 @@ for ( i in seq_along(start_years)) {
                                    fuel = ceds_extension_fuels),
                        expand.grid(iso = all_countries,
                                    ext_sector = "Other_transformation",
-                                   fuel = 'petroleum')  )
+                                   fuel = 'oil')  )
     combined_sector_percentages_all[ paste0('X', historical_pre_extension_year:extention_end_year) ] <- combined_sector_percentages[  match( paste0(combined_sector_percentages_all$iso, combined_sector_percentages_all$ext_sector, combined_sector_percentages_all$fuel ),
                                                                                 paste0(combined_sector_percentages$iso, combined_sector_percentages$ext_sector, combined_sector_percentages$fuel )),
                                                                                 paste0('X', historical_pre_extension_year:extention_end_year) ]
@@ -211,7 +211,7 @@ printLog('Calculating CEDS detailed sector splits')
                                    fuel = ceds_extension_fuels),
                         expand.grid(iso = all_countries,
                                     ext_sector = "Other_transformation",
-                                    fuel = 'petroleum')  ) %>%
+                                    fuel = 'oil')  ) %>%
         mutate( ext_sector = as.character(ext_sector)) %>%
                 full_join(ext_sector_map, by = "ext_sector")
 
