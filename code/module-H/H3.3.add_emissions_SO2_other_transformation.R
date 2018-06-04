@@ -31,7 +31,7 @@ if( em != 'SO2') stop('This script should not run for emission species other tha
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-other_transformation_coal <- readData( 'MED_OUT', 'H.Extended_other_tranformation_coal' )
+other_transformation_coal <- readData( 'MED_OUT', 'A.comb_activity_extended_coal' )
 
 # ---------------------------------------------------------------------------
 # 2. Calculate SO2 EF

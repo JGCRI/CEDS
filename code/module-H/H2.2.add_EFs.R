@@ -27,7 +27,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "OC"
+if ( is.na( em ) ) em <- "CO2"
 
 # ------------------------------------------------------------------------------------
 # 0.5 Load Packages, Define Functions
@@ -54,11 +54,11 @@ printLog('Running add_activity scripts to extend activity data')
 # Set scripts to generate extended activity data (species independent)
 
 
-  scripts <- c( 'H3.2.add_EFs_Emissions-trend.R' ,
-                'H3.2.add_EFs_EF-trend.R',
-                'H3.2.add_EFs_EF-converge.R',
-                'H3.2.add_EFs_constant.R',
-                'H3.2.add_EFs_default.R')
+  scripts <- c( 'H2.2.add_EFs_Emissions-trend.R' ,
+                'H2.2.add_EFs_EF-trend.R',
+                'H2.2.add_EFs_EF-converge.R',
+                'H2.2.add_EFs_constant.R',
+                'H2.2.add_EFs_default.R')
 
 
 # Run all child scripts for the given emissions type. The call to

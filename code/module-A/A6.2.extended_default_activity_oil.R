@@ -1,14 +1,14 @@
 # ------------------------------------------------------------------------------
-# Program Name: A6.2.default_actvity_petroleum.R
+# Program Name: A6.2.default_actvity_oil.R
 # Author: Presley Muwan
 # Date Last Updated: 06 August 2017
-# Program Purpose: Create the default activity petroleum data for CEDS following these three steps:
-#                 * Merge IEA petroleum data (2014 - 1960/1971) to UNSD petroleum data (1959/1970 - 1950)
+# Program Purpose: Create the default activity oil data for CEDS following these three steps:
+#                 * Merge IEA oil data (2014 - 1960/1971) to UNSD oil data (1959/1970 - 1950)
 #                   and extend the merged data from 1950 to 1850 using CDIAC data.
 #                 * Disaggregate the merge data by iso-fuel
 #                 * Disaggregate the merged data by CEDS iso-fuel-Sector
 #
-# Output Files:  A.CEDS_default_Actvity_petroleum
+# Output Files:  A.CEDS_default_Actvity_oil
 # ---------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
@@ -19,7 +19,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R","process_db_functions.R", "default_activity_functions.R") # Additional function files may be required.
 log_msg <- "Extending Coal data with bond and IEA" # First message to be printed to the log
-script_name <- "A6.2.default_actvity_petroleum.R"
+script_name <- "A6.2.default_actvity_oil.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -29,7 +29,7 @@ initialize( script_name, log_msg, headers )
 
 UNSD_Energy_Final_Consumption_all <- readData( 'EXT_IN',"CDA1_UNSD_Energy_Final_Consumption_by_Ctry" , meta = F)
 other_transformation_all <- readData( 'MED_OUT','A.Other_transformation_fuel' )
-A.comb_activity_all <- readData( 'MED_OUT', paste0("A.comb_activity") , meta = F)
+A.comb_activity_all <- readData( 'MED_OUT', paste0("A.comb_activity_with_other") , meta = F)
 final_sector_shares_all <- readData( 'MED_OUT', 'A.final_sector_shares')
 cdiac_fuel_all <- readData( 'MED_OUT' , 'E.CO2_CDIAC_inventory')
 iea_start_year_all <- readData( 'ENERGY_IN' , 'IEA_iso_start_data')
@@ -39,8 +39,8 @@ iea_energy_mapping <- readData( "MAPPINGS", domain_extension = "Energy/" , "IEA_
 # 2. Define Variables and Filter and Process inputs
 
 # Define coal fuels
-ceds_extension_fuels <- c('heavy_oil','light_oil','diesel_oil','petroleum')
-aggregate_fuel_name <- 'petroleum'
+ceds_extension_fuels <- c('heavy_oil','light_oil','diesel_oil','oil')
+aggregate_fuel_name <- 'oil'
 cdiac_fuel_name <- 'liquid_fuels'
 default_fuel_share <- data.frame( fuel = ceds_extension_fuels,
                                   breakdown = c(.5,.5,0,0))
@@ -132,27 +132,27 @@ CEDS_default_actvity <- sector_breakdown(a.fuel_totals = all_disaggregate_fuel,
                                          a.ceds_extension_fuels = ceds_extension_fuels,
                                          a.extension_start_year = 1750)
 
-# Because the functions are robust enough for the extension of all fuels, petroleum - Other_tranformation has a few extra zero rows
+# Because the functions are robust enough for the extension of all fuels, oil - Other_tranformation has a few extra zero rows
 # Check to make sure that those rows sum to zero and delete
-# the aggregate 'petroleum' fuel should only be for other-tranformation
+# the aggregate 'oil' fuel should only be for other-tranformation
 # in other fuels, we were able to seperate other tranformation into fuel types (ie hard coal and brown coal)
 other_transformation_check1 <- CEDS_default_actvity %>%
-    filter(fuel != 'petroleum' & sector == '1A1bc_Other-transformation') %>%
+    filter(fuel != 'oil' & sector == '1A1bc_Other-transformation') %>%
     group_by(sector) %>%
     summarize_if(is.numeric, sum, na.rm = T) %>%
     ungroup() %>%
     select( -sector) %>%
     sum()
-if(other_transformation_check1 != 0) stop('In petroleum extension, light, disel, or heavy oil is disaggregated to Other-tranformation. Shomuld only be "petroleum". Please check.')
+if(other_transformation_check1 != 0) stop('In oil extension, light, disel, or heavy oil is disaggregated to Other-tranformation. Should only be "oil". Please check.')
 
 other_transformation_check2 <- CEDS_default_actvity %>%
-    filter(fuel == 'petroleum' & sector != '1A1bc_Other-transformation') %>%
+    filter(fuel == 'oil' & sector != '1A1bc_Other-transformation') %>%
     group_by(sector) %>%
     summarize_if(is.numeric, sum, na.rm = T) %>%
     ungroup() %>%
     select( -sector) %>%
     sum()
-if(other_transformation_check2 != 0) stop('In petroleum extension, light, disel, or heavy oil is disaggregated to Other-tranformation. Shomuld only be "petroleum". Please check.')
+if(other_transformation_check2 != 0) stop('In oil extension, light, disel, or heavy oil is disaggregated to Other-tranformation. Shomuld only be "oil". Please check.')
 
 #-----------------------------------------------------------------------------------------------
 # 4. Arrange Final DF
@@ -160,13 +160,13 @@ if(other_transformation_check2 != 0) stop('In petroleum extension, light, disel,
 # filter out uneeded sectors
 CEDS_default_actvity_final <- CEDS_default_actvity %>%
     mutate(units = 'kt') %>%
-    filter( !(sector == "1A1bc_Other-transformation" & fuel != "petroleum" ),
-            !(sector != "1A1bc_Other-transformation" & fuel == "petroleum" )) %>%
+    filter( !(sector == "1A1bc_Other-transformation" & fuel != "oil" ),
+            !(sector != "1A1bc_Other-transformation" & fuel == "oil" )) %>%
     arrange(iso, sector, fuel, units)
 
 #-----------------------------------------------------------------------------------------------
 # 5. Print output
-writeData( CEDS_default_actvity_final , "MED_OUT", "A.comb_activity_extended_petroleum" )
+writeData( CEDS_default_actvity_final , "MED_OUT", "A.comb_activity_extended_oil" )
 
 logStop()
 # END

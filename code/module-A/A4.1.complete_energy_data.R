@@ -1,8 +1,7 @@
-##CR: Update header date and and purpose
 #------------------------------------------------------------------------------
 # Program Name: A4.1.complete_energy_data.R
 # Author(s): Jon Seibert, Linh Vu, Rachel Hoesly
-# Date Last Modified: 21 December 2015
+# Date Last Modified: 01 June 2018
 # Program Purpose: To expand IEA_BP energy data to include entries for all possible
 #                  id combinations.
 # Input Files: A.IEA_BP_energy_ext.csv, Master_Fuel_Sector_List.xlsx,
@@ -43,7 +42,6 @@
 
 # Separate CEDS combustion and other transformation from other tracked
 #    IEA energy trends (ex: domestic supply)
-##CR: why combine other transformation in the first place (A2.3) if we're just separating it again?
     IEA_other_energy_trends <- energy_data %>%
         filter( sector %!in% MSL$sector ) %>%
         mutate_at( grep( 'X\\d{4}', names( energy_data ) ),
@@ -51,8 +49,7 @@
     other_transformation <- energy_data %>%
         filter( sector %in% c( "1A1bc_Other-feedstocks", "1A1bc_Other-transformation" ))
     energy_data <- energy_data %>%
-        filter( sector %!in% c( "1A1bc_Other-feedstocks", "1A1bc_Other-transformation"),
-                sector %in% MSL$sector )
+        filter( sector %in% MSL$sector )
 
     energy_data_combustion <- energy_data[ energy_data$fuel != 'process', ]
 
@@ -75,9 +72,13 @@
         na.omit( energy_data_combustion[ energy_data_combustion$sector != "NA", ] )
 
 # Use header function to generate blank template data frame
-    ##CR: more efficient to filter sectors before building template
-    template <- buildCEDSTemplate( iso_list, sector_list, fuel_list ) %>%
-        filter( sector %!in% c( "1A1bc_Other-feedstock", "1A1bc_Other-transformation") )
+    template <- buildCEDSTemplate( iso_list,
+                                   sector_list[sector_list != "1A1bc_Other-transformation"],
+                                   fuel_list ) %>%
+        bind_rows(expand.grid(iso = iso_list,
+                              sector = "1A1bc_Other-transformation",
+                              fuel = c('oil','natural_gas','hard_coal','brown_coal'),
+                              units = 'kt'))
 
 # Insert existing data into blank template
     full_energy_data_combustion <- merge( template,    ### Could use a dplyr join instead
@@ -100,16 +101,22 @@
     full_energy_data_combustion <-
         full_energy_data_combustion[ with( full_energy_data_combustion,
                                            order( iso, sector, fuel ) ), ]
+# ------------------------------------------------------------------------------
+# 4.
+
+     if( any(is.na(full_energy_data_combustion)) ) stop('NAs in final energy data, please check.')
+
+    energy_data_combustion_no_other <- full_energy_data_combustion %>%
+        filter( sector %!in% c( "1A1bc_Other-feedstocks", "1A1bc_Other-transformation" ))
+
 
 # ------------------------------------------------------------------------------
-# 5. Aggregate fuel summary
-##CR: fix numbering ^
-##CR: avoid plyr/dplyr conflicts with mutate function by using dplyr::mutate
+# 4. Aggregate fuel summary
     other_transformation_aggregate <- other_transformation %>%
-        mutate(fuel = replace(fuel, fuel == 'hard_coal', 'coal')) %>%
-        mutate(fuel = replace(fuel, fuel == 'brown_coal', 'coal')) %>%
-        mutate(fuel = replace(fuel, fuel == 'natural_gas', 'gas')) %>%
-        mutate(fuel = replace(fuel, fuel == 'petroleum', 'oil')) %>%
+        dplyr::mutate(fuel = replace(fuel, fuel == 'hard_coal', 'coal')) %>%
+        dplyr::mutate(fuel = replace(fuel, fuel == 'brown_coal', 'coal')) %>%
+        dplyr::mutate(fuel = replace(fuel, fuel == 'natural_gas', 'gas')) %>%
+        # dplyr::mutate(fuel = replace(fuel, fuel == 'petroleum', 'oil')) %>%
         arrange( iso, sector, fuel ) %>%
         group_by(iso, fuel, sector, units) %>%
         summarize_all(funs(sum))
@@ -124,7 +131,7 @@
         summarize_all(funs(sum))
 
 # ------------------------------------------------------------------------------
-# 6. Output
+# 5. Output
 # Add comments for each table
     comments.A.comb_activity <- c( paste0( "IEA energy statistics",
             " by intermediate sector / intermediate fuel / historical year,",
@@ -135,12 +142,13 @@
                                                  " extended with BP data and filled out with all combustion",
                                                  " iso-sector-fuel combinations." ) )
 # write out data
-    writeData( full_energy_data_combustion, domain = "MED_OUT",
+
+    writeData( energy_data_combustion_no_other, domain = "MED_OUT",
                fn = "A.comb_activity", comments = comments.A.comb_activity )
+    writeData( full_energy_data_combustion, domain = "MED_OUT",
+               fn = "A.comb_activity_with_other", comments = comments.A.comb_activity )
     writeData( other_transformation, domain = "MED_OUT",
                fn = "A.Other_transformation_fuel")
-    writeData( other_transformation_aggregate, domain = "MED_OUT",
-               fn = "A.Other_transformation_agg_fuel")
     writeData( total_fuel_consumption, domain = "MED_OUT",
                fn = "A.total_agg_fuel")
     writeData( IEA_other_energy_trends, domain = "MED_OUT",

@@ -504,8 +504,8 @@ $(MED_OUT)/A.comb_activity_extended_natural_gas.csv : \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv
 	Rscript $< $(EM) --nosave --no-restore
 
-$(MED_OUT)/A.comb_activity_extended_petroleum.csv : \
-	$(MOD_A)/A6.2.extended_default_activity_petroleum.R \
+$(MED_OUT)/A.comb_activity_extended_oil.csv : \
+	$(MOD_A)/A6.2.extended_default_activity_oil.R \
 	$(MED_OUT)/A.final_sector_shares.csv \
 	$(MED_OUT)/A.Other_transformation_fuel.csv \
 	$(MED_OUT)/A.comb_activity.csv \
@@ -528,7 +528,7 @@ $(MED_OUT)/A.comb_default_activity_extended.csv : \
 	$(MOD_A)/A6.4.extended_default_comb_activity.R \
 	$(MED_OUT)/A.comb_activity_extended_coal.csv \
 	$(MED_OUT)/A.comb_activity_extended_natural_gas.csv \
-	$(MED_OUT)/A.comb_activity_extended_petroleum.csv \
+	$(MED_OUT)/A.comb_activity_extended_oil.csv \
 	$(MED_OUT)/A.total_activity.csv \
 	$(MED_OUT)/A.intl_shipping_en.csv \
 	$(MED_OUT)/A.residential_biomass_full.csv \
@@ -568,6 +568,15 @@ $(MED_OUT)/A.total_activity_extended.csv : \
 	$(MED_OUT)/A.NC_default_activity_extended.csv \
 	$(MED_OUT)/A.comb_user_added.csv
 	Rscript $< $(EM) --nosave --no-restore
+
+$(MED_OUT)/A.total_activity_extended_coal.csv : \
+	$(MED_OUT)/A.total_activity_extended.csv
+
+$(MED_OUT)/A.total_activity_extended_natural_gas.csv : \
+	$(MED_OUT)/A.total_activity_extended.csv
+
+$(MED_OUT)/A.total_activity_extended_oil.csv : \
+	$(MED_OUT)/A.total_activity_extended.csv
 
 # bb1-1
 #$(MED_OUT)/B.$(EM)_comb_EF_GAINS_EMF30.csv : \
@@ -860,7 +869,7 @@ $(MED_OUT)/H.$(EM)_total_EFs_extended.csv : \
 	$(EXT_IN)/CEDS_historical_extension_methods_EF.csv \
 	$(EXT_IN)/extension-data/A.Pig_Iron_Production.csv \
 	$(MED_OUT)/H.$(EM)_total_EFs_adjusted-sector.csv \
-	$(MED_OUT)/H.$(EM)_total_activity_extended.csv
+	$(MED_OUT)/A.total_activity_extended.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
@@ -874,7 +883,7 @@ $(MED_OUT)/H.$(EM)_total_EFs_extended_adjusted-pathway.csv : \
 $(MED_OUT)/$(EM)_total_CEDS_emissions.csv : \
 	$(MOD_H)/H3.2.proc_Extended_Emissions.R \
 	$(MED_OUT)/H.$(EM)_total_EFs_extended_adjusted-pathway.csv \
-	$(MED_OUT)/H.$(EM)_total_activity_extended.csv \
+	$(MED_OUT)/A.total_activity_extended.csv \
 	$(MOD_H)/H3.3.add_emissions_SO2_other_transformation.R \
 	$(MOD_H)/H3.3.add_emissions_CO2_other_transformation.R
 	Rscript $< $(EM) --nosave --no-restore
