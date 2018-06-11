@@ -58,7 +58,7 @@ A.industrial_biomass_extended  <- readData('MED_OUT', 'A.industrial_biomass_exte
 A.residential_biomass_extended <- readData('MED_OUT', 'A.residential_biomass_full')
 
 shipping_fuel      <- readData('MED_OUT', 'A.intl_shipping_en')
-ceds_comb_activity <- readData('MED_OUT', 'A.comb_activity')
+ceds_comb_activity <- readData('MED_OUT', 'A.comb_activity_with_other')
 iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
 
 

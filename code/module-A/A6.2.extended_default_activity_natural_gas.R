@@ -61,10 +61,10 @@ UNSD_Energy_Final_Consumption <- UNSD_Energy_Final_Consumption_all %>%
 
 # Filter Input data for fuels and zero data
 # Filter Input data for fuels
-other_transformation <- other_transformation_all %>%
-    filter( fuel %in% ceds_extension_fuels) %>%
-    filter( iso != 'global ')
-A.comb_activity <- A.comb_activity_all %>%
+# other_transformation <- other_transformation_all %>%
+#     filter( fuel %in% ceds_extension_fuels) %>%
+#     filter( iso != 'global ')
+A.comb_activity_with_other <- A.comb_activity_all %>%
     filter( fuel %in% ceds_extension_fuels) %>%
     filter( iso != 'global ')
 cdiac_fuel <- cdiac_fuel_all %>%
@@ -77,11 +77,7 @@ iea_start_year <- iea_start_year_all %>%
     filter( iso != 'global')
 
 # Filter combustion data for coal fuels
-A.comb_activity <- A.comb_activity %>% filter( fuel %in% ceds_extension_fuels )
-
-# Add "Other Coal" record to the rows of Energy data
-A.comb_activity_with_other <- A.comb_activity %>%
-    rbind( other_transformation %>% filter( fuel %in% ceds_extension_fuels ) )
+A.comb_activity_with_other <- A.comb_activity_with_other%>% filter( fuel %in% ceds_extension_fuels )
 
 #-------------------------------------------------------------------------------------
 # 1. process_and_combine_un_ced_data function is called to format CEDS and UN data

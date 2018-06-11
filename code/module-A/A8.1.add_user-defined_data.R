@@ -37,7 +37,7 @@ MSL <- readData( "Master_Sector_Level_map", domain = "MAPPINGS" )
 MCL <- readData( "Master_Country_List",     domain = "MAPPINGS" )
 MFL <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx" )
 all_sectors <- MFL$Sectors
-comb_sectors <- all_sectors$sector[ all_sectors$type == "comb" ]
+comb_sectors <- all_sectors$sector[ all_sectors$type %in% c( "comb",'other') ]
 MFL <- MFL$Fuels
 MSL <- dplyr::rename( MSL, CEDS_sector = working_sectors_v1 )
 

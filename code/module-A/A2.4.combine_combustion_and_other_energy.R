@@ -43,9 +43,8 @@ combined <- energy_data %>%
   rbind(diff_hard_coal, diff_brown_coal, diff_nat_gas, diff_oil) %>%
   arrange(iso, sector, fuel)
 
-##CR: Renumber
 # ------------------------------------------------------------------------------
-# 6. Output
+# 3. Output
 # Add comments for each table
 comments.A.comb_othertrans_activity <- c( paste0( "IEA energy statistics",
                                        " by intermediate sector / intermediate fuel / historical year,",

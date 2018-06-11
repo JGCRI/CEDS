@@ -40,6 +40,15 @@
 # ------------------------------------------------------------------------------
 # 2. Separate combustion and activity energy data, separate other transformation
 
+# Check to make sure all sectors are in the input data
+    check_sectors <- c(MSL[ which( MSL$activity %in% c('Energy_Combustion')), 'sector' ],
+                       '1A1bc_Other-transformation','1A1bc_Other-feedstocks')
+
+  if( any( check_sectors %!in% unique(energy_data$sector) ) ) {
+      missing_sectors <- check_sectors [ check_sectors %!in% unique(energy_data$sector) ]
+      stop(paste('Energy Data does not have all sectors. The following are missing: ', paste(missing_sectors, collapse=", ")))
+  }
+
 # Separate CEDS combustion and other transformation from other tracked
 #    IEA energy trends (ex: domestic supply)
     IEA_other_energy_trends <- energy_data %>%

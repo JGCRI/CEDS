@@ -1,11 +1,10 @@
-##CR: rename file or update header information
 #------------------------------------------------------------------------------
-# Program Name: A3.3.write_IEA_diff.R
+# Program Name: A2.3.write_IEA_diff.R
 # Authors Names: Linh Vu, Rachel Hoesly
 # Date Last Modified: 16 May 2016
 # Program Purpose:    Write out difference between IEA DOMSUP and CEDS
 #                     consumption for coal, natural gas, oil
-# Input Files: A.IEA_en_stat_ctry_hist.csv, A.en_biomass_fsu_fix.csv
+# Input Files: A.IEA_en_stat_ctry_hist.csv, en_biomass_fsu_fix.csv
 # Output Files: A.IEA_CEDS_coal_difference.csv, A.IEA_CEDS_natural_gas_difference.csv,
 #               A.IEA_CEDS_oil_difference.csv
 # Notes:  The purpose of this script is to quantify how much fuel is consumed in the
@@ -24,24 +23,31 @@
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "data_functions.R", "common_data.R" ) # Additional function files required.
     log_msg <- "Write out difference between IEA and CEDS consumption" # First message to be printed to the log
-    script_name <- "A3.3.write_IEA_diff.R"
+    script_name <- "A2.3.write_IEA_diff.R"
 
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
 # ------------------------------------------------------------------------------
 # 1. Read in files
+
+    MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
     IEA_en_stat_ctry_hist <- readData( "MED_OUT", "A.IEA_en_stat_ctry_hist" )
-    IEA_pre_bp_ext <- readData( "MED_OUT", "A.en_biomass_fsu_fix" )
     IEA_product_fuel <- readData( "MAPPINGS", "IEA_product_fuel", domain_extension = "energy/" )
     IEA_flow_sector <- readData( "MAPPINGS", "IEA_flow_sector", domain_extension = "energy/" )
 
+    A.en_biomass_fsu_fix <- readData( "MED_OUT", "A.en_biomass_fsu_fix" )
+
 # Define values
+    # Include only primary fuels (not secondary fuels) for IEA fuel list (using this list with the Domestic Supply Flow)
     IEA_coal_list <- c( "Brown coal (if no detail) (kt)", "Coking coal (kt)",
                         "Hard coal (if no detail) (kt)", "Other bituminous coal (kt)",
-                        "Sub-bituminous coal (kt)", "Lignite (kt)", "Anthracite (kt)",
-                        "Patent fuel (kt)") # Include only primary fuels (not secondary fuels)
+                        "Sub-bituminous coal (kt)", "Lignite (kt)", "Anthracite (kt)")
     CEDS_coal_list <- c( "hard_coal", "brown_coal", "coal_coke" )
+
+    IEA_hard_coal_list <- c("Hard coal (if no detail) (kt)", "Coking coal (kt)","Anthracite (kt)" ,"Other bituminous coal (kt)","Sub-bituminous coal (kt)")
+    IEA_brown_coal_list <- c( "Brown coal (if no detail) (kt)","Lignite (kt)" )
+
     ### need to pay attention to primary and secondary fuels - refinery gas is a secondary fuel
 
     IEA_natural_gas_list <- c( "Gas works gas (TJ-gross)", "Coke oven gas (TJ-gross)",
@@ -61,6 +67,9 @@
                                  "Other liquid biofuels (kt)" )
     CEDS_oil_list <- c( "heavy_oil", "light_oil", "diesel_oil" )
 
+# Remove other IEA tracked values (not assigned to CEDS sectors)
+    en_biomass_fsu_fix <- A.en_biomass_fsu_fix %>%
+        filter( sector %in% MSL$sector)
 # ------------------------------------------------------------------------------
 # 0.5 Define functions  ### This typically happens before data is read in.
                         ### Recommend moving up before section 1
@@ -175,25 +184,30 @@
       conversionFactor_naturalgas_TJ_per_kt
 
 # Coal
-    out <- writeDiff( IEA_en_stat_ctry_hist, IEA_pre_bp_ext, IEA_coal_list, CEDS_coal_list,
+    out <- writeDiff( IEA_en_stat_ctry_hist, en_biomass_fsu_fix, IEA_coal_list, CEDS_coal_list,
                       "coal", "DOMSUP", NA )
     diff_coal <- out[[ "diff" ]]
     subzero_coal <- out[[ "subzero" ]]
 # hard coal
-    out <- writeDiff( IEA_en_stat_ctry_hist, IEA_pre_bp_ext, c("Hard coal (if no detail) (kt)", "Coking coal (kt)","Anthracite (kt)", "Patent fuel (kt)" ), c('hard_coal', 'coal_coke'),
+    out <- writeDiff( IEA_en_stat_ctry_hist, en_biomass_fsu_fix, IEA_hard_coal_list, c('hard_coal', 'coal_coke'),
                       "hard_coal", "DOMSUP", NA )
     diff_hard_coal <- out[[ "diff" ]]
     subzero_hard_coal <- out[[ "subzero" ]]
 # brown coal
-    out <- writeDiff( IEA_en_stat_ctry_hist, IEA_pre_bp_ext,
-                      c("Other bituminous coal (kt)", "Brown coal (if no detail) (kt)", "Sub-bituminous coal (kt)","Lignite (kt)" ), c('brown_coal'),
+    out <- writeDiff( IEA_en_stat_ctry_hist, en_biomass_fsu_fix,
+                      IEA_brown_coal_list, c('brown_coal'),
                       "brown_coal", "DOMSUP", NA )
     diff_brown_coal <- out[[ "diff" ]]
     subzero_brown_coal <- out[[ "subzero" ]]
 
 
+    iea <- computeIEASupply(IEA_en_stat_ctry_hist, c("Hard coal (if no detail) (kt)", "Coking coal (kt)","Anthracite (kt)", "Patent fuel (kt)" )) %>%
+        filter(iso == 'usa') %>%
+        gather(year, value, -iso)
+
+
 # Natural gas
-    out <- writeDiff( IEA_en_stat_ctry_hist, IEA_pre_bp_ext, IEA_natural_gas_list, CEDS_natural_gas_list,
+    out <- writeDiff( IEA_en_stat_ctry_hist, en_biomass_fsu_fix, IEA_natural_gas_list, CEDS_natural_gas_list,
                       "natural_gas", "DOMSUP", "NONENUSE" )
     diff_natural_gas <- out[[ "diff" ]]
     subzero_natural_gas <- out[[ "subzero" ]]
@@ -207,7 +221,7 @@
     IEA_oil <- bind_rows( IEA_oil_primary, IEA_oil_secondary ) %>%
           group_by( iso ) %>%
           summarise_all( sum )
-    CEDS_oil <- filter( IEA_pre_bp_ext, fuel %in% CEDS_oil_list ) %>%
+    CEDS_oil <- filter( en_biomass_fsu_fix, fuel %in% CEDS_oil_list ) %>%
                                     select( -fuel, -sector, -units ) %>%
                                                      group_by( iso ) %>%
                                              summarise_all( sum )
@@ -235,15 +249,7 @@
     diag_nonenergy <- diag_nonenergy[ c( "iso", "FLOW", "PRODUCT", "sector", "fuel", "units", X_IEA_years ) ]
 
 # ------------------------------------------------------------------------------
-# 3. Add Other Coal into Energy Data
-
-# Add Other coal to IEA_pre_bp_ext
-    IEA_pre_bp_ext_with_other <- IEA_pre_bp_ext %>%
-        rbind( diff_coal, diff_natural_gas, diff_oil)
-    IEA_pre_bp_ext_with_other <- IEA_pre_bp_ext_with_other[ c( "iso", "sector", "fuel", "units", X_IEA_years ) ]
-
-# ------------------------------------------------------------------------------
-# 4. Output
+# 3. Output
     writeData( diff_hard_coal     , "MED_OUT" , "A.IEA_CEDS_hard_coal_difference"           )
     writeData( diff_brown_coal    , "MED_OUT" , "A.IEA_CEDS_brown_coal_difference"          )
 

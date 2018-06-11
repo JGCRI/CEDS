@@ -48,29 +48,21 @@ total <- A.comb_extended %>%
 
 # 10. Other Output ---------------------------------------------------------------------
 
-# Total fossil fuels
-total_coal <- total %>%
+# Total fossil fuel by aggregate fuel
+total_coal <- A.comb_extended %>%
     filter(fuel %in% c('hard_coal','brown_coal','coal_coke')) %>%
     mutate(fuel = 'coal') %>%
     group_by(iso, fuel, units) %>%
     summarise_if(is.numeric, sum)
-total_natural_gas <- total %>%
+total_natural_gas <- A.comb_extended %>%
     filter(fuel %in% c('natural_gas')) %>%
     group_by(iso, fuel, units) %>%
     summarise_if(is.numeric, sum)
-total_oil <- total %>%
+total_oil <- A.comb_extended %>%
     filter(fuel %in% c('light_oil','diesel_oil','heavy_oil','oil')) %>%
     mutate(fuel = 'oil') %>%
     group_by(iso,units) %>%
     summarise_if(is.numeric, sum)
-
-# aggregate fossil fuel by sector
-coal <- total %>%
-    filter(fuel %in% c('hard_coal','brown_coal','coal_coke'))
-natural_gas <- total %>%
-    filter(fuel %in% c('natural_gas'))
-oil <- total %>%
-    filter(fuel %in% c('light_oil','diesel_oil','heavy_oil','oil'))
 
 # other_tranformation
 other_tranformation <- A.comb_extended %>%
@@ -83,13 +75,9 @@ other_feedstocks <- A.comb_extended %>%
 # Write out the data
 writeData( total , "MED_OUT", "A.total_activity_extended" )
 
-writeData( total_coal , "MED_OUT", "A.total_activity_extended_coal" )
-writeData( total_natural_gas , "MED_OUT", "A.total_activity_extended_natural_gas" )
-writeData( total_oil , "MED_OUT", "A.total_activity_extended_oil" )
-
-writeData( coal , "MED_OUT", "A.full_comb_activity_extended_coal" )
-writeData( natural_gas , "MED_OUT", "A.full_comb_activity_extended_natural_gas" )
-writeData( oil , "MED_OUT", "A.full_comb_activity_extended_oil" )
+writeData( total_coal , "MED_OUT", "A.activity_extended_coal" )
+writeData( total_natural_gas , "MED_OUT", "A.activity_extended_natural_gas" )
+writeData( total_oil , "MED_OUT", "A.activity_extended_oil" )
 
 logStop()
 # END
