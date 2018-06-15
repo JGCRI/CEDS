@@ -50,7 +50,7 @@ source_child <- function( file_name ){ source( paste( MODULE, file_name, sep = "
 # 1. Load Data
 
 A.coal_extended        <- readData('MED_OUT', "A.comb_activity_extended_coal", meta = F)
-A.oil_extended   <- readData('MED_OUT', "A.comb_activity_extended_oil", meta = F)
+A.oil_extended         <- readData('MED_OUT', "A.comb_activity_extended_oil", meta = F)
 A.natural_gas_extended <- readData('MED_OUT', "A.comb_activity_extended_natural_gas", meta = F)
 
 A.other_biomass_extended       <- readData('MED_OUT', 'A.other_biomass_extended')

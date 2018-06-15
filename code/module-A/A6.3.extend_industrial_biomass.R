@@ -125,6 +125,7 @@ ceds_industrial_biomass_agg <- ceds_industrial_biomass %>%
 
 # 5. Disaggregate Bond Data - FSU and USSR ----------------------------------
 
+  if (!all_equal(interpolate_NAs(bond_biomass), interpolate_NAs2(  bond_biomass))) stop()
 bond_biomass <- interpolate_NAs( bond_biomass )
 
 bond_industrial_biomass_fsu <- disaggregate_countries(

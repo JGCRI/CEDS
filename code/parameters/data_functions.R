@@ -433,28 +433,49 @@ buildCEDSTemplate <- function( iso_list = NULL, sector_list = NULL, fuel_list = 
 # Output files: none
 
 interpolate_NAs <- function(df) {
-  if( 'data.frame' %!in% class(df) ) {
-    warning("interpolate_NAs expects a data frame; attempting to convert")
-    df <- as.data.frame(df)
-  }
-
-  value.cols <- sapply(df, is.numeric)
-  interpolate_rows <- c()
-  for ( i in seq_along(1:nrow(df))) {
-    row <- df[i, ]
-    # Check if 1) there are NAs surrounded on either side by values and
-    #          2) there are at least 2 non-NA elements (redundant check?)
-    if( length(rle(is.na(c(NA, row, NA)))$values) > 3 &&
-        length(row) - sum(is.na(row)) > 1) {
-      interpolate_rows <- c(interpolate_rows, i)
+    if( 'data.frame' %!in% class(df) ) {
+        warning("interpolate_NAs expects a data frame; attempting to convert")
+        df <- as.data.frame(df)
     }
-  }
 
-  if( length(interpolate_rows) > 0 ) {
-    df[interpolate_rows, value.cols] <- t( na.approx(t(df[ interpolate_rows , value.cols]), na.rm = F))
-  }
-  return (df)
+    value.cols <- sapply(df, is.numeric)
+    interpolate_rows <- logical(nrow(df))
+    for ( i in seq_along(1:nrow(df))) {
+        row <- df[i, ]
+        # Check if 1) there are NAs surrounded on either side by values and
+        #          2) there are at least 2 non-NA elements (redundant check?)
+        if( length(rle(is.na(c(NA, row, NA)))$values) > 3 &&
+            length(row) - sum(is.na(row)) > 1) {
+            interpolate_rows[i] <- TRUE
+        }
+    }
+
+    if( any(interpolate_rows) ) {
+        df[interpolate_rows, value.cols] <- t( na.approx(t(df[ interpolate_rows , value.cols]), na.rm = F))
+    }
+    return (df)
 }
+
+interpolate_NAs2 <- function(df) {
+    if('data.frame' %!in% class(df)) {
+        warning("interpolate_NAs expects a data frame; attempting to convert")
+        df <- as.data.frame(df)
+    }
+
+    # Convert columns that are all NA to numeric
+    df <- dplyr::mutate_if(df, function(x) all(is.na(x)), as.numeric)
+    if(length(rle(sapply(df, is.numeric))$lengths) > 2) {
+        warning("interpolate_NAs found mixed numeric and non-numeric columns;
+                make sure all value columns are numeric")
+    }
+
+    value.cols <- sapply(df, is.numeric)
+    df_flipped <- t(df[value.cols])
+    df[ , value.cols] <- t(na.approx(df_flipped, na.rm = F))
+
+    return (df)
+}
+
 
 # -----------------------------------------------------------------------------
 # calculate_shares
@@ -579,7 +600,7 @@ calculate_correct_shares <- function(a.input_data,
     #CR: Re-use the parameter verification in calculate_shares
     # 1. Input parameter checks
     # id and target columns
-    same_id_target = F
+    same_id_target <- F
     if( length(a.target_column) != 1 ) stop('in calculate_shares: must select only one a.target_column' )
     if( any(a.id_columns %in% a.target_column) & length(a.id_columns) > 1 ) stop('in calculate_shares: specified a.id_columns must be different than a.target_column, if more than one id column')
     if( length(a.id_columns) == 0) {
@@ -629,19 +650,21 @@ calculate_correct_shares <- function(a.input_data,
     # already_correct_years - non zero sums (set aside and add back to output later)
     # to_correct_years - zero sum data (will replace zeros with NAs then replace NAs with corrections)
 
-    already_correct_years <- a.input_data_long %>% group_by_at(vars(a.id_columns, 'year')) %>% filter(sum(breakdown, na.rm = T) != 0)
+    already_correct_years <- a.input_data_long %>%
+        group_by_at(vars(a.id_columns, 'year')) %>%
+        filter(sum(breakdown, na.rm = T) != 0)
     to_correct_years <- setdiff(a.input_data_long, already_correct_years)
 
     # check to make sure to_correct_years are all zero
     check_sum <- to_correct_years %>%
-        summarise(sum = sum(breakdown, na.rm = T))
+        dplyr::summarise(sum = sum(breakdown, na.rm = T))
     if( check_sum != 0) stop('In calculate_correct_shares(), correction years selected include non zero breakdowns. Please check.')
 
     # Check for all entries
     if( nrow(a.input_data_long) != (nrow(already_correct_years) + nrow(to_correct_years)) ) stop("In calculate_correct_shares(), some entries are dropped. Please check.")
 
     # ---------------------------
-    # 4. Correct to_correcet_years
+    # 4. Correct to_correct_years
     #
     # 4.1 Correct with interpolation
     # interpolate between non NA values, and carry last observation forward
@@ -649,27 +672,28 @@ calculate_correct_shares <- function(a.input_data,
     # 2. add back in the non zero shares (alerady_correct_years) so there are values to interpolate over
     # 3. interpolate over NAs
     # 4. carry last observation forward over NAs
-    if( nrow(to_correct_years)>0 ){
-    correcting_years <- to_correct_years %>%
-        replace(to_correct_years == 0, NA ) %>%
-        rbind(data.frame(already_correct_years)) %>%
-        spread(year, breakdown) %>%
-        interpolate_NAs
-    # last observation carried forward
-    correcting_years[X_years] <- t(na.locf(t(correcting_years[X_years])))
+    if( nrow(to_correct_years) > 0 ) {
+        correcting_years <- to_correct_years %>%
+            replace(to_correct_years == 0, NA ) %>%
+            rbind(data.frame(already_correct_years)) %>%
+            spread(year, breakdown) %>%
+            interpolate_NAs
+        # last observation carried forward
+        correcting_years[X_years] <- t(na.locf(t(correcting_years[X_years])))
 
-    correcting_years_long <- gather(correcting_years, year, breakdown, -a.id_columns, - a.target_column) %>%
-        unique
+        correcting_years_long <- correcting_years %>%
+            tidyr::gather(year, breakdown, -a.id_columns, -a.target_column) %>%
+            dplyr::distinct()
 
-    # Again, seperate out non zero sum breakdowns into
-    # already_corrected2 and to_correct2
+        # Again, seperate out non zero sum breakdowns into
+        # already_corrected2 and to_correct2
 
-    already_correct_years2 <- correcting_years_long %>%
-        group_by_at(vars(a.id_columns, 'year')) %>%
-        filter(sum(breakdown) != 0)
-    to_correct_years2 <- setdiff(correcting_years_long, already_correct_years2)
+        already_correct_years2 <- correcting_years_long %>%
+            group_by_at(vars(a.id_columns, 'year')) %>%
+            filter(sum(breakdown) != 0)
+        to_correct_years2 <- setdiff(correcting_years_long, already_correct_years2)
 
-    } else{
+    } else {
         # If there are no lines to correct with interpolation, then pass to new Dfs to renomalized below
         already_correct_years2 <- already_correct_years
         to_correct_years2 <- to_correct_years
@@ -678,7 +702,7 @@ calculate_correct_shares <- function(a.input_data,
     # Check for all entries
     if( nrow(a.input_data_long) != (nrow(already_correct_years2) + nrow(to_correct_years2)) ){
         stop("In calculate_correct_shares(), some entries are dropped in while correcting shares through interpolation. Please check.")
-}
+    }
     # Check for NAs in already correct
     if( any(is.na(already_correct_years2$breakdown)) ) stop( 'In calculate_correct_shares(), NA is default correction breakdowns, please check.')
 
@@ -720,7 +744,6 @@ calculate_correct_shares <- function(a.input_data,
 
     # 6. return value
     return( out.df.renormalized )
-
 }
 
 

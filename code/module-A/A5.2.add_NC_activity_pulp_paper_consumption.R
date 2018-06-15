@@ -176,12 +176,11 @@
     X_pulp_years <- paste0( "X", pulp_years )
 # Create a long-form data frame with the necessary years and columns and fao
 # activity data
-    fao_full <- data.frame( year = pulp_years ) %>%
-                merge( data.frame( flow = c( "production",
-                                             "imports",
-                                             "exports" ) ) ) %>%
-                merge( data.frame( iso = unique( fao$iso ) ) ) %>%
-                merge( fao, all.x = T )
+    fao_full <- expand.grid( year = pulp_years,
+                              flow = c( "production", "imports", "exports" ),
+                              iso = unique( fao$iso ), stringsAsFactors = F ) %>%
+        dplyr::left_join( fao, by = c( "year", "flow", "iso" ) )
+
 # Add units
     fao_full$units <- "tonnes"
 # Isolate 5 needed columns (the rest were used for merging)
