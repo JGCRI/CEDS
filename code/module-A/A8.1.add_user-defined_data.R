@@ -37,7 +37,8 @@ MSL <- readData( "Master_Sector_Level_map", domain = "MAPPINGS" )
 MCL <- readData( "Master_Country_List",     domain = "MAPPINGS" )
 MFL <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx" )
 all_sectors <- MFL$Sectors
-comb_sectors <- all_sectors$sector[ all_sectors$type %in% c( "comb",'other') ]
+comb_sectors <- all_sectors[ all_sectors$category == "combustion", "sector" ]
+othr_sectors <- all_sectors[ all_sectors$category == "other", "sector" ]
 MFL <- MFL$Fuels
 MSL <- dplyr::rename( MSL, CEDS_sector = working_sectors_v1 )
 
@@ -45,8 +46,16 @@ MSL <- dplyr::rename( MSL, CEDS_sector = working_sectors_v1 )
 # standard CEDS format
 all_activity_data <- readData( 'MED_OUT', 'A.comb_default_activity_extended', meta = F ) %>%
     dplyr::rename( CEDS_sector = sector, CEDS_fuel = fuel ) %>%
-    dplyr::filter( CEDS_sector %in% comb_sectors ) %>%
+    dplyr::filter( CEDS_sector %in% comb_sectors | CEDS_sector %in% othr_sectors) %>%
     mapToCEDS( MSL, MFL, aggregate = F )
+
+# Special case for oil 1A1bc_Other-transformation and 1A1bc_Other-feedstocks.
+# This data is aggreagated to the agg_fuel level by default, so we place a fill
+# value in for the CEDS_fuel.
+all_activity_data <- all_activity_data %>%
+    dplyr::mutate( CEDS_fuel = if_else( CEDS_sector %in% othr_sectors & CEDS_fuel == 'oil',
+                                        'AGGREGATE', CEDS_fuel ),
+                   agg_fuel = if_else( CEDS_fuel == 'AGGREGATE', 'oil', agg_fuel ) )
 
 stopifnot( all( !is.na( all_activity_data ) ) ) # Data should all be valid
 
