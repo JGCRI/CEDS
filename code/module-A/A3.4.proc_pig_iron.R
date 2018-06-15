@@ -158,6 +158,7 @@
     all_wide$iso <- as.character( all_wide$iso )
 
 # Interpolate NAs
+  if (!all_equal(interpolate_NAs(  all_wide[ X_extended_years ]), interpolate_NAs2( all_wide[ X_extended_years ]))) stop()
     all_wide[ X_extended_years ] <- interpolate_NAs( all_wide[ X_extended_years ] )
     all_wide[ is.na( all_wide ) ] <- 0
 
