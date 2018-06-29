@@ -135,7 +135,7 @@ EIA_data_formatted <- liquid_biofuels %>%
     dplyr::right_join( EIA_data_formatted, by = c( "year", "fuel", "sector", "Unit" ) ) %>%
     dplyr::mutate( diff_val = if_else( is.na( diff_val ), 0, diff_val ),
                    Value = Value - diff_val) %>%
-    dplyr::select( -diff_val )
+    dplyr::select( iso, sector, fuel, Unit, year, Value )
 
 
 # Prepare unit conversion -------------------------------------------------
@@ -161,12 +161,14 @@ petrol_heat_content$sector[ petrol_heat_content$MSN == "PACCKUS" ] <- "Commercia
 petrol_heat_content$sector[ petrol_heat_content$MSN == "PAICKUS" ] <- "Industry"
 petrol_heat_content$sector[ petrol_heat_content$MSN == "PAACKUS" ] <- "Transportation"
 petrol_heat_content$sector[ petrol_heat_content$MSN == "PAEIKUS" ] <- "Energy Transf/Ext"
+petrol_heat_content <- petrol_heat_content[ !is.na( petrol_heat_content$sector ), ]
 
 # Match petroleum to sectors based on ID indicators (manually identified)
 coal_heat_content$sector <- NA
 coal_heat_content$sector[ coal_heat_content$MSN == "CLHCKUS" ] <- "Residential and Commercial"
 coal_heat_content$sector[ coal_heat_content$MSN == "CLOCKUS" ] <- "Industry"
 coal_heat_content$sector[ coal_heat_content$MSN == "CLEIKUS" ] <- "Energy Transf/Ext"
+coal_heat_content <- coal_heat_content[ !is.na( coal_heat_content$sector ), ]
 
 # Coal reports a single heat content value for both residential and commercial
 # sectors; we need to make separate entries for these for mapping purposes
@@ -182,9 +184,7 @@ coal_heat_content_trans$sector <- "Transportation"
 coal_heat_content <- rbind( coal_heat_content, coal_heat_content_com,
                             coal_heat_content_res, coal_heat_content_trans )
 
-# Remove unmapped entries and add fuel indicators
-petrol_heat_content <- petrol_heat_content[ !is.na( petrol_heat_content$sector ), ]
-coal_heat_content <- coal_heat_content[ !is.na( coal_heat_content$sector ), ]
+# Add fuel indicators
 coal_heat_content$fuel <- "coal"
 petrol_heat_content$fuel <- "oil"
 
@@ -202,9 +202,9 @@ coal_heat_content$Unit <- "TJ/kt"
 
 conversion_factors <- rbind( coal_heat_content, petrol_heat_content )
 
-# ------------------------------------------------------------------------------
-# 8. Execute conversion to kt
-#    Executes the conversions described in Code Block 6 description
+
+# Execute conversion to kt ------------------------------------------------
+#    Executes the conversions described in the code block description above
 
 # Convert biomass to kt using CEDS standard conversion factor
 # TODO: This will hopefully change--we need an EIA factor since they use diff. reporting
@@ -243,7 +243,8 @@ EIA_data_formatted[ EIA_data_formatted$fuel %in% c( "oil", "coal" ), ] <- EIA_co
 coal_activity_file <- paste0( EIA_PATH, "Table_6.2_Coal_Consumption_by_Sector.xlsx" )
 coal_activity_all <- readxl::read_xlsx( coal_activity_file, "Annual Data", skip = 10 )
 
-# Get coal coke subset of the coal activity and convert from short tons to kt
+# Get coal coke subset of the coal activity and convert from thousand short tons
+# to kt
 coal_coke_consumed <- coal_activity_all[ -1, c( 1, 6 ) ] %>%
     setNames( c( "year", "Value" ) ) %>%
     dplyr::mutate( Value = as.numeric( Value ) * CONV_SHORTTON_TONNE,
@@ -251,89 +252,45 @@ coal_coke_consumed <- coal_activity_all[ -1, c( 1, 6 ) ] %>%
 
 # Subtract from coal industry activity
 coal_ind_rows <- EIA_data_formatted$fuel == "coal" & EIA_data_formatted$sector == "Industry"
-EIA_data_formatted$Value[ coal_ind_rows, ] <-
-      as.numeric( EIA_data_formatted$Value[ coal_ind_rows, ] ) -
-      as.numeric( coal_coke_consumed$Value )
-
-# ------------------------------------------------------------------------------
-# 6. Replace coal info sector by sector with data from coal-specific mass units
-
-coal_electric_sector <- coal_activity_all[ , c( 1, 12 ) ]
-names( coal_electric_sector ) <- c( "year", "Value" )
-
-coal_electric_sector$Value <- as.numeric(coal_electric_sector$Value)
-coal_electric_sector <- coal_electric_sector[ !is.na( coal_electric_sector$Value ), ]
-
-coal_electric_sector$Unit <- "Thousand short tons"
-coal_electric_sector$Value <- CONV_SHORTTON_TONNE * coal_electric_sector$Value
-coal_electric_sector$Unit <- "kt"
-
-EIA_data_formatted$Value[ which(EIA_data_formatted$sector == "Energy Transf/Ext" &
-                          EIA_data_formatted$fuel == "coal")] <- coal_electric_sector$Value
+EIA_data_formatted[ coal_ind_rows, "Value" ] <-
+      EIA_data_formatted[ coal_ind_rows, "Value" ] - coal_coke_consumed$Value
 
 
-coal_transportation_sector <- coal_activity_all[ , c( 1, 11 ) ]
-names( coal_transportation_sector ) <- c( "year", "Value" )
+# Update coal by sector ---------------------------------------------------
+#    Replace coal info sector by sector with data from coal-specific mass units
 
-coal_transportation_sector$Value <- as.numeric(coal_transportation_sector$Value)
-coal_transportation_sector <- coal_transportation_sector[ !is.na( coal_transportation_sector$Value ), ]
+# Get coal sector subset of the coal activity and convert from thousand short
+# tons to kt
+replace_coal_sector <- function( EIA_all, coal_activity_all, sector, col_i ) {
+    stopifnot( coal_activity_all[ 1, col_i ] == "(Thousand Short Tons)" )
+    coal_sector <- dplyr::pull( coal_activity_all, col_i )[-1] %>%
+        grep( "Not Available", ., value = T, invert = T ) %>%
+        as.numeric() * CONV_SHORTTON_TONNE
+    sector_rows <- EIA_all$fuel == "coal" & EIA_all$sector == sector
+    EIA_all[ sector_rows, 'Value' ] <- coal_sector
+    EIA_all
+}
 
-coal_transportation_sector$Unit <- "Thousand short tons"
-coal_transportation_sector$Value <- CONV_SHORTTON_TONNE * coal_transportation_sector$Value
-coal_transportation_sector$Unit <- "kt"
+# Map the coal sector names to their columns in coal_activity_all
+coal_sectors <- c( "Residential" = 2,
+                   "Commercial" = 5,
+                   "Industry" = 9,
+                   "Transportation" = 11,
+                   "Energy Transf/Ext" = 12 )
 
-EIA_data_formatted$Value[ which(EIA_data_formatted$sector == "Transportation" &
-                          EIA_data_formatted$fuel == "coal")] <- coal_transportation_sector$Value
+for ( sector in names( coal_sectors ) ) {
+    EIA_data_formatted <- replace_coal_sector( EIA_data_formatted,
+                                               coal_activity_all,
+                                               sector,
+                                               coal_sectors[ sector ] )
+}
 
-
-coal_residential_sector <- coal_activity_all[ , c( 1, 2 ) ]
-names( coal_residential_sector ) <- c( "year", "Value" )
-
-coal_residential_sector$Value <- as.numeric(coal_residential_sector$Value)
-coal_residential_sector <- coal_residential_sector[ !is.na( coal_residential_sector$Value ), ]
-
-coal_residential_sector$Unit <- "Thousand short tons"
-coal_residential_sector$Value <- CONV_SHORTTON_TONNE * coal_residential_sector$Value
-coal_residential_sector$Unit <- "kt"
-
-EIA_data_formatted$Value[ which( EIA_data_formatted$sector == "Residential" &
-                          EIA_data_formatted$fuel == "coal" ) ] <- coal_residential_sector$Value
+# Subtract coal coke from industry
+coal_ind_rows <- EIA_data_formatted2$fuel == "coal" & EIA_data_formatted2$sector == "Industry"
+EIA_data_formatted[ coal_ind_rows, "Value" ] <-
+    EIA_data_formatted2[ coal_ind_rows, "Value" ] - coal_coke_consumed$Value
 
 
-coal_commercial_sector <- coal_activity_all[ , c( 1, 5 ) ]
-names( coal_commercial_sector ) <- c( "year", "Value" )
-
-coal_commercial_sector$Value <- as.numeric(coal_commercial_sector$Value)
-coal_commercial_sector <- coal_commercial_sector[ !is.na( coal_commercial_sector$Value ), ]
-
-coal_commercial_sector$Unit <- "Thousand short tons"
-coal_commercial_sector$Value <- CONV_SHORTTON_TONNE * coal_commercial_sector$Value
-coal_commercial_sector$Unit <- "kt"
-
-EIA_data_formatted$Value[ which(EIA_data_formatted$sector == "Commercial" &
-                          EIA_data_formatted$fuel == "coal")] <- coal_commercial_sector$Value
-
-coal_industrial_sector <- coal_activity_all[ , c( 1, 9 ) ]
-coal_coke <- coal_activity_all[ , c( 1, 6 ) ]
-names( coal_industrial_sector ) <- c( "year", "Value" )
-names( coal_coke ) <- c( "year", "Value" )
-
-coal_coke$Value <- as.numeric(coal_coke$Value)
-coal_industrial_sector$Value <- as.numeric(coal_industrial_sector$Value)
-
-coal_industrial_sector$Value <- coal_industrial_sector$Value - coal_coke$Value
-
-coal_industrial_sector <- coal_industrial_sector[ !is.na( coal_industrial_sector$Value ), ]
-
-coal_industrial_sector$Unit <- "Thousand short tons"
-coal_industrial_sector$Value <- CONV_SHORTTON_TONNE * coal_industrial_sector$Value
-coal_industrial_sector$Unit <- "kt"
-
-EIA_data_formatted$Value[ which(EIA_data_formatted$sector == "Commercial" &
-                          EIA_data_formatted$fuel == "coal")] <- coal_industrial_sector$Value
-
-# ------------------------------------------------------------------------------
-# 10. Cast to wide and write output
-
+# Cast to wide and write output -------------------------------------------
 EIA_final <- tidyr::spread( EIA_data_formatted, key = year, value = Value )
-writeData( EIA_final, domain = "MED_OUT", 'E.US-EIA_inventory' )
+write.csv( EIA_final, "E.US-EIA_inventory.csv", row.names = F )
