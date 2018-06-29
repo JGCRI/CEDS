@@ -1,339 +1,190 @@
 #------------------------------------------------------------------------------
-# Program Name: E.US-EIA_activity.R
-# Author: Ben Goldstein
+# Program Name: US-EIA_activity.R
+# Authors: Ben Goldstein, Caleb Braun
 # Date Last Modified: June 29, 2017
-# Program Purpose: To read in & reformat EIA activity data from 1949 to 2014
+#
+# To read in & reformat EIA activity data from 1949 to present
+#
 # Units are initially in btu
-# Input Files: all files in the folder input/activity/EIA-data
-# Output Files: E.[em]_EIA_activity.csv
-# Notes:
-
+#
+# Input Files:  All files in the folder EIA-data
+# Output Files: US_EIA_inventory.csv
 # ------------------------------------------------------------------------------
-# 0. Read in global settings and headers
 
-PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
+library(dplyr)
+library(tidyr)
+library(readxl)
 
-# Call standard script header function to read in universal header files -
-# provide logging, file support, and system functions - and start the script log.
-headers <- c( 'common_data.R',"data_functions.R" ,"emissions_scaling_functions.R",  "analysis_functions.R" ) # Additional function files required.
-log_msg <- "Initial reformatting of Argentina emissions" # First message to be printed to the log
-script_name <- "E.US-EIA_activity.R"
+EIA_PATH <- "EIA-data/"
+CONV_DIR <- "EIA-data/unit-conversion/"
 
-source( paste0( PARAM_DIR, "header.R" ) )
-initialize( script_name, log_msg, headers )
-
-
-# ------------------------------------------------------------------------------
-# 1. Define constants and functions for inventory specific script
-
-# Given constants
+# Define constants
 CONV_TBTU_TJ <- 1055             # Trillion BTU to TJ
 CONV_SHORTTON_TONNE <- 0.9072
 CONV_TONNE_BARREL <- 7.33        # mass density factor from OPEC 2014
 CONV_FACTOR_NATGAS_TJ_T <- 46629 # US natural gas OECD conversion factor TJ to t
 
+# CEDS constants
+CONV_FACTOR_BIO_KT_TJ <-    16   # See CEDS conversionFactor_biomass_kt_TJ
+CONV_FACTOR_NATGAS_TJ_KT <- 44.2 # See CEDS conversionFactor_naturalgas_TJ_per_kt
 
-# createCompPlot
-# Brief: this function is a helper for generating batch comparison
-#        graphs between CEDS and EIA data, one sector at a time
-# Params:
-#     CEDS_data: the CEDS dataset, aggregated to country x agg sector
-#     EIA_data: the EIA dataset, aggregated to country x sector
-#     CEDS_sectors: an ordered list of CEDS_sectors we want to compare
-#     EIA_sectors: an ordered list of EIA_sectors we want to compare
-#     number: which index in the sector lists will tell us what we're comparing
-# Returns: a single ggplot
-createCompPlot <- function( CEDS_data, EIA_data, CEDS_sectors, EIA_sectors, number ) {
-
-# If the sector is "total", aggregate by year
-    if ( CEDS_sectors[ number ] == "Total" ) {
-        CEDS_data <- CEDS_data[ CEDS_data$sector %!in%
-                                c( "1A4_Stationary_RCO" ), ]
-        temp_CEDS_data <- ddply( CEDS_data,
-                                 "year",
-                                 function(x) colSums( x[ "Value" ] ) )
-        temp_EIA_data <- ddply( EIA_data,
-                                "year",
-                                function(x) colSums( x[ "Value" ] ) )
-
-# Otherwise, extract data whose sector matches the one asked for
-    } else {
-        temp_CEDS_data <- CEDS_data[ which( CEDS_data$sector ==
-                                            CEDS_sectors[ number ] ), ]
-        temp_EIA_data <- EIA_data[ which( EIA_data$sector ==
-                                          EIA_sectors[ number ] ), ]
-    }
-
-# Adjust units for readability (if over 1000, use Mt instead of kt)
-    y_label <- "Consumption [kt]"
-    if ( max( temp_CEDS_data$Value ) > 1000 || max( temp_EIA_data$Value ) > 1000 ) {
-        temp_CEDS_data$Value <- temp_CEDS_data$Value / 1000
-        temp_EIA_data$Value <- temp_EIA_data$Value / 1000
-        y_label <- "Consumption [Mt]"
-    }
-
-# Create the ggplot. CEDS is blue, EIA is red.
-    p <- ggplot( temp_EIA_data, aes( year, Value ) ) +
-      geom_line( data = temp_CEDS_data, aes( year, Value ), color = "blue" ) +
-      geom_line( data = temp_EIA_data, aes( year, Value ), color = "red" ) +
-      theme( legend.position = "right" ) +
-      ggtitle( list_of_EIA_sectors[ number ] ) +
-      ylab( y_label )
-
-    return( p )
-}
-
-# g_legend
-# Brief: A function that extracts and returns the legend of a ggplot
-#        (e.g. for arrangement with a group of plots)
-g_legend <- function( a.gplot ) {
-    tmp <- ggplot_gtable( ggplot_build( a.gplot ) )
-    leg <- which( sapply( tmp$grobs, function(x) x$name ) == "guide-box" )
-    legend <- tmp$grobs[[leg]]
-    return( legend )
-}
+YYYYMM_to_Xyear <- function( YYYYMM ) paste0( "X", substr( YYYYMM, 1, 4 ) )
 
 
-# ------------------------------------------------------------------------------
-# 2. Read in different data frames from EIA folder
-#    Reads in the relevant files. First creates a single large dataframe containing
-#    the reported data, then creates dataframes storing heat content factors
+# Read in relevant EIA data files -----------------------------------------
 
 # Prepare to read in all *.csv files from the EIA data folder
-files_to_read <- list.files( "emissions-inventories/EIA-data/", ".*csv$" )
-files_to_read <- gsub( "\\.csv$", "", files_to_read )
+files_to_read <- list.files( EIA_PATH, ".*csv$", full.names = T )
 
-# Initialize an empty dataframe
-all_EIA_raw_data <- NULL
-
-# Read each file and append to a single dataframe
-for (f in files_to_read) {
-    if ( grepl( "MER", f ) )
-    temp_df <- readData( f, domain = "EM_INV", domain_extension = "EIA-data/" )
-
-    if ( is.null( all_EIA_raw_data ) ) {
-        all_EIA_raw_data <- temp_df
-    } else {
-        all_EIA_raw_data <- rbind( all_EIA_raw_data, temp_df )
-    }
-}
+# Read each file of reported and combine into a single dataframe
+EIA_data_files <- grep( "MER", files_to_read, value = T )
+all_EIA_raw_data <- lapply( EIA_data_files, read.csv, stringsAsFactors = F )
+all_EIA_raw_data <- do.call( rbind, all_EIA_raw_data )
 
 # Read in heat content conversion files
-coal_heat_content <- readData( "MER_TA5", domain = "EM_INV",
-                             domain_extension = "EIA-data/unit-conversion/" )
-petrol_heat_content <- readData( "MER_TA3", domain = "EM_INV",
-                               domain_extension = "EIA-data/unit-conversion/" )
-gas_heat_content <- readData( "MER_TA4", domain = "EM_INV",
-                               domain_extension = "EIA-data/unit-conversion/" )
-# ------------------------------------------------------------------------------
-# 3. Basic reformatting
-#    Brings the EIA data into TJ and year/month form.
-
-# Extract month and year info from EIA dataset
-EIA_data_formatted <- all_EIA_raw_data
-EIA_data_formatted$year <- paste0( "X", substr( all_EIA_raw_data$YYYYMM, 1, 4 ) )
-EIA_data_formatted$month <- substr( all_EIA_raw_data$YYYYMM, 5, 6 )
-
-# Retain only annual info
-EIA_data_formatted <- EIA_data_formatted[ which ( EIA_data_formatted$month == 13 ),
-                                          c( "MSN", "Value", "Description",
-                                             "Unit", "year" ) ]
-
-# Drop not-available cells
-EIA_data_formatted <- EIA_data_formatted[ which ( EIA_data_formatted$Value %!in%
-                                                  c( "Not Available", "No Data Reported" ) ), ]
-
-# Convert to TJ from BTU
-EIA_data_formatted$Value[ which( EIA_data_formatted$Unit == "Trillion Btu" ) ] <-
-                      CONV_TBTU_TJ * as.numeric( EIA_data_formatted$Value )
-EIA_data_formatted$Unit[ which( EIA_data_formatted$Unit == "Trillion Btu" ) ] <- "TJ"
-
-# ------------------------------------------------------------------------------
-# 4. Fuel mapping
-#    Identifies the CEDS fuels corresponding to each row of EIA data and discards
-#    irrelevant data.
-
-EIA_data_formatted$fuel <- NA
-
-# Extract fuel information from EIA descriptions
-EIA_data_formatted$fuel[ grep( "Coal", EIA_data_formatted$Description ) ] <- "coal"
-EIA_data_formatted$fuel[ grep( "Biomass", EIA_data_formatted$Description ) ] <- "biomass"
-EIA_data_formatted$fuel[ grep( "Natural Gas", EIA_data_formatted$Description ) ] <- "gas"
-EIA_data_formatted$fuel[ grep( "Petroleum", EIA_data_formatted$Description ) ] <- "oil"
-
-# Any data that does not contain fuel-specific info need not be used
-data_unused <- EIA_data_formatted[ is.na( EIA_data_formatted$fuel ), ]
-# Report if any cells failed to be matched
-printLog( paste0( nrow( data_unused ),
-                  " valid annual datapoints were not mapped to CEDS fuels" ) )
-
-# Keep only matched data
-EIA_data_formatted <- EIA_data_formatted[ !is.na( EIA_data_formatted$fuel ), ]
+petrol_heat_content <- read.csv( paste0( CONV_DIR, "MER_TA3.csv" ), stringsAsFactors = F )
+gas_heat_content <-    read.csv( paste0( CONV_DIR, "MER_TA4.csv" ), stringsAsFactors = F )
+coal_heat_content <-   read.csv( paste0( CONV_DIR, "MER_TA5.csv" ), stringsAsFactors = F )
 
 
-# ------------------------------------------------------------------------------
-# 5. Sector mapping
-#    Same as fuel mapping, but sectors.
+# Bring the EIA data into TJ and year/month form --------------------------
 
-EIA_data_formatted$sector <- NA
+# Retain only annual info, drop not-available cells, and convert to TJ from BTU
+EIA_data_formatted <- all_EIA_raw_data %>%
+    dplyr::mutate( year = YYYYMM_to_Xyear( YYYYMM ),
+                   month = substr( YYYYMM, 5, 6 ) ) %>%
+    dplyr::filter( month == 13,
+                   !Value %in% c( "Not Available", "No Data Reported" ) ) %>%
+    dplyr::mutate( Value = if_else( Unit == "Trillion Btu",
+                                    CONV_TBTU_TJ * as.numeric( Value ),
+                                    as.numeric( Value ) ),
+                   Unit = gsub( "Trillion Btu", "TJ", Unit ) ) %>%
+    dplyr::select( MSN, Value, Description, Unit, year )
 
-# Extract sector-level information from EIA descriptions
-EIA_data_formatted$sector[ grep( "Residential Sector",
-                                     EIA_data_formatted$Description ) ] <- "Residential"
-EIA_data_formatted$sector[ grep( "Commercial Sector",
-                                     EIA_data_formatted$Description ) ] <- "Commercial"
-EIA_data_formatted$sector[ grep( "Industrial Sector",
-                                     EIA_data_formatted$Description ) ] <- "Industry"
-EIA_data_formatted$sector[ grep( "Transportation Sector",
-                                     EIA_data_formatted$Description ) ] <- "Transportation"
-EIA_data_formatted$sector[ grep( "Electric Power Sector",
-                                     EIA_data_formatted$Description ) ] <- "Energy Transf/Ext"
 
-# Same as with fuel; identify and report any unmatched rows
-data_unused <- EIA_data_formatted[ is.na( EIA_data_formatted$sector ), ]
-printLog( paste0( nrow( data_unused ), " valid annual datapoints were not mapped to CEDS sectors" ) )
-EIA_data_formatted <- EIA_data_formatted[ !is.na( EIA_data_formatted$fuel ), ]
+# Identify CEDS fuels and sectors from IEA data ---------------------------
 
-# Assign an iso to the dataset
-EIA_data_formatted$iso <- "usa"
+# Extract fuel and sector information from EIA descriptions and discard any data
+# that does not contain fuel or sector specific info
+EIA_data_formatted <- EIA_data_formatted %>%
+    dplyr::mutate(
+        fuel = case_when(
+            grepl( "Coal",        Description ) ~ "coal",
+            grepl( "Biomass",     Description ) ~ "biomass",
+            grepl( "Natural Gas", Description ) ~ "gas",
+            grepl( "Petroleum",   Description ) ~ "oil"
+        ),
+        sector = case_when(
+            grepl( "Residential Sector",    Description ) ~ "Residential",
+            grepl( "Commercial Sector",     Description ) ~ "Commercial",
+            grepl( "Industrial Sector",     Description ) ~ "Industry",
+            grepl( "Transportation Sector", Description ) ~ "Transportation",
+            grepl( "Electric Power Sector", Description ) ~ "Energy Transf/Ext"
+        ) ) %>%
+    dplyr::filter( !is.na( fuel ), !is.na( sector ) )
 
-# Extract only those columns we want to use from now on (CEDS info)
-EIA_data_formatted <- EIA_data_formatted[ , c( "iso", "sector", "fuel",
-                                               "Unit", "year", "Value" ) ]
 
-# ------------------------------------------------------------------------------
-# 6. Remove liquid biofuels from biomass estimate
-#    CEDS considers liquid biofuels (ethanol) in petroleum, but EIA counts it
-#    in renewable biomass. For the purposes of informing CEDS, we must remove
-#    liquid biomass from the EIA total biomass energy estimate. This also
-#    requires that CEDS has produced an estimate with no liquid biomass in
-#    petroleum.
+# Assign an iso to the dataset and extract only those columns we want to use
+# from now on (CEDS info)
+EIA_data_formatted <- EIA_data_formatted %>%
+    dplyr::mutate( iso = "usa" ) %>%
+    dplyr::select( iso, sector, fuel, Unit, year, Value )
+
+
+# Remove liquid biofuels from biomass estimate ----------------------------
+#   CEDS considers liquid biofuels (ethanol) in petroleum, but EIA counts it
+#   in renewable biomass. For the purposes of informing CEDS, we must remove
+#   liquid biomass from the EIA total biomass energy estimate. This also
+#   requires that CEDS has produced an estimate with no liquid biomass in
+#   petroleum.
 
 # Read in the sectoral renewable breakdowns, isolating only fuel ethanol columns
-liquid_biofuels_ind <- readData( "Table_10.2b_Renewable_Energy_Consumption___Industrial_and_Transportation_Sectors",
-                                       extension = '.xlsx',
-                                       domain = "EM_INV",
-                                       domain_extension = "EIA-data/unit-conversion/",
-                                       skip_rows = 10,
-                                       sheet_selection = "Annual Data" )[ , c( 1, 8 ) ]
-liquid_biofuels_trn <- readData( "Table_10.2b_Renewable_Energy_Consumption___Industrial_and_Transportation_Sectors",
-                                       extension = '.xlsx',
-                                       domain = "EM_INV",
-                                       domain_extension = "EIA-data/unit-conversion/",
-                                       skip_rows = 10,
-                                       sheet_selection = "Annual Data" )[ , c( 1, 12, 13 ) ]
-liquid_biofuels_com <- readData( "Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors",
-                                 extension = '.xlsx',
-                                 domain = "EM_INV",
-                                 domain_extension = "EIA-data/unit-conversion/",
-                                 skip_rows = 10,
-                                 sheet_selection = "Annual Data" )[ , c( 1, 12 ) ]
+ind_trn_file <- paste0( CONV_DIR, "Table_10.2b_Renewable_Energy_Consumption___Industrial_and_Transportation_Sectors.xlsx" )
+com_file <- paste0( CONV_DIR, "Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors.xlsx" )
+liquid_biofuels_ind <- readxl::read_xlsx( ind_trn_file, "Annual Data", skip = 10 )[ -1, c( 1, 8 ) ]
+liquid_biofuels_trn <- readxl::read_xlsx( ind_trn_file, "Annual Data", skip = 10 )[ -1, c( 1, 12, 13 ) ]
+liquid_biofuels_com <- readxl::read_xlsx( com_file,     "Annual Data", skip = 10 )[ -1, c( 1, 12 ) ]
 
-# In transportation, we need to sum diesel and ethanol. Convert to numeric and
-# replace NAs with 0s...
-liquid_biofuels_trn[ , 2 ] <- as.numeric(liquid_biofuels_trn[ , 2 ] )
-liquid_biofuels_trn[ , 3 ] <- as.numeric(liquid_biofuels_trn[ , 3 ] )
-liquid_biofuels_trn[ is.na( liquid_biofuels_trn ) ] <- 0
-# ...then sum and drop the specific columns.
-liquid_biofuels_trn$Value <- liquid_biofuels_trn[ , 2 ] + liquid_biofuels_trn[ , 3 ]
-liquid_biofuels_trn <- liquid_biofuels_trn[ , c( 1, 4 )]
+# In transportation, we need to sum diesel and ethanol.
+liquid_biofuels_trn <- liquid_biofuels_trn %>%
+    dplyr::mutate_at( vars( matches( "(Ethanol|Biodiesel)" ) ),
+                      funs( as.numeric( gsub( "Not Available", 0, . ) ) ) ) %>%
+    dplyr::mutate( diff_val = rowSums( .[2:3] ), sector = "Transportation" ) %>%
+    dplyr::select( year = `Annual Total`, diff_val, sector )
 
-# Add sector tags
-liquid_biofuels_ind$sector <- "Industry"
-liquid_biofuels_trn$sector <- "Transportation"
-liquid_biofuels_com$sector <- "Commercial"
+# Unify column names and types for rbind operation
+liquid_biofuels_ind <- liquid_biofuels_ind %>%
+    setNames( c( "year", "diff_val" ) ) %>%
+    dplyr::filter( diff_val != "Not Available" ) %>%
+    dplyr::mutate( diff_val = as.numeric( diff_val ) , sector = "Industry" )
+liquid_biofuels_com <- liquid_biofuels_com %>%
+    setNames( c( "year", "diff_val" ) ) %>%
+    dplyr::filter( diff_val != "Not Available" ) %>%
+    dplyr::mutate( diff_val = as.numeric( diff_val ), sector = "Commercial" )
 
-# Unify column names for rbind operation
-names( liquid_biofuels_ind )[ 1:2 ] <- c( "year", "Value_to_subtract" )
-names( liquid_biofuels_trn )[ 1:2 ] <- c( "year", "Value_to_subtract" )
-names( liquid_biofuels_com )[ 1:2 ] <- c( "year", "Value_to_subtract" )
+# Create a single df storing all values and prepare columns for join
+liquid_biofuels <- liquid_biofuels_ind %>%
+    rbind( liquid_biofuels_trn, liquid_biofuels_com ) %>%
+    dplyr::mutate( diff_val = diff_val * CONV_TBTU_TJ,
+                   Unit = "TJ",
+                   fuel = "biomass",
+                   year = paste0( "X", year ) )
 
-# Create a single df storing all values
-liquid_biofuels <- rbind( liquid_biofuels_ind,
-                          liquid_biofuels_trn,
-                          liquid_biofuels_com )
+# Remove liquid biomass from the EIA total biomass energy estimate
+EIA_data_formatted <- liquid_biofuels %>%
+    dplyr::right_join( EIA_data_formatted, by = c( "year", "fuel", "sector", "Unit" ) ) %>%
+    dplyr::mutate( diff_val = if_else( is.na( diff_val ), 0, diff_val ),
+                   Value = Value - diff_val) %>%
+    dplyr::select( -diff_val )
 
-# Force values to be numeric, dropping NAs and "Not Available" rows
-liquid_biofuels$Value_to_subtract <- as.numeric( liquid_biofuels$Value_to_subtract )
-liquid_biofuels <- liquid_biofuels[ !is.na( liquid_biofuels$Value_to_subtract ), ]
 
-# Convert from Trillion BTU to TJ (conversion constant)
-liquid_biofuels$Value_to_subtract <- liquid_biofuels$Value_to_subtract *
-                                     CONV_TBTU_TJ
-
-# Add fuel and unit tags, and make years Xyears, in preparation for join
-liquid_biofuels$Unit <- "TJ"
-liquid_biofuels$fuel <- "biomass"
-liquid_biofuels$year <- paste0( "X", liquid_biofuels$year )
-
-# Join the values needing to be subtractd to the main EIA dataframe
-EIA_data_formatted <- left_join( EIA_data_formatted,
-                                 liquid_biofuels,
-                                 by = c( "year", "fuel", "sector", "Unit" ) )
-
-# Any rows that didn't have values to be subtracted will subtract 0 (so numeric
-# operator can be vectorized)
-EIA_data_formatted$Value_to_subtract[ is.na( EIA_data_formatted$Value_to_subtract ) ] <- 0
-
-# Execute subtraction
-EIA_data_formatted$Value <- as.numeric( EIA_data_formatted$Value ) -
-                            EIA_data_formatted$Value_to_subtract
-
-# Drop the Values_to_subtract column
-EIA_data_formatted <- EIA_data_formatted[ , names(EIA_data_formatted) !=
-                                            "Value_to_subtract" ]
-
-# ------------------------------------------------------------------------------
-# 7. Prepare unit conversion
-#    Code blocks 6 and 7 use heat content conversion files to determine the mass
-#    of fuel consumed (given energy EIA data).
-#    Biomass is converted using a constant.
-#    Petroleum is converted from BTU to barrels using the EIA heat content timeseries,
+# Prepare unit conversion -------------------------------------------------
+#  - The next two code blocks use heat content conversion files to determine the
+#    mass of fuel consumed (given energy EIA data).
+#  - Biomass is converted using a constant.
+#  - Petroleum is converted from BTU to barrels using the EIA heat content timeseries,
 #        then to mass given a density (constant?)
-#    Coal is converted from BTU directly to mass using the EIA heat constant timeseires
-#    Natural gas is CURRENTLY converted using a constant, but this is WRONG and
+#  - Coal is converted from BTU directly to mass using the EIA heat constant timeseires
+#  - Natural gas is CURRENTLY converted using a constant, but this is WRONG and
 #        we want to change that.
-#    The result of these two sections is a formatted EIA data frame in mass units
+#  - The result of these two sections is a formatted EIA data frame in mass units
 
 # Extract year data from heat content dataframes
-coal_heat_content$year <- paste0( "X", substr( coal_heat_content$YYYYMM, 1, 4 ) )
-petrol_heat_content$year <- paste0( "X", substr( petrol_heat_content$YYYYMM, 1, 4 ) )
-gas_heat_content$year <- paste0( "X", substr( gas_heat_content$YYYYMM, 1, 4 ) )
+coal_heat_content$year <-   YYYYMM_to_Xyear( coal_heat_content$YYYYMM )
+petrol_heat_content$year <- YYYYMM_to_Xyear( petrol_heat_content$YYYYMM )
+gas_heat_content$year <-    YYYYMM_to_Xyear( gas_heat_content$YYYYMM )
 
 # Match petroleum to sectors based on ID indicators (manually identified)
 petrol_heat_content$sector <- NA
-petrol_heat_content$sector[ which( petrol_heat_content$MSN == "PARCKUS" ) ] <- "Residential"
-petrol_heat_content$sector[ which( petrol_heat_content$MSN == "PACCKUS" ) ] <- "Commercial"
-petrol_heat_content$sector[ which( petrol_heat_content$MSN == "PAICKUS" ) ] <- "Industry"
-petrol_heat_content$sector[ which( petrol_heat_content$MSN == "PAACKUS" ) ] <- "Transportation"
-petrol_heat_content$sector[ which( petrol_heat_content$MSN == "PAEIKUS" ) ] <- "Energy Transf/Ext"
+petrol_heat_content$sector[ petrol_heat_content$MSN == "PARCKUS" ] <- "Residential"
+petrol_heat_content$sector[ petrol_heat_content$MSN == "PACCKUS" ] <- "Commercial"
+petrol_heat_content$sector[ petrol_heat_content$MSN == "PAICKUS" ] <- "Industry"
+petrol_heat_content$sector[ petrol_heat_content$MSN == "PAACKUS" ] <- "Transportation"
+petrol_heat_content$sector[ petrol_heat_content$MSN == "PAEIKUS" ] <- "Energy Transf/Ext"
 
 # Match petroleum to sectors based on ID indicators (manually identified)
 coal_heat_content$sector <- NA
-coal_heat_content$sector[ which( coal_heat_content$MSN == "CLHCKUS" ) ] <- "Residential and Commercial"
-coal_heat_content$sector[ which( coal_heat_content$MSN == "CLOCKUS" ) ] <- "Industry"
-coal_heat_content$sector[ which( coal_heat_content$MSN == "CLEIKUS" ) ] <- "Energy Transf/Ext"
+coal_heat_content$sector[ coal_heat_content$MSN == "CLHCKUS" ] <- "Residential and Commercial"
+coal_heat_content$sector[ coal_heat_content$MSN == "CLOCKUS" ] <- "Industry"
+coal_heat_content$sector[ coal_heat_content$MSN == "CLEIKUS" ] <- "Energy Transf/Ext"
 
 # Coal reports a single heat content value for both residential and commercial
 # sectors; we need to make separate entries for these for mapping purposes
-coal_heat_content_res <- coal_heat_content[ which( coal_heat_content$sector ==
-                                                   "Residential and Commercial" ), ]
+coal_heat_content_res <- coal_heat_content[ coal_heat_content$sector == "Residential and Commercial", ]
 coal_heat_content_res$sector <- "Residential"
-coal_heat_content_com <- coal_heat_content[ which( coal_heat_content$sector ==
-                                                   "Residential and Commercial" ), ]
+coal_heat_content_com <- coal_heat_content[ coal_heat_content$sector == "Residential and Commercial", ]
 coal_heat_content_com$sector <- "Commercial"
+
 # We need to do the same thing to separate transportation from industry (single
 # reported value)
-coal_heat_content_trans <- coal_heat_content[ which( coal_heat_content$sector ==
-                                                     "Industry" ), ]
+coal_heat_content_trans <- coal_heat_content[ coal_heat_content$sector == "Industry", ]
 coal_heat_content_trans$sector <- "Transportation"
-coal_heat_content <- rbind( coal_heat_content, coal_heat_content_com, coal_heat_content_res,
-                            coal_heat_content_trans )
+coal_heat_content <- rbind( coal_heat_content, coal_heat_content_com,
+                            coal_heat_content_res, coal_heat_content_trans )
 
-# Remove unmapped entries
+# Remove unmapped entries and add fuel indicators
 petrol_heat_content <- petrol_heat_content[ !is.na( petrol_heat_content$sector ), ]
 coal_heat_content <- coal_heat_content[ !is.na( coal_heat_content$sector ), ]
-# Add fuel indicators
 coal_heat_content$fuel <- "coal"
 petrol_heat_content$fuel <- "oil"
 
@@ -341,10 +192,8 @@ petrol_heat_content$fuel <- "oil"
 petrol_heat_content$Value <- as.numeric( petrol_heat_content$Value ) * CONV_TONNE_BARREL
 petrol_heat_content$Unit <- "Million BTU/tonne"
 # Convert from Million BTU/t to TJ/kt
-petrol_heat_content$Value <- as.numeric(petrol_heat_content$Value) *
-                                ( CONV_TBTU_TJ / 10^6 ) * 10^3
+petrol_heat_content$Value <- as.numeric(petrol_heat_content$Value) * ( CONV_TBTU_TJ / 10^6 ) * 10^3
 petrol_heat_content$Unit <- "TJ/kt"
-
 
 coal_heat_content$Value <- as.numeric(coal_heat_content$Value) *
                                 CONV_SHORTTON_TONNE * 10^3 * # Convert short ton to kt
@@ -357,67 +206,53 @@ conversion_factors <- rbind( coal_heat_content, petrol_heat_content )
 # 8. Execute conversion to kt
 #    Executes the conversions described in Code Block 6 description
 
-# Convert biomass to kt using CEDS standard conversion factor ### This will hopefully change--we need an EIA factor since they use diff. reporting
-EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "biomass" ) ] <-
-      as.numeric( EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "biomass" ) ] ) /
-              conversionFactor_biomass_kt_TJ
-EIA_data_formatted$Unit[ which( EIA_data_formatted$fuel == "biomass" ) ] <- "kt"
+# Convert biomass to kt using CEDS standard conversion factor
+# TODO: This will hopefully change--we need an EIA factor since they use diff. reporting
+EIA_data_formatted$Value[ EIA_data_formatted$fuel == "biomass" ] <-
+      as.numeric( EIA_data_formatted$Value[ EIA_data_formatted$fuel == "biomass" ] ) / CONV_FACTOR_BIO_KT_TJ
+EIA_data_formatted$Unit[ EIA_data_formatted$fuel == "biomass" ] <- "kt"
 
-# Convert natural gas to kt using CEDS standard conversion factor ### This will hopefully change--we need an EIA factor since they use diff. reporting
-EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "gas" ) ] <-
-      as.numeric( EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "gas" ) ] ) /
-              conversionFactor_naturalgas_TJ_per_kt
-EIA_data_formatted$Unit[ which( EIA_data_formatted$fuel == "gas" ) ] <- "kt"
+# Convert natural gas to kt using CEDS standard conversion factor
+# TODO: This will hopefully change--we need an EIA factor since they use diff. reporting
+EIA_data_formatted$Value[ EIA_data_formatted$fuel == "gas" ] <-
+      as.numeric( EIA_data_formatted$Value[ EIA_data_formatted$fuel == "gas" ] ) / CONV_FACTOR_NATGAS_TJ_KT
+EIA_data_formatted$Unit[ EIA_data_formatted$fuel == "gas" ] <- "kt"
 
 # Subset the data which can be converted using timeseries EIA conversion data
-EIA_convert_subset <- EIA_data_formatted[ which( EIA_data_formatted$fuel %in%
-                                                   c( "oil", "coal" ) ), ]
+EIA_convert_subset <- EIA_data_formatted[ EIA_data_formatted$fuel %in% c( "oil", "coal" ), ]
 
-# Join conversion factors to their corresponding data rows
-EIA_convert_subset <- left_join( EIA_convert_subset,
-                                 conversion_factors[ , c( "Value", "year", "fuel", "sector" ) ],
-                                 by = c( "fuel",
-                                         "sector",
-                                         "year" ) )
-names(EIA_convert_subset)[6:7] <- c( "Value", "Conversion_factor" )
-
-# Apply timeseries conversions
-EIA_convert_subset$Value <- as.numeric( EIA_convert_subset$Value ) /
-                                      EIA_convert_subset$Conversion_factor
-EIA_convert_subset$Unit <- "kt"
+# Join conversion factors to their corresponding data rows, then apply
+# timeseries conversions
+EIA_convert_subset <- EIA_convert_subset %>%
+    dplyr::left_join( conversion_factors[ , c( "Value", "year", "fuel", "sector" ) ],
+                      by = c( "fuel", "sector", "year" ) ) %>%
+    dplyr::rename( Value = Value.x, Conversion_factor = Value.y ) %>%
+    dplyr::mutate( Value = Value / Conversion_factor,
+                   Unit = "kt" ) %>%
+    dplyr::select( iso, sector, fuel, Unit, year, Value )
 
 # Add converted data back into the main dataframe
-EIA_data_formatted[ which( EIA_data_formatted$fuel %in%
-                                                   c( "oil", "coal" ) ), ] <-
-        EIA_convert_subset[, c("iso", "sector", "fuel",
-                               "Unit", "year", "Value")]
+EIA_data_formatted[ EIA_data_formatted$fuel %in% c( "oil", "coal" ), ] <- EIA_convert_subset
 
-# ------------------------------------------------------------------------------
-# 9. Remove Coal Coke use from Industry
+
+# Remove coal coke use from industry --------------------------------------
 #    Coal coke usage in coal coke manufacture is considered a process activity
 #    in CEDS, so it needs to be removed from the EIA estimate
 
 # Read in a supplementary EIA file that will identify coal coke activity
-coal_activity_all <- readData( "Table_6.2_Coal_Consumption_by_Sector", extension = '.xlsx',
-                           domain = "EM_INV", domain_extension = "EIA-data/",
-                           skip_rows = 10, sheet_selection = "Annual Data")
+coal_activity_file <- paste0( EIA_PATH, "Table_6.2_Coal_Consumption_by_Sector.xlsx" )
+coal_activity_all <- readxl::read_xlsx( coal_activity_file, "Annual Data", skip = 10 )
 
-#
-coal_coke_consumed <- coal_activity_all[ , c( 1, 6 ) ]
-coal_coke_consumed$Unit <- "Thousand Short Tons"
-coal_coke_consumed <- coal_coke_consumed[ -1, ]
-names( coal_coke_consumed ) <- c( "year", "Value", "Unit")
-
-# Convert to kt
-coal_coke_consumed <- coal_coke_consumed[ !is.na( coal_coke_consumed$year ), ]
-coal_coke_consumed$Value <- as.numeric( coal_coke_consumed$Value ) * CONV_SHORTTON_TONNE
-coal_coke_consumed$Unit <- "kt"
+# Get coal coke subset of the coal activity and convert from short tons to kt
+coal_coke_consumed <- coal_activity_all[ -1, c( 1, 6 ) ] %>%
+    setNames( c( "year", "Value" ) ) %>%
+    dplyr::mutate( Value = as.numeric( Value ) * CONV_SHORTTON_TONNE,
+                   Unit = "kt" )
 
 # Subtract from coal industry activity
-EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "coal" &
-                                 EIA_data_formatted$sector == "Industry" ) ] <-
-      as.numeric( EIA_data_formatted$Value[ which( EIA_data_formatted$fuel == "coal" &
-                                       EIA_data_formatted$sector == "Industry" ) ] ) -
+coal_ind_rows <- EIA_data_formatted$fuel == "coal" & EIA_data_formatted$sector == "Industry"
+EIA_data_formatted$Value[ coal_ind_rows, ] <-
+      as.numeric( EIA_data_formatted$Value[ coal_ind_rows, ] ) -
       as.numeric( coal_coke_consumed$Value )
 
 # ------------------------------------------------------------------------------
@@ -500,203 +335,5 @@ EIA_data_formatted$Value[ which(EIA_data_formatted$sector == "Commercial" &
 # ------------------------------------------------------------------------------
 # 10. Cast to wide and write output
 
-EIA_final <- spread( EIA_data_formatted, key = year, value = Value )
+EIA_final <- tidyr::spread( EIA_data_formatted, key = year, value = Value )
 writeData( EIA_final, domain = "MED_OUT", 'E.US-EIA_inventory' )
-stop()
-
-
-
-# ------------------------------------------------------------------------------
-# 11. Prepare data for comparison to CEDS trends
-#     This section of code processes CEDS total activity data for comparison
-#     to EIA data. Its input is A.total_activity; its output is CEDS activity
-#     data aggregated to EIA-comparable sectors.
-
-# Read in input file A.total_activity from intermediate-output
-total_activity <- readData( "A.total_activity", domain = "MED_OUT" )
-
-# Retain only US data
-total_activity <- total_activity[ which( total_activity$iso == "usa" ), ]
-
-# Read in mapping files (retaining only unique mapping combinations to avoid
-# data duplication)
-MSL <- readData( "MAPPINGS", "Master_Sector_Level_Map" )[ , c( 'working_sectors_v1',
-                                                               'aggregate_sectors' ) ] %>%
-            unique()
-
-MFL <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx",
-                 sheet_selection = "Fuels" )
-
-# Map to agg sector, agg fuel
-X_CEDS_years <- paste0( "X", 1960:2014 )
-total_activity <- left_join( total_activity, MSL,
-                             by = c( "sector" = "working_sectors_v1" ) )
-total_activity <- left_join( total_activity, MFL[ , c( 'fuel', 'aggregated_fuel' ) ],
-                             by = c( "fuel" ) )
-
-# Aggregate activity by agg sector and agg fuel
-total_act_agg <- ddply( total_activity,
-                        c( "aggregated_fuel", "aggregate_sectors" ),
-                        function(x) colSums( x[ X_CEDS_years ] ) )
-
-# Remove process fuels
-total_act_agg <- total_act_agg[ which( total_act_agg$aggregated_fuel != "process" ), ]
-
-# Melt the data to long form
-total_act_agg <- gather( total_act_agg, key=year, value=Value,
-                         -aggregated_fuel, -aggregate_sectors )
-
-# rename columns for comparison purposes
-names( total_act_agg )[ which( names( total_act_agg ) ==
-                                  "aggregate_sectors" ) ] <- "sector"
-
-# We want to compare EIA "Residential" and "Commercial" sectors to their CEDS
-# working sectors, as they don't have aggregate equivalents in the CEDS system
-# (they are combined in the RCO aggregate sector). Therefore we need to copy the
-# data for CEDS working sectors 1A4a and 1A4b and append them to the dataframe.
-res_and_com_nonagg <- total_activity[ which( total_activity$sector %in% c( "1A4b_Residential",
-                                                            "1A4a_Commercial-institutional" ) ),
-                                       c( "sector", "aggregated_fuel", X_CEDS_years) ]
-res_and_com_nonagg <- ddply( res_and_com_nonagg,
-                                    c( "sector", "aggregated_fuel" ),
-                                    function(x) colSums( x[ X_CEDS_years ] ) )
-res_and_com_nonagg <- gather( res_and_com_nonagg, key=year, value=Value,
-                         -aggregated_fuel, -sector )
-
-total_act_agg <- rbind( total_act_agg,
-                        res_and_com_nonagg )
-
-### TEST ONLY: transportation = transp + aviation + shipping
-total_act_agg$Value[ total_act_agg$sector == "1A3_Transportation" ] <-
-      total_act_agg$Value[ total_act_agg$sector == "1A3_Transportation" ] +
-      total_act_agg$Value[ total_act_agg$sector == "1A3_International-shipping" ] +
-      total_act_agg$Value[ total_act_agg$sector == "1A3_Aviation" ]
-
-
-# ------------------------------------------------------------------------------
-# 12. Compare 4 fuels use across 5 sectors
-#     This section executes and generates graphs for a fuel-by-fuel comparison
-#     between EIA and CEDS data
-
-list_of_fuels <- c( "coal", "gas", "oil", "biomass")
-
-# Read in the CEDS total fuels
-total_CEDS_petrol <- readData( domain = "DIAG_OUT",
-                               file_name = "H.Extended_total_petroleum" )
-total_CEDS_petrol <- total_CEDS_petrol[ total_CEDS_petrol$iso == 'usa',
-                                        paste0( "X", 1949:2010 ) ]
-total_CEDS_coal <- readData( domain = "DIAG_OUT",
-                               file_name = "H.Extended_total_coal" )
-total_CEDS_coal <- total_CEDS_coal[ total_CEDS_coal$iso == 'usa',
-                                        paste0( "X", 1949:2010 ) ]
-total_CEDS_gas <- readData( domain = "DIAG_OUT",
-                               file_name = "H.Extended_total_natural_gas" )
-total_CEDS_gas <- total_CEDS_gas[ total_CEDS_gas$iso == 'usa',
-                                        paste0( "X", 1949:2010 ) ]
-total_CEDS_biomass <- total_activity[ total_activity$fuel == "biomass",
-                                      paste0( "X", 1960:2014 ) ]
-total_CEDS_biomass[ 1, ] <- colSums( total_CEDS_biomass )
-total_CEDS_biomass <- total_CEDS_biomass[ 1, ]
-
-total_CEDS_gas$fuel <- "gas"
-total_CEDS_coal$fuel <- "coal"
-total_CEDS_petrol$fuel <- "oil"
-total_CEDS_biomass$fuel <- "biomass"
-
-total_CEDS_gas <- gather( total_CEDS_gas, key=year, value=Value, -fuel )
-total_CEDS_petrol <- gather( total_CEDS_petrol, key=year, value=Value, -fuel )
-total_CEDS_coal <- gather( total_CEDS_coal, key=year, value=Value, -fuel )
-total_CEDS_biomass <- gather( total_CEDS_biomass, key=year, value=Value, -fuel )
-
-
-CEDS_agg_by_fuel <- rbind( total_CEDS_biomass, total_CEDS_coal,
-                           total_CEDS_gas, total_CEDS_petrol )
-CEDS_agg_by_fuel$year <- as.numeric( substr( CEDS_agg_by_fuel$year, 2, 5 ) )
-
-library(grid)
-
-# Loop through each fuel
-for (fuel in list_of_fuels) {
-
-# Extract this fuel's data for operation
-    EIA_compare_fuel <- EIA_data_formatted[ EIA_data_formatted$fuel == fuel, ]
-    CEDS_compare_fuel <- total_act_agg[ total_act_agg$aggregated_fuel == fuel, ]
-
-# Convert from Xyears to numeric years
-    EIA_compare_fuel$year <- as.numeric( substr( EIA_compare_fuel$year, 2, 5 ) )
-    CEDS_compare_fuel$year <- as.numeric( substr( CEDS_compare_fuel$year, 2, 5 ) )
-
-# Make sure values are numeric
-    EIA_compare_fuel$Value <- as.numeric( EIA_compare_fuel$Value )
-    CEDS_compare_fuel$Value <- as.numeric( CEDS_compare_fuel$Value )
-
-# These lists work in parallel, acting to pair each EIA sector with its CEDS
-# equivalent. The first items in each list match, then the second, etc etc
-    list_of_EIA_sectors <- c( "Commercial", "Residential", "Industry",
-                              "Energy Transf/Ext", "Transportation" )
-    list_of_CEDS_equivs <- c( "1A4a_Commercial-institutional", "1A4b_Residential",
-                              "1A2_Industry-combustion", "1A1_Energy-transformation",
-                              "1A3_Transportation" )
-
-# Create a useless chart with fake data for the purposes of extracting its legend
-    data_for_legend <- data.frame( c( "EIA", "CEDS" ),
-                                   c( 10, 10, 10, 10 ),   # Made up data
-                                   c( 20, 30, 40, 50 ) )
-    names(data_for_legend) <- c( "Inventory", "Value", "year" )
-    plot_for_legend <- ggplot( data_for_legend,
-                               aes( year, Value, color = Inventory ) ) +
-                       geom_line() +
-                       scale_color_manual( values = c( "EIA" = "red",
-                                                       "CEDS" = "blue" ) )
-    inv_legend <- g_legend( plot_for_legend )
-
-# Apply down the list of sectors, executing the createCompPlot function
-# defined and explained in Code Block 1
-    list_of_plots <- lapply( 1:5,
-                             createCompPlot,
-                             CEDS_data = CEDS_compare_fuel,
-                             EIA_data = EIA_compare_fuel,
-                             CEDS_sectors = list_of_CEDS_equivs,
-                             EIA_sectors = list_of_EIA_sectors )
-
-# Create a plot of totals comparisons
-    CEDS_totals <- CEDS_agg_by_fuel[ CEDS_agg_by_fuel$fuel == fuel, ]
-    EIA_totals <- ddply( EIA_compare_fuel,
-                         "year",
-                         function(x) colSums( x[ "Value" ] ) )
-
-# Adjust units for readability (if over 1000, use Mt instead of kt)
-    y_label <- "Consumption [kt]"
-    if ( max( CEDS_totals$Value ) > 1000 || max( EIA_totals$Value ) > 1000 ) {
-        CEDS_totals$Value <- CEDS_totals$Value / 1000
-        EIA_totals$Value <- EIA_totals$Value / 1000
-        y_label <- "Consumption [Mt]"
-    }
-
-# Create the ggplot. CEDS is blue, EIA is red.
-    totals_plot <- ggplot( EIA_totals, aes( year, Value ) ) +
-      geom_line( data = CEDS_totals, aes( year, Value ), color = "blue" ) +
-      geom_line( data = EIA_totals, aes( year, Value ), color = "red" ) +
-      theme( legend.position = "right" ) +
-      ggtitle( "Total" ) +
-      ylab( y_label )
-
-    layout <- rbind( c(1, 1, NA),
-                     c(1, 1, 3),
-                     c(1, 2, NA) )
-
-# Arrange the plots and save to output
-    arranged_plots <- grid.arrange( arrangeGrob( grobs=list_of_plots ),
-                                    totals_plot,
-                                    inv_legend, layout_matrix = layout,
-                                        top = textGrob( paste0( "Compare CEDS ", fuel, " to EIA ", fuel),
-                                        gp = gpar( fontsize = 15, font = 8 ) ) )
-    ggsave( paste0( "../diagnostic-output/ceds-comparisons/Compare-",
-                    fuel, "-CEDS-to-EIA.png" ),
-            arranged_plots,
-            width = 8,
-            height = 5.66 )
-}
-
-logStop()
-# END
