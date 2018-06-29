@@ -230,19 +230,19 @@
                                            extension = '.xlsx',
                                            domain = "EM_INV",
                                            domain_extension = "EIA-data/unit-conversion/",
-                                           skip_rows = 6,
+                                           skip_rows = 10,
                                            sheet_selection = "Annual Data" )[ , c( 1, 8 ) ]
     liquid_biofuels_trn <- readData( "Table_10.2b_Renewable_Energy_Consumption-__Industrial_and_Transportation_Sectors",
                                            extension = '.xlsx',
                                            domain = "EM_INV",
                                            domain_extension = "EIA-data/unit-conversion/",
-                                           skip_rows = 6,
+                                           skip_rows = 10,
                                            sheet_selection = "Annual Data" )[ , c( 1, 12, 13 ) ]
     liquid_biofuels_com <- readData( "Table_10.2a_Renewable_Energy_Consumption-__Residential_and_Commercial_Sectors",
                                      extension = '.xlsx',
                                      domain = "EM_INV",
                                      domain_extension = "EIA-data/unit-conversion/",
-                                     skip_rows = 6,
+                                     skip_rows = 10,
                                      sheet_selection = "Annual Data" )[ , c( 1, 12 ) ]
     
 # In transportation, we need to sum diesel and ethanol. Convert to numeric and
@@ -252,7 +252,7 @@
     liquid_biofuels_trn[ is.na( liquid_biofuels_trn ) ] <- 0
 # ...then sum and drop the specific columns.
     liquid_biofuels_trn$Value <- liquid_biofuels_trn[ , 2 ] + liquid_biofuels_trn[ , 3 ]
-    liquid_biofuels_trn <- liquid_biofuels_trn[ , c( "Annual Total", "Value" )]
+    liquid_biofuels_trn <- liquid_biofuels_trn[ , c( 1, 4 )]
     
 # Add sector tags
     liquid_biofuels_ind$sector <- "Industry"
@@ -416,11 +416,10 @@
 # Read in a supplementary EIA file that will identify coal coke activity
     coal_activity_all <- readData( "Table_6.2_Coal_Consumption_by_Sector", extension = '.xlsx',
                                domain = "EM_INV", domain_extension = "EIA-data/",
-                               skip_rows = 6, sheet_selection = "Annual Data")
+                               skip_rows = 10, sheet_selection = "Annual Data")
     
 # 
-    coal_coke_consumed <- coal_activity_all[ , c( "Annual Total", 
-                                                 "Coal Consumed by the Industrial Sector, Coke Plants" ) ]
+    coal_coke_consumed <- coal_activity_all[ , c( 1, 6 ) ]
     coal_coke_consumed$Unit <- "Thousand Short Tons"
     coal_coke_consumed <- coal_coke_consumed[ -1, ]
     colnames( coal_coke_consumed ) <- c( "year", "Value", "Unit")
@@ -500,9 +499,11 @@
     colnames( coal_industrial_sector ) <- c( "year", "Value" )
     colnames( coal_coke ) <- c( "year", "Value" )
     
-    coal_industrial_sector$Value <- coal_industrial_sector$Value - coal_coke$Value
-
+    coal_coke$Value <- as.numeric(coal_coke$Value)
     coal_industrial_sector$Value <- as.numeric(coal_industrial_sector$Value)
+
+    coal_industrial_sector$Value <- coal_industrial_sector$Value - coal_coke$Value
+    
     coal_industrial_sector <- coal_industrial_sector[ !is.na( coal_industrial_sector$Value ), ]
     
     coal_industrial_sector$Unit <- "Thousand short tons"
