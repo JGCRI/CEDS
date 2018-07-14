@@ -51,7 +51,7 @@ coal_heat_content <-   read.csv( paste0( CONV_DIR, "MER_TA5.csv" ), stringsAsFac
 
 # Retain only annual info, drop not-available cells, and convert to TJ from BTU
 EIA_data_formatted <- all_EIA_raw_data %>%
-    dplyr::mutate( year = YYYYMM_to_Xyear( YYYYMM ),
+    dplyr::mutate( year  = YYYYMM_to_Xyear( YYYYMM ),
                    month = substr( YYYYMM, 5, 6 ) ) %>%
     dplyr::filter( month == 13,
                    !Value %in% c( "Not Available", "No Data Reported" ) ) %>%
@@ -79,7 +79,7 @@ EIA_data_formatted <- EIA_data_formatted %>%
             grepl( "Commercial Sector",     Description ) ~ "Commercial",
             grepl( "Industrial Sector",     Description ) ~ "Industry",
             grepl( "Transportation Sector", Description ) ~ "Transportation",
-            grepl( "Electric Power Sector", Description ) ~ "Energy Transf/Ext"
+            grepl( "Electric Power Sector", Description ) ~ "Electric Power"
         ) ) %>%
     dplyr::filter( !is.na( fuel ), !is.na( sector ) )
 
@@ -155,34 +155,41 @@ petrol_heat_content$year <- YYYYMM_to_Xyear( petrol_heat_content$YYYYMM )
 gas_heat_content$year <-    YYYYMM_to_Xyear( gas_heat_content$YYYYMM )
 
 # Match petroleum to sectors based on ID indicators (manually identified)
-petrol_heat_content$sector <- NA
-petrol_heat_content$sector[ petrol_heat_content$MSN == "PARCKUS" ] <- "Residential"
-petrol_heat_content$sector[ petrol_heat_content$MSN == "PACCKUS" ] <- "Commercial"
-petrol_heat_content$sector[ petrol_heat_content$MSN == "PAICKUS" ] <- "Industry"
-petrol_heat_content$sector[ petrol_heat_content$MSN == "PAACKUS" ] <- "Transportation"
-petrol_heat_content$sector[ petrol_heat_content$MSN == "PAEIKUS" ] <- "Energy Transf/Ext"
-petrol_heat_content <- petrol_heat_content[ !is.na( petrol_heat_content$sector ), ]
+petrol_heat_content <- petrol_heat_content %>%
+    dplyr::mutate( sector = case_when(
+            MSN == "PARCKUS" ~ "Residential",
+            MSN == "PACCKUS" ~ "Commercial",
+            MSN == "PAICKUS" ~ "Industry",
+            MSN == "PAACKUS" ~ "Transportation",
+            MSN == "PAEIKUS" ~ "Electric Power"
+        ) ) %>%
+    dplyr::filter( !is.na( sector ) )
 
 # Match petroleum to sectors based on ID indicators (manually identified)
-coal_heat_content$sector <- NA
-coal_heat_content$sector[ coal_heat_content$MSN == "CLHCKUS" ] <- "Residential and Commercial"
-coal_heat_content$sector[ coal_heat_content$MSN == "CLOCKUS" ] <- "Industry"
-coal_heat_content$sector[ coal_heat_content$MSN == "CLEIKUS" ] <- "Energy Transf/Ext"
-coal_heat_content <- coal_heat_content[ !is.na( coal_heat_content$sector ), ]
+coal_heat_content <- coal_heat_content %>%
+    dplyr::mutate( sector = case_when(
+            MSN == "CLHCKUS" ~ "Residential and Commercial",
+            MSN == "CLOCKUS" ~ "Industry",
+            MSN == "CLEIKUS" ~ "Electric Power"
+        ) ) %>%
+    dplyr::filter( !is.na( sector ) )
 
 # Coal reports a single heat content value for both residential and commercial
 # sectors; we need to make separate entries for these for mapping purposes
-coal_heat_content_res <- coal_heat_content[ coal_heat_content$sector == "Residential and Commercial", ]
-coal_heat_content_res$sector <- "Residential"
-coal_heat_content_com <- coal_heat_content[ coal_heat_content$sector == "Residential and Commercial", ]
-coal_heat_content_com$sector <- "Commercial"
+coal_heat_content_res <- coal_heat_content %>%
+    dplyr::filter( sector == "Residential and Commercial" ) %>%
+    dplyr::mutate( sector = "Residential" )
+coal_heat_content_com <- coal_heat_content %>%
+    dplyr::filter( sector == "Residential and Commercial" ) %>%
+    dplyr::mutate( sector = "Commercial" )
 
 # We need to do the same thing to separate transportation from industry (single
-# reported value)
-coal_heat_content_trans <- coal_heat_content[ coal_heat_content$sector == "Industry", ]
-coal_heat_content_trans$sector <- "Transportation"
-coal_heat_content <- rbind( coal_heat_content, coal_heat_content_com,
-                            coal_heat_content_res, coal_heat_content_trans )
+# reported value), then bind everything together
+coal_heat_content <- coal_heat_content %>%
+    dplyr::filter( sector == "Industry" ) %>%
+    dplyr::mutate( sector = "Transportation") %>%
+    dplyr::bind_rows( coal_heat_content, coal_heat_content_com,
+                      coal_heat_content_res )
 
 # Add fuel indicators
 coal_heat_content$fuel <- "coal"
@@ -192,12 +199,12 @@ petrol_heat_content$fuel <- "oil"
 petrol_heat_content$Value <- as.numeric( petrol_heat_content$Value ) * CONV_TONNE_BARREL
 petrol_heat_content$Unit <- "Million BTU/tonne"
 # Convert from Million BTU/t to TJ/kt
-petrol_heat_content$Value <- as.numeric(petrol_heat_content$Value) * ( CONV_TBTU_TJ / 10^6 ) * 10^3
+petrol_heat_content$Value <- as.numeric(petrol_heat_content$Value) * ( CONV_TBTU_TJ / 1e6 ) * 1e3
 petrol_heat_content$Unit <- "TJ/kt"
 
 coal_heat_content$Value <- as.numeric(coal_heat_content$Value) *
-                                CONV_SHORTTON_TONNE * 10^3 * # Convert short ton to kt
-                                ( CONV_TBTU_TJ / 10^6 ) # Convert Million BTU to TJ
+                                CONV_SHORTTON_TONNE * 1e3 * # Convert short ton to kt
+                                ( CONV_TBTU_TJ / 1e6 ) # Convert Million BTU to TJ
 coal_heat_content$Unit <- "TJ/kt"
 
 conversion_factors <- rbind( coal_heat_content, petrol_heat_content )
@@ -276,7 +283,7 @@ coal_sectors <- c( "Residential" = 2,
                    "Commercial" = 5,
                    "Industry" = 9,
                    "Transportation" = 11,
-                   "Energy Transf/Ext" = 12 )
+                   "Electric Power" = 12 )
 
 for ( sector in names( coal_sectors ) ) {
     EIA_data_formatted <- replace_coal_sector( EIA_data_formatted,
@@ -286,9 +293,9 @@ for ( sector in names( coal_sectors ) ) {
 }
 
 # Subtract coal coke from industry
-coal_ind_rows <- EIA_data_formatted2$fuel == "coal" & EIA_data_formatted2$sector == "Industry"
+coal_ind_rows <- EIA_data_formatted$fuel == "coal" & EIA_data_formatted$sector == "Industry"
 EIA_data_formatted[ coal_ind_rows, "Value" ] <-
-    EIA_data_formatted2[ coal_ind_rows, "Value" ] - coal_coke_consumed$Value
+    EIA_data_formatted[ coal_ind_rows, "Value" ] - coal_coke_consumed$Value
 
 
 # Cast to wide and write output -------------------------------------------

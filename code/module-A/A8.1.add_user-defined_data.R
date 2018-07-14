@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
-# Program Name:    A7.4.add_user-defined_data.R
+# Program Name:    A8.1.add_user-defined_data.R
 # Authors:         Ben Goldstein, Caleb Braun
-# Last Updated:    May 2018
+# Last Updated:    July 2018
 # Program Purpose: To process user-defined datasets for use in the historical
 #                  energy extension.
 #
@@ -24,7 +24,7 @@ headers <- c( "data_functions.R", "emissions_scaling_functions.R",
               "user_data_processing.R", "user_extension_instr_processing.R",
               "user_data_inclusion_functions.R" )
 log_msg <- "Adding user-defined energy data."
-script_name <- "A7.4.add_user-defined_data.R"
+script_name <- "A8.1.add_user-defined_data.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -65,9 +65,7 @@ stopifnot( all( !is.na( all_activity_data ) ) ) # Data should all be valid
 
 # Read instructions files that give the user-provided instructions for all
 # supplemental data.
-all_instr <- readInUserInstructions()
-stopifnot( !is.null( all_instr ) )
-instructions <- processInstructions( all_instr, comb_sectors, MSL, MFL )
+instructions <- processInstructions( comb_sectors, MSL, MFL, all_activity_data )
 
 # TODO: Figure out how/where/why to process trend data without roundabout
 #       file writing and bypassing processing
@@ -91,8 +89,8 @@ filenames <- unique( instructions$data_file )
 map_files <- sapply( filenames, readInUserData, all_yrs, '-mapping', simplify = F )
 usr_files <- sapply( filenames, function( data_file ) {
     procUsrData( readInUserData( data_file, all_yrs ),
-                 all_instr[[ data_file ]], map_files[[ data_file ]],
-                 MSL, MCL, MFL, all_activity_data )
+                 instructions[ instructions$data_file == data_file, ],
+                 map_files[[ data_file ]], MSL, MCL, MFL, all_activity_data )
 }, simplify = F )
 
 # This stores the final form of each instruction used, for diagnostics

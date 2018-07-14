@@ -61,19 +61,16 @@ readInUserInstructions <- function() {
 # processInstructions
 # Prepares the raw trend instructions for use in the main processing loop.
 # Outputs a dataframe containing all user instructions
-processInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
+processInstructions <- function( comb_sectors, MSL, MFL, default_activity ) {
+
+    # Get list of all '-instructions.csv' files in the user-defined-energy dir
+    instructions <- readInUserInstructions()
 
     # Puts all instructions into single dataframe with uniform columns
-    instructions <- cleanInstructions( instructions, comb_sectors_only, MSL, MFL )
+    instructions <- cleanInstructions( instructions, comb_sectors, MSL, MFL )
 
     # Preprocess any data that needs it
-    if ( !is.null( instructions$preprocessing_script ) ) {
-        preproc <- unique( instructions$preprocessing_script )
-        preproc <- preproc[ !is.na( preproc ) ]
-        preproc <- paste0( "extension/user-defined-energy/", preproc)
-        sapply( preproc, source, local = T, chdir = T )
-        instructions$preprocessing_script <- NULL
-    }
+    instructions <- preprocUserData( instructions )
 
     # Add defaults for optional use instructions.
     # TODO: add options for use_as_trend and match_year
@@ -97,6 +94,9 @@ processInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
         instructions[[o]][ is.na( instructions[[o]] ) ] <<- opts[[o]]
         class( instructions[[o]] ) <<- class( opts[[o]] )
     })
+
+    instructions <- mapToUserSectors( instructions, default_activity ) %>%
+        addAggregateCol( 'sector', MSL, 'aggregate_sectors', 'CEDS_sector' )
 
     return( instructions )
 }
@@ -154,6 +154,8 @@ removeNonComb <- function( df, comb_sectors_only ) {
 
 
 cleanInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
+    # Make sure instructions are a given as a list of data.frames
+    stopifnot( all( sapply( instructions, is.data.frame ) ) )
 
     # Extract the trend instructions, add the file they came from, and map to
     # the standard CEDS format
@@ -191,3 +193,4 @@ cleanInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
 
     return( all_instructions )
 }
+
