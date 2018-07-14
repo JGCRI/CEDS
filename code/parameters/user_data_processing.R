@@ -1,13 +1,9 @@
 #------------------------------------------------------------------------------
-# Program Name: user_data_proc_pseudocode.R
-# Author: Ben Goldstein
-# Date Last Updated: 21 June 2017
-# Program Purpose: To process user-defined datasets for use in the historical
-#                  energy extension.
-# Input Files: U.*, U.*-instructions, U.*-mapping
-# Output Files: None
-# Functions Defined: mapToCEDS, interpolateData, interpolateByTrend
-# Notes:
+# Program Name: user_data_processing.R
+# Authors: Ben Goldstein, Caleb Braun
+# Date Last Updated: 12 July 2018
+# Program Purpose: Define some helper functions for processing user-defined
+#                  datasets for use in the historical energy extension.
 # -----------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
@@ -20,29 +16,30 @@
 #                 range are filtered out
 #   ftype: A string to add on to fname that specifies a support (non-data) file
 #
-# Returns: A two-element list containing the data and mapping files
-    readInUserData <- function( fname, yearsAllowed, ftype = NULL ) {
-        # Read in files
-        fpath <- paste0( "user-defined-energy/", fname, ftype )
-        if ( !is.null( ftype ) && ftype == "-mapping" )
-            user_df <- tryCatch(
-                readData( fpath, domain = "EXT_IN", extension = ".xlsx" ),
-                error = function(e) NULL )
-        else
-            user_df <- readData( fpath, domain = "EXT_IN" )
+# Returns: A data frame containing the contents of the file that are in the CEDS
+#          year range.
+readInUserData <- function( fname, yearsAllowed, ftype = NULL ) {
+    # Read in files
+    fpath <- paste0( "user-defined-energy/", fname, ftype )
+    if ( !is.null( ftype ) && ftype == "-mapping" )
+        user_df <- tryCatch(
+            readData( fpath, domain = "EXT_IN", extension = ".xlsx" ),
+            error = function(e) NULL )
+    else
+        user_df <- readData( fpath, domain = "EXT_IN" )
 
-        # Filter out any years not in the CEDS range
-        bad_years <- isXYear( names( user_df ) ) &
-                     names( user_df ) %!in% yearsAllowed
+    # Filter out any years not in the CEDS range
+    bad_years <- isXYear( names( user_df ) ) &
+                 names( user_df ) %!in% yearsAllowed
 
-        if ( any( bad_years ) ) {
-            warning( paste("Some data in", fname, "are not in the",
-                           "allowed CEDS years and will be ignored") )
-            user_df <- user_df[ !bad_years ]
-        }
-
-        return( user_df )
+    if ( any( bad_years ) ) {
+        warning( paste("Some data in", fname, "are not in the",
+                       "allowed CEDS years and will be ignored") )
+        user_df <- user_df[ !bad_years ]
     }
+
+    return( user_df )
+}
 
 #------------------------------------------------------------------------------
 # procUsrData()
@@ -61,31 +58,47 @@
 #   MFL: Master CEDS fuel list.
 #   trend_data: If interpolating to trend, a dataframe containing that trend
 # Returns: the data in usr_data as a mapped and interpolated dataframe
-    procUsrData <- function( usr_data, proc_instr, mappings,
-                             MSL, MCL, MFL, trend_data = NULL ) {
+procUsrData <- function( usr_data, proc_instr, mappings,
+                         MSL, MCL, MFL, trend_data = NULL ) {
 
-        # Get year columns to cast as numeric
-        year_cols <- names( usr_data )[ isXYear( names( usr_data ) ) ]
+    # Get year columns and cast them as numeric
+    year_cols <- names( usr_data )[ isXYear( names( usr_data ) ) ]
+    usr_data <- dplyr::mutate_at( usr_data, year_cols, as.numeric )
 
-        # Clean, map, validate, and then interpolate the user data
-        interp_df <- dplyr::mutate_at(usr_data, year_cols, as.numeric) %>%
-                     mapToCEDS( MSL, MFL,
-                                iso_map         = mappings$iso,
-                                agg_sector_map  = mappings$agg_sector,
-                                CEDS_sector_map = mappings$CEDS_sector,
-                                agg_fuel_map    = mappings$agg_fuel,
-                                CEDS_fuel_map   = mappings$CEDS_fuel ) %>%
-                     validateUserData( proc_instr ) %>%
-                     interpolateData( proc_instr, MSL, MCL, MFL, trend_data )
-
-        if ( identifyLevel( interp_df ) == 0 )
-            stop("Fuel type not found in user data")
-
-        return( interp_df )
+    # mappings is expected as a list of data frames, but if it isn't we can
+    # pull out the name of the data frame from the column names
+    if ( is.data.frame( mappings ) ) {
+        mappings_name <- intersect( names( mappings ), names( proc_instr ) )
+        mappings <- setNames( list( mappings ), mappings_name )
     }
 
+    # Test if `sector_map` parameter is defined and has any character values.
+    # If it does, we need to
+    if ( !is.invalid( proc_instr$sector_map ) ) {
+        maps <- list( mappings$iso, mappings$CEDS_fuel, mappings$agg_fuel )
+        mcols <- c( 'iso', 'CEDS_fuel', 'agg_fuel' )
+        usr_data <- joinUserMaps( usr_data, maps, mcols )
+        usr_data <- disaggUserSectors( usr_data, proc_instr, trend_data )
+    }
 
-#------------------------------------------------------------------------------
+    # Clean, map, validate, and then interpolate the user data
+    interp_df <- mapToCEDS( usr_data, MSL, MFL,
+                            iso_map         = mappings$iso,
+                            agg_sector_map  = mappings$agg_sector,
+                            CEDS_sector_map = mappings$CEDS_sector,
+                            agg_fuel_map    = mappings$agg_fuel,
+                            CEDS_fuel_map   = mappings$CEDS_fuel ) %>%
+                 validateUserData( proc_instr ) %>%
+                 interpolateData( proc_instr, MSL, MCL, MFL, trend_data )
+
+    if ( identifyLevel( interp_df ) == 0 )
+        stop("Fuel type not found in user data")
+
+    return( interp_df )
+}
+
+
+# ------------------------------------------------------------------------
 # mapToCEDS()
 # Brief: Maps a user dataframe to CEDS level categories
 # Params:
@@ -106,47 +119,15 @@
         if ( is.null( iso_map ) & 'iso' %!in% names( usrdata ) )
             stop( "iso not in data, but no iso map provided" )
 
-        # The only accepted non-year columns
+        # The only accepted non-year columns (order matters)
         CEDS_COLS <- c( "iso", "agg_sector", "CEDS_sector", "agg_fuel", "CEDS_fuel" )
-
-        # Ensure mapping files are correctly formatted
         maps <- list( iso_map, agg_sector_map, CEDS_sector_map, agg_fuel_map, CEDS_fuel_map )
-        sapply( maps, validateUserMap, CEDS_COLS )
 
-        # Extract the unmapped non-year column names
-        user_cnames <- names( usrdata )[ !isXYear( names( usrdata ) ) ]
-
-        # Loop through maps and join with data (if the column is not already
-        # present)
-        for ( i in seq_along( maps ) ) {
-            mp <- maps[[i]]
-            map_col <- CEDS_COLS[i]
-
-            if ( !is.null( mp ) & map_col %!in% user_cnames ) {
-                # Merge the datasets together and throw out data that has NAs
-                key_col <- names( mp )[ names( mp ) != map_col ][1]
-                usrdata <- dplyr::left_join( usrdata, mp, by = key_col ) %>%
-                           dplyr::filter( !is.na( UQ( as.name( map_col ) ) ) )
-            }
-        }
-
-        mapped_cnames <- names( usrdata )
+        usrdata <- joinUserMaps( usrdata, maps, CEDS_COLS )
 
         # Join in the higher agg level column, if not already mapped by user
-        # TODO: Create a function that does this instead of doing twice here
-        disagg <- 'CEDS_sector'
-        if ( 'agg_sector' %!in% mapped_cnames & disagg %in% mapped_cnames ) {
-            MSL_to_map <- unique( MSL[ , c( disagg, "aggregate_sectors" ) ] )
-            names( MSL_to_map ) <- c( disagg, "agg_sector" )
-            usrdata <- dplyr::left_join( usrdata, MSL_to_map, by = disagg )
-        }
-
-        disagg <- 'CEDS_fuel'
-        if ( 'agg_fuel' %!in% mapped_cnames & disagg %in% mapped_cnames ) {
-            MFL_to_map <- MFL[ , c( "fuel", "aggregated_fuel" ) ]
-            names( MFL_to_map ) <- c( disagg, "agg_fuel" )
-            usrdata <- dplyr::left_join( usrdata, MFL_to_map, by = disagg )
-        }
+        usrdata <- addAggregateCol( usrdata, 'sector', MSL, 'aggregate_sectors', 'CEDS_sector' )
+        usrdata <- addAggregateCol( usrdata, 'fuel',   MFL, 'aggregated_fuel', 'fuel' )
 
         # Order the results correctly
         Xyears <- names( usrdata )[ isXYear( names( usrdata ) ) ]
@@ -279,6 +260,8 @@
 # Returns: An instructions file containing pointers to the output raw data
 #          generated by matching data to trend
     processTrendData <- function( instructions, all_activity_data ) {
+
+        stop("Custom trend data is not currently supported.")
 
         trend_instructions <- instructions[ instructions$use_as_trend, ]
 
@@ -455,7 +438,7 @@ subsetUserData <- function( user_df, instructions ) {
     subset <- dplyr::select( user_df, agg_cols, yr_cols ) %>%
               dplyr::filter( iso %in% instructions$iso ) %>%
               dplyr::group_by_at( agg_cols ) %>%
-              dplyr::summarise_all(sum) %>%
+              dplyr::summarise_all( sum ) %>%
               dplyr::ungroup() %>% data.frame()
 
     # Subset the dataframe based on which columns are specified in the
@@ -548,4 +531,155 @@ validateUserMap <- function( user_map, CEDS_COLS ) {
         stop( paste0( "double-mapped ", map_type, "s are not allowed" ) )
 
     return( user_map )
+}
+
+
+# Disaggregate the instructions before starting to process the user data. Then
+# use the new instructions to spread the user data over all its disaggregations.
+# From there we do the breakdown calculation and re-write of user data.
+#
+# 1. Map instructions agg_sector to correct agg_sector (left join on agg_sector)
+# 2. Rename old agg_sector to agg_sector_inv and keep CEDS_sector as the new one
+# 3. Join with default data
+mapToUserSectors <- function( df, default_activity ) {
+    if ( !is.character( df$sector_map ) ) return( df )
+    stopifnot( all( c( 'iso', 'agg_fuel', 'agg_sector' ) %in% names( df ) ) )
+
+    user_sector_maps <- unique( df$sector_map )
+    user_sector_maps <- user_sector_maps[ !is.na( user_sector_maps ) ]
+
+    df_mapped <- lapply( user_sector_maps, function( map ) {
+        map_no_csv <- sub( '.csv', '', map, fixed = T )
+        sector_map <- readInUserData( map_no_csv, NULL )
+        stopifnot( 'CEDS_sector' %in% names( sector_map ) )
+        stopifnot( ncol( sector_map ) == 2 )
+        join_col <- setdiff( names( sector_map ), 'CEDS_sector' )
+
+        df_subset <- df %>%
+            dplyr::filter( sector_map == map )
+
+        # TODO: Add check to see if we need to join on CEDS_fuel instead of
+        #       only allowing agg_fuel
+        if ( !all( is.na( df_subset$CEDS_fuel ) ) )
+            stop( "Custom sector mapping with CEDS_fuel instructions currently",
+                  " not supported")
+
+        id_columns <- c( 'iso', 'agg_fuel', 'CEDS_sector' )
+        df_subset %>%
+            dplyr::select( -CEDS_sector, -CEDS_fuel ) %>%
+            dplyr::left_join( sector_map, by = c( "agg_sector" = join_col ) ) %>%
+            dplyr::rename( agg_sector_inv = agg_sector ) %>%
+            dplyr::mutate( agg_sector_join_col = join_col ) %>%
+            dplyr::semi_join( default_activity[ id_columns ], by = id_columns )
+    })
+
+    df_mapped <- do.call( rbind, df_mapped )
+
+    df %>%
+        dplyr::filter( is.na( sector_map ) ) %>%
+        dplyr::bind_rows( df_mapped )
+}
+
+
+disaggUserSectors <- function( usr_data, proc_instr, default_activity ) {
+    user_sector_maps <- unique( proc_instr$sector_map )
+    if ( length( user_sector_maps ) != 1 )
+        stop( paste( "File", proc_instr$data_file[1], "must all use one sector",
+                     "map" ) )
+
+    join_col <- unique( proc_instr$agg_sector_join_col[1] )
+    stopifnot( length( join_col ) == 1 )
+
+    usr_data_mapped <- proc_instr %>%
+        dplyr::select( iso, CEDS_sector, agg_fuel, agg_sector_inv ) %>%
+        dplyr::left_join( usr_data, by = c( "iso", "agg_fuel",
+                                            "agg_sector_inv" = join_col ) )
+
+    disagg_all <- usr_data_mapped %>%
+        dplyr::left_join( default_activity, by = c( "iso", "agg_fuel",
+                                                    "CEDS_sector" ) ) %>%
+        dplyr::filter( !is.na( CEDS_fuel ) ) %>%
+        dplyr::select( iso, agg_sector_inv, agg_sector, agg_fuel, CEDS_sector,
+                       CEDS_fuel, ends_with( '.x' ), ends_with ( '.y' ) )
+
+    disagg <- disagg_all %>%
+        dplyr::group_by( iso, agg_sector_inv, agg_fuel ) %>%
+        dplyr::mutate_at( vars( matches( 'X\\d{4}\\.y' ) ), prop.table ) %>%
+        dplyr::mutate_at( vars( matches( 'X\\d{4}\\.y' ) ),
+                          funs( if_else( is.nan( . ), 0, . ) ) ) %>%
+        dplyr::ungroup()
+
+    dplyr::bind_cols(
+        dplyr::select( disagg, iso, agg_sector, agg_fuel, CEDS_sector, CEDS_fuel ),
+        dplyr::select( disagg, matches( 'X\\d{4}\\.x' ) ) *
+            dplyr::select( disagg, matches( 'X\\d{4}\\.y' ) ) ) %>%
+    dplyr::rename_all( funs( sub( '\\.(x|y)$', '', . ) ) )
+
+}
+
+
+joinUserMaps <- function(usrdata, maps, default_cols) {
+    # Ensure mapping files are correctly formatted
+    sapply( maps, validateUserMap, default_cols )
+
+    # Extract the unmapped non-year column names
+    user_cnames <- names( usrdata )[ !isXYear( names( usrdata ) ) ]
+
+    # Loop through maps and join with data (if the column is not already
+    # present)
+    for ( i in seq_along( maps ) ) {
+        mp <- maps[[i]]
+        map_col <- default_cols[i]
+
+        if ( !is.null( mp ) & map_col %!in% user_cnames ) {
+            # Merge the datasets together and throw out data that has NAs
+            key_col <- names( mp )[ names( mp ) != map_col ][1]
+            usrdata <- dplyr::left_join( usrdata, mp, by = key_col ) %>%
+                       dplyr::filter( !is.na( UQ( as.name( map_col ) ) ) )
+        }
+    }
+
+    return( usrdata )
+}
+
+
+preprocUserData <- function( instructions ) {
+    if ( !is.null( instructions$preprocessing_script ) ) {
+        preproc <- unique( instructions$preprocessing_script )
+        preproc <- preproc[ !is.na( preproc ) ]
+        preproc <- paste0( "extension/user-defined-energy/", preproc)
+        sapply( preproc, source, local = T, chdir = T )
+        instructions$preprocessing_script <- NULL
+    }
+
+    return( instructions )
+}
+
+
+# Join in the higher agg level column, if not already mapped by user
+addAggregateCol <- function( df, type, map, map_agg_col, map_disagg_col ) {
+    stopifnot( type %in% c( 'sector', 'fuel' ) )
+    disagg_col <- paste0( 'CEDS_', type )
+    agg_col <- paste0( 'agg_', type )
+    if ( disagg_col %!in% names( df ) ) return( df )
+
+    map <- unique( map[ , c( map_disagg_col, map_agg_col ) ] )
+    names( map ) <- c( disagg_col, agg_col )
+
+    if ( agg_col %!in% names( df ) ) {
+        rowsMissingAgg <- df
+        rowsAlreadyAgg <- NULL
+    } else {
+        rowsMissingAgg <- df[ is.na( df[ agg_col ] ) & !is.na( df[ disagg_col ] ), ]
+        rowsAlreadyAgg <- setdiff( df, rowsMissingAgg )
+        rowsMissingAgg[ agg_col ] <- NULL
+    }
+
+    fixed_df <- rowsMissingAgg %>%
+        dplyr::left_join( map, by = disagg_col ) %>%
+        dplyr::bind_rows( rowsAlreadyAgg )
+
+    stopifnot( nrow( fixed_df ) == nrow( df ) )
+
+    return( fixed_df )
 }
