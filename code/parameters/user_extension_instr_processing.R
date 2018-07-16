@@ -66,7 +66,7 @@ processInstructions <- function( comb_sectors, MSL, MFL, default_activity ) {
     # Get list of all '-instructions.csv' files in the user-defined-energy dir
     instructions <- readInUserInstructions()
 
-    # Puts all instructions into single dataframe with uniform columns
+    # Put all instructions into single dataframe with uniform columns
     instructions <- cleanInstructions( instructions, comb_sectors, MSL, MFL )
 
     # Preprocess any data that needs it

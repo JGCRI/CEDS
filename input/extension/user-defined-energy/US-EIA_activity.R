@@ -300,4 +300,9 @@ EIA_data_formatted[ coal_ind_rows, "Value" ] <-
 
 # Cast to wide and write output -------------------------------------------
 EIA_final <- tidyr::spread( EIA_data_formatted, key = year, value = Value )
-write.csv( EIA_final, "E.US-EIA_inventory.csv", row.names = F )
+
+EIA_final_CEDSsec <- EIA_final[EIA_final$sector %in% c("Commercial", "Residential"), ]
+EIA_final_aggsec <- EIA_final[!EIA_final$sector %in% c("Commercial", "Residential"), ]
+
+write.csv( EIA_final_CEDSsec, "E.US-EIA_inventory_CEDSsec.csv", row.names = F )
+write.csv( EIA_final_aggsec, "E.US-EIA_inventory_aggsec.csv", row.names = F )
