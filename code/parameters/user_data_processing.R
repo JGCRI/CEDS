@@ -422,9 +422,10 @@ filterToYearRange <- function( df, X_data_years ) {
 # subsetUserData
 # Purpose: Subsets a user-specified dataset based on user-specified
 #          instructions, checking for validity and removing any irrelevant data.
-# params:
+# Params:
 #    user_df: Entire user dataset associated with the given instruction(s)
 #    instructions: Dataframe of instructions
+# Returns: A subset of user_df
 subsetUserData <- function( user_df, instructions ) {
 
     # Determine which aggregation columns are present in the instructions
