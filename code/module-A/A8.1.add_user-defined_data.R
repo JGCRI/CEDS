@@ -3,7 +3,9 @@
 # Authors:         Ben Goldstein, Caleb Braun
 # Last Updated:    July 2018
 # Program Purpose: To process user-defined datasets for use in the historical
-#                  energy extension.
+#                  energy extension. See Section 3 of the CEDS User Guide
+#                  (https://github.com/JGCRI/CEDS-dev/wiki/User-Guide) for
+#                  more details.
 #
 # Input Files:  U.*.csv, U.*-instructions.csv, U.*-mapping.xslx
 # Output Files: A.comb_user_added.csv
@@ -36,9 +38,12 @@ initialize( script_name, log_msg, headers )
 MSL <- readData( "Master_Sector_Level_map", domain = "MAPPINGS" )
 MCL <- readData( "Master_Country_List",     domain = "MAPPINGS" )
 MFL <- readData( "Master_Fuel_Sector_List", domain = "MAPPINGS", extension = ".xlsx" )
+
+# Process reference data to make adding supplemental data easier
 all_sectors <- MFL$Sectors
-comb_sectors <- all_sectors[ all_sectors$category == "combustion", "sector" ]
 othr_sectors <- all_sectors[ all_sectors$category == "other", "sector" ]
+comb_sectors <- all_sectors[ all_sectors$category == "combustion", "sector" ]
+comb_sectors <- c( othr_sectors, comb_sectors )
 MFL <- MFL$Fuels
 MSL <- dplyr::rename( MSL, CEDS_sector = working_sectors_v1 )
 
@@ -46,7 +51,7 @@ MSL <- dplyr::rename( MSL, CEDS_sector = working_sectors_v1 )
 # standard CEDS format
 all_activity_data <- readData( 'MED_OUT', 'A.comb_default_activity_extended', meta = F ) %>%
     dplyr::rename( CEDS_sector = sector, CEDS_fuel = fuel ) %>%
-    dplyr::filter( CEDS_sector %in% comb_sectors | CEDS_sector %in% othr_sectors) %>%
+    dplyr::filter( CEDS_sector %in% comb_sectors ) %>%
     mapToCEDS( MSL, MFL, aggregate = F )
 
 # Special case for oil 1A1bc_Other-transformation and 1A1bc_Other-feedstocks.
@@ -98,6 +103,7 @@ rows_completed <- instructions[ 0, ]
 
 # This integer tracks which batch number we're on, for informing diagnostics
 batch <- 0
+
 
 # ------------------------------------------------------------------------------
 # 3. Execute processing loop
@@ -155,22 +161,25 @@ while ( nrow( instructions ) > 0 ) {
 
             # For each break: create a new instruction for any instruction
             # that encompasses this year range
-            for ( i in 1:( length( year_breaks ) - 1 ) ) {
-                new_year_span <- year_breaks[ i ]:( year_breaks[ i+1 ] - 1 )
+            for ( i in seq_along( year_breaks ) ) {
+                if ( i == length( year_breaks ) ) break
 
-                rows_to_segment <- whole_batch[ whole_batch$start_year <=
-                                                  max( new_year_span ) &
-                                                whole_batch$end_year >=
-                                                  min( new_year_span ), ]
+                year_span_min <- year_breaks[ i ]
+                year_span_max <- year_breaks[ i + 1 ] - 1
+
+                rows_to_segment <- whole_batch[ whole_batch$start_year <= year_span_max &
+                                                whole_batch$end_year   >= year_span_min, ]
                 if ( i != 1 ) {
-                    rows_to_segment$start_continuity[ rows_to_segment$start_year != year_breaks[ i ] ] <- F
+                    new_syear <- rows_to_segment$start_year != year_breaks[ i ]
+                    rows_to_segment$start_continuity[ new_syear ] <- F
                 }
                 if ( i != length( year_breaks ) - 1 ) {
-                    rows_to_segment$end_continuity[ rows_to_segment$end_year != year_breaks[ i + 1 ] - 1 ] <- F
+                    new_eyear <- rows_to_segment$end_year != year_breaks[ i + 1 ] - 1
+                    rows_to_segment$end_continuity[ new_eyear ] <- F
                 }
 
-                rows_to_segment$start_year <- min( new_year_span )
-                rows_to_segment$end_year <- max( new_year_span )
+                rows_to_segment$start_year <- year_span_min
+                rows_to_segment$end_year <- year_span_max
 
                 new_division_batch <- rbind( new_division_batch, rows_to_segment )
             }
@@ -208,58 +217,27 @@ while ( nrow( instructions ) > 0 ) {
     activity$all_activity_data <- normalized$all_data
     diagnostics <- normalized$diagnostics
 
-# Tack on some diagnostics to the working instructions dataframe for
-# diagnostic output
+    # Tack on some diagnostics to the working instructions dataframe for
+    # diagnostic output
     working_instructions$batch_id <- batch
     working_instructions$agg_level <- agg_level
     working_instructions$warnings <- diagnostics$warning_diag
     working_instructions$nrow_changed <- diagnostics$rows_changed
-# Add working instructions to rows_completed, which will be a diagnostic for
-# reviewing what changes occurred
+
+    # Add working instructions to rows_completed, which will be a diagnostic for
+    # reviewing what changes occurred
     rows_completed <- rbind( rows_completed, working_instructions )
 }
 
+
 # ------------------------------------------------------------------------------------
-# 4. Write out the diagnostic data
-    #writeData( rows_completed, domain = "DIAG_OUT", fn = "user-ext-data_diagnostics" )
+# 4. Write out the final results
 
-    final_activity <- enforceContinuity( activity, all_yrs )
+final_activity <- enforceContinuity( activity, all_yrs )
 
-    writeData( final_activity, domain = "MED_OUT", "A.comb_user_added" )
-    # final_short <- final_activity %>% dplyr::filter(iso == 'gbr', agg_fuel == 'coal')#agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
-    # default_short <- default_mapped %>% dplyr::filter(iso == 'gbr', agg_fuel == 'coal')#agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
-    # View(default_short[, c(1:5, 199:217)])
-    # final_short <- final_short[, c(1:5, 199:217)]
-    # View(final_short)
+writeData( rows_completed, domain = "DIAG_OUT", "A.user_added_changed_rows" )
+writeData( final_activity, domain = "MED_OUT",  "A.comb_user_added" )
 
-    #writeData( final_activity[which(final_activity$iso == 'deu'), ], domain = "MED_OUT", paste0("H.", em,"-total-activity-TEST-small"))
-    #final_short <- final_activity[ final_activity$iso == 'deu', ]
-    #default_short <- default_activity[which(default_activity$iso == 'deu' & default_activity$CEDS_fuel != 'process'), ]
-    #writeData( default_short, domain = "MED_OUT", paste0("H.", em,"-total-activity-original-short"))
-
-
-# Result comparisons ------------------------------------------------------
-
-    # samecols <- "units"
-    # for (c in names(final_short)) {
-    #     if (identical(final_short[[c]], default_short[[c]])) {
-    #         samecols <- c(samecols, c)
-    #     }
-    # }
-    # samecols <- samecols[samecols %!in% c("agg_sector", "agg_fuel", "CEDS_sector", "CEDS_fuel", "iso")]
-    # original <- default_short[ , -which(names(default_short) %in% samecols)]
-    # changed <- final_short[ , -which(names(final_short) %in% samecols)]
-    #
-    # orig_rows <- dplyr::filter(original, X1937 != changed$X1937)
-    # changed_rows <- dplyr::filter(changed, X1937 != original$X1937) %>% dplyr::select(-agg_fuel, -agg_sector)
-    #
-    # sum(original$X1937[grepl('coal', original$CEDS_fuel)])
-    # sum(changed$X1937[changed$agg_fuel == 'coal'])
-    #
-    # sapply(final_short[final_short$agg_fuel == 'coal', paste0('X', 1941:1945)], sum)
-
-    logStop()
-
-#END
+logStop()
 
 

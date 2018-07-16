@@ -1,5 +1,5 @@
-iso,agg_fuel,agg_sector,start_year,end_year,priority,override_normalization,start_continuity,end_continuity,method,sector_map
-usa,biomass,Electric Power,1949,2014,,,,,linear,E.US-EIA_inventory_aggsec_sector_map.csv
+iso,agg_fuel,agg_sector,start_year,end_year,priority,preprocessing_script,start_continuity,end_continuity,method,sector_map
+usa,biomass,Electric Power,1949,2014,,US-EIA_activity.R,,,linear,E.US-EIA_inventory_aggsec_sector_map.csv
 usa,coal,Electric Power,1949,2014,,,,,linear,E.US-EIA_inventory_aggsec_sector_map.csv
 usa,gas,Electric Power,1949,2014,,,,,linear,E.US-EIA_inventory_aggsec_sector_map.csv
 usa,oil,Electric Power,1949,2014,,,,,linear,E.US-EIA_inventory_aggsec_sector_map.csv
