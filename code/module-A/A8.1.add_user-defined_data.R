@@ -181,25 +181,24 @@ while ( nrow( instructions ) > 0 ) {
         }
 
         # From here we know our years are properly subdivided, so we should
-        # re-retrieve our user_defined_data dataframe. This may require
+        # re-retrieve the data pointed to by the instructions. This may require
         # drawing on multiple source files.
         working_instructions <- rbind( working_instructions, batch_instructions )
-        usrdata <- usrdata[ 0, ]
-        for ( row_num in 1:nrow( working_instructions ) ) {
-            data_file <- working_instructions$data_file[ row_num ]
-            user_dataframe <- usr_files[[ data_file ]]
+        data_srcs <- unique( working_instructions$data_file )
 
-            # Append the relevant part to the dataframe
-            usrdata <- rbind( subsetUserData( user_dataframe,
-                                              working_instructions ) )
-        }
+        # Get relevant data from each source file, then combine into one df
+        usrdata <- do.call( rbind, lapply( data_srcs, function( data_file ) {
+            instr_rows <- working_instructions$data_file == data_file
+            instr <- working_instructions[ instr_rows, ]
+            subsetUserData( usr_files[[ data_file ]], instr )
+        }))
     }
 
     data_to_use <- getRowsForAdjustment(all_activity_data, usrdata, MFL, agg_level)
 
-    # Call the normalizeAndIncludeData function. This is the main point of
-    # the program; it will normalize, disaggregate, and then incorporate the
-    # user-defined data, returning a list with both the data and diagnostics
+    # The normalizeAndIncludeData is the main point of this script; it will
+    # normalize, disaggregate, and then incorporate the user-defined data,
+    # returning a list with both the data and diagnostics
     normalized <- normalizeAndIncludeData( Xyears, data_to_use, usrdata,
                                            all_activity_data,
                                            working_instructions$override_normalization,
