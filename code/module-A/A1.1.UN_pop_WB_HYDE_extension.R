@@ -103,19 +103,17 @@
 
 # Prepare UN population
     # Read all population scenarios into one df
-    UN_pop_raw <- lapply( seq_along( UN_pop_raw[ -1 ] ), function( i ){
-      out <- translateCountryCode( UN_pop_raw[[ i ]],
-                                   "UN_CODE", "ISO3_WB_CODE", "Country code" )
-      out <- out[ -c( 3, 4, 6 ) ]
-      names( out )[ 1:3 ] <- c( "UN_code", "iso", "country" )
-      out$scenario <- UN_scenarios_std[[ i ]]
-      out <- melt( out, id = c( "UN_code", "iso", "scenario", "country" ),
-                   variable_name = "year", na.rm = T )
-      names( out )[ names( out ) == "value" ] <- "pop"
-      return( out )
-    } )
-    UN_pop_raw <- do.call( rbind, UN_pop_raw )
-    UN_pop_raw$year <- as.numeric( as.character( UN_pop_raw$year ) )
+    UN_pop_raw <- lapply( seq_along( UN_pop_raw[ -1 ] ), function( i ) {
+      translateCountryCode( UN_pop_raw[[ i ]],
+                            "UN_CODE", "ISO3_WB_CODE", "Country code" ) %>%
+          dplyr::select( -Index, -Variant, -Notes ) %>%
+          dplyr::rename( UN_code = UN_CODE, iso = ISO3_WB_CODE,
+                         country = `Major area, region, country or area *`) %>%
+          dplyr::mutate( scenario = UN_scenarios_std[[ i ]] ) %>%
+          tidyr::gather( year, pop, matches( '\\d{4}' ), na.rm = T )
+    })
+    UN_pop_raw <- do.call( rbind, UN_pop_raw ) %>%
+        dplyr::mutate( year = as.numeric( year ) )
 
     # Read and format urban population share
     UN_urban_share_raw <- translateCountryCode( UN_urban_share_raw, "UN_CODE",
@@ -190,10 +188,11 @@
     }
 
     # Reshape
-    HYDE_pop <- melt( select( HYDE_pop, -country), id = c( "UN_code", "iso", "type" ) )
-    names( HYDE_pop )[ names( HYDE_pop ) == "variable" ] <- "year"
-    HYDE_pop$year <- xYearToNum( HYDE_pop$year )
-    HYDE_pop <- cast( HYDE_pop, UN_code + iso + year ~ type, value = "value" )
+    HYDE_pop <- HYDE_pop %>%
+        dplyr::select( -country ) %>%
+        tidyr::gather( year, value, -UN_code, -iso, -type ) %>%
+        dplyr::mutate( year = xYearToNum( year ) ) %>%
+        tidyr::spread( type, value )
 
     # Some countries have urban share > 100% -- bring down to 1
     HYDE_pop$urban_share <- HYDE_pop$urban_share / 100  # percent to decimal
@@ -363,25 +362,28 @@
     needed <- filter( pop_master, is.na( urban_share ) )
 
       # Filter out the two edge years
-    urban_growth <- filter( done, year >= min( years_needed ) - 2 ) %>%
-      select( iso, year, scenario, urban_share ) %>%
-      dplyr::arrange( iso, scenario, year )
+    urban_growth <- done %>%
+        dplyr::filter( year >= min( years_needed ) - 2 ) %>%
+        dplyr::select( iso, year, scenario, urban_share ) %>%
+        dplyr::arrange( iso, scenario, year )
 
       # Compute growth of UN urban_share in two edge years for each country
       # Note growth will be NA if both edge years have 0 urban share, in which
       # case make growth 0 to keep urban share at 0 in future years
-    urban_growth <- group_by( urban_growth, iso, scenario ) %>%
-      dplyr::mutate( growth = urban_share / lag( urban_share ) ) %>%
-      filter( year == min( years_needed ) - 1 )
-    urban_growth$growth[ is.na( urban_growth$growth ) ] <- 0
-    names( urban_growth ) <- c( "iso", "base_year", "scenario",
-                                "base_urban_share", "growth" )
+    urban_growth <- urban_growth %>%
+        dplyr::group_by( iso, scenario ) %>%
+        dplyr::mutate( growth = urban_share / lag( urban_share ) ) %>%
+        dplyr::ungroup() %>%
+        dplyr::filter( year == min( years_needed ) - 1 ) %>%
+        dplyr::mutate( growth = if_else( is.na( growth ), 0, growth ) ) %>%
+        dplyr::rename( base_year = year, base_urban_share = urban_share )
 
       # Extend urban_share to all UN years, using base year share and growth
       # in the two edge years
-    needed <- merge( needed, urban_growth, all.x = T ) %>%
-      dplyr::mutate( urban_share = base_urban_share * growth^( year - base_year ) ) %>%
-      select( -base_year, -base_urban_share, -growth )
+    needed <- needed %>%
+        dplyr::left_join( urban_growth, by = c( 'iso', 'scenario') ) %>%
+        dplyr::mutate( urban_share = base_urban_share * growth^( year - base_year ) ) %>%
+        dplyr::select( -base_year, -base_urban_share, -growth )
 
       # If urban_share > 1, bring down to 1
     needed$urban_share[ needed$urban_share > 1 ] <- 1
@@ -415,16 +417,20 @@
 
 # Add rows for HYDE years (1700-1949) to master df under scenario 'Estimates'
     HYDE_years_to_use <- setdiff( HYDE_years, pop_master_ext$year )
-    HYDE_rows <- select( pop_master_ext, UN_code, iso, country ) %>% unique() %>%
-      merge( data.frame( year = HYDE_years_to_use, scenario = "Estimates" ), all = T )
+    HYDE_rows <- pop_master_ext %>%
+        dplyr::select( UN_code, iso, country ) %>%
+        dplyr::distinct() %>%
+        tidyr::crossing( data.frame( year = HYDE_years_to_use,
+                                     scenario = "Estimates",
+                                     stringsAsFactors = F ) )
     pop_master_HYDE <- bind_rows( pop_master_ext, HYDE_rows ) %>%
       dplyr::arrange( scenario, iso, year )
 
 # Add columns for HYDE population and urban shares to master df
-    pop_master_HYDE <- merge( pop_master_HYDE,
-                              select( HYDE_pop, iso, year, pop_HYDE = pop,
-                                      urban_share_HYDE = urban_share ),
-                              all.x = T )
+    pop_master_HYDE <- pop_master_HYDE %>%
+        dplyr::left_join( dplyr::select( HYDE_pop, iso, year,  pop_HYDE = pop,
+                                         urban_share_HYDE = urban_share ),
+                          by = c( 'iso', 'year' ) )
 
 # Diagnostics: Compare 1950 population and urban share of HYDE and UN/WB
     # Compare 1950 numbers
