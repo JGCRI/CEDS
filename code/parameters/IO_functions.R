@@ -646,16 +646,6 @@ addDependency <- function( fqn, ... ) {
 writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL,
                        comments = NULL, meta = TRUE, mute = FALSE, domain_extension = "", ... ) {
 
-    # # DEBUG
-    # x <- results
-    # domain <- "MED_OUT"
-    # fn <- "C.SO2_NC_emissions_db.csv"
-    # fn_sfx <- NULL
-    # comments <- NULL
-    # meta <- TRUE
-    # mute <- FALSE
-    # domain_extension <- ""
-
 	if( length( fn_sfx ) ) {
 		myfn <- paste( fn, "_", fn_sfx, sep="" )
 	}
@@ -741,11 +731,6 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
 # output files: null
 readMetaData <- function( meta_domain="none", file_name="none", file_extension = "csv", meta_name = 'none', meta_domain_ext = "" ) {
 
-    # # DEBUG
-    # meta_domain <- "MED_OUT"
-    # file_name <- "C.SO2_default_emissions"
-    # meta_name <- "none"
-
     if( meta_domain == 'none' || ( file_name == 'none' && meta_name == 'none' ) ) {
         return( warning( 'Must specify domain and file name' ) )
     }
@@ -777,14 +762,14 @@ readMetaData <- function( meta_domain="none", file_name="none", file_extension =
         }
 
         #add the source column as a metadata column in the data frame
-        new_metadata$Source  <- paste(file_name, file_extension, sep="")
+        new_metadata$Source <- paste0( file_name, file_extension )
 
         # Since no other metadata exists, set new_metadata as all_metadata
         all_metadata <- new_metadata
 
-        #re-arrange the columns so  that the 'source' column is the fist column in the data frame
-        other_col_names <- colnames(all_metadata)[(colnames(all_metadata) %!in% c('Source'))]
-        all_metadata <- all_metadata[c('Source', other_col_names)]
+        # re-arrange the columns so that the 'Source' column is the fist column
+        # in the data frame
+        all_metadata <- dplyr::select( all_metadata, Source, everything() )
 
         # Return the all_metadata object and end the function
         assign( 'all_metadata', all_metadata, .GlobalEnv )
@@ -799,25 +784,10 @@ readMetaData <- function( meta_domain="none", file_name="none", file_extension =
         old_names  <- colnames( old_metadata )
         old_colnum <- ncol( all_metadata )
 
-        if( new_metadata_exists == TRUE ) {
-            new_names <- colnames( new_metadata )
-
-            # Check if any new categories are included in the newly added metadata. If
-            #   new columns are included, update the old metadata
-            new_cols <- new_names %!in% old_names
-            if( any( new_cols ) ) {
-                # Print a lot message noting the addition of new columns
-                printLog( 'New categories added for', file_name, 'metadata: ',
-                          paste( new_names[ new_cols ], collapse = ',' ) )
-            }
-
-            #add the 'source' column
-            new_metadata$Source <-paste(file_name, file_extension, sep="")
-
-            #bind the new metadata record
-            all_metadata <- rbind.fill(all_metadata, new_metadata)
-
-        } else if( new_metadata_exists == FALSE ) {
+        if( new_metadata_exists ) {
+            all_metadata <- bindMetaDataRecord( all_metadata, new_metadata, old_names,
+                                                file_name, file_extension )
+        } else {
             # If the metadata file doesn't exist, create a default entry with the
             new_colnum <- old_colnum
             new_metadata <- c( rep( "Unknown", new_colnum - 1 ),
@@ -830,9 +800,11 @@ readMetaData <- function( meta_domain="none", file_name="none", file_extension =
             all_metadata <- rbind.fill(all_metadata, new_metadata)
         }
 
-        #re-arrange the columns so  that the 'source' column is the fist column in the data frame
-        center_col_names <- colnames(all_metadata)[(colnames(all_metadata) %!in% c('Source','Source.Comment'))]
-        all_metadata <- all_metadata[c('Source', center_col_names, 'Source.Comment')]
+        # re-arrange the columns so that the 'Source' column is the fist column
+        # in the data frame and 'Source.Comment' is the last
+        all_metadata <- all_metadata %>%
+            dplyr::select( Source, everything() ) %>%
+            dplyr::select( -Source.Comment, Source.Comment )
 
         assign( 'all_metadata', all_metadata, .GlobalEnv )
     }
@@ -907,28 +879,15 @@ addMetaData <- function( metadata = NULL, metadata_names = NULL, source_info =" 
     old_metadata <- all_metadata
     old_names <- colnames( old_metadata )
 
-    if( new_metadata_exists == TRUE ) {
-        new_names <- colnames( new_metadata )
+    if( new_metadata_exists ) {
+        all_metadata <- bindMetaDataRecord( all_metadata, new_metadata, old_names,
+                                            source_info, source_extension )
 
-        # Check if any new categories are included in the newly added metadata. If
-        #   new columns are included, update the old metadata
-        new_cols <- new_names %!in% old_names
-        if( any( new_cols ) ) {
-            # Print a lot message noting the addition of new columns
-            printLog( 'New categories added to metadata: ',
-                      paste( new_names[ new_cols ], collapse = ',' ) )
-        }
-
-
-        #add the the source column
-        new_metadata$Source <-paste(source_info, source_extension, sep="")
-
-        #bind the data frames; old and new data frames
-        all_metadata <- rbind.fill(all_metadata, new_metadata)
-
-        #re-arrange the columns so  that the 'source' column is the fist column in the data frame
-        center_col_names <- colnames(all_metadata)[(colnames(all_metadata) %!in% c('Source','Source.Comment'))]
-        all_metadata <- all_metadata[c('Source', center_col_names, 'Source.Comment')]
+        # re-arrange the columns so that the 'Source' column is the fist column
+        # in the data frame and 'Source.Comment' is the last
+        all_metadata <- all_metadata %>%
+            dplyr::select( Source, everything() ) %>%
+            dplyr::select( -Source.Comment, Source.Comment )
 
         assign( 'all_metadata', all_metadata, .GlobalEnv )
     }
@@ -974,6 +933,31 @@ writeMetaData <- function( domain, file_name = 'none', meta_name = 'none' ) {
 
     options( warn=w )
 }
+
+
+# -----------------------------------------------------------------------------
+# bindMetaDataRecord
+# Brief:        Bind a record to existing metadata
+# Authors:      Caleb Braun
+bindMetaDataRecord <- function( all_metadata, new_metadata, old_names, fname, fext ) {
+    new_names <- names( new_metadata )
+
+    # Check if any new categories are included in the newly added metadata. If
+    #   new columns are included, update the old metadata
+    new_cols <- !( new_names %in% old_names )
+    if ( any( new_cols ) ) {
+        # Print a log message noting the addition of new columns
+        printLog( 'New categories added for', fname, 'metadata: ',
+                  paste( new_names[ new_cols ], collapse = ',' ) )
+    }
+
+    # add the 'Source' column
+    new_metadata$Source <- paste0( fname, fext )
+
+    # bind the new metadata record
+    rbind.fill( all_metadata, new_metadata )
+}
+
 
 # -----------------------------------------------------------------------------
 # clearMeta
