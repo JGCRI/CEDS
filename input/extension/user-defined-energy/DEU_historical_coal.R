@@ -23,12 +23,20 @@
 library(dplyr)
 library(tidyr)
 
-FNAME <- 'Primarenergie_Elektrische_Energie.csv'
-FPATH <- ''
+# for writeData function
+# setwd('../../')
+PARAM_DIR <- '../code/parameters/'
+source(paste0(PARAM_DIR, "header.R"))
+initialize('DEU_historical_coal.R', NULL, NULL)
+
+FNAME <- 'Primarenergie_Elektrische_Energie'
+FPATH <- 'user-defined-energy/'
 
 # Source: https://www.unitjuggler.com/convert-energy-from-tSKE-to-kJ.html
 T_HARD_COAL_PER_T_SKE = 1
 T_BROWN_COAL_PER_T_SKE = 0.26
+
+schilling <- readData('EXT_IN', paste0(FPATH, FNAME), meta = F)
 
 # Translations for the column names
 translate <- c(JAHR = 'year',
@@ -39,7 +47,6 @@ translate <- c(JAHR = 'year',
                ERDGAS = 'natural_gas',
                WASSERKRAFT.UND.KERNENERGIE = 'hyrdo_and_nuclear')
 
-schilling <- read.csv(paste0(FPATH, FNAME), stringsAsFactors = F)
 names(schilling) <- translate[names(schilling)]
 
 out_df <- schilling %>%
@@ -50,4 +57,6 @@ out_df <- schilling %>%
     tidyr::gather('CEDS_fuel', 'value', hard_coal, brown_coal) %>%
     tidyr::spread(year, value)
 
-write.csv(out_df, 'DEU_historical_coal.csv', row.names = F)
+writeData(out_df, 'EXT_IN', 'user-defined-energy/DEU_historical_coal')
+
+logStop()

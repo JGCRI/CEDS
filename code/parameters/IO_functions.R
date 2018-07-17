@@ -646,8 +646,9 @@ addDependency <- function( fqn, ... ) {
 writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL,
                        comments = NULL, meta = TRUE, mute = FALSE, domain_extension = "", ... ) {
 
-	if( length( fn_sfx ) ) {
-		myfn <- paste( fn, "_", fn_sfx, sep="" )
+	if( !is.null( fn_sfx ) ) {
+		myfn <- paste0( fn, "_", fn_sfx )
+		stop( "fn_sfx parameter does not do anything" )
 	}
 	myfn <- filePath( domain, fn, domain_extension = domain_extension )
 
@@ -672,7 +673,7 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
 		cat( paste( GCAM_DATA_COMMENT, myfn ), file=myfn, sep="\n" )
 		cat( paste( GCAM_DATA_COMMENT, "Written by", GCAM_SOURCE_FN[ GCAM_SOURCE_RD ] ), file=myfn, sep="\n", append=T )
 		cat( paste( GCAM_DATA_COMMENT, date() ), file=myfn, sep="\n", append=T )
-		for( i in 1:length( comments ) ) {
+		for( i in seq_along( comments ) ) {
 			cat( paste( GCAM_DATA_COMMENT, "\"", comments[ i ], "\"" ), file=myfn, sep="\n", append=T, ... )
 		}
 
@@ -692,7 +693,8 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
 
     # Write out accumulated metadata and notes if applicable
     if( meta == T ) {
-       mymetafn <- filePath( domain = domain, fn = paste0(fn, "-metadata"), domain_extension = domain_extension)
+        mymetafn <- filePath( domain = domain, fn = paste0(fn, "-metadata"),
+                              domain_extension = domain_extension)
         w <- getOption( "warn" )
         options( warn = -1 )  # suppress the warning
         if( exists( "all_metadata" ) ) {
