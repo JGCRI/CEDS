@@ -1,7 +1,0 @@
-iso,CEDS_sector,CEDS_fuel,agg_sector,agg_fuel,X1935,X1936,X1937,X1938,X1939,X1940,X1941,X1942,X1943,X1944,X1945,X1946,X1947,X1948,X1949,X1950,X1951,X1952,X1953,X1954,X1955
-deu,1A1a_Electricity-public,brown_coal,1A1_Energy-transformation,coal,1,2,2,3,3,4,4,6,8,6,10,12,13,14,15,16,17,18,19,20,21
-deu,1A1a_Electricity-public,coal_coke,1A1_Energy-transformation,coal,0,0,2,2,4,4,6,4,2,8,2,0,0,0,0,0,0,0,0,0,0
-deu,1A1a_Electricity-public,hard_coal,1A1_Energy-transformation,coal,1,2,2,3,3,4,4,6,8,6,10,12,13,14,15,16,17,18,19,20,21
-deu,1A4b_Residential,brown_coal,1A4_Stationary_RCO,coal,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21
-deu,1A4b_Residential,coal_coke,1A4_Stationary_RCO,coal,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21
-deu,1A4b_Residential,hard_coal,1A4_Stationary_RCO,coal,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21
