@@ -44,9 +44,9 @@ initialize( script_name, log_msg, headers )
     IEA_en <- readData( "MED_OUT", "A.en_stat_sector_fuel" )
     Fern_biomass <- readData( "MED_OUT", "A.Fernandes_residential_biomass" )
     Eur_biomass <- readData( "ENERGY_IN", "Europe_wooduse_Europe_TNO_4_Steve", ".xlsx",
-                              sheet_selection = "Data", skip_rows = 3 )[ c( 1, 5 ) ]
+                              sheet_selection = "Data", skip = 3 )[ c( 1, 5 ) ]
     EIA_biomass <- readData( "ENERGY_IN", "EIA_Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors",
-                             ".xlsx", sheet_selection = "Annual Data", skip_rows = 10 )[ c( 1, 4 ) ]
+                             ".xlsx", sheet_selection = "Annual Data", skip = 10 )[ c( 1, 4 ) ]
 
 # Read biomass double-counting correction
     IEA_correction <- readData( "ENERGY_IN", "IEA_biomass_double_counting", ".xlsx" )
@@ -341,7 +341,7 @@ initialize( script_name, log_msg, headers )
       merge( last_IEA_gap ) %>%
       filter( year < last_yr + 4, year > last_yr  ) %>%  # keep 3 years following gap
       group_by( iso ) %>%
-      dplyr::summarise( IEA_pc = mean( IEA_pc, na.rm = T ), 
+      dplyr::summarise( IEA_pc = mean( IEA_pc, na.rm = T ),
                  Fern_pc = mean( Fern_pc, na.rm = T ) )
     max_post_gap$max_post_gap <- apply( max_post_gap[, 2:3 ], 1, max, na.rm = T)
 

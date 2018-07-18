@@ -147,7 +147,7 @@ for (h in seq_along(em_list)) {
                                  file_name = paste0( "JRC_PEGASOS_" ,em, "_TS_REF" ),
                                  extension = ".xlsx",
                                  sheet_selection = edgar_sheet_name,
-                                 skip_rows = 8 ) %>%
+                                 skip = 8 ) %>%
       filter( ISO_A3 %in% toupper(isos))
   } else {
     printLog( paste0( em, ' is not supportted by EDGAR, dummy data created. ' ) )
@@ -224,7 +224,7 @@ for (h in seq_along(em_list)) {
                                         domain_extension = 'RCP/',
                                         extension = '.xlsx',
                                         sheet_selection = 'CO2Emis_TgC',
-                                        skip_rows = 8 )[ 1:140, 1:12 ]
+                                        skip = 8 )[ 1:140, 1:12 ]
   } else {
     printLog( paste0( em, ' is not supportted by RCP shipping data, dummy data created. ' ) )
   }

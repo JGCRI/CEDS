@@ -22,15 +22,22 @@
 library(readxl)
 library(tidyr)
 
-FNAME <- 'Coal_since_1853.xls'
-FPATH <- ''
+# for writeData function
+# setwd('../../')
+PARAM_DIR <- '../code/parameters/'
+source(paste0(PARAM_DIR, "header.R"))
+initialize('DEU_historical_coal.R', NULL, NULL)
+
+FNAME <- 'Coal_since_1853'
+FPATH <- 'user-defined-energy/'
 SHEET <- 'Coal Availability & Consumption'
 
 FULLRANGE <- "A5:S131" # The range of cells containing relevant information
 DATASTART <- 23        # The row in FULLRANGE where the data actually starts
 
-xl <- readxl::read_xls(paste0(FPATH, FNAME), sheet = SHEET, range = FULLRANGE,
-                       na = c('', '..', '-'))
+
+xl <- readData('EXT_IN', paste0(FPATH, FNAME), '.xls', sheet = SHEET,
+               range = FULLRANGE, missing_value = c('', '..', '-'), trim_ws = T)
 
 # Column names are distributed in first two rows of data
 cnames <- paste(xl[1, ], xl[2, ])

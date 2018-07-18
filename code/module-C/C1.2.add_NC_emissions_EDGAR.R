@@ -65,7 +65,7 @@ edgar <- readData( domain, fn[[ 1 ]], fn[[ 2 ]], domain_extension = domain_ext )
 
 if ( em == 'CH4' ){
   BP_energy_data <- readData( 'ENERGY_IN', file_name = 'BP_energy_data', extension = ".xlsx",
-                              sheet_selection = 'Coal Production - Tonnes', skip_rows = 2 )
+                              sheet_selection = 'Coal Production - Tonnes', skip = 2 )
   names(BP_energy_data)[1] <- 'BPName'
 
 }

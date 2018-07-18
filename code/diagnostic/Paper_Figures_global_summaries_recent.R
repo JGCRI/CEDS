@@ -85,7 +85,7 @@ Master_Country_List <- readData('MAPPINGS', 'Master_Country_List')
 
 rcp_ship_emissions <- readData( domain = 'EM_INV', domain_extension = 'RCP/',
                                 file_name = 'Historicalshipemissions_IPCC_FINAL_Jan09_updated_1850',
-                                extension = '.xlsx',  sheet_selection = 'CO2Emis_TgC', skip_rows = 8 )[ 1:140, 1:12 ]
+                                extension = '.xlsx',  sheet_selection = 'CO2Emis_TgC', skip = 8 )[ 1:140, 1:12 ]
 
 cdiac <- readData('MED_OUT', 'E.CO2_CDIAC_Total_CO2')
 
