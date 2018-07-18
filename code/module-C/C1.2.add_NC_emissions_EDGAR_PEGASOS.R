@@ -48,7 +48,7 @@ sheet_name = paste0( 'NEW_v4.3_EM_', em, '_ref' )
 
 edgar <-  readData( domain, domain_extension = domain_ext,
 				    inventory_data_file,  ".xlsx",
-					sheet_selection = sheet_name, skip_rows = 8 )
+					sheet_selection = sheet_name, skip = 8 )
 
 NC_sector_map <- readData( "MAPPINGS", "NC_EDGAR_sector_mapping" )
 

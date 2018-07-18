@@ -95,7 +95,7 @@ if ( em %!in% c('SO2','NOx','NH3','NMVOC','BC','OC','CH4','CO','CO2') ) {
                                file_name = paste0( "JRC_PEGASOS_" ,em, "_TS_REF" ),
                                extension = ".xlsx",
                                sheet_selection = edgar_sheet_name,
-                               skip_rows = 8 )
+                               skip = 8 )
 
 # 1.3 Read in mapping files
 

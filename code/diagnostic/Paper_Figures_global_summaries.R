@@ -15,7 +15,7 @@
 # Note: (1) Shipping emissions is included in global comparison, but removed in regional comparison
 #       (2) RCP shipping emissions does not have data for NH3
 # TODO: (1) In RCP shipping data NMVOC and CH4 data doesn't include emissions for tanker loading.
-#           Change the sector drop mapping when tanker loading sector is added for CEDS. 
+#           Change the sector drop mapping when tanker loading sector is added for CEDS.
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
@@ -85,7 +85,7 @@ Master_Country_List <- readData('MAPPINGS', 'Master_Country_List')
 
 rcp_ship_emissions <- readData( domain = 'EM_INV', domain_extension = 'RCP/',
                                 file_name = 'Historicalshipemissions_IPCC_FINAL_Jan09_updated_1850',
-                                extension = '.xlsx',  sheet_selection = 'CO2Emis_TgC', skip_rows = 8 )[ 1:140, 1:12 ]
+                                extension = '.xlsx',  sheet_selection = 'CO2Emis_TgC', skip = 8 )[ 1:140, 1:12 ]
 
 cdiac <- readData('MED_OUT', 'E.CO2_CDIAC_Total_CO2')
 

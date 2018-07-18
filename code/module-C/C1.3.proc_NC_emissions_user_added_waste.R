@@ -34,31 +34,31 @@ if ( is.na( em ) ) em <- "NH3"
 
 # ------------------------------------------------------------------------------
 # 0.5 Initialize constants and prepare equations for Wiedinmyer replication
-    
+
     burned_fraction = 0.6 # Paper's estimate--we might adjust
 
-    
+
 # The following are the general equations (taken from Wiedinmyer et al.)
 # that describe the calculations performed in this document
 # Emissions[i] = (Mass of waste burned) * EF[i]
 
-# (Waste burned) = Population * (Pct of pop that burns waste) * 
+# (Waste burned) = Population * (Pct of pop that burns waste) *
 #                  (Mass of annual per-capita waste) * (fraction of waste to burn that is combusted)
 
 # Residential waste burning:
-#     For developed (WB says high-income) countries: 
-#         Wb = (Mass of annual per-capita waste) * (Rural pop.) * (% waste uncollected) * 
+#     For developed (WB says high-income) countries:
+#         Wb = (Mass of annual per-capita waste) * (Rural pop.) * (% waste uncollected) *
 #              (fraction of waste to burn that is combusted)
-#     For developing countries: 
-#         Wb = [(Mass of annual per-capita waste) * (Rural pop.) +  
-#               (Mass of annual per-capita waste) * (Urban pop.) * (% waste uncollected)] 
+#     For developing countries:
+#         Wb = [(Mass of annual per-capita waste) * (Rural pop.) +
+#               (Mass of annual per-capita waste) * (Urban pop.) * (% waste uncollected)]
 #             * (fraction of waste to burn that is combusted)
 
 # Collected waste burned in open dumps:
-#    Wb_dump = (Mass of annual per-capita waste) * (Urban pop.) * (% waste collected) * 
+#    Wb_dump = (Mass of annual per-capita waste) * (Urban pop.) * (% waste collected) *
 #              (fraction of waste to burn that is combusted)
-    
-    
+
+
 # ------------------------------------------------------------------------------
 # 1. Read in & label Wiedinmyer et al. population, waste, and EF data
 
@@ -70,93 +70,93 @@ if ( is.na( em ) ) em <- "NH3"
     OC_conv <- 1/1.3  # weight to units of carbon
     NOx_conv <- (14 + 16*2)/(14 + 16)  # NO to NO2
 
-    all_waste_data <- readData( domain = "EM_INV", 
+    all_waste_data <- readData( domain = "EM_INV",
                                 file_name = "Global_Emissions_of_Pollutants_from_Open_Burning_of_Domestic_Waste",
                                 extension = ".xlsx",
                                 sheet_selection = "Table S1",
-                                skip_rows = 2 )[ , c( 1:3, 5:6, 8, 10 ) ]
-    
-    waste_column_names <- colnames(readData( domain = "EM_INV", 
+                                skip = 2 )[ , c( 1:3, 5:6, 8, 10 ) ]
+
+    waste_column_names <- colnames(readData( domain = "EM_INV",
                                 file_name = "Global_Emissions_of_Pollutants_from_Open_Burning_of_Domestic_Waste",
                                 extension = ".xlsx",
                                 sheet_selection = "Table S3",
-                                skip_rows = 1
+                                skip = 1
                                 ) )
-    
+
 # Emissions factors, from Wiedinmyer et al. Table 1
     emissions_factors <- readData( domain = "EM_INV", file_name = "Wiedinmyer_domestic_waste_EF" )
     colnames( emissions_factors ) [ 2 ] <- "EF"
 
-    colnames( all_waste_data ) <- c( "Country", "income_level", "pop2010", 
-                                     "Urban_pop", "Waste_gen_rate", "Collection-efficiency", 
+    colnames( all_waste_data ) <- c( "Country", "income_level", "pop2010",
+                                     "Urban_pop", "Waste_gen_rate", "Collection-efficiency",
                                      "Frac_not_collected" )
-    
+
 # ------------------------------------------------------------------------------
 # 2. Wiedinmyer replication - calculate the amount of waste burned
 #    Using the equations outlined in 0.5, this section of code processes
 #    developing & developed data to determine the total volume of waste burned
 #    based on population, urban/rural proportion, and per capita waste gen.
-    
+
 # Waste produced = 2010 pop * waste generation rate
     all_waste_data$total_waste <- all_waste_data$pop2010 * all_waste_data$Waste_gen_rate
 
 # Calculate rural populations
     all_waste_data$Urban_pop[ is.na( all_waste_data$Urban_pop ) ] <- 0
     all_waste_data$Rural_pop <- all_waste_data$pop2010 - all_waste_data$Urban_pop
-    
+
 # Create variables holding indices for developing and developed countries
     developing <- which( all_waste_data$income_level != 'HIC' )
     developed <- which( all_waste_data$income_level == 'HIC' )
-    
+
 # Initialize residential mass burned
     all_waste_data$WB_res <- NA
-    
-# Residential mass burned in developing countries: whole rural pop, plus 
+
+# Residential mass burned in developing countries: whole rural pop, plus
 # whatever fraction of urban pop is not collected
-    all_waste_data$WB_res[ developing ] <- ( ( ( all_waste_data$Waste_gen_rate * 
-                                                all_waste_data$Rural_pop ) + 
+    all_waste_data$WB_res[ developing ] <- ( ( ( all_waste_data$Waste_gen_rate *
+                                                all_waste_data$Rural_pop ) +
                                               ( all_waste_data$Waste_gen_rate *
                                                 all_waste_data$Urban_pop *
                                                 all_waste_data$Frac_not_collected
                                                ) ) * burned_fraction )[ developing ]
-                                         
+
 # Residential waste burning in developed countries: non-collected rural pop only
-    all_waste_data$WB_res[ developed ] <- ( all_waste_data$Waste_gen_rate * 
+    all_waste_data$WB_res[ developed ] <- ( all_waste_data$Waste_gen_rate *
                                             all_waste_data$Rural_pop *
                                             all_waste_data$Frac_not_collected *
                                             burned_fraction )[ developed ]
-                                         
-    
+
+
 # Initialize open dump burning at 0; high-income countries are assumed to have
 # no waste burning of this type
     all_waste_data$WB_dump <- 0
-    
+
 # Developed waste burning: waste from urban centers that do get pick-up
-    all_waste_data$WB_dump[ developing ] <- ( all_waste_data$Waste_gen_rate * 
+    all_waste_data$WB_dump[ developing ] <- ( all_waste_data$Waste_gen_rate *
                                               all_waste_data$Urban_pop *
                                               ( all_waste_data$`Collection-efficiency` ) *
                                               burned_fraction )[ developing ]
-    
+
     all_waste_data$total_WB <- all_waste_data$WB_dump + all_waste_data$WB_res
     all_waste_data$pct_burned <- all_waste_data$total_WB / all_waste_data$total_waste
-    
+
 
 # ------------------------------------------------------------------------------
-# 3. Wiedinmyer replication - calculate emissions from emissions factors    
-    
+# 3. Wiedinmyer replication - calculate emissions from emissions factors
+
     emissions_factors$EF <- as.numeric( emissions_factors$EF ) / 10^6 # Units are in kg/tonne; for comparison,
                                                                       # we want Gg/tonne
-    
+
     total_burning_em <- data.frame( all_waste_data$total_WB %o% emissions_factors$EF )
-    
+
     colnames( total_burning_em ) <- emissions_factors$compound
     total_burning_em$Country <- all_waste_data$Country
-    
+
     total_burning_em <- subset( total_burning_em, select = c( Country, 1:25 ) )
-    
+
     waste_input <- total_burning_em
     colnames(waste_input) <- waste_column_names
-    
+
 # ------------------------------------------------------------------------------
 # 4. Process and convert to standard CEDS format
 # Add ISO code
@@ -184,7 +184,7 @@ if ( is.na( em ) ) em <- "NH3"
     waste_input$iso[ waste_input$`Country Name` == "Wallis and Futuna" ] <- "wlf"
     waste_input <- filter( waste_input, !is.na( iso ) ) %>%  # drop countries not in CEDS
       dplyr::arrange( iso )
-    
+
 ### TODO: add these countries in. We have population values in CEDS, and could just use per-capita values from a comparable country.
     drop_countries <- c( "Cyprus", "Luxembourg", "Malta", "Singapore", "Slovakia" )
     waste_input <- filter( waste_input, `Country Name` %!in% drop_countries ) %>%  # drop 5 countries with no vals (to match pre-Wiedinmyer)

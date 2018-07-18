@@ -3,11 +3,11 @@
 # Author: Rachel Hoesly
 # Date Last Updated: 26 October, 2017
 # Program Purpose: Produces new output where EF are frozen going forward from a given point
-#                  
-# Input Files: 
+#
+# Input Files:
 # Output Files: figures in the diagnostic-output
-# Note: 
-# TODO: 
+# Note:
+# TODO:
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
@@ -15,7 +15,7 @@
 # to the "input" directory.
 PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R") # Additional function files may be required.
 log_msg <- "Freeze_EFs" # First message to be printed to the log
@@ -71,9 +71,9 @@ source('../code/module-H/H4.2.proc_Extended_Emissions.R')
 if( run_other_tranformation_correction == T ){
 if (em == 'SO2')  source('../code/module-H/H4.3.add_emissions_SO2_other_transformation.R')
 if (em == 'CO2')  source('../code/module-H/H4.3.add_emissions_CO2_other_transformation.R') }
- 
+
 if ( run_summary_script == T ) source('../code/module-S/S1.1.write_summary_data.R')
 
 
-logstop()
+logStop()
 

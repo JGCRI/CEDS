@@ -15,8 +15,15 @@ library(dplyr)
 library(tidyr)
 library(readxl)
 
-EIA_PATH <- "EIA-data/"
-CONV_DIR <- "EIA-data/unit-conversion/"
+# for writeData function
+# setwd('../../')
+PARAM_DIR <- '../code/parameters/'
+source( paste0( PARAM_DIR, "header.R" ) )
+initialize( 'US-EIA_activity.R', NULL, NULL )
+
+EIA_DIR <- "user-defined-energy/EIA-data/"
+EIA_PATH <- filePath( "EXT_IN", EIA_DIR, extension = "" )
+CONV_DIR <- paste0( EIA_DIR, "unit-conversion/" )
 
 # Define constants
 CONV_TBTU_TJ <- 1055             # Trillion BTU to TJ
@@ -34,17 +41,17 @@ YYYYMM_to_Xyear <- function( YYYYMM ) paste0( "X", substr( YYYYMM, 1, 4 ) )
 # Read in relevant EIA data files -----------------------------------------
 
 # Prepare to read in all *.csv files from the EIA data folder
-files_to_read <- list.files( EIA_PATH, ".*csv$", full.names = T )
+files_to_read <- paste0( EIA_DIR, list.files( EIA_PATH, ".*csv$" ) )
 
 # Read each file of reported and combine into a single dataframe
 EIA_data_files <- grep( "MER", files_to_read, value = T )
-all_EIA_raw_data <- lapply( EIA_data_files, read.csv, stringsAsFactors = F )
-all_EIA_raw_data <- do.call( rbind, all_EIA_raw_data )
+all_EIA_raw_data <- lapply( EIA_data_files, readData, domain = "EXT_IN" )
+all_EIA_raw_data <- do.call(rbind, all_EIA_raw_data)
 
 # Read in heat content conversion files
-petrol_heat_content <- read.csv( paste0( CONV_DIR, "MER_TA3.csv" ), stringsAsFactors = F )
-gas_heat_content <-    read.csv( paste0( CONV_DIR, "MER_TA4.csv" ), stringsAsFactors = F )
-coal_heat_content <-   read.csv( paste0( CONV_DIR, "MER_TA5.csv" ), stringsAsFactors = F )
+petrol_heat_content <- readData( "EXT_IN", paste0( CONV_DIR, "MER_TA3" ) )
+gas_heat_content <-    readData( "EXT_IN", paste0( CONV_DIR, "MER_TA4" ) )
+coal_heat_content <-   readData( "EXT_IN", paste0( CONV_DIR, "MER_TA5" ) )
 
 
 # Bring the EIA data into TJ and year/month form --------------------------
@@ -101,9 +108,12 @@ EIA_data_formatted <- EIA_data_formatted %>%
 # Read in the sectoral renewable breakdowns, isolating only fuel ethanol columns
 ind_trn_file <- paste0( CONV_DIR, "Table_10.2b_Renewable_Energy_Consumption___Industrial_and_Transportation_Sectors.xlsx" )
 com_file <- paste0( CONV_DIR, "Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors.xlsx" )
-liquid_biofuels_ind <- readxl::read_xlsx( ind_trn_file, "Annual Data", skip = 10 )[ -1, c( 1, 8 ) ]
-liquid_biofuels_trn <- readxl::read_xlsx( ind_trn_file, "Annual Data", skip = 10 )[ -1, c( 1, 12, 13 ) ]
-liquid_biofuels_com <- readxl::read_xlsx( com_file,     "Annual Data", skip = 10 )[ -1, c( 1, 12 ) ]
+liquid_biofuels_ind <- readData( "EXT_IN", ind_trn_file, ".xlsx",
+                                 sheet_selection = "Annual Data", skip = 10 )[ -1, c( 1, 8 ) ]
+liquid_biofuels_trn <- readData( "EXT_IN", ind_trn_file, ".xlsx",
+                                 sheet_selection = "Annual Data", skip = 10 )[ -1, c( 1, 12, 13 ) ]
+liquid_biofuels_com <- readData( "EXT_IN", com_file,     ".xlsx",
+                                 sheet_selection = "Annual Data", skip = 10 )[ -1, c( 1, 12 ) ]
 
 # In transportation, we need to sum diesel and ethanol.
 liquid_biofuels_trn <- liquid_biofuels_trn %>%
@@ -304,5 +314,8 @@ EIA_final <- tidyr::spread( EIA_data_formatted, key = year, value = Value )
 EIA_final_CEDSsec <- EIA_final[EIA_final$sector %in% c("Commercial", "Residential"), ]
 EIA_final_aggsec <- EIA_final[!EIA_final$sector %in% c("Commercial", "Residential"), ]
 
-write.csv( EIA_final_CEDSsec, "E.US-EIA_inventory_CEDSsec.csv", row.names = F )
-write.csv( EIA_final_aggsec, "E.US-EIA_inventory_aggsec.csv", row.names = F )
+writeData( EIA_final_CEDSsec, 'EXT_IN', 'user-defined-energy/US-EIA_inventory_CEDSsec' )
+writeData( EIA_final_aggsec, 'EXT_IN', 'user-defined-energy/US-EIA_inventory_aggsec' )
+
+
+logStop()

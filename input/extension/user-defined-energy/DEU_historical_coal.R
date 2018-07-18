@@ -24,7 +24,7 @@ library(dplyr)
 library(tidyr)
 
 # for writeData function
-# setwd('../../')
+setwd('../../')
 PARAM_DIR <- '../code/parameters/'
 source(paste0(PARAM_DIR, "header.R"))
 initialize('DEU_historical_coal.R', NULL, NULL)

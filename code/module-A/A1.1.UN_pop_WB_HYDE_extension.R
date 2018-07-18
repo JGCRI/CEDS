@@ -69,10 +69,10 @@
 
 # Read UN population and urban population data
     UN_pop_raw <- readData( "GEN_IN", "WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES",
-                            ".xlsx", sheet_selection = "ALL", skip_rows = 16 )
+                            ".xlsx", sheet_selection = "ALL", skip = 16 )
     UN_urban_share_raw <- readData( "GEN_IN", "WUP2014-F21-Proportion_Urban_Annual",
                                     ".xlsx", sheet_selection = "ANNUAL DATA",
-                                    skip_rows = 16 )
+                                    skip = 16 )
 
 # Read WB population and urban population data, either by pulling from the WDI API
 #   or reading from directory (currently selected)
@@ -85,9 +85,9 @@
 
 # Read HYDE population and urban population
     HYDE_pop_raw <- readData( "GEN_IN", "urbanpop_2004Rev_tcm61-36007", ".xlsx",
-                              sheet_selection = "total numbers", skip_rows = 2 )[ 1:233, 2:109 ]
+                              sheet_selection = "total numbers", skip = 2 )[ 1:233, 2:109 ]
     HYDE_urban_share_raw <- readData( "GEN_IN", "urbanpop_2004Rev_tcm61-36007", ".xlsx",
-                                      sheet_selection = "% urban", skip_rows = 1 )[ 1:233, 3:110 ]
+                                      sheet_selection = "% urban", skip = 1 )[ 1:233, 3:110 ]
 
 # Read master country list
     Master_Country_List <- readData( "MAPPINGS", "Master_Country_List" )

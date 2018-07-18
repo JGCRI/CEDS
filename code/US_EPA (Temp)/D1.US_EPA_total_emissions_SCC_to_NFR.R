@@ -6,12 +6,12 @@
 #                   and one at the national level, for air pollutants listed in the version 2
 #                   of the EPA 2011 National Emission Inventory (NEI). It is the first script in a series
 #                   of scripts that processes NEI emissions data for the CEDS project.
-#                   The code aggregates emissions by unique EPA Source Classification Codes (SCC). 
-#                   The European NFR categories, obtained from an EPA SCC-NFR mapping, 
+#                   The code aggregates emissions by unique EPA Source Classification Codes (SCC).
+#                   The European NFR categories, obtained from an EPA SCC-NFR mapping,
 #                   is mapped for each SCC.
 #                   The 2 emission files produced here are further processed by the next script,
 #                   where the NFR categories are mapped to the CEDS categories.
-# Input Files:      EPA emission files are grouped into 4 categories: 
+# Input Files:      EPA emission files are grouped into 4 categories:
 #                   1. onroad: onroad_4.csv, onroad_5.csv, onroad_67.csv,onroad_123.csv,
 #                     onroad_8910.csv
 #                   2. nonroad: nonroad_4.csv, nonroad_5.csv, nonroad_67.csv,nonroad_123.csv,
@@ -28,24 +28,24 @@
 # Notes:  1.All input and output files relating to this script are classified in several folders caled US_EPA:
 #           ..\input\emissions-inventories\US_EPA (raw emissions data)
 #           ..\input\mappings\US_EPA (raw mapping data and processed mapping files, called Xwalks)
-#           ..\input\intermediate-output\US_EPA 
+#           ..\input\intermediate-output\US_EPA
 #           ..\input\final-emissions\US_EPA
 #           ..\code\US_EPA
-#         2.Files are first bound for each category, resulting in one file for each of the 
+#         2.Files are first bound for each category, resulting in one file for each of the
 #           EPA emission categories. To produce state-level emissions, the code aggregates
-#           the 4 files by state, SCC and pollutant. To produce US-level emissions, 
+#           the 4 files by state, SCC and pollutant. To produce US-level emissions,
 #           it aggregates by SCC and pollutant.
 #         3.Each row of the resulting aggregated files, which corresponds to a sector described
-#           by an SCC, is then matched with its corresponding NFR code, listed in the SCC-NFR 
-#           mapping file. The aggregated files are then bound together, 
+#           by an SCC, is then matched with its corresponding NFR code, listed in the SCC-NFR
+#           mapping file. The aggregated files are then bound together,
 #           producing one state-level and one US-level file.
 #         4.Since EPA emission  files are very large, special care must be taken to clear
 #           the working memory.
 #         5.To check emissions, go to EPA trends data:
 #           http://www.epa.gov/ttn/chief/trends/index.html
-# 
-# TODO: 
-#   
+#
+# TODO:
+#
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -55,7 +55,7 @@
 # location of the CEDS parameters directory, relative to the new working directory.
 PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R" ) # Any additional function files required
 log_msg <- "short description of code" # First message to be printed to the log
@@ -67,14 +67,14 @@ initialize( script_name, log_msg, headers )
 
 
 # ------------------------------------------------------------------------------
-#1. Read mappings file; create dataframe from SCC-NFR crosswalk file 
+#1. Read mappings file; create dataframe from SCC-NFR crosswalk file
 # (latest - sent by Lee Tooly July 1, 2015)
 
-# The file read here maps SCC to NFR09. Two changes were done manually to prepare file: Blank spaces were removed from column 
+# The file read here maps SCC to NFR09. Two changes were done manually to prepare file: Blank spaces were removed from column
 # titles and SCCs originally in string format were reformatted as numbers.
 Xwalk_onetab <- readData("US_EPA_IN_MAPPINGS", "SCCactiveJul2015_NFRmap", ".xlsx", sheet_selection = "SCCsActiveJul2015_NFRmap", meta=F)
 
-# Create dataframe with columns of interest (B-SCC code number; E-Fuel according to SCC; 
+# Create dataframe with columns of interest (B-SCC code number; E-Fuel according to SCC;
 # M-Fuel according to NFR; N-NFR subfuel; V-NFR code number)
 Xwalk <-select(Xwalk_onetab,Code,SCC_Level_One,SCC_Level_Two, SCC_Level_Three, Tier_1_Description,Tier_2_Description,Tier_3_Description,NFR_Code)
 
@@ -86,30 +86,30 @@ writeData(Xwalk, "US_EPA_MED_OUT", "Xwalk")
 rm(Xwalk_onetab)
 
 # This file being read in has additional SCCs, but no associated NFRs:
-New_sccs<-readData("US_EPA_IN_MAPPINGS", "NEIv2_new_sccs_2011", ".xlsx", column_names = TRUE, column_types = NULL, meta = F )
+New_sccs<-readData("US_EPA_IN_MAPPINGS", "NEIv2_new_sccs_2011", ".xlsx", meta = F )
 
 # ------------------------------------------------------------------------------
-# 2.Read emission files from EPA v2; create small dataframes with 5 columns of interest 
+# 2.Read emission files from EPA v2; create small dataframes with 5 columns of interest
 # (state,SCC,description of pollutant, emissions, unit); bind when there is more than one region
 
 # 2a. Read and bind Onroad emissions - for 5 regions
 
-onroad4_emissions<- readData("US_EPA_IN_EM_INV","onroad_4",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom) 
-onroad5_emissions<- readData("US_EPA_IN_EM_INV","onroad_5",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom) 
-onroad67_emissions<- readData("US_EPA_IN_EM_INV","onroad_67",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom) 
-onroad123_emissions<- readData("US_EPA_IN_EM_INV","onroad_123",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom) 
-onroad8910_emissions<- readData("US_EPA_IN_EM_INV","onroad_8910",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom) 
+onroad4_emissions<- readData("US_EPA_IN_EM_INV","onroad_4",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom)
+onroad5_emissions<- readData("US_EPA_IN_EM_INV","onroad_5",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom)
+onroad67_emissions<- readData("US_EPA_IN_EM_INV","onroad_67",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom)
+onroad123_emissions<- readData("US_EPA_IN_EM_INV","onroad_123",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom)
+onroad8910_emissions<- readData("US_EPA_IN_EM_INV","onroad_8910",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom)
 
 onroad_emissions<- bind_rows(onroad4_emissions,onroad5_emissions,onroad67_emissions,onroad123_emissions,onroad8910_emissions)
 rm(onroad4_emissions,onroad5_emissions,onroad67_emissions,onroad123_emissions,onroad8910_emissions)
 
 # 2b. Read and bind Nonroad emissions- for 5 regions
 
-nonroad4_emissions<- readData("US_EPA_IN_EM_INV","nonroad_4",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom) 
-nonroad5_emissions<- readData("US_EPA_IN_EM_INV","nonroad_5",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom) 
-nonroad67_emissions<- readData("US_EPA_IN_EM_INV","nonroad_67",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom) 
-nonroad123_emissions<- readData("US_EPA_IN_EM_INV","nonroad_123",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom) 
-nonroad8910_emissions<- readData("US_EPA_IN_EM_INV","nonroad_8910",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom) 
+nonroad4_emissions<- readData("US_EPA_IN_EM_INV","nonroad_4",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom)
+nonroad5_emissions<- readData("US_EPA_IN_EM_INV","nonroad_5",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom)
+nonroad67_emissions<- readData("US_EPA_IN_EM_INV","nonroad_67",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom)
+nonroad123_emissions<- readData("US_EPA_IN_EM_INV","nonroad_123",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom)
+nonroad8910_emissions<- readData("US_EPA_IN_EM_INV","nonroad_8910",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom)
 
 nonroad_emissions<- bind_rows(nonroad4_emissions,nonroad5_emissions,nonroad67_emissions,nonroad123_emissions,nonroad8910_emissions)
 rm(nonroad4_emissions,nonroad5_emissions,nonroad67_emissions,nonroad123_emissions,nonroad8910_emissions)
@@ -119,18 +119,18 @@ rm(nonroad4_emissions,nonroad5_emissions,nonroad67_emissions,nonroad123_emission
 
 # 2c. Read and bind Point emissions
 
-point12345_emissions<- readData("US_EPA_IN_EM_INV","process_12345",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom) 
-point678910_emissions<- readData("US_EPA_IN_EM_INV","process_678910",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom) 
+point12345_emissions<- readData("US_EPA_IN_EM_INV","process_12345",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom)
+point678910_emissions<- readData("US_EPA_IN_EM_INV","process_678910",meta=F ) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom)
 
 point_emissions <- bind_rows(point12345_emissions,point678910_emissions)
 rm(point12345_emissions,point678910_emissions)
 
 # 2d. Read Nonpoint emissions (just one file, so no need to bind)
 
-nonpoint_emissions<-readData("US_EPA_IN_EM_INV","2011v2_nonpoint",meta=F) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom) 
+nonpoint_emissions<-readData("US_EPA_IN_EM_INV","2011v2_nonpoint",meta=F) %>% select(tribal_name,st_usps_cd,scc,description,total_emissions,uom)
 
 # ------------------------------------------------------------------------------
-# 3. Aggregate to sum emissions for each (SCC, pollutant) pair over counties. 
+# 3. Aggregate to sum emissions for each (SCC, pollutant) pair over counties.
 # "description" is the column title of pollutant description from dataframe
 # Obs: There are no emissions for tribes in onroad and nonroad.
 
@@ -147,7 +147,7 @@ nonpoint_tribes<-unique(nonpoint_emissions$tribal_name)
 
 # State or tribe aggregation by SCC and pollutant
 onroad_emissions_state <- aggregate(onroad_emissions$total_emissions, by = list("state"=onroad_emissions$st_usps_cd,"scc"=onroad_emissions$scc,"pollutant"=onroad_emissions$description, "unit"=onroad_emissions$uom), FUN=sum)
-onroad_emissions_state <- onroad_emissions_state[,c("state","scc","pollutant","x","unit")] #Change order of columns 
+onroad_emissions_state <- onroad_emissions_state[,c("state","scc","pollutant","x","unit")] #Change order of columns
 colnames(onroad_emissions_state)[which(names(onroad_emissions_state) == "x")] <- "emissions"
 writeData(onroad_emissions_state, "US_EPA_MED_OUT","onroad_emissions_state")
 
@@ -172,7 +172,7 @@ if(diff>0.001) print("Error: Sum of state onroad emissions is not equal to natio
 # State aggregation by SCC and pollutant
 
 nonroad_emissions_state <- aggregate(nonroad_emissions$total_emissions, by = list("state"=nonroad_emissions$st_usps_cd,"scc"=nonroad_emissions$scc,"pollutant"=nonroad_emissions$description, "unit"=nonroad_emissions$uom), FUN=sum)
-nonroad_emissions_state <- nonroad_emissions_state[,c("state","scc","pollutant","x","unit")] #Change order of columns 
+nonroad_emissions_state <- nonroad_emissions_state[,c("state","scc","pollutant","x","unit")] #Change order of columns
 colnames(nonroad_emissions_state)[which(names(nonroad_emissions_state) == "x")] <- "emissions"
 writeData(nonroad_emissions_state,"US_EPA_MED_OUT","nonroad_emissions_state")
 
@@ -248,7 +248,7 @@ writeData(totals,"US_EPA_MED_OUT","Emission_totals" )  #Why are row names not be
 # na_check<-subset(position_of_scc_in_Xwalk,!is.na(position_of_scc_in_Xwalk))
 
 # 4a. Onroad
-# For state-level 
+# For state-level
 position_of_scc_in_Xwalk<-match(onroad_emissions_state$scc,Xwalk$Code,nomatch = NA_integer_)
 
 # any(is.na(position_of_scc_in_Xwalk)==TRUE)
@@ -267,7 +267,7 @@ onroad_emissions_state$Tier_3_Description<-Xwalk$Tier_3_Description[position_of_
 
 writeData(onroad_emissions_state, "US_EPA_MED_OUT","onroad_emissions_state")
 
-# For national-level 
+# For national-level
 position_of_scc_in_Xwalk<-match(onroad_emissions_US$scc,Xwalk$Code,nomatch = NA_integer_)
 
 # Create columns with NFR09 code and information corresponding to SCC
@@ -285,7 +285,7 @@ onroad_emissions_US$Tier_3_Description<-Xwalk$Tier_3_Description[position_of_scc
 writeData(onroad_emissions_US, "US_EPA_MED_OUT","onroad_emissions_US")
 
 # 4b. Nonroad
-# For state-level 
+# For state-level
 position_of_scc_in_Xwalk<-match(nonroad_emissions_state$scc,Xwalk$Code,nomatch = NA_integer_)
 # any(is.na(position_of_scc_in_Xwalk)==TRUE)
 
@@ -303,7 +303,7 @@ nonroad_emissions_state$Tier_3_Description<-Xwalk$Tier_3_Description[position_of
 
 writeData(nonroad_emissions_state,"US_EPA_MED_OUT","nonroad_emissions_state")
 
-# For national-level 
+# For national-level
 position_of_scc_in_Xwalk<-match(nonroad_emissions_US$scc,Xwalk$Code,nomatch = NA_integer_)
 
 # Create columns with NFR09 code and information corresponding to SCC
@@ -321,7 +321,7 @@ nonroad_emissions_US$Tier_3_Description<-Xwalk$Tier_3_Description[position_of_sc
 writeData(nonroad_emissions_US, "US_EPA_MED_OUT", "nonroad_emissions_US")
 
 # 4c. Point
-# For state-level 
+# For state-level
 position_of_scc_in_Xwalk<-match(point_emissions_state$scc,Xwalk$Code,nomatch = NA_integer_)
 # any(is.na(position_of_scc_in_Xwalk)==TRUE)
 
@@ -340,7 +340,7 @@ point_emissions_state$Tier_3_Description<-Xwalk$Tier_3_Description[position_of_s
 writeData(point_emissions_state, "US_EPA_MED_OUT","point_emissions_state")
 
 
-# For tribe-level 
+# For tribe-level
 position_of_scc_in_Xwalk<-match(point_emissions_tribe$scc,Xwalk$Code,nomatch = NA_integer_)
 # any(is.na(position_of_scc_in_Xwalk)==TRUE)
 
@@ -429,33 +429,33 @@ nonpoint_emissions_US$Tier_3_Description<-Xwalk$Tier_3_Description[position_of_s
 
 writeData(nonpoint_emissions_US, "US_EPA_MED_OUT", "nonpoint_emissions_US")
 
-# Check if there are SCCs repeated in the 4 groups. There are not. 
+# Check if there are SCCs repeated in the 4 groups. There are not.
 # Number of unique sccs:onroad = 30;nonroad=212;point=4879; nonpoint=571;total unique sccs = 5692
 # Check number of unique occurences of SCCs, pollutants,states.
 # onroad_unique_sccs <-unique(onroad_emissions_US$scc)
 # onroad_unique_states <-unique(onroad_emissions_state$state)
 # onroad_unique_pollutants <-unique(onroad_emissions_US$pollutant)
 # onroad_unique_units <-unique(onroad_emissions_US$unit)
-# 
+#
 # nonroad_unique_sccs <-unique(nonroad_emissions_US$scc)
 # nonroad_unique_states <-unique(nonroad_emissions_state$state)
 # nonroad_unique_pollutants <-unique(nonroad_emissions_US$pollutant)
 # nonroad_unique_units <-unique(nonroad_emissions_US$unit)
-# 
+#
 # point_unique_sccs <-unique(point_emissions_US$scc)
 # point_unique_states <-unique(point_emissions_state$state)
 # point_unique_pollutants <-unique(point_emissions_US$pollutant)
 # point_unique_units <-unique(point_emissions_US$unit)
-# 
+#
 # nonpoint_unique_sccs <-unique(nonpoint_emissions_US$scc)
 # nonpoint_unique_states <-unique(nonpoint_emissions_state$state)
 # nonpoint_unique_pollutants <-unique(nonpoint_emissions_US$pollutant)
 # nonpoint_unique_units <-unique(nonpoint_emissions_US$unit)
-# 
+#
 # Summed number of unique SCCs per group is same as number of unique SCCs in bound groups (expected)
 # all_unique_sccs_1 <-length(unique(all_emissions_US$scc))
 # all_unique_sccs_2<-sum(length(onroad_unique_sccs),length(nonroad_unique_sccs),length(point_unique_sccs),length(nonpoint_unique_sccs))
-# 
+#
 # Summed number of unique pollutant per group - 565-  is larger than number of unique SCCs in bound groups - 288 (expected, as there are repeated pollutants in groups)
 # all_unique_pollutant_1 <-length(unique(all_emissions_US$pollutant))
 # all_unique_pollutant_2<-sum(length(onroad_unique_pollutants),length(nonroad_unique_pollutants),length(point_unique_pollutants),length(nonpoint_unique_pollutants))

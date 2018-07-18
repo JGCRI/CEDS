@@ -252,14 +252,15 @@ readDomainPathMap <- function() {
 # Return:               String of the file name appended to the full file path.
 # Input Files:          None
 # Output Files:         None
-filePath <- function( domain, fn, extension=".csv", domain_extension = "" ) {
+filePath <- function( domain, fn, extension = ".csv", domain_extension = "" ) {
 	map <- readDomainPathMap()
-	if( domain %in% names( map ) ) {
-		return( paste( map[ domain ], "/", domain_extension, fn, extension, sep="" ) )
-	} else {
-		printLog( "Couldn't find domain", domain, "in domain path map" )
-		stop()
+	if( !domain %in% names( map ) ) {
+	    stop( "Couldn't find domain ", domain, " in domain path map" )
 	}
+
+    if( endsWith( fn, extension ) ) extension <- ""
+
+	return( paste0( map[ domain ], "/", domain_extension, fn, extension ) )
 }
 
 # listZippedFiles
@@ -305,19 +306,15 @@ listZippedFiles <- function( file_path, remove_extension = FALSE ){
 #   sheet_selection:    Either "ALL" (to read all sheets), a list of sheet names or numbers
 #                           (to read a set of sheets), or single sheet name/number.
 #                           For .xlsx .xls files only. [default: "ALL"]
+#   trim_ws:            Should leading and trailing whitespace be trimmed?
+#                           For .xlsx .xls files only. [default: "ALL"]
+#   guess_max:          Maximum number of data rows to use for guessing column types.
+#                           For .xlsx .xls files only. [default: 100]
 #   domain_extension:   Additional filepath to follow after locating the specified domain.
 #                           [default: ""]
-#   column_names:       Either TRUE to use the first row as column names, FALSE to number
-#                           columns sequentially from X1 to Xn, or a character vector giving
-#                           a name for each column. For .xlsx .xls files only. [default: TRUE]
-#   column_types:       Either NULL to guess from the spreadsheet or a character vector
-#                           containing "blank", "numeric", "date" or "text". For .xlsx files only.
-#                           [default: NULL]
 #   missing_value:      Missing value. By default readxl converts blank cells to missing data.
 #                           Set this value if you have used a sentinel value for missing values.
 #                           For .xlsx .xls files only. [default: ""]
-#   skip_rows:          Number of rows to skip before reading any data. For .xlsx .xls files only.
-#                           [default: 0]
 #   meta:               Boolean indicating whether to look for and read in metadata for the
 #                           input file. [default: TRUE]
 #   meta_domain:        CEDS domain in which the file's metadata is located. [default: domain]
@@ -340,20 +337,18 @@ listZippedFiles <- function( file_path, remove_extension = FALSE ){
 # TODO: error handling (probably using try/catch)
 #       switch to read_csv from readr package
 #       read Excel from inside .zip (?not possible: http://stackoverflow.com/questions/26763377/)
-readData <- function( domain = "none", file_name = "none", extension = ".csv",
-                      zipped_selection = list(), zipped_extension = ".csv", extract_all = FALSE,
-                      sheet_selection = "ALL", domain_extension = "", column_names = TRUE,
-                      column_types = NULL, missing_value = "", skip_rows = 0, meta = TRUE,
-                      meta_domain = domain, meta_extension = extension, mute = FALSE, to_numeric = TRUE ,... ) {
+readData <- function( domain = NULL, file_name = NULL, extension = ".csv",
+                      zipped_selection = list(), zipped_extension = ".csv",
+                      extract_all = FALSE, sheet_selection = "ALL", trim_ws = FALSE,
+                      guess_max = 100, domain_extension = "", missing_value = "",
+                      meta = TRUE, meta_domain = domain, meta_extension = extension,
+                      mute = FALSE, to_numeric = TRUE, ... ) {
 
-	if( domain == "none" | file_name == "none" ) {
-		printLog( "ERROR in readData: no domain/file specified", file_name )
-		stop( "ERROR in readData: you need to specify both a filename and domain" )
+	if ( is.null( domain ) || is.null( file_name ) ) {
+		stop( "readData needs to receive both a filename and domain" )
 	}
 
 	full_file_path <- filePath( domain, file_name, extension, domain_extension )
-
-    multi_sheet <- FALSE
 
     # Assign em so the correct [em]_IO_documentation can be found
 	if ( !exists( 'em', envir = .GlobalEnv ) ) em <- "CM"
@@ -364,113 +359,78 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
 		DEPENDENCIES[[ GCAM_SOURCE_FN[ GCAM_SOURCE_RD ] ]] <<- c( deps, full_file_path )
 	}
 
-	if( mute == F ) printLog( "Reading", full_file_path, "\n", cr=F )
+	if( !mute ) printLog( "Reading", full_file_path, "\n", cr=F )
 	if( !file.exists( full_file_path ) ) {
-		stop( "ERROR in readData: file \"", full_file_path, "\" does not appear to exist" )
+		stop( "readData cannot read non-existent file: ", full_file_path )
 	}
 
-    if( extension == ".csv" ){
-        x <- ( read.csv( full_file_path, na.strings = missing_value, stringsAsFactors = F,
-						 comment.char = GCAM_DATA_COMMENT,	# Our comment signal
-						 ... ) )
+    if( extension == ".csv" ) {
+        x <- read.csv( full_file_path, comment.char = GCAM_DATA_COMMENT,
+                       na.strings = missing_value, stringsAsFactors = F, ... )
 
-    } else if( extension == ".xlsx" | extension == ".xls" ){
+    } else if( extension == ".xlsx" || extension == ".xls" ) {
+        x <- readExcel( full_file_path, sheet_selection, missing_value, trim_ws,
+                        guess_max, ... )
 
-        results <- readExcel( full_file_path, sheet_selection, column_names,
-                              column_types, missing_value, skip_rows )
 
-        x <- results[[ 1 ]]
-        multi_sheet <- results[[ 2 ]]
+    } else if( extension == ".zip" ) {
 
-    } else if( extension == ".zip" ){
-
-        if( zipped_extension == ".csv" ){ # .zip segment only accepts zipped .csv files at this time
-
-            if( extract_all ){ # Read all .csv files within the zip
-                zipped_files <- listZippedFiles ( full_file_path )
-                if ( length( zipped_files ) > 120  ) {
-                  unz_files1 <- lapply( zipped_files[ 1: 120 ], unz, description = full_file_path )
-                  x1 <- lapply ( unz_files1, read.csv, na.strings = missing_value,
-                                 stringsAsFactors = F, comment.char = GCAM_DATA_COMMENT, # Our comment signal
-                                 ...)
-                  invisible( closeAllConnections( ) )
-                  unz_files2 <- lapply( zipped_files[ 121: length( zipped_files ) ], unz, description = full_file_path )
-                  x2 <- lapply ( unz_files2, read.csv, na.strings = missing_value,
-                                 stringsAsFactors = F, comment.char = GCAM_DATA_COMMENT, # Our comment signal
-                                 ...)
-                  invisible( closeAllConnections( ) )
-                  x <- c( x1, x2 )
-                  } else {
-                unz_files <- lapply( zipped_files, unz, description = full_file_path )
-                x <- lapply ( unz_files, read.csv, na.strings = missing_value,
-                              stringsAsFactors = F, comment.char = GCAM_DATA_COMMENT, # Our comment signal
-                              ...)
-                  }
-
-            }else{
-                if( length ( zipped_selection ) == 0 ) { # If no file specified within zip
-                    printLog( "ERROR in readData: no zipped files specified for ", file_name )
-                    stop( "ERROR in readData: specify a zipped file name" )
-                }
-
-                if( length ( zipped_selection ) == 1 ){ # If only one file to read from zip
-
-                    zipped_fn <- paste0( zipped_selection, zipped_extension )  # zipped file name with extension
-                    x <- ( read.csv( unz( full_file_path, zipped_fn ), na.strings = missing_value,
-                            stringsAsFactors = F, comment.char = GCAM_DATA_COMMENT,
-                            ... ) )
-                            # x <- ( read.csv( unz( full_file_path, zipped_fn ), na.strings = missing_value,
-                            # stringsAsFactors = F, comment.char = GCAM_DATA_COMMENT ) )
-                }
-
-                if( length ( zipped_selection ) > 1 ){ # If multiple zipped files to read
-                    zipped_files <- paste0( zipped_selection, zipped_extension )
-                    unz_files <- lapply( zipped_files, unz, description = full_file_path )
-                    # unz_files <- list()
-                    # for( fn in zipped_files ){
-                        # unz_files <- c( unz_files, unz( full_file_path, fn ) )
-                    # }
-                    x <- lapply ( unz_files, read.csv, na.strings = missing_value,
-                                  stringsAsFactors = F, comment.char = GCAM_DATA_COMMENT,
-                                  ...)
-                }
-            }
-
-        } else { # If zipped file extension not recognized
-            stop( "ERROR in readData(): Invalid inner file type. readData() only accepts
-                  .csv file inside .zip file." )
+        # .zip segment only accepts zipped .csv files at this time
+        if( zipped_extension != ".csv" ) {
+            stop( "Invalid inner file type. readData() only accepts .csv file ",
+                  "inside .zip file." )
         }
 
+        if( extract_all ) zipped_selection <- listZippedFiles( full_file_path )
+
+        # Error if no file is specified within zip
+        if( length( zipped_selection ) == 0 ) {
+            stop( "readData expects zipped file specified for ", file_name )
+        }
+
+        # Unzip and read each file into a list
+        x <- lapply( zipped_selection, function( zipped_fn ) {
+            read.csv( unz( full_file_path, zipped_fn ),
+                      na.strings = missing_value, stringsAsFactors = F,
+                      comment.char = GCAM_DATA_COMMENT, ... )
+        })
+
     } else { # If extension not recognized
-        stop( "ERROR in readData(): Invalid file type. readData() accepts .csv, .xlsx, .xls files,
-              or .csv files inside a .zip file." )
+        stop( "Invalid file type. readData() accepts .csv, .xlsx, .xls files, ",
+              "or .csv files inside a .zip file." )
     }
 
-	if( mute == F ) { # Print stats
-        if( multi_sheet ){
-            stats <- list()
-            for( sheet in names( x ) ){
-                stats <- c( stats, paste0( "    Done reading ", sheet, ": ", nrow( x[[ sheet ]] ), " rows, ", ncol( x[[ sheet ]] ), " cols" ) )
-            }
-            lapply( stats, printLog, ts=F )
-        } else if( extension == ".zip" ){
+	# Pull out only data frame if multiple were expected, but just one was found
+    if( !is.data.frame( x ) && length( x ) == 1 ) x <- x[[ 1 ]]
+
+	if( !mute ) { # Print stats
+        if( !is.data.frame( x ) ) {  # Multiple sheets read
+            lapply( names(x), function( sheet ) {
+                dm <- dim( x[[ sheet ]] )
+                printLog( paste0( "    Done reading ", sheet, ": ",
+                                  dm[1], " rows, ", dm[2], " cols" ), ts = F )
+            })
+        } else if( extension == ".zip" ) {
             printLog( "    Done reading contents." )
-        } else { printLog( "    Done: ", nrow( x ), " rows, ", ncol( x ), " cols", ts = F ) }
+        } else {
+            printLog( "    Done: ", nrow( x ), " rows, ", ncol( x ), " cols", ts = F )
+        }
     }
 
     # Get metadata and add to list of all metadata in the script
-    if( meta == T ) {
+    if( meta ) {
         metadata <- readMetaData( meta_domain, file_name, extension, meta_domain_ext = domain_extension )
     }
 
-	# Convert years columns to numeric values if to_numeric = TRUE
-	if( to_numeric == TRUE) {
-	  names <- names( x )
-	  years <- names[names %in% X_extended_years]
-	  if( length(years) > 0 ) {
-	    x[,years] <- suppressWarnings(sapply( X = x[,years] , FUN = as.numeric) )
+	# Convert years columns to numeric values if to_numeric == TRUE
+	if( to_numeric ) {
+	    yr_regex <- '^X?[12]\\d{3}$'
+	    if( is.data.frame( x ) ) {
+    	    x <- mutate_at( x, vars( matches( yr_regex ) ), as.numeric )
+	    } else {
+            x <- lapply( x, mutate_at, vars( matches( yr_regex ) ), as.numeric )
+	    }
     }
-  }
 
 	return( x )
 }
@@ -478,38 +438,51 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
 # -----------------------------------------------------------------------------
 # readExcel
 # Brief:                Sub-function to read .xlsx .xls files.
-# Details:              Handles read logic and parsing of .xlsx .xls files for readData().
-# Dependencies:         read_excel, lapply
-# Author(s):            Jon Seibert
-# params:
+# Details:              Handles read logic and parsing of .xlsx .xls files for
+#                       readData(). The parameters trim_ws and guess_max
+#                       override the defaults for read_excel() because CEDS has
+#                       several instances where it expects the default values
+#                       (from legacy code).
+# Dependencies:         readxl
+# Author(s):            Jon Seibert, Caleb Braun
+# Params:
 #   full_file_path:     Path to the .xlsx .xls file to read in [required]
 #   sheet_selection:    Either "ALL" (to read all sheets), a list of sheet names or numbers
-#                           (to read a set of sheets), or single sheet name/number.
-#                           For .xlsx .xls files only. [default: "ALL"]
-#   column_names:       Either TRUE to use the first row as column names, FALSE to number
-#                           columns sequentially from X1 to Xn, or a character vector giving
-#                           a name for each column. For .xlsx .xls files only. [default: TRUE]
-#   column_types:       Either NULL to guess from the spreadsheet or a character vector
-#                           containing "blank", "numeric", "date" or "text". For .xlsx .xls files only.
-#                           [default: NULL]
+#                           (to read a set of sheets), or single sheet name/number. [default: "ALL"]
 #   missing_value:      Missing value. By default readxl converts blank cells to missing data.
 #                           Set this value if you have used a sentinel value for missing values.
-#                           For .xlsx .xls files only. [default: ""]
-#   skip_rows:          Number of rows to skip before reading any data. For .xlsx .xls files only.
-#                           [default: 0]
-# Return:               Vector of the data frame (or list of data frames) and the boolean
-#                           "multi_sheet" indicating whether the result is a list or a single
-#                           data frame.
+#                           [default: ""]
+#   trim_ws:            Should leading and trailing whitespace be trimmed?
+#   guess_max:          Maximum number of data rows to use for guessing column types.
+#
+# Return:               A list of data frames for each sheet specified by the
+#                           parameter `sheet_selection`
 #
 # Input Files:          Specified in full_file_path
 # Output Files:         None
 #
 # TODO: gsub to remove m-dashes does not work
-readExcel <- function( full_file_path, sheet_selection = "ALL", column_names = TRUE,
-                       column_types = NULL, missing_value = "", skip_rows = 0 ){
+readExcel <- function( full_file_path, sheet_selection = "ALL",
+                       na = "", trim_ws = FALSE, guess_max = 100, ... ) {
 
-    sheet_names <- excel_sheets( full_file_path )
-    multi_sheet <- FALSE
+    if ( sheet_selection == "ALL" ) {
+        sheet_names <- readxl::excel_sheets( full_file_path )
+    } else {
+        sheet_names <- sheet_selection
+    }
+
+
+    x <- lapply( sheet_names, function( sheet ) {
+        readxl::read_excel( full_file_path, sheet, na = na, trim_ws = trim_ws,
+                            guess_max = guess_max, ... )
+    })
+
+    # Convert from tbl to data.frame and replace en-dashes/em-dashes with hyphens
+    x <- lapply( x, as.data.frame, stringsAsFactors = F ) %>%
+        setNames( gsub( "(—|–)", "-", sheet_names ) )
+
+    return( x )
+
 
     # Read all sheets, but only if there is more than one
     if( sheet_selection == "ALL" && length( sheet_names ) > 1 ){
@@ -549,8 +522,7 @@ readExcel <- function( full_file_path, sheet_selection = "ALL", column_names = T
     }
     # THIS DOES NOT WORK FOR SOME REASON- ADDRESS LATER
     # Replace en-dashes and em-dashes with hyphens
-    names( x ) <- gsub( "—", "-", names( x ) )
-    names( x ) <- gsub( "–", "-", names( x ) )
+    names( x ) <- gsub( "(—|–)", "-", names( x ) )
 
     return( list( x, multi_sheet ) )
 
@@ -721,24 +693,27 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
 # Dependencies: printLog(), filePath()
 # Author(s):       Tyler Pitkanen, Jon Seibert
 # parameters:
-#   meta_domain:    The domain of the metadata [default: 'none']
+#   meta_domain:    The domain of the metadata [default: NULL]
 #   file_name:      The file name of the data set that corresponds to the metadata. In
 #                       standard naming format, the file name of the metadata is the same
 #                       as the file name of the regular data, but appended with '-metadata'.
-#                       file_name can be used to find the metadata of a specified file. [default: 'none']
+#                       file_name can be used to find the metadata of a specified file. [default: NULL]
 #   meta_name:      The file name of the metadata. This can be specified instead of file_name
-#                       if preferred. One must be specified. [default: 'none']
+#                       if preferred. One must be specified. [default: NULL]
 # return:       all_metadata
 # input files:  metadata file, e.g. 'example-metadata.csv'
 # output files: null
-readMetaData <- function( meta_domain="none", file_name="none", file_extension = "csv", meta_name = 'none', meta_domain_ext = "" ) {
+readMetaData <- function( meta_domain = NULL, file_name = NULL, file_extension = "csv",
+                          meta_name = NULL, meta_domain_ext = "" ) {
 
-    if( meta_domain == 'none' || ( file_name == 'none' && meta_name == 'none' ) ) {
+    if( is.null( meta_domain ) || ( is.null( file_name ) && is.null( meta_name ) ) ) {
         return( warning( 'Must specify domain and file name' ) )
     }
 
+    file_name <- sub( '\\.csv$', '', file_name )
+
     # Determine new metadata file name and location
-    if( meta_name == 'none' ) meta_name <- paste0( file_name, "-metadata" )
+    if( is.null( meta_name ) ) meta_name <- paste0( file_name, "-metadata" )
     mymeta_name <- filePath( meta_domain, meta_name, '.csv', meta_domain_ext )
 
     # Check if the file exists and set 'new_metadata' object. If the file isn't
@@ -847,23 +822,10 @@ addMetaData <- function( metadata = NULL, metadata_names = NULL, source_info =" 
         new_metadata <- metadata
     }
 
-    #extract the file extension from the source_info parameter, if user specify it with this variable
-    #This should be the last two value
-    source_extension = substr(source_info, str_count(source_info)-1, str_count(source_info))
-
-    #Check if file extension is ".R", irrespective of the letter-case.
-    #if true, assign the ".R" exstension to r_extension, and remove
-    #the extension from the source_info
-
-    if(source_extension == ".r"){
-
-      source_extension <- ".R"
-
-      #remove the ".R" or ".r" extension
-      source_info <- substr(source_info, 1, str_count(source_info)-2)
-    }else{
-      source_extension <- ""
-    }
+    # If the file extension is not ".R" set it to the empty string. Remove any
+    # ".R" from the source info.
+    source_extension <- ifelse( grepl( "\\.R$", source_info, TRUE ), ".R", "" )
+    source_info <- sub( "\\.R$", "", source_info, TRUE )
 
     # If the object all_metadata doesn't exist, create it. This should occur once
     #   per script upon the first addition of metadata.
@@ -903,22 +865,21 @@ addMetaData <- function( metadata = NULL, metadata_names = NULL, source_info =" 
 # Dependencies: all_metadata, filePath()
 # Author: Tyler Pitkanen
 # parameters:
-#   meta_domain: The domain of the printed metadata, often equal to the
-#               file's domain [default: 'none']
+#   domain: The domain of the printed metadata, often equal to the file's domain
 #   file_name: The file name of the data set that corresponds to the metadata. In
 #       standard naming format, the file name of the metadata is the same
 #       as the file name of the regular data, but appended with '-metadata'.
-#       file_name can be used to find the metadata of a specified file. [default: 'none']
+#       file_name can be used to find the metadata of a specified file. [default: NULL]
 #   meta_name: The file name of the metadata. This can be specified instead of file_name
-#           if preferred. One must be specified. [default: 'none']
+#           if preferred. One must be specified. [default: NULL]
 # return: null
 # input files: null
 # output files: metadata file, e.g. 'example-metadata.csv'
 
-writeMetaData <- function( domain, file_name = 'none', meta_name = 'none' ) {
+writeMetaData <- function( domain, file_name = NULL, meta_name = NULL ) {
 
     # Set the metadata file name
-    if( meta_name == 'none' ) mymeta_name <- filePath( domain, paste0( file_name, "-metadata" ) )
+    if( is.null( meta_name ) ) mymeta_name <- filePath( domain, paste0( file_name, "-metadata" ) )
 
     # Suppress the warning from write-out
     w <- getOption( "warn" )
