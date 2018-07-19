@@ -1550,8 +1550,9 @@ F.addScaledToDb <- function( ef_scaled, em_scaled,
 
   # melt old db and merge with new scaled values
   # emissions
-  old_em <- melt(old_emissions,id=c("iso","sector","fuel","units"))
+  old_em <- tidyr::gather(old_emissions, "variable", "value", -iso, -sector, -fuel, -units)
   names(old_em) <- c("iso","sector","fuel","units",'year','old_em')
+  old_em$year <- as.factor(old_em$year)
 
   #split old emissions into two dfs. [only perform merge where you have to]
   old_em_changed <- old_em[ old_em$iso %in% region , ]
@@ -1587,8 +1588,8 @@ F.addScaledToDb <- function( ef_scaled, em_scaled,
   }
 
   # cast to wide format
-  scaled_em_out <- cast ( new_em , iso + sector + fuel + units ~ year , value = 'scaled_em')
-  scaled_ef_out <- cast ( new_ef , iso + sector + fuel + units ~ year , value = 'scaled_ef')
+  scaled_em_out <- tidyr::spread(new_em, year, scaled_em)
+  scaled_ef_out <- tidyr::spread(new_ef, year, scaled_ef)
 
   # Sort
   scaled_em_out <- scaled_em_out[ with( scaled_em_out, order( iso, sector, fuel ) ), ]
