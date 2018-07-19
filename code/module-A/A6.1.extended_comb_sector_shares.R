@@ -32,8 +32,10 @@ activity_all <- readData( 'MED_OUT',paste0('A.comb_activity_with_other') , meta 
 other_transformation <- readData( 'MED_OUT','A.Other_transformation_fuel' )
 
 iea_start_year <- readData( 'ENERGY_IN' , 'IEA_iso_start_data')
-sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_ext_map", ".xlsx", sheet_selection = 'Bond_to_ext',meta = F )
-ext_sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_ext_map", ".xlsx", sheet_selection = 'CEDS_to_ext',meta = F )
+maps <- readData( "MAPPINGS", "Bond_sector_ext_map", ".xlsx", domain_extension = "Bond/",
+                  sheet_selection = c( 'Bond_to_ext', 'CEDS_to_ext' ), meta = F )
+sector_map <- maps$Bond_to_ext
+ext_sector_map <- maps$CEDS_to_ext
 
 
 # ---------------------------------------------------------------------------
