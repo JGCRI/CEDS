@@ -321,7 +321,7 @@ listZippedFiles <- function( file_path, remove_extension = FALSE ){
 #   meta_extension:     File extension for the file's metadata. [default: extension]
 #   mute:               Boolean indicating whether to output progress messages. TRUE silences
 #                           the function, while FALSE allows the messages. [default: FALSE]
-#   to_numeric:         Boolean indicating whether to automatically convert columns begining with "X"
+#   to_numeric:         Boolean indicating whether to automatically convert year columns
 #                           to numeric values. [default = TRUE]
 # Return:           Data frame of the read-in file, or a list of data frames of
 #                   multiple sheets from a .xlsx .xls file
@@ -381,7 +381,11 @@ readData <- function( domain = NULL, file_name = NULL, extension = ".csv",
                   "inside .zip file." )
         }
 
-        if( extract_all ) zipped_selection <- listZippedFiles( full_file_path )
+        if( extract_all ) {
+            zipped_selection <- listZippedFiles( full_file_path )
+        } else {
+            zipped_selection <- paste0( zipped_selection, zipped_extension )
+        }
 
         # Error if no file is specified within zip
         if( length( zipped_selection ) == 0 ) {
@@ -424,7 +428,7 @@ readData <- function( domain = NULL, file_name = NULL, extension = ".csv",
 
 	# Convert years columns to numeric values if to_numeric == TRUE
 	if( to_numeric ) {
-	    yr_regex <- '^X?[12]\\d{3}$'
+	    yr_regex <- '^X[12]\\d{3}$'
 	    if( is.data.frame( x ) ) {
     	    x <- mutate_at( x, vars( matches( yr_regex ) ), as.numeric )
 	    } else {
@@ -447,7 +451,7 @@ readData <- function( domain = NULL, file_name = NULL, extension = ".csv",
 # Author(s):            Jon Seibert, Caleb Braun
 # Params:
 #   full_file_path:     Path to the .xlsx .xls file to read in [required]
-#   sheet_selection:    Either "ALL" (to read all sheets), a list of sheet names or numbers
+#   sheet_selection:    Either "ALL" (to read all sheets), a vector of sheet names or numbers
 #                           (to read a set of sheets), or single sheet name/number. [default: "ALL"]
 #   missing_value:      Missing value. By default readxl converts blank cells to missing data.
 #                           Set this value if you have used a sentinel value for missing values.
@@ -465,7 +469,7 @@ readData <- function( domain = NULL, file_name = NULL, extension = ".csv",
 readExcel <- function( full_file_path, sheet_selection = "ALL",
                        na = "", trim_ws = FALSE, guess_max = 100, ... ) {
 
-    if ( sheet_selection == "ALL" ) {
+    if ( length( sheet_selection ) == 1 && sheet_selection == "ALL" ) {
         sheet_names <- readxl::excel_sheets( full_file_path )
     } else {
         sheet_names <- sheet_selection

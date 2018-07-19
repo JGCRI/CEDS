@@ -28,7 +28,8 @@ CONV_DIR <- paste0( EIA_DIR, "unit-conversion/" )
 CONV_TJ_BBTU            <- 0.9478  # TJ per Billion Btu
 CONV_SHORTTON_TONNE     <- 1.1023  # Short Ton (US) per metric tonne
 CONV_TONNE_BARREL       <- 7.33    # mass density factor from OPEC 2014
-CONV_FACTOR_NATGAS_TJ_T <- 46629   # US natural gas OECD conversion factor TJ to t
+
+CONV_FACTOR_NATGAS_HHV_LHV <- 0.9  # gross heat content (HHV) to net heat content (LHV)
 
 # CEDS constants
 CONV_FACTOR_BIO_KT_TJ    <- 16   # See CEDS conversionFactor_biomass_kt_TJ
@@ -184,7 +185,8 @@ gas_unit_conv <- gas_heat_content %>%
 
 # Convert from Btu/cubic foot to TJ/cubic foot, then to kt/cubic foot
 gas_unit_conv <- gas_unit_conv %>%
-    dplyr::mutate( conv = Value * CONV_TJ_BBTU / conversionFactor_naturalgas_TJ_per_kt )
+    dplyr::mutate( conv = Value * CONV_FACTOR_NATGAS_HHV_LHV * CONV_TJ_BBTU /
+                       conversionFactor_naturalgas_TJ_per_kt )
 
 
 # Match petroleum to sectors based on ID indicators (manually identified)
