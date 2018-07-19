@@ -26,7 +26,7 @@ readInUserData <- function( fname, yearsAllowed, ftype = NULL ) {
             readData( fpath, domain = "EXT_IN", extension = ".xlsx" ),
             error = function(e) NULL )
     else
-        user_df <- readData( fpath, domain = "EXT_IN" )
+        user_df <- readData( "EXT_IN", fpath, missing_value = "NA" )
 
     # Filter out any years not in the CEDS range
     bad_years <- isXYear( names( user_df ) ) &
@@ -62,8 +62,8 @@ procUsrData <- function( usr_data, proc_instr, mappings,
                          MSL, MCL, MFL, trend_data = NULL ) {
 
     # Get year columns and cast them as numeric
-    year_cols <- names( usr_data )[ isXYear( names( usr_data ) ) ]
-    usr_data <- dplyr::mutate_at( usr_data, year_cols, as.numeric )
+    # year_cols <- names( usr_data )[ isXYear( names( usr_data ) ) ]
+    # usr_data <- dplyr::mutate_at( usr_data, year_cols, as.numeric )
 
     # mappings is expected as a list of data frames, but if it isn't we can
     # pull out the name of the data frame from the column names
@@ -439,7 +439,7 @@ subsetUserData <- function( user_df, instructions ) {
     subset <- dplyr::select( user_df, agg_cols, yr_cols ) %>%
               dplyr::filter( iso %in% instructions$iso ) %>%
               dplyr::group_by_at( agg_cols ) %>%
-              dplyr::summarise_all( sum ) %>%
+              dplyr::summarise_all( sum, na.rm = T ) %>%
               dplyr::ungroup() %>% data.frame()
 
     # Subset the dataframe based on which columns are specified in the

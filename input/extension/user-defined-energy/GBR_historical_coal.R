@@ -23,10 +23,10 @@ library(readxl)
 library(tidyr)
 
 # for writeData function
-# setwd('../../')
+setwd('../../')
 PARAM_DIR <- '../code/parameters/'
 source(paste0(PARAM_DIR, "header.R"))
-initialize('DEU_historical_coal.R', NULL, NULL)
+initialize('GBR_historical_coal.R', NULL, NULL)
 
 FNAME <- 'Coal_since_1853'
 FPATH <- 'user-defined-energy/'
@@ -92,4 +92,6 @@ df <- dplyr::mutate_at(df, yrs, as.numeric) %>%
 
 df[df == 0] <- NA # We can do this because there are no zeros in original data
 
-write.csv(df, 'GBR_historical_coal.csv', row.names = F)
+writeData(df, 'EXT_IN', paste0(FPATH, 'GBR_historical_coal'))
+
+logStop()

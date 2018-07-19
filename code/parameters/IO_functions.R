@@ -726,9 +726,9 @@ readMetaData <- function( meta_domain = NULL, file_name = NULL, file_extension =
 
     # If the object all_metadata doesn't exist, create it. This code should run once
     #   per script upon the first addition of metadata.
-    if( exists( 'all_metadata' ) == FALSE ) {
+    if( !exists( 'all_metadata' ) ) {
         # If the new metadata file doesn't exist, use a default metadata placeholder
-        if( new_metadata_exists == FALSE ) {
+        if( !new_metadata_exists ) {
             default_names <- c( 'Data-Type', 'Emission', 'Region', 'Sector',
                                 'Start-Year', 'End-Year', 'Source/Comment' )
             colsize <- length( default_names )
@@ -751,30 +751,26 @@ readMetaData <- function( meta_domain = NULL, file_name = NULL, file_extension =
         # Return the all_metadata object and end the function
         assign( 'all_metadata', all_metadata, .GlobalEnv )
         return( invisible( all_metadata ) )
-    }
+    } else {
 
     # If the object all_metadata does already exist, append the new metadata and
     #   update the all_metadata object
-    if( exists( 'all_metadata' ) == TRUE ) {
         all_metadata <- data.frame( all_metadata, row.names = NULL )
-        old_metadata <- all_metadata
-        old_names  <- colnames( old_metadata )
-        old_colnum <- ncol( all_metadata )
+        old_names <- names( all_metadata )
 
         if( new_metadata_exists ) {
             all_metadata <- bindMetaDataRecord( all_metadata, new_metadata, old_names,
                                                 file_name, file_extension )
         } else {
             # If the metadata file doesn't exist, create a default entry with the
-            new_colnum <- old_colnum
-            new_metadata <- c( rep( "Unknown", new_colnum - 1 ),
+            new_metadata <- c( rep( "Unknown", ncol( all_metadata ) - 1 ),
                                paste0( "Metadata input file missing for data file ", file_name ) )
             new_metadata <- data.frame( t( new_metadata ), row.names = NULL )
             colnames( new_metadata ) <- old_names
 
-            new_metadata$Source  <- paste(file_name, file_extension, sep="")
+            new_metadata$Source <- paste0( file_name, file_extension )
 
-            all_metadata <- rbind.fill(all_metadata, new_metadata)
+            all_metadata <- rbind.fill( all_metadata, new_metadata )
         }
 
         # re-arrange the columns so that the 'Source' column is the fist column
