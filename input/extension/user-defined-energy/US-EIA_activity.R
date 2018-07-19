@@ -13,7 +13,6 @@
 
 library(dplyr)
 library(tidyr)
-library(readxl)
 
 # for writeData function
 # setwd('../../')
@@ -26,8 +25,8 @@ EIA_PATH <- filePath( "EXT_IN", EIA_DIR, extension = "" )
 CONV_DIR <- paste0( EIA_DIR, "unit-conversion/" )
 
 # Define constants
-CONV_TBTU_TJ <- 1055             # Trillion BTU to TJ
-CONV_SHORTTON_TONNE <- 0.9072
+CONV_TJ_BBTU <- 0.9478           # TJ per Billion Btu
+CONV_SHORTTON_TONNE <- 1.1023    # Short Ton (US) per metric tonne
 CONV_TONNE_BARREL <- 7.33        # mass density factor from OPEC 2014
 CONV_FACTOR_NATGAS_TJ_T <- 46629 # US natural gas OECD conversion factor TJ to t
 
@@ -44,14 +43,14 @@ YYYYMM_to_Xyear <- function( YYYYMM ) paste0( "X", substr( YYYYMM, 1, 4 ) )
 files_to_read <- paste0( EIA_DIR, list.files( EIA_PATH, ".*csv$" ) )
 
 # Read each file of reported and combine into a single dataframe
-EIA_data_files <- grep( "MER", files_to_read, value = T )
+EIA_data_files <- grep( "(Coal|gas|Oil)\\.csv$", files_to_read, value = T )
 all_EIA_raw_data <- lapply( EIA_data_files, readData, domain = "EXT_IN" )
 all_EIA_raw_data <- do.call(rbind, all_EIA_raw_data)
 
 # Read in heat content conversion files
-petrol_heat_content <- readData( "EXT_IN", paste0( CONV_DIR, "MER_TA3" ) )
-gas_heat_content <-    readData( "EXT_IN", paste0( CONV_DIR, "MER_TA4" ) )
-coal_heat_content <-   readData( "EXT_IN", paste0( CONV_DIR, "MER_TA5" ) )
+petrol_heat_content <- readData( "EXT_IN", paste0( CONV_DIR, "EIA_MER_TA3_Oil_heat_content" ) )
+gas_heat_content <-    readData( "EXT_IN", paste0( CONV_DIR, "EIA_MER_TA4_Natural_gas_heat_content" ) )
+# coal_heat_content <-   readData( "EXT_IN", paste0( CONV_DIR, "EIA_MER_TA5_Coal_heat_content" ) )
 
 
 # Bring the EIA data into TJ and year/month form --------------------------
@@ -62,10 +61,11 @@ EIA_data_formatted <- all_EIA_raw_data %>%
                    month = substr( YYYYMM, 5, 6 ) ) %>%
     dplyr::filter( month == 13,
                    !Value %in% c( "Not Available", "No Data Reported" ) ) %>%
-    dplyr::mutate( Value = if_else( Unit == "Trillion Btu",
-                                    CONV_TBTU_TJ * as.numeric( Value ),
-                                    as.numeric( Value ) ),
-                   Unit = gsub( "Trillion Btu", "TJ", Unit ) ) %>%
+    dplyr::mutate( Value = as.numeric( Value ) ) %>%
+    # dplyr::mutate( Value = if_else( Unit == "Trillion Btu",
+    #                                 CONV_TBTU_TJ * as.numeric( Value ),
+    #                                 as.numeric( Value ) ),
+    #                Unit = gsub( "Trillion Btu", "TJ", Unit ) ) %>%
     dplyr::select( MSN, Value, Description, Unit, year )
 
 
@@ -77,18 +77,25 @@ EIA_data_formatted <- EIA_data_formatted %>%
     dplyr::mutate(
         fuel = case_when(
             grepl( "Coal",        Description ) ~ "coal",
+            grepl( "Coal.*Coke",  Description ) ~ "coal_coke",
             grepl( "Biomass",     Description ) ~ "biomass",
             grepl( "Natural Gas", Description ) ~ "gas",
             grepl( "Petroleum",   Description ) ~ "oil"
         ),
         sector = case_when(
-            grepl( "Residential Sector",    Description ) ~ "Residential",
-            grepl( "Commercial Sector",     Description ) ~ "Commercial",
-            grepl( "Industrial Sector",     Description ) ~ "Industry",
-            grepl( "Transportation Sector", Description ) ~ "Transportation",
-            grepl( "Electric Power Sector", Description ) ~ "Electric Power"
+            grepl( "Residential Sector$",       Description ) ~ "Residential",
+            grepl( "Commercial Sector$",        Description ) ~ "Commercial",
+            grepl( "Commercial.*Total$",        Description ) ~ "Commercial",
+            grepl( "Industrial.*Coke Plants$",  Description ) ~ "Process",
+            grepl( "Other Industrial.*Total$",  Description ) ~ "Industry",
+            grepl( "the Industrial.*Total$",    Description ) ~ "Industry",
+            grepl( "Transportation Sector$",    Description ) ~ "Transportation",
+            grepl( "Transportation.*Total$",    Description ) ~ "Transportation",
+            grepl( "Electric Power Sector$",    Description ) ~ "Electric Power"
         ) ) %>%
-    dplyr::filter( !is.na( fuel ), !is.na( sector ) )
+    dplyr::filter( !is.na( fuel ), !is.na( sector ) ) %>%
+    dplyr::filter( fuel != "coal" | !grepl( "the Industrial.*Total$", Description ),
+                   fuel == "coal" | !grepl( "Other Industrial", Description ) )
 
 
 # Assign an iso to the dataset and extract only those columns we want to use
@@ -96,6 +103,8 @@ EIA_data_formatted <- EIA_data_formatted %>%
 EIA_data_formatted <- EIA_data_formatted %>%
     dplyr::mutate( iso = "usa" ) %>%
     dplyr::select( iso, sector, fuel, Unit, year, Value )
+
+stopifnot( !anyDuplicated( EIA_data_formatted) )
 
 
 # Remove liquid biofuels from biomass estimate ----------------------------
@@ -154,15 +163,28 @@ EIA_data_formatted <- liquid_biofuels %>%
 #  - Biomass is converted using a constant.
 #  - Petroleum is converted from BTU to barrels using the EIA heat content timeseries,
 #        then to mass given a density (constant?)
-#  - Coal is converted from BTU directly to mass using the EIA heat constant timeseires
-#  - Natural gas is CURRENTLY converted using a constant, but this is WRONG and
-#        we want to change that.
+#  - Coal is already in mass units
+#  - Natural gas is already in mass units
 #  - The result of these two sections is a formatted EIA data frame in mass units
 
 # Extract year data from heat content dataframes
-coal_heat_content$year <-   YYYYMM_to_Xyear( coal_heat_content$YYYYMM )
+# coal_heat_content$year <-   YYYYMM_to_Xyear( coal_heat_content$YYYYMM )
 petrol_heat_content$year <- YYYYMM_to_Xyear( petrol_heat_content$YYYYMM )
 gas_heat_content$year <-    YYYYMM_to_Xyear( gas_heat_content$YYYYMM )
+
+# Match gas to sectors - only Electric Power has unique heat content
+gas_sectors <- c( "Electric Power", "Residential", "Commercial", "Industry", "Transportation" )
+gas_rows <- EIA_data_formatted$fuel == "gas"
+stopifnot( all( EIA_data_formatted[ gas_rows, "sector" ] %in% gas_sectors ) )
+gas_heat_content <- gas_heat_content %>%
+    dplyr::mutate( tmp = case_when(
+            MSN == "NGEIKUS" ~ "Electric Power",
+            MSN == "NGTCKUS" ~ "Other"
+        ) ) %>%
+    dplyr::left_join( tibble( tmp = c( "Electric Power", rep( "Other", 4 ) ),
+                              sector = gas_sectors ), by = "tmp" ) %>%
+    dplyr::filter( !is.na( sector) )
+
 
 # Match petroleum to sectors based on ID indicators (manually identified)
 petrol_heat_content <- petrol_heat_content %>%
@@ -175,35 +197,41 @@ petrol_heat_content <- petrol_heat_content %>%
         ) ) %>%
     dplyr::filter( !is.na( sector ) )
 
-# Match petroleum to sectors based on ID indicators (manually identified)
-coal_heat_content <- coal_heat_content %>%
-    dplyr::mutate( sector = case_when(
-            MSN == "CLHCKUS" ~ "Residential and Commercial",
-            MSN == "CLOCKUS" ~ "Industry",
-            MSN == "CLEIKUS" ~ "Electric Power"
-        ) ) %>%
-    dplyr::filter( !is.na( sector ) )
+# Match coal to sectors based on ID indicators (manually identified)
+# coal_heat_content <- coal_heat_content %>%
+#     dplyr::mutate( sector = case_when(
+#             MSN == "CLHCKUS" ~ "Residential and Commercial",
+#             MSN == "CLOCKUS" ~ "Industry",
+#             MSN == "CLEIKUS" ~ "Electric Power"
+#         ) ) %>%
+#     dplyr::filter( !is.na( sector ) )
 
 # Coal reports a single heat content value for both residential and commercial
 # sectors; we need to make separate entries for these for mapping purposes
-coal_heat_content_res <- coal_heat_content %>%
-    dplyr::filter( sector == "Residential and Commercial" ) %>%
-    dplyr::mutate( sector = "Residential" )
-coal_heat_content_com <- coal_heat_content %>%
-    dplyr::filter( sector == "Residential and Commercial" ) %>%
-    dplyr::mutate( sector = "Commercial" )
+# coal_heat_content_res <- coal_heat_content %>%
+#     dplyr::filter( sector == "Residential and Commercial" ) %>%
+#     dplyr::mutate( sector = "Residential" )
+# coal_heat_content_com <- coal_heat_content %>%
+#     dplyr::filter( sector == "Residential and Commercial" ) %>%
+#     dplyr::mutate( sector = "Commercial" )
 
 # We need to do the same thing to separate transportation from industry (single
 # reported value), then bind everything together
-coal_heat_content <- coal_heat_content %>%
-    dplyr::filter( sector == "Industry" ) %>%
-    dplyr::mutate( sector = "Transportation") %>%
-    dplyr::bind_rows( coal_heat_content, coal_heat_content_com,
-                      coal_heat_content_res )
+# coal_heat_content <- coal_heat_content %>%
+#     dplyr::filter( sector == "Industry" ) %>%
+#     dplyr::mutate( sector = "Transportation") %>%
+#     dplyr::bind_rows( coal_heat_content, coal_heat_content_com,
+#                       coal_heat_content_res )
 
 # Add fuel indicators
-coal_heat_content$fuel <- "coal"
+# coal_heat_content$fuel <- "coal"
+gas_heat_content$fuel <- "gas"
 petrol_heat_content$fuel <- "oil"
+
+# Convert from Btu/cubic foot to kt/cubic foot
+gas_heat_content <- gas_heat_content %>%
+    dplyr::mutate( Value = as.numeric( Value ) * ( CONV_TJ_BBTU / 1e9 ) / # Btu/cubic foot to TJ/cubic foot
+                           conversionFactor_naturalgas_TJ_per_kt )        # TJ/cubic foot to kt/cubic foot
 
 # Convert from (million btu/short ton) to TJ/kt
 petrol_heat_content$Value <- as.numeric( petrol_heat_content$Value ) * CONV_TONNE_BARREL
@@ -212,12 +240,13 @@ petrol_heat_content$Unit <- "Million BTU/tonne"
 petrol_heat_content$Value <- as.numeric(petrol_heat_content$Value) * ( CONV_TBTU_TJ / 1e6 ) * 1e3
 petrol_heat_content$Unit <- "TJ/kt"
 
-coal_heat_content$Value <- as.numeric(coal_heat_content$Value) *
-                                CONV_SHORTTON_TONNE * 1e3 * # Convert short ton to kt
-                                ( CONV_TBTU_TJ / 1e6 ) # Convert Million BTU to TJ
-coal_heat_content$Unit <- "TJ/kt"
-
-conversion_factors <- rbind( coal_heat_content, petrol_heat_content )
+# coal_heat_content$Value <- as.numeric(coal_heat_content$Value) *
+#                                CONV_SHORTTON_TONNE * 1e3 *  # Convert short ton to kt
+#                                ( CONV_TBTU_TJ / 1e6 )       # Convert Million BTU to TJ
+# coal_heat_content$Unit <- "TJ/kt"
+#
+# conversion_factors <- rbind( coal_heat_content, petrol_heat_content )
+conversion_factors <- rbind( gas_heat_content, petrol_heat_content )
 
 
 # Execute conversion to kt ------------------------------------------------
@@ -235,12 +264,16 @@ EIA_data_formatted$Value[ EIA_data_formatted$fuel == "gas" ] <-
       as.numeric( EIA_data_formatted$Value[ EIA_data_formatted$fuel == "gas" ] ) / CONV_FACTOR_NATGAS_TJ_KT
 EIA_data_formatted$Unit[ EIA_data_formatted$fuel == "gas" ] <- "kt"
 
+EIA_data_formatted <- EIA_data_formatted %>%
+    dplyr::mutate( Value = if_else( fuel == "gas", Value * gas_heat_content, Value ),
+                   Unit = "kt" )
+
 # Subset the data which can be converted using timeseries EIA conversion data
-EIA_convert_subset <- EIA_data_formatted[ EIA_data_formatted$fuel %in% c( "oil", "coal" ), ]
+EIA_oil_coal_rows <- EIA_data_formatted$fuel %in% c( "oil", "coal" )
 
 # Join conversion factors to their corresponding data rows, then apply
 # timeseries conversions
-EIA_convert_subset <- EIA_convert_subset %>%
+EIA_convert_subset <- EIA_data_formatted[ EIA_oil_coal_rows, ] %>%
     dplyr::left_join( conversion_factors[ , c( "Value", "year", "fuel", "sector" ) ],
                       by = c( "fuel", "sector", "year" ) ) %>%
     dplyr::rename( Value = Value.x, Conversion_factor = Value.y ) %>%
@@ -249,7 +282,7 @@ EIA_convert_subset <- EIA_convert_subset %>%
     dplyr::select( iso, sector, fuel, Unit, year, Value )
 
 # Add converted data back into the main dataframe
-EIA_data_formatted[ EIA_data_formatted$fuel %in% c( "oil", "coal" ), ] <- EIA_convert_subset
+EIA_data_formatted[ EIA_oil_coal_rows, ] <- EIA_convert_subset
 
 
 # Remove coal coke use from industry --------------------------------------
@@ -257,8 +290,9 @@ EIA_data_formatted[ EIA_data_formatted$fuel %in% c( "oil", "coal" ), ] <- EIA_co
 #    in CEDS, so it needs to be removed from the EIA estimate
 
 # Read in a supplementary EIA file that will identify coal coke activity
-coal_activity_file <- paste0( EIA_PATH, "Table_6.2_Coal_Consumption_by_Sector.xlsx" )
-coal_activity_all <- readxl::read_xlsx( coal_activity_file, "Annual Data", skip = 10 )
+coal_activity_file <- paste0( EIA_DIR, "Table_6.2_Coal_Consumption_by_Sector.xlsx" )
+coal_activity_all <- readData( "EXT_IN", coal_activity_file, ".xlsx",
+                               sheet_selection = "Annual Data", skip = 10 )
 
 # Get coal coke subset of the coal activity and convert from thousand short tons
 # to kt
