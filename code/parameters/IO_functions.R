@@ -432,7 +432,9 @@ readData <- function( domain = NULL, file_name = NULL, extension = ".csv",
 	    if( is.data.frame( x ) ) {
     	    x <- mutate_at( x, vars( matches( yr_regex ) ), as.numeric )
 	    } else {
-            x <- lapply( x, mutate_at, vars( matches( yr_regex ) ), as.numeric )
+            x <- lapply( x, function( df ) {
+                dplyr::mutate_at( df, vars( matches( yr_regex ) ), as.numeric )
+            } )
 	    }
     }
 
