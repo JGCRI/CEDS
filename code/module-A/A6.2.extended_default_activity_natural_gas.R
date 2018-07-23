@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: A6.2.default_actvity_natural_gas.R
+# Program Name: A6.2.extended_default_activity_natural_gas.R
 # Author: Presley Muwan
 # Date Last Updated: 20 Apr 2018
 # Program Purpose: Create the default activity natural gas data for CEDS following these three steps:
@@ -19,7 +19,7 @@
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R","process_db_functions.R", "default_activity_functions.R") # Additional function files may be required.
 log_msg <- "Extending Coal data with bond and IEA" # First message to be printed to the log
-script_name <- "A6.2.default_actvity_natural_gas.R"
+script_name <- "A6.2.extended_default_activity_natural_gas.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -33,7 +33,7 @@ A.comb_activity_all <- readData( 'MED_OUT', paste0("A.comb_activity_with_other")
 final_sector_shares_all <- readData( 'MED_OUT', 'A.final_sector_shares')
 cdiac_fuel_all <- readData( 'MED_OUT' , 'E.CO2_CDIAC_inventory')
 iea_start_year_all <- readData( 'ENERGY_IN' , 'IEA_iso_start_data')
-iea_energy_mapping <- readData( "MAPPINGS", domain_extension = "Energy/" , "IEA_product_fuel", meta = F )
+iea_energy_mapping <- readData( "MAPPINGS", domain_extension = "energy/" , "IEA_product_fuel", meta = F )
 
 #-------------------------------------------------------------------------------------
 # 2. Define Variables and Filter and Process inputs
