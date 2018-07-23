@@ -9,16 +9,17 @@
 # -----------------------------------------------------------------------------
 
 # Load required libraries. If library isn't installed, outputs warning message
-loadPackage <- function(pName, versions = NULL){
+loadPackage <- function( pName, versions = NULL ) {
   minVersion <- if( !is.null(versions) ) versions[[pName]] else 0
 
-  if( suppressMessages(!require( pName, character.only=T ) )){
+  if( suppressMessages( !require( pName, character.only=T ) ) ) {
     cat( "Couldn't load '", pName, "'. Please Install.\n", sep="")
-    stop(paste0( "Couldn't load '", pName, "'. Please Install.\n" ))
+    stop( paste0( "Couldn't load '", pName, "'. Please Install.\n" ) )
   }
 
-  if( packageVersion(pName) < minVersion ) {
-    stop(paste0( "Package '", pName, "' version ", minVersion, " or greater is required."))
+  if( packageVersion( pName ) < minVersion ) {
+    stop( paste0( "Package '", pName, "' version ", minVersion,
+                  " or greater is required.") )
   }
 }
 
@@ -43,12 +44,9 @@ if( !exists( "GCAM_SOURCE_FN" ) ) {		# i.e. #ifndef
     OUTPUTS             <- list()       # outputs (i.e. what files scripts write)
 }
 
-MODULE_PROC_ROOT		<- ""   #Module processing code root folder should be set in module-specific header file
-GCAM_DATA_COMMENT 		<- "#"							 # Comment character for files
-XML_TEMPLATE_FILENAME 	<- "batch_xml_template.xml"		 # XML template file name
-GCAM_HEADERS_MI 		<- "ModelInterface_headers.txt"	 # csv to xml header file name
-PATH_FROM_MI 			<- ""		                     # Path from Model Interface
-DOMAINPATHMAP 			<- paste( MODULE_PROC_ROOT, "../input/mappings/domainmapping.csv", sep="" )    # List of domain (groups of files) mappings
+GCAM_DATA_COMMENT 		<- "#"	# Comment character for files
+MODULE_PROC_ROOT		<- ""   # Module processing code root folder should be set in module-specific header file
+DOMAINPATHMAP 			<- paste0( MODULE_PROC_ROOT, "../input/mappings/domainmapping.csv" )    # List of domain (groups of files) mappings
 
 # Specify the location of the module from the data system root directory
 MODULE_PROC_ROOT		<- PARAM_DIR
@@ -66,7 +64,7 @@ na_error <- 1
 
 # If true write value meta data in scaling module (FALSE to save time while test running)
 Write_value_metadata <- FALSE
-#
+
 
 #-----------------------------------------------------------------------------------------
 #Generate system-wise version_stamp
@@ -86,8 +84,8 @@ getcedsVersionNumber <- function( ) {
   ceds_user_version_number <- getOption( "cedsUserVersionNumber" )
 
   # generate the version_stamp
-  if( is.null ( ceds_user_version_number ) == T ) {
-    version_stamp <- paste0("v", "_", format(version_date, format="%Y_%m_%d"))
+  if( is.null( ceds_user_version_number ) ) {
+    version_stamp <- paste0( "v_", format( version_date, format="%Y_%m_%d" ) )
   } else {
     version_stamp <- ceds_user_version_number
   }

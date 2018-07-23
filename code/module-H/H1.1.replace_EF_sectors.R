@@ -34,7 +34,8 @@ if ( is.na( em ) ) em <- "BC"
 
 # Load data
   ef_full <- readData( 'MED_OUT', paste0( 'F.',em,'_scaled_EF' ) )
-  sector_map_list <- list.files( path = "extension/sector-change/", pattern = "*.csv" ) %>% file_path_sans_ext()
+  sector_map_list <- list.files( path = "extension/sector-change/", pattern = "*.csv" )
+  sector_map_list <- tools::file_path_sans_ext( sector_map_list )
   sector_map_list <- sector_map_list[ grepl( em, sector_map_list )  &
                                         !grepl( "metadata", sector_map_list ) ]
   if ( em == "OC" )
