@@ -45,7 +45,7 @@
 # Read in parameter files
     files_list <- list.files( path =  './default-emissions-data/EF_parameters',
                               pattern = '*.csv' )
-    files_list <- file_path_sans_ext( files_list )
+    files_list <- tools::file_path_sans_ext( files_list )
 
 # Select files that contain the phrase "control_percent"
     control_percent_file_list <- files_list[ grep( pattern = "_control_percent",

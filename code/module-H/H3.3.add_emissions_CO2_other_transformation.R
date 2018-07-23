@@ -26,7 +26,7 @@
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( 'data_functions.R')
 log_msg <- "Calculating CO2 emissions conversion for 1A1bc-Other-transformation coal"
-script_name <- 'H2.3.add_emissions_CO2_other_transformation.R'
+script_name <- 'H3.3.add_emissions_CO2_other_transformation.R'
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -55,9 +55,8 @@ if( em != 'CO2') {
   MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
   iea_start <- readData('EXT_IN','IEA_start_date', ".xlsx", sheet_selection = "coal")
 
-  A.full_comb_activity_extended_coal <- readData( "MED_OUT", "A.full_comb_activity_extended_coal" )
-  A.total_activity_extended_coal_ <- readData( "MED_OUT", "A.total_activity_extended_coal" )
-  A.total_activity_extended_natural_gas <- readData( "MED_OUT", "A.total_activity_extended_natural_gas" )
+  A.full_comb_activity_extended_coal <- readData( "MED_OUT", "A.activity_extended_coal" )
+  A.total_activity_extended_natural_gas <- readData( "MED_OUT", "A.activity_extended_natural_gas" )
 
 # Define values
   ceds_coal_fuels <- c( "brown_coal", "coal_coke", "hard_coal" )

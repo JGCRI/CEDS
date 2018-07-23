@@ -118,7 +118,7 @@ names( drivers_method_data_extended_list ) <- drivers$file_name
 #
 # user_files_list <- list.files(path =  './extension/extension-data',
 #                          pattern = '*.csv')
-# user_files_list <- file_path_sans_ext( user_files_list )
+# user_files_list <- tools::file_path_sans_ext( user_files_list )
 #
 # #de select meta-data
 # if (length(grep(pattern = "metadata", user_files_list )) > 0)

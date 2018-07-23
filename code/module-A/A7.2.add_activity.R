@@ -54,7 +54,7 @@ initialize( script_name, log_msg, headers )
 
   # Get list of extension (add_activity)
   driver_scripts <- list.files(path =  '../code/module-A',pattern = 'A7.2.add_activity_*')
-  driver_scripts <- file_path_sans_ext( driver_scripts )
+  driver_scripts <- tools::file_path_sans_ext( driver_scripts )
   driver_scripts <- gsub("A7.2.add_activity_","",driver_scripts)
   driver_scripts <- driver_scripts[ driver_scripts %!in% c("A7.2.add_activity") ]
 

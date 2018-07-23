@@ -37,7 +37,7 @@ if ( is.na( em ) ) em <- "NOx"
 
 # Read EF pathway for selected emission
     fl <- list.files( path = "./extension/EF-pathway", pattern = "EF_pathway.csv" )
-    fl <- file_path_sans_ext( fl )
+    fl <- tools::file_path_sans_ext( fl )
     fl <- fl[ grepl( em, fl ) ]
     if (em == "OC" )
       fl <- fl[ !grepl( "NMVOC", fl ) ]

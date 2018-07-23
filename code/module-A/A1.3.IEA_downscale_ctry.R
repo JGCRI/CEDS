@@ -121,7 +121,8 @@
     IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
     cdiac_total <- readData( "MED_OUT", "E.CO2_CDIAC_inventory" )
 
-    adj_list <- list.files( path = "energy/energy-data-adjustment", pattern = "*.csv" ) %>% file_path_sans_ext()
+    adj_list <- list.files( path = "energy/energy-data-adjustment", pattern = "*.csv" )
+    adj_list <- tools::file_path_sans_ext( adj_list )
     adj_list <- adj_list[ !grepl( "metadata", adj_list ) ]  # remove metadata
     adj_list <- lapply( adj_list, FUN = readData, domain = "ENERGY_IN", domain_extension = "energy-data-adjustment/" )
 

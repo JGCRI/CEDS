@@ -41,7 +41,7 @@
 # Read in all files in the EF_parameters folder
     files_list <- list.files( path = './default-emissions-data/EF_parameters',
                               pattern = '*.csv' )
-    files_list <- file_path_sans_ext( files_list )
+    files_list <- tools::file_path_sans_ext( files_list )
 
 # select files with "_EF"
     EF_file_list <- files_list[ grep( pattern = "_EF", files_list ) ]

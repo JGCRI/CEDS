@@ -271,7 +271,7 @@ listZippedFiles <- function( file_path, remove_extension = FALSE ){
     if( length( file_list[ grep("MACOSX",file_list) ] ) > 0 ){
         file_list <- file_list[ -grep("MACOSX",file_list) ]
     }
-    if( remove_extension ){ file_list <- file_path_sans_ext( file_list ) }
+    if( remove_extension ){ file_list <- tools::file_path_sans_ext( file_list ) }
     return( file_list )
 }
 
@@ -488,51 +488,8 @@ readExcel <- function( full_file_path, sheet_selection = "ALL",
         setNames( gsub( "(—|–)", "-", sheet_names ) )
 
     return( x )
-
-
-    # Read all sheets, but only if there is more than one
-    if( sheet_selection == "ALL" && length( sheet_names ) > 1 ){
-
-        x <- lapply( excel_sheets( full_file_path ), read_excel, path = full_file_path,
-                     col_names = column_names, col_types = column_types,
-                     na = missing_value, trim_ws = FALSE, skip = skip_rows,
-                     guess_max = 100) %>%
-            lapply( as.data.frame ) # Ensure result is in standard data frame form,
-                                    # instead of a "local data frame"
-        names( x ) <- sheet_names # Fix names
-        if( length( names( x ) ) > 1 ) multi_sheet <- TRUE
-
-    } else {
-
-        if( length( sheet_selection ) > 1 ){ # Read a specific set of sheets
-
-            multi_sheet <- TRUE
-            x <- lapply( sheet_selection, read_excel, path = full_file_path,
-                         col_names = column_names, col_types = column_types,
-                         na = missing_value, trim_ws = FALSE, skip = skip_rows,
-                         guess_max = 100) %>%
-                lapply( as.data.frame )
-            names( x ) <- sheet_selection
-
-        } else { # Read one sheet
-
-            # If only one sheet exists
-            if( sheet_selection == "ALL" ) sheet_selection <- sheet_names[ 1 ]
-
-            x <- read_excel( path = full_file_path, sheet = sheet_selection,
-                             col_names = column_names, col_types = column_types,
-                             na = missing_value, trim_ws = FALSE, skip = skip_rows,
-                             guess_max = 100) %>%
-                as.data.frame()
-        }
-    }
-    # THIS DOES NOT WORK FOR SOME REASON- ADDRESS LATER
-    # Replace en-dashes and em-dashes with hyphens
-    names( x ) <- gsub( "(—|–)", "-", names( x ) )
-
-    return( list( x, multi_sheet ) )
-
 }
+
 
 # -----------------------------------------------------------------------------
 # sourceData
