@@ -471,12 +471,24 @@ readData <- function( domain = NULL, file_name = NULL, extension = ".csv",
 readExcel <- function( full_file_path, sheet_selection = "ALL",
                        na = "", trim_ws = FALSE, guess_max = 100, ... ) {
 
+    all_sheets <- readxl::excel_sheets( full_file_path )
+
+    # Get sheet names based on the value of sheet_selection
     if ( length( sheet_selection ) == 1 && sheet_selection == "ALL" ) {
-        sheet_names <- readxl::excel_sheets( full_file_path )
+        sheet_names <- all_sheets
+    } else if ( is.numeric( sheet_selection ) ) {
+        sheet_names <- all_sheets[ sheet_selection ]
     } else {
-        sheet_names <- sheet_selection
+        sheet_names <- all_sheets[ all_sheets %in% sheet_selection ]
     }
 
+    # Error checking
+    sheets_dropped <- length( sheet_names ) < length( sheet_selection )
+    if ( sheets_dropped || any( is.na( sheet_names ) ) ) {
+        stop( "Invalid sheet selection '",
+              paste( sheet_selection, collapse = ', ' ),
+              "' for file ", full_file_path )
+    }
 
     x <- lapply( sheet_names, function( sheet ) {
         readxl::read_excel( full_file_path, sheet, na = na, trim_ws = trim_ws,

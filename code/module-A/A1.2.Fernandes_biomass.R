@@ -46,17 +46,19 @@
 
 # ------------------------------------------------------------------------------
 # 1. Read raw input files and define useful values
-  library( "zoo" )
   library( "FAOSTAT" )
 
-  input <- readData( "ENERGY_IN", "Fernandes_Biofuels_9", ".xlsx" )[ 2:11 ] # read in excel sheets from 2 to 11
+  # The guess_max prevents some columns from being read in as numeric when there
+  # are notes at the bottom that cause warnings
+  input <- readData( "ENERGY_IN", "Fernandes_Biofuels_9", ".xlsx",
+                     sheet_selection = 2:11, guess_max = 1000 )
   Master_Country_List <- readData( "MAPPINGS", "Master_Country_List" )
 
 # Read and process population data to have rural population
   pop_master <- readData( "MED_OUT", "A.UN_pop_master" ) %>%
     filter( scenario %in% c( "Estimates", "Medium fertility" ) ) %>%
     select( iso, year, pop, urban_share ) %>%
-    unique()
+    distinct()
   pop_master$rural_pop <- pop_master$pop * ( 1 - pop_master$urban_share )
 
 # Energy-weight conversion factors by biomass type
@@ -211,7 +213,7 @@
     proxied$consumption_pc_proxy[ proxied$consumption_pc == 0 ]
 
 # Bind back proxied values
-  full_proxied <- bind_rows( filter( full, iso %!in% proxy_mapping$iso ), 
+  full_proxied <- bind_rows( filter( full, iso %!in% proxy_mapping$iso ),
                              select( proxied, -iso_proxy, -consumption_pc_proxy ) ) %>%
     dplyr::arrange( iso, year )
 
