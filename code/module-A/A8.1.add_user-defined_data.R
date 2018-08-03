@@ -58,7 +58,7 @@ all_activity_data <- readData( 'MED_OUT', 'A.comb_default_activity_extended', me
 # This data is aggreagated to the agg_fuel level by default, so we place a fill
 # value in for the CEDS_fuel.
 all_activity_data <- all_activity_data %>%
-    dplyr::mutate( CEDS_fuel = if_else( CEDS_sector %in% othr_sectors & CEDS_fuel == 'oil',
+    dplyr::mutate( CEDS_fuel = if_else( CEDS_fuel == 'oil' & CEDS_sector %in% othr_sectors,
                                         'AGGREGATE', CEDS_fuel ),
                    agg_fuel = if_else( CEDS_fuel == 'AGGREGATE', 'oil', agg_fuel ) )
 
@@ -68,8 +68,7 @@ stopifnot( all( !is.na( all_activity_data ) ) ) # Data should all be valid
 # -----------------------------------------------------------------------
 # 2. Collect user-defined inputs and initialize script variables
 
-# Read instructions files that give the user-provided instructions for all
-# supplemental data.
+# Read in the user-provided instructions for all supplemental data.
 instructions <- processInstructions( comb_sectors, MSL, MFL, all_activity_data )
 
 # TODO: Figure out how/where/why to process trend data without roundabout
@@ -97,6 +96,39 @@ usr_files <- sapply( filenames, function( data_file ) {
                  instructions[ instructions$data_file == data_file, ],
                  map_files[[ data_file ]], MSL, MCL, MFL, all_activity_data )
 }, simplify = F )
+
+
+compareToDefault <- function( df, default_activity, datasrc = 'user data' ) {
+    agg_cols <- aggLevelToCols( identifyLevel( df ) )
+    new_long <- tidyr::gather( df, 'year', !!datasrc, matches( 'X\\d{4}' ) )
+    default_long <- default_activity %>%
+        dplyr::semi_join( df, by = agg_cols ) %>%
+        dplyr::select( names( df ) ) %>%
+        tidyr::gather( 'year', 'default', matches( 'X\\d{4}' ) ) %>%
+        dplyr::group_by_at( c( agg_cols, 'year') ) %>%
+        dplyr::summarise( default = sum( default ) ) %>%
+        dplyr::ungroup()
+
+    combined <- default_long %>%
+        dplyr::left_join( new_long, by = c( agg_cols, 'year' ) ) %>%
+        dplyr::mutate( pct_diff = ( !!as.name( datasrc ) - default ) / default,
+                       year = as.integer( substr( year, 2, 5 ) ) )
+
+    plot_df <- combined %>%
+        tidyr::gather( 'source', 'value', default, !!as.name( datasrc ) ) %>%
+        dplyr::group_by( iso, agg_fuel, year, source ) %>%
+        dplyr::summarise( value = sum( value ) )
+
+
+    ggplot(plot_df, aes(x = year, y = value)) +
+        geom_line(aes(group = source, color = source)) +
+        facet_wrap( agg_fuel ~ ., ncol = 1 )
+}
+
+for ( i in seq_along( usr_files ) ) {
+    print(compareToDefault( usr_files[[i]], all_activity_data, names( usr_files )[[i]] ))
+}
+tmp <- sapply( usr_files, compareToDefault, all_activity_data, names( usr_files ) )
 
 # This stores the final form of each instruction used, for diagnostics
 rows_completed <- instructions[ 0, ]

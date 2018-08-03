@@ -1,30 +1,39 @@
 #------------------------------------------------------------------------------
 # Program Name: user_extension_instr_processing.R
-# Author: Ben Goldstein
+# Authors: Ben Goldstein, Caleb Braun
 # Date Last Updated: 26 January 2018
 # Program Purpose: Provides functions for the add_user-defined_data script that
 #                  help process the instructions for handling user-defined
 #                  datasets.
-# Input Files: U.*, U.*-instructions, U.*-mapping
-# Output Files: None
 # ------------------------------------------------------------------------------------
 
 
-# orderInstructions
-# Sorts user instructions ensure that all actions are performed in the right
+# Order instructions
+#
+# Sort user instructions to ensure that all actions are performed in the right
 # order. The rows are arranged in ascending order by:
 #   1. priority
 #   2. CEDS_sector
 #   3. CEDS_fuel
 #   4. start_year
+#
+# Args:
+#   instructions: Processed instructions (see processInstructions())
+#
+# Returns:
+#   The ordered instructions
 orderInstructions <- function( instructions ) {
     dplyr::arrange( instructions, priority, CEDS_sector, CEDS_fuel, start_year )
 }
 
 
-# getInstructionFilenames
-# Instruction files are specified as all files in the user-defined-energy
-# directory with the name [filename]-instructions.csv
+# Get instruction filenames
+#
+# Retrieve instruction files from the user-defined-energy directory. They are
+# all specified with the name [filename]-instructions.csv
+#
+# Returns:
+#   Vector of filenames of all instructions files to be processed
 getInstructionFilenames <- function() {
     USER_DOM <- "extension/user-defined-energy/"
 
@@ -39,15 +48,16 @@ getInstructionFilenames <- function() {
 }
 
 
-# readInUserInstructions
+# Read in user instructions
+#
 # Searches the user-defined-energy directory for instructions, filters out non-
 # combustion data, and adds defaults.
 #
-# Returns a list of lists. Outer list is named the base filename of the
-# instructions. Inner lists contain two dataframes, one named Trend_instructions
-# and the other Interpolation_instructions.
+# Returns:
+#   A list of lists. Outer list is named the base filename of the instructions.
+#   Inner lists contain two dataframes, one named Trend_instructions and the
+#   other Interpolation_instructions.
 readInUserInstructions <- function() {
-
     instr_names <- getInstructionFilenames()
     if ( length( instr_names ) == 0 ) return( NULL )
     instr_files <- paste0( "user-defined-energy/" , instr_names ) %>%
@@ -58,9 +68,29 @@ readInUserInstructions <- function() {
 }
 
 
-# processInstructions
-# Prepares the raw trend instructions for use in the main processing loop.
-# Outputs a dataframe containing all user instructions
+# Prepare the raw trend instructions for use in the main processing loop
+#
+# Gives a single dataframe with columns for all CEDS ids (currently: iso,
+# agg_fuel, CEDS_fuel, agg_sector, CEDS_sector) and all instruction parameters.
+#   - If instruction is for disaggregate data, aggregate id columns will be
+#     automatically added. For example, if CEDS_fuel is 'coal_coke', the
+#     agg_fuel column will be automatically filled in as 'coal'.
+#   - If instruction is for aggregate data, the disaggregate id columns are set
+#     to NA.
+#   - If an instruction parameter is not specified, it will be set to the
+#     default value
+#
+# For a description of allowed instruction parameters, please see the official
+# wiki: https://github.com/JGCRI/CEDS/wiki/User_Guide#32-use-instructions-options
+#
+# Args:
+#   comb_sectors: Vector of combustion sectors
+#   MSL: Master sector mapping file
+#   MFL: Master fuel mapping file
+#   default_activity: Extended default activity data
+#
+# Returns:
+#   A dataframe containing all user instructions
 processInstructions <- function( comb_sectors, MSL, MFL, default_activity ) {
 
     # Get list of all '-instructions.csv' files in the user-defined-energy dir
@@ -102,9 +132,18 @@ processInstructions <- function( comb_sectors, MSL, MFL, default_activity ) {
 }
 
 
-# extractBatchInstructions
+# Extract batch instructions
+#
 # Given a dataframe of instructions and a dataframe of energy extension values,
 # return the rows from the instructions dataframe that apply to the user data.
+#
+# Args:
+#   instructions: Processed instructions (see processInstructions())
+#   usrdf: Processed data for the energy extension (see procUsrData())
+#   agg_level: Integer representing aggregation level of the userdf
+#
+# Returns:
+#   The instructions filtered to only the rows that apply to the user data
 extractBatchInstructions <- function( instructions, usrdf, agg_level ) {
 
     if ( agg_level == 1 | agg_level == 2 ) {
@@ -137,22 +176,37 @@ extractBatchInstructions <- function( instructions, usrdf, agg_level ) {
 }
 
 
-# removeNonComb
-# Removes any non-combustion data, as that is not supported.
+# Remove any non-combustion data
+#
+# Removes all non-combustion data, as that is not supported
+#
+# Args:
+#   df: Data needing filtering
+#   comb_sectors_only: Vector of combustion sectors to filter to
+#
+# Returns:
+#   The filtered combustion data
 removeNonComb <- function( df, comb_sectors_only ) {
     num_instructions <- nrow( df )
     df <- dplyr::filter( df, is.na( CEDS_sector ) |
-                             CEDS_sector %in% comb_sectors_only)
-    num_removed = num_instructions - nrow( df )
+                             CEDS_sector %in% comb_sectors_only )
 
+    num_removed <- num_instructions - nrow( df )
     if ( num_removed > 0 ) {
         warning( paste( num_removed, "instruction line(s) were rejected as",
                         "non-combustion sectors" ) )
     }
+
     return( df )
 }
 
 
+# Clean instructions for user-added data
+#
+# Converts list of raw instruction files into a standardized data.frame
+#
+# Args:
+#   instructions: A list of data.frames of user instructions
 cleanInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
     # Make sure instructions are a given as a list of data.frames
     stopifnot( all( sapply( instructions, is.data.frame ) ) )
