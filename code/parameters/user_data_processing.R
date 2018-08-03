@@ -61,10 +61,6 @@ readInUserData <- function( fname, yearsAllowed, ftype = NULL ) {
 procUsrData <- function( usr_data, proc_instr, mappings,
                          MSL, MCL, MFL, trend_data = NULL ) {
 
-    # Get year columns and cast them as numeric
-    # year_cols <- names( usr_data )[ isXYear( names( usr_data ) ) ]
-    # usr_data <- dplyr::mutate_at( usr_data, year_cols, as.numeric )
-
     # mappings is expected as a list of data frames, but if it isn't we can
     # pull out the name of the data frame from the column names
     if ( is.data.frame( mappings ) ) {
@@ -72,8 +68,8 @@ procUsrData <- function( usr_data, proc_instr, mappings,
         mappings <- setNames( list( mappings ), mappings_name )
     }
 
-    # Test if `sector_map` parameter is defined and has any character values.
-    # If it does, we need to
+    # If the user data has a unique sector mapping, disaggregate it to the
+    # CEDS_sector aggregation level.
     if ( !is.invalid( proc_instr$sector_map ) ) {
         maps <- list( mappings$iso, mappings$CEDS_fuel, mappings$agg_fuel )
         mcols <- c( 'iso', 'CEDS_fuel', 'agg_fuel' )
@@ -582,40 +578,69 @@ mapToUserSectors <- function( df, default_activity ) {
 }
 
 
-disaggUserSectors <- function( usr_data, proc_instr, default_activity ) {
-    user_sector_maps <- unique( proc_instr$sector_map )
-    if ( length( user_sector_maps ) != 1 )
-        stop( paste( "File", proc_instr$data_file[1], "must all use one sector",
-                     "map" ) )
+# Disaggregate data to the level of another data.frame
+#
+# Disaggregates the input data frame to the levels specified by the `disagg_shares` parameter
+# Disaggregate data from the agg_sector level of aggregation to the CEDS_sector
+# level.
+#
+# Args:
+#   agg_activity: A data.frame containing columns for iso, agg_sector, agg_fuel,
+#             and at least one year in Xyear format
+#   disagg_shares: A data.frame containing the values for proportionally
+#                     disaggregating to the CEDS_sector level
+#   agg_cols: The id columns from the aggregated data.frame
+#
+# Returns:
+#   The disaggregated data.frame
+disaggregate <- function( agg_activity, disagg_shares, agg_cols ) {
 
-    join_col <- unique( proc_instr$agg_sector_join_col[1] )
-    stopifnot( length( join_col ) == 1 )
+    final_ids <- names( disagg_shares )[ !isXYear( names( disagg_shares ) ) ]
+    join_cols <- intersect( final_ids, names( agg_activity ) )
 
-    usr_data_mapped <- proc_instr %>%
-        dplyr::select( iso, CEDS_sector, agg_fuel, agg_sector_inv ) %>%
-        dplyr::left_join( usr_data, by = c( "iso", "agg_fuel",
-                                            "agg_sector_inv" = join_col ) )
+    df_disagg <- agg_activity %>%
+        dplyr::left_join( disagg_shares, by = join_cols ) %>%
+        dplyr::select( one_of( c( agg_cols, final_ids ) ),
+                       ends_with( '.x' ), ends_with( '.y' ) )
 
-    disagg_all <- usr_data_mapped %>%
-        dplyr::left_join( default_activity, by = c( "iso", "agg_fuel",
-                                                    "CEDS_sector" ) ) %>%
-        dplyr::filter( !is.na( CEDS_fuel ) ) %>%
-        dplyr::select( iso, agg_sector_inv, agg_sector, agg_fuel, CEDS_sector,
-                       CEDS_fuel, ends_with( '.x' ), ends_with ( '.y' ) )
+    value_cols <- grep( 'X\\d{4}\\.x', names( df_disagg ), value = T )
+    share_cols <- grep( 'X\\d{4}\\.y', names( df_disagg ), value = T )
+    stopifnot( identical( gsub( 'x$', '', value_cols ),
+                          gsub( 'y$', '', share_cols ) ) )
 
-    disagg <- disagg_all %>%
-        dplyr::group_by( iso, agg_sector_inv, agg_fuel ) %>%
-        dplyr::mutate_at( vars( matches( 'X\\d{4}\\.y' ) ), prop.table ) %>%
-        dplyr::mutate_at( vars( matches( 'X\\d{4}\\.y' ) ),
-                          funs( if_else( is.nan( . ), 0, . ) ) ) %>%
+    df_shares <- df_disagg %>%
+        dplyr::group_by_at( agg_cols ) %>%
+        dplyr::mutate_at( share_cols, prop.table ) %>%
+        dplyr::mutate_at( share_cols, funs( if_else( is.nan( . ), 0, . ) ) ) %>%
         dplyr::ungroup()
 
-    dplyr::bind_cols(
-        dplyr::select( disagg, iso, agg_sector, agg_fuel, CEDS_sector, CEDS_fuel ),
-        dplyr::select( disagg, matches( 'X\\d{4}\\.x' ) ) *
-            dplyr::select( disagg, matches( 'X\\d{4}\\.y' ) ) ) %>%
-    dplyr::rename_all( funs( sub( '\\.(x|y)$', '', . ) ) )
+    df_final_key_columns <- df_shares[ final_ids ]
+    df_final_val_columns <- df_shares[ value_cols ] * df_shares[ share_cols ]
 
+    dplyr::bind_cols( df_final_key_columns, df_final_val_columns ) %>%
+        dplyr::rename_all( funs( sub( '\\.(x|y)$', '', . ) ) )
+}
+
+
+disaggUserSectors <- function( usr_data, proc_instr, default_activity ) {
+
+    if ( length( unique( proc_instr$sector_map ) ) != 1 ) {
+        stop( paste( "File", proc_instr$data_file[1], "must all use one sector",
+                     "map" ) )
+    }
+
+    join_col <- proc_instr$agg_sector_join_col[1]
+    agg_cols <- aggLevelToCols( identifyLevel( usr_data, na.rm = T ) )
+
+    usr_sector_map <- proc_instr %>%
+        dplyr::select( CEDS_sector, !!join_col := agg_sector_inv ) %>%
+        dplyr::distinct()
+
+    usr_data_mapped <- usr_data %>%
+        dplyr::left_join( usr_sector_map, by = join_col ) %>%
+        dplyr::filter( !is.na( CEDS_sector ) )
+
+    disaggregate( usr_data_mapped, all_activity_data, agg_cols )
 }
 
 

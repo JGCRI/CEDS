@@ -566,14 +566,15 @@ aggLevelToNormalize <- function(agg_level) {
 #        level of aggregation. The CEDS level of aggregation is the most
 #        disaggregated allowed, and is specified by CEDS_COLS.
 # params:
-#    dataframe: the dataframe whose level you wish to identify
-identifyLevel <- function ( dataframe ) {
-
+#    df:        the dataframe whose level you wish to identify
+#    na.rm:     remove aggregation columns that only contain NAs?
+identifyLevel <- function ( df, na.rm = FALSE ) {
     CEDS_COLS <- c( "agg_fuel", "CEDS_fuel", "agg_sector", "CEDS_sector" )
-    agg_level <- dplyr::intersect( CEDS_COLS, names( dataframe ) ) %>%
-                 paste( collapse = " " ) # for visual clarity
 
-    switch(agg_level,
+    agg_cols <- dplyr::select_if( df, funs( !na.rm | !all( is.na( . ) ) ) )
+    agg_cols <- dplyr::intersect( CEDS_COLS, names( agg_cols ) )
+
+    switch( paste( agg_cols, collapse = " " ),
         "agg_fuel"                                  = 1, # most aggregate
         "agg_fuel CEDS_fuel"                        = 2,
         "agg_fuel CEDS_fuel agg_sector"             = 3,
