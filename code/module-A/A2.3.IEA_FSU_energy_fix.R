@@ -41,13 +41,6 @@
 
 # -------------------------------------------------------------------------------------------
 
-    loadPackage('zoo')
-    ##CR: remove extra packages
-    # loadPackage('ggplot2')
-    # loadPackage('plyr')
-    # loadPackage('scales')
-    # loadPackage('gridExtra')
-
     end_BP_year <- 2013
 
 # -------------------------------------------------------------------------------------------

@@ -456,14 +456,17 @@ interpolate_NAs <- function(df) {
     return (df)
 }
 
+# A faster implementation of interpolate_NAs. Needs testing to ensure identical
+# behavior.
 interpolate_NAs2 <- function(df) {
-    if('data.frame' %!in% class(df)) {
+    if(is.data.frame(df)) {
         warning("interpolate_NAs expects a data frame; attempting to convert")
         df <- as.data.frame(df)
     }
 
     # Convert columns that are all NA to numeric
     df <- dplyr::mutate_if(df, function(x) all(is.na(x)), as.numeric)
+
     if(length(rle(sapply(df, is.numeric))$lengths) > 2) {
         warning("interpolate_NAs found mixed numeric and non-numeric columns;
                 make sure all value columns are numeric")
@@ -473,8 +476,26 @@ interpolate_NAs2 <- function(df) {
     df_flipped <- t(df[value.cols])
     df[ , value.cols] <- t(na.approx(df_flipped, na.rm = F))
 
-    return (df)
+    return(df)
 }
+
+
+# -----------------------------------------------------------------------------
+# verify_calculate_share_params
+# Brief:     Verify that the parameters to calculate_(correct_)shares are ok.
+# Details:   Should not be called outside those 2 functions.
+# Author(s): Caleb Braun
+verify_calculate_share_params <- function(input_data, id_columns, target_column,
+                                          replace_with_zeros) {
+
+  if( length(target_column) != 1 )
+      stop('calulating shares: must select only one target_column' )
+  if( any(id_columns %in% target_column) && length(id_columns) > 1 )
+      stop('in calculate_shares: specified id_columns must be different than target_column, if more than one id column')
+  # if( all( id_columns %!in% names( input_data ) ) )
+  #     stop('in calculate_shares: specified id_columns are not all in original_data')
+}
+
 
 
 # -----------------------------------------------------------------------------
@@ -560,20 +581,22 @@ calculate_shares <- function(input_data,
 # Brief:     corrects shares given a dataframe default breakdowns
 # Details:
 # Dependencies:
-# Author(s):
+# Author(s): Rachel Hoesly
 # Params:
-# a.input_data - shares to correct. In id cols , X year format
-# a.id_cols - vector of character strings, nanes of identifier columns for
-#           which to compute shares, ex - c('sector','fuel)
-# a.target_column - vector of character strings, nanes of identifier column for
-#           which to compute shares over, ex - 'iso'
-# a.corrections - default corrections for when shares are from zero data. must be in
-#           data fram format with 2 columns, target_id and breakdown. breakdown must sum to 1.
-#           for example:
-#           a.corrections data.frame( ext_sector = c('1A4c_Agriculture-forestry-fishing','Industry','Power','RCO','Shipping','Transportation'),
-#                                     breakdown = c(0,0.5,0,0.5,0,0))
-# replace_with_zeros - T/F boolean, defaults to T. If T, shares that are
-#         calculated as NA (have zero data) are replaced with zeros
+#   a.input_data: Data frame of shares to correct in id cols, X year format
+#   a.id_cols: vector of character strings, names of identifier columns for
+#              which to compute shares, ex - c('sector','fuel)
+#   a.target_column: Vector of character strings, names of identifier column for
+#                    which to compute shares over, ex - 'iso'
+#   a.corrections: Default corrections for when shares are from zero data. Must
+#                  be in data frame format with 2 columns, target_id and
+#                  breakdown. breakdown must sum to 1. For example:
+#                  data.frame( ext_sector = c('1A4c_Agriculture-forestry-fishing',
+#                                             'Industry','Power','RCO','Shipping',
+#                                             'Transportation'),
+#                              breakdown = c(0,0.5,0,0.5,0,0))
+#   replace_with_zeros: Boolean, defaults to T. If T, shares that are calculated
+#                       as NA (have zero data) are replaced with zeros.
 #
 # Return:  dataframe in same format as input, of calculated shares
 # Input Files:
@@ -585,9 +608,7 @@ calculate_correct_shares <- function(a.input_data,
                                      a.target_column,
                                      a.corrections,
                                      a.match_columns = a.target_column,
-                                     replace_with_zeros = T
-
-){
+                                     replace_with_zeros = T ){
 
     # a.input_data = bond_sector_percentages_full
     # a.id_columns = c("iso","fuel")
@@ -601,43 +622,60 @@ calculate_correct_shares <- function(a.input_data,
     # 1. Input parameter checks
     # id and target columns
     same_id_target <- F
-    if( length(a.target_column) != 1 ) stop('in calculate_shares: must select only one a.target_column' )
-    if( any(a.id_columns %in% a.target_column) & length(a.id_columns) > 1 ) stop('in calculate_shares: specified a.id_columns must be different than a.target_column, if more than one id column')
+    if( length(a.target_column) != 1 )
+        stop('in calculate_shares: must select only one a.target_column' )
+    if( any(a.id_columns %in% a.target_column) && length(a.id_columns) > 1 )
+        stop('in calculate_shares: specified a.id_columns must be different than a.target_column, if more than one id column')
     if( length(a.id_columns) == 0) {
         same_id_target <- T
         a.id_columns <- a.target_column    }
-    if( length(a.id_columns) == 1 & all(a.id_columns == a.target_column) ) same_id_target <- T
-    if( all( a.id_columns %!in% names(a.input_data )) ) stop('in calculate_shares: specified a.id_columns are not all in original_data')
-    if( same_id_target) printLog( 'in calculate_shares: id_column and target columns are the same.')
+    if( length(a.id_columns) == 1 && all(a.id_columns == a.target_column) )
+        same_id_target <- T
+    if( all( a.id_columns %!in% names(a.input_data )) )
+        stop('in calculate_shares: specified a.id_columns are not all in original_data')
+    if( same_id_target)
+        printLog( 'in calculate_shares: id_column and target columns are the same.')
+
     # correction file
     correction_id <- names(a.corrections)[ names(a.corrections) %!in% c("breakdown", a.target_column) ]
 
-    if( 'breakdown' %!in% names(a.corrections) ) stop('correction is in the wrong format, please check. Corrections must be in for of data frame with column names a.target_column and "breakdown" ')
-    if( a.target_column %!in% names(a.corrections) ) stop('correction is in the wrong format, please check. Corrections must be in for of data frame with column names a.target_column and "breakdown" ')
-    if( all( names(a.corrections)[ names(a.corrections) %!in% c("breakdown") ]  %!in% c(a.id_columns, a.target_column ) ) )stop('correction is in the wrong format, please check. Corrections must be in for of data frame with column names a.target_column and "breakdown" (optionally an id column) ')
+    if( 'breakdown' %!in% names(a.corrections) )
+        stop('correction is in the wrong format, please check. Corrections must be in for of data frame with column names a.target_column and "breakdown" ')
+    if( a.target_column %!in% names(a.corrections) )
+        stop('correction is in the wrong format, please check. Corrections must be in for of data frame with column names a.target_column and "breakdown" ')
+    if( all( names(a.corrections)[ names(a.corrections) %!in% c("breakdown") ] %!in% c(a.id_columns, a.target_column ) ) )
+        stop('correction is in the wrong format, please check. Corrections must be in for of data frame with column names a.target_column and "breakdown" (optionally an id column) ')
 
-    if( length(correction_id)==0 ){if( sum(a.corrections['breakdown']) != 1) stop( 'correction breakdowns do not sum to 1' )}
-    if( length(correction_id>0)){
-                    sum <- a.corrections %>%
-                        select(-one_of(a.target_column)) %>%
-                        group_by_(correction_id) %>%
-                        summarise_all(funs(sum))
-                    if( !all(sum$breakdown == 1) ) stop('breakdown must sum to 1 over target variable, check corrections')}
+    if( length(correction_id) == 0 && sum(a.corrections['breakdown']) != 1 )
+            stop( 'correction breakdowns do not sum to 1' )
+    if( length(correction_id > 0)) {
+        sum <- a.corrections %>%
+            select(-one_of(a.target_column)) %>%
+            group_by_(correction_id) %>%
+            summarise_all(funs(sum))
+        if( !all(sum$breakdown == 1) )
+            stop('breakdown must sum to 1 over target variable, check corrections')
+    }
 
-    # Check to see if there are corrections for all combinations in input data - Do not stop, but through warning if there are not defaults for all
-    # combinations
+    # Check to see if there are corrections for all combinations in input data.
+    # Do not stop, but throw warning if there are not defaults for all
+    # combinations.
+    no_defaults <- setdiff(
+        unique( apply(a.input_data[a.match_columns],  1, paste, collapse = "-" ) ),
+        unique( apply(a.corrections[a.match_columns], 1, paste, collapse = "-" ) )
+    )
 
-    no_defaults <- setdiff( apply(a.input_data[a.match_columns], 1, paste, collapse = "-" ) %>% unique,
-             apply(a.corrections[a.match_columns], 1, paste, collapse = "-" ) %>% unique )
-
-    if ( length(no_defaults) > 0 ) stop(
-        paste( 'In calculate_correct_shares: defaults are not provided for all breakdowns. The following do not have defautls: ' ,
-                                              paste(no_defaults, collapse = ", ") ) )
+    if ( length(no_defaults) > 0 )
+        stop( paste( 'In calculate_correct_shares: defaults are not provided for all breakdowns.',
+                     'The following do not have defautls: ',
+                     paste(no_defaults, collapse = ", ") ) )
 
     # ---------------------------
     # 2. Define useful variables
     X_years <- names(a.input_data)[grep('X',names(a.input_data))]
-    a.input_data_long <- a.input_data %>% gather(year, breakdown, -a.id_columns, - a.target_column)
+    a.input_data_long <- a.input_data %>%
+        tidyr::gather(year, breakdown, -a.id_columns, -a.target_column)
+
     # ---------------------------
     # 3. Separate input data into dataframes - those with zero sum breakdowns (to correct)
     # and those with non zero sum breakdowns (already correct), then
@@ -658,10 +696,12 @@ calculate_correct_shares <- function(a.input_data,
     # check to make sure to_correct_years are all zero
     check_sum <- to_correct_years %>%
         dplyr::summarise(sum = sum(breakdown, na.rm = T))
-    if( check_sum != 0) stop('In calculate_correct_shares(), correction years selected include non zero breakdowns. Please check.')
+    if( check_sum != 0)
+        stop('In calculate_correct_shares(), correction years selected include non zero breakdowns. Please check.')
 
     # Check for all entries
-    if( nrow(a.input_data_long) != (nrow(already_correct_years) + nrow(to_correct_years)) ) stop("In calculate_correct_shares(), some entries are dropped. Please check.")
+    if( nrow(a.input_data_long) != (nrow(already_correct_years) + nrow(to_correct_years)) )
+        stop("In calculate_correct_shares(), some entries are dropped. Please check.")
 
     # ---------------------------
     # 4. Correct to_correct_years
