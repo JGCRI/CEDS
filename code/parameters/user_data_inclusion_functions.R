@@ -532,6 +532,9 @@ interpBreakdowns <- function( pct_breakdown, Xyears ) {
 }
 
 
+# Map aggregate level ID number to column names
+#
+# Original notes:
 # For each aggregate level, column names are specified that will guide
 # normalization and processing. Because of this flexible architecture,
 # specific aggregate levels can be easily adjusted or added without changing
@@ -539,6 +542,12 @@ interpBreakdowns <- function( pct_breakdown, Xyears ) {
 # cols_given that isn't present in normalizeTo; you can only ever normalize
 # by a single "level" of aggregation. This is a law of the function, not of
 # the process, and may be worth changing down the line.
+#
+# Args:
+#   agg_level: Integer representing the aggregation level of a CEDS dataset
+#
+# Returns:
+#   A character vector of the id columns corresponding given aggregation level
 aggLevelToCols <- function(agg_level) {
     switch(agg_level,
         c("iso", "agg_fuel"),                                           # 1
@@ -560,14 +569,19 @@ aggLevelToNormalize <- function(agg_level) {
     )
 }
 
-#------------------------------------------------------------------------------
-# identifyLevel
-# Brief: Performs a simple check of column names to determine the data frame's
-#        level of aggregation. The CEDS level of aggregation is the most
-#        disaggregated allowed, and is specified by CEDS_COLS.
-# params:
-#    df:        the dataframe whose level you wish to identify
-#    na.rm:     remove aggregation columns that only contain NAs?
+
+# Identify the aggregation level ID of a CEDS dataset
+#
+# Performs a simple check of column names to determine the data frame's level of
+# aggregation. The CEDS level of aggregation is the most disaggregated allowed,
+# and is specified by CEDS_COLS. Returns 0 if the level is unidentifiable.
+#
+# Args:
+#    df: The dataframe whose level you wish to identify
+#    na.rm: Remove aggregation columns that only contain NAs?
+#
+# Returns:
+#   An integer representing the aggregation level of a CEDS dataset
 identifyLevel <- function ( df, na.rm = FALSE ) {
     CEDS_COLS <- c( "agg_fuel", "CEDS_fuel", "agg_sector", "CEDS_sector" )
 

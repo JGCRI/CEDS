@@ -9,7 +9,7 @@
 #
 # Input Files:  U.*.csv, U.*-instructions.csv, U.*-mapping.xslx
 # Output Files: A.comb_user_added.csv
-# Notes: Relies on funcitons from the following files:
+# Notes: Relies on functions from the following files:
 #   - parameters/user_data_inclusion_functions.R
 #   - parameters/user_data_processing.R
 #   - parameters/user_extension_instr_processing.R
@@ -97,38 +97,11 @@ usr_files <- sapply( filenames, function( data_file ) {
                  map_files[[ data_file ]], MSL, MCL, MFL, all_activity_data )
 }, simplify = F )
 
-
-compareToDefault <- function( df, default_activity, datasrc = 'user data' ) {
-    agg_cols <- aggLevelToCols( identifyLevel( df ) )
-    new_long <- tidyr::gather( df, 'year', !!datasrc, matches( 'X\\d{4}' ) )
-    default_long <- default_activity %>%
-        dplyr::semi_join( df, by = agg_cols ) %>%
-        dplyr::select( names( df ) ) %>%
-        tidyr::gather( 'year', 'default', matches( 'X\\d{4}' ) ) %>%
-        dplyr::group_by_at( c( agg_cols, 'year') ) %>%
-        dplyr::summarise( default = sum( default ) ) %>%
-        dplyr::ungroup()
-
-    combined <- default_long %>%
-        dplyr::left_join( new_long, by = c( agg_cols, 'year' ) ) %>%
-        dplyr::mutate( pct_diff = ( !!as.name( datasrc ) - default ) / default,
-                       year = as.integer( substr( year, 2, 5 ) ) )
-
-    plot_df <- combined %>%
-        tidyr::gather( 'source', 'value', default, !!as.name( datasrc ) ) %>%
-        dplyr::group_by( iso, agg_fuel, year, source ) %>%
-        dplyr::summarise( value = sum( value ) )
-
-
-    ggplot(plot_df, aes(x = year, y = value)) +
-        geom_line(aes(group = source, color = source)) +
-        facet_wrap( agg_fuel ~ ., ncol = 1 )
-}
-
+# Write out comparisons of input data to the default data
 for ( i in seq_along( usr_files ) ) {
-    print(compareToDefault( usr_files[[i]], all_activity_data, names( usr_files )[[i]] ))
+    compareToDefault( usr_files[[i]], all_activity_data, names( usr_files )[[i]] )
 }
-tmp <- sapply( usr_files, compareToDefault, all_activity_data, names( usr_files ) )
+
 
 # This stores the final form of each instruction used, for diagnostics
 rows_completed <- instructions[ 0, ]
