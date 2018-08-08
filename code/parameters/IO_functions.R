@@ -911,6 +911,7 @@ clearMeta <- function( ) {
     }
 }
 
+
 # -----------------------------------------------------------------------------
 # savePlot
 # Brief:        Save a ggplot.
@@ -926,9 +927,8 @@ clearMeta <- function( ) {
 # Return:       None
 # Input Files:  None
 # Output Files: Specified in "fn".
-savePlot <- function( domain, domain_ext, file_name, width, height ) {
-
-    fp <- filePath( domain, file_name, extension = '.pdf', domain_extension = domain_ext)
-    ggsave( fp , width = width, height = height )
+savePlot <- function( domain, domain_ext, file_name, width, height, ext = '.pdf',
+                      plot = last_plot() ) {
+    fp <- filePath( domain, file_name, ext, domain_ext )
+    ggsave( fp, plot, width = width, height = height )
 }
-# -----------------------------------------------------------------------------

@@ -490,7 +490,8 @@ plot <- ggplot( df, aes(x=year,y=total_emissions,
                                 'RCP' = rcp_shape_symbol,
                                 'GAINS' = gains_shape_symbol))
 
-savePlot('DIAG_OUT', 'ceds-comparisons', paste0('CEDS_RCP_GAINS_EDGAR_', em, '_Global_Comparison.pdf'), width = 7, height = 4)
+savePlot('DIAG_OUT', 'ceds-comparisons', paste0('CEDS_RCP_GAINS_EDGAR_', em, '_Global_Comparison.pdf'),
+         width = 7, height = 4, plot = plot)
 
 # ------------------------------------------------------------------------------
 # 7. Write out and end
