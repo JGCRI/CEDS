@@ -294,7 +294,7 @@ df <- global_long
 df$total_emissions <- global_long$total_emissions/1000 #convert from Gg to Tg
 max <- 1.2 * ( max( df$total_emissions ) )
 
-plot <- ggplot(df, aes(x=year,y=total_emissions,group=Inventory,shape=Inventory,linetype=Inventory)) +
+ggplot(df, aes(x=year,y=total_emissions,group=Inventory,shape=Inventory,linetype=Inventory)) +
   geom_line(data = subset(df, Inventory=='CEDS'),size=1, color = 'black') +
   geom_point(data = subset(df, Inventory=='RCP'),color='dodgerblue1') +
   scale_x_continuous(limits = c(min(CEDS_start_year,rcp_start_year),2015 ),
@@ -386,7 +386,6 @@ for(i in 1:6){
             paste0('RCP_', em,'_Regional_Comparison_',
                    paste(plot_regions,collapse = '-' )),
             width = 7, height = 4)
-
 }
 
 pdf(paste0('../diagnostic-output/ceds-comparisons/RCP_',em,'_Regional_Comparison_All.pdf'),width=12,height=10,paper='special')
@@ -431,7 +430,7 @@ plot_df$Inventory <- as.factor(plot_df$Inventory)
 plot_df$sector <- as.factor(plot_df$sector)
 max <- 1.2*(max(plot_df$total_emissions))
 
-plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = sector,
+ggplot(plot_df, aes(x=year,y=total_emissions, color = sector,
                             shape=Inventory,linetype = Inventory)) +
   geom_line(data = subset(plot_df, Inventory =='CEDS'),size=1,aes(x=year,y=total_emissions, color = sector), alpha= .5) +
   geom_point(data = subset(plot_df, Inventory =='RCP'),size=1,aes(x=year,y=total_emissions, color = sector), alpha= .5) +

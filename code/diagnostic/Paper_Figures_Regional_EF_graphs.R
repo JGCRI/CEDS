@@ -224,11 +224,11 @@ for( Sector in 1:length( analysis_sectors ) ){
 		        panel.grid.minor = element_line(colour="gray95"),
 		        panel.grid.major = element_line(colour="gray88"),
 		        panel.border = element_rect(colour = "gray80", fill=NA, size=1))
-		plot
 
 		File_name <- paste0( EF_directory, em, "_", analysis_sectors[ Sector ], "_", analysis_fuels[ Fuel ], "-Bounding_EFs.pdf" )
 		if(File_name == paste0( EF_directory, 'NOx_1A3b_Road_light_oil-Bounding_EFs.pdf') )
-      savePlot('DIAG_OUT', EF_directory, 'NOx_1A3b_Road_light_oil-Bounding_EFs.pdf', width = 5, height = 3 )
+      savePlot('DIAG_OUT', EF_directory, 'NOx_1A3b_Road_light_oil-Bounding_EFs.pdf',
+               width = 5, height = 3 , plot = plot)
     }
   } # End of fuel loop
 } # End of sector loop
