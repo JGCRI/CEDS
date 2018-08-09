@@ -23,24 +23,40 @@ if( "input" %in% dir() ){
   stop("Cannot find 'input' directory")
 }
 
-sourceFunctions <- function( file_name ){ source( paste0( PARAM_DIR, file_name) ) }
-addDep <- function( file_name ){ addDependency( paste0 ( PARAM_DIR, file_name ) ) }
+sourceFunctions <- function( file_name ) {
+    file_path <- paste0( PARAM_DIR, file_name)
+    if ( file.exists( file_path ) ) {
+        source( file_path )
+    } else {
+        tryCatch({
+            file_path <- filePath( "DIAG_IN", file_name, "" )
+            source( file_path )
+        }, error = function(e) {
+            stop( "Header file ", file_name, " not found" )
+        })
+    }
+}
+
+addDep <- function( file_name ) addDependency( paste0( PARAM_DIR, file_name ) )
 
 initialize <- function( script_name, log_msg, headers, common_data = TRUE, clear_metadata = TRUE){
 
     # Include common_data.R by default
-    if( common_data && ( ! "common_data.R" %in% headers ) ){ headers <- c( headers, "common_data.R" ) }
+    if( common_data && ( !"common_data.R" %in% headers ) ) {
+        headers <- c( headers, "common_data.R" )
+    }
 
     # Ensure the critical headers are read in first, in the correct order
-    if( ! "IO_functions.R" %in% headers ){ headers <- c( "IO_functions.R", headers ) }
-    if( ! "global_settings.R" %in% headers ){ headers <- c( "global_settings.R", headers ) }
+    if( !"IO_functions.R" %in% headers ) {
+        headers <- c( "IO_functions.R", headers )
+    }
+    if( !"global_settings.R" %in% headers ) {
+        headers <- c( "global_settings.R", headers )
+    }
 
     invisible( lapply( headers, sourceFunctions ) )
     logStart( script_name )
-    if ( clear_metadata ) {
-    	clearMeta()
-    }
+    if ( clear_metadata ) clearMeta()
     invisible( lapply( headers, addDep ) )
     printLog( log_msg )
-
 }
