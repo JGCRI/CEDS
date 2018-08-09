@@ -1,54 +1,66 @@
 #------------------------------------------------------------------------------
 # Program Name: user_data_inclusion_functions.R
 # Author: Ben Goldstein, Caleb Braun
-# Date Last Updated: January, 2018
+# Date Last Updated: August, 2018
 # Program Purpose: Contains functions for including pre-processed user-defined
 #                  energy extension data. This file focuses mainly on the
 #                  functionality for the actual integration of user and default
 #                  datasets, leaving the pre-processing of either for other
 #                  functions.
-# Functions Defined:
+#
 # Notes: See also user_extension_instr_processing.R and user_data_processing.R
-# ------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # normalizeAndIncludeData
-# Brief: A functions for processing user extension data. It is flexible to each aggregate
-#        level. It handles normalizing data and disaggregating data based on
-#        already-present percentage breakdowns.
-# params:
+#
+# Defines functions for processing user extension data. It is flexible to each
+# aggregate level. It handles normalizing data and disaggregating data based on
+# already-present percentage breakdowns.
+#
+# Args:
 #    Xyears: the year range of data processing
-#    data_to_use: a dataframe of unchanged activity data extracted from all_activity
+#    data_to_use: a dataframe of unchanged activity data extracted from
+#      all_activity
 #    user_dataframe_subset: a subsetted dataframe of user-specified data
 #    all_activity_data: the dataframe holding all activity
 #    override_normalization: a manual option for disabling normalization
 #    agg_level: an integer indicating the aggregate level of the data given
 #
-#    TODO: Split this into many more functions
-
+# Returns:
+#   A list containing the adjusted data (all_activity_data) and information
+#     about the normalization, including any warnings (diagnostics)
+# TODO: Split this into more functions
 normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
                                      all_activity_data, override_normalization,
                                      agg_level, filename, specified_breakdowns ) {
 
     override_normalization <- any( override_normalization, na.rm = T )
 
-    cols_given <- aggLevelToCols(agg_level)
-    if(is.null(cols_given)) stop( paste( "agg_level", agg_level, "not supported" ) )
+    cols_given <- aggLevelToCols( agg_level )
+    if( is.null( cols_given ) )
+        stop( paste( "agg_level", agg_level, "not supported" ) )
 
-    # This will not be used at level 1 but is necessary for creating the identifier_col
-    normalizeTo <- aggLevelToNormalize(agg_level)
+    # This will not be used at level 1 but is necessary for creating the id_col
+    normalizeTo <- aggLevelToNormalize( agg_level )
 
     # The "identifier column" is the column that will be unique among all rows
     # once we have aggregated to this level.
-    id_col <- dplyr::setdiff(cols_given, normalizeTo)
+    id_col <- dplyr::setdiff( cols_given, normalizeTo )
 
     # Aggregate the pre-update data to match the user data level of aggregation
     activity_agg_to_level <- ddply( data_to_use, cols_given,
                                     function(x) colSums( x[ Xyears ] ) )
 
+    # activity_agg_to_level <- data_to_use %>%
+    #     dplyr::group_by_at( cols_given ) %>%
+    #     dplyr::summarise_at( Xyears, sum )
+
     # Add the user data (in a new copy of the agg dataframe)
     rows_to_replace <- activity_agg_to_level[[id_col]] %in% user_dataframe_subset[[id_col]]
+    row_order <- match( user_dataframe_subset[[id_col]],
+                        activity_agg_to_level[[id_col]], nomatch = 0 )
     act_agg_changed <- activity_agg_to_level
-    act_agg_changed[ rows_to_replace, Xyears ] <- user_dataframe_subset[ , Xyears ]
+    act_agg_changed[ row_order, Xyears ] <- user_dataframe_subset[ , Xyears ]
 
     # If all the rows were directly changed then we've specified data for an
     # entire aggregate group and therefore can't normalize
@@ -194,7 +206,7 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
         })
 
         # Do we still need this check?
-        if ( !all( is.na( user_breakdown ) ) ) {
+        if ( !all.na( user_breakdown ) ) {
             if ( any( colnames( user_breakdown ) == "all" ) ) {
             # use the "all" column for every year
                 user_breakdown[ , Xyears ] <- user_breakdown$all
@@ -347,34 +359,34 @@ sumAllActivityByFuelSector <- function( guide_row, years = Xyears, data = all_ac
 }
 
 
-#------------------------------------------------------------------------------
 # enforceContinuity
-# Brief: Used for preventing discontinuity between user-specified input and
-#          default activity data.
-# Purpose: calculates final_activity based on the unchanged and changed versions
-#          of the activity dataframe, and a dataframe storing continuity "factors"
-#          that holds which cells need what proportion.
-# Params:
-#   activity: the activity list, which stores three things: changed activity
-#            data, unchanged activity data, and continuity factors
-#   yearsAllowed: the Xyears in the current run of the system
-# Returns: final_activity_data, a dataframe storing continuous activity data
+#
+# Prevent discontinuity between user-specified input and default activity data.
+#
+# Calculates final_activity based on the unchanged and changed versions of the
+# activity dataframe, and a dataframe storing continuity "factors" that holds
+# which cells need what proportion.
+#
+# Args:
+#   activity: The activity list, which stores three things: changed activity
+#     data, unchanged activity data, and continuity factors
+#   yearsAllowed: The Xyears in the current run of the system
+#
+# Returns:
+#   final_activity_data, a dataframe storing continuous activity data
 enforceContinuity <- function( activity, yearsAllowed ) {
-
-# Initialize a dataframe to hold the results
+    # Initialize a dataframe to hold the results
     final_activity_data <- activity$all_activity_data
 
-# Calculation. For cells that don't need smoothing,
-#                 final activity data = all_activity data
-# For cells that do need smoothing,
-#                 final = (changed * factor) + (unchanged * (1-factor))
+    # Calculation. For cells that don't need smoothing,
+    #                 final activity data = all_activity data
+    # For cells that do need smoothing,
+    #                 final = (changed * factor) + (unchanged * (1-factor))
+    factors <- activity$continuity_factors[ , yearsAllowed ]
     final_activity_data[ , yearsAllowed ] <-
-                           ( activity$all_activity_data[ , yearsAllowed ] *
-                             activity$continuity_factors[ , yearsAllowed ] ) +
-                           ( activity$old_activity_data[ , yearsAllowed ] *
-                           ( 1 - activity$continuity_factors[ , yearsAllowed ] ) )
+        ( activity$all_activity_data[ , yearsAllowed ] * factors ) +
+        ( activity$old_activity_data[ , yearsAllowed ] * ( 1 - factors ) )
 
-# Return the result
     return( final_activity_data )
 }
 
@@ -424,7 +436,7 @@ addContinuityFactors <- function( activity, instructions, all_yrs, interval_len 
         rows_to_adjust <- dplyr::left_join( this.row[ , join_cols ], cfs,
                                             by = join_cols ) %>%
                           dplyr::select( ceds_cols, dplyr::everything() )
-        if ( any( is.na( rows_to_adjust ) ) ) {
+        if ( anyNA( rows_to_adjust ) ) {
             stop( paste( "Error in instruction:\n\t",
                   paste( this.row[ join_cols ], collapse = " " ), "\n",
                   "No default data found for iso/fuel/sector specified" ) )
@@ -585,7 +597,7 @@ aggLevelToNormalize <- function(agg_level) {
 identifyLevel <- function ( df, na.rm = FALSE ) {
     CEDS_COLS <- c( "agg_fuel", "CEDS_fuel", "agg_sector", "CEDS_sector" )
 
-    agg_cols <- dplyr::select_if( df, funs( !na.rm | !all( is.na( . ) ) ) )
+    agg_cols <- dplyr::select_if( df, funs( !na.rm | !all.na( . ) ) )
     agg_cols <- dplyr::intersect( CEDS_COLS, names( agg_cols ) )
 
     switch( paste( agg_cols, collapse = " " ),

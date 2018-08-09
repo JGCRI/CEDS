@@ -46,7 +46,7 @@ activity_all[which( activity_all$sector %in% natural_emissions_sectors),X_extend
 # ---------------------------------------------------------------------------
 # 2. Sort
 
-if( any( is.na( activity_all ) ) ) {
+if( anyNA( activity_all ) ) {
    printLog( 'NAs found in activity data, converting to 0' )
    activity_all[ is.na( activity_all ) ] <- 0
 }

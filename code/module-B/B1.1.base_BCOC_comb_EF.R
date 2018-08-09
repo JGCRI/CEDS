@@ -48,7 +48,7 @@
 
 # all.na(); check if dataframe or list x is only NA entries
     all.na <- function( x ) {
-        return( all( is.na( x ) ) )
+        return( all.na( x ) )
     }
 
 # interpolate_extend()
@@ -58,7 +58,7 @@
         years <- names( df )[ grep( 'X', names( df ) ) ]
         interpolate <-  apply( X = df[ years ], MARGIN = 1,
                                FUN = function( x )
-                                  any( is.na( na.trim( x ) ) ) )
+                                  anyNA( na.trim( x  ) )
         row.all.na <- apply( X = df[ years ],
                              MARGIN = 1 ,
                              FUN = all.na )

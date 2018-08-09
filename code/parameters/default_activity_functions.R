@@ -440,7 +440,7 @@ fuel_breakdown <- function(  a.UN_data = UNSD_Energy_Final_Consumption,
     # Check that all countries have data
     if (length(unique(all_fuel_breakdown$iso)) != length(unique(a.iea_start_years$iso))){ stop( 'Not all countries have data in fuel_breakdown(), please check.' )}
     # Check for na's (There will be na's between 1960 and 1971)
-    if( any(is.na(all_fuel_breakdown[ paste0('X',a.extension_start_year:min(a.iea_start_years$start_year - 1)) ] )))  stop( "Data have NA's in fuel_breakdown(), please check.")
+    if( anyNA(all_fuel_breakdown[ paste0('X',a.extension_start_year:min(a.iea_start_years$start_year - 1)) ] )) stop( "Data have NA's in fuel_breakdown(), please check.")
 
     return(all_fuel_breakdown)
 } # End of Fuel_break_down()
@@ -508,4 +508,3 @@ sector_breakdown <- function(a.fuel_totals = all_disaggregate_fuel,
     disagregate_sector_activity <- do.call(rbind.fill, disagregate_sector_list) %>%
         arrange(iso)
 } # end sector_breakdown()
-

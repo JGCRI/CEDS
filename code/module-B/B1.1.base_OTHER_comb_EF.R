@@ -74,8 +74,8 @@
     check.country.list <- Master_Country_List[ !is.na( Master_Country_List$iso ), ]
 
 # Make sure that Master Country list for Region and OECD flag are complete
-    if ( any( is.na( check.country.list$OECD_flag ) ) |
-         any( is.na( check.country.list$Region ) ) ) {
+    if ( anyNA( check.country.list$OECD_flag ) |
+         anyNA( check.country.list$Region ) ) {
       stop( 'NAs in OECD flag and Region columns in Master Country List.
              Cannot estimate base emission factors.
              Please Check Master Country List.' )
@@ -101,7 +101,7 @@
 
 # Identify which rows of default_extended have NAs
     index <- which( apply( X = default_extended[ , X_emissions_years ],
-                           MARGIN = 1, function( x ) any( is.na( x ) ) ) )
+                           MARGIN = 1, function( x ) anyNA( x ) ) )
 
 # Extract rows with NAs, extend those rows, and then re-bind
     default_extended <- rbind( default_extended[ -index, ],

@@ -357,7 +357,7 @@
 # Keep only rows which aren't completely NA for all years
     combined <- combined[ which( apply( MARGIN = 1,
                                         X = combined[ X_emf_years ],
-                                        FUN = function( x ) !all( is.na( x ) ) ) ),
+                                        FUN = function( x ) !all.na( x ) ) ),
                           c( 'iso', 'sector', 'fuel', 'units', X_emf_years ) ]
 
 # Trim unnecessary and duplicate columns

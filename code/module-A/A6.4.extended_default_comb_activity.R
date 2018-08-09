@@ -173,7 +173,7 @@ iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
         arrange(iso, sector, fuel)
 
     # Check for NAs
-    if( any(is.na(ceds_comb_extended)) ) stop('NAs in final extended combustion data. Please Check')
+    if( anyNA( ceds_comb_extended ) ) stop('NAs in final extended combustion data. Please Check')
 
 
 # 10. Write out the data ---------------------------------------------------------------

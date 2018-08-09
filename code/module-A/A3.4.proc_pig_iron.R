@@ -116,7 +116,7 @@
     us[ grepl( "X", names( us ) ) ] <- us[ grepl( "X", names( us ) ) ] * SHORT_TO_METRIC
 
 # Format population
-    un_pop$X_year <- paste0( "X" , un_pop$year)
+    un_pop$X_year <- paste0( 'X', un_pop$year)
     un_pop$pop <- as.numeric(un_pop$pop)
     population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_year:end_year ) , ] ,
                         iso ~ X_year, value = 'pop')

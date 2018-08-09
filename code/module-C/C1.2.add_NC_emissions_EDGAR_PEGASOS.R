@@ -65,7 +65,7 @@ edgar$iso <- tolower(edgar$iso)
 
 #remove rows with all NA's
 edgar <- edgar[ apply( X=edgar[,paste0("X",inv_years)],
-                                         MARGIN = 1, function(x) (!all(is.na(x))) ) ,]
+                                         MARGIN = 1, function(x) (!all.na( x )) ) ,]
 
 
 # Add fuel column

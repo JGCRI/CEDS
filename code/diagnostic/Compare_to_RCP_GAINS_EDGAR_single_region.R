@@ -428,7 +428,7 @@ for (h in seq_along(em_list)) {
     #remove rows with all NA's
     edgar_emissions <- edgar_emissions[ apply( X = edgar_emissions[ , x_edgar_years ],
                                                MARGIN = 1,
-                                               function( x ) ( !all( is.na( x ) ) ) ) , ]
+                                               function( x ) ( !all.na( x ) ) ) , ]
     edgar_emissions$em <- em
     # drop sectors
     edgar_comparable <- edgar_emissions[ -which( edgar_emissions$sector %in% edgar_remove_sectors ), ]

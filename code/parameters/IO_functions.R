@@ -484,7 +484,7 @@ readExcel <- function( full_file_path, sheet_selection = "ALL",
 
     # Error checking
     sheets_dropped <- length( sheet_names ) < length( sheet_selection )
-    if ( sheets_dropped || any( is.na( sheet_names ) ) ) {
+    if ( sheets_dropped || anyNA( sheet_names ) ) {
         stop( "Invalid sheet selection '",
               paste( sheet_selection, collapse = ', ' ),
               "' for file ", full_file_path )

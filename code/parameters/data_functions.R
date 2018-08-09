@@ -1,28 +1,12 @@
-# ----------------------------------------------------------------------------------
-# CEDS R header file: data moulding functions
-# Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen
-# Last Updated: 22 June 2015
-
-# This file should be sourced by any R script doing heavy-duty reformatting of CEDS data.
-# Functions contained:
-#   %!in%, replaceValueColMatch ,gsub2, repeatAndAddVector, addCols, findDataStart, naReplace, addCols,
-#   buildCEDSTemplate, removeBlanks
-# Notes:
 # -----------------------------------------------------------------------------
-# Brief:
-# Details:
-# Dependencies:
-# Author(s):
-# Params:
+# CEDS R header file: data molding functions
+# Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Caleb Braun
+# Last Updated: 10 August 2018
 #
-# Return:
-# Input Files:
-# Output Files:
-
+# This file should be sourced by any R script doing heavy-duty reformatting of
+# CEDS data. It contains helper functions for general data manipulation and some
+# CEDS-specific data transformations.
 # -----------------------------------------------------------------------------
-
-# loadPackage('tools')
-# loadPackage('zoo')
 
 # -----------------------------------------------------------------------------
 # %!in%"
@@ -37,6 +21,7 @@
 # Input Files:  None
 # Output Files: None
 '%!in%' <- function( x, y ) !( '%in%'( x, y ) )
+
 
 # -----------------------------------------------------------------------------
 # replaceValueColMatch
@@ -115,25 +100,14 @@ is.invalid <- function(x) return( is.null(x) || is.na(x) || is.nan(x) )
 #    x: a dataframe that may or may not contain NaN values
 is.nan.df <- function(x) do.call( cbind, lapply(x, is.nan) )
 
-# -----------------------------------------------------------------------------
-# gsub2
-# Brief:        Pattern replacement in a vector.
-# Details:      Performs gsub on each element of a vector.
-# Dependencies: gsub
-# Author(s):    Page Kyle
-# Params:
-#  pattern:     Specific string or number to search for within x [required]
-#  replacement: Replacement for the pattern [required]
-#  x:           Vector of strings to be searched [required]
-# Return:       Input vector of strings with pattern replaced by its replacement.
-# Input Files:  None
-# Output Files: None
 
-gsub2 <- function( pattern, replacement, x, ... ) {
-      for(i in 1:length(pattern))
-      x <- gsub(pattern[i], replacement[i], x, ...)
-      x
-}
+# -----------------------------------------------------------------------------
+# all.na
+# Brief: Are all values NA?
+# Params:
+#   x: an R atomic vector or list (including data frames)
+all.na <- function(x) return( all( is.na(x) ) )
+
 
 # -----------------------------------------------------------------------------
 # repeatAndAddVector
@@ -155,6 +129,7 @@ repeatAndAddVector <- function( data, vector, vector_values ) {
      data_new[[vector]] <- sort( rep( vector_values, length.out = nrow( data_new ) ) )
      return( data_new )
 	 }
+
 
 # ------------------------------------------------------------------------------
 # addCols
@@ -275,7 +250,7 @@ removeBlanks <- function( df, method = "year", first_name = "iso" ){
 
     # First non-blank row is names
     if( method == "string" ){
-        if( !any( names( df ) == ""  ) && !any( is.na( names( df ) ) ) ) return( df )
+        if( !any( names( df ) == ""  ) && !anyNA( names( df ) ) ) return( df )
         data_row_start <- min( unlist( lapply( df,
                           FUN = function( x ) which( ( x != "" ) && !is.na( x ) ) ) ) ) + 1
     }else{
@@ -465,7 +440,7 @@ interpolate_NAs2 <- function(df) {
     }
 
     # Convert columns that are all NA to numeric
-    df <- dplyr::mutate_if(df, function(x) all(is.na(x)), as.numeric)
+    df <- dplyr::mutate_if(df, function(x) all.na( x ), as.numeric)
 
     if(length(rle(sapply(df, is.numeric))$lengths) > 2) {
         warning("interpolate_NAs found mixed numeric and non-numeric columns;
@@ -744,10 +719,10 @@ calculate_correct_shares <- function(a.input_data,
         stop("In calculate_correct_shares(), some entries are dropped in while correcting shares through interpolation. Please check.")
     }
     # Check for NAs in already correct
-    if( any(is.na(already_correct_years2$breakdown)) ) stop( 'In calculate_correct_shares(), NA is default correction breakdowns, please check.')
+    if( anyNA( already_correct_years2$breakdown ) ) stop( 'In calculate_correct_shares(), NA is default correction breakdowns, please check.')
 
     # Check that to_correct_years 2 are all NAs
-    if( !all(is.na(to_correct_years2$breakdown)) ) stop( 'In calculate_correct_shares(), overwritting non NA percent breakdown, please check.')
+    if( !all.na( to_correct_years2$breakdown ) ) stop( 'In calculate_correct_shares(), overwritting non NA percent breakdown, please check.')
 
     # ---------------------------
     # 3. Replace remaining NAs with default
@@ -755,7 +730,7 @@ calculate_correct_shares <- function(a.input_data,
     to_correct_years2$breakdown <- a.corrections[match( apply(to_correct_years2[a.match_columns], 1, paste, collapse='-') ,
                                                             apply(a.corrections[a.match_columns], 1, paste, collapse='-') ) , 'breakdown']
 
-    if( any(is.na(to_correct_years2$breakdown)) ) stop( 'In calculate_correct_shares(), NA is default correction breakdowns, please check.')
+    if( anyNA( to_correct_years2$breakdown ) ) stop( 'In calculate_correct_shares(), NA is default correction breakdowns, please check.')
 
     all_corrected_years <- bind_rows(to_correct_years2, already_correct_years2) %>%
         spread(year, breakdown) %>%
@@ -1042,7 +1017,7 @@ extend_data_on_trend_range <- function(iea_start_year, driver_trend, input_data,
                                      addEntries = FALSE)
 
   #Remove duplicate rows produced by replaceValueColMatch function
-  input_data <- Filter(function(x)!all(is.na(x)), input_data)
+  input_data <- Filter(function(x)!all.na( x ), input_data)
 
   return(input_data)
 }#extend_data_on_trend_range() Ends
@@ -1369,7 +1344,7 @@ disaggregate_country <- function(original_data,
 
       # load population data
       un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' )
-      un_pop$X_year <- paste0( "X" , un_pop$year)
+      un_pop$X_year <- paste0( 'X', un_pop$year)
       un_pop$pop <- as.numeric(un_pop$pop)
       population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_year:end_year ) , ] ,
                           iso ~ X_year, value = 'pop')

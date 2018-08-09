@@ -45,8 +45,8 @@ EF_db <- EF_db[ with( EF_db, order( iso, sector, fuel ) ), ]
 control_frac[,X_emissions_years] <- lapply(control_frac[,X_emissions_years], as.numeric)
 EF_db[,X_emissions_years] <- lapply(EF_db[,X_emissions_years], as.numeric)
 
-if(any(is.na(EF_db))) stop(paste('NAs in EF data base for',em,'please check.'))
-if(any(is.na(control_frac))) stop(paste('NAs in EF data base for',em,'please check.'))
+if(anyNA( EF_db )) stop(paste('NAs in EF data base for',em,'please check.'))
+if(anyNA( control_frac )) stop(paste('NAs in EF data base for',em,'please check.'))
 
 
 # Set output EF_db
