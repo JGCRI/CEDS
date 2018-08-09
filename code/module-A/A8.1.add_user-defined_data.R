@@ -21,8 +21,7 @@
 PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files
-headers <- c( "data_functions.R", "emissions_scaling_functions.R",
-              "analysis_functions.R", "interpolation_extension_functions.R",
+headers <- c( "data_functions.R", "user_data_diagnostics.R",
               "user_data_processing.R", "user_extension_instr_processing.R",
               "user_data_inclusion_functions.R" )
 log_msg <- "Adding user-defined energy data."
@@ -30,6 +29,8 @@ script_name <- "A8.1.add_user-defined_data.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
+
+DIAGNOSTIC_CHARTS <- F
 
 
 # ------------------------------------------------------------------------------------
@@ -62,7 +63,7 @@ all_activity_data <- all_activity_data %>%
                                         'AGGREGATE', CEDS_fuel ),
                    agg_fuel = if_else( CEDS_fuel == 'AGGREGATE', 'oil', agg_fuel ) )
 
-stopifnot( all( !is.na( all_activity_data ) ) ) # Data should all be valid
+stopifnot( !anyNA( all_activity_data ) ) # Data should all be valid
 
 
 # -----------------------------------------------------------------------
@@ -98,8 +99,11 @@ usr_files <- sapply( filenames, function( data_file ) {
 }, simplify = F )
 
 # Write out comparisons of input data to the default data
-for ( i in seq_along( usr_files ) ) {
-    compareToDefault( usr_files[[i]], all_activity_data, names( usr_files )[[i]] )
+if ( DIAGNOSTIC_CHARTS ) {
+    for ( i in seq_along( usr_files ) ) {
+        compareToDefault( usr_files[[i]], all_activity_data,
+                          names( usr_files )[[i]] )
+    }
 }
 
 
@@ -108,7 +112,6 @@ rows_completed <- instructions[ 0, ]
 
 # This integer tracks which batch number we're on, for informing diagnostics
 batch <- 0
-
 
 # ------------------------------------------------------------------------------
 # 3. Execute processing loop
@@ -219,6 +222,10 @@ while ( nrow( instructions ) > 0 ) {
                                            agg_level, data_file,
                                            working_instructions$specified_breakdowns )
 
+    print(normalized$all_data %>% filter(iso == 'usa',
+                                         agg_sector == '1A4_Stationary_RCO',
+                                         CEDS_fuel == 'natural_gas') %>% select(iso, agg_sector, CEDS_fuel, X1949))
+
     activity$all_activity_data <- normalized$all_data
     diagnostics <- normalized$diagnostics
 
@@ -240,9 +247,25 @@ while ( nrow( instructions ) > 0 ) {
 
 final_activity <- enforceContinuity( activity, all_yrs )
 
-writeData( rows_completed, domain = "DIAG_OUT", "A.user_added_changed_rows" )
+# Final diagnostics
+rows_changed <- split( rows_completed, rows_completed$data_file )
+id_cols <- aggLevelToCols( identifyLevel( final_activity ) )
+
+lapply( rows_changed, function( df ) {
+    agg_cols <- aggLevelToCols( identifyLevel( df, na.rm = T ) )
+    source_name <- paste0( df$data_file[1], '-PROC' )
+
+    plot_yrs <- range( df$start_year, df$end_year ) + c( -10, 10 )
+    plot_yrs <- intersect( paste0( 'X', plot_yrs[1]:plot_yrs[2] ), all_yrs )
+
+    df[ agg_cols ] %>%
+        dplyr::left_join( final_activity, by = agg_cols ) %>%
+        dplyr::select( one_of( id_cols, plot_yrs ) ) %>%
+        compareToDefault( activity$old_activity_data, source_name )
+})
+
+writeData( rows_completed, domain = "DIAG_OUT", "A.user_added_changed_rows",
+           domain_extension = "user-data/" )
 writeData( final_activity, domain = "MED_OUT",  "A.comb_user_added" )
 
 logStop()
-
-

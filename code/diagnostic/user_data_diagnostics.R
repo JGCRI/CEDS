@@ -75,14 +75,14 @@ compareToDefault <- function( new_CEDS, old_CEDS, src_new, src_old = 'default' )
     lapply( plot_factors, function(pf) {
         if ( all( c( pf$sector, pf$fuel ) %in% agg_cols ) ) {
             plot_title <- paste( ISO, pf$sector, 'by', pf$fuel )
-            fname <- gsub( ' +', '-', paste( src_old, 'vs', src_new, plot_title ) )
+            fname <- gsub( ' +', '-', paste( src_new, 'vs', src_old, plot_title ) )
             plotComp( combined, pf$fuel, pf$sector, plot_title, fname,
                       src_oldQ, src_newQ, pf$type )
         }
     })
 
-    out_csv <- gsub( ' +', '-', paste( src_old, 'vs', src_new, ISO ) )
-    writeData( combined, 'DIAG_OUT', out_csv, domain_extension = 'user-data/' )
+    out_csv <- gsub( ' +', '-', paste( src_new, 'vs', src_old, ISO ) )
+    writeData( combined, 'DIAG_OUT', out_csv, domain_extension = 'user-data/', meta = F )
 
     return( invisible( NULL ) )
 }
@@ -144,8 +144,8 @@ themeCEDS.linegraph <- function() {
     fnt <- themeCEDS.font()
     theme_bw(base_size=10, base_family=fnt) %+replace%
     theme(
-        panel.background = element_rect(fill=BACKGROUND),
-        panel.grid       = element_blank(),
+        panel.background = element_rect(fill=BACKGROUND, color = "grey88"),
+        panel.grid.minor = element_blank(),
         panel.border     = element_rect(fill = NA, color = BORDER),
 
         strip.background = element_rect(fill=FACET_FILL, color=BORDER),
@@ -340,7 +340,7 @@ plotComp <- function( combined, fuel, sector, plot_title, fname, src_oldQ, src_n
             dplyr::summarise_at( vars( !!src_oldQ, !!src_newQ ), sum ) %>%
             dplyr::ungroup() %>%
             calcPercentDiff( quo_name( src_oldQ ), quo_name( src_newQ ) ) %>%
-            cedsHeatmap( year, sector, pct_diff, plot_title, facet = fuel )
+            cedsHeatmap( year, sector, pct_diff, plot_title, facet = fuel, labs = 'on' )
 
     } else {
         stop( 'plot type "', plot_type, '" not supported' )
