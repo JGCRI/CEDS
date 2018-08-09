@@ -285,7 +285,7 @@ for ( i in seq_along( start_years ) ) {
 
 # 10. Check final values ----------------------------------------------------
 
-  if( any(is.na(final_extended_biomass[paste0('X',1750:1959)])) )
+  if( anyNA(final_extended_biomass[paste0('X',1750:1959)]) )
       stop('NAs in final industrial biomass data. Please Check.')
 
 

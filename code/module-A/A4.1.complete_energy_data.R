@@ -113,7 +113,7 @@
 # ------------------------------------------------------------------------------
 # 4.
 
-     if( any(is.na(full_energy_data_combustion)) ) stop('NAs in final energy data, please check.')
+     if( anyNA( full_energy_data_combustion ) ) stop('NAs in final energy data, please check.')
 
     energy_data_combustion_no_other <- full_energy_data_combustion %>%
         filter( sector %!in% c( "1A1bc_Other-feedstocks", "1A1bc_Other-transformation" ))

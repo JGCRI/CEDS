@@ -243,7 +243,7 @@ writeData(totals,"US_EPA_MED_OUT","Emission_totals" )  #Why are row names not be
 
 # Check - If an SCC listed in the emissions df is not found in the Xwalk, R will include an NA in the emissions df row.
 # That is, are there any SCCs in the emission files which have not be found in Xwalk? To check this, the following code can be executed:
-# any(is.na(position_of_scc_in_Xwalk)==TRUE)
+# anyNA( position_of_scc_in_Xwalk )
 # or this code gives us a new df with rows where there are non-NA values.
 # na_check<-subset(position_of_scc_in_Xwalk,!is.na(position_of_scc_in_Xwalk))
 
@@ -251,7 +251,7 @@ writeData(totals,"US_EPA_MED_OUT","Emission_totals" )  #Why are row names not be
 # For state-level
 position_of_scc_in_Xwalk<-match(onroad_emissions_state$scc,Xwalk$Code,nomatch = NA_integer_)
 
-# any(is.na(position_of_scc_in_Xwalk)==TRUE)
+# anyNA( position_of_scc_in_Xwalk )
 
 # Create columns with NFR09 code and information corresponding to SCC
 onroad_emissions_state$NFR09<-Xwalk$NFR_Code[position_of_scc_in_Xwalk]
@@ -287,7 +287,7 @@ writeData(onroad_emissions_US, "US_EPA_MED_OUT","onroad_emissions_US")
 # 4b. Nonroad
 # For state-level
 position_of_scc_in_Xwalk<-match(nonroad_emissions_state$scc,Xwalk$Code,nomatch = NA_integer_)
-# any(is.na(position_of_scc_in_Xwalk)==TRUE)
+# anyNA( position_of_scc_in_Xwalk )
 
 # Create columns with NFR09 code and information corresponding to SCC
 nonroad_emissions_state$NFR09<-Xwalk$NFR_Code[position_of_scc_in_Xwalk]
@@ -323,7 +323,7 @@ writeData(nonroad_emissions_US, "US_EPA_MED_OUT", "nonroad_emissions_US")
 # 4c. Point
 # For state-level
 position_of_scc_in_Xwalk<-match(point_emissions_state$scc,Xwalk$Code,nomatch = NA_integer_)
-# any(is.na(position_of_scc_in_Xwalk)==TRUE)
+# anyNA( position_of_scc_in_Xwalk )
 
 # Create columns with NFR09 code and information corresponding to SCC
 point_emissions_state$NFR09<-Xwalk$NFR_Code[position_of_scc_in_Xwalk]
@@ -342,7 +342,7 @@ writeData(point_emissions_state, "US_EPA_MED_OUT","point_emissions_state")
 
 # For tribe-level
 position_of_scc_in_Xwalk<-match(point_emissions_tribe$scc,Xwalk$Code,nomatch = NA_integer_)
-# any(is.na(position_of_scc_in_Xwalk)==TRUE)
+# anyNA( position_of_scc_in_Xwalk )
 
 # Create columns with NFR09 code and information corresponding to SCC
 point_emissions_tribe$NFR09<-Xwalk$NFR_Code[position_of_scc_in_Xwalk]
@@ -378,7 +378,7 @@ writeData(point_emissions_US, "US_EPA_MED_OUT","point_emissions_US")
 # 4d. Nonpoint
 # For state-level
 position_of_scc_in_Xwalk<-match(nonpoint_emissions_state$scc,Xwalk$Code,nomatch = NA_integer_)
-# any(is.na(position_of_scc_in_Xwalk)==TRUE)
+# anyNA( position_of_scc_in_Xwalk )
 
 # Create columns with NFR09 code and information corresponding to SCC
 nonpoint_emissions_state$NFR09<-Xwalk$NFR_Code[position_of_scc_in_Xwalk]
@@ -396,7 +396,7 @@ writeData(nonpoint_emissions_state, "US_EPA_MED_OUT","nonpoint_emissions_state")
 
 # For tribe-level
 position_of_scc_in_Xwalk<-match(nonpoint_emissions_tribe$scc,Xwalk$Code,nomatch = NA_integer_)
-# any(is.na(position_of_scc_in_Xwalk)==TRUE)
+# anyNA( position_of_scc_in_Xwalk )
 
 # Create columns with NFR09 code and information corresponding to SCC
 nonpoint_emissions_tribe$NFR09<-Xwalk$NFR_Code[position_of_scc_in_Xwalk]

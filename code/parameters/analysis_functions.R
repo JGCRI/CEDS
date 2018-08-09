@@ -457,7 +457,7 @@ mapCEDS_sector_fuel <- function(mapping_data,
   # valid level
   # valid data cols provided for aggregate==TRUE
   if (aggregate){
-    if (any(is.na(aggregate_col))) stop('in mapCEDS_sector_fuel, for aggregate = TRUE, must provide
+    if (anyNA( aggregate_col )) stop('in mapCEDS_sector_fuel, for aggregate = TRUE, must provide
                                         valid numeric data columns to aggreate over. Check argument "data_col" ')
     }
   # noted level matches map
@@ -501,7 +501,7 @@ mapCEDS_sector_fuel <- function(mapping_data,
   }
 
   # rename columns
-  if(!any(is.na(new_col_names))){
+  if(!anyNA( new_col_names )){
     names(out)[which(names(out) %in% map_merge_col)] <- new_col_names }
 
   # Aggregate to Working Level if noted

@@ -348,10 +348,6 @@ F.scaling <- function( ceds_data, inv_data, region,
 #   replacement_scaling_factor = max_scaling_factor
 #   meta = FALSE
 
-  # Define simple function for use later. If TRUE, all values NA
-  all.na <- function(x){
-    return(all(is.na(x)))}
-
   valid_interp_methods <- c('linear','constant')
   valid_pre_ext_methods  <- c('constant','linear_1')
   valid_post_ext_methods  <- c('linear','constant','linear_1')
@@ -583,7 +579,7 @@ F.scaling <- function( ceds_data, inv_data, region,
     scaling_years <- c()
     for (n in seq_along(instructions[,1])){
       #range years
-      if( all(!is.na(instructions[n, c('start_scaling_year','end_scaling_year')])) )
+      if( !anyNA(instructions[n, c('start_scaling_year','end_scaling_year')]) )
         scaling_years <- c(scaling_years, instructions[n, c('start_scaling_year')]:instructions[n, c('end_scaling_year')] )
       # individual years
       if( !is.na(instructions[n, c('select_scaling_year')]) )
@@ -749,7 +745,7 @@ F.scaling <- function( ceds_data, inv_data, region,
   # Interpolation
   printLog('Scaling Factors - Interpolating...')
   # Fill missing years with NAs
-  X_inv_years_full <- paste0( 'X' , min(inv_years):max(inv_years)  )
+  X_inv_years_full <- paste0( 'X', min(inv_years):max(inv_years)  )
   scaling_interp <- as.data.frame(matrix(data=NA, nrow = nrow(scaling), ncol = length(X_inv_years_full)))
   scaling_interp <- cbind( scaling[,c('iso', scaling_name)],scaling_interp)
   names(scaling_interp) <- c('iso', scaling_name , X_inv_years_full )
@@ -868,7 +864,7 @@ F.scaling <- function( ceds_data, inv_data, region,
     # Interpolated inventory data
     scaling_ext[i,X_inv_years_full] <- scaling_interp[i,X_inv_years_full]
 
-    if( !all(is.na( scaling_interp[i,X_inv_years_full] )) ){
+    if( !all.na( scaling_interp[i, X_inv_years_full] ) ) {
 
       # Pre-Extrapolation
       min_inv_year <- emissions_years[ min( which(!is.na(scaling_ext[i,X_emissions_years]))) ]
@@ -1596,13 +1592,17 @@ F.addScaledToDb <- function( ef_scaled, em_scaled,
   scaled_ef_out <- scaled_ef_out[ with( scaled_ef_out, order( iso, sector, fuel ) ), ]
 
   # Check for NAs
-  if( na_error == 1){
-
-    if( all(is.na(scaled_em_out[,X_emissions_years]) %in% FALSE) ){
-      printLog("Checking NAs... No NA's in EF_db")} else  stop("Checking NAs... NA's in EF_db. Check Code.")
-    if( all(is.na(scaled_ef_out[,X_emissions_years]) %in% FALSE) ){
-      printLog("Checking NAs... No NA's in EF_db")} else  stop("Checking NAs... NA's in EF_db. Check Code.")
-
+  if( na_error == 1) {
+    if( anyNA( scaled_em_out[ , X_emissions_years] ) ) {
+      stop("Checking NAs... NA's in EF_db. Check Code.")
+    } else {
+      printLog("Checking NAs... No NA's in EF_db")
+    }
+    if( anyNA( scaled_ef_out[ , X_emissions_years] ) ) {
+      stop("Checking NAs... NA's in EF_db. Check Code.")
+    } else {
+      printLog("Checking NAs... No NA's in EF_db")
+    }
   }
 
   # write

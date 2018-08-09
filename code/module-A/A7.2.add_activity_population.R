@@ -38,7 +38,7 @@ activity <- activity_all
 # 3. Driver data processing
 
 # un population
-un_pop$X_year <- paste0( "X" , un_pop$year)
+un_pop$X_year <- paste0( 'X', un_pop$year)
 population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_year:end_year ) , ] ,
                     iso ~ X_year, value = 'pop')
 

@@ -217,7 +217,7 @@
    bond_multiplier[a.X_bond_years] <- replace( bond_multiplier[a.X_bond_years],bond_multiplier[a.X_bond_years] == Inf, NA)
    bond_multiplier[a.X_bond_years] <- replace( bond_multiplier[a.X_bond_years],bond_multiplier[a.X_bond_years] == 0, NA)
    bond_multiplier[paste0('X',a.bond_start-5)]<- 1
-   bond_multiplier[which( is.na( bond_multiplier [ paste0('X', a.bond_end ) ] )) , paste0( 'X' , a.bond_end ) ] <- 1
+   bond_multiplier[which( is.na( bond_multiplier [ paste0('X', a.bond_end ) ] )) , paste0( 'X', a.bond_end ) ] <- 1
    bond_multiplier[a.X_bond_years] <- replace( bond_multiplier[a.X_bond_years],bond_multiplier[a.X_bond_years] == 'NaN', NA)
    # remove bond multipliers greater than 500
    bond_multiplier[a.X_bond_years] <- replace( bond_multiplier[a.X_bond_years],bond_multiplier[a.X_bond_years] > 800, NA)
@@ -750,7 +750,7 @@
           breakdown <- combined_sector_percentages_corrected[which( combined_sector_percentages_corrected$iso == a.all_countries[i] &
                                                                     combined_sector_percentages_corrected$fuel == a.ceds_extension_fuels[n] ),
                                                              paste0('X',(a.extension_start_year:a.extension_end_year)[l]) ]
-          if ( all(is.na(breakdown)) ){
+          if ( all.na( breakdown ) ) {
 
             combined_sector_percentages_corrected[which( combined_sector_percentages_corrected$iso == a.all_countries[i] &
                                                            combined_sector_percentages_corrected$fuel == a.ceds_extension_fuels[n] ) , paste0('X',(a.extension_start_year:a.extension_end_year)[l])] <-

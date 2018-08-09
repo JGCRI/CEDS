@@ -863,7 +863,7 @@
 # The result of our corrections:
     FSU_activity_agg_corrected <- corrected
     FSU_activity_agg_corrected <- FSU_activity_agg_corrected[ c( "iso", "agg_fuel", "agg_sector", paste0('X', 1971:2013) ) ]
-    if( any( is.na(FSU_activity_agg_corrected) ) ) stop( "NAs in database please check code" )
+    if( anyNA( FSU_activity_agg_corrected ) ) stop( "NAs in database please check code" )
 
 # Create & write diagnostic output for checking what corrections were made
     check <- FSU_activity_agg_corrected
@@ -960,9 +960,9 @@
     names( FSU_activity_disaggregate_fuel )[1:3] <- c( 'iso', 'fuel', 'agg_sector' )
     FSU_activity_disaggregate_fuel <-  FSU_activity_disaggregate_fuel[ with( FSU_activity_disaggregate_fuel, order( iso, fuel, agg_sector ) ), ]
 
-    if ( abs( sum( FSU_activity_agg_corrected[ paste0('X' ,1971:2013) ] ) - sum( FSU_activity_disaggregate_fuel[ paste0('X', 1971:2013) ] ) ) > 1 ) stop( 'Bad Disaggregation' )
+    if ( abs( sum( FSU_activity_agg_corrected[ paste0( 'X',1971:2013) ] ) - sum( FSU_activity_disaggregate_fuel[ paste0('X', 1971:2013) ] ) ) > 1 ) stop( 'Bad Disaggregation' )
 
-    if ( any( is.na( FSU_activity_disaggregate_fuel ) ) ) stop( 'NAs in FSU data please check code' )
+    if ( anyNA( FSU_activity_disaggregate_fuel  ) ) stop( 'NAs in FSU data please check code' )
 
     check <- FSU_activity_disaggregate_fuel
     activity_summary <- aggregate( check[, paste0('X', seq(1975,2010,5) ) ],
@@ -1071,7 +1071,7 @@
     FSU_final[ paste0('X', "", 1960:1970) ] <- 0
     FSU_final$units <- 'kt'
     FSU_final <- FSU_final[ c( 'iso', 'sector', 'fuel', 'units', paste0('X', "", 1960:2013) ) ]
-    if( any( is.na(FSU_final) ) ) stop( 'NAs in final FSU data, please check code' )
+    if( anyNA( FSU_final ) ) stop( 'NAs in final FSU data, please check code' )
 
 
     check <- FSU_final

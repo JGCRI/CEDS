@@ -42,7 +42,7 @@ EFs_all[ X_extended_years ] <- t(na.locf(t(EFs_all[ X_extended_years ]), fromLas
 
 # EFs_all <- replace( EFs_all, is.na(EFs_all), 0)
 
-if(any(is.na(EFs_all))) stop("There are NAs in final activity database.")
+if(anyNA( EFs_all )) stop("There are NAs in final activity database.")
 
 final <- EFs_all[ with( EFs_all, order( iso, sector, fuel ) ), ]
 

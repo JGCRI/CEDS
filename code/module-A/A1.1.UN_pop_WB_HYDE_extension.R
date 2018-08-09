@@ -568,8 +568,8 @@
       dplyr::arrange( iso, scenario, year )
 
     # Assert that there is no NA pop or urban_share left
-    stopifnot( all( !is.na( pop_master_final$pop ) ) )
-    stopifnot( all( !is.na( pop_master_final$urban_share ) ) )
+    stopifnot( !anyNA( pop_master_final$pop ) )
+    stopifnot( !anyNA( pop_master_final$urban_share ) )
 
     pop_master_final[ is.na( pop_master_final ) ] <- ""
 

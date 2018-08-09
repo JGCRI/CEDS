@@ -228,7 +228,6 @@ if( length ( check ) > 0 ) {
   extend_replaced_efs[ extend_replaced_efs == 0 ] <- NA
 
   # drop rows of all NAs
-  all.na <- function(x){return(all(is.na(x)))}
   extend_replaced_efs <- extend_replaced_efs[ !apply(extend_replaced_efs[,X_emissions_years], 1, all.na), ]
 
   # keep last data row for every unique iso+sector+fuel+units

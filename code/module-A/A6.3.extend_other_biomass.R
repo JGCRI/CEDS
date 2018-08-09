@@ -99,7 +99,7 @@ other_biomass_extended[is.na(other_biomass_extended)] <- 0
 other_biomass_extended <- other_biomass_extended %>%
     select(iso, sector, fuel, units, one_of(X_extended_years))
 
-if( any( is.na( other_biomass_extended[paste0('X',1750:1959)]) ) )
+if( anyNA( other_biomass_extended[paste0('X',1750:1959)] ) )
     stop('NAs in in extended other biomass data. Please Check.')
 
 # ---------------------------------------------------------------------------

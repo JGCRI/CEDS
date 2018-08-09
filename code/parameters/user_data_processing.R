@@ -167,7 +167,7 @@ procUsrData <- function( usr_data, proc_instr, mappings,
 
         # Checks if any row in the dataframe contains NA. In the event that
         # there are no NAs we can return the data matched to the intended years.
-        if ( !any( is.na( df ) ) ) return( df )
+        if ( !anyNA( df ) ) return( df )
 
         # If we didn't return, the data has holes that need interpolating. First
         # find out what method to use, then call the corresponding interpolation
@@ -483,15 +483,15 @@ validateUserData <- function( df, trend_instr ) {
                         paste( instr[ join_cols ], collapse = " "), "\n " )
 
         # Tests!
-        if ( all( is.na( instr_data[ , isXYear( names( instr_data ) ) ] ) ) )
+        if ( all.na( instr_data[ , isXYear( names( instr_data ) ) ] ) )
             stop( paste( err, "No data found for instruction"))
         if ( paste0( "X", instr$start_year ) %!in% names( instr_data ) )
             stop( paste( err, "Start year earlier than any year in data" ) )
         if ( paste0( "X", instr$end_year ) %!in% names( instr_data ) )
             stop( paste( err, "End year later than any year in data" ) )
-        if ( any( is.na( instr_data[[ paste0( "X", instr$start_year ) ]] ) ) )
+        if ( anyNA( instr_data[[ paste0( "X", instr$start_year ) ]] ) )
             stop( paste( err, "Some data is NA at start year" ) )
-        if ( any( is.na( instr_data[[ paste0( "X", instr$end_year ) ]] ) ) )
+        if ( anyNA( instr_data[[ paste0( "X", instr$end_year ) ]] ) )
             stop( paste( err, "Some data is NA at end year" ) )
     })
 
@@ -557,7 +557,7 @@ mapToUserSectors <- function( df, default_activity ) {
 
         # TODO: Add check to see if we need to join on CEDS_fuel instead of
         #       only allowing agg_fuel
-        if ( !all( is.na( df_subset$CEDS_fuel ) ) )
+        if ( !all.na( df_subset$CEDS_fuel ) )
             stop( "Custom sector mapping with CEDS_fuel instructions currently",
                   " not supported")
 
