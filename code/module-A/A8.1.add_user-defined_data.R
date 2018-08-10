@@ -222,10 +222,6 @@ while ( nrow( instructions ) > 0 ) {
                                            agg_level, data_file,
                                            working_instructions$specified_breakdowns )
 
-    print(normalized$all_data %>% filter(iso == 'usa',
-                                         agg_sector == '1A4_Stationary_RCO',
-                                         CEDS_fuel == 'natural_gas') %>% select(iso, agg_sector, CEDS_fuel, X1949))
-
     activity$all_activity_data <- normalized$all_data
     diagnostics <- normalized$diagnostics
 
@@ -255,7 +251,8 @@ lapply( rows_changed, function( df ) {
     agg_cols <- aggLevelToCols( identifyLevel( df, na.rm = T ) )
     source_name <- paste0( df$data_file[1], '-PROC' )
 
-    plot_yrs <- range( df$start_year, df$end_year ) + c( -10, 10 )
+    # Add 5 year padding to plot range
+    plot_yrs <- range( df$start_year, df$end_year ) + c( -5, 5 )
     plot_yrs <- intersect( paste0( 'X', plot_yrs[1]:plot_yrs[2] ), all_yrs )
 
     df[ agg_cols ] %>%
