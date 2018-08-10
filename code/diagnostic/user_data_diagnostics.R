@@ -206,6 +206,8 @@ cedsLinegraph <- function(df, x, y, group, title, facet.x = NULL, facet.y = NULL
     facet.x <- captureForNSE(facet.x)
     facet.y <- captureForNSE(facet.y)
 
+    caption <- "Lighter shade represents the original data."
+
     if (is.null(facet.x)) {
         fwrap <- NULL
     } else if (is.null(facet.y)) {
@@ -219,8 +221,8 @@ cedsLinegraph <- function(df, x, y, group, title, facet.x = NULL, facet.y = NULL
         scale_color_brewer(palette = 'Paired') +
         scale_y_continuous(limits = c(0, NA)) +
         fwrap +
-        themeCEDS.linegraph() +
-        ggtitle(title)
+        labs(y = "kt", title = title, caption = caption ) +
+        themeCEDS.linegraph()
 }
 
 
@@ -256,10 +258,6 @@ cedsHeatmap <- function(df, x, y, value, title, facet = NULL, labs = 'auto') {
     x_len <- length(unique(dplyr::pull(df, !!x_var)))
     y_len <- length(unique(dplyr::pull(df, !!y_var)))
 
-    # Round values for labels and replace infinite values with maximum value
-    df <- dplyr::mutate(df, label = round(!!val_var), value = !!val_var)
-    df$value[is.infinite(df$value)] <- max(df$value[is.finite(df$value)])
-
     if (is.null(facet)) {
         n_fac <- 1
         fgrid <- NULL
@@ -267,6 +265,9 @@ cedsHeatmap <- function(df, x, y, value, title, facet = NULL, labs = 'auto') {
         n_fac <- length(unique(dplyr::pull(df, !!facet)))
         fgrid <- facet_grid(cols = vars(!!facet))
     }
+
+    # Round values for labels
+    df <- dplyr::mutate(df, label = round(!!val_var), value = !!val_var)
 
     # Only label boxes if the plot is under the max number of rows and cols
     if (labs == 'on' || (labs == 'auto' &&
@@ -277,8 +278,11 @@ cedsHeatmap <- function(df, x, y, value, title, facet = NULL, labs = 'auto') {
         gtext <- NULL
     }
 
-    # Get absolute min/max so that scale can be centered on zero
-    lim <- max(abs(df$value), na.rm = T)
+    # Get absolute min/max so that scale can be centered on zero, since nothing
+    # can decrease less than 100% without being negative, let's limit the scale
+    # to a maximum range of [-100%, 100%].# and replace infinite values with maximum value
+    lim <- min(100, max(abs(df$value[is.finite(df$value)])))
+    df$value[!is.na(df$value) & abs(df$value) > lim] <- lim
 
     # Get number of breaks for the x-axis for prettier output
     max_breaks <- min((10 / n_fac), x_len)
