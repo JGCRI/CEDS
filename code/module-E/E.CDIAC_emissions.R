@@ -5,7 +5,7 @@
 # Program Purpose: To read in & reformat CDIAC emissions data.
 # Input Files: A.UN_pop_master.csv,CDIAC_national_1751_2011.csv, CDIAC_country_map.csv
 # Output Files:
-# Notes:
+# Notes: Cement data is extended to last availale year for USGS cement data. Other data ends at last CDIAC year, with zeros afterward.
 # TODO:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
