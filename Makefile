@@ -89,9 +89,12 @@ endif
 # modules. You may also wish to create a new .bat file
 # specifically to run the system with the new emissions type.
 
-all: SO2-emissions BC-emissions NOx-emissions CO-emissions NMVOC-emissions CO2-emissions NH3-emissions
+# Note that this is an inefficient method of creating data for multiple species
+# If a multi-processor machine is available, CEDS should be instead run in parellel for multiple species
+all: SO2-emissions BC-emissions OC-emissions NOx-emissions CO-emissions NMVOC-emissions CO2-emissions NH3-emissions
 part1: SO2-emissions NOx-emissions NH3-emissions
 part2: CO-emissions NMVOC-emissions
+part3: BC-emissions OC-emissions CO2-emissions
 
 # --------------------------------------------------------------
 
