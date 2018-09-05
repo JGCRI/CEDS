@@ -1,0 +1,2 @@
+iso,agg_fuel,agg_sector,start_year,end_year,method
+all,oil,1A3_Aviation,1750,1945,match_to_default
