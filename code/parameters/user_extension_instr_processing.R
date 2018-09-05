@@ -125,8 +125,20 @@ processInstructions <- function( comb_sectors, MSL, MFL, default_activity ) {
         class( instructions[[o]] ) <<- class( opts[[o]] )
     })
 
-    instructions <- mapToUserSectors( instructions, default_activity ) %>%
+    instructions <- instructions %>%
+        mapToUserSectors( default_activity ) %>%
         addAggregateCol( 'sector', MSL, 'aggregate_sectors', 'CEDS_sector' )
+
+    # Special case: If iso is NA ('all' gets replaced to NA as well), repeat
+    # instructions for all isos.
+    if ( any( is.na( instructions$iso ) ) ) {
+        all_isos <- unique( default_activity$iso )
+        instructions <- instructions %>%
+            dplyr::filter( is.na( iso ) ) %>%
+            dplyr::slice( rep( 1:n(), each = length( all_isos ) ) ) %>%
+            dplyr::mutate( iso = rep( all_isos, n() / length( all_isos ) ) ) %>%
+            dplyr::bind_rows( dplyr::filter( instructions, !is.na( iso ) ) )
+    }
 
     return( instructions )
 }
