@@ -26,65 +26,66 @@
 #
 # Returns:
 #   NULL - saves charts to the diagnostic output directory
-compareToDefault <- function( new_CEDS, old_CEDS, src_new, src_old = 'default' ) {
+compareToDefault <- function(new_CEDS, old_CEDS, src_new, src_old = 'default') {
 
     # Get aggregation level of new data
-    agg_cols <- aggLevelToCols( identifyLevel( new_CEDS ) )
-    stopifnot( all( agg_cols %in% names( old_CEDS ) ) )
+    agg_cols <- aggLevelToCols(identifyLevel(new_CEDS))
+    stopifnot(all(agg_cols %in% names(old_CEDS)))
 
     # We only want to compare values from one country at a time
-    if ( length( unique( new_CEDS$iso ) ) > 1 ) {
-        lapply( split( new_CEDS, new_CEDS$iso ), compareToDefault, old_CEDS,
+    if (length(unique(new_CEDS$iso)) > 1) {
+        lapply(split( new_CEDS, new_CEDS$iso), compareToDefault, old_CEDS,
                 src_new, src_old )
-        return( invisible( NULL ) )
+        return(invisible(NULL))
     }
 
     # Format iso for plot titles
-    ISO <- toupper( new_CEDS$iso[1] )
+    ISO <- toupper(new_CEDS$iso[1])
 
     # TODO: Plot type or facet row/col number adjustments based on data agg lvl
     FACET_ROW_MAX <- 4
     FACET_COL_MAX <- 7
 
     # For use with tidyeval
-    src_oldQ <- captureForNSE( src_old )
-    src_newQ <- captureForNSE( src_new )
+    src_oldQ <- captureForNSE(src_old)
+    src_newQ <- captureForNSE(src_new)
 
     # Convert both data sets to long form with same aggregation level
-    new_long <- tidyr::gather( new_CEDS, 'year', !!src_new, matches( 'X\\d{4}' ) )
+    new_long <- tidyr::gather(new_CEDS, 'year', !!src_new, matches('X\\d{4}'))
     old_long <- old_CEDS %>%
-        dplyr::semi_join( new_CEDS, by = agg_cols ) %>%
-        dplyr::select( names( new_CEDS ) ) %>%
-        tidyr::gather( 'year', 'default', matches( 'X\\d{4}' ) ) %>%
-        dplyr::group_by_at( c( agg_cols, 'year') ) %>%
-        dplyr::summarise( !!src_old := sum( default ) ) %>%
+        dplyr::semi_join(new_CEDS, by = agg_cols) %>%
+        dplyr::select(names(new_CEDS)) %>%
+        tidyr::gather('year', 'default', matches('X\\d{4}')) %>%
+        dplyr::group_by_at(c( agg_cols, 'year')) %>%
+        dplyr::summarise(!!src_old := sum(default)) %>%
         dplyr::ungroup()
 
     combined <- old_long %>%
-        dplyr::left_join( new_long, by = c( agg_cols, 'year' ) ) %>%
-        dplyr::mutate( year = as.integer( substr( year, 2, 5 ) ) )
+        dplyr::left_join(new_long, by = c(agg_cols, 'year')) %>%
+        dplyr::mutate(year = as.integer(substr(year, 2, 5)))
 
-    f_disagg <- if ( 'CEDS_fuel' %in% agg_cols ) 'CEDS_fuel' else 'agg_fuel'
+    f_disagg <- if ('CEDS_fuel' %in% agg_cols) 'CEDS_fuel' else 'agg_fuel'
 
     plot_factors <- list(
-        list( fuel = 'agg_fuel', sector = 'CEDS_sector', type = 'heatmap' ),
-        list( fuel = f_disagg,   sector = 'agg_sector',  type = 'linegraph' ),
-        list( fuel = f_disagg,   sector = NULL,          type = 'linegraph' )
+        list(fuel = 'agg_fuel', sector = NULL,          type = 'linegraph'),
+        list(fuel = 'agg_fuel', sector = 'CEDS_sector', type = 'heatmap'),
+        list(fuel = f_disagg,   sector = 'agg_sector',  type = 'linegraph'),
+        list(fuel = f_disagg,   sector = NULL,          type = 'linegraph')
     )
 
     lapply( plot_factors, function(pf) {
-        if ( all( c( pf$sector, pf$fuel ) %in% agg_cols ) ) {
-            plot_title <- paste( ISO, pf$sector, 'by', pf$fuel )
-            fname <- gsub( ' +', '-', paste( src_new, 'vs', src_old, plot_title ) )
-            plotComp( combined, pf$fuel, pf$sector, plot_title, fname,
-                      src_oldQ, src_newQ, pf$type )
+        if (all(c(pf$sector, pf$fuel) %in% agg_cols)) {
+            plot_title <- paste(ISO, pf$sector, 'by', pf$fuel)
+            fname <- gsub(' +', '-', paste(src_new, 'vs', src_old, plot_title))
+            plotComp(combined, pf$fuel, pf$sector, plot_title, fname,
+                      src_oldQ, src_newQ, pf$type)
         }
     })
 
-    out_csv <- gsub( ' +', '-', paste( src_new, 'vs', src_old, ISO ) )
-    writeData( combined, 'DIAG_OUT', out_csv, domain_extension = 'user-data/', meta = F )
+    out_csv <- gsub(' +', '-', paste(src_new, 'vs', src_old, ISO))
+    writeData(combined, 'DIAG_OUT', out_csv, domain_extension = 'user-data/', meta = F)
 
-    return( invisible( NULL ) )
+    return(invisible(NULL))
 }
 
 
@@ -101,12 +102,12 @@ compareToDefault <- function( new_CEDS, old_CEDS, src_new, src_old = 'default' )
 # Returns:
 #   The input data.frame with an additional `pct_diff` column
 calcPercentDiff <- function(df, c1, c2) {
-    c1 <- captureForNSE( c1 )
-    c2 <- captureForNSE( c2 )
+    c1 <- captureForNSE(c1)
+    c2 <- captureForNSE(c2)
 
-    dplyr::mutate( df,
-                   pct_diff = ( ( !!c2 - !!c1 ) / !!c1 ) * 100,
-                   pct_diff = if_else( !!c1 == 0 & !!c2 == 0, 0, pct_diff ) )
+    dplyr::mutate(df,
+                   pct_diff = (( !!c2 - !!c1) / !!c1) * 100,
+                   pct_diff = if_else(!!c1 == 0 & !!c2 == 0, 0, pct_diff) )
 }
 
 
@@ -321,36 +322,36 @@ cedsHeatmap <- function(df, x, y, value, title, facet = NULL, labs = 'auto') {
 #
 # Returns:
 #   NULL
-plotComp <- function( combined, fuel, sector, plot_title, fname, src_oldQ, src_newQ, plot_type ) {
+plotComp <- function(combined, fuel, sector, plot_title, fname, src_oldQ, src_newQ, plot_type) {
 
-    agg_cols <- c( 'iso', fuel, sector, 'year' )
+    agg_cols <- c('iso', fuel, sector, 'year')
 
-    if ( plot_type == 'linegraph' ) {
-        agg_cols <- c( agg_cols, 'source_fuel' )
+    if (plot_type == 'linegraph') {
+        agg_cols <- c(agg_cols, 'source_fuel')
         plt <- combined %>%
-            tidyr::gather( 'source', 'value', !!src_oldQ, !!src_newQ ) %>%
+            tidyr::gather('source', 'value', !!src_oldQ, !!src_newQ) %>%
             dplyr::mutate(
-                source_fuel = is.null( sector ),
-                source_fuel = if_else( source_fuel, source,
-                                       paste0( !!as.name( fuel ), " (", source, ")" ) ) ) %>%
-            dplyr::group_by_at( vars( agg_cols ) ) %>%
-            dplyr::summarise( value = sum( value, na.rm = T ) ) %>%
+                source_fuel = is.null(sector),
+                source_fuel = if_else(source_fuel, source,
+                                       paste0(!!as.name(fuel), " (", source, ")" ))) %>%
+            dplyr::group_by_at(vars(agg_cols)) %>%
+            dplyr::summarise(value = sum(value, na.rm = T)) %>%
             dplyr::ungroup() %>%
-            cedsLinegraph( year, value, source_fuel, plot_title, fuel, sector )
+            cedsLinegraph(year, value, source_fuel, plot_title, fuel, sector)
 
-    } else if ( plot_type == 'heatmap' ) {
+    } else if (plot_type == 'heatmap') {
         plt <- combined %>%
-            dplyr::group_by_at( vars( agg_cols ) ) %>%
-            dplyr::summarise_at( vars( !!src_oldQ, !!src_newQ ), sum ) %>%
+            dplyr::group_by_at(vars(agg_cols)) %>%
+            dplyr::summarise_at(vars(!!src_oldQ, !!src_newQ), sum) %>%
             dplyr::ungroup() %>%
-            calcPercentDiff( quo_name( src_oldQ ), quo_name( src_newQ ) ) %>%
-            cedsHeatmap( year, sector, pct_diff, plot_title, facet = fuel, labs = 'on' )
+            calcPercentDiff(quo_name(src_oldQ), quo_name(src_newQ)) %>%
+            cedsHeatmap(year, sector, pct_diff, plot_title, facet = fuel, labs = 'on')
 
     } else {
-        stop( 'plot type "', plot_type, '" not supported' )
+        stop('plot type "', plot_type, '" not supported')
     }
 
-    savePlot( 'DIAG_OUT', 'user-data/', fname, 16, 8, '.png', plt )
+    savePlot('DIAG_OUT', 'user-data/', fname, 16, 8, '.png', plt)
 }
 
 

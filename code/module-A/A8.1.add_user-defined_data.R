@@ -30,7 +30,7 @@ script_name <- "A8.1.add_user-defined_data.R"
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
-DIAGNOSTIC_CHARTS <- F
+DIAGNOSTIC_CHARTS <- T
 
 
 # ------------------------------------------------------------------------------------
@@ -247,19 +247,19 @@ final_activity <- enforceContinuity( activity, all_yrs )
 rows_changed <- split( rows_completed, rows_completed$data_file )
 id_cols <- aggLevelToCols( identifyLevel( final_activity ) )
 
-lapply( rows_changed, function( df ) {
+invisible( lapply( rows_changed, function( df ) {
     agg_cols <- aggLevelToCols( identifyLevel( df, na.rm = T ) )
     source_name <- paste0( df$data_file[1], '-PROC' )
 
     # Add 5 year padding to plot range
-    plot_yrs <- range( df$start_year, df$end_year ) + c( -5, 5 )
+    plot_yrs <- range( df$start_year, df$end_year ) + c( -20, 20 )
     plot_yrs <- intersect( paste0( 'X', plot_yrs[1]:plot_yrs[2] ), all_yrs )
 
     df[ agg_cols ] %>%
         dplyr::left_join( final_activity, by = agg_cols ) %>%
         dplyr::select( one_of( id_cols, plot_yrs ) ) %>%
         compareToDefault( activity$old_activity_data, source_name )
-})
+}) )
 
 writeData( rows_completed, domain = "DIAG_OUT", "A.user_added_changed_rows",
            domain_extension = "user-data/" )

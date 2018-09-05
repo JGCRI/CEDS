@@ -224,7 +224,7 @@ cleanInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
         instruction[ names( mapped ) ] <- mapped
 
         # Remove any invalid instructions
-        invld_instr <- is.na( instruction$iso ) | is.na( instruction$agg_fuel )
+        invld_instr <- is.invalid( instruction$iso ) | is.invalid( instruction$agg_fuel )
         instruction <- instruction[ !invld_instr, ]
         if ( any( invld_instr ) )
             warning( paste0( sum( invld_instr ), " instruction(s) invalid in ",

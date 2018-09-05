@@ -84,6 +84,7 @@ procUsrData <- function( usr_data, proc_instr, mappings,
                             CEDS_sector_map = mappings$CEDS_sector,
                             agg_fuel_map    = mappings$agg_fuel,
                             CEDS_fuel_map   = mappings$CEDS_fuel ) %>%
+                 replaceNegatives( trend_data ) %>%
                  validateUserData( proc_instr ) %>%
                  interpolateData( proc_instr, MSL, MCL, MFL, trend_data )
 
@@ -164,6 +165,11 @@ procUsrData <- function( usr_data, proc_instr, mappings,
         df <- filterToYearRange( df, X_data_years )
         df[ , X_data_years[ X_data_years %!in% names( df ) ] ] <- NA
         df <- df[ order( names( df ) ) ]
+
+        if ( any( df[ X_data_years ] < 0, na.rm = T ) ) {
+            replace_vals <- subsetUserData( trend, interp_instr )
+            df[ X_data_years ][ which( df[ X_data_years ] == 0 ) ]
+        }
 
         # Checks if any row in the dataframe contains NA. In the event that
         # there are no NAs we can return the data matched to the intended years.
@@ -415,6 +421,42 @@ filterToYearRange <- function( df, X_data_years ) {
     return( final_df )
 }
 
+# Replace negative values in one dataframe with values from another
+#
+# Take values from another dataframe, which can be more disaggregate, and use
+# them to replace negative values in the first dataframe.
+#
+# Args:
+#   df: Data that should not have negatives
+#   replace_vals: Replacement values for negative data
+#
+# Returns:
+#   A dataframe with all negative values replaced
+replaceNegatives <- function( df, replace_vals ) {
+    agg_cols <- aggLevelToCols( identifyLevel( df ) )
+    val_cols <- sapply( df, is.numeric )
+
+    # Do nothing if all values are already above zero
+    if ( all( df > 0, na.rm = T ) ) {
+        return( df )
+    }
+
+    # Make sure replacement values are at the same aggregation level as the df.
+    replace_vals <- df %>%
+        dplyr::select( agg_cols ) %>%
+        dplyr::left_join( replace_vals, by = agg_cols ) %>%
+        dplyr::select( one_of( names( df ) ) ) %>%
+        dplyr::group_by_at( agg_cols ) %>%
+        dplyr::summarise_all( sum ) %>%
+        as.data.frame()
+
+    # Replace values where original data is less than zero
+    negatives <- !is.na( df[ val_cols ] ) & df[ val_cols ] < 0
+    df[ val_cols ][ negatives ] <- replace_vals[ val_cols ][ negatives ]
+
+    return( df )
+}
+
 # subsetUserData
 # Purpose: Subsets a user-specified dataset based on user-specified
 #          instructions, checking for validity and removing any irrelevant data.
@@ -426,13 +468,14 @@ subsetUserData <- function( user_df, instructions ) {
 
     # Determine which aggregation columns are present in the instructions
     na_cols <- colSums( !is.na( instructions ) ) == 0
-    yr_cols <- setdiff( names( user_df ), names( instructions ) )
+    yr_range <- min( instructions$start_year ):max( instructions$end_year )
     agg_cols <- intersect( names( user_df ), names( instructions[ !na_cols ] ) )
 
     # Initialize a subset dataframe based on matching isos between the user
-    # instructions and actual data. Then aggregate the user data to the same
-    # level of detail specified in the instructions
-    subset <- dplyr::select( user_df, agg_cols, yr_cols ) %>%
+    # instructions and actual data. Filter to the given years and iso. Then
+    # aggregate the user data to the same level of detail specified in the
+    # instructions
+    subset <- dplyr::select( user_df, agg_cols, num_range( 'X', yr_range ) ) %>%
               dplyr::filter( iso %in% instructions$iso ) %>%
               dplyr::group_by_at( agg_cols ) %>%
               dplyr::summarise_all( sum, na.rm = T ) %>%
