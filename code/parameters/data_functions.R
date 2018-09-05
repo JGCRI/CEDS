@@ -84,6 +84,7 @@ replaceValueColMatch <- function( x,y,x.ColName,y.ColName = x.ColName,
   return(out)
 }
 
+
 # -----------------------------------------------------------------------------
 # is.invalid
 # Brief: Combination check for if a value is null, NA, or NaN
@@ -94,11 +95,14 @@ replaceValueColMatch <- function( x,y,x.ColName,y.ColName = x.ColName,
 is.invalid <- function(x) return( is.null(x) || is.na(x) || is.nan(x) )
 
 # -----------------------------------------------------------------------------
-# is.nan.df
-# Brief: Makes up for the fact that R has no built-in vectorized check for NaN.
+# is.nan/finite/infinite.df
+# Brief: Makes up for the fact that R has no built-in vectorized check for
+#    is.nan, is.infinite, or is.finite.
 # Params:
 #    x: a dataframe that may or may not contain NaN values
-is.nan.df <- function(x) do.call( cbind, lapply(x, is.nan) )
+is.nan.df      <- function(x) do.call( cbind, lapply( x, is.nan ) )
+is.finite.df   <- function(x) do.call( cbind, lapply( x, is.finite ) )
+is.infinite.df <- function(x) do.call( cbind, lapply( x, is.infinite ) )
 
 
 # -----------------------------------------------------------------------------

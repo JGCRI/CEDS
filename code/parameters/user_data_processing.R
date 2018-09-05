@@ -77,6 +77,15 @@ procUsrData <- function( usr_data, proc_instr, mappings,
         usr_data <- disaggUserSectors( usr_data, proc_instr, trend_data )
     }
 
+    # If the user data specifies no specific iso, map from instructions
+    if ( is.invalid( usr_data$iso ) || all( usr_data$iso == 'all' ) ) {
+        all_isos <- unique( proc_instr$iso )
+        usr_data <- usr_data %>%
+            dplyr::slice( rep( 1:n(), each = length( all_isos ) ) ) %>%
+            dplyr::mutate( iso = rep( all_isos, n() / length( all_isos ) ) ) %>%
+            dplyr::select( iso, everything() )
+    }
+
     # Clean, map, validate, and then interpolate the user data
     interp_df <- mapToCEDS( usr_data, MSL, MFL,
                             iso_map         = mappings$iso,
@@ -240,7 +249,7 @@ procUsrData <- function( usr_data, proc_instr, mappings,
         # Multiply the trend data by the correct ratios such that all user data
         # present is included as-is, and all missing user data is interpolated.
         multiplier <- usrdata[ , all_Xyears ] / trend_data[ , all_Xyears ]
-        multiplier[ multiplier == Inf ] <- 1
+        multiplier[ is.nan.df( multiplier ) | is.infinite.df( multiplier ) ] <- 1
         multiplier <- interpolate_NAs( multiplier )
         trend_data[ , all_Xyears ] <- trend_data[ , all_Xyears ] * multiplier
 
@@ -687,7 +696,7 @@ disaggUserSectors <- function( usr_data, proc_instr, default_activity ) {
 }
 
 
-joinUserMaps <- function(usrdata, maps, default_cols) {
+joinUserMaps <- function( usrdata, maps, default_cols ) {
     # Ensure mapping files are correctly formatted
     sapply( maps, validateUserMap, default_cols )
 
