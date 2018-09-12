@@ -122,11 +122,10 @@ all_disaggregate_fuel <- fuel_breakdown( a.UN_data = UNSD_Energy_Final_Consumpti
 
 printLog('Disaggregating fuel_types into sector split')
 
-CEDS_default_actvity <- sector_breakdown(a.fuel_totals = all_disaggregate_fuel,
-                                         a.sector_shares = final_sector_shares_all,
-                                         a.iea_start_years = iea_start_year,
-                                         a.ceds_extension_fuels = ceds_extension_fuels,
-                                         a.extension_start_year = 1750)
+CEDS_default_actvity <- sector_breakdown(fuel_totals = all_disaggregate_fuel,
+                                         sector_shares = final_sector_shares_all,
+                                         iea_start_years = iea_start_year,
+                                         ceds_extension_fuels = ceds_extension_fuels)
 
 # ------------------------------------------------------------------------------------------------
 # 4. Arrange final df

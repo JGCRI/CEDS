@@ -445,66 +445,72 @@ fuel_breakdown <- function(  a.UN_data = UNSD_Energy_Final_Consumption,
     return(all_fuel_breakdown)
 } # End of Fuel_break_down()
 
-#-------------------------------------------------------------------------------------------------------------
-# Sector_breakdown
+
+#-------------------------------------------------------------------------------
+# sector_breakdown
 #
-# Brief:        This function splits disagregate fuel use into sectors.
-# Details:      The fucntion computes the final default combustion activity from country-ceds fuel
-#               totals using the share breakdowns from A.6.1 scripts
+# Brief:
+#   This function splits disaggregate fuel use into sectors.
 #
-# Dependencies:
+# Details:
+#   The function computes the final default combustion activity from
+#   country-ceds fuel totals using the share breakdowns from A6.1 scripts
 #
-# Author(s): Rachel Hoesly
+# Authors: Rachel Hoesly, Caleb Braun
 #
 # Parameters:
+#   fuel_totals: Extended CEDS_fuel totals by iso until the IEA start year
+#   sector_shares: Extended CEDS_sector shares by iso and CEDS_fuel until the
+#     IEA start year
+#   iea_start_years: Two coulumn data.frame matching iso to IEA start year
+#   ceds_extension_fuels: Character vector of CEDS_fuel
+#   extension_start_year: Earliest year in the extension
 #
-#
-# Return:    CED_UN_disaggregated_fuel
-#
-# Input Files:
-# Output Files: none
+# Return: CED_UN_disaggregated_fuel
+sector_breakdown <- function(fuel_totals, sector_shares, iea_start_years,
+                             ceds_extension_fuels, extension_start_year = 1750) {
 
-sector_breakdown <- function(a.fuel_totals = all_disaggregate_fuel,
-                             a.sector_shares = final_sector_shares_all,
-                             a.iea_start_years = iea_start_year,
-                             a.ceds_extension_fuels = ceds_extension_fuels,
-                             a.extension_start_year = 1750){
+    # Typically called with:
+    # fuel_totals = all_disaggregate_fuel
+    # sector_shares = final_sector_shares_all
+    # iea_start_years = iea_start_year
+    # ceds_extension_fuels = ceds_extension_fuels
+    # extension_start_year = 1750
 
-  # a.fuel_totals = all_disaggregate_fuel
-  # a.sector_shares = final_sector_shares_all
-  # a.iea_start_years = iea_start_year
-  # a.ceds_extension_fuels = ceds_extension_fuels
-  # a.extension_start_year = 1750
+    # disaggregate by IEA start year
+    disaggregate_sector <- function(iea_start_yr) {
 
+        # Get all countries with the given IEA start year
+        countries <- iea_start_years %>%
+            dplyr::filter(start_year == iea_start_yr) %>%
+            dplyr::pull(iso) %>%
+            unique()
 
-  #-------------------
+        disagg_years <- paste0('X', extension_start_year:(iea_start_yr - 1))
 
-    # Disagregate by IEA start year
-    disagregate_sector <- function(iea_start){
+        disagg_activity <-
+            expand.grid(iso = countries,
+                        fuel = ceds_extension_fuels,
+                        sector = unique(sector_shares$sector),
+                        stringsAsFactors = F) %>%
+            dplyr::left_join(sector_shares, by = c('iso', 'sector', 'fuel')) %>%
+            dplyr::left_join(fuel_totals %>% select(iso, fuel, disagg_years),
+                             by = c('iso', 'fuel'),
+                             suffix = c('.share', '.total'))
 
-        countries <- a.iea_start_years %>%
-            filter(start_year == iea_start) %>%
-            pull(iso) %>%
-            unique
+        disagg_activity[is.na(disagg_activity)] <- 0
 
-        disagregate_years <- paste0('X', a.extension_start_year:(iea_start - 1))
+        total_years <- paste0(disagg_years, '.total')
+        share_years <- paste0(disagg_years, '.share')
 
-        disagregate_activity <- expand.grid(iso = countries,
-                                            fuel = a.ceds_extension_fuels,
-                                            sector = unique(a.sector_shares$sector), stringsAsFactors = F) %>%
-            left_join(a.sector_shares, by = c('iso','sector','fuel')) %>%
-            left_join(a.fuel_totals %>% select(iso, fuel, disagregate_years), by = c('iso','fuel') ,suffix = c('.share','.total'))
-        disagregate_activity[is.na(disagregate_activity)]<- 0
-        disagregate_activity[disagregate_years] <- disagregate_activity[ paste0(disagregate_years,'.total') ]* disagregate_activity[ paste0(disagregate_years,'.share') ]
+        disagg_activity[disagg_years] <- disagg_activity[total_years] *
+                                         disagg_activity[share_years]
 
-        disagregate_activity <- disagregate_activity %>%
-            select( iso, fuel, sector, disagregate_years)
-
-        return(disagregate_activity)
-
+        dplyr::select(disagg_activity, iso, fuel, sector, disagg_years)
     }
 
-    disagregate_sector_list <- lapply(unique(a.iea_start_years$start_year),disagregate_sector)
-    disagregate_sector_activity <- do.call(rbind.fill, disagregate_sector_list) %>%
-        arrange(iso)
-} # end sector_breakdown()
+    disagg_sector_list <- lapply(unique(iea_start_years$start_year), disaggregate_sector)
+    disagg_sector_activity <- do.call(rbind.fill, disagg_sector_list)
+
+    dplyr::arrange(disagg_sector_activity, iso)
+}
