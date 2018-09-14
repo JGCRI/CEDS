@@ -438,7 +438,7 @@ interpolate_NAs <- function(df) {
 # A faster implementation of interpolate_NAs. Needs testing to ensure identical
 # behavior.
 interpolate_NAs2 <- function(df) {
-    if(is.data.frame(df)) {
+    if(!is.data.frame(df)) {
         warning("interpolate_NAs expects a data frame; attempting to convert")
         df <- as.data.frame(df)
     }
