@@ -17,23 +17,23 @@
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R","process_db_functions.R", "default_activity_functions.R") # Additional function files may be required.
+headers <- c("data_functions.R","process_db_functions.R", "default_activity_functions.R") # Additional function files may be required.
 log_msg <- "Extending Coal data with bond and IEA" # First message to be printed to the log
 script_name <- "A6.2.extended_default_activity_coal.R"
 
-source( paste0( PARAM_DIR, "header.R" ) )
-initialize( script_name, log_msg, headers )
+source(paste0(PARAM_DIR, "header.R"))
+initialize(script_name, log_msg, headers)
 
 #-------------------------------------------------------------------------------------
 # 1. Read in Files
 
-UNSD_Energy_Final_Consumption_all <- readData( 'EXT_IN',"CDA1_UNSD_Energy_Final_Consumption_by_Ctry" , meta = F)
-# other_transformation_all <- readData( 'MED_OUT','A.Other_transformation_fuel' )
-A.comb_activity_all <- readData( 'MED_OUT', paste0("A.comb_activity_with_other") , meta = F)
-final_sector_shares_all <- readData( 'MED_OUT', 'A.final_sector_shares')
-cdiac_fuel_all <- readData( 'MED_OUT' , 'E.CO2_CDIAC_inventory')
-iea_start_year_all <- readData( 'ENERGY_IN' , 'IEA_iso_start_data')
-iea_energy_mapping <- readData( "MAPPINGS", domain_extension = "energy/" , "IEA_product_fuel", meta = F )
+UNSD_Energy_Final_Consumption_all <- readData('EXT_IN',"CDA1_UNSD_Energy_Final_Consumption_by_Ctry" , meta = F)
+# other_transformation_all <- readData('MED_OUT','A.Other_transformation_fuel')
+A.comb_activity_all <- readData('MED_OUT', paste0("A.comb_activity_with_other") , meta = F)
+cdiac_fuel_all <- readData('MED_OUT' , 'E.CO2_CDIAC_inventory')
+final_sector_shares_all <- readData('MED_OUT', 'A.final_sector_shares')
+iea_start_year_all <- readData('ENERGY_IN' , 'IEA_iso_start_data')
+iea_energy_mapping <- readData("MAPPINGS", domain_extension = "energy/" , "IEA_product_fuel", meta = F)
 
 #-------------------------------------------------------------------------------------
 # 2. Define Variables and Filter and Process inputs
@@ -42,13 +42,13 @@ iea_energy_mapping <- readData( "MAPPINGS", domain_extension = "energy/" , "IEA_
 ceds_extension_fuels <- c('brown_coal','coal_coke','hard_coal')
 aggregate_fuel_name <- 'coal'
 cdiac_fuel_name <- 'solid_fuels'
-default_fuel_share <- data.frame( fuel = ceds_extension_fuels,
+default_fuel_share <- data.frame(fuel = ceds_extension_fuels,
                                   breakdown = c(0,0,1))
 
 # Process UN data
 # Filter out countries that have lines of data, but all zero
 UN_countries <- UNSD_Energy_Final_Consumption_all %>%
-    filter( fuel %in% ceds_extension_fuels) %>%
+    filter(fuel %in% ceds_extension_fuels) %>%
     group_by(iso) %>%
     summarize_if(is.numeric, sum) %>%
     mutate(sum_all = rowSums(.[grep("X", names(.))], na.rm = TRUE)) %>% # sum rows over all columns
@@ -56,28 +56,28 @@ UN_countries <- UNSD_Energy_Final_Consumption_all %>%
     pull(iso)
 
 UNSD_Energy_Final_Consumption <- UNSD_Energy_Final_Consumption_all %>%
-    filter( fuel %in% ceds_extension_fuels,
+    filter(fuel %in% ceds_extension_fuels,
             iso %in% UN_countries)
 
 # Filter Input data for fuels and zero data
 # Filter Input data for fuels
 # other_transformation <- other_transformation_all %>%
-#     filter( fuel %in% ceds_extension_fuels) %>%
-#     filter( iso != 'global ')
+#     filter(fuel %in% ceds_extension_fuels) %>%
+#     filter(iso != 'global ')
 A.comb_activity_with_other <- A.comb_activity_all %>%
-    filter( fuel %in% ceds_extension_fuels) %>%
-    filter( iso != 'global ')
+    filter(fuel %in% ceds_extension_fuels) %>%
+    filter(iso != 'global ')
 cdiac_fuel <- cdiac_fuel_all %>%
-    filter( fuel %in% cdiac_fuel_name) %>%
-    filter( iso != 'global ')
+    filter(fuel %in% cdiac_fuel_name) %>%
+    filter(iso != 'global ')
 final_sector_shares <- final_sector_shares_all %>%
-    filter( fuel %in% ceds_extension_fuels) %>%
-    filter( iso != 'global ')
+    filter(fuel %in% ceds_extension_fuels) %>%
+    filter(iso != 'global ')
 iea_start_year <- iea_start_year_all %>%
-    filter( iso != 'global')
+    filter(iso != 'global')
 
 # Filter combustion data for coal fuels
-A.comb_activity_with_other <- A.comb_activity_with_other%>% filter( fuel %in% ceds_extension_fuels )
+A.comb_activity_with_other <- A.comb_activity_with_other%>% filter(fuel %in% ceds_extension_fuels)
 
 #-------------------------------------------------------------------------------------
 # 1. process_and_combine_un_ced_data function is called to format CEDS and UN data
@@ -85,9 +85,9 @@ A.comb_activity_with_other <- A.comb_activity_with_other%>% filter( fuel %in% ce
 #   backward from 1950 to 1750, by CDIAC
 #
 # Extend the coal data by CDIAC
-printLog( paste("Extending aggregate ", aggregate_fuel_name, ' with UN and CDIAC data back to 1750'))
+printLog(paste("Extending aggregate ", aggregate_fuel_name, ' with UN and CDIAC data back to 1750'))
 
-ceds_un_extended_data <- merge_extend_UN_CEDS_data( a.CEDS_data = A.comb_activity_with_other,
+ceds_un_extended_data <- merge_extend_UN_CEDS_data(a.CEDS_data = A.comb_activity_with_other,
                                                     a.CDIAC_data = cdiac_fuel,
                                                     a.UN_data = UNSD_Energy_Final_Consumption,
                                                     a.ceds_extension_fuels = ceds_extension_fuels,
@@ -103,7 +103,7 @@ ceds_un_extended_data <- merge_extend_UN_CEDS_data( a.CEDS_data = A.comb_activit
 printLog('Disaggregating total coal into fuel types')
 
 # Call function to disaggregate by fuel
-all_disaggregate_fuel <- fuel_breakdown( a.UN_data = UNSD_Energy_Final_Consumption,
+all_disaggregate_fuel <- fuel_breakdown(a.UN_data = UNSD_Energy_Final_Consumption,
                                          a.CEDS_UN_aggregate = ceds_un_extended_data$un_ceds ,
                                          a.CEDS_only_aggregate = ceds_un_extended_data$ceds_only,
                                          a.CEDS_comb_with_other = A.comb_activity_with_other,
@@ -112,7 +112,7 @@ all_disaggregate_fuel <- fuel_breakdown( a.UN_data = UNSD_Energy_Final_Consumpti
                                          a.aggregate_fuel = aggregate_fuel_name,
                                          a.default_fuel_share = default_fuel_share,
                                          a.UN_start = 1950,
-                                         a.iea_start_years = iea_start_year )
+                                         a.iea_start_years = iea_start_year)
 
 # ------------------------------------------------------------------------------------------------
 # 3. CEDS fuel_types into sector split.
@@ -135,7 +135,7 @@ CEDS_default_actvity_final <- CEDS_default_actvity %>%
 
 #-----------------------------------------------------------------------------------------------
 # 5. Print output
-writeData( CEDS_default_actvity_final , "MED_OUT", "A.comb_activity_extended_coal" )
+writeData(CEDS_default_actvity_final , "MED_OUT", "A.comb_activity_extended_coal")
 
 logStop()
 # END
