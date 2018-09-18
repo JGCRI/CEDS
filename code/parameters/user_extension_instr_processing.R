@@ -253,8 +253,8 @@ cleanInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
     # the same as leaving out that column.
     stopifnot( c( "iso", "agg_fuel" ) %in% names( all_instructions ) )
     add_cols <- c( "agg_sector", "CEDS_fuel", "CEDS_sector" )
-    all_instructions[ setdiff( add_cols, names( all_instructions ) ) ] <- NA
-    all_instructions[ all_instructions == 'all' ] <- NA
+    all_instructions[ setdiff( add_cols, names( all_instructions ) ) ] <- NA_character_
+    all_instructions[ all_instructions == 'all' ] <- NA_character_
     all_instructions <- removeNonComb( all_instructions, comb_sectors_only )
 
     return( all_instructions )
