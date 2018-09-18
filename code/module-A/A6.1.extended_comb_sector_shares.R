@@ -82,7 +82,8 @@ printLog('Calculating CEDS sector breakdowns')
 ceds_aggregate_sectors <- activity %>%
     dplyr::left_join(ext_sector_map, by = "sector") %>%
     dplyr::group_by(iso, fuel, ext_sector) %>%
-    dplyr::summarise_if(is.numeric, sum)
+    dplyr::summarise_if(is.numeric, sum) %>%
+    dplyr::ungroup()
 
 ceds_agg_percent_all <- calculate_shares(ceds_aggregate_sectors,
                                          id_columns = c('iso','fuel'),
@@ -106,6 +107,7 @@ printLog('Merge Bond and CEDS sector extension sector breakdowns')
 combined_sector_percentages_list <- list()
 for (start_year in start_years) {
     years <- bond_merge_start:start_year
+    xyears <- paste0('X', years)
     pre_merge_years <- historical_pre_extension_year:(bond_merge_start - 1)
     countries <- iea_start_year[iea_start_year$start_year == start_year, 'iso']
 
@@ -116,24 +118,30 @@ for (start_year in start_years) {
         dplyr::rename(!!paste0('X', start_year) := percent) %>%
         dplyr::filter(iso %in% countries)
 
-    for (n in seq_along(years)){
-        ceds_fraction <- (n - 1) * (1 / (length(years) - 1))
-        bond_fraction <- 1 - ceds_fraction
-        ##CR: this could be clarified by using a dplyr chain and/or comments
+    # inner join to select the rows in the correct order, combining with the
+    # data frame combined_percentages above
+    bond_splits <- bond_sector_percentages %>%
+        dplyr::inner_join(combined_percentages, by = c('iso', 'fuel', 'ext_sector')) %>%
+        dplyr::select(-ends_with('.y')) %>%
+        dplyr::rename_at(vars(ends_with('.x')), funs(sub('.x$', '', .))) %>%
+        dplyr::select(iso, fuel, ext_sector, xyears)
+
+    ceds_split <- ceds_agg_percent %>%
+        dplyr::inner_join(combined_percentages, by = c('iso', 'fuel', 'ext_sector')) %>%
+        dplyr::select(percent)
+
+    ceds_fractions <- seq(0, 1, length.out = length(years))
+    bond_fractions <- 1 - ceds_fractions
+
+    for (n in seq_along(years)) {
+        ceds_fraction <- ceds_fractions[n]
+        bond_fraction <- bond_fractions[n]
 
         # Select bond sector percentages, for the current year.
-        # Use match and paste to select the rows in the correct order, to be combined with the row order of the data frame combined_percentages above
-        bond_split <-
-            bond_sector_percentages[ match( paste(combined_percentages$iso,    combined_percentages$fuel,    combined_percentages$ext_sector),
-                                            paste(bond_sector_percentages$iso, bond_sector_percentages$fuel, bond_sector_percentages$ext_sector) ),
-                                     c(paste0('X',years[n]) )]
-        # Same selection for ceds sector percentages
-        ceds_split <-
-            ceds_agg_percent[ match( paste(combined_percentages$iso, combined_percentages$fuel, combined_percentages$ext_sector),
-                                     paste(ceds_agg_percent$iso,     ceds_agg_percent$fuel,     ceds_agg_percent$ext_sector) ),
-                              c('percent') ]
+        bond_split <- bond_splits[ , paste0('X', years[n])]
+
         # combine bond and sector splits using the fraction calculated above
-        combined_percentages[,paste0('X',years[n])] <- bond_split*bond_fraction + ceds_split*ceds_fraction
+        combined_percentages[ , paste0('X', years[n])] <- bond_split * bond_fraction + ceds_split * ceds_fraction
     }
 
     # If start year is 1960, add in CEDS split for 1960 - 1971
