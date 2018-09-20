@@ -106,11 +106,13 @@ is.infinite.df <- function(x) do.call( cbind, lapply( x, is.infinite ) )
 
 
 # -----------------------------------------------------------------------------
-# all.na
+# all.na, some.na
 # Brief: Are all values NA?
+#        Are some, but not all values NA?
 # Params:
 #   x: an R atomic vector or list (including data frames)
-all.na <- function(x) return( all( is.na(x) ) )
+all.na  <- function(x) return( all( is.na(x) ) )
+some.na <- function(x) anyNA(x) & !all.na(x)
 
 
 # -----------------------------------------------------------------------------
@@ -168,26 +170,18 @@ addCols <- function( table1, table2, col, matchcol ) {
 }
 
 # -----------------------------------------------------------------------------
-# naReplace
-# Brief:        Replace NA or NaN values with something (generally a number 1 or 0).
-# Details:      Useful for making small assumptions about data to make data more easily
-#                   workable.
-# Dependencies: apply
-# Author(s):    Tyler Pitkanen
+# intersectNames
+# Brief:        Return common names between two named objects
+# Details:      Useful for explicitly specifying columns to perform join
+#               operations on
+# Author:       Caleb Braun
 # Params:
-#  data:        Data frame or vector to perform replacement in [required]
-#  target:      Data instances to be replaced [default: NA]
-#  sub:         Value to be subsistuted for the target instances [default: 0]
-# Return:       Modified data frame or vector.
-# Input Files:  None
-# Output Files: None
-    naReplace <- function( data, target = NA, sub = 0 ) {
-        if( is.na( target ) ) { list_targets <- apply( data, 2, is.na )
-        } else { list_targets <- apply( data, 2, is.nan ) }
-        mod <- data
-        mod[ list_targets ] <- sub
-        return( mod )
-    }
+#   x:          An object
+#   y:          An object
+# Return:       Vector of common names
+intersectNames <- function(x, y) {
+    intersect( names( x ), names( y ) )
+}
 
 # ----------------------------------------------------------------------------------
 # isYear: determines whether a string or number is a 4-digit year or Xyear
