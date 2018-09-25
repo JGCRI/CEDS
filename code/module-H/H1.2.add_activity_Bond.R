@@ -2,27 +2,17 @@
 # Program Name: H1.2.add_activity_Bond.R
 # Author: Rachel Hoesly
 # Program Purpose: Extend coal and biomass back with Bond data
-#               
+#
 # Output Files:
-# TODO: 
+# TODO:
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Set working directory
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-    
-  }
-}
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R","process_db_functions.R") # Additional function files may be required.
 log_msg <- "Extending coal and biomass activity_data before 1960 with CDIAC-Bond data" # First message to be printed to the log
@@ -41,8 +31,12 @@ loadPackage('zoo')
 
 activity_all <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended_db') )
 
-bond_historical <- readData( "EM_INV" ,"160227_SPEW_BCOCemission", ".xlsx", meta = F )
-sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_map", meta = F )
+# last column contains value in last cell: set option to skip
+bond_ctypes = c(rep("text", 5), rep("numeric", 4), "skip")
+bond_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/",
+                             "160227_SPEW_BCOCemission", ".xlsx",
+                             column_types = bond_ctypes, meta = F )
+sector_map <- readData( "MAPPINGS", "Bond_sector_map", meta = F )
 iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_country_map", meta = F )
 fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_fuel_map", meta = F )
 
@@ -108,48 +102,48 @@ bond_coke$fuel <- 'process'
 # ---------------------------------------------------------------------------
 # 3. Industry Biomass
 
-extention_driver_data <- biomass_industry
+extension_driver_data <- biomass_industry
 
 ratio_year <- 1970
 ext_start_year <- 1850
-extention_years <- paste0('X',ext_start_year:1964)
+extension_years <- paste0('X',ext_start_year:1964)
 
 # select extension data for current method
-sectors <- extention_driver_data[, c('iso','sector','fuel') ]
+sectors <- extension_driver_data[, c('iso','sector','fuel') ]
 sectors <- paste(sectors$iso,sectors$sector,sectors$fuel,sep='-')
 
 # select ceds data to extend
-ceds_extention_ratios <- activity[ which( paste(activity$iso, activity$sector, activity$fuel, sep="-") %in% sectors  ) , ]
+ceds_extension_ratios <- activity[ which( paste(activity$iso, activity$sector, activity$fuel, sep="-") %in% sectors  ) , ]
 
 #extended data template
-ceds_extention_ratios <- ceds_extention_ratios[,c('iso','sector','fuel',paste0('X',ratio_year))]
-names(ceds_extention_ratios)[which(names(ceds_extention_ratios) == paste0('X',ratio_year))] <- 'CEDS_ratio_year'
+ceds_extension_ratios <- ceds_extension_ratios[,c('iso','sector','fuel',paste0('X',ratio_year))]
+names(ceds_extension_ratios)[which(names(ceds_extension_ratios) == paste0('X',ratio_year))] <- 'CEDS_ratio_year'
 
 # add Driver identifyer ratio year
-ceds_extention_ratios <- merge(ceds_extention_ratios, extention_driver_data[,c("iso", paste0('X',ratio_year))],
+ceds_extension_ratios <- merge(ceds_extension_ratios, extension_driver_data[,c("iso", paste0('X',ratio_year))],
                                by.x = c('iso'),
                                by.y = c("iso"),
                                all.x = TRUE, all.y = FALSE)
-names(ceds_extention_ratios)[which(names(ceds_extention_ratios) == paste0('X',ratio_year))] <- 'driver_ratio_year'
+names(ceds_extension_ratios)[which(names(ceds_extension_ratios) == paste0('X',ratio_year))] <- 'driver_ratio_year'
 
 
 # calculate ratio
-ceds_extention_ratios$ratio <- ceds_extention_ratios$CEDS_ratio_year/ceds_extention_ratios$driver_ratio_year
+ceds_extension_ratios$ratio <- ceds_extension_ratios$CEDS_ratio_year/ceds_extension_ratios$driver_ratio_year
 # make all infinite ratios zero
-ceds_extention_ratios[!is.finite(ceds_extention_ratios$ratio) , 'ratio'] <- 0
+ceds_extension_ratios[!is.finite(ceds_extension_ratios$ratio) , 'ratio'] <- 0
 
 # add driver data and use ratio to calculate extended value
-ceds_extended <- ceds_extention_ratios[,c('iso','fuel','sector','ratio')]
-ceds_extended[extention_years] <- extention_driver_data[ match( ceds_extended$iso , extention_driver_data$iso )
-                                                         ,extention_years]
+ceds_extended <- ceds_extension_ratios[,c('iso','fuel','sector','ratio')]
+ceds_extended[extension_years] <- extension_driver_data[ match( ceds_extended$iso , extension_driver_data$iso )
+                                                         ,extension_years]
 ceds_extended[is.na(ceds_extended)] <- 0
 
 # calculate extended data
-ceds_extended[ extention_years ] <- ceds_extended$ratio * ceds_extended[ extention_years ]
+ceds_extended[ extension_years ] <- ceds_extended$ratio * ceds_extended[ extension_years ]
 
-# add to final extention template
+# add to final extension template
 activity <- replaceValueColMatch(activity, ceds_extended,
-                                 x.ColName = extention_years,
+                                 x.ColName = extension_years,
                                  match.x = c('iso','sector','fuel'),
                                  addEntries = FALSE)
 
@@ -157,49 +151,49 @@ activity <- replaceValueColMatch(activity, ceds_extended,
 # ---------------------------------------------------------------------------
 # 7. Bond coke
 
-extention_driver_data <- bond_coke
+extension_driver_data <- bond_coke
 
 ratio_year <- 1970
 ext_start_year <- 1850
-extention_years <- paste0('X',ext_start_year:1964)
+extension_years <- paste0('X',ext_start_year:1964)
 
 # select extension data for current method
-sectors <- extention_driver_data[, c('sector','fuel') ]
+sectors <- extension_driver_data[, c('sector','fuel') ]
 sectors <- unique(paste(sectors$sector,sectors$fuel,sep='-'))
 
 # select ceds data to extend
-ceds_extention_ratios <- activity[ which( paste(activity$sector, activity$fuel, sep="-") %in% sectors  ) , ]
+ceds_extension_ratios <- activity[ which( paste(activity$sector, activity$fuel, sep="-") %in% sectors  ) , ]
 
 #extended data template
-ceds_extention_ratios <- ceds_extention_ratios[,c('iso','sector','fuel',paste0('X',ratio_year))]
-names(ceds_extention_ratios)[which(names(ceds_extention_ratios) == paste0('X',ratio_year))] <- 'CEDS_ratio_year'
+ceds_extension_ratios <- ceds_extension_ratios[,c('iso','sector','fuel',paste0('X',ratio_year))]
+names(ceds_extension_ratios)[which(names(ceds_extension_ratios) == paste0('X',ratio_year))] <- 'CEDS_ratio_year'
 
 # add Driver identifyer ratio year
-ceds_extention_ratios <- merge(ceds_extention_ratios, extention_driver_data[,c("iso", paste0('X',ratio_year))],
+ceds_extension_ratios <- merge(ceds_extension_ratios, extension_driver_data[,c("iso", paste0('X',ratio_year))],
                                by.x = c('iso'),
                                by.y = c("iso"),
                                all.x = TRUE, all.y = FALSE)
-names(ceds_extention_ratios)[which(names(ceds_extention_ratios) == paste0('X',ratio_year))] <- 'driver_ratio_year'
+names(ceds_extension_ratios)[which(names(ceds_extension_ratios) == paste0('X',ratio_year))] <- 'driver_ratio_year'
 
-ceds_extention_ratios <- ceds_extention_ratios[complete.cases(ceds_extention_ratios),]
+ceds_extension_ratios <- ceds_extension_ratios[complete.cases(ceds_extension_ratios),]
 
 # calculate ratio
-ceds_extention_ratios$ratio <- ceds_extention_ratios$CEDS_ratio_year/ceds_extention_ratios$driver_ratio_year
+ceds_extension_ratios$ratio <- ceds_extension_ratios$CEDS_ratio_year/ceds_extension_ratios$driver_ratio_year
 # make all infinite ratios zero
-ceds_extention_ratios[!is.finite(ceds_extention_ratios$ratio) , 'ratio'] <- 0
+ceds_extension_ratios[!is.finite(ceds_extension_ratios$ratio) , 'ratio'] <- 0
 
 # add driver data and use ratio to calculate extended value
-ceds_extended <- ceds_extention_ratios[,c('iso','fuel','sector','ratio')]
-ceds_extended[extention_years] <- extention_driver_data[ match( ceds_extended$iso , extention_driver_data$iso )
-                                                         ,extention_years]
+ceds_extended <- ceds_extension_ratios[,c('iso','fuel','sector','ratio')]
+ceds_extended[extension_years] <- extension_driver_data[ match( ceds_extended$iso , extension_driver_data$iso )
+                                                         ,extension_years]
 ceds_extended[is.na(ceds_extended)] <- 0
 
 # calculate extended data
-ceds_extended[ extention_years ] <- ceds_extended$ratio * ceds_extended[ extention_years ]
+ceds_extended[ extension_years ] <- ceds_extended$ratio * ceds_extended[ extension_years ]
 
-# add to final extention template
+# add to final extension template
 activity <- replaceValueColMatch(activity, ceds_extended,
-                                 x.ColName = extention_years,
+                                 x.ColName = extension_years,
                                  match.x = c('iso','sector','fuel'),
                                  addEntries = FALSE)
 
@@ -210,12 +204,8 @@ activity <- replaceValueColMatch(activity, ceds_extended,
 # ---------------------------------------------------------------------------
 # 6. Write to database
 
-if( !(nrow(activity_all) == nrow(activity) & ncol(activity_all) == ncol(activity) ) ){ 
+if( !(nrow(activity_all) == nrow(activity) & ncol(activity_all) == ncol(activity) ) ){
   stop( "New and old activity do not match") } else{
     writeData( activity, "MED_OUT" , paste0('H.',em,'_total_activity_extended_db')) }
 
 logStop()
-
-
-
-

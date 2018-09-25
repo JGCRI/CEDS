@@ -1,6 +1,6 @@
 # Ignore everything in this directory
 *
-# Except this file
+# Except this file and folders
 !.gitignore
 !summary-plots
 !ceds-comparisons
@@ -10,3 +10,5 @@
 !country-sector
 !total-emissions-grids
 !paper-figures
+!sub-VOCs
+!value-meta-heatmaps

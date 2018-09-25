@@ -2,29 +2,19 @@
 # Program Name: H1.2.add_activity_Bond_industrial_biomass.R
 # Author: Rachel Hoesly
 # Program Purpose: Extend Industrial Biomass with bond data. Transition from ceds to bond values
-#               
+#
 # Output Files:'H.',em,'_total_activity_extended_db'
-# TODO: 
+# TODO:
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Set working directory
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-    
-  }
-}
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R","process_db_functions.R", "ModH_extention_functions.R") # Additional function files may be required.
+headers <- c( "data_functions.R","process_db_functions.R", "ModH_extension_functions.R") # Additional function files may be required.
 log_msg <- "Extending coal and biomass activity_data before 1960 with CDIAC-Bond data" # First message to be printed to the log
 script_name <- "H1.2.add_activity_Bond_industrial_biomass.R"
 
@@ -40,7 +30,9 @@ if ( is.na( em ) ) em <- "SO2"
 
 activity_all <- readData( 'MED_OUT',paste0('H.',em,'_total_activity_extended_db') , meta=F)
 
-bond_historical <- readData( "EM_INV" ,"160227_SPEW_BCOCemission", ".xlsx", meta = F )
+bond_ctypes = c(rep("text", 5), rep("numeric", 4), "skip") # last column contains value in last cell: set option to skip
+bond_historical <- readData( "EM_INV", domain_extension = "Bond-BCOC/" ,"160227_SPEW_BCOCemission", ".xlsx", column_types = bond_ctypes, meta = T )
+
 iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_country_map", meta = F )
 fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_fuel_map", meta = F )
 
@@ -54,7 +46,7 @@ un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' , meta = F )
 # un population
 un_pop$X_year <- paste0( "X" , un_pop$year)
 un_pop$pop <- as.numeric(un_pop$pop)
-population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_year:end_year ) , ] , 
+population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_year:end_year ) , ] ,
                     iso ~ X_year, value = 'pop')
 
 
@@ -87,7 +79,7 @@ aggregate_country_cdiac_multiplier[disaggregate_years] <- aggregate_country_data
                                                disaggregate_years]
 
 #Extend Data
-disaggregate_extended[disaggregate_years] <- as.matrix(aggregate_country_cdiac_multiplier[disaggregate_years]) * 
+disaggregate_extended[disaggregate_years] <- as.matrix(aggregate_country_cdiac_multiplier[disaggregate_years]) *
   as.matrix(disaggregate_population[disaggregate_years]) / as.matrix(aggregate_country_population[disaggregate_years])
 
 # add back to full data
@@ -156,7 +148,7 @@ industry_sectors <- c( '1A2a_Ind-Comb-Iron-steel',
 ceds_industrial_biomass <- activity[ which( activity$fuel == 'biomass' &
                                             activity$sector %in% industry_sectors), ]
 
-ceds_industrial_biomass_agg <- aggregate( ceds_industrial_biomass[ X_emissions_years ], 
+ceds_industrial_biomass_agg <- aggregate( ceds_industrial_biomass[ X_emissions_years ],
                                       by = list( iso = ceds_industrial_biomass$iso,
                                                  fuel = ceds_industrial_biomass$fuel),
                                       FUN = sum)
@@ -167,13 +159,13 @@ ceds_industrial_biomass_agg <- aggregate( ceds_industrial_biomass[ X_emissions_y
 bond_industrial_biomass_fsu<- disaggregate_countries(original_data = bond_industrial_biomass,
                                                      aggregate_country = 'ussr',
                                                      disaggregate_countries = c('aze','arm' , 'blr','est','geo','kaz','kgz','lva',
-                                                                                'ltu','mda','tjk','tkm','ukr','uzb', 'rus'), 
+                                                                                'ltu','mda','tjk','tkm','ukr','uzb', 'rus'),
                                                      aggregate_end_year = 1991,
                                                      data_start_year = 1850, id_cols=c('iso','fuel'), population)
 
 bond_industrial_biomass_yug<- disaggregate_countries(original_data = bond_industrial_biomass_fsu,
                                                      aggregate_country = 'yug',
-                                                     disaggregate_countries = c('bih','hrv','mkd','svn', 'srb','mne'), 
+                                                     disaggregate_countries = c('bih','hrv','mkd','svn', 'srb','mne'),
                                                      aggregate_end_year = 1991,
                                                      data_start_year = 1850, id_cols=c('iso','fuel'), population)
 
@@ -203,26 +195,26 @@ blended_biomass[paste0('X',1850:end_year)] <- NA
 for ( i in seq_along(start_years ) ) {
   # select countries
   countries <- iea_start_year[which( iea_start_year$start_year == start_years[i]),'iso']
-  
+
   data_start <- start_years[i]
   merge_years <- (data_start - 35):(data_start+5)
-  
+
   #linearly extend ceds data for merging
   ceds_biomass_full[paste0('X',1920:(data_start-1))] <- ceds_biomass_full[paste0('X',data_start)]
   ceds_biomass_full <- ceds_biomass_full[,c('iso','fuel',paste0('X',1920:end_year))]
-  
-  ceds_fractions <- (1:length(merge_years)-1)*(1/(length(1:length(merge_years))-1)) 
+
+  ceds_fractions <- (1:length(merge_years)-1)*(1/(length(1:length(merge_years))-1))
   bond_fractions <- 1-ceds_fractions
-  
+
   # pre blending bond
-  blended_biomass [ which( blended_biomass$iso %in% countries), paste0('X',1850:(merge_years[1]-1)) ]  <- 
+  blended_biomass [ which( blended_biomass$iso %in% countries), paste0('X',1850:(merge_years[1]-1)) ]  <-
             bond_biomass_full[ which( bond_biomass_full$iso %in% countries) , paste0('X',1850:(merge_years[1]-1)) ]
-  # blending  
-  blended_biomass[which( blended_biomass$iso %in% countries), paste0('X',merge_years)]  <- 
-            matrix( data = rep(x=ceds_fractions, times = length(countries)), nrow = length(countries), byrow=T) * ceds_biomass_full[which( ceds_biomass_full$iso %in% countries),paste0('X',merge_years)] + 
+  # blending
+  blended_biomass[which( blended_biomass$iso %in% countries), paste0('X',merge_years)]  <-
+            matrix( data = rep(x=ceds_fractions, times = length(countries)), nrow = length(countries), byrow=T) * ceds_biomass_full[which( ceds_biomass_full$iso %in% countries),paste0('X',merge_years)] +
             matrix( data = rep(x=bond_fractions, times = length(countries)), nrow = length(countries), byrow=T) * bond_biomass_full[which( bond_biomass_full$iso %in% countries),paste0('X',merge_years)]
   # post blending ceds
-  blended_biomass[which( blended_biomass$iso %in% countries), paste0('X',(merge_years[length(merge_years)]+1):end_year) ]  <- 
+  blended_biomass[which( blended_biomass$iso %in% countries), paste0('X',(merge_years[length(merge_years)]+1):end_year) ]  <-
           ceds_biomass_full[ which( ceds_biomass_full$iso %in% countries) , paste0('X',(merge_years[length(merge_years)]+1):end_year) ]
   }
 
@@ -236,19 +228,19 @@ ceds_sector_breakdown_list <- list()
 for ( i in seq_along((start_years))){
   countries <- iea_start_year[which( iea_start_year$start_year == start_years[i]),'iso']
   disaggregate <- ceds_industrial_biomass[which( ceds_industrial_biomass$iso %in% countries),]
-  
+
   percentages <- disaggregate[,c('iso','fuel','sector',paste0('X',start_years[i]))]
   percentages$total <- ceds_industrial_biomass_agg[match( paste(percentages$iso, percentages$fuel),
                                     paste(ceds_industrial_biomass_agg$iso, ceds_industrial_biomass_agg$fuel)), paste0('X',start_years[i]) ]
-  
+
   percentages['percent'] <- percentages[paste0('X',start_years[i])]/percentages$total
   percentages[which( percentages$total == 0),'percent'] <- 0
-  
+
   #format
   percentages <- percentages[ ,c('iso','sector','fuel','percent') ]
   names(percentages) <- c('iso','sector','fuel', paste0('X',start_years[i]))
-  
-  ceds_sector_breakdown_list[[i]]<-percentages  
+
+  ceds_sector_breakdown_list[[i]]<-percentages
 }
 ceds_sector_breakdown <- do.call(rbind.fill, ceds_sector_breakdown_list)
 
@@ -265,9 +257,9 @@ ceds_sector_breakdown[ , paste0('X',1850:1971)] <- interpolate_NAs(ceds_sector_b
 
 for ( i in seq_along((start_years))){
   countries <- iea_start_year[which( iea_start_year$start_year == start_years[i]),'iso']
-  
+
   percentages <- ceds_sector_breakdown[which(ceds_sector_breakdown$iso %in% countries),]
-    
+
     # total fuel template - same order as percentages
     aggregate <- percentages[c('iso','sector','fuel')]
     aggregate[ paste0('X',1850:(start_years[i]-1) ) ] <- 0
@@ -278,20 +270,20 @@ for ( i in seq_along((start_years))){
     # multiply total by percentages breakdown
     aggregate[paste0('X',1850:(start_years[i]-1) )] <- aggregate[paste0('X',1850:(start_years[i]-1) )]*
       percentages[paste0('X',1850:(start_years[i]-1) )]
-    
-    # save data to list 
+
+    # save data to list
     if (i == 1) dissagregate_biomass_1960 <- aggregate
     if (i == 2) dissagregate_biomass_1971 <- aggregate
-    
+
   }
 
 # ---------------------------------------------------------------------------
 # 6. Extend 1750 to 1750 with Population
 
-# set up extention data (population)
+# set up extension data (population)
   extension_data_1960 <- dissagregate_biomass_1960[,c('iso','sector','fuel')]
   extension_data_1960[ paste0('X',1750:1900) ] <- population[match(extension_data_1960$iso, population$iso), paste0('X',1750:1900)]
-  
+
   extension_data_1971 <- dissagregate_biomass_1971[,c('iso','sector','fuel')]
   extension_data_1971[ paste0('X',1750:1900) ] <- population[match(extension_data_1971$iso, population$iso), paste0('X',1750:1900)]
 
@@ -303,33 +295,33 @@ for ( i in seq_along((start_years))){
   final_extended_1960 <- extend_data_on_trend(driver_trend = extension_data_1960, input_data = dissagregate_biomass_1960 , start = 1750, end = 1849)
   final_extended_1971 <- extend_data_on_trend(driver_trend = extension_data_1971, input_data = dissagregate_biomass_1971 , start = 1750, end = 1849)
 
-  # TODO: change extend_data_on_trend function - it currently takes average of previous years. 
+  # TODO: change extend_data_on_trend function - it currently takes average of previous years.
   # If start year is zero then data should be extended at zero - or option
   final_extended_1960[which( final_extended_1960$X1850 == 0), paste0('X',1750:1849) ] <- 0
   final_extended_1971[which( final_extended_1971$X1850 == 0), paste0('X',1750:1849) ] <- 0
-  
+
   final_extended_biomass <- rbind.fill(final_extended_1960, final_extended_1971)
   final_extended_biomass <- final_extended_biomass[,c('iso','sector','fuel',paste0('X',1750:1970))]
-  
+
 
 # ---------------------------------------------------------------------------
 # 6. Add to Activity Database
 
 activity.replace <- activity[ which(activity$sector %in% industry_sectors &
-                                   activity$fuel == 'biomass'),] 
+                                   activity$fuel == 'biomass'),]
 activity.done <- activity[ which(activity$sector %!in% industry_sectors |
-                                      activity$fuel != 'biomass'),] 
+                                      activity$fuel != 'biomass'),]
 
 # loop over IEA data start years
 for ( i in seq_along ( start_years ) ){
   countries <- iea_start_year[which( iea_start_year$start_year == start_years[i]),'iso']
-  
+
   if( i == 1) biomass <- final_extended_1960
   if( i == 2) biomass <- final_extended_1971
-  
+
   new_activity <- activity.replace[ which( activity.replace$iso %in% countries),]
   activity.replace <- activity.replace[ which( activity.replace$iso %!in% countries),]
-  
+
   new_activity [ paste0('X',1750:(start_years[i]-1)) ] <- biomass[ match( paste(new_activity$iso, new_activity$fuel, new_activity$sector ),
                                                                        paste(biomass$iso, biomass$fuel, biomass$sector ) )  , paste0('X',1750:(start_years[i]-1)) ]
   activity.done <- rbind( activity.done, new_activity)

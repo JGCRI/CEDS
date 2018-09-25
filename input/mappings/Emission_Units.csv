@@ -1,0 +1,10 @@
+emission,calc-unit,calc-molecular-weight,final-output-unit,molecular-weight
+SO2,SO2,,SO2,
+NOx,NO2,,NO2,
+CO,CO,,CO,
+NMVOC,NMVOC,NA,NMVOC,NA
+NH3,NH3,,NH3,
+BC,BC,12,C,12
+OC,OC,12,C,12
+CO2,CO2,44,C,12
+CH4,CH4,16,CH4,16

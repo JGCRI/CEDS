@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: Input and Output functions
-# Author(s): Ben Bond-Lamberty, Page Kyle, Jon Seibert, Tyler Pitkanen, Linh Vu
-# Last Updated: 16 October 2015
+# Author(s): Ben Bond-Lamberty, Page Kyle, Jon Seibert, Tyler Pitkanen, Linh Vu, Presley
+# Last Updated: 16 May 2017
 
 # This file must be sourced by all CEDS R scripts, generally as the second sourced script.
 # Functions contained:
@@ -177,7 +177,7 @@ logStop <- function() {
     IO_doc[ IO_doc$file == fn, "output_description" ] <- about_output
     
     # Sort by file name
-    IO_doc <- arrange( IO_doc, file )
+    IO_doc <- dplyr::arrange( IO_doc, file )
     
     writeData( IO_doc, "DOCUMENTATION", paste0( em, "_", "IO_documentation" ), meta = FALSE, mute = TRUE )
 
@@ -353,7 +353,7 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
 
 	full_file_path <- filePath( domain, file_name, extension, domain_extension ) 
 
-    multi_sheet <- FALSE
+  multi_sheet <- FALSE
     
     # Assign em so the correct [em]_IO_documentation can be found  
 	if ( !exists( 'em', envir = .GlobalEnv ) ) em <- "CM"
@@ -460,17 +460,18 @@ readData <- function( domain = "none", file_name = "none", extension = ".csv",
     
     # Get metadata and add to list of all metadata in the script
     if( meta == T ) {
-        metadata <- readMetaData( meta_domain, file_name, meta_domain_ext = domain_extension )
+        metadata <- readMetaData( meta_domain, file_name, extension, meta_domain_ext = domain_extension )
     }
   
 	# Convert years columns to numeric values if to_numeric = TRUE
-	if( to_numeric == TRUE){
-	  printLog("Converting NAs to numeric")
+	if( to_numeric == TRUE) {
+	  printLog( "Converting NAs to numeric" )
 	  names <- names( x )
 	  years <- names[names %in% X_extended_years]
-	  if (length(years)>0){
-	  x[,years] <- suppressWarnings(sapply( X= x[,years] , FUN=as.numeric) )}
-  	}
+	  if( length(years) > 0 ) {
+	    x[,years] <- suppressWarnings(sapply( X = x[,years] , FUN = as.numeric) )
+    }
+  }
 	  
 	return( x )
 }
@@ -516,7 +517,8 @@ readExcel <- function( full_file_path, sheet_selection = "ALL", column_names = T
 
         x <- lapply( excel_sheets( full_file_path ), read_excel, path = full_file_path, 
                      col_names = column_names, col_types = column_types, 
-                     na = missing_value, skip = skip_rows) %>%
+                     na = missing_value, trim_ws = FALSE, skip = skip_rows,
+                     guess_max = 100) %>%
             lapply( as.data.frame ) # Ensure result is in standard data frame form, 
                                     # instead of a "local data frame"
         names( x ) <- sheet_names # Fix names
@@ -529,7 +531,8 @@ readExcel <- function( full_file_path, sheet_selection = "ALL", column_names = T
             multi_sheet <- TRUE
             x <- lapply( sheet_selection, read_excel, path = full_file_path, 
                          col_names = column_names, col_types = column_types, 
-                         na = missing_value, skip = skip_rows) %>%
+                         na = missing_value, trim_ws = FALSE, skip = skip_rows,
+                         guess_max = 100) %>%
                 lapply( as.data.frame )
             names( x ) <- sheet_selection
             
@@ -538,9 +541,10 @@ readExcel <- function( full_file_path, sheet_selection = "ALL", column_names = T
             # If only one sheet exists
             if( sheet_selection == "ALL" ) sheet_selection <- sheet_names[ 1 ] 
         
-            x <- read_excel( path = full_file_path, sheet = sheet_selection, 
-                             col_names = column_names, col_types = column_types, 
-                             na = missing_value, skip = skip_rows ) %>%
+            x <- read_excel( path = full_file_path, sheet = sheet_selection,
+                             col_names = column_names, col_types = column_types,
+                             na = missing_value, trim_ws = FALSE, skip = skip_rows,
+                             guess_max = 100) %>%
                 as.data.frame()
         }
     }
@@ -621,7 +625,7 @@ addDependency <- function( fqn, ... ) {
 # params:           
 #   x:                  Data frame to be output as a .csv file.
 #   domain:             CEDS domain in which the file is located. [default: "MED_OUT"]
-#   fn:                 Name of the file to read in, minus the file extension. 
+#   fn:                 Name of the file to write, minus the file extension. 
 #                       [default: GCAM_SOURCE_FN]
 #   fn_sfx:             Suffix to append to the file name. [default: NULL]
 #   comments:           Output comments to be included at the top of the output file.
@@ -736,7 +740,7 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
 # return:       all_metadata
 # input files:  metadata file, e.g. 'example-metadata.csv'
 # output files: null
-readMetaData <- function( meta_domain="none", file_name="none", meta_name = 'none', meta_domain_ext = "" ) {
+readMetaData <- function( meta_domain="none", file_name="none", file_extension = "csv", meta_name = 'none', meta_domain_ext = "" ) {
 
     # # DEBUG
     # meta_domain <- "MED_OUT"
@@ -772,8 +776,17 @@ readMetaData <- function( meta_domain="none", file_name="none", meta_name = 'non
             new_metadata <- data.frame( t( new_metadata ), row.names = NULL )
             colnames( new_metadata ) <- default_names     
         }
+        
+        #add the source column as a metadata column in the data frame
+        new_metadata$Source  <- paste(file_name, file_extension, sep="")
+      
         # Since no other metadata exists, set new_metadata as all_metadata    
         all_metadata <- new_metadata
+        
+        #re-arrange the columns so  that the 'source' column is the fist column in the data frame
+        other_col_names <- colnames(all_metadata)[(colnames(all_metadata) %!in% c('Source'))]
+        all_metadata <- all_metadata[c('Source', other_col_names)]
+        
         # Return the all_metadata object and end the function
         assign( 'all_metadata', all_metadata, .GlobalEnv )
         return( invisible( all_metadata ) )
@@ -785,13 +798,10 @@ readMetaData <- function( meta_domain="none", file_name="none", meta_name = 'non
         all_metadata <- data.frame( all_metadata, row.names = NULL )
         old_metadata <- all_metadata
         old_names  <- colnames( old_metadata ) 
-        old_rownum <- nrow( all_metadata )
         old_colnum <- ncol( all_metadata )          
         
         if( new_metadata_exists == TRUE ) {
             new_names <- colnames( new_metadata )
-            new_rownum <- nrow( new_metadata )
-            new_colnum <- ncol( new_metadata )
             
             # Check if any new categories are included in the newly added metadata. If
             #   new columns are included, update the old metadata
@@ -800,26 +810,13 @@ readMetaData <- function( meta_domain="none", file_name="none", meta_name = 'non
                 # Print a lot message noting the addition of new columns
                 printLog( 'New categories added for', file_name, 'metadata: ', 
                           paste( new_names[ new_cols ], collapse = ',' ) )
-                
-                # Add the new columns to the previously read-in metadata with filler
-                #   'NA' values for the column entries
-                new_colnum <- length( new_cols )
-                old_filler <- array( 'NA', c( old_rownum, new_colnum ) )
-                colnames( old_filler ) <- new_cols
-                # Add in the filler columns to the old metadata
-                old_metadata <- cbind( old_metadata, old_filler )
             }
             
-            missing_cols <- old_names  %!in% new_names
-            if( any( missing_cols ) ) {
-                # Add the missing columns to the new metadata with filler
-                #   'NA' values for the column entries
-                missing_col_num <- length( missing_cols )
-                new_filler <- array( 'NA', c( new_rownum, missing_col_num ) )
-                colnames( new_filler ) <- missing_cols
-                # Add in the filler columns to the new metadata            
-                new_metadata <- cbind( new_metadata, new_filler )
-            }
+            #add the 'source' column 
+            new_metadata$Source <-paste(file_name, file_extension, sep="")
+            
+            #bind the new metadata record
+            all_metadata <- rbind.fill(all_metadata, new_metadata)
             
         } else if( new_metadata_exists == FALSE ) {
             # If the metadata file doesn't exist, create a default entry with the
@@ -827,17 +824,16 @@ readMetaData <- function( meta_domain="none", file_name="none", meta_name = 'non
             new_metadata <- c( rep( "Unknown", new_colnum - 1 ), 
                                paste0( "Metadata input file missing for data file ", file_name ) )
             new_metadata <- data.frame( t( new_metadata ), row.names = NULL )
-            colnames( new_metadata ) <- old_names             
+            colnames( new_metadata ) <- old_names 
+            
+            new_metadata$Source  <- paste(file_name, file_extension, sep="")
+            
+            all_metadata <- rbind.fill(all_metadata, new_metadata)
         }
-        
-        # If new columns are added, match the column order to the new metadata. If
-        #   new columns were not added, keep the old order.
-        if( exists( 'new_cols' ) && any( new_cols ) ) {
-            all_metadata <- rbind( new_metadata, old_metadata, deparse.level = 0 )
-            all_metadata <- all_metadata[ c( ( new_rownum + 1):( nrow( all_metadata ) ), 1:new_rownum ), ]
-        } else {
-            all_metadata <- rbind( old_metadata, new_metadata, deparse.level = 0 )
-        }
+ 
+        #re-arrange the columns so  that the 'source' column is the fist column in the data frame
+        center_col_names <- colnames(all_metadata)[(colnames(all_metadata) %!in% c('Source','Source.Comment'))]
+        all_metadata <- all_metadata[c('Source', center_col_names, 'Source.Comment')]
         
         assign( 'all_metadata', all_metadata, .GlobalEnv )
     } 
@@ -860,7 +856,7 @@ readMetaData <- function( meta_domain="none", file_name="none", meta_name = 'non
 # return: all_metadata
 # input files: metadata file, e.g. 'example-metadata.csv'
 # output files: null
-addMetaData <- function( metadata = NULL, metadata_names = NULL ) {
+addMetaData <- function( metadata = NULL, metadata_names = NULL, source_info =" " ) {
     
     # Load defaults for created data and names if unspecified
     if( is.null( metadata_names ) || is.null( metadata ) ) {
@@ -878,6 +874,24 @@ addMetaData <- function( metadata = NULL, metadata_names = NULL ) {
         new_metadata <- metadata
     }
     
+    #extract the file extension from the source_info parameter, if user specify it with this variable
+    #This should be the last two value
+    source_extension = substr(source_info, str_count(source_info)-1, str_count(source_info))
+    
+    #Check if file extension is ".R", irrespective of the letter-case.
+    #if true, assign the ".R" exstension to r_extension, and remove
+    #the extension from the source_info
+    
+    if(source_extension == ".r"){
+      
+      source_extension <- ".R"
+      
+      #remove the ".R" or ".r" extension 
+      source_info <- substr(source_info, 1, str_count(source_info)-2)
+    }else{
+      source_extension <- ""
+    }
+    
     # If the object all_metadata doesn't exist, create it. This should occur once
     #   per script upon the first addition of metadata.
     if( exists( 'all_metadata' ) == FALSE ) {
@@ -893,13 +907,9 @@ addMetaData <- function( metadata = NULL, metadata_names = NULL ) {
     all_metadata <- data.frame( all_metadata, row.names = NULL )
     old_metadata <- all_metadata
     old_names <- colnames( old_metadata ) 
-    old_rownum <- nrow( all_metadata )
-    old_colnum <- ncol( all_metadata )          
     
     if( new_metadata_exists == TRUE ) {
         new_names <- colnames( new_metadata )
-        new_rownum <- nrow( new_metadata )
-        new_colnum <- ncol( new_metadata )
         
         # Check if any new categories are included in the newly added metadata. If
         #   new columns are included, update the old metadata
@@ -908,36 +918,18 @@ addMetaData <- function( metadata = NULL, metadata_names = NULL ) {
             # Print a lot message noting the addition of new columns
             printLog( 'New categories added to metadata: ', 
                       paste( new_names[ new_cols ], collapse = ',' ) )
-            
-            # Add the new columns to the previously read-in metadata with filler
-            #   'NA' values for the column entries
-            new_colnum <- length( new_names[ new_cols ] )
-            old_filler <- array( 'NA', c( old_rownum, new_colnum ) )
-            colnames( old_filler ) <- new_names[ new_cols ]
-            
-            # Add in the filler columns to the old metadata
-            old_metadata <- cbind( old_metadata, old_filler )
         }
         
-        missing_cols <- old_names %!in% new_names
-        if( any( missing_cols ) ) {
-            # Add the missing columns to the new metadata with filler
-            #   'NA' values for the column entries
-            missing_col_num <- length( old_names[ missing_cols ] )
-            new_filler <- array( 'NA', c( new_rownum, missing_col_num ) )
-            colnames( new_filler ) <- old_names[ missing_cols ]
-            # Add in the filler columns to the new metadata            
-            new_metadata <- cbind( new_metadata, new_filler )
-        }
         
-        # If new columns are added, match the column order to the new metadata. If
-        #   new columns were not added, keep the old order.
-        if( exists( 'new_cols' ) && any( new_cols ) ) {
-            all_metadata <- rbind( new_metadata, old_metadata, deparse.level = 0 )
-            all_metadata <- all_metadata[ c( 2:( nrow( all_metadata ) ), 1 ), ]
-        } else {
-            all_metadata <- rbind( old_metadata, new_metadata, deparse.level = 0 )
-        }
+        #add the the source column  
+        new_metadata$Source <-paste(source_info, source_extension, sep="")
+        
+        #bind the data frames; old and new data frames 
+        all_metadata <- rbind.fill(all_metadata, new_metadata)
+        
+        #re-arrange the columns so  that the 'source' column is the fist column in the data frame
+        center_col_names <- colnames(all_metadata)[(colnames(all_metadata) %!in% c('Source','Source.Comment'))]
+        all_metadata <- all_metadata[c('Source', center_col_names, 'Source.Comment')]
         
         assign( 'all_metadata', all_metadata, .GlobalEnv )    
     } 
@@ -1001,4 +993,25 @@ clearMeta <- function( ) {
         rm(all_metadata, pos = ".GlobalEnv")
     }
 }
-# --------------------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# savePlot
+# Brief:        Save a ggplot.
+# Details:      Saves the most recent plot as a .pdf file.
+# Dependencies: None
+# Author(s):    Caleb Braun
+# Params:       
+#   domain:     CEDS domain in which the file is located.
+#   domain_ext: File subdirectory within the specified domain. (Optional)
+#   file_name:  Name of the file to write out, minus the file extension. 
+#   width:      Width of the plot in inches.
+#   height:     Height of the plot in inches.
+# Return:       None
+# Input Files:  None
+# Output Files: Specified in "fn".
+savePlot <- function( domain, domain_ext, file_name, width, height ) {
+
+    fp <- filePath( domain, file_name, extension = '.pdf', domain_extension = domain_ext)
+    ggsave( fp , width = width, height = height )
+}
+# -----------------------------------------------------------------------------

@@ -20,8 +20,8 @@ INV_DATA = input/emissions-inventories
 MED_OUT = intermediate-output
 DIAG_OUT = diagnostic-output
 FINAL_OUT = final-emissions
-EXT_IN = input/extention
-EXT_DATA = input/extention/extention-data
+EXT_IN = input/extension
+EXT_DATA = input/extension/extension-data
 LOGS = code/logs
 DOCS = documentation
 
@@ -89,9 +89,12 @@ endif
 # modules. You may also wish to create a new .bat file
 # specifically to run the system with the new emissions type.
 
-all: SO2-emissions BC-emissions NOx-emissions CO-emissions NMVOC-emissions CO2-emissions
+# Note that this is an inefficient method of creating data for multiple species
+# If a multi-processor machine is available, CEDS should be instead run in parellel for multiple species
+all: SO2-emissions BC-emissions OC-emissions NOx-emissions CO-emissions NMVOC-emissions CO2-emissions NH3-emissions
 part1: SO2-emissions NOx-emissions NH3-emissions
 part2: CO-emissions NMVOC-emissions
+part3: BC-emissions OC-emissions CO2-emissions
 
 # --------------------------------------------------------------
 
@@ -122,13 +125,13 @@ clean-io :
 
 clean-modA :
 	rm -fv $(MED_OUT)/A*.csv \
-	rm -fv $(EXT_IN)/extention-data/A.*.csv
+	rm -fv $(EXT_IN)/extension-data/A.*.csv
 
 clean-modB :
 	rm -fv $(MED_OUT)/B*.csv \
 	rm -fv $(EF_PARAMETERS)/B.*.csv \
 	rm -fv $(EF_DATA)/non-combustion-emissions/B.*.csv \
-	rm -fv $(EXT_IN)/extention-data/B.*.csv
+	rm -fv $(EXT_IN)/extension-data/B.*.csv
 
 clean-modC :
 	rm -fv $(MED_OUT)/C*.csv \
@@ -145,7 +148,7 @@ clean-modF :
 
 clean-modH :
 	rm -fv $(MED_OUT)/H*.csv \
-	rm -fv $(EXT_IN)/extention-data/H*.csv
+	rm -fv $(EXT_IN)/extension-data/H*.csv
 
 clean-SO2 :
 	rm -fv $(MED_OUT)/*SO2*.csv \
@@ -328,6 +331,7 @@ $(MED_OUT)/A.en_stat_sector_fuel.csv : \
 	$(MOD_A)/A2.1.IEA_en_bal.R \
 	$(MED_OUT)/A.IEA_en_stat_ctry_hist.csv \
 	$(EN_MAPPINGS)/IEA_flow_sector.csv \
+	$(EN_MAPPINGS)/IEA_process_sectors.csv \
 	$(EN_MAPPINGS)/IEA_product_fuel.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(MED_OUT)/A.Fernandes_biomass_conversion.csv \
@@ -354,8 +358,7 @@ $(MED_OUT)/A.en_biomass_fsu_fix.csv : \
 # aa3-1
 # Extends IEA data with BP data
 $(MED_OUT)/A.IEA_BP_energy_ext.csv : \
-	$(MOD_A)/A3.1.IEA_BP_data_extension_2014.R \
-	$(MOD_A)/A3.1.IEA_BP_data_extension_post_2014.R \
+	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
 	$(MOD_A)/A3.2.Adjust_Shipping_Fuel_Cons.R \
 	$(MED_OUT)/A.en_biomass_fsu_fix.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
@@ -363,7 +366,6 @@ $(MED_OUT)/A.IEA_BP_energy_ext.csv : \
 	$(ENERGY_DATA)/Shipping_Fuel_Consumption.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
-	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.intl_shipping_en.csv : \
 	$(MED_OUT)/A.IEA_BP_energy_ext.csv
@@ -491,13 +493,13 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv : \
 	$(PARAMS)/timeframe_functions.R \
 	$(PARAMS)/process_db_functions.R \
 	$(PARAMS)/analysis_functions.R \
-	$(PARAMS)/interpolation_extention_functions.R \
+	$(PARAMS)/interpolation_extension_functions.R \
 	$(EF_DATA)/SO2_base_EF.csv \
 	$(MED_OUT)/A.comb_activity.csv \
 	$(MAPPINGS)/Bond/Bond_country_map.csv \
 	$(MAPPINGS)/Bond/Bond_fuel_map.csv \
 	$(MAPPINGS)/Bond/Bond_sector_map.csv \
-	$(INV_DATA)/160227_SPEW_BCOCemission.xlsx \
+	$(INV_DATA)/Bond-BCOC/160227_SPEW_BCOCemission.xlsx \
 	$(MED_OUT)/A.comb_activity.csv \
 	$(MED_OUT)/A.coal_heat_content.csv \
 	$(EF_DATA)/CO2_base_EF.xlsx
@@ -554,7 +556,6 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv : \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US-EPA_inventory.csv \
-	$(MED_OUT)/E.$(EM)_US-GHG_inventory.csv \
 	$(MED_OUT)/A.UN_pop_master.csv \
 	$(ACTIV)/wastewater/UN_Percentage_WW_Treatment.xlsx \
 	$(ACTIV)/wastewater/OECD_Percentage_WW_Treatment.xlsx \
@@ -772,7 +773,7 @@ $(MED_OUT)/H.$(EM)_total_EFs_extended.csv : \
 	$(MOD_H)/H3.2.add_EFs_EF-trend.R \
 	$(MOD_H)/H3.2.add_EFs_Emissions-trend.R \
 	$(EXT_IN)/CEDS_historical_extension_methods_EF.csv \
-	$(EXT_IN)/extention-data/A.Pig_Iron_Production.csv \
+	$(EXT_IN)/extension-data/A.Pig_Iron_Production.csv \
 	$(MED_OUT)/H.$(EM)_total_EFs_adjusted-sector.csv \
 	$(MED_OUT)/H.$(EM)_total_activity_extended.csv
 	Rscript $< $(EM) --nosave --no-restore

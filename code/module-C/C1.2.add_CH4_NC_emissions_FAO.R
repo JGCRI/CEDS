@@ -4,47 +4,35 @@
 # Date Last Modified: 04 April 2017
 # Program Purpose: Use the package FAOSTAT to retrieve methane emissions
 #             data for agriculture.
-# Input Files: 
+# Input Files:
 # Output Files: C.CH4_NC_emissions_agriculture.csv
-# To Do: 
-# Notes: 
+# To Do:
+# Notes:
 # -----------------------------------------------------------------------------
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Before we can load headers we need some paths defined. They may be provided by
-#   a system environment variable or may have already been set in the workspace.
-# Set variable PARAM_DIR to be the data system directory
-    dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-    for ( i in 1:length( dirs ) ) {
-      setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-      wd <- grep( 'CEDS/input', list.dirs(), value = T )
-      if ( length( wd ) > 0 ) {
-        setwd( wd[ 1 ] )
-        break
-        
-      }
-    }
-    PARAM_DIR <- "../code/parameters/"
 # Universal header file - provides logging, file support, etc.
-
-    headers <- c( "common_data.R","data_functions.R", "analysis_functions.R", 
+    headers <- c( "common_data.R","data_functions.R", "analysis_functions.R",
                   "process_db_functions.R") # Additional function files required.
     log_msg <- paste0( "Sulfite and Sulfate data processing from FAO pulp and paper",
                        "processing data" ) # First message to be printed to the log
-    script_name <- "C.1.2.add_CH4_NC_emissions_FAO.R" 
+    script_name <- "C.1.2.add_CH4_NC_emissions_FAO.R"
     source( paste0( PARAM_DIR, "header.R" ) )
-    initialize( script_name, log_msg, headers )    
-  
+    initialize( script_name, log_msg, headers )
+
 # -----------------------------------------------------------------------------
 # 0.5 Load Package and define variables
  loadPackage('FAOSTAT')
 
 # -----------------------------------------------------------------------------
 # 1. Load Data
-    
+
   MCL <- readData( "MAPPINGS", "Master_Country_List", meta = F )
-  FAO_API <-  readData('EM_INV' ,'FAO_methane_API') 
-      
+  FAO_API <-  readData('EM_INV' ,'FAO_methane_API')
+
 # -----------------------------------------------------------------------------
 # 2. Retrive and process data from FAOSTAT - uncomment to update, then run script.
 
@@ -59,34 +47,34 @@
 # -----------------------------------------------------------------------------
 # 3. Process FAO methane data
 
-FAO <- FAO_API %>% 
-       left_join(MCL[c('iso','FAO_Country_Code')], by = c('FAOST_CODE' = 'FAO_Country_Code')) %>% 
-       select(-FAOST_CODE) %>% 
-       melt(id.vars = c('iso','Year')) %>% 
-       mutate(value = as.numeric(as.character(value))) %>% 
-       mutate(variable = gsub('X','',variable)) %>% 
-       mutate(variable = gsub('\\.','-',variable)) %>% 
-       filter(!is.na(iso), Year %in% extended_years) %>% 
-       mutate(Year = paste0('X',Year)) %>% unique %>% 
-       cast(iso+variable~Year) %>% 
+FAO <- FAO_API %>%
+       left_join(MCL[c('iso','FAO_Country_Code')], by = c('FAOST_CODE' = 'FAO_Country_Code')) %>%
+       select(-FAOST_CODE) %>%
+       melt(id.vars = c('iso','Year')) %>%
+       dplyr::mutate(value = as.numeric(as.character(value))) %>%
+       dplyr::mutate(variable = gsub('X','',variable)) %>%
+       dplyr::mutate(variable = gsub('\\.','-',variable)) %>%
+       filter(!is.na(iso), Year %in% extended_years) %>%
+       dplyr::mutate(Year = paste0('X',Year)) %>% unique %>%
+       cast(iso+variable~Year) %>%
        dplyr::rename(sector = variable)
 
 # -----------------------------------------------------------------------------
 # 4. Country Splitting
-  list(czech.slovkia = c(1961, 1993, "csk","cze","svk"), 
+  list(czech.slovkia = c(1961, 1993, "csk","cze","svk"),
        bel.lux = c(1961, 2000, "blx","bel","lux"),
        yugo = c(1961, 1992, "yug", "scg", "svn", "mkd","hrv","bih"),
        ser.mont = c(1961, 2006, "scg","srb","mne"),
        soviet = c(1961, 1992, "USSR","arm","aze","blr","est","geo","kaz",
                   "kgz","ltu","lva","mda","rus","tjk","tkm","ukr","uzb"))
-  
+
   un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' )
   un_pop$X_year <- paste0( "X" , un_pop$year)
   un_pop$pop <- as.numeric(un_pop$pop)
   population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_year:end_year ) , ] ,
                       iso ~ X_year, value = 'pop')
-  
-  
+
+
   FAO_csk <- disaggregate_country(original_data = FAO,
                                   id_cols = c('iso','sector'),
                                   trend_data = population,
@@ -130,25 +118,25 @@ FAO <- FAO_API %>%
                                   dis_start_year = 1961)
 # -----------------------------------------------------------------------------
 # 5. Final Processing
-  
-  FAO_out <- FAO_scg 
+
+  FAO_out <- FAO_scg
   # carry foward last value to end year
   FAO_last <- max( as.numeric ( gsub('X','',names ( FAO_out ) ) ), na.rm = T )
   years <- paste0('X',1961:end_year)
   add_years <- years[ years %!in% names( FAO_out ) ]
   FAO_out[ add_years ] <- FAO_out[ paste0('X', FAO_last ) ] 
-  
-  FAO_out <- FAO_out %>% 
-    mutate(units = 'kt') %>% 
-    mutate(fuel = 'process')
-  
+
+  FAO_out <- FAO_out %>%
+    dplyr::mutate(units = 'kt') %>%
+    dplyr::mutate(fuel = 'process')
+
   FAO_out <- FAO_out[c('iso','sector','fuel','units',years)]
-  
+
 # --------------------------------------------------------------------------------
 # 6. Output
   addToEmissionsDb_overwrite(FAO_out,em='CH4',type='NC')
-  
+
   writeData( FAO_out, domain = "MED_OUT", fn = "C.CH4_NC_emissions_agriculture")
- 
+
   logStop()
 # END

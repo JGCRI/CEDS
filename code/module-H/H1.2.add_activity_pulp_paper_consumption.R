@@ -6,25 +6,15 @@
 # Input Files:   H.[em]_total_activity_extended_db.csv, CEDS_historical_extension_drivers_activity.csv,
 #               A.pulp_paper_consumption_full.csv
 # Output Files: H.[em]_total_activity_extended_db.csv
-# TODO: 
+# TODO:
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
-# Set working directory
-dirs <- paste0( unlist( strsplit( getwd(), c( '/', '\\' ), fixed = T ) ), '/' )
-for ( i in 1:length( dirs ) ) {
-  setwd( paste( dirs[ 1:( length( dirs ) + 1 - i ) ], collapse = '' ) )
-  wd <- grep( 'CEDS/input', list.dirs(), value = T )
-  if ( length(wd) > 0 ) {
-    setwd( wd[1] )
-    break
-    
-  }
-}
-PARAM_DIR <- "../code/parameters/"
-
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R","process_db_functions.R") # Additional function files may be required.
 log_msg <- "Extending CEDS activity_data before 1961 with pulp and paper consumption data" # First message to be printed to the log
@@ -64,21 +54,21 @@ pp <- pp_consumption[, c( pp_id_cols, paste0("X", historical_pre_extension_year:
 # 4. Extend Data
   ratio_year <- unique(drivers[,'ext_end_year'])
   ext_start_year <- unique(drivers[,'ext_start_year'])
-  extention_years <- paste0('X',ext_start_year:ratio_year)
+  extension_years <- paste0('X',ext_start_year:ratio_year)
 
   # select extension data for current method
   sectors <- drivers[, c('sector','fuel') ]
   sectors <- paste(sectors$sector,sectors$fuel,sep='-')
-  
+
   # select ceds data to extend
-  ceds_extention <- activity[ which( paste(activity$sector, activity$fuel, sep="-") %in% sectors  ) , ]
-  
+  ceds_extension <- activity[ which( paste(activity$sector, activity$fuel, sep="-") %in% sectors  ) , ]
+
   # add pulp and paper
-  ceds_extention[extention_years] <- pp[match(ceds_extention$iso, pp$iso)  , extention_years ]
-  
+  ceds_extension[extension_years] <- pp[match(ceds_extension$iso, pp$iso)  , extension_years ]
+
   # add to final activity
-  activity <- replaceValueColMatch(activity, ceds_extention,
-                                   x.ColName = extention_years,
+  activity <- replaceValueColMatch(activity, ceds_extension,
+                                   x.ColName = extension_years,
                                    match.x = c('iso','sector','fuel'),
                                    addEntries = FALSE)
 
@@ -86,10 +76,8 @@ pp <- pp_consumption[, c( pp_id_cols, paste0("X", historical_pre_extension_year:
 # ---------------------------------------------------------------------------
 # 5. Write to database
 
-if( !(nrow(activity_all) == nrow(activity) & ncol(activity_all) == ncol(activity) ) ){ 
+if( !(nrow(activity_all) == nrow(activity) & ncol(activity_all) == ncol(activity) ) ){
   stop( "New and old activity do not match") } else{
     writeData( activity, "MED_OUT" , paste0('H.',em,'_total_activity_extended_db')) }
 
 logStop()
-
-
