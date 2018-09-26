@@ -111,7 +111,7 @@ processInstructions <- function( comb_sectors, MSL, MFL, default_activity ) {
                   start_continuity = TRUE,
                   end_continuity = TRUE,
                   specified_breakdowns = FALSE )
-    opts_present <- intersect( names( instructions ), names ( opts ) )
+    opts_present <- intersectNames( instructions, opts )
     opts_missing <- setdiff( names( opts ), opts_present )
 
     # Replace missing options with their default values

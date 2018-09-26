@@ -43,13 +43,7 @@
 
 # ------------------------------------------------------------------------------
 # 0.5 Define functions for later use
-
     loadPackage( 'zoo' )
-
-# all.na(); check if dataframe or list x is only NA entries
-    all.na <- function( x ) {
-        return( all.na( x ) )
-    }
 
 # interpolate_extend()
 # This function is used to
@@ -59,9 +53,6 @@
         interpolate <-  apply( X = df[ years ], MARGIN = 1,
                                FUN = function( x )
                                   anyNA( na.trim( x  ) )
-        row.all.na <- apply( X = df[ years ],
-                             MARGIN = 1 ,
-                             FUN = all.na )
 
     # interpolate, constant extend forward and back
         df[ interpolate, years ] <- t( na.approx( t( df[ interpolate, years ] ),
