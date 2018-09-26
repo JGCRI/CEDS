@@ -64,7 +64,7 @@ procUsrData <- function( usr_data, proc_instr, mappings,
     # mappings is expected as a list of data frames, but if it isn't we can
     # pull out the name of the data frame from the column names
     if ( is.data.frame( mappings ) ) {
-        mappings_name <- intersect( names( mappings ), names( proc_instr ) )
+        mappings_name <- intersectNames( mappings, proc_instr )
         mappings <- setNames( list( mappings ), mappings_name )
     }
 
@@ -77,13 +77,42 @@ procUsrData <- function( usr_data, proc_instr, mappings,
         usr_data <- disaggUserSectors( usr_data, proc_instr, trend_data )
     }
 
+    # Replace any 'all' value with NA
+    usr_data[ usr_data == 'all' ] <- NA_character_
+
     # If the user data specifies no specific iso, map from instructions
-    if ( is.invalid( usr_data$iso ) || all( usr_data$iso == 'all' ) ) {
+    if ( is.invalid( usr_data$iso ) ) {
         all_isos <- unique( proc_instr$iso )
         usr_data <- usr_data %>%
             dplyr::slice( rep( 1:n(), each = length( all_isos ) ) ) %>%
             dplyr::mutate( iso = rep( all_isos, n() / length( all_isos ) ) ) %>%
             dplyr::select( iso, everything() )
+    }
+
+    # Determine if there are instructions at different aggregation levels
+    # specified for the same dataset. Previously, data at different levels of
+    # detail needed to be manually separated into multiple files.
+    #
+    # First, see if there are any NAs in the id columns to find out if the data
+    # needs splitting. If it does, break the data and instructions into their
+    # groups--rows that have the same aggregation level--and recursively call
+    # this function again. At the end of the function the splits are re-joined.
+    agg_cols <- intersectNames( usr_data, proc_instr )
+    interp_group <- NULL
+    needs_grouping <- sapply( proc_instr[ agg_cols ], some.na )
+    if ( any( needs_grouping ) ) {
+        grouped_rows <- rowSums( is.na( proc_instr[ agg_cols ] ) ) == 0
+        usr_data_group <- usr_data %>%
+            dplyr::anti_join( proc_instr, by = agg_cols, na_matches = "never" ) %>%
+            dplyr::select( -one_of( agg_cols[ needs_grouping ] ) )
+        usr_data <- usr_data %>%
+            dplyr::semi_join( proc_instr, by = agg_cols, na_matches = "never" )
+
+        proc_instr_group <- proc_instr[ !grouped_rows, ]
+        proc_instr <- proc_instr[ grouped_rows, ]
+
+        interp_group <- procUsrData( usr_data_group, proc_instr_group,
+                                     mappings, MSL, MCL, MFL, trend_data )
     }
 
     # Clean, map, validate, and then interpolate the user data
@@ -99,6 +128,11 @@ procUsrData <- function( usr_data, proc_instr, mappings,
 
     if ( identifyLevel( interp_df ) == 0 )
         stop("Fuel type not found in user data")
+
+    if ( !is.null( interp_group ) ) {
+        interp_df <- rbind.fill( interp_df, interp_group ) %>%
+            dplyr::select( intersectNames( usr_data, . ) )
+    }
 
     return( interp_df )
 }
@@ -478,7 +512,7 @@ subsetUserData <- function( user_df, instructions ) {
     # Determine which aggregation columns are present in the instructions
     na_cols <- colSums( !is.na( instructions ) ) == 0
     yr_range <- min( instructions$start_year ):max( instructions$end_year )
-    agg_cols <- intersect( names( user_df ), names( instructions[ !na_cols ] ) )
+    agg_cols <- intersectNames( user_df, instructions[ !na_cols ] )
 
     # Initialize a subset dataframe based on matching isos between the user
     # instructions and actual data. Filter to the given years and iso. Then
@@ -512,10 +546,10 @@ subsetUserData <- function( user_df, instructions ) {
 
 #------------------------------------------------------------------------------
 # validateUserData
-# Purpose: Ensures user data matches specifications in Trend_instructions sheet
+# Purpose: Ensures user data matches specifications in -instructions sheet
 # Params:
 #   df: a dataframe that has been mapped to CEDS
-#   trend_instr: the Trend_instructions sheet
+#   trend_instr: the -instructions sheet
 # Returns: the validated dataframe
 validateUserData <- function( df, trend_instr ) {
 
@@ -528,7 +562,7 @@ validateUserData <- function( df, trend_instr ) {
     apply( trend_instr, 1, function( instr ) {
         instr <- as.data.frame( t( instr ), stringsAsFactors = FALSE )
         instr <- instr[ 1, !is.na( instr ) ]
-        join_cols <- dplyr::intersect( names( instr ), names( df ) )
+        join_cols <- intersectNames( instr, df )
         instr_data <- dplyr::left_join( instr[ join_cols ], df, by = join_cols )
 
         err <- paste0( "Error in instruction:\n\t",
@@ -541,10 +575,10 @@ validateUserData <- function( df, trend_instr ) {
             stop( paste( err, "Start year earlier than any year in data" ) )
         if ( paste0( "X", instr$end_year ) %!in% names( instr_data ) )
             stop( paste( err, "End year later than any year in data" ) )
-        if ( anyNA( instr_data[[ paste0( "X", instr$start_year ) ]] ) )
-            stop( paste( err, "Some data is NA at start year" ) )
-        if ( anyNA( instr_data[[ paste0( "X", instr$end_year ) ]] ) )
-            stop( paste( err, "Some data is NA at end year" ) )
+        if ( all.na( instr_data[[ paste0( "X", instr$start_year ) ]] ) )
+            stop( paste( err, "All data is NA at start year" ) )
+        if ( all.na( instr_data[[ paste0( "X", instr$end_year ) ]] ) )
+            stop( paste( err, "All data is NA at end year" ) )
     })
 
     return( df )
