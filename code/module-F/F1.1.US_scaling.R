@@ -1,15 +1,15 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.US_scaling.R
 # Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly
-# Date Last Modified: Oct 29, 2015
+# Date Last Modified: October 2, 2018
 # Program Purpose: To create scaling factors and update emissions estimate for
-# the USA region from latest emissions working copy by using aggregate 
+# the USA region from latest emissions working copy by using aggregate
 # USA trends inventory data.
-# Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv, 
-#              F.[em]_scaled_emissions.csv, USA_sector_mapping.csv, 
-#              E.[em]_US_inventory.csv
+# Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
+#              F.[em]_scaled_emissions.csv, USA_sector_mapping.csv,
+#              E.[em]_US_inventory.csv, US_scaling_mapping.xlsx
 # Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
-# Notes: 
+# Notes:
 # TODO:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
@@ -22,15 +22,15 @@
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
     if ( is.na( em ) ) em <- "NOx"
-  
-# Call standard script header function to read in universal header files - 
+
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( 'common_data.R', "data_functions.R", 
+    headers <- c( 'common_data.R', "data_functions.R",
                   "emissions_scaling_functions.R", "analysis_functions.R",
                   "interpolation_extension_functions.R" ) # Additional function files required.
     log_msg <- "US inventory scaling" # First message to be printed to the log
     script_name <- paste0( em, "-F1.1.US_scaling.R" )
-    
+
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
@@ -39,7 +39,7 @@
 
 # Stop script if running for unsupported species
     if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO', 'NH3', 'PM10', 'PM2.5' ) ) {
-        stop( paste( 'US scaling is not supported for emission species ', 
+        stop( paste( 'US scaling is not supported for emission species ',
                      em, '. Remove from script list in F1.1.inventory_scaling.R' ) )
     }
 
@@ -48,7 +48,7 @@
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
     inv_name <- 'US' #for naming diagnostic files
-    region <- c( "usa" ) 
+    region <- c( "usa" )
     sector_fuel_mapping <- 'US_scaling_mapping'
     mapping_method <- 'sector'
     inv_years <- c( 1970, 1975, 1980, 1985, 1990:2014 )
@@ -63,31 +63,31 @@
 # 2. Read In Data with scaling functions
 
 # Read in the inventory data, mapping file, the specified emissions species, and
-# the latest versions of the scaled EFs  
+# the latest versions of the scaled EFs
 
-    scaling_data <- F.readScalingData( inventory = inventory_data_file, 
+    scaling_data <- F.readScalingData( inventory = inventory_data_file,
                                        inv_data_folder,
                                        mapping = sector_fuel_mapping,
                                        method = mapping_method,
                                        region, inv_name, inv_years )
-    list2env( scaling_data , envir = .GlobalEnv ) 
+    list2env( scaling_data , envir = .GlobalEnv )
 
 
 # ------------------------------------------------------------------------------
 # 3. Arrange the CEDS emissions data to match the inventory data
 
-# Aggregate inventory data to scaling sectors/fuels 
+# Aggregate inventory data to scaling sectors/fuels
     inv_data <- F.invAggregate( std_form_inv, region )
 
 # Aggregate ceds data to scaling sectors/fuels
     ceds_data <- F.cedsAggregate( input_em, region, mapping_method )
 
 # ------------------------------------------------------------------------------
-# 4. Calculate Scaling Factors, reaggregate to CEDS sectors  
+# 4. Calculate Scaling Factors, reaggregate to CEDS sectors
 
 # Calculate and extend scaling factors
-    scaling_factors_list <- F.scaling( ceds_data, inv_data, region, 
-                                       replacement_method = 'replace', 
+    scaling_factors_list <- F.scaling( ceds_data, inv_data, region,
+                                       replacement_method = 'replace',
                                        max_scaling_factor = 100,
                                        replacement_scaling_factor = 100 )
     list2env( scaling_factors_list , envir = .GlobalEnv )
