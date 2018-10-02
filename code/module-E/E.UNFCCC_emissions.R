@@ -217,6 +217,7 @@ if ( file.exists( file_path ) ) {
 
     # Retrieve full list of internal files ( used to determine sectors )
     file_list <- listZippedFiles( file_path, FALSE )
+
     # CO2 files read in as different names (not sure why) - should check later
     if(em == 'CO2'){ # Presley to check later
       if( length(grep('CO2/',file_list)) == 0 ){
@@ -225,8 +226,12 @@ if ( file.exists( file_path ) ) {
 
     #call check_uniqueID_and_specie() function to perform the 2-way specie & id check
     check_uniqueID_and_species_mismatch(UNFCCC, file_list)
+
+} else {
+        UNFCCC <- list()
+    }
+
     MCL <- readData( "MAPPINGS", "Master_Country_List" )
-}
 
 # -----------------------------------------------------------------------------------------------------------
 # 2. Formatting Data
