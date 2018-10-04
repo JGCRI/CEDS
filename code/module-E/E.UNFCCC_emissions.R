@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: E.UNFCCC_emissions.R
 # Author(s): Patrick O'Rourke, Rachel Hoesly, Jon Seibert, Presley Muwan
-# Date Last Updated: October 2, 2018
+# Date Last Updated: October 4, 2018
 # Program Purpose: To read in and reformat UNFCCC emissions data.
 # Input Files: All UNFCCC Emissions Data
 # Output Files: E.[EM]_UNFCCC_inventory.csv
@@ -313,10 +313,10 @@ if ( file.exists( file_path ) ) {
 # ------------------------------------------------------------------------------
 # 3. Removed "Bad" Data
 
-      	if (em %in% c('CO2', 'CH4') ){
+      	if (em == 'CH4'){
 
       	    # TODO: The df maniupulation after this block fails if only 'rus' is
-      	    #       in the list below snce rus is not in the current data.
+      	    #       in the list below since rus is not in the current data.
       	    # TODO: Fix to be more robust
 
       	    remove_iso <- c('rus', 'lux')

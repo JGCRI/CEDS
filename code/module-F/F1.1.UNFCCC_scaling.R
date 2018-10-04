@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.UNFCCC_scaling.R
 # Authors' Names: Rachel Hoesly
-# Date Last Modified: September 27, 2018
+# Date Last Modified: October 4, 2018
 # Program Purpose: To create scaling factors and update emissions estimate for
 # the UNFCCC regions from latest emissions working copy
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
@@ -50,11 +50,16 @@
     if ( em == 'CH4')  sector_fuel_mapping <- 'UNFCCC_scaling_mapping_CH4'
     mapping_method <- 'sector'
     inv_name <- 'UNFCCC'
-    region <- c( "aus", "aut", "bel", "bgr", "blr", "can","che", "cyp", "cze",
-                 "deu", "dnk", "esp", "est", "fin", "fra", "gbr", "grc", "hrv",
-                 "hun", "irl", "isl", "ita", "jpn", "ltu", "lva", "mlt", "nld",
-                 "nor", "nzl", "pol" ,"prt", "rou", "svk", "svn", "swe", "tur",
-                 "ukr" )
+    region <- c( "aus", "aut", "bel", "bgr", "blr", "che", "cyp", "cze", "deu",
+                 "dnk", "esp", "est", "fin", "fra", "gbr", "grc", "hrv", "hun",
+                 "irl", "isl", "ita", "jpn", "ltu", "lva", "mlt", "nld", "nor",
+                 "nzl", "prt", "rou", "svk", "svn", "swe", "tur", "ukr" )
+    # All other ems besides CH4 do not include can and pol data from the UNFCCC
+    if ( em == 'CH4') region <- c( "aus", "aut", "bel", "bgr", "blr", "can","che",
+                 "cyp", "cze", "deu", "dnk", "esp", "est", "fin", "fra", "gbr",
+                 "grc", "hrv", "hun", "irl", "isl", "ita", "jpn", "ltu", "lva",
+                 "mlt", "nld", "nor", "nzl", "pol" ,"prt", "rou", "svk", "svn",
+                 "swe", "tur", "ukr" )
 
 # include only regions that aren't scaled elsewhere for non-CO2 emissions
 # TODO: blr and ukr should only be used for specific years where is close to expert estimates, or to calibrate parameters off-line
