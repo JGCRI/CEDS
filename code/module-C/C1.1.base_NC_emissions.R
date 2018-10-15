@@ -22,12 +22,12 @@
     script_name <- "C1.1.base_NC_emissions_db.R"
 
     source( paste0( PARAM_DIR, "header.R" ) )
-    initialize( script_name, log_msg, headers, common_data = FALSE )  
+    initialize( script_name, log_msg, headers, common_data = FALSE )
 
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "SO2"
-    
+    if ( is.na( em ) ) em <- "N2O"
+
 # -------------------------------------------------------------------------------------------
 # 0.5. Define functions
 
@@ -43,36 +43,36 @@
 # Input files:   common_data.R
 # Output files:  C.[em]_emissions_db.csv
     createNewEmissionsDb <- function( em ) {
-        
-        # Read in necessary files and data: common_data.R required 
+
+        # Read in necessary files and data: common_data.R required
         # to avoid variable overwrite carryover
         source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
-        
+
         # Use values from common_data.R
         years <- seq( start_year, end_year )
         X_years <- paste0( "X", years )
-        
+
         results <- data.frame( iso = "", sector = "", fuel = "", units = "" )
-        
+
         for ( yr in X_years ) {
             df <- data.frame( yr = 0 )
             results <- cbind( results, df )
         }
         names( results ) <- c( "iso", "sector", "fuel", "units", X_years )
-        
+
         results <- subset( results, results$iso != "" )
-        
+
         # Output
-        writeData( results, domain = "MED_OUT", 
-                   fn = paste0( "C.", em, "_", "NC", "_emissions_db" ), 
+        writeData( results, domain = "MED_OUT",
+                   fn = paste0( "C.", em, "_", "NC", "_emissions_db" ),
                    meta = FALSE )
     }
-    
+
 # ------------------------------------------------------------------------------
 # 1. Create new, blank emission database
 #    Call the function defined above to create a blank default df
-    
+
     createNewEmissionsDb( em )
-    
+
     logStop()
 # END

@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: C.1.2.add_NC_emissions_EDGAR.R
 # Author(s): Jon Seibert, Rachel Hoesly
-# Date Last Modified: 20 April 2017
+# Date Last Modified: Oct 10, 2018
 # Program Purpose: To reformat the non-combustion sections of the EDGAR default emissions
 #                      data and add it to the database for the relevant emissions species.
 # Input Files:
@@ -30,7 +30,7 @@
 # Define emissions species variable
   args_from_makefile <- commandArgs( TRUE )
   em <- args_from_makefile[ 1 ]
-  if ( is.na( em ) ) em <- "CH4"
+  if ( is.na( em ) ) em <- "N2O"
 
   # EDGAR data version number
 vn <- "4.2"
@@ -119,7 +119,7 @@ edgar <- edgar[,c('iso','sector','fuel','units', paste0('X',EDGAR_start_year:EDG
 # ------------------------------------------------------------------------------
 # 4. Extend Fugitive Solid Fuels for methane
 
-if ( em == 'CH4' ){
+if ( em == 'CH4' || em == 'N2O' ){
 
   # seperate fugitive solid fuels and other emissions
   fugitive_solid <- edgar %>% filter(sector == '1B1_Fugitive-solid-fuels')
@@ -129,7 +129,7 @@ if ( em == 'CH4' ){
   bp <- Master_Country_List %>%
     select(iso, BPName) %>%
     filter(!is.na(BPName), BPName != 'ussr') %>%
-    unique() %>% 
+    unique() %>%
     filter(!duplicated(iso)) %>%
     unique() %>%
     left_join( BP_energy_data, by = 'BPName') %>%
@@ -155,7 +155,7 @@ if ( em == 'CH4' ){
 # ------------------------------------------------------------------------------
 # 5. Output
 
-if ( em == 'CH4'){
+if ( em == 'CH4' || em == 'N2O' ){
 
   writeData( fugitive_solid_extended,  domain = "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
              fn = paste0( "C.",em, "_EDGAR_NC_Emissions_fugitive_solid_fuels" ) )

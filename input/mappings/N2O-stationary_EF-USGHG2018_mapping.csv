@@ -1,0 +1,16 @@
+sector,working_sectors_v1,working_sectors_v2,aggregate_sectors
+Residential,1A4b_Residential,1A4b_Residential,1A4_Stationary_RCO
+Commercial,1A4a_Commercial-institutional,1A4a_Commercial-institutional,1A4_Stationary_RCO
+Industrial,1A2a_Ind-Comb-Iron-steel,1A2a_Ind-Comb-Iron-steel,1A2_Industry-combustion
+Industrial,1A2b_Ind-Comb-Non-ferrous-metals,1A2b_Ind-Comb-Non-ferrous-metals,1A2_Industry-combustion
+Industrial,1A2c_Ind-Comb-Chemicals,1A2c_Ind-Comb-Chemicals,1A2_Industry-combustion
+Industrial,1A2d_Ind-Comb-Pulp-paper,1A2d_Ind-Comb-Pulp-paper,1A2_Industry-combustion
+Industrial,1A2e_Ind-Comb-Food-tobacco,1A2e_Ind-Comb-Food-tobacco,1A2_Industry-combustion
+Industrial,1A2f_Ind-Comb-Non-metalic-minerals,1A2f_Ind-Comb-Non-metalic-minerals,1A2_Industry-combustion
+Industrial,1A2g_Ind-Comb-Construction,1A2g_Ind-Comb-Construction,1A2_Industry-combustion
+Industrial,1A2g_Ind-Comb-transpequip,1A2g_Ind-Comb-transpequip,1A2_Industry-combustion
+Industrial,1A2g_Ind-Comb-machinery,1A2g_Ind-Comb-machinery,1A2_Industry-combustion
+Industrial,1A2g_Ind-Comb-mining-quarying,1A2g_Ind-Comb-mining-quarying,1A2_Industry-combustion
+Industrial,1A2g_Ind-Comb-wood-products,1A2g_Ind-Comb-wood-products,1A2_Industry-combustion
+Industrial,1A2g_Ind-Comb-textile-leather,1A2g_Ind-Comb-textile-leather,1A2_Industry-combustion
+Industrial,1A2g_Ind-Comb-other,1A2g_Ind-Comb-other,1A2_Industry-combustion
