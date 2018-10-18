@@ -10,8 +10,6 @@
 # TODO: Add conditionals and script specifications for other emissions types
 #       as they are added to the system.
 # ------------------------------------------------------------------------------------
-
-# ------------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
@@ -66,6 +64,11 @@ if( em == "CH4" || em == "CO2" || em == "N2O" ){
 # Add FAO Agriculture methane data
 if( em == "CH4" ){
   scripts <- c( scripts, "C1.2.add_CH4_NC_emissions_FAO.R")
+}
+
+# Add FAO Agriculture N2O data
+if( em == "N2O" ){
+    scripts <- c( scripts, "C1.2.add_N2O_NC_emissions_FAO.R")
 }
 
 # Add CDIAC for CO2

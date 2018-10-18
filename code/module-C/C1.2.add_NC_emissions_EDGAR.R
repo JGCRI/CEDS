@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: C.1.2.add_NC_emissions_EDGAR.R
 # Author(s): Jon Seibert, Rachel Hoesly
-# Date Last Modified: Oct 10, 2018
+# Date Last Modified: 20 April 2017
 # Program Purpose: To reformat the non-combustion sections of the EDGAR default emissions
 #                      data and add it to the database for the relevant emissions species.
 # Input Files:
@@ -119,7 +119,7 @@ edgar <- edgar[,c('iso','sector','fuel','units', paste0('X',EDGAR_start_year:EDG
 # ------------------------------------------------------------------------------
 # 4. Extend Fugitive Solid Fuels for methane
 
-if ( em == 'CH4' || em == 'N2O' ){
+if ( em == 'CH4' ){
 
   # seperate fugitive solid fuels and other emissions
   fugitive_solid <- edgar %>% filter(sector == '1B1_Fugitive-solid-fuels')
@@ -155,7 +155,7 @@ if ( em == 'CH4' || em == 'N2O' ){
 # ------------------------------------------------------------------------------
 # 5. Output
 
-if ( em == 'CH4' || em == 'N2O' ){
+if ( em == 'CH4' ){
 
   writeData( fugitive_solid_extended,  domain = "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
              fn = paste0( "C.",em, "_EDGAR_NC_Emissions_fugitive_solid_fuels" ) )
