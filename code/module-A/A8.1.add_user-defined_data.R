@@ -113,9 +113,10 @@ rows_completed <- instructions[ 0, ]
 # This integer tracks which batch number we're on, for informing diagnostics
 batch <- 0
 
+
 # ------------------------------------------------------------------------------
 # 3. Execute processing loop
-
+instructions <- filter(instructions, iso == 'deu')
 while ( nrow( instructions ) > 0 ) {
     # Update variables for each run of the loop
     batch <- batch + 1
@@ -141,9 +142,8 @@ while ( nrow( instructions ) > 0 ) {
     # Identify other instructions in the "batch" that will need to be aggregated
     # as one. Files only need to be batched if their year ranges overlap.
     agg_level <- identifyLevel( usrdata )
-    batch_instructions <- instructions %>%
-                          extractBatchInstructions( usrdata, agg_level ) %>%
-                          dplyr::filter( start_year < e_year, end_year > s_year)
+    batch_instructions <- extractBatchInstructions( instructions, usrdata,
+                                                    agg_level, s_year, e_year )
 
     # Remove the batch instructions from the master instruction dataframe
     instructions <- dplyr::setdiff( instructions, batch_instructions )
@@ -157,8 +157,8 @@ while ( nrow( instructions ) > 0 ) {
         # of datasets that only partially overlap.
         if ( length( unique( c( batch_instructions$start_year, s_year ) ) ) > 1 ||
              length( unique( c( batch_instructions$end_year, e_year ) ) ) > 1 ) {
-            # Identify all the breaks that will need to occur (each unique
-            # start and end year)
+            # Identify all the breaks that will need to occur (each unique start
+            # and end year)
             year_breaks <- unique( c( batch_instructions$start_year, s_year,
                                       batch_instructions$end_year + 1,
                                       e_year + 1 ) ) %>%
@@ -194,6 +194,8 @@ while ( nrow( instructions ) > 0 ) {
 
             # Tack all the newly-divided instructions onto the instructions df
             instructions <- rbind( new_division_batch, instructions )
+
+            # Restart the while loop with new instructions
             next
         }
 
@@ -227,9 +229,9 @@ while ( nrow( instructions ) > 0 ) {
 
     # Tack on some diagnostics to the working instructions dataframe for
     # diagnostic output
-    working_instructions$batch_id <- batch
-    working_instructions$agg_level <- agg_level
-    working_instructions$warnings <- diagnostics$warning_diag
+    working_instructions$batch_id     <- batch
+    working_instructions$agg_level    <- agg_level
+    working_instructions$warnings     <- diagnostics$warning_diag
     working_instructions$nrow_changed <- diagnostics$rows_changed
 
     # Add working instructions to rows_completed, which will be a diagnostic for

@@ -44,8 +44,7 @@ readInUserData <- function( fname, yearsAllowed, ftype = NULL ) {
 #------------------------------------------------------------------------------
 # procUsrData()
 # Brief:
-#   1. Cleans the user data replacing NAs with zero and casting
-#      all data columns to numeric
+#   1. Cleans the user data
 #   2. Maps the user data to the proper (CEDS) format
 #   3. Interpolates the data to fill missing years
 # Params:
@@ -89,6 +88,23 @@ procUsrData <- function( usr_data, proc_instr, mappings,
             dplyr::select( iso, everything() )
     }
 
+    mapped_df <- mapToCEDS( usr_data, MSL, MFL,
+                            iso_map         = mappings$iso,
+                            agg_sector_map  = mappings$agg_sector,
+                            CEDS_sector_map = mappings$CEDS_sector,
+                            agg_fuel_map    = mappings$agg_fuel,
+                            CEDS_fuel_map   = mappings$CEDS_fuel )
+
+    # Get data aggregation columns (iso, agg_fuel, ...) and year columns
+    agg_cols <- intersectNames( mapped_df, proc_instr )
+    year_range <- range( proc_instr$start_year, proc_instr$end_year )
+    X_data_years <- paste0( 'X', seq( year_range[1], year_range[2] ) )
+
+    # Replace any missing years with NA
+    mapped_df <- mapped_df %>%
+        dplyr::mutate_at( setdiff( X_data_years, names( . ) ), funs( +NA_real_ ) ) %>%
+        dplyr::select( agg_cols, X_data_years )
+
     # Determine if there are instructions at different aggregation levels
     # specified for the same dataset. Previously, data at different levels of
     # detail needed to be manually separated into multiple files.
@@ -97,41 +113,35 @@ procUsrData <- function( usr_data, proc_instr, mappings,
     # needs splitting. If it does, break the data and instructions into their
     # groups--rows that have the same aggregation level--and recursively call
     # this function again. At the end of the function the splits are re-joined.
-    agg_cols <- intersectNames( usr_data, proc_instr )
     interp_group <- NULL
     needs_grouping <- sapply( proc_instr[ agg_cols ], some.na )
     if ( any( needs_grouping ) ) {
         grouped_rows <- rowSums( is.na( proc_instr[ agg_cols ] ) ) == 0
-        usr_data_group <- usr_data %>%
+        mapped_df_group <- mapped_df %>%
             dplyr::anti_join( proc_instr, by = agg_cols, na_matches = "never" ) %>%
             dplyr::select( -one_of( agg_cols[ needs_grouping ] ) )
-        usr_data <- usr_data %>%
+        mapped_df <- mapped_df %>%
             dplyr::semi_join( proc_instr, by = agg_cols, na_matches = "never" )
 
         proc_instr_group <- proc_instr[ !grouped_rows, ]
         proc_instr <- proc_instr[ grouped_rows, ]
 
-        interp_group <- procUsrData( usr_data_group, proc_instr_group,
+        interp_group <- procUsrData( mapped_df_group, proc_instr_group,
                                      mappings, MSL, MCL, MFL, trend_data )
     }
 
     # Clean, map, validate, and then interpolate the user data
-    interp_df <- mapToCEDS( usr_data, MSL, MFL,
-                            iso_map         = mappings$iso,
-                            agg_sector_map  = mappings$agg_sector,
-                            CEDS_sector_map = mappings$CEDS_sector,
-                            agg_fuel_map    = mappings$agg_fuel,
-                            CEDS_fuel_map   = mappings$CEDS_fuel ) %>%
+    interp_df <- mapped_df %>%
                  replaceNegatives( trend_data ) %>%
                  validateUserData( proc_instr ) %>%
-                 interpolateData( proc_instr, MSL, MCL, MFL, trend_data )
+                 interpolateData( proc_instr, X_data_years, MSL, MCL, MFL, trend_data )
 
     if ( identifyLevel( interp_df ) == 0 )
         stop("Fuel type not found in user data")
 
     if ( !is.null( interp_group ) ) {
         interp_df <- rbind.fill( interp_df, interp_group ) %>%
-            dplyr::select( intersectNames( usr_data, . ) )
+            dplyr::select( intersectNames( mapped_df, . ) ) # Keep column order
     }
 
     return( interp_df )
@@ -184,81 +194,72 @@ procUsrData <- function( usr_data, proc_instr, mappings,
     }
 
 
-#------------------------------------------------------------------------------
-# interpolateData()
-# Purpose: A function defining standard interpolation methodology. This assumes
-#          that 0 values are not holes; only missing values or NAs are holes.
+# Define the standard interpolation methodology.
+#
+# This function assumes that 0 values are not holes; only missing values or NAs
+# are holes.
+#
 # Params:
 #   df: A dataframe of user data that has been mapped to CEDS
 #   interp_instr: The interpolation instructions parsed from the instructions
 #                 file corresponding to the data
+#   X_data_years: The range of years specified by the instructions file
 #   MSL: Master sector list
 #   MCL: Master country list
 #   MFL: Master fuel list
 #   trend_data: If interpolating to trend, a dataframe containing that trend
+#
 # Returns:
-    interpolateData <- function( df, interp_instr, MSL, MCL, MFL, trend = NULL ) {
+#   The interpolated data
+interpolateData <- function( df, interp_instr, X_data_years, MSL, MCL, MFL,
+                             trend = NULL ) {
+    df <- filterToYearRange( df, X_data_years )
 
-        # X_data_years is the range of years specified by the instructions file
-        min_year <- min( interp_instr$start_year )
-        max_year <- max( interp_instr$end_year )
-        X_data_years <- paste0( "X", min_year:max_year )
+    # Checks if any row in the dataframe contains NA. In the event that
+    # there are no NAs we can return the data matched to the intended years.
+    if ( !anyNA( df ) ) return( df )
 
-        # Subset data years to correct range and fill in missing years with NAs
-        df <- filterToYearRange( df, X_data_years )
-        df[ , X_data_years[ X_data_years %!in% names( df ) ] ] <- NA
-        df <- df[ order( names( df ) ) ]
+    # If we didn't return, the data has holes that need interpolating. First
+    # find out what method to use, then call the corresponding interpolation
+    # function.
+    #
+    # TODO: Figure out what to do in the case that interp_instr specifies
+    #       different methods for different instructions
+    # Idea:
+    #   1. filter to specific interp type:
+    #      mtt <- dplyr::filter(interp_instr, method == "match_to_default")
+    #   2. get rows in df that match that specific method:
+    #      join_cols <- aggLevelToCols(identifyLevel(df))
+    #   3. Interpolate whole df with that method, but only replace rows that
+    #      specified that method
+    #   4. Repeat with all methods
+    method <- unique( interp_instr$method )
+    if ( length( method ) > 1 )
+        stop( "Multiple interpolation methods is currently unsupported" )
 
-        if ( any( df[ X_data_years ] < 0, na.rm = T ) ) {
-            replace_vals <- subsetUserData( trend, interp_instr )
-            df[ X_data_years ][ which( df[ X_data_years ] == 0 ) ]
-        }
-
-        # Checks if any row in the dataframe contains NA. In the event that
-        # there are no NAs we can return the data matched to the intended years.
-        if ( !anyNA( df ) ) return( df )
-
-        # If we didn't return, the data has holes that need interpolating. First
-        # find out what method to use, then call the corresponding interpolation
-        # function.
-        #
-        # TODO: Figure out what to do in the case that interp_instr specifies
-        #       different methods for different instructions
-        # Idea:
-        #   1. filter to specific interp type:
-        #      mtt <- dplyr::filter(interp_instr, method == "match_to_default")
-        #   2. get rows in df that match that specific method:
-        #      join_cols <- aggLevelToCols(identifyLevel(df))
-        #   3. Interpolate whole df with that method, but only replace rows that
-        #      specified that method
-        #   4. Repeat with all methods
-        method <- unique( interp_instr$method )
-        if ( length( method ) > 1 )
-            stop( "Multiple interpolation methods is currently unsupported" )
-
-        if ( method == "linear" ) {
-            # CEDS already has a function for linear interpolation.
-            df[ , X_data_years ] <- interpolate_NAs( df[ , X_data_years ] )
-        }
-        else if ( method == "match_to_default" ) {
-            df <- interpolateByTrend( df, trend )
-        }
-        else if ( method == "match_to_trend" ) {
-            # Execute trend-matching function
-            # TODO: Error checking
-            trend <- readData( interp_instr$match_file_name, domain = "EXT_IN",
-                               domain_extension = "user-defined-energy/" )
-            trend <- mapToCEDS( trend, MSL, MFL, iso_map = MCL,
-                                CEDS_sector_map = MSL )
-            df <- interpolateByTrend( df, trend )
-        }
-        else {
-            # Instructions exist but the method is invalid
-            stop( paste( "Interpolation method '", method, "' not supported" ) )
-        }
-
-        return( df )
+    if ( method == "linear" ) {
+        # CEDS already has a function for linear interpolation.
+        df[ , X_data_years ] <- interpolate_NAs( df[ , X_data_years ] )
     }
+    else if ( method == "match_to_default" ) {
+        df <- interpolateByTrend( df, trend )
+    }
+    else if ( method == "match_to_trend" ) {
+        # Execute trend-matching function
+        # TODO: Error checking
+        trend <- readData( interp_instr$match_file_name, domain = "EXT_IN",
+                           domain_extension = "user-defined-energy/" )
+        trend <- mapToCEDS( trend, MSL, MFL, iso_map = MCL,
+                            CEDS_sector_map = MSL )
+        df <- interpolateByTrend( df, trend )
+    }
+    else {
+        # Instructions exist but the method is invalid
+        stop( paste( "Interpolation method '", method, "' not supported" ) )
+    }
+
+    return( df )
+}
 
 #------------------------------------------------------------------------------
 # interpolateByTrend()
@@ -434,22 +435,21 @@ getRowsForAdjustment <- function( all_activity_data, usrdata, MFL, agg_level ) {
     return( data_to_adjust )
 }
 
-#------------------------------------------------------------------------------
-# filterToYearRange( df, X_data_years )
-# Purpose: Filters a CEDS-mapped dataframe to a range of years
+# Filters a CEDS-mapped dataframe to a range of years
+#
+# We can assume that all columns are in this form as the data has already
+# been processed by mapping.
+#
 # Params:
 #   df: the source data to filter
 #   X_data_years: the range of years to filter to
 # Returns: the filtered dataframe
 filterToYearRange <- function( df, X_data_years ) {
-
-    # We can assume that all columns are in this form as the data has already
-    # been processed by mapping.
     # TODO: Check if mapToCEDS removes extra non-year columns, and if so remove
     #       the non_years list.
-    non_years <- c("iso", "agg_sector", "CEDS_sector", "agg_fuel", "CEDS_fuel")
-    non_year_cols <- names( df )[ names( df ) %in% non_years ]
-    year_cols <- names( df ) [ isXYear( names( df ) ) ]
+    non_years <- c( "iso", getCEDSAggCols() )
+    non_year_cols <- intersect( names( df ), non_years )
+    year_cols <- names( df )[ isXYear( names( df ) ) ]
 
     # Validate years are ok
     if ( min( X_data_years ) < min( year_cols ) )
@@ -514,15 +514,26 @@ subsetUserData <- function( user_df, instructions ) {
     yr_range <- min( instructions$start_year ):max( instructions$end_year )
     agg_cols <- intersectNames( user_df, instructions[ !na_cols ] )
 
+    # If any disaggregate column in the user data contains NAs, we assume that
+    # those rows represent the aggregate sum, and that including any non-na
+    # rows would be double counting.
+    disagg_cols <- setdiff( aggLevelToCols( identifyLevel( user_df ) ), agg_cols )
+    if ( anyNA( user_df[ disagg_cols ] ) ) {
+       user_df <- user_df %>%
+           dplyr::filter_at( disagg_cols, any_vars( is.na( . ) ) )
+    }
+
+
     # Initialize a subset dataframe based on matching isos between the user
     # instructions and actual data. Filter to the given years and iso. Then
     # aggregate the user data to the same level of detail specified in the
     # instructions
-    subset <- dplyr::select( user_df, agg_cols, num_range( 'X', yr_range ) ) %>%
-              dplyr::filter( iso %in% instructions$iso ) %>%
-              dplyr::group_by_at( agg_cols ) %>%
-              dplyr::summarise_all( sum, na.rm = T ) %>%
-              dplyr::ungroup() %>% data.frame()
+    subset <- user_df %>%
+        dplyr::select( agg_cols, num_range( 'X', yr_range ) ) %>%
+        dplyr::filter( iso %in% instructions$iso ) %>%
+        dplyr::group_by_at( agg_cols ) %>%
+        dplyr::summarise_all( sum, na.rm = T ) %>%
+        dplyr::ungroup() %>% data.frame()
 
     # Subset the dataframe based on which columns are specified in the
     # instructions

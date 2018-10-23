@@ -594,8 +594,8 @@ aggLevelToNormalize <- function(agg_level) {
 #
 # Returns:
 #   An integer representing the aggregation level of a CEDS dataset
-identifyLevel <- function ( df, na.rm = FALSE ) {
-    CEDS_COLS <- c( "agg_fuel", "CEDS_fuel", "agg_sector", "CEDS_sector" )
+identifyLevel <- function( df, na.rm = FALSE ) {
+    CEDS_COLS <- getCEDSAggCols()
 
     agg_cols <- dplyr::select_if( df, funs( !na.rm | !all.na( . ) ) )
     agg_cols <- dplyr::intersect( CEDS_COLS, names( agg_cols ) )
@@ -609,4 +609,8 @@ identifyLevel <- function ( df, na.rm = FALSE ) {
         "agg_fuel agg_sector"                       = 6,
         0
     )
+}
+
+getCEDSAggCols <- function() {
+    c( "agg_fuel", "CEDS_fuel", "agg_sector", "CEDS_sector" )
 }

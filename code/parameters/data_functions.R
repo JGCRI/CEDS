@@ -308,6 +308,7 @@ findDataStart <- function( df ){
         return( -1 )
     }
 }
+# TODO: I think we can replace this with: match(T, isYear(names(interp_group)))
 
 # ----------------------------------------------------------------------------------------
 # buildCEDSTemplate

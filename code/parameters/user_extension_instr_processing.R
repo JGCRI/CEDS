@@ -152,37 +152,25 @@ processInstructions <- function( comb_sectors, MSL, MFL, default_activity ) {
 # Args:
 #   instructions: Processed instructions (see processInstructions())
 #   usrdf: Processed data for the energy extension (see procUsrData())
-#   agg_level: Integer representing aggregation level of the userdf
+#   agg_level: Integer representing aggregation level of the user data
+#   sy: Start year
+#   ey: End year
 #
 # Returns:
 #   The instructions filtered to only the rows that apply to the user data
-extractBatchInstructions <- function( instructions, usrdf, agg_level ) {
+extractBatchInstructions <- function( instructions, usrdf, agg_level, sy, ey ) {
+    CEDS_COLS <- getCEDSAggCols()
 
-    if ( agg_level == 1 | agg_level == 2 ) {
-        matches <- "agg_fuel"
-        missing <- "agg_sector"
-    }
-    else if ( agg_level == 3 )
-        matches <- c( "agg_fuel", "agg_sector" )
-    else if ( agg_level == 4 )
-        matches <- c( "CEDS_sector", "agg_fuel" )
-    else if ( agg_level == 5 )
-        matches <- c( "agg_fuel", "agg_sector" )
-    else if ( agg_level == 6 ) {
-        matches <- "agg_fuel"
-        missing <- "CEDS_sector"
-    }
-    else
-        return( NULL )
+    matches <- aggLevelToCols( agg_level )
+    missing <- setdiff( CEDS_COLS, matches )
 
     # Filters the instructions to only the ones with corresponding data in the
-    # user's data set. Always filter to match iso.
-    for ( column in c("iso", matches) ) {
-        instructions <- dplyr::filter(instructions, UQ(as.name(column)) %in% usrdf[[column]])
-    }
-
-    if ( is.character( missing ) )
-        instructions <- dplyr::filter(instructions, is.na(UQ(as.name(missing))))
+    # user's data set.
+    # Files only need to be batched if their year ranges overlap.
+    instructions <- instructions %>%
+        dplyr::semi_join( usrdf, by = matches ) %>%
+        dplyr::filter_at( missing, all_vars( is.na( . ) ) ) %>%
+        dplyr::filter( start_year < ey, end_year > sy)
 
     return( instructions )
 }
