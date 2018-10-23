@@ -36,7 +36,7 @@
 cleanData <- function( df, remove_blanks = TRUE, first = "Country", user_cols = NULL, x_years = TRUE ){
 
     # Requires iso-Country mapping file
-    iso_mapping <- readData( "MAPPINGS","2011_NC_SO2_ctry", mute = TRUE )
+    iso_mapping <- readData( "MAPPINGS", "2011_NC_SO2_ctry", mute = TRUE )
 
     # Apply header-reformatting function from CEDS_header to remove non-data rows:
     # We know for this particular input file that the row with the column headings
