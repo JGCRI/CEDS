@@ -184,7 +184,7 @@ if( length ( check ) > 0 ) {
  temp_EDGAR_end_year = EDGAR_end_year
 
  # Re-set EDGAR end-year if are still using EDGAR 4.2
- if( em == "CH4" || em == "CO2" ) temp_EDGAR_end_year = 2008
+ if( em == "CH4" || em == "CO2" || em == "N2O") temp_EDGAR_end_year = 2008
 
  EDGAR_replace_years <- paste0('X',(temp_EDGAR_end_year+1):end_year)
 
@@ -262,7 +262,7 @@ if( length ( check ) > 0 ) {
 
 # Add back unchanged EFs
   new_efs_corrected_user_added <- rbind( new_efs_corrected_user_added, new_efs_excl ) %>%
-    dplyr::arrange( iso, sector, fuel, units )    
+    dplyr::arrange( iso, sector, fuel, units )
 
 # Logic Check for negative emissions factors
 if (any(new_efs_corrected_user_added < 0) ) stop('There are negative EFs in ', paste0( "C.", em, "_", "NC", "_EF" ))

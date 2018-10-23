@@ -10,7 +10,6 @@
 # Output Files: C.N2O_NC_emissions_agriculture.csv
 # To Do:
 # - addToEmissionsDb_overwrite why isn't this working?
-# - final check of output being correct
 # Notes:
 # -----------------------------------------------------------------------------
 # 0. Read in global settings and headers

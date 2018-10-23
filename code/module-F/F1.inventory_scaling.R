@@ -112,7 +112,7 @@
               c( scripts, 'F1.1.US-EPA_scaling.R' )
 
 # US GHG
-    if ( em %in% c( 'CH4' ) ) scripts <-
+    if ( em %in% c( 'CH4', 'N2O' ) ) scripts <-
               c( scripts, 'F1.1.US-GHG_scaling.R')
 
 # China
