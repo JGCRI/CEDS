@@ -648,7 +648,7 @@ calculate_correct_shares <- function(a.input_data,
     # 2. Define useful variables
     X_years <- names(a.input_data)[grep('X',names(a.input_data))]
     a.input_data_long <- a.input_data %>%
-        tidyr::gather(year, breakdown, -a.id_columns, -a.target_column)
+        tidyr::gather(year, breakdown, -one_of(a.id_columns, a.target_column))
 
     # ---------------------------
     # 3. Separate input data into dataframes - those with zero sum breakdowns (to correct)
@@ -696,7 +696,7 @@ calculate_correct_shares <- function(a.input_data,
         correcting_years[X_years] <- t(na.locf(t(correcting_years[X_years])))
 
         correcting_years_long <- correcting_years %>%
-            tidyr::gather(year, breakdown, -a.id_columns, -a.target_column) %>%
+            tidyr::gather(year, breakdown, -one_of(a.id_columns, a.target_column)) %>%
             dplyr::distinct()
 
         # Again, seperate out non zero sum breakdowns into
