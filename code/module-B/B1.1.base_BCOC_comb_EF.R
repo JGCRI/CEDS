@@ -48,21 +48,24 @@
 # interpolate_extend()
 # This function is used to
     interpolate_extend <- function ( df ) {
-
-        years <- names( df )[ grep( 'X', names( df ) ) ]
-        interpolate <-  apply( X = df[ years ], MARGIN = 1,
-                               FUN = function( x )
-                                  anyNA( na.trim( x  ) )
-
-    # interpolate, constant extend forward and back
-        df[ interpolate, years ] <- t( na.approx( t( df[ interpolate, years ] ),
-                                                  na.rm = FALSE ) )
-        df[ , years ] <-t( na.locf( t( df[ , years ] ),
-                                    na.rm = FALSE ) )
-        df[ , years ] <- t( na.locf( t( df[ , years ] ),
-                                     fromLast = TRUE,
-                                     na.rm = FALSE ) )
-        return( df )
+      
+      years <- names( df )[ grep( 'X', names( df ) ) ]
+      interpolate <-  apply( X = df[ years ], MARGIN = 1,
+                             FUN = function( x )
+                               any( is.na( na.trim( x ) ) ) )
+      row.all.na <- apply( X = df[ years ],
+                           MARGIN = 1 ,
+                           FUN = all.na )
+      
+      # interpolate, constant extend forward and back
+      df[ interpolate, years ] <- t( na.approx( t( df[ interpolate, years ] ),
+                                                na.rm = FALSE ) )
+      df[ , years ] <-t( na.locf( t( df[ , years ] ),
+                                  na.rm = FALSE ) )
+      df[ , years ] <- t( na.locf( t( df[ , years ] ),
+                                   fromLast = TRUE,
+                                   na.rm = FALSE ) )
+      return( df )
     }
 
 
