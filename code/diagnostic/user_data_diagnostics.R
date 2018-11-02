@@ -53,7 +53,9 @@ compareToDefault <- function(new_CEDS, old_CEDS, src_new, src_old = 'default') {
     src_newQ <- captureForNSE(src_new)
 
     # Convert both data sets to long form with same aggregation level
-    new_long <- tidyr::gather(new_CEDS, 'year', !!src_new, matches('X\\d{4}'))
+    new_long <- new_CEDS %>%
+        dplyr::filter_at(agg_cols, all_vars(!is.na(.))) %>%
+        tidyr::gather('year', !!src_new, matches('X\\d{4}'))
     old_long <- old_CEDS %>%
         dplyr::semi_join(new_CEDS, by = agg_cols) %>%
         dplyr::select(names(new_CEDS)) %>%
