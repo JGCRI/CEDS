@@ -116,7 +116,6 @@ batch <- 0
 
 # ------------------------------------------------------------------------------
 # 3. Execute processing loop
-instructions <- filter(instructions, iso == 'deu')
 while ( nrow( instructions ) > 0 ) {
     # Update variables for each run of the loop
     batch <- batch + 1
@@ -240,7 +239,7 @@ while ( nrow( instructions ) > 0 ) {
 }
 
 
-# ------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # 4. Write out the final results
 
 final_activity <- enforceContinuity( activity, all_yrs )

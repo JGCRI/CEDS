@@ -33,9 +33,11 @@ compareToDefault <- function(new_CEDS, old_CEDS, src_new, src_old = 'default') {
     stopifnot(all(agg_cols %in% names(old_CEDS)))
 
     # We only want to compare values from one country at a time
-    if (length(unique(new_CEDS$iso)) > 1) {
-        lapply(split( new_CEDS, new_CEDS$iso), compareToDefault, old_CEDS,
-                src_new, src_old )
+    num_isos <- length(unique(new_CEDS$iso))
+    if (num_isos > 1) {
+        if (num_isos > 200) return(invisible(NULL))  # Very slow to plot so many
+        lapply(split(new_CEDS, new_CEDS$iso), compareToDefault, old_CEDS,
+                src_new, src_old)
         return(invisible(NULL))
     }
 
@@ -404,7 +406,7 @@ plotComp <- function(combined, fuel, sector, plot_title, fname, src_oldQ, src_ne
 #   arg: The argument to capture
 #
 # Returns:
-#   A quosure containing an expression that evaluates to a column nam
+#   A quosure containing an expression that evaluates to a column name
 captureForNSE <- function(arg) {
     sub_arg <- substitute(substitute(arg))    # Ex. substitute(x_values)
     arg_val <- eval(sub_arg, parent.frame())  # Ex. displ, "displ", or x
