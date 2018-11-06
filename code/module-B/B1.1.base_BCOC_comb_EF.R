@@ -48,7 +48,7 @@
 # interpolate_extend()
 # This function is used to
     interpolate_extend <- function ( df ) {
-      
+
       years <- names( df )[ grep( 'X', names( df ) ) ]
       interpolate <-  apply( X = df[ years ], MARGIN = 1,
                              FUN = function( x )
@@ -56,7 +56,7 @@
       row.all.na <- apply( X = df[ years ],
                            MARGIN = 1 ,
                            FUN = all.na )
-      
+
       # interpolate, constant extend forward and back
       df[ interpolate, years ] <- t( na.approx( t( df[ interpolate, years ] ),
                                                 na.rm = FALSE ) )
@@ -447,9 +447,11 @@
 # ------------------------------------------------------------------------------
 # 7. Write output
 
-    writeData( final_out , "MED_OUT", paste0( "B.", em, "_comb_EF_db" ))
-    writeData( final_full, "MED_OUT", paste0( "B.", em, "_SPEW_comb_EF" ))
-    writeData( bond_process_extend, "MED_OUT",
+    writeData( final_out , "MED_OUT", paste0( "B.", em, "_comb_EF_db" ) )
+    writeData( final_full, "EXT_IN", paste0( "B.", em, "_SPEW_comb_EF" ),
+               domain_extension = "extension-data/" )
+    writeData( bond_process_extend, "DEFAULT_EF_IN",
+               domain_extension = 'non-combustion-emissions/',
                fn = paste0( "B.", em, "_SPEW_NC_em" ) , meta = F )
 
 # Every script should finish with this line
