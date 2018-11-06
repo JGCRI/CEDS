@@ -454,10 +454,7 @@ $(MED_OUT)/A.NC_activity_db.csv : \
 	$(MAPPINGS)/2011_NC_SO2_ctry.csv \
 	$(ACTIV)/Smelter-Feedstock-Sulfur.xlsx \
 	$(ACTIV)/Wood_Pulp_Consumption.xlsx \
-	$(ACTIV)/GDP.xlsx \
-	$(MED_OUT)/A.NC_activity_energy.csv \
-	#(ACTIV)/FAO_wood_pulp_activity.csv \
-	$(MED_OUT)/A.UN_pop_master.csv
+	$(ACTIV)/GDP.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
@@ -857,70 +854,41 @@ $(MED_OUT)/F.$(EM)_scaled_EF.csv : \
 	$(MED_OUT)/F.$(EM)_scaled_emissions.csv
 
 # Module H
-$(MED_OUT)/H.$(EM)_total_activity_extended.csv : \
-	$(MOD_H)/H1.1.base_activity.R \
-	$(MOD_H)/H1.2.add_activity.R \
-	$(MOD_H)/H1.3.proc_activity.R \
-	$(MOD_H)/H1.2.add_activity_CDIAC.R \
-	$(MOD_H)/H1.2.add_activity_Fernandez.R \
-	$(MOD_H)/H1.2.add_activity_population.R \
-	$(MOD_H)/H1.2.add_activity_total_coal.R \
-	$(MOD_H)/H1.2.add_activity_Bond_industrial_biomass.R \
-	$(MOD_H)/H1.2.add_activity_Bond_other_biomass.R \
-	$(MOD_H)/H1.2.add_activity_total_natural_gas.R \
-	$(MOD_H)/H1.2.add_activity_total_petroleum.R \
-	$(MOD_H)/H1.2.add_activity_pulp_paper_consumption.R \
-	$(MED_OUT)/F.$(EM)_scaled_emissions.csv \
-	$(MED_OUT)/A.intl_shipping_en.csv \
-	$(MED_OUT)/A.IEA_CEDS_coal_difference.csv \
-	$(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv \
-	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
-	$(MED_OUT)/A.pulp_paper_consumption_full.csv \
-	$(EXT_IN)/CEDS_historical_extension_drivers_activity.csv \
-	$(EXT_IN)/IEA_start_date.xlsx \
-	$(EXT_IN)/sector_percents_start.xlsx \
-	$(EXT_IN)/ext_sector_percents_start.xlsx \
-	$(MAPPINGS)/Bond/Bond_country_map.csv \
-	$(MAPPINGS)/Bond/Bond_historical_country_map.csv
-	Rscript $< $(EM) --nosave --no-restore
-	Rscript $(word 2,$^) $(EM) --nosave --no-restore
-	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 
 $(MED_OUT)/H.$(EM)_total_EFs_adjusted-sector.csv : \
-	$(MOD_H)/H2.1.replace_EF_sectors.R \
-	$(MED_OUT)/F.$(EM)_scaled_EF.csv \
-	$(MED_OUT)/H.$(EM)_total_activity_extended.csv
+	$(MOD_H)/H1.1.replace_EF_sectors.R \
+	$(MED_OUT)/F.$(EM)_scaled_EF.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/H.$(EM)_total_EFs_extended.csv : \
-	$(MOD_H)/H3.1.base_EFs.R \
-	$(MOD_H)/H3.2.add_EFs.R \
-	$(MOD_H)/H3.3.proc_EFs.R \
-	$(MOD_H)/H3.2.add_EFs_constant.R \
-	$(MOD_H)/H3.2.add_EFs_default.R \
-	$(MOD_H)/H3.2.add_EFs_EF-converge.R \
-	$(MOD_H)/H3.2.add_EFs_EF-trend.R \
-	$(MOD_H)/H3.2.add_EFs_Emissions-trend.R \
+	$(MOD_H)/H2.1.base_EFs.R \
+	$(MOD_H)/H2.2.add_EFs.R \
+	$(MOD_H)/H2.3.proc_EFs.R \
+	$(MOD_H)/H2.2.add_EFs_constant.R \
+	$(MOD_H)/H2.2.add_EFs_default.R \
+	$(MOD_H)/H2.2.add_EFs_EF-converge.R \
+	$(MOD_H)/H2.2.add_EFs_EF-trend.R \
+	$(MOD_H)/H2.2.add_EFs_Emissions-trend.R \
 	$(EXT_IN)/CEDS_historical_extension_methods_EF.csv \
 	$(EXT_IN)/extension-data/A.Pig_Iron_Production.csv \
 	$(MED_OUT)/H.$(EM)_total_EFs_adjusted-sector.csv \
-	$(MED_OUT)/H.$(EM)_total_activity_extended.csv
+	$(MED_OUT)/A.total_activity_extended.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 
 $(MED_OUT)/H.$(EM)_total_EFs_extended_adjusted-pathway.csv : \
-	$(MOD_H)/H4.1.apply_EF_pathway.R \
+	$(MOD_H)/H3.1.apply_EF_pathway.R \
 	$(MAPPINGS)/Master_Country_List.csv \
 	$(MED_OUT)/H.$(EM)_total_EFs_extended.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/$(EM)_total_CEDS_emissions.csv : \
-	$(MOD_H)/H4.2.proc_Extended_Emissions.R \
+	$(MOD_H)/H3.2.proc_Extended_Emissions.R \
 	$(MED_OUT)/H.$(EM)_total_EFs_extended_adjusted-pathway.csv \
-	$(MED_OUT)/H.$(EM)_total_activity_extended.csv \
-	$(MOD_H)/H4.3.add_emissions_SO2_other_transformation.R \
-	$(MOD_H)/H4.3.add_emissions_CO2_other_transformation.R
+	$(MED_OUT)/A.total_activity_extended.csv \
+	$(MOD_H)/H3.3.add_emissions_SO2_other_transformation.R \
+	$(MOD_H)/H3.3.add_emissions_CO2_other_transformation.R
 	Rscript $< $(EM) --nosave --no-restore
 
 $(FINAL_OUT)/current-versions/CEDS_$(EM)_emissions_by_country_sector_%.csv : \
