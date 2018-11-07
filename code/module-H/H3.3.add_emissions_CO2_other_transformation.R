@@ -55,7 +55,7 @@ if( em != 'CO2') {
   MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
   iea_start <- readData('EXT_IN','IEA_start_date', ".xlsx", sheet_selection = "coal")
 
-  A.full_comb_activity_extended_coal <- readData( "MED_OUT", "A.activity_extended_coal" )
+  A.full_comb_activity_extended_coal <- readData( "MED_OUT", "A.comb_default_activity_extended.csv" )
   A.total_activity_extended_natural_gas <- readData( "MED_OUT", "A.activity_extended_natural_gas" )
 
 # Define values
@@ -185,7 +185,7 @@ if( em != 'CO2') {
     # Aggregate
     coal_all <- bind_rows( coal_total, coal_neuse, coal_combustion ) %>%
       group_by( iso, flow, units ) %>%
-      summarise_each( funs( sum(., na.rm = T ) ) ) %>%
+      summarise_all( funs( sum(., na.rm = T ) ) ) %>%
       data.frame()
 
     return( coal_all )
@@ -257,9 +257,11 @@ if( em != 'CO2') {
 # a. Add other transformation coal as hard coal
   # A.full_comb_activity_extended_coal
   extended_coal <- A.full_comb_activity_extended_coal
+  extended_coal <- A.full_comb_activity_extended_coal %>% filter(fuel %in% c('coal_coke', 'brown_coal',
+                                                                             'hard_coal'))
   extended_coal <- extended_coal[ c( "iso", "fuel", "units", X_extended_years ) ]
   extended_coal <- group_by( extended_coal, iso, fuel, units ) %>%
-    summarise_each( funs( sum(., na.rm = T ) ) ) %>% data.frame()
+    summarise_all( funs( sum(., na.rm = T ) ) ) %>% data.frame()
 
 # b. Extend Coal Coke (imports - exports) with extended coal coke (production + imports - exports)
   # extended total coal coke value
@@ -278,15 +280,16 @@ if( em != 'CO2') {
 
   # add countries with zero data
   zero_coke_countries <- unique( extended_coke$iso[ extended_coke$iso %!in% IEA_coke$iso ] )
-  add_zero_coke_countries <- data.frame( iso = zero_coke_countries, fuel = 'coal_coke', value = 'iea_coke' )
-  add_zero_coke_countries[ X_IEA_years ] <- 0
-  IEA_coke <- rbind(IEA_coke, add_zero_coke_countries) %>%
-      arrange(iso)
-
+  if ( length( zero_coke_countries ) > 0 ) {
+    add_zero_coke_countries <- data.frame( iso = zero_coke_countries, fuel = 'coal_coke', value = 'iea_coke' )
+    add_zero_coke_countries[ X_IEA_years ] <- 0
+    IEA_coke <- rbind(IEA_coke, add_zero_coke_countries) %>%
+        arrange(iso)
+    }
   if ( any( extended_coke$iso != IEA_coke$iso ) ) { stop('Rows do not match for ') }
 
 
-  # extend IEA coke back to 1750, from 1960 for OECD countries and 1971 for Non-OECD countries and forward from 2013 - 2014
+  #**** extend IEA coke back to 1750, from 1960 for OECD countries and 1971 for Non-OECD countries and forward from 2013 - 2014
   iea_extended_coke_list = lapply(unique(iea_start$start_year), function(sy) {
 
 
@@ -339,7 +342,7 @@ if( em != 'CO2') {
 # Get IEA NONENUSE coal
   IEA_neuse_coal <- filter( A.IEA_en_stat_ctry_hist, FLOW == "NONENUSE", fuel %in% ceds_coal_fuels ) %>%
     select( -FLOW, -PRODUCT ) %>% group_by( iso, fuel ) %>%
-    summarise_each( funs( sum(., na.rm = T ) ) ) %>% data.frame()
+    summarise_all( funs( sum(., na.rm = T ) ) ) %>% data.frame()
   IEA_neuse_coal$units <- "kt"
 
 # Extend 2013 value to 2014
@@ -393,21 +396,21 @@ if( em != 'CO2') {
 # 7. Compute CO2_Coal_Combustion = CO2 from Coal from CEDS combustion emission sectors
   CO2_Coal_Combustion <- filter( CO2_total_CEDS_emissions, sector %in% ceds_comb_sectors, fuel %in% ceds_coal_fuels ) %>%
     select( -sector ) %>% group_by( iso, fuel, units ) %>%
-    summarise_each( funs( sum(., na.rm = T ) ) ) %>%
+    summarise_all( funs( sum(., na.rm = T ) ) ) %>%
     dplyr::arrange( iso, fuel, units ) %>% data.frame()
 
 # ---------------------------------------------------------------------------
 # 8. Compute CO2_Conversion = CO2_Coal_Total - CO2_Coal_Combustion - CO2_Coal_NEuse - CO2_Coalgases_as_ng_for_total_natural_gas
 # Aggregate all coal flows by iso
   CO2_Coal_Total_agg <- select( CO2_Coal_Total, -fuel ) %>% group_by( iso, units ) %>%
-    summarise_each( funs( sum(., na.rm = T ) ) ) %>% dplyr::arrange( iso ) %>% data.frame()
+    summarise_all( funs( sum(., na.rm = T ) ) ) %>% dplyr::arrange( iso ) %>% data.frame()
   CO2_Coal_Combustion_agg <- select( CO2_Coal_Combustion, -fuel ) %>% group_by( iso, units ) %>%
-    summarise_each( funs( sum(., na.rm = T ) ) ) %>% dplyr::arrange( iso ) %>% data.frame()
+    summarise_all( funs( sum(., na.rm = T ) ) ) %>% dplyr::arrange( iso ) %>% data.frame()
   CO2_Coal_NEuse_agg <- select( CO2_Coal_NEuse, -fuel ) %>% group_by( iso, units ) %>%
-    summarise_each( funs( sum(., na.rm = T ) ) ) %>% dplyr::arrange( iso ) %>% data.frame()
+    summarise_all( funs( sum(., na.rm = T ) ) ) %>% dplyr::arrange( iso ) %>% data.frame()
 
   CO2_Coalgases_as_ng_for_total_natural_gas_agg <- select( CO2_Coalgases_as_ng_for_total_natural_gas, -fuel ) %>%
-    group_by( iso, units ) %>% summarise_each( funs( sum(., na.rm = T ) ) ) %>% dplyr::arrange( iso ) %>% data.frame()
+    group_by( iso, units ) %>% summarise_all( funs( sum(., na.rm = T ) ) ) %>% dplyr::arrange( iso ) %>% data.frame()
 
 # Check that all 4 dfs have same ID columns
   if( any( paste( CO2_Coal_Total$iso, CO2_Coal_Total$units ) !=
