@@ -13,7 +13,7 @@ module load R/3.3.3
 now=$(date)
 echo "Current time : $now"
 
-cd /people/orou913/CEDS
+cd /people/feng999/CEDS
 make extended-activity
 
 now=$(date)
