@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -A GCAM
+#SBATCH -A ceds
 #SBATCH -t 10:00:00
 #SBATCH -N 1
 #SBATCH -p shared
@@ -13,8 +13,8 @@ module load R/3.3.3
 now=$(date)
 echo "Current time : $now"
 
-cd /people/feng999/CEDS
-make activity
+cd /people/orou913/CEDS
+make extended-activity
 
 now=$(date)
 echo "Current time : $now"
