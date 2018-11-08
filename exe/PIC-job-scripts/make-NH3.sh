@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -A GCAM
+#SBATCH -A ceds
 #SBATCH -t 05:00:00
 #SBATCH -N 1
 #SBATCH -p shared
