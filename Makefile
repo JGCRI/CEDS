@@ -61,7 +61,8 @@ activity : $(MED_OUT)/A.total_activity.csv \
 	$(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv \
 	$(MED_OUT)/A.coal_heat_content.csv
 
-extended-activity : $(MED_OUT)/A.total_activity_extended.csv
+extended-activity : $(MED_OUT)/A.total_activity_extended.csv \
+	$(EXT_DATA)/A.Pig_Iron_Production.csv 
 
 else
 
