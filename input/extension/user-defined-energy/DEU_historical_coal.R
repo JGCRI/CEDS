@@ -36,7 +36,7 @@ FPATH <- 'user-defined-energy/'
 T_HARD_COAL_PER_T_SKE = 1
 T_BROWN_COAL_PER_T_SKE = 0.26
 
-schilling <- readData('EXT_IN', paste0(FPATH, FNAME), meta = F)
+schilling <- readData('EXT_IN', paste0(FPATH, FNAME), meta = T)
 
 # Translations for the column names
 translate <- c(JAHR = 'year',
