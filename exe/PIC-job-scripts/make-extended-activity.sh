@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -A GCAM
+#SBATCH -A ceds
 #SBATCH -t 10:00:00
 #SBATCH -N 1
 #SBATCH -p shared
@@ -14,7 +14,7 @@ now=$(date)
 echo "Current time : $now"
 
 cd /people/feng999/CEDS
-make activity
+make extended-activity
 
 now=$(date)
 echo "Current time : $now"

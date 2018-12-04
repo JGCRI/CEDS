@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sbatch make-activity.sh
+sbatch make-extended-activity.sh
 
 sleep 1800s
 
