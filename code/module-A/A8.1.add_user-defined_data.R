@@ -72,6 +72,9 @@ stopifnot( !anyNA( all_activity_data ) ) # Data should all be valid
 # Read in the user-provided instructions for all supplemental data.
 instructions <- processInstructions( comb_sectors, MSL, MFL, all_activity_data )
 
+#DEBUG
+instructions <- instructions %>% filter(data_file == "US-EIA_inventory_aggsec")
+
 # TODO: Figure out how/where/why to process trend data without roundabout
 #       file writing and bypassing processing
 # instructions <- processTrendData( instructions, all_activity_data )
@@ -113,6 +116,7 @@ rows_completed <- instructions[ 0, ]
 # This integer tracks which batch number we're on, for informing diagnostics
 batch <- 0
 
+instructions <- filter(instructions, agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
 
 # ------------------------------------------------------------------------------
 # 3. Execute processing loop

@@ -11,6 +11,38 @@
 # Notes: See also user_extension_instr_processing.R and user_data_processing.R
 # -----------------------------------------------------------------------------
 
+
+# includeUserData
+#
+# Normalize, disaggregate, and then incorporate the user-defined data into the
+# default activity data, returning a list with both the data and diagnostics.
+#
+# Args:
+#    usrdata: a subsetted dataframe of user-specified data
+#    default_data: a dataframe of unchanged activity data extracted from
+#      all_activity
+#    Xyears: the year range of data processing
+#    keep_total_cols: the columns whose aggregate value should not change
+#    filename: Root filename for the data, currently unused
+#    specified_breakdowns: Whether to use user-defined breakdowns, currently
+#      unused
+includeUserData <- function( usrdata, default_data, Xyears, keep_total_cols,
+                             filename, specified_breakdowns ) {
+
+    CEDS_COLS <- getCEDSAggCols()
+    usrdata_cols <- intersect( CEDS_COLS, names( usrdata ) )
+
+    usrdata_disagg <- disaggregate( usrdata, default_data, usrdata_cols )
+
+    # except this function is way more confusing than this needs
+    unnormalized <- replaceValueColMatch( default_data, usrdata_disagg )
+
+    normalized <- normalize( unnormalized, default_data )
+}
+
+
+
+
 # normalizeAndIncludeData
 #
 # Defines functions for processing user extension data. It is flexible to each
@@ -503,7 +535,10 @@ breakdownFromGlobal <- function( pct_breakdown, Xyears, cols_given, join_cols ) 
     }
     else if ( any( colSums( global_totals ) == 0 ) ) {
         global_totals <- data.frame( pct_breakdown[ join_cols ], global_totals )
-        return( interpBreakdowns( global_totals, Xyears ) )
+        global_totals_interp <- interpBreakdowns( global_totals, Xyears )
+        new_breakdown <- prop.table( as.matrix(global_totals_interp[, Xyears]), margin = 2 )
+        new_breakdown <- data.frame( pct_breakdown[ join_cols ], new_breakdown )
+        return( new_breakdown )
     }
 
     # Calculate new percent breakdowns by dividing each row by its group's total

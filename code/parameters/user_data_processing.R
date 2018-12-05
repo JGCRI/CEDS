@@ -737,6 +737,8 @@ disaggUserSectors <- function( usr_data, proc_instr, default_activity ) {
         dplyr::left_join( usr_sector_map, by = join_col ) %>%
         dplyr::filter( !is.na( CEDS_sector ) )
 
+    agg_cols <- c(agg_cols, join_col)
+
     disaggregate( usr_data_mapped, all_activity_data, agg_cols )
 }
 
