@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name:    A8.1.add_user-defined_data.R
-# Authors:         Ben Goldstein, Caleb Braun
-# Last Updated:    July 2018
+# Authors:         Ben Goldstein, Caleb Braun, Patrick O'Rourke
+# Last Updated:    December 2018
 # Program Purpose: To process user-defined datasets for use in the historical
 #                  energy extension. See Section 3 of the CEDS User Guide
 #                  (https://github.com/JGCRI/CEDS-dev/wiki/User-Guide) for
@@ -55,25 +55,25 @@ all_activity_data <- readData( 'MED_OUT', 'A.comb_default_activity_extended', me
     dplyr::filter( CEDS_sector %in% comb_sectors ) %>%
     mapToCEDS( MSL, MFL, aggregate = F )
 
-# Special case for oil 1A1bc_Other-transformation and 1A1bc_Other-feedstocks.
+# Special case for oil 1A1bc_Other-transformation and 1A1bc_Other-feedstocks as well as coal coke
 # This data is aggreagated to the agg_fuel level by default, so we place a fill
 # value in for the CEDS_fuel.
 all_activity_data <- all_activity_data %>%
     dplyr::mutate( CEDS_fuel = if_else( CEDS_fuel == 'oil' & CEDS_sector %in% othr_sectors,
                                         'AGGREGATE', CEDS_fuel ),
-                   agg_fuel = if_else( CEDS_fuel == 'AGGREGATE', 'oil', agg_fuel ) )
+                   agg_fuel = if_else( CEDS_fuel == 'AGGREGATE', 'oil', agg_fuel ) ) %>%
+    dplyr::mutate( agg_fuel = if_else( CEDS_fuel == "coal_coke", "coal_coke", agg_fuel))
 
 stopifnot( !anyNA( all_activity_data ) ) # Data should all be valid
 
+MFL <- MFL %>%
+    dplyr::mutate(aggregated_fuel = if_else(fuel == "coal_coke", "coal_coke", aggregated_fuel))
 
 # -----------------------------------------------------------------------
 # 2. Collect user-defined inputs and initialize script variables
 
 # Read in the user-provided instructions for all supplemental data.
 instructions <- processInstructions( comb_sectors, MSL, MFL, all_activity_data )
-
-#DEBUG
-instructions <- instructions %>% filter(data_file == "US-EIA_inventory_aggsec")
 
 # TODO: Figure out how/where/why to process trend data without roundabout
 #       file writing and bypassing processing
@@ -116,8 +116,6 @@ rows_completed <- instructions[ 0, ]
 # This integer tracks which batch number we're on, for informing diagnostics
 batch <- 0
 
-instructions <- filter(instructions, agg_sector == '1A1_Energy-transformation', agg_fuel == 'coal')
-
 # ------------------------------------------------------------------------------
 # 3. Execute processing loop
 while ( nrow( instructions ) > 0 ) {
@@ -145,11 +143,14 @@ while ( nrow( instructions ) > 0 ) {
     # Identify other instructions in the "batch" that will need to be aggregated
     # as one. Files only need to be batched if their year ranges overlap.
     agg_level <- identifyLevel( usrdata )
-    batch_instructions <- extractBatchInstructions( instructions, usrdata,
-                                                    agg_level, s_year, e_year )
+    batch_instructions <- extractBatchInstructions( working_instructions,
+                                                    instructions, s_year, e_year )
+
 
     # Remove the batch instructions from the master instruction dataframe
-    instructions <- dplyr::setdiff( instructions, batch_instructions )
+    anti_join_cols <- grep("keep_total_cols", names(instructions), invert = TRUE, value = TRUE)
+    instructions <- dplyr::anti_join(instructions, batch_instructions,
+                                       by = anti_join_cols)
 
     # Process the batch of instructions (if there is a batch)
     if ( nrow( batch_instructions ) > 0 ) {
@@ -221,11 +222,9 @@ while ( nrow( instructions ) > 0 ) {
     # The normalizeAndIncludeData is the main point of this script; it will
     # normalize, disaggregate, and then incorporate the user-defined data,
     # returning a list with both the data and diagnostics
-    normalized <- normalizeAndIncludeData( Xyears, data_to_use, usrdata,
-                                           all_activity_data,
-                                           working_instructions$override_normalization,
-                                           agg_level, data_file,
-                                           working_instructions$specified_breakdowns )
+    normalized <- includeUserData(usrdata, data_to_use, Xyears, working_instructions$keep_total_cols[[1]],
+                                  data_file, working_instructions$specified_breakdowns,
+                                  all_activity_data)
 
     activity$all_activity_data <- normalized$all_data
     diagnostics <- normalized$diagnostics

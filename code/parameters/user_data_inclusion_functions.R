@@ -27,23 +27,50 @@
 #    specified_breakdowns: Whether to use user-defined breakdowns, currently
 #      unused
 includeUserData <- function( usrdata, default_data, Xyears, keep_total_cols,
-                             filename, specified_breakdowns ) {
+                             filename, specified_breakdowns, all_activity ) {
 
-    CEDS_COLS <- getCEDSAggCols()
-    usrdata_cols <- intersect( CEDS_COLS, names( usrdata ) )
+    CEDS_cols <- getCEDSAggCols()
+    usrdata_cols <- intersect( CEDS_cols, names( usrdata ) )
 
-    usrdata_disagg <- disaggregate( usrdata, default_data, usrdata_cols )
 
-    # except this function is way more confusing than this needs
-    unnormalized <- replaceValueColMatch( default_data, usrdata_disagg )
+    # Disaggregate user data to lowest level based on default shares
+    usrdata_disagg <- disaggregate( usrdata, default_data, usrdata_cols, all_activity )
 
-    normalized <- normalize( unnormalized, default_data )
+    # Essentially an "update_join" --> Perhaps this should be rewritten in the near future
+    unnormalized <- replaceValueColMatch( default_data, usrdata_disagg, x.ColName = Xyears,
+                                          match.x = CEDS_cols, addEntries = FALSE )
+
+    # Normalize data when you are maintaining the totals for the higher aggregate group
+    # (if all userdata_cols are not within keep_total_cols)
+    if( all( usrdata_cols %in% keep_total_cols) ){
+        normailzed <- unnormalized
+        warning_diagnostics <- paste("Normalization did not occur as user did not",
+                                     "specify that they wanted to maintain totals",
+                                     "at a higher aggregate group.")
+    }
+    else {
+        normalized <- normalize( default_data, usrdata_disagg, keep_total_cols,
+                                usrdata_cols, Xyears, unnormalized, all_activity)
+
+        diagnostics <- normalized$diagnostics
+        normalized <- normalized$data
+
+        # Call the generateWarnings function to diagnose how well we did retaining column sums
+        warning_diagnostics <- generateWarnings( Xyears, normalized, default_data,
+                                                 diagnostics)
+    }
+
+        # Essentially an "update_join" --> Perhaps this should be rewritten in the near future
+        all_activity_data <- replaceValueColMatch( all_activity_data, normalized, x.ColName = Xyears,
+                                              match.x = CEDS_cols, addEntries = FALSE )
+
+        rows_changed <- sum( apply( normalized != default_data, 1, any ) )
+        diagnostics <- data.frame( rows_changed, warning_diagnostics )
+
+    return( list( all_data = all_activity_data, diagnostics = diagnostics ) )
 }
 
-
-
-
-# normalizeAndIncludeData
+# normalize
 #
 # Defines functions for processing user extension data. It is flexible to each
 # aggregate level. It handles normalizing data and disaggregating data based on
@@ -51,57 +78,27 @@ includeUserData <- function( usrdata, default_data, Xyears, keep_total_cols,
 #
 # Args:
 #    Xyears: the year range of data processing
-#    data_to_use: a dataframe of unchanged activity data extracted from
+#    default_data: a dataframe of unchanged activity data extracted from
 #      all_activity
-#    user_dataframe_subset: a subsetted dataframe of user-specified data
+#    usrdata_disagg: a subsetted dataframe of user-specified data
 #    all_activity_data: the dataframe holding all activity
-#    override_normalization: a manual option for disabling normalization
 #    agg_level: an integer indicating the aggregate level of the data given
 #
 # Returns:
 #   A list containing the adjusted data (all_activity_data) and information
 #     about the normalization, including any warnings (diagnostics)
 # TODO: Split this into more functions
-normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
-                                     all_activity_data, override_normalization,
-                                     agg_level, filename, specified_breakdowns ) {
-
-    override_normalization <- any( override_normalization, na.rm = T )
-
-    cols_given <- aggLevelToCols( agg_level )
-    if( is.null( cols_given ) )
-        stop( paste( "agg_level", agg_level, "not supported" ) )
-
-    # This will not be used at level 1 but is necessary for creating the id_col
-    normalizeTo <- aggLevelToNormalize( agg_level )
-
-    # The "identifier column" is the column that will be unique among all rows
-    # once we have aggregated to this level.
-    id_col <- dplyr::setdiff( cols_given, normalizeTo )
+normalize <- function(default_data, usrdata_disagg, keep_total_cols,
+                      usrdata_cols, Xyears, unnormalized, all_activity_data) {
 
     # Aggregate the pre-update data to match the user data level of aggregation
-    activity_agg_to_level <- ddply( data_to_use, cols_given,
-                                    function(x) colSums( x[ Xyears ] ) )
+     default_agg_to_level <- default_data %>%
+         dplyr::group_by_at( usrdata_cols ) %>%
+         dplyr::summarise_at( Xyears, sum )
 
-    # activity_agg_to_level <- data_to_use %>%
-    #     dplyr::group_by_at( cols_given ) %>%
-    #     dplyr::summarise_at( Xyears, sum )
-
-    # Add the user data (in a new copy of the agg dataframe)
-    rows_to_replace <- activity_agg_to_level[[id_col]] %in% user_dataframe_subset[[id_col]]
-    row_order <- match( user_dataframe_subset[[id_col]],
-                        activity_agg_to_level[[id_col]], nomatch = 0 )
-    act_agg_changed <- activity_agg_to_level
-    act_agg_changed[ row_order, Xyears ] <- user_dataframe_subset[ , Xyears ]
-
-    # If all the rows were directly changed then we've specified data for an
-    # entire aggregate group and therefore can't normalize
-    whole_group <- all( rows_to_replace )
-
-    # Initialize warning info
-    negatives <- F
-    all_zero_years <- NA
-    need_user_spec <- F
+     # Initialize warning info
+     negatives <- F
+     need_user_spec <- F
 
     # TODO: Break this out into separate function
     #
@@ -109,43 +106,55 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
     # specified in order to retain aggregate information, should only happen if
     # both:
     #   a) a whole group was not specified and
-    #   b) no manual override of normalization was called.
-    if ( !whole_group & !override_normalization ) {
+    #   b) no manual override of normalization was called
 
         # Select the rows from the original data which were not directly changed
-        data_to_correct <- activity_agg_to_level[ !rows_to_replace,
-                                                  c( cols_given, Xyears ) ]
+        CEDS_cols <- getCEDSAggCols(iso = TRUE)
+
+        default_to_change <- default_data %>%
+            semi_join(usrdata, by = keep_total_cols) %>%
+            anti_join(usrdata, by = usrdata_cols ) %>%
+            select(CEDS_cols, Xyears)
 
         # All calculations are just done with the year columns. Take those
         # columns and replace the values with their proportion of the total
         # value for the whole year. This provides a fraction representing how
         # much of a difference each row will need to absorb; it says what
-        # percent of the unedited aggregate group it is responsible for.
-        pct_of_agg_group <- data_to_correct[ , Xyears, drop = F ] %>%
+        # percent of the unedited aggregate group it is responsible for. Note
+        # that 'drop = F' keeps data as dataframe even if indexing one year.
+        pct_of_disagg_group <- default_to_change[ , Xyears, drop = F ] %>%
                             as.matrix() %>%
                             prop.table( margin = 2 )
-        pct_of_agg_group[ is.nan( pct_of_agg_group ) ] <- 0
+        #pct_of_disagg_group[ is.nan( pct_of_disagg_group ) ] <- 0
 
         # If all of the data in a year (that wasn't user-specified) is 0, this
         # is like having a "whole group" -- we do not need to (cannot) normalize
         # in this case. We will not compare these rows in the warnings check.
-        all_zero_years <- names( which ( colSums( pct_of_agg_group ) == 0 ) )
+        all_zero_years <- names( which ( colSums( pct_of_disagg_group ) == 0 ) )
 
         # Create vectors for the sums of activity in the group for each year
-        # before and after including the user data (pre-normalization). Note
-        # that 'drop = F' keeps data as dataframe even if indexing one year.
-        year_totals <- colSums( activity_agg_to_level[ , Xyears, drop = F ] )
-        new_year_totals <- colSums( act_agg_changed[ , Xyears, drop = F ] )
+        # before and after including the user data (pre-normalization).
+        year_totals <- colSums( default_data[ , Xyears, drop = F ] )
+        new_year_totals <- colSums( unnormalized[ , Xyears, drop = F ] )
 
         # Likely, adding new data will change the sum of the aggregate group;
         # the point of normalization is to eliminate this change. The variable
         # annual_diffs stores the yearly difference between pre- and post-
         # inclusion data, for each aggregate group, for each year.
         annual_diffs <- year_totals - new_year_totals
-        annual_diffs <- sweep( pct_of_agg_group, 2, annual_diffs, "*" )
 
-        # Simply add the adjustments to the original data
-        normalized <- data_to_correct[ , Xyears, drop = F ] + annual_diffs
+        # Disaggregate data if all pct_of_disagg_group == 0
+        normalize_aggregate <- default_to_change %>%
+                group_by_at(keep_total_cols) %>%
+                summarise_at(Xyears, sum)
+            normalize_aggregate[, Xyears] <- normalize_aggregate[, Xyears, drop = F]+ annual_diffs
+
+           # Select the rows from the original data which were not directly changed
+            default_to_change_4_disagg <- default_data %>%
+                semi_join(usrdata, by = keep_total_cols) %>%
+                anti_join(usrdata, by = usrdata_cols )
+
+        normalized <- disaggregate( normalize_aggregate, default_to_change_4_disagg, keep_total_cols )
 
         # If the total provided for only the user-defined columns exceeds the
         # original total for the entire aggregate group, data will be normalized
@@ -158,28 +167,17 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
 
         # Add the normalized data into the dataframe containing the user-defined
         # data. After this, it has both the user-defined data and normalized
-        # versions of the undefined rows
-        act_agg_changed[ !rows_to_replace, Xyears ] <- normalized
-    }
+        # versions of the rows which are not user defined
 
-    disagg_data_changed <- data_to_use
-    # Create a dataframe of group totals arranged correspondingly to the
-    # disaggregate data
-    join_cols <- c( "iso", "agg_fuel", "CEDS_fuel", "agg_sector", "CEDS_sector" )
-    agg_group_totals_unchanged <- left_join( data_to_use[ , join_cols ],
-                                             activity_agg_to_level, by = cols_given )
-    agg_group_totals_changed   <- left_join( data_to_use[ , join_cols ],
-                                             act_agg_changed, by = cols_given )
+        normalized_final <- unnormalized %>%
+            replaceValueColMatch( normalized, Xyears, Xyears,
+                                 CEDS_cols, CEDS_cols, addEntries = FALSE)
 
-# Calculate the percentage of the aggregate group that each row used to make up
-    disagg_pct_breakdown <- data_to_use
-    disagg_pct_breakdown[ , Xyears ] <- data_to_use[ , Xyears ] /
-                                        agg_group_totals_unchanged[ , Xyears ]
+        return( list( data = normalized_final, diagnostics = list( "negatives" = negatives,
+                                               "need_user_spec" = need_user_spec ) ) )
+}
 
-    disagg_pct_breakdown[ is.nan.df( disagg_pct_breakdown ) ] <- 0
-
-# TODO: Break this out into separate function
-#
+# handle_nan_breakdowns
 # This section of the function addresses the case where user-specified emissions
 # replace zero-emissions cells. The user data cannot be disaggregated using
 # factors of zero, so the percent breakdowns must be calculated by other means.
@@ -195,37 +193,49 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
 #      If the first two options didn't find values to interpolate breakdowns
 #      from, just breakdown evenly across all disaggregation levels. There is
 #      likely something wrong in this case, so throw a warning.
+#
+# Args:
+#  disagg_pct_breakdowns: df of proportions at the most disaggregate level
+#  global_data: global activity data just in case one cannot interpolate
+#  Xyears: years we need the breakdown for
+#  agg_cols_to_breakdown columns to retain for disaggregation breakdown
+#
+# Returns:
+handle_nan_breakdowns <- function(disagg_pct_breakdown, global_data, Xyears){
 
-    if ( any( activity_agg_to_level[ , Xyears ] == 0 &
-              act_agg_changed[ , Xyears ] != 0 ) ) {
+    if ( !(any( is.nan.df(disagg_pct_breakdown[ , Xyears ])))) {
+        return(disagg_pct_breakdown)
+    }
 
-        # zero_cells holds a boolean data frame used to identify cells which
-        # will have this issue (changed value is > 0 but original value is 0)
-        orig_zeros <- activity_agg_to_level[ , Xyears, drop = F ] == 0
-        chgd_zeros <- act_agg_changed[ , Xyears, drop = F ] == 0
-        zero_cells <- cbind( act_agg_changed[ , cols_given ], orig_zeros & !chgd_zeros )
-        any_zeros <- zero_cells[ apply( zero_cells[ , Xyears ], 1, any ), ]
+        any_nan <- disagg_pct_breakdown[ apply(is.nan.df(disagg_pct_breakdown[, Xyears]), 1, any), ]
 
-        for ( row_num in 1:nrow(any_zeros) ) {
-            current_row <- any_zeros[row_num, cols_given]
-            bdown_4_row <- dplyr::left_join( current_row, disagg_pct_breakdown,
-                                             by = cols_given )
+        all_years <- isXYear(names(disagg_pct_breakdown))
 
-            if ( all( bdown_4_row[ , Xyears ] == 0 ) ) {
-                bdown_4_row <- breakdownFromGlobal(bdown_4_row, Xyears,
-                                                   cols_given, join_cols)
+        for ( row_num in 1:nrow(any_nan) ) {
+            current_row <- any_nan[row_num, ]
+
+            if ( all( is.nan.df(current_row[ , all_years]) ) ) {
+                CEDS_cols <- getCEDSAggCols(iso = TRUE)
+
+                current_row_no_NaN <- breakdownFromGlobal(current_row, Xyears,
+                                                   CEDS_cols, global_data)
             }
-            else if ( any( bdown_4_row[ , Xyears ] == 0 ) ) {
-                bdown_4_row <- interpBreakdowns( bdown_4_row, Xyears )
+
+            # we are assuming there should be some NaNs at this point but not all NaNs
+            else {
+                current_row_no_NaN <- interpBreakdowns( current_row, all_years,
+                                                        nan_replace_zeroes = TRUE )
             }
 
             # overwrite the rows to replace (r2r) with the new breakdowns
-            r2r <- disagg_pct_breakdown$CEDS_fuel %in% bdown_4_row$CEDS_fuel &
-                   disagg_pct_breakdown$CEDS_sector %in% bdown_4_row$CEDS_sector
-            disagg_pct_breakdown[ r2r, ] <- bdown_4_row
+           r2r <- disagg_pct_breakdown$CEDS_fuel %in% current_row_no_NaN$CEDS_fuel &
+                   disagg_pct_breakdown$CEDS_sector %in% current_row_no_NaN$CEDS_sector
+            disagg_pct_breakdown[ r2r, Xyears] <- current_row_no_NaN[Xyears]
         }
-    }
 
+
+    # specified break downs are currently not supported by the CEDS data system
+    specified_breakdowns <- FALSE
 
     if ( any( specified_breakdowns ) ) {
         tryCatch({
@@ -258,15 +268,15 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
                   user_breakdown[ , c( "CEDS_fuel", "CEDS_sector", "iso",
                                      years_to_merge ) ]
         # Check to make sure everything still adds up to 100%
-            double_check_breakdowns <- ddply( disagg_pct_breakdown, cols_given,
+            double_check_breakdowns <- ddply( disagg_pct_breakdown, agg_cols_to_breakdown,
                                       function(x) colSums( x[ Xyears ] ) )
 
             if ( any( double_check_breakdowns[ , Xyears ] %!in%
                                                             c( 1,0 ) ) ) {
             # Join to the disaggregates, and then divide
-                correction_factors <- left_join( disagg_data_changed[ , cols_given ],
+                correction_factors <- left_join( disagg_data_changed[ , agg_cols_to_breakdown ],
                                                  double_check_breakdowns,
-                                                 by = cols_given )
+                                                 by = agg_cols_to_breakdown )
                 disagg_pct_breakdown[ , Xyears ] <-
                         disagg_pct_breakdown[ , Xyears ] /
                         correction_factors[ , Xyears ]
@@ -275,34 +285,8 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
         }
     }
 
+    return(disagg_pct_breakdown)
 
-# Multiply these percentages by the new values to get updated versions
-    disagg_data_changed[ , Xyears ] <- disagg_pct_breakdown[ , Xyears ] *
-                                       agg_group_totals_changed[ , Xyears ]
-    if ( agg_level == 4 ) {
-        disagg_data_changed <- act_agg_changed
-        need_user_spec <- F
-    }
-
-# Call the generateWarnings function to diagnose how well we did retaining column sums
-    if ( agg_level != 1 ) {
-        warning_diagnostics <- generateWarnings( Xyears, disagg_data_changed,
-                                                 data_to_use, negatives, whole_group,
-                                                 override_normalization, all_zero_years,
-                                                 need_user_spec)
-    } else {
-        warning_diagnostics <- NA
-    }
-
-    all_activity_data[ which( all_activity_data$iso %in% disagg_data_changed$iso &
-                              all_activity_data$CEDS_fuel %in% disagg_data_changed$CEDS_fuel &
-                              all_activity_data$CEDS_sector %in% disagg_data_changed$CEDS_sector ), Xyears ] <-
-    disagg_data_changed[ , Xyears ]
-
-    rows_changed <- sum( apply( disagg_data_changed != data_to_use, 1, any ) )
-    diagnostics <- data.frame( rows_changed, warning_diagnostics )
-
-    return( list( all_data = all_activity_data, diagnostics = diagnostics ) )
 }
 
 #------------------------------------------------------------------------------
@@ -314,57 +298,39 @@ normalizeAndIncludeData <- function( Xyears, data_to_use, user_dataframe_subset,
 #    disagg_data_changed: the disaggregate product of normalization and update
 #    data_to_use: a dataframe of unchanged activity data extracted from all_activity
 #    negatives: a logical indicating whether any negative values were reset to 0
-#    override_normalization: a logical indicating whether normalization was
-#                            manually skipped
 generateWarnings <- function ( Xyears, disagg_data_changed, data_to_use,
-                               negatives, whole_group, override_normalization,
-                               all_zero_years, need_user_spec ) {
+                               diagnostics ) {
 
     # Exclude those years for which there is no non-user-specified data from
     # generating warnings
     years_to_compare <- Xyears
-    if ( length( all_zero_years ) > 0 ) {
-        years_to_compare <- Xyears[ Xyears %!in% all_zero_years ]
-    }
 
-    if ( length( years_to_compare ) == 0 ) {
-        return( NA )
-    }
+    need_user_spec <- diagnostics$need_user_spec
+    negatives <- diagnostics$negatives
 
     if ( need_user_spec ) {
         return( "User-specified percent breakdowns are needed; no global defaults." )
     }
 
     warning_diag <- NA
-    if ( !override_normalization && !whole_group ) {
-        if ( length( years_to_compare ) > 1 ) {
-            if ( any( round( colSums( disagg_data_changed[ , years_to_compare ] ), 3 ) !=
-                      round( colSums( data_to_use[ , years_to_compare ] ), 3 ) ) ) {
 
-              cols_not_retained <- sum( round( colSums( disagg_data_changed[ , years_to_compare ] ), 3 ) !=
-                                        round( colSums( data_to_use[ , years_to_compare ] ), 3 ) )
-              warning_diag <- paste0( cols_not_retained, "/", length( Xyears ),
-                                      " column sums were not retained.")
-              if ( negatives ) {
-                  warning_diag <- paste0( warning_diag,
-                                          " A specified total exceeded an aggregate group total." )
-              }
+    # Assign rounding convention
+    normalized_rounded <- round( colSums( disagg_data_changed[ , years_to_compare, drop = FALSE ] ), 3 )
+    default_data_rounded <- round( colSums( data_to_use[ , years_to_compare, drop = FALSE ] ), 3 )
 
-            }
-        } else {
-            if ( any( round( sum( disagg_data_changed[ , years_to_compare ] ), 3 )
-                      != round( sum( data_to_use[ , years_to_compare ] ), 3 ) ) ) {
-              warning_diag <- "1 column sum was not retained."
-              if ( negatives ) {
-                  warning_diag <- paste0( warning_diag, "A specified total exceeded an aggregate group total.")
-              }
-           }
-        }
-    } else if ( override_normalization ) {
-        warning_diag <- "Manual override of normalization"
-    } else if ( whole_group ) {
-        warning_diag <- "Whole group provided; aggregate sums overwritten"
+    # Check if data sums are the same for normalized data and default_data
+   if ( any( normalized_rounded != default_data_rounded ) ) {
+
+        cols_not_retained <- sum( normalized_rounded != default_data_rounded )
+        warning_diag <- paste0( cols_not_retained, "/", length( Xyears ),
+                                  " column sums were not retained." )
+        if ( negatives ) {
+            warning_diag <- paste( warning_diag,
+            "some energy data has been coerced to 0 as the user provided",
+            "a specified total which exceeded an aggregate group total in the default data." )
+          }
     }
+
     return( warning_diag )
 }
 
@@ -377,8 +343,7 @@ generateWarnings <- function ( Xyears, disagg_data_changed, data_to_use,
 #        the data for that fuel and sector, which helps create a global default
 #        percentage breakdown for a given aggregation category.
 #
-#        TODO: Remove global variable 'all_activity_data' as a default parameter
-sumAllActivityByFuelSector <- function( guide_row, years = Xyears, data = all_activity_data ) {
+sumAllActivityByFuelSector <- function( guide_row, years, data ) {
 
     df_to_sum <- dplyr::filter( data, CEDS_sector == guide_row[["CEDS_sector"]],
                                       CEDS_fuel   == guide_row[["CEDS_fuel"]] )
@@ -514,36 +479,42 @@ addContinuityFactors <- function( activity, instructions, all_yrs, interval_len 
 # Params:
 #   pct_breakdown:  an all-zero subset of percentage breakdowns
 #   Xyears:         years to consider
-#   join_cols:      columns present in data's most disaggregated form
-#
-breakdownFromGlobal <- function( pct_breakdown, Xyears, cols_given, join_cols ) {
+#   disagg_columns:      CEDS ID columns present in data's most disaggregated form
+breakdownFromGlobal <- function( pct_breakdown, Xyears, disagg_columns, global_data ) {
 
     # Use the sumAllActivityByFuelSector function to generate totals for each
     # fuel x sector, ignoring iso.
-    global_totals <- apply( pct_breakdown, 1, sumAllActivityByFuelSector, Xyears )
+    global_totals <- apply( pct_breakdown, 1, sumAllActivityByFuelSector, Xyears, global_data )
     global_totals <- t( global_totals )
 
     # If all the rows STILL have zero values for all years, give each year a
     # uniform value of 1 across all rows. This causes them to be divided evenly
     # among the breakdown categories by default, but is likely inaccurate so
     # generates a warning that the user needs to specify breakdowns.
-    #
-    # If only some rows still have zero values, interpolate from years with data
+
+    # If only some rows still have NaN values, interpolate from years with data
     if ( all( colSums( global_totals ) == 0 ) ) {
-        global_totals[ , Xyears ] <- 1
+        if ( length( Xyears == 1 ) ) {
+            global_totals[] <- 1
+        }
+        else{
+            global_totals[ , Xyears ] <- 1
+        }
         warning( "No breakdowns found for aggregate data" )
     }
     else if ( any( colSums( global_totals ) == 0 ) ) {
-        global_totals <- data.frame( pct_breakdown[ join_cols ], global_totals )
+        global_totals <- data.frame( pct_breakdown[ disagg_columns ], global_totals )
         global_totals_interp <- interpBreakdowns( global_totals, Xyears )
         new_breakdown <- prop.table( as.matrix(global_totals_interp[, Xyears]), margin = 2 )
-        new_breakdown <- data.frame( pct_breakdown[ join_cols ], new_breakdown )
+        new_breakdown <- data.frame( pct_breakdown[ disagg_columns ], new_breakdown )
         return( new_breakdown )
     }
 
     # Calculate new percent breakdowns by dividing each row by its group's total
     new_breakdown <- prop.table( global_totals, margin = 2 )
-    new_breakdown <- data.frame( pct_breakdown[ join_cols ], new_breakdown )
+    new_breakdown <- data.frame( pct_breakdown[ disagg_columns ], new_breakdown )
+    new_breakdown <- new_breakdown %>%
+        setNames(c(disagg_columns, Xyears))
 
     return( new_breakdown )
 }
@@ -552,12 +523,21 @@ breakdownFromGlobal <- function( pct_breakdown, Xyears, cols_given, join_cols ) 
 # For rows that have some but not all zero cells (some 0 rows available)
 # we can use interpolate_NA() to fill in percent breakdowns linearly,
 # making sure to retain a total of 100%.
-interpBreakdowns <- function( pct_breakdown, Xyears ) {
+interpBreakdowns <- function( pct_breakdown, Xyears, nan_replace_zeroes = FALSE ) {
+
     breakdowns_to_correct <- pct_breakdown[ , Xyears ]
 
-    # All columns containing all zeros will be replaced with NA, so we can use
-    # interpolate_NAs() to replace them
-    zcols <- colSums( breakdowns_to_correct ) == 0
+    if (nan_replace_zeroes){
+        # All columns containing all NaN will be replaced with NA, so we can use
+        # interpolate_NAs() to replace them
+        zcols <- colSums( is.nan.df(breakdowns_to_correct )) > 0
+
+    } else {
+        # All columns containing all zeros will be replaced with NA, so we can use
+        # interpolate_NAs() to replace them
+        zcols <- colSums( breakdowns_to_correct ) == 0
+    }
+
     breakdowns_to_correct[ , zcols ] <- NA_real_
 
     # If the first or last year is NA this will make complete interpolation
@@ -646,6 +626,11 @@ identifyLevel <- function( df, na.rm = FALSE ) {
     )
 }
 
-getCEDSAggCols <- function() {
-    c( "agg_fuel", "CEDS_fuel", "agg_sector", "CEDS_sector" )
+getCEDSAggCols <- function(iso = FALSE) {
+    cols <- c( "agg_fuel", "CEDS_fuel", "agg_sector", "CEDS_sector" )
+    if ( iso ) {
+        return( c( "iso", cols ) )
+    } else {
+        return( cols )
+    }
 }

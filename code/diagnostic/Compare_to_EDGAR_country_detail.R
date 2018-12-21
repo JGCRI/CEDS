@@ -81,7 +81,7 @@ em <- edgar_em_list[k]
 
   # ------------------------------------------------------------------------------
   # 1. Read in and load files for CEDS, EDGAR and GAINS ( RCP will be loaded in section 2 )
-  # if the em is not supportted by any of the emissions invertories, a dummy data frame will be created
+  # if the em is not supportted by any of the emissions inventories, a dummy data frame will be created
   # ------------------------------------------------------------------------------
   # 1.1 read in CEDS total emissions
 
