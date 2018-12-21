@@ -570,8 +570,8 @@ validateUserData <- function( df, trend_instr ) {
     }
 
     # Go through instructions line by line
-    apply( trend_instr, 1, function( instr ) {
-        instr <- as.data.frame( t( instr ), stringsAsFactors = FALSE )
+    for( i in seq_len( nrow( trend_instr ) ) ){
+        instr <- trend_instr[ i, ]
         instr <- instr[ 1, !is.na( instr ) ]
         join_cols <- intersectNames( instr, df )
         instr_data <- dplyr::left_join( instr[ join_cols ], df, by = join_cols )
@@ -590,7 +590,7 @@ validateUserData <- function( df, trend_instr ) {
             stop( paste( err, "All data is NA at start year" ) )
         if ( all.na( instr_data[[ paste0( "X", instr$end_year ) ]] ) )
             stop( paste( err, "All data is NA at end year" ) )
-    })
+    }
 
     return( df )
 }
@@ -677,41 +677,67 @@ mapToUserSectors <- function( df, default_activity ) {
 
 # Disaggregate data to the level of another data.frame
 #
-# Disaggregates the input data frame to the levels specified by the `disagg_shares` parameter
+# Disaggregates the input data frame to the levels specified by the `disagg_activity` parameter
 # Disaggregate data from the agg_sector level of aggregation to the CEDS_sector
 # level.
 #
 # Args:
 #   agg_activity: A data.frame containing columns for iso, agg_sector, agg_fuel,
 #             and at least one year in Xyear format
-#   disagg_shares: A data.frame containing the values for proportionally
+#   disagg_activity: A data.frame containing the values for proportionally
 #                     disaggregating to the CEDS_sector level
-#   agg_cols: The id columns from the aggregated data.frame
+#   agg_id_cols: The id columns from the aggregated data.frame
 #
 # Returns:
 #   The disaggregated data.frame
-disaggregate <- function( agg_activity, disagg_shares, agg_cols ) {
+disaggregate <- function( agg_activity, disagg_activity, agg_id_cols, global_data ) {
 
-    final_ids <- names( disagg_shares )[ !isXYear( names( disagg_shares ) ) ]
+    final_ids <- names( disagg_activity )[ !isXYear( names( disagg_activity ) ) ]
     join_cols <- intersect( final_ids, names( agg_activity ) )
 
+    if ( all( final_ids %in% join_cols ) ) {
+        stop( paste0( "Error - disaggregation requires data at a more detailed level" ) )
+    }
+
     df_disagg <- agg_activity %>%
-        dplyr::left_join( disagg_shares, by = join_cols ) %>%
-        dplyr::select( one_of( c( agg_cols, final_ids ) ),
-                       ends_with( '.x' ), ends_with( '.y' ) )
+        dplyr::left_join( disagg_activity, by = join_cols )
 
     value_cols <- grep( 'X\\d{4}\\.x', names( df_disagg ), value = T )
     share_cols <- grep( 'X\\d{4}\\.y', names( df_disagg ), value = T )
     stopifnot( identical( gsub( 'x$', '', value_cols ),
                           gsub( 'y$', '', share_cols ) ) )
 
+    prop_cols <-  df_disagg %>%
+        select_if(is.numeric) %>%
+        select(-one_of(value_cols)) %>%
+        names()
+
     df_shares <- df_disagg %>%
-        dplyr::group_by_at( agg_cols ) %>%
-        dplyr::mutate_at( share_cols, prop.table ) %>%
-        dplyr::mutate_at( share_cols, funs( if_else( is.nan( . ), 0, . ) ) ) %>%
+        dplyr::group_by_at( agg_id_cols ) %>%
+        dplyr::mutate_at(prop_cols, prop.table ) %>%
         dplyr::ungroup()
 
+    # Handle NaN
+    if (any(is.nan.df(df_shares[, share_cols]))) {
+
+
+        # Define share cols so we can reassign them a ".y" later
+        share_cols_before_remove_xs <- gsub(".y", "", share_cols)
+
+        # Remove y's from columns and select all columns that have percent breakdowns
+        df_shares_no_xs <- df_shares %>%
+            dplyr::rename_all( funs( sub( '\\.(y)$', '', . ) ) ) %>%
+            select(-value_cols)
+
+        important_years <- grep( 'X\\d{4}', names(df_shares_no_xs), value = TRUE)
+
+        # Replace NaNs in data
+        df_shares_all <- handle_nan_breakdowns(df_shares_no_xs, global_data, important_years )
+        df_shares[, share_cols] <- df_shares_all[ share_cols_before_remove_xs]
+    }
+
     df_final_key_columns <- df_shares[ final_ids ]
+    #******
     df_final_val_columns <- df_shares[ value_cols ] * df_shares[ share_cols ]
 
     dplyr::bind_cols( df_final_key_columns, df_final_val_columns ) %>%
@@ -796,7 +822,12 @@ addAggregateCol <- function( df, type, map, map_agg_col, map_disagg_col ) {
         rowsAlreadyAgg <- NULL
     } else {
         rowsMissingAgg <- df[ is.na( df[ agg_col ] ) & !is.na( df[ disagg_col ] ), ]
-        rowsAlreadyAgg <- setdiff( df, rowsMissingAgg )
+
+        # anti_join with all columns besides keep_total_cols
+        anti_join_columns <- grep("keep_total_cols", names(df), invert = TRUE, value = TRUE)
+        rowsAlreadyAgg <- dplyr::anti_join(df, rowsMissingAgg,
+                                                     by = anti_join_columns)
+
         rowsMissingAgg[ agg_col ] <- NULL
     }
 
