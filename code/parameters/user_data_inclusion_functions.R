@@ -43,7 +43,7 @@ includeUserData <- function( usrdata, default_data, Xyears, keep_total_cols,
     # Normalize data when you are maintaining the totals for the higher aggregate group
     # (if all userdata_cols are not within keep_total_cols)
     if( all( usrdata_cols %in% keep_total_cols) ){
-        normailzed <- unnormalized
+        normalized <- unnormalized
         warning_diagnostics <- paste("Normalization did not occur as user did not",
                                      "specify that they wanted to maintain totals",
                                      "at a higher aggregate group.")
