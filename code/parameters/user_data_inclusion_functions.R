@@ -92,13 +92,13 @@ normalize <- function(default_data, usrdata_disagg, keep_total_cols,
                       usrdata_cols, Xyears, unnormalized, all_activity_data) {
 
     # Aggregate the pre-update data to match the user data level of aggregation
-     default_agg_to_level <- default_data %>%
-         dplyr::group_by_at( usrdata_cols ) %>%
-         dplyr::summarise_at( Xyears, sum )
+    default_agg_to_level <- default_data %>%
+        dplyr::group_by_at( usrdata_cols ) %>%
+        dplyr::summarise_at( Xyears, sum )
 
-     # Initialize warning info
-     negatives <- F
-     need_user_spec <- F
+    # Initialize warning info
+    negatives <- F
+    need_user_spec <- F
 
     # TODO: Break this out into separate function
     #
@@ -108,73 +108,73 @@ normalize <- function(default_data, usrdata_disagg, keep_total_cols,
     #   a) a whole group was not specified and
     #   b) no manual override of normalization was called
 
-        # Select the rows from the original data which were not directly changed
-        CEDS_cols <- getCEDSAggCols(iso = TRUE)
+    # Select the rows from the original data which were not directly changed
+    CEDS_cols <- getCEDSAggCols(iso = TRUE)
 
-        default_to_change <- default_data %>%
-            semi_join(usrdata, by = keep_total_cols) %>%
-            anti_join(usrdata, by = usrdata_cols ) %>%
-            select(CEDS_cols, Xyears)
+    default_to_change <- default_data %>%
+        semi_join(usrdata, by = keep_total_cols) %>%
+        anti_join(usrdata, by = usrdata_cols ) %>%
+        select(CEDS_cols, Xyears)
 
-        # All calculations are just done with the year columns. Take those
-        # columns and replace the values with their proportion of the total
-        # value for the whole year. This provides a fraction representing how
-        # much of a difference each row will need to absorb; it says what
-        # percent of the unedited aggregate group it is responsible for. Note
-        # that 'drop = F' keeps data as dataframe even if indexing one year.
-        pct_of_disagg_group <- default_to_change[ , Xyears, drop = F ] %>%
-                            as.matrix() %>%
-                            prop.table( margin = 2 )
-        #pct_of_disagg_group[ is.nan( pct_of_disagg_group ) ] <- 0
+    # All calculations are just done with the year columns. Take those
+    # columns and replace the values with their proportion of the total
+    # value for the whole year. This provides a fraction representing how
+    # much of a difference each row will need to absorb; it says what
+    # percent of the unedited aggregate group it is responsible for. Note
+    # that 'drop = F' keeps data as dataframe even if indexing one year.
+    pct_of_disagg_group <- default_to_change[ , Xyears, drop = F ] %>%
+        as.matrix() %>%
+        prop.table( margin = 2 )
+    #pct_of_disagg_group[ is.nan( pct_of_disagg_group ) ] <- 0
 
-        # If all of the data in a year (that wasn't user-specified) is 0, this
-        # is like having a "whole group" -- we do not need to (cannot) normalize
-        # in this case. We will not compare these rows in the warnings check.
-        all_zero_years <- names( which ( colSums( pct_of_disagg_group ) == 0 ) )
+    # If all of the data in a year (that wasn't user-specified) is 0, this
+    # is like having a "whole group" -- we do not need to (cannot) normalize
+    # in this case. We will not compare these rows in the warnings check.
+    all_zero_years <- names( which ( colSums( pct_of_disagg_group ) == 0 ) )
 
-        # Create vectors for the sums of activity in the group for each year
-        # before and after including the user data (pre-normalization).
-        year_totals <- colSums( default_data[ , Xyears, drop = F ] )
-        new_year_totals <- colSums( unnormalized[ , Xyears, drop = F ] )
+    # Create vectors for the sums of activity in the group for each year
+    # before and after including the user data (pre-normalization).
+    year_totals <- colSums( default_data[ , Xyears, drop = F ] )
+    new_year_totals <- colSums( unnormalized[ , Xyears, drop = F ] )
 
-        # Likely, adding new data will change the sum of the aggregate group;
-        # the point of normalization is to eliminate this change. The variable
-        # annual_diffs stores the yearly difference between pre- and post-
-        # inclusion data, for each aggregate group, for each year.
-        annual_diffs <- year_totals - new_year_totals
+    # Likely, adding new data will change the sum of the aggregate group;
+    # the point of normalization is to eliminate this change. The variable
+    # annual_diffs stores the yearly difference between pre- and post-
+    # inclusion data, for each aggregate group, for each year.
+    annual_diffs <- year_totals - new_year_totals
 
-        # Disaggregate data if all pct_of_disagg_group == 0
-        normalize_aggregate <- default_to_change %>%
-                group_by_at(keep_total_cols) %>%
-                summarise_at(Xyears, sum)
-            normalize_aggregate[, Xyears] <- normalize_aggregate[, Xyears, drop = F]+ annual_diffs
+    # Disaggregate data if all pct_of_disagg_group == 0
+    normalize_aggregate <- default_to_change %>%
+        group_by_at(keep_total_cols) %>%
+        summarise_at(Xyears, sum)
+    normalize_aggregate[, Xyears] <- normalize_aggregate[, Xyears, drop = F]+ annual_diffs
 
-           # Select the rows from the original data which were not directly changed
-            default_to_change_4_disagg <- default_data %>%
-                semi_join(usrdata, by = keep_total_cols) %>%
-                anti_join(usrdata, by = usrdata_cols )
+    # Select the rows from the original data which were not directly changed
+    default_to_change_4_disagg <- default_data %>%
+        semi_join(usrdata, by = keep_total_cols) %>%
+        anti_join(usrdata, by = usrdata_cols )
 
-        normalized <- disaggregate( normalize_aggregate, default_to_change_4_disagg, keep_total_cols )
+    normalized <- disaggregate( normalize_aggregate, default_to_change_4_disagg, keep_total_cols )
 
-        # If the total provided for only the user-defined columns exceeds the
-        # original total for the entire aggregate group, data will be normalized
-        # to negative emissions. We need to force this to zero but make a note
-        # of it (the negatives boolean will generate a warning later on).
-        if ( any( normalized < 0 ) ) {
-            normalized[ ( normalized < 0 ) ] <- 0
-            negatives <- T
-        }
+    # If the total provided for only the user-defined columns exceeds the
+    # original total for the entire aggregate group, data will be normalized
+    # to negative emissions. We need to force this to zero but make a note
+    # of it (the negatives boolean will generate a warning later on).
+    if ( any( normalized < 0 ) ) {
+        normalized[ ( normalized < 0 ) ] <- 0
+        negatives <- T
+    }
 
-        # Add the normalized data into the dataframe containing the user-defined
-        # data. After this, it has both the user-defined data and normalized
-        # versions of the rows which are not user defined
+    # Add the normalized data into the dataframe containing the user-defined
+    # data. After this, it has both the user-defined data and normalized
+    # versions of the rows which are not user defined
 
-        normalized_final <- unnormalized %>%
-            replaceValueColMatch( normalized, Xyears, Xyears,
-                                 CEDS_cols, CEDS_cols, addEntries = FALSE)
+    normalized_final <- unnormalized %>%
+        replaceValueColMatch( normalized, Xyears, Xyears,
+                              CEDS_cols, CEDS_cols, addEntries = FALSE)
 
-        return( list( data = normalized_final, diagnostics = list( "negatives" = negatives,
-                                               "need_user_spec" = need_user_spec ) ) )
+    return( list( data = normalized_final, diagnostics = list( "negatives" = negatives,
+                                                               "need_user_spec" = need_user_spec ) ) )
 }
 
 # handle_nan_breakdowns

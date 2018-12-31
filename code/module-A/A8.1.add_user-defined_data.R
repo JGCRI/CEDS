@@ -30,7 +30,7 @@ script_name <- "A8.1.add_user-defined_data.R"
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
-DIAGNOSTIC_CHARTS <- T
+DIAGNOSTIC_CHARTS <- F
 
 
 # ------------------------------------------------------------------------------------
@@ -59,10 +59,10 @@ all_activity_data <- readData( 'MED_OUT', 'A.comb_default_activity_extended', me
 # This data is aggreagated to the agg_fuel level by default, so we place a fill
 # value in for the CEDS_fuel.
 all_activity_data <- all_activity_data %>%
-    dplyr::mutate( CEDS_fuel = if_else( CEDS_fuel == 'oil' & CEDS_sector %in% othr_sectors,
+    dplyr::mutate(CEDS_fuel = if_else( CEDS_fuel == 'oil' & CEDS_sector %in% othr_sectors,
                                         'AGGREGATE', CEDS_fuel ),
-                   agg_fuel = if_else( CEDS_fuel == 'AGGREGATE', 'oil', agg_fuel ) ) %>%
-    dplyr::mutate( agg_fuel = if_else( CEDS_fuel == "coal_coke", "coal_coke", agg_fuel))
+                  agg_fuel = if_else( CEDS_fuel == 'AGGREGATE', 'oil', agg_fuel ),
+                  agg_fuel = if_else( CEDS_fuel == "coal_coke", "coal_coke", agg_fuel ) )
 
 stopifnot( !anyNA( all_activity_data ) ) # Data should all be valid
 
@@ -145,7 +145,6 @@ while ( nrow( instructions ) > 0 ) {
     agg_level <- identifyLevel( usrdata )
     batch_instructions <- extractBatchInstructions( working_instructions,
                                                     instructions, s_year, e_year )
-
 
     # Remove the batch instructions from the master instruction dataframe
     anti_join_cols <- grep("keep_total_cols", names(instructions), invert = TRUE, value = TRUE)
