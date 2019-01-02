@@ -689,9 +689,9 @@ mapToUserSectors <- function( df, default_activity ) {
 #
 # Args:
 #   agg_activity: A data.frame containing columns for iso, agg_sector, agg_fuel,
-#             and at least one year in Xyear format
+#     and at least one year in Xyear format
 #   disagg_activity: A data.frame containing the values for proportionally
-#                     disaggregating to the CEDS_sector level
+#     disaggregating to the CEDS_sector level
 #   agg_id_cols: The id columns from the aggregated data.frame
 #   global_data: Global activity dataset to pull disaggregate proportions from,
 #     used only when proportions cannot be calculated from disagg_activity
@@ -715,18 +715,22 @@ disaggregate <- function( agg_activity, disagg_activity, agg_id_cols, global_dat
     stopifnot( identical( gsub( 'x$', '', value_cols ),
                           gsub( 'y$', '', share_cols ) ) )
 
-    prop_cols <-  df_disagg %>%
+    prop_cols <- df_disagg %>%
         select_if(is.numeric) %>%
         select(-one_of(value_cols)) %>%
         names()
 
+    # The prop.table function calculates the share of the aggregate value
+    # (defined by the unique combinations of columns in agg_id_cols) that each
+    # disaggregate row should take, for each year.
     df_shares <- df_disagg %>%
         dplyr::group_by_at( agg_id_cols ) %>%
-        dplyr::mutate_at(prop_cols, prop.table ) %>%
+        dplyr::mutate_at( prop_cols, prop.table ) %>%
         dplyr::ungroup()
 
-    # Handle NaN
-    if (any(is.nan.df(df_shares[, share_cols]))) {
+    # NaN shares are created when all values for the aggregate group are zero.
+    # They are replaced using handleNanBreakdowns().
+    if ( any( is.nan.df( df_shares[ , share_cols ] ) ) ) {
 
         # Define share cols so we can reassign them a ".y" later
         share_cols_before_remove_xs <- gsub(".y", "", share_cols)
@@ -739,7 +743,7 @@ disaggregate <- function( agg_activity, disagg_activity, agg_id_cols, global_dat
         important_years <- grep( 'X\\d{4}', names(df_shares_no_xs), value = TRUE)
 
         # Replace NaNs in data
-        df_shares_all <- handle_nan_breakdowns(df_shares_no_xs, global_data, important_years )
+        df_shares_all <- handleNanBreakdowns( df_shares_no_xs, global_data, important_years, agg_id_cols )
         df_shares[, share_cols] <- df_shares_all[ share_cols_before_remove_xs]
     }
 
