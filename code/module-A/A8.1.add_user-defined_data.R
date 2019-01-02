@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name:    A8.1.add_user-defined_data.R
 # Authors:         Ben Goldstein, Caleb Braun, Patrick O'Rourke
-# Last Updated:    December 2018
+# Last Updated:    January 2019
 # Program Purpose: To process user-defined datasets for use in the historical
 #                  energy extension. See Section 3 of the CEDS User Guide
 #                  (https://github.com/JGCRI/CEDS-dev/wiki/User-Guide) for
@@ -110,8 +110,9 @@ if ( DIAGNOSTIC_CHARTS ) {
 }
 
 
-# This stores the final form of each instruction used, for diagnostics
-rows_completed <- instructions[ 0, ]
+# This stores the final form of each instruction used, for diagnostics,
+# and will be further defined within section 3.
+rows_completed <- NULL
 
 # This integer tracks which batch number we're on, for informing diagnostics
 batch <- 0
@@ -142,7 +143,6 @@ while ( nrow( instructions ) > 0 ) {
 
     # Identify other instructions in the "batch" that will need to be aggregated
     # as one. Files only need to be batched if their year ranges overlap.
-    agg_level <- identifyLevel( usrdata )
     batch_instructions <- extractBatchInstructions( working_instructions,
                                                     instructions, s_year, e_year )
 
@@ -216,7 +216,7 @@ while ( nrow( instructions ) > 0 ) {
         }))
     }
 
-    data_to_use <- getRowsForAdjustment(all_activity_data, usrdata, MFL, agg_level)
+    data_to_use <- getRowsForAdjustment(all_activity_data, usrdata, Xyears)
 
     # The normalizeAndIncludeData is the main point of this script; it will
     # normalize, disaggregate, and then incorporate the user-defined data,
@@ -231,13 +231,14 @@ while ( nrow( instructions ) > 0 ) {
     # Tack on some diagnostics to the working instructions dataframe for
     # diagnostic output
     working_instructions$batch_id     <- batch
-    working_instructions$agg_level    <- agg_level
-    working_instructions$warnings     <- diagnostics$warning_diag
+    working_instructions$warnings     <- diagnostics$warning_diagnostics
     working_instructions$nrow_changed <- diagnostics$rows_changed
 
     # Add working instructions to rows_completed, which will be a diagnostic for
     # reviewing what changes occurred
-    rows_completed <- rbind( rows_completed, working_instructions )
+     rows_completed <- rbind( rows_completed, working_instructions )
+
+
 }
 
 
