@@ -151,7 +151,6 @@ processInstructions <- function( comb_sectors, MSL, MFL, default_activity ) {
 # Args:
 #   instructions: Processed instructions (see processInstructions())
 #   usrdf: Processed data for the energy extension (see procUsrData())
-#   agg_level: Integer representing aggregation level of the user data
 #   sy: Start year
 #   ey: End year
 #
@@ -170,7 +169,7 @@ extractBatchInstructions <- function( working_instructions, instructions, sy, ey
     matches <- working_instructions$keep_total_cols[[1]]
 
     instructions <- instructions %>%
-        dplyr::semi_join( working_instructions, by = matches ) %>%
+        dplyr::semi_join( working_instructions, by = c(matches, "iso" )) %>%
         dplyr::filter( start_year <= ey, end_year >= sy)
 
     return( instructions )
@@ -234,7 +233,17 @@ cleanInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
         # the same as leaving out that column.
         stopifnot( c( "iso", "agg_fuel" ) %in% names( instruction_df ) )
         instruction_df[ setdiff( CEDS_cols, names( instruction_df ) ) ] <- NA_character_
+
+
+        # Stop if missing iso and remove any invalid instructions (missing iso)
+        invld_instr <- is.invalid( instruction_df$iso )
+        instruction_df <- instruction_df[ !invld_instr, ]
+        if ( any( invld_instr ) )
+            stop ( paste0( sum( invld_instr ) , " instruction(s) invalid in ",
+                           instr_dfile, "-instructions.csv", " , missing iso." ) )
+
         instruction_df[ instruction_df == 'all' ] <- NA_character_
+
         instruction_df <- removeNonComb( instruction_df, comb_sectors_only )
 
         # Stop if missing keep_total_cols column in instructions file
@@ -281,12 +290,12 @@ cleanInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
             instruction_df$keep_total_cols[[i]] <- keep_total_cols
         }
 
-        # Remove any invalid instructions (missing iso and/or agg_fuel)
-        invld_instr <- is.invalid( instruction_df$iso ) | is.invalid( instruction_df$agg_fuel)
+        # Remove any invalid instructions (missing agg_fuel)
+        invld_instr <- is.invalid( instruction_df$agg_fuel)
         instruction_df <- instruction_df[ !invld_instr, ]
         if ( any( invld_instr ) )
-            warning( paste0( sum( invld_instr ) , " instruction(s) invalid in ",
-                             instr_dfile, "-instructions.csv", " , missing iso and/or agg_fuel" ) )
+            stop ( paste0( sum( invld_instr ) , " instruction(s) invalid in ",
+                             instr_dfile, "-instructions.csv", " , missing agg_fuel" ) )
         instruction_df
     })
 
