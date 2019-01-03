@@ -1,2 +1,2 @@
-iso,agg_fuel,start_year,end_year,priority,start_continuity,end_continuity,specified_breakdowns,method,preprocessing_script
-gbr,coal,1943,1959,1,T,T,F,match_to_default,GBR_historical_coal.R
+iso,agg_fuel,start_year,end_year,priority,start_continuity,end_continuity,specified_breakdowns,method,preprocessing_script,,keep_total_cols
+gbr,coal,1943,1959,1,T,T,F,match_to_default,GBR_historical_coal.R,,agg_fuel

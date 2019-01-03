@@ -84,6 +84,33 @@ replaceValueColMatch <- function( x,y,x.ColName,y.ColName = x.ColName,
   return(out)
 }
 
+# SAMPLE REPLACEMENT FUNCTION for replaceValueColMatch()
+#
+# The above function is needlessly complicated and does not use or follow
+# tidyverse idioms. This function attempts to fit seemlessly with other *_join
+# functions, imitating the same format.
+#
+# Future work should include testing this function for completeness, optionally
+# adding the replace_NAs functionality, and then using it in CEDS.
+#
+# Note that update joins already exist (very efficiently) in the package
+# data.table, so we could test if it is installed here and use it instead.
+update_join <- function(x, y, by = NULL, add_entries = FALSE) {
+    if (add_entries) {
+        join_func <- dplyr::full_join
+    } else {
+        join_func <- dplyr::left_join
+    }
+
+    x %>%
+        join_func(y, by = by) %>%
+        rename_at(vars(ends_with('.y')), funs(gsub('.y$', '', .))) %>%
+        select(names(x)) %>%
+        semi_join(y, by = by) %>%
+        bind_rows(anti_join(x, y, by = by)) %>%
+        full_join(x[by], ., by = by)
+}
+
 
 # -----------------------------------------------------------------------------
 # is.invalid

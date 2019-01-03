@@ -72,6 +72,7 @@ EIA_data <- all_EIA_raw_data %>%
 EIA_data <- EIA_data %>%
     dplyr::mutate(
         fuel = case_when(
+            grepl("CLKCPUS", MSN ) ~ "coal",
             grepl( "Coal.*Coke",  Description ) ~ "coal_coke",
             grepl( "Coal",        Description ) ~ "coal",
             grepl( "Biomass",     Description ) ~ "biomass",

@@ -1,5 +1,5 @@
-iso,agg_fuel,CEDS_sector,agg_sector,start_year,end_year,priority,override_normalization,method
-usa,coal,1A4a_Commercial-institutional,1A4_Stationary_RCO,1949,2014,,,linear
-usa,gas,1A4a_Commercial-institutional,1A4_Stationary_RCO,1949,2014,,,linear
-usa,coal,1A4b_Residential,1A4_Stationary_RCO,1949,2007,,,linear
-usa,gas,1A4b_Residential,1A4_Stationary_RCO,1949,2014,,,linear
+iso,agg_fuel,CEDS_sector,agg_sector,start_year,end_year,priority,override_normalization,method,keep_total_cols
+usa,coal,1A4a_Commercial-institutional,1A4_Stationary_RCO,1949,2014,,,linear,agg_fuel
+usa,gas,1A4a_Commercial-institutional,1A4_Stationary_RCO,1949,2014,,,linear,agg_fuel
+usa,coal,1A4b_Residential,1A4_Stationary_RCO,1949,2007,,,linear,agg_fuel
+usa,gas,1A4b_Residential,1A4_Stationary_RCO,1949,2014,,,linear,agg_fuel

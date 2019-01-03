@@ -82,7 +82,7 @@ rcp_em_flag <- em %in% rcp_em_list
 rcp_shipping_em_flag <- em %in% rcp_shipping_em_list
 # ------------------------------------------------------------------------------
 # 1. Read in and load files for CEDS, EDGAR and GAINS ( RCP will be loaded in section 2 )
-# if the em is not supportted by any of the emissions invertories, a dummy data frame will be created
+# if the em is not supportted by any of the emissions inventories, a dummy data frame will be created
 # ------------------------------------------------------------------------------
 # 1.1 read in CEDS total emissions
 if ( ceds_em_flag == T ) {
