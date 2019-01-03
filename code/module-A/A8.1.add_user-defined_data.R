@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name:    A8.1.add_user-defined_data.R
-# Authors:         Ben Goldstein, Caleb Braun
-# Last Updated:    July 2018
+# Authors:         Ben Goldstein, Caleb Braun, Patrick O'Rourke
+# Last Updated:    January 2019
 # Program Purpose: To process user-defined datasets for use in the historical
 #                  energy extension. See Section 3 of the CEDS User Guide
 #                  (https://github.com/JGCRI/CEDS-dev/wiki/User-Guide) for
@@ -30,7 +30,7 @@ script_name <- "A8.1.add_user-defined_data.R"
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
-DIAGNOSTIC_CHARTS <- T
+DIAGNOSTIC_CHARTS <- F
 
 
 # ------------------------------------------------------------------------------------
@@ -55,16 +55,19 @@ all_activity_data <- readData( 'MED_OUT', 'A.comb_default_activity_extended', me
     dplyr::filter( CEDS_sector %in% comb_sectors ) %>%
     mapToCEDS( MSL, MFL, aggregate = F )
 
-# Special case for oil 1A1bc_Other-transformation and 1A1bc_Other-feedstocks.
+# Special case for oil 1A1bc_Other-transformation and 1A1bc_Other-feedstocks as well as coal coke
 # This data is aggreagated to the agg_fuel level by default, so we place a fill
 # value in for the CEDS_fuel.
 all_activity_data <- all_activity_data %>%
-    dplyr::mutate( CEDS_fuel = if_else( CEDS_fuel == 'oil' & CEDS_sector %in% othr_sectors,
+    dplyr::mutate(CEDS_fuel = if_else( CEDS_fuel == 'oil' & CEDS_sector %in% othr_sectors,
                                         'AGGREGATE', CEDS_fuel ),
-                   agg_fuel = if_else( CEDS_fuel == 'AGGREGATE', 'oil', agg_fuel ) )
+                  agg_fuel = if_else( CEDS_fuel == 'AGGREGATE', 'oil', agg_fuel ),
+                  agg_fuel = if_else( CEDS_fuel == "coal_coke", "coal_coke", agg_fuel ) )
 
 stopifnot( !anyNA( all_activity_data ) ) # Data should all be valid
 
+MFL <- MFL %>%
+    dplyr::mutate(aggregated_fuel = if_else(fuel == "coal_coke", "coal_coke", aggregated_fuel))
 
 # -----------------------------------------------------------------------
 # 2. Collect user-defined inputs and initialize script variables
@@ -107,12 +110,12 @@ if ( DIAGNOSTIC_CHARTS ) {
 }
 
 
-# This stores the final form of each instruction used, for diagnostics
-rows_completed <- instructions[ 0, ]
+# This stores the final form of each instruction used, for diagnostics,
+# and will be further defined within section 3.
+rows_completed <- NULL
 
 # This integer tracks which batch number we're on, for informing diagnostics
 batch <- 0
-
 
 # ------------------------------------------------------------------------------
 # 3. Execute processing loop
@@ -140,12 +143,13 @@ while ( nrow( instructions ) > 0 ) {
 
     # Identify other instructions in the "batch" that will need to be aggregated
     # as one. Files only need to be batched if their year ranges overlap.
-    agg_level <- identifyLevel( usrdata )
-    batch_instructions <- extractBatchInstructions( instructions, usrdata,
-                                                    agg_level, s_year, e_year )
+    batch_instructions <- extractBatchInstructions( working_instructions,
+                                                    instructions, s_year, e_year )
 
     # Remove the batch instructions from the master instruction dataframe
-    instructions <- dplyr::setdiff( instructions, batch_instructions )
+    anti_join_cols <- grep("keep_total_cols", names(instructions), invert = TRUE, value = TRUE)
+    instructions <- dplyr::anti_join(instructions, batch_instructions,
+                                       by = anti_join_cols)
 
     # Process the batch of instructions (if there is a batch)
     if ( nrow( batch_instructions ) > 0 ) {
@@ -212,16 +216,14 @@ while ( nrow( instructions ) > 0 ) {
         }))
     }
 
-    data_to_use <- getRowsForAdjustment(all_activity_data, usrdata, MFL, agg_level)
+    data_to_use <- getRowsForAdjustment(all_activity_data, usrdata, Xyears)
 
     # The normalizeAndIncludeData is the main point of this script; it will
     # normalize, disaggregate, and then incorporate the user-defined data,
     # returning a list with both the data and diagnostics
-    normalized <- normalizeAndIncludeData( Xyears, data_to_use, usrdata,
-                                           all_activity_data,
-                                           working_instructions$override_normalization,
-                                           agg_level, data_file,
-                                           working_instructions$specified_breakdowns )
+    normalized <- includeUserData(usrdata, data_to_use, Xyears, working_instructions$keep_total_cols[[1]],
+                                  data_file, working_instructions$specified_breakdowns,
+                                  all_activity_data)
 
     activity$all_activity_data <- normalized$all_data
     diagnostics <- normalized$diagnostics
@@ -229,13 +231,14 @@ while ( nrow( instructions ) > 0 ) {
     # Tack on some diagnostics to the working instructions dataframe for
     # diagnostic output
     working_instructions$batch_id     <- batch
-    working_instructions$agg_level    <- agg_level
-    working_instructions$warnings     <- diagnostics$warning_diag
+    working_instructions$warnings     <- diagnostics$warning_diagnostics
     working_instructions$nrow_changed <- diagnostics$rows_changed
 
     # Add working instructions to rows_completed, which will be a diagnostic for
     # reviewing what changes occurred
-    rows_completed <- rbind( rows_completed, working_instructions )
+     rows_completed <- rbind( rows_completed, working_instructions )
+
+
 }
 
 

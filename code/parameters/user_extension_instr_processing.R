@@ -105,7 +105,6 @@ processInstructions <- function( comb_sectors, MSL, MFL, default_activity ) {
     # Add defaults for optional use instructions.
     # TODO: add options for use_as_trend and match_year
     opts <- list( priority = NA_integer_,
-                  override_normalization = FALSE,
                   use_as_trend = FALSE,
                   #match_year = integer(0),
                   start_continuity = TRUE,
@@ -152,25 +151,26 @@ processInstructions <- function( comb_sectors, MSL, MFL, default_activity ) {
 # Args:
 #   instructions: Processed instructions (see processInstructions())
 #   usrdf: Processed data for the energy extension (see procUsrData())
-#   agg_level: Integer representing aggregation level of the user data
 #   sy: Start year
 #   ey: End year
 #
 # Returns:
 #   The instructions filtered to only the rows that apply to the user data
-extractBatchInstructions <- function( instructions, usrdf, agg_level, sy, ey ) {
+extractBatchInstructions <- function( working_instructions, instructions, sy, ey ) {
     CEDS_COLS <- getCEDSAggCols()
 
-    matches <- aggLevelToCols( agg_level )
-    missing <- setdiff( CEDS_COLS, matches )
-
     # Filters the instructions to only the ones with corresponding data in the
-    # user's data set.
+    # user's instruction.
     # Files only need to be batched if their year ranges overlap.
+
+    stopifnot(length(working_instructions$keep_total_cols) == 1)
+
+        # Define what variables are needed to filter instructions by for batching
+    matches <- working_instructions$keep_total_cols[[1]]
+
     instructions <- instructions %>%
-        dplyr::semi_join( usrdf, by = matches ) %>%
-        dplyr::filter_at( missing, all_vars( is.na( . ) ) ) %>%
-        dplyr::filter( start_year < ey, end_year > sy)
+        dplyr::semi_join( working_instructions, by = c(matches, "iso" )) %>%
+        dplyr::filter( start_year <= ey, end_year >= sy)
 
     return( instructions )
 }
@@ -211,39 +211,96 @@ cleanInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
     # Make sure instructions are a given as a list of data.frames
     stopifnot( all( sapply( instructions, is.data.frame ) ) )
 
+    # Define CEDS_cols
+    CEDS_cols <- getCEDSAggCols()
+
     # Extract the trend instructions, add the file they came from, and map to
     # the standard CEDS format
     instruction_list <- lapply( seq_along( instructions ), function( i ) {
+
         # Extract and add source file
-        instruction <- instructions[[i]]
+        instruction_df <- instructions[[i]]
         instr_dfile <- names( instructions )[i]
-        instruction$data_file <- instr_dfile
+        instruction_df$data_file <- instr_dfile
 
         # Map
-        mapped <- mapToCEDS( instruction, MSL, MFL, aggregate = F )
-        instruction[ names( mapped ) ] <- mapped
+        mapped <- mapToCEDS( instruction_df, MSL, MFL, aggregate = F )
+        instruction_df[ names( mapped ) ] <- mapped
 
-        # Remove any invalid instructions
-        invld_instr <- is.invalid( instruction$iso ) | is.invalid( instruction$agg_fuel )
-        instruction <- instruction[ !invld_instr, ]
+        # Add in any aggregation levels the user has not provided (iso and agg_fuel
+        # are required and should be present from calling mapToCEDS).
+        # Note that an instruction requesting all sectors or fuels to be included is
+        # the same as leaving out that column.
+        stopifnot( c( "iso", "agg_fuel" ) %in% names( instruction_df ) )
+        instruction_df[ setdiff( CEDS_cols, names( instruction_df ) ) ] <- NA_character_
+
+
+        # Stop if missing iso and remove any invalid instructions (missing iso)
+        invld_instr <- is.invalid( instruction_df$iso )
+        instruction_df <- instruction_df[ !invld_instr, ]
         if ( any( invld_instr ) )
-            warning( paste0( sum( invld_instr ), " instruction(s) invalid in ",
-                             instr_dfile, "-instructions.csv" ) )
-        instruction
+            stop ( paste0( sum( invld_instr ) , " instruction(s) invalid in ",
+                           instr_dfile, "-instructions.csv", " , missing iso." ) )
+
+        instruction_df[ instruction_df == 'all' ] <- NA_character_
+
+        instruction_df <- removeNonComb( instruction_df, comb_sectors_only )
+
+        # Stop if missing keep_total_cols column in instructions file
+        if ( is.null(instruction_df$keep_total_cols))
+            stop( paste0 ( instr_dfile, "-instructions.csv is missing keep_total_cols",
+                          " - stop and add this column as it is required." ) )
+
+        # Split aggregation levels into a vector
+        instruction_df <- instruction_df %>%
+            dplyr::mutate(keep_total_cols = strsplit(keep_total_cols, ",") ,
+                          keep_total_cols = lapply(keep_total_cols, gsub, pattern = " ",
+                                                   replacement = ""))
+
+        # Map on higher aggregation levels based on what is provided
+        # and test for appropriate normalization columns
+        for ( i in seq_len( nrow( instruction_df ) ) ) {
+
+            row <- instruction_df[i,]
+
+            keep_total_cols <- row$keep_total_cols[[1]]
+
+            if ( "CEDS_fuel" %in% keep_total_cols ) {
+                keep_total_cols <- union("agg_fuel", keep_total_cols)
+            }
+
+            if ( "CEDS_sector" %in% keep_total_cols ) {
+                keep_total_cols <- union("agg_sector", keep_total_cols)
+            }
+
+            if( !( all(keep_total_cols %in% c(NA, CEDS_cols)))) {
+                stop( paste0 ( instr_dfile, "-instructions.csv includes columns in keep_total_cols",
+                                " that are not supported." ))
+            }
+
+            # Need to test for if provide a fuel and sector level which is less detailed
+            # than keep_total_cols, as data will not be normalized in this case
+            user_cols <- CEDS_cols[!(is.na(row[, CEDS_cols]))]
+
+            if ( ! ( all(keep_total_cols %in% c(NA, user_cols)))){
+                stop( paste0 ( instr_dfile, "-instructions.csv includes more detail in keep_total_cols",
+                               " than is provided by the user data itself." ))
+            }
+
+            instruction_df$keep_total_cols[[i]] <- keep_total_cols
+        }
+
+        # Remove any invalid instructions (missing agg_fuel)
+        invld_instr <- is.invalid( instruction_df$agg_fuel)
+        instruction_df <- instruction_df[ !invld_instr, ]
+        if ( any( invld_instr ) )
+            stop ( paste0( sum( invld_instr ) , " instruction(s) invalid in ",
+                             instr_dfile, "-instructions.csv", " , missing agg_fuel" ) )
+        instruction_df
     })
 
     # Combine instructions into a single data frame
     all_instructions <- rbind.fill( instruction_list )
-
-    # Add in any aggregation levels the user has not provided (iso and agg_fuel
-    # are required and should be present from calling mapToCEDS).
-    # Note that an instruction requesting all sectors or fuels to be included is
-    # the same as leaving out that column.
-    stopifnot( c( "iso", "agg_fuel" ) %in% names( all_instructions ) )
-    add_cols <- c( "agg_sector", "CEDS_fuel", "CEDS_sector" )
-    all_instructions[ setdiff( add_cols, names( all_instructions ) ) ] <- NA_character_
-    all_instructions[ all_instructions == 'all' ] <- NA_character_
-    all_instructions <- removeNonComb( all_instructions, comb_sectors_only )
 
     return( all_instructions )
 }
