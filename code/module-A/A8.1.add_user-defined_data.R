@@ -30,7 +30,7 @@ script_name <- "A8.1.add_user-defined_data.R"
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
-DIAGNOSTIC_CHARTS <- F
+DIAGNOSTIC_CHARTS <- T
 
 
 # ------------------------------------------------------------------------------------
