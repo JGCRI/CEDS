@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -A ceds
-#SBATCH -t 10:00:00
+#SBATCH -t 20:00:00
 #SBATCH -N 1
 #SBATCH -p shared
 #SBATCH -n 1
