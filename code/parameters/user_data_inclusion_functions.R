@@ -60,6 +60,8 @@ includeUserData <- function( usrdata, default_data, Xyears, keep_total_cols,
     }
 
     # Essentially an "update_join" --> Perhaps this should be rewritten in the near future
+    CEDS_cols <- getCEDSAggCols(iso = TRUE)
+
     all_activity_data <- replaceValueColMatch( all_activity_data, normalized,
                                                x.ColName = Xyears,
                                                match.x = CEDS_cols,
