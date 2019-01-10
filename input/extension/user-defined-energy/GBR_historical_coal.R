@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # Program Name: GBR_historical_coal.R
-# Author: Caleb Braun
-# Date: February 2, 2018
+# Author: Caleb Braun and Patrick O'Rourke
+# Date: January 10, 2019
 #
 # Transforms raw UK historical coal data into a CEDS format .csv file.
 #
@@ -16,11 +16,8 @@
 # coal-data-coal-production-availability-and-consumption-1853-to-2011
 #
 # Input File: Coal_since_1853.xls
-# Output File: GBR_historical_coal.csv
+# Output Files: GBR_historical_coal.csv
 #-------------------------------------------------------------------------------
-
-library(readxl)
-library(tidyr)
 
 # for writeData function
 setwd('../../')
@@ -80,18 +77,99 @@ ceds_sector_map <- data.frame(sector     = names(ceds_sector_map),
                               agg_sector = ceds_sector_map,
                               stringsAsFactors = F)
 
-df <- dplyr::mutate_at(df, yrs, as.numeric) %>%
-      dplyr::mutate_at(yrs, funs(. * 1000)) %>%
-      dplyr::mutate_at('sector', as.character) %>%
-      dplyr::left_join(ceds_sector_map, by = 'sector') %>%
-      dplyr::filter(is.na(agg_sector) | agg_sector != 'ignore') %>%
-      dplyr::mutate(iso = 'gbr', agg_fuel = 'coal') %>%
-      dplyr::select(iso, agg_fuel, agg_sector, dplyr::everything(), -sector) %>%
-      dplyr::group_by(iso, agg_fuel, agg_sector) %>%
-      dplyr::summarise_all(sum, na.rm = TRUE)
+df1 <- df %>%
+        dplyr::mutate_at(yrs, as.numeric) %>%
+        dplyr::mutate_at(yrs, funs(. * 1000)) %>%
+        dplyr::mutate_at('sector', as.character) %>%
+        dplyr::left_join(ceds_sector_map, by = 'sector') %>%
+        dplyr::filter(is.na(agg_sector) | agg_sector != 'ignore') %>%
+        dplyr::mutate(iso = 'gbr', agg_fuel = 'coal') %>%
+        dplyr::select(iso, agg_fuel, agg_sector, dplyr::everything(), -sector) %>%
+        dplyr::group_by(iso, agg_fuel, agg_sector) %>%
+        dplyr::summarise_all(sum, na.rm = TRUE)
 
-df[df == 0] <- NA # We can do this because there are no zeros in original data
+df1[df1 == 0] <- NA # We can do this because there are no zeros in original data
 
-writeData(df, 'EXT_IN', paste0(FPATH, 'GBR_historical_coal'))
+# For df1 Split the 1A4_Stationary_RCO values by a proportion among 1A4_Stationary_RCO, 1A2_Industry-combustion,
+# and 6A_Other-in-total from 1923 to 1942
+
+    df1 <- df1 %>%
+      gather(year, value, -iso, -agg_fuel, -agg_sector) %>%
+      spread(agg_sector, value) -> GBR_coal
+
+    yrs2 <- 1923:1942
+
+#   Define the function split_RCO
+
+    split_RCO <- function(df_in){
+      names(df_in)[names(df_in) == '1A4_Stationary_RCO'] <- 'RCO'
+      names(df_in)[names(df_in) == '1A2_Industry-combustion'] <- 'ind'
+      names(df_in)[names(df_in) == '6A_Other-in-total'] <- 'other'
+      df_in$year <- as.numeric(df_in$year)
+      df_in$ind <- ifelse(df_in$year %in% yrs2, (df_in$RCO)*0.40, df_in$ind)
+      df_in$other <- ifelse(df_in$year %in% yrs2, (df_in$RCO)*0.16, df_in$other)
+      df_in$RCO <- ifelse(df_in$year %in% yrs2, (df_in$RCO)*0.44, df_in$RCO)
+      names(df_in)[names(df_in) == 'RCO'] <- '1A4_Stationary_RCO'
+      names(df_in)[names(df_in) == 'ind'] <- '1A2_Industry-combustion'
+      names(df_in)[names(df_in) == 'other'] <- '6A_Other-in-total'
+      df_in$year <- as.character(df_in$year)
+      df_in <- as.data.frame(df_in)
+    }
+
+#   Use split_RCO
+    GBR_coal2 <- split_RCO(GBR_coal)
+
+#   Cast back to wide
+    sectors <-c("1A1_Energy-transformation", "1A2_Industry-combustion", "1A3_Transportation", "1A4_Stationary_RCO",
+            "6A_Other-in-total", "<NA>")
+
+    GBR_coal2 <- GBR_coal2 %>%
+      gather(sectors, value, -iso, -agg_fuel, -year) %>%
+      spread(year, value) -> GBR_coal3
+
+#   Make this a data frame
+    GBR_coal3 <- as.data.frame(GBR_coal3)
+
+# Reformat df2
+    df2 <- df %>%
+        dplyr::mutate_at(yrs, as.numeric) %>%
+        dplyr::mutate_at(yrs, funs(. * 1000)) %>%
+        dplyr::mutate_at('sector', as.character) %>%
+        dplyr::left_join(ceds_sector_map, by = 'sector') %>%
+        dplyr::filter(is.na(agg_sector) | agg_sector != 'ignore') %>%
+        dplyr::mutate(iso = 'gbr', agg_fuel = 'coal') %>%
+        dplyr::select(iso, agg_fuel, dplyr::everything(), -agg_sector, -sector) %>%
+        dplyr::group_by(iso, agg_fuel) %>%
+        dplyr::summarise_all(sum, na.rm = TRUE)
+
+    df2[df2 == 0] <- NA # We can do this because there are no zeros in original data
+
+    df2$sectors <- "Total"
+    yrs3 <- 1913:2016
+    yrs3 <- as.character(yrs3)
+    df2 <- df2[c("iso", "agg_fuel", "sectors", yrs3)]
+    GBR_coal4 <- df2
+    GBR_coal4 <- as.data.frame(GBR_coal4)
+
+# Combine two data frames
+    GBR_coal_final <- rbind(GBR_coal3,GBR_coal4)
+
+# Make values 0 for years not using individual sectors
+    # setnames(GBR_coal_final, old = c('1913', '1914', '1915', '1916', '1917', '1918', '1919', '1920', '1921', '1922'),
+    #          new = c('x1913', 'x1914', 'x1915', 'x1916', 'x1917', 'x1918', 'x1919', 'x1920', 'x1921', 'x1922'))
+
+    gbr_all_years <- paste0(1913:2016)
+    gbr_zero_total_years <- paste0(1913:1922)
+    GBR_coal_final <- GBR_coal_final %>%
+        tidyr::gather(key = years, value = activity, gbr_all_years) %>%
+        dplyr::mutate(activity = if_else(years %in% gbr_zero_total_years & sectors != "Total", 0, activity)) %>%
+        tidyr::spread(years, activity)
+
+# Rename sectors variable to agg_sector
+    names(GBR_coal_final)[names(GBR_coal_final) == 'sectors'] <- 'agg_sector'
+
+
+# Save final output
+writeData(GBR_coal_final, 'EXT_IN', paste0(FPATH, 'GBR_historical_coal'))
 
 logStop()
