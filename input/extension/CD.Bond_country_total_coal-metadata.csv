@@ -1,5 +1,0 @@
-"Source","Data.Type","Emission","Region","Sector","Start.Year","End.Year","Source.Comment"
-"160227_SPEW_BCOCemission.xlsx","Emissions","BC","All","All",1850,2010,"SPEW database. Bond et al. 2007. ver. 02-27-2016"
-"160227_SPEW_BCOCemission.xlsx","Emissions","OC","All","All",1850,2010,"SPEW database. Bond et al. 2007. ver. 02-27-2016"
-"Master_Country_List.csv","NA","All","NA","NA",1,1," cross referenced to various datasets and regional groupings"
-"solid_fuel_correction_values.csv","Unknown","Unknown","Unknown","Unknown",1,1,"Metadata input file missing for data file solid_fuel_correction_values"
