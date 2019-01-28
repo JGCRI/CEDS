@@ -55,19 +55,15 @@ all_activity_data <- readData( 'MED_OUT', 'A.comb_default_activity_extended', me
     dplyr::filter( CEDS_sector %in% comb_sectors ) %>%
     mapToCEDS( MSL, MFL, aggregate = F )
 
-# Special case for oil 1A1bc_Other-transformation and 1A1bc_Other-feedstocks as well as coal coke
+# Special case for oil 1A1bc_Other-transformation and 1A1bc_Other-feedstocks
 # This data is aggreagated to the agg_fuel level by default, so we place a fill
 # value in for the CEDS_fuel.
 all_activity_data <- all_activity_data %>%
     dplyr::mutate(CEDS_fuel = if_else( CEDS_fuel == 'oil' & CEDS_sector %in% othr_sectors,
                                         'AGGREGATE', CEDS_fuel ),
-                  agg_fuel = if_else( CEDS_fuel == 'AGGREGATE', 'oil', agg_fuel ),
-                  agg_fuel = if_else( CEDS_fuel == "coal_coke", "coal_coke", agg_fuel ) )
+                  agg_fuel = if_else( CEDS_fuel == 'AGGREGATE', 'oil', agg_fuel ) )
 
 stopifnot( !anyNA( all_activity_data ) ) # Data should all be valid
-
-MFL <- MFL %>%
-    dplyr::mutate(aggregated_fuel = if_else(fuel == "coal_coke", "coal_coke", aggregated_fuel))
 
 # -----------------------------------------------------------------------
 # 2. Collect user-defined inputs and initialize script variables
