@@ -40,8 +40,7 @@ other_transformation <- readData( 'MED_OUT', 'A.Other_transformation_fuel')
 
 iea_start_year <- readData('ENERGY_IN' , 'IEA_iso_start_data')
 ext_sector_map <- readData("MAPPINGS", "Bond_sector_ext_map", ".xlsx",
-                            sheet_selection = 'CEDS_to_ext', meta = F,
-                            domain_extension = "Bond/")
+                            sheet_selection = 'CEDS_to_ext', meta = F)
 
 
 # ---------------------------------------------------------------------------
@@ -78,7 +77,7 @@ activity <- bind_rows(activity_all, other_transformation ) %>%
 # ---------------------------------------------------------------------------
 # 3. Calculate CEDS default aggregate sector splits
 #    Calculate the fraction of CEDS fuel used in each of the aggregate sectors, by country
-#    Aggregate sectors: Industry, Power, RCO, Shipping, Transportation, Other_feedstocks, 
+#    Aggregate sectors: Industry, Power, RCO, Shipping, Transportation, Other_feedstocks,
 #    Other_transformation, 1A4c_Agriculture-forestry-fishing
 printLog('Calculating CEDS aggregate sector breakdowns')
 
@@ -195,8 +194,8 @@ combined_agg_sector_percentages_corrected <-
 
 # ---------------------------------------------------------------------------
 # 5. CEDS disaggregate Sector Splits
-#    CEDS sectors are more detailed than Bond sectors, so now generate the split from 
-#    the aggregate sectors to CEDS sectors 
+#    CEDS sectors are more detailed than Bond sectors, so now generate the split from
+#    the aggregate sectors to CEDS sectors
 #    Country-fuel-ext_sector -> CEDS working sector
 printLog('Calculating CEDS detailed sector splits')
 
