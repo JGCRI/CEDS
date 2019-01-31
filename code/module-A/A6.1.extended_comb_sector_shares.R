@@ -40,8 +40,8 @@ other_transformation <- readData( 'MED_OUT', 'A.Other_transformation_fuel')
 
 iea_start_year <- readData('ENERGY_IN' , 'IEA_iso_start_data')
 ext_sector_map <- readData("MAPPINGS", "Bond_sector_ext_map", ".xlsx",
-                            sheet_selection = 'CEDS_to_ext', meta = F)
-
+                            sheet_selection = 'CEDS_to_ext', meta = F,
+                            domain_extension = "Bond/")
 
 # ---------------------------------------------------------------------------
 # 2. Define Variables, select options
