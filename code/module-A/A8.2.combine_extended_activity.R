@@ -1,14 +1,15 @@
 #------------------------------------------------------------------------------
 # Program Name: A8.2.combine_extended_activity.R
 # Author: Rachel Hoesly
-# Date Last Updated: 01 May 2018
+# Date Last Updated: 07 February 2019
 # Program Purpose:
-# Input Files: A.total_default_activity_extended.csv
-#              A.total_default_activity_extended.csv
-# Output Files: A.total_default_activity_extended.csv
+# Input Files: A.comb_user_added.csv
+#              A.NC_default_activity_extended.csv
+# Output Files: A.total_activity_extended.csv
+#               A.activity_extended_coal.csv
+#               A.activity_extended_natural_gas.csv
+#               A.activity_extended_oil.csv
 # Notes:
-
-# ------------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------------
 # 0. Read in global settings and headers
