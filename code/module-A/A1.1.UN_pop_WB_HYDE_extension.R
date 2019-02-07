@@ -66,7 +66,7 @@
 # ------------------------------------------------------------------------------
 # 1. Read in files and do preliminary setup
 # Download required packages if necessary
-    loadPackage( "FAOSTAT" )
+#    loadPackage( "FAOSTAT" )
 
 # Read UN population and urban population data
     UN_pop_raw <- readData( "GEN_IN", "WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES",
