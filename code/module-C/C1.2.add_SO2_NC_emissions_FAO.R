@@ -25,7 +25,7 @@
 
 # -----------------------------------------------------------------------------
 # 1. We need to start up the library and define a few things
- loadPackage('FAOSTAT')
+# loadPackage('FAOSTAT')
 
  iso.codes <- readData( "MAPPINGS", "Master_Country_List", meta = F )
 

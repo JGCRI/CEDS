@@ -47,7 +47,7 @@
 # ------------------------------------------------------------------------------
 # 1. Read raw input files and define useful values
   library( "zoo" )
-  library( "FAOSTAT" )
+#  library( "FAOSTAT" )
 
   input <- readData( "ENERGY_IN", "Fernandes_Biofuels_9", ".xlsx" )[ 2:11 ] # read in excel sheets from 2 to 11
   Master_Country_List <- readData( "MAPPINGS", "Master_Country_List" )
@@ -211,7 +211,7 @@
     proxied$consumption_pc_proxy[ proxied$consumption_pc == 0 ]
 
 # Bind back proxied values
-  full_proxied <- bind_rows( filter( full, iso %!in% proxy_mapping$iso ), 
+  full_proxied <- bind_rows( filter( full, iso %!in% proxy_mapping$iso ),
                              select( proxied, -iso_proxy, -consumption_pc_proxy ) ) %>%
     dplyr::arrange( iso, year )
 

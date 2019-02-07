@@ -25,7 +25,7 @@
 
 # -----------------------------------------------------------------------------
 # 0.5 Load Package and define variables
- loadPackage('FAOSTAT')
+# loadPackage('FAOSTAT')
 
 # -----------------------------------------------------------------------------
 # 1. Load Data
@@ -124,7 +124,7 @@ FAO <- FAO_API %>%
   FAO_last <- max( as.numeric ( gsub('X','',names ( FAO_out ) ) ), na.rm = T )
   years <- paste0('X',1961:end_year)
   add_years <- years[ years %!in% names( FAO_out ) ]
-  FAO_out[ add_years ] <- FAO_out[ paste0('X', FAO_last ) ] 
+  FAO_out[ add_years ] <- FAO_out[ paste0('X', FAO_last ) ]
 
   FAO_out <- FAO_out %>%
     dplyr::mutate(units = 'kt') %>%
