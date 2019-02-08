@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: A6.1.extended_comb_sector_shares.R
 # Author: Rachel Hoesly, Caleb Braun, Patrick O'Rourke
-# Last Updated:    February 7, 2019
+# Last Updated:    February 8, 2019
 # Program Purpose: Calculate default combustion fuel shares for extended historical data
 #     Combines default CEDS estimates from IEA with Bond fuel share data to produce
 #     sectoral estimates of fossil fuel use (in the form of fuel shares) for the entire period
@@ -51,7 +51,7 @@ ext_sector_map <- readData("MAPPINGS", "Bond_sector_ext_map", ".xlsx",
                             domain_extension = "Bond/")
 
 # ---------------------------------------------------------------------------
-# 2. Define Variables, select options
+# 2. Define Variables, select options, and define functions used within script
 
 # bond_merge_start: year when aggregate sectors are 100% Bond data. Method is
 # to slowly transition from Bond to CEDS after this year, ending with 100% CEDS
@@ -74,12 +74,87 @@ X_start_years <- paste0('X', start_years)
 ext_sectors <- unique(ext_sector_map$ext_sector)
 extension_end_year <- 1970 # last year of extension, for selecting columns over both iea_years
 X_extension_years <- paste0('X', historical_pre_extension_year:extension_end_year)
+OECD_years <- paste0("X", 1960:1970) # years for which OECD countries should have splits taken
+                                     # directly from CEDS default data
+
+# Define Function to Normalize shares
+#   This occurs For all ext years (1750-1970) and all isos - but OECD country data from
+#       1960-1970 is taken directly from CEDS default data.
+#   For agg_shares, normalize so that a given fuel's agg_shares sum to 1.
+
+normalize_shares <- function(df_in, share_type){
+
+    if(share_type == "agg_splits"){
+        shares_summed_col_remove <- "ext_sector"
+        shares_summed_group_by <- c("iso", "fuel")
+
+    } else if (share_type == "disagg_splits"){
+        shares_summed_col_remove <- "sector"
+        shares_summed_group_by <- c("iso", "ext_sector", "fuel")
+
+    } else if (share_type == "final_splits"){
+        shares_summed_col_remove <-  "sector"
+        shares_summed_group_by <- c("iso", "fuel")
+
+    } else {
+        stop('share_type does not have options defined for use in this normalization function.')
+    }
+
+    calc_normalized_gather_group <- c(shares_summed_group_by, shares_summed_col_remove)
+    calc_normalized_left_join_group <-  c(shares_summed_group_by, "years")
+    calc_normalized_mutate_group <- c(calc_normalized_left_join_group, shares_summed_col_remove)
+    fix_NaN_NA_cols_retain <- c(calc_normalized_gather_group, "years", "share",
+                                "shares_summed_by_fuel", "normalized_share")
+    df_final_cols_retain <- c(calc_normalized_gather_group, "years",
+                              "normalized_share_fixed_final")
+    df_final_spread_group <- calc_normalized_gather_group
+
+#       Create a data frame with the sum of the shares by fuel.
+#       NAs will be summed over (i.e. a fuel that is NA for all f the given share level
+#       (for a given year) will have the sum of the shares equal to 0).
+    shares_summed <- df_in %>%
+        dplyr::select(-shares_summed_col_remove) %>%
+        dplyr::group_by_at(shares_summed_group_by) %>%
+        dplyr::summarize_all(sum, na.rm=TRUE) %>%
+        tidyr::gather(key = years, value = shares_summed_by_fuel,
+                      X_extension_years) %>%
+        dplyr::ungroup()
+
+#       Calculate normalized_shares for each fuel = share / sum of shares
+    df_in_corrected <- df_in %>%
+        dplyr::group_by_at(calc_normalized_gather_group) %>%
+        tidyr::gather(key = years, value = share, X_extension_years) %>%
+        dplyr::left_join(shares_summed, by = calc_normalized_left_join_group) %>%
+        dplyr::ungroup() %>%
+        dplyr::group_by_at(calc_normalized_mutate_group) %>%
+        dplyr::mutate(normalized_share = (share/shares_summed_by_fuel ) )
+
+#       Reassign OECD country values to unnormalized CEDS default shares since
+#       they will change otherwise given that data was removed for other_transformation
+#       ext_sector (besides for oil). Also fix NaNs and NAs (set them to 0)
+
+    df_in_corrected_fix_NaN_NA <- df_in_corrected %>%
+        dplyr::ungroup() %>%
+        dplyr::select(fix_NaN_NA_cols_retain) %>%
+        dplyr::mutate(normalized_share_fixed = if_else(! ( iso %in% isos_start_1971) & years %in% OECD_years,
+                                                       share, normalized_share),
+                      normalized_share_fixed_final = if_else(is.na( normalized_share_fixed ) |
+                                                             is.nan(normalized_share_fixed ),
+                                                             0, normalized_share_fixed ) )
+
+    df_in_corrected <- df_in_corrected_fix_NaN_NA %>%
+        dplyr::select(df_final_cols_retain) %>%
+        dplyr::group_by_at(df_final_spread_group) %>%
+        tidyr::spread(years, normalized_share_fixed_final) %>%
+        dplyr::ungroup()
+
+    return(df_in_corrected)
+}
 
 # docTODO: Add better explanation of what is happening here:
 # add other_transformation data to activity data and filter for fuels
 activity <- bind_rows(activity_all, other_transformation ) %>%
     filter( fuel != 'biomass')
-
 
 # ---------------------------------------------------------------------------
 # 3. Calculate CEDS default aggregate sector splits
@@ -222,59 +297,21 @@ combined_sector_percentages_all[X_extension_years] <-
 combined_sector_percentages_all[is.na(combined_sector_percentages_all)] <- 0
 
 # Normalize agg_shares (so that a given fuel's agg_shares sum to 1 across all agg_shares
-#   This occurs For all ext years (1750-1970) and all isos
-
-#       Create a data frame with the sum of the agg_shares by fuel.
-#       NAs will be summed over (i.e. a fuel that is NA for all ext_sectors
-#       (for a given year) will have a summed agg_share of 0).
-        agg_shares_summed <- combined_sector_percentages_all %>%
-            dplyr::select(-ext_sector) %>%
-            dplyr::group_by(iso, fuel) %>%
-            dplyr::summarize_all(sum, na.rm=TRUE) %>%
-            tidyr::gather(key = years, value = agg_shares_summed_by_fuel,
-                  X_extension_years) %>%
-            dplyr::ungroup()
-
-#       Calculate normalized agg_shares = agg_share / sum of agg_shares for a fuel
-        combined_agg_sector_percentages_corrected <- combined_sector_percentages_all %>%
-            dplyr::group_by(iso, ext_sector, fuel) %>%
-            tidyr::gather(key = years, value = agg_share, X_extension_years) %>%
-            dplyr::left_join(agg_shares_summed, by = c("iso", "fuel", "years")) %>%
-            dplyr::ungroup() %>%
-            dplyr::group_by(iso, ext_sector, fuel, years) %>%
-            dplyr::mutate(normalized_agg_share = (agg_share/agg_shares_summed_by_fuel ) )
-
-#       Reassign OECD country values to unnormalized CEDS default shares since
-#       they will change otherwise given that data was removed for other_transformation ext_sector (besides for oil)
-        OECD_years <- paste0("X", 1960:1970)
-
-        combined_agg_sector_percentages_corrected_fix_NaN_NA <- combined_agg_sector_percentages_corrected %>%
-            dplyr::ungroup() %>%
-            dplyr::select(iso, ext_sector, fuel, years, agg_share, agg_shares_summed_by_fuel, normalized_agg_share) %>%
-            dplyr::mutate(normalized_agg_share_fixed = if_else(! ( iso %in% isos_start_1971) & years %in% OECD_years,
-                                                               agg_share, normalized_agg_share),
-                          normalized_agg_share_fixed_final = if_else(is.na( normalized_agg_share_fixed ) | is.nan(normalized_agg_share_fixed ),
-                                                                0, normalized_agg_share_fixed ) )
-
-        combined_agg_sector_percentages_corrected <- combined_agg_sector_percentages_corrected_fix_NaN_NA %>%
-            dplyr::select(iso, ext_sector, fuel, years, normalized_agg_share_fixed_final) %>%
-            dplyr::group_by(iso, ext_sector, fuel) %>%
-            tidyr::spread(years, normalized_agg_share_fixed_final) %>%
-            dplyr::ungroup()
+combined_agg_sector_percentages_corrected <- normalize_shares(combined_sector_percentages_all,
+                                                              "agg_splits")
 
 #    docTODO: In the future we need to include the default agg_sector assumptions
 #            (ext_sector_percents_start_assumptions) within the combined agg_splits --
 #            we will use the default assumptions when Bond data is missing.
 
-# (older version) Renormalize and correct combined percentages
-# combined_agg_sector_percentages_corrected <-
-#     calculate_correct_shares( a.input_data = combined_sector_percentages_all,
+#   (older version) Renormalize and correct combined percentages
+#       combined_agg_sector_percentages_corrected <-
+#       calculate_correct_shares( a.input_data = combined_sector_percentages_all,
 #                               a.id_columns = c("iso","fuel"),
 #                               a.target_column = c('ext_sector'),
 #                               a.match_columns = c('fuel', 'ext_sector'),
 #                               replace_with_zeros = T,
 #                               a.corrections = ext_sector_percents_start_assumptions )
-
 
 # ---------------------------------------------------------------------------
 # 6. CEDS disaggregate Sector Splits
@@ -288,7 +325,6 @@ ceds_extsector_percentages_corrected <- activity %>%
     dplyr::left_join(ext_sector_map, by = 'sector') %>%
     calculate_shares(c('iso', 'fuel', 'ext_sector'), 'sector') %>%
     dplyr::select(iso, fuel, ext_sector, sector, X_emissions_years)
-
 
 # ---------------------------------------------------------------------------
 # 7. Combine CEDS disaggregate sector splits (Ext sector -> CEDS sector) and
@@ -338,51 +374,15 @@ extended_breakdown_complete[X_extension_years] <-
 
 # Normalize disagg shares (so that a given fuel's sector shares sum to 1 within each
 # agg. ext_sector)
-#   This occurs For all ext years (1750-1970) and all isos
-#       Create a data frame with the sum of dis_agg shares, by fuel and agg ext_sector.
-#       NAs will be summed over (i.e. a fuel that is NA for all CEDS_sectors in the ext_sector
-#       (for a given year) will have a summed dis_agg share for the ext_sector of 0).
-        disagg_shares_summed <- extended_breakdown_complete %>%
-            dplyr::select(-sector) %>%
-            dplyr::group_by(iso, ext_sector, fuel) %>%
-            dplyr::summarize_all(sum, na.rm=TRUE) %>%
-            tidyr::gather(key = years, value = disagg_shares_summed_by_fuel_ext_sec,
-                          X_extension_years) %>%
-            dplyr::ungroup()
+extended_breakdown_complete_corrected <- normalize_shares(extended_breakdown_complete,
+                                                          "disagg_splits")
 
-#       Calculate normalized agg_shares = (disagg_share) / (sum of disagg_shares for a fuel and ext sector)
-        extended_breakdown_complete_corrected <- extended_breakdown_complete %>%
-            dplyr::group_by(iso, ext_sector, fuel, sector) %>%
-            tidyr::gather(key = years, value = disagg_share, X_extension_years) %>%
-            dplyr::left_join(disagg_shares_summed, by = c("iso", "ext_sector", "fuel", "years")) %>%
-            dplyr::ungroup() %>%
-            dplyr::group_by(iso, ext_sector, fuel, years, sector) %>%
-            dplyr::mutate(normalized_disagg_share = (disagg_share/disagg_shares_summed_by_fuel_ext_sec ) )
-
-#       Reassign OECD country values to unnormalized CEDS default disagg_shares since
-#       they will change otherwise
-        extended_breakdown_complete_corrected_fix_NaN_NA <- extended_breakdown_complete_corrected %>%
-            dplyr::ungroup() %>%
-            dplyr::select(iso, ext_sector, fuel, sector, years, disagg_share, disagg_shares_summed_by_fuel_ext_sec,
-                          normalized_disagg_share) %>%
-            dplyr::mutate(normalized_disagg_share_fixed = if_else(! ( iso %in% isos_start_1971) & years %in% OECD_years,
-                                                    disagg_share, normalized_disagg_share),
-                          normalized_disagg_share_fixed_final = if_else(is.na( normalized_disagg_share_fixed ) |
-                                                    is.nan(normalized_disagg_share_fixed ),
-                                                    0, normalized_disagg_share_fixed ) )
-
-        extended_breakdown_complete_corrected <- extended_breakdown_complete_corrected_fix_NaN_NA %>%
-            dplyr::select(iso, ext_sector, fuel, sector, years, normalized_disagg_share_fixed_final) %>%
-            dplyr::group_by(iso, ext_sector, fuel, sector) %>%
-            tidyr::spread(years, normalized_disagg_share_fixed_final) %>%
-            dplyr::ungroup()
-
-# (old version) Normalize and correct
- # extended_breakdown_complete_corrected <- extended_breakdown_complete %>%
- #    calculate_correct_shares(a.id_columns = c('iso', 'fuel', 'ext_sector'),
- #                              a.target_column = 'sector',
- #                              a.corrections = ext_sector_breakdown_assumptions,
- #                              replace_with_zeros = T)
+#   (old version) Normalize and correct
+#   extended_breakdown_complete_corrected <- extended_breakdown_complete %>%
+#    calculate_correct_shares(a.id_columns = c('iso', 'fuel', 'ext_sector'),
+#                              a.target_column = 'sector',
+#                              a.corrections = ext_sector_breakdown_assumptions,
+#                              replace_with_zeros = T)
 
 # ---------------------------------------------------------------------------
 # 8. Combine aggregate splits and disaggregate sector splits
@@ -404,11 +404,19 @@ combined_template <- replace(combined_template, is.na(combined_template), 0)
 
 final_percentages[X_extension_years] <- extended_breakdown_complete_corrected[X_extension_years] * combined_template[X_extension_years]
 
-final_percentages_corrected <- calculate_shares(input_data = final_percentages,
-                                                id_columns = c('iso', 'fuel'),
-                                                target_column = 'sector')
+# Normalize  shares - so that a given fuel's sector shares sum to 1
+final_percentages_corrected <- normalize_shares(final_percentages, "final_splits")
 
-# Final check to make sure that all breakdowns add to 100% or 0% to 10 decimal places
+final_percentages_corrected <- final_percentages_corrected %>%
+    dplyr::arrange(sector, iso) %>%
+    dplyr::select(iso, sector, fuel, X_extension_years)
+
+    # (old version of normalization) final_percentages_corrected <- calculate_shares(input_data = final_percentages,
+    #                                                 id_columns = c('iso', 'fuel'),
+    #                                                 target_column = 'sector')
+
+# Final check to make sure that all breakdowns add to 100% or 0% to 10 decimal places (besides OECD
+# countries from 1960-1970, as these shares are taken directly from CEDS_default data)
  final_test <- final_percentages_corrected %>%
      dplyr::ungroup() %>%
      dplyr::group_by(iso, fuel) %>%
@@ -418,8 +426,10 @@ final_percentages_corrected <- calculate_shares(input_data = final_percentages,
  shares_not_0_or_1 <- final_test %>%
      tidyr::gather(key = years, value = shares, X_extension_years) %>%
      dplyr::ungroup() %>%
+     dplyr::filter( !(! ( iso %in% isos_start_1971) & years %in% OECD_years) ) %>%
      dplyr::mutate(shares_rounded = round(shares, digits = 10) ) %>%
      dplyr::filter(shares_rounded != 1 & shares_rounded != 0 )
+
 
  if(nrow(shares_not_0_or_1) != 0 ){
      stop('Final percentage breakdown for all country-fuel combinations do not ',
@@ -429,7 +439,7 @@ final_percentages_corrected <- calculate_shares(input_data = final_percentages,
               'across all years equal 100% or 0%.')
  }
 
-# (old) final check to make sure that all breakdowns add to 100%
+# (old version) final check to make sure that all breakdowns add to 100%
 # final_test <- final_percentages_corrected %>%
 #     dplyr::ungroup() %>%
 #     dplyr::group_by(iso, fuel) %>%
@@ -442,8 +452,6 @@ final_percentages_corrected <- calculate_shares(input_data = final_percentages,
 #     stop('Final percentage breakdown for all country-fuel combinations do not ',
 #          'equal 100%')
 # }
-
-
 
 # ---------------------------------------------------------------------------
 # 9. Write to database
