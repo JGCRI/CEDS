@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A1.1.UN_pop_WB_HYDE_extension.R
-# Author: Linh Vu, Rachel Hoesly
-# Date Last Updated: 17 February 2016
+# Author: Linh Vu, Rachel Hoesly, Patrick O'Rourke
+# Date Last Updated: February 8, 2019
 # Program Purpose: Produce input population data for CEDS emissions system from
 #                  United Nations data, World Bank (WB) data, and the History
 #                  Database of the Global Environment (HYDE) data.
@@ -9,9 +9,12 @@
 #                  share.
 # Input Files: WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.XLS;
 #              WUP2014-F21-Proportion_Urban_Annual.xls;
-#              WB_SP.POP.TOTL.csv; WB_SP.URB.TOTL;
+#              WB_SP.POP.TOTL.csv; WB_SP.URB.TOTL.csv;
 #              urbanpop_2004Rev_tcm61-36007.xlsx; Master_Country_List
-# Output Files: A.UN_pop_master.csv
+#              UN_pop_WB_HYDE_ext_iso_map.xlsx; UN_pop_shares_WB_HYDE_ext_iso_map.xlsx;
+#              WB_pop_UN_HYDE_ext_iso_map.xlsx; HYDE_pop_UN_WB_ext_iso_map.xlsx
+# Output Files: A.UN_pop_master.csv;
+#               A.HYDE_pop.csv; A.UN_pop_WB_ext.csv; A.UN_WB_vs_HYDE_1950. csv
 # Notes: 1. UN population data are downloaded from:
 #           -- Total population: http://esa.un.org/unpd/wpp/DVD/
 #           -- Urban population share: http://esa.un.org/unpd/wup/CD-ROM/
@@ -47,8 +50,6 @@
 # TODO: Update extendProxy() function.
 # ------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
@@ -95,6 +96,19 @@
 # Read master country list
     Master_Country_List <- readData( "MAPPINGS", "Master_Country_List" )
 
+# Read in UN, WB, HYDE iso maps
+    UN_pop_WB_HYDE_ext_iso_map <- readData ("MAPPINGS", "UN_pop_WB_HYDE_ext_iso_map", ".xlsx",
+                                            sheet_selection = "UN_pop_WB_HYDE_ext_iso_map")
+
+    UN_pop_shares_WB_HYDE_ext_iso_map <- readData ("MAPPINGS", "UN_pop_WB_HYDE_ext_iso_map", ".xlsx",
+                                                   sheet_selection = "UN_pop_shares_WB_HYDE_ext")
+
+    WB_pop_UN_HYDE_ext_iso_map <- readData ("MAPPINGS", "UN_pop_WB_HYDE_ext_iso_map", ".xlsx",
+                                            sheet_selection = "WB_pop_UN_HYDE_ext_iso_map")
+
+    HYDE_pop_UN_WB_ext_iso_map <- readData ("MAPPINGS", "UN_pop_WB_HYDE_ext_iso_map", ".xlsx",
+                                            sheet_selection = "HYDE_pop_UN_WB_ext_iso_map")
+
 # Define standardized UN scenario names (check against Excel input)
     UN_scenarios_std <- c( "Estimates", "Medium fertility", "High fertility",
                            "Low fertility", "Constant fertility", "Instant-replacement",
@@ -107,22 +121,45 @@
 # Prepare UN population
     # Read all population scenarios into one df
     UN_pop_raw <- lapply( seq_along( UN_pop_raw[ -1 ] ), function( i ){
-      out <- translateCountryCode( UN_pop_raw[[ i ]],
-                                   "UN_CODE", "ISO3_WB_CODE", "Country code" )
-      out <- out[ -c( 3, 4, 6 ) ]
-      names( out )[ 1:3 ] <- c( "UN_code", "iso", "country" )
-      out$scenario <- UN_scenarios_std[[ i ]]
-      out <- melt( out, id = c( "UN_code", "iso", "scenario", "country" ),
-                   variable_name = "year", na.rm = T )
-      names( out )[ names( out ) == "value" ] <- "pop"
-      return( out )
+
+        if(i ==1){
+            UN_years <- paste0(1950:2015)
+        }else{
+        UN_years <- paste0(2015:2100)
+        }
+
+        out <- UN_pop_raw[[ i ]] %>%
+            dplyr::left_join(UN_pop_WB_HYDE_ext_iso_map,
+                             by = c("Index", "Major area, region, country or area *",
+                                    "Country code") ) %>%
+            dplyr::select(UN_CODE, ISO3_WB_CODE, Index, Variant, "Major area, region, country or area *",
+                          "Notes",  UN_years)
+
+        out <- out[ -c( 3, 4, 6 ) ]
+        names( out )[ 1:3 ] <- c( "UN_code", "iso", "country" )
+        out$scenario <- UN_scenarios_std[[ i ]]
+        out <- melt( out, id = c( "UN_code", "iso", "scenario", "country" ),
+                     variable_name = "year", na.rm = T )
+        names( out )[ names( out ) == "value" ] <- "pop"
+        return( out )
+
     } )
     UN_pop_raw <- do.call( rbind, UN_pop_raw )
     UN_pop_raw$year <- as.numeric( as.character( UN_pop_raw$year ) )
+    UN_pop_raw <- UN_pop_raw %>%
+        dplyr::arrange(year, UN_code)
 
     # Read and format urban population share
-    UN_urban_share_raw <- translateCountryCode( UN_urban_share_raw, "UN_CODE",
-                                              "ISO3_WB_CODE", "Country Code" )
+    UN_years <- paste0(1950:2050)
+
+    UN_urban_share_raw <- UN_urban_share_raw %>%
+        dplyr::left_join(UN_pop_shares_WB_HYDE_ext_iso_map,
+                         by = c("Index", "Major area, region, country or area",
+                                "Country Code") ) %>%
+        dplyr::select(UN_CODE, ISO3_WB_CODE, Index, "Major area, region, country or area",
+                      Note, UN_years) %>%
+        dplyr::arrange(UN_CODE)
+
     UN_urban_share_raw <- UN_urban_share_raw[ -c( 3:5 ) ]
     names( UN_urban_share_raw )[ 1:2 ] <- c( "UN_code", "iso" )
     UN_urban_share_raw <- melt( UN_urban_share_raw, id = c( "UN_code", "iso" ),
@@ -151,10 +188,15 @@
     UN_pop <- dplyr::arrange( UN_pop, scenario, iso, year )
 
 # Prepare WB population
-    # Merge WB pop and urban pop into one df and reformat
+    # Merge WB pop and urban pop into one df and reformat, mapped from ISO2 to ISO3
     WB_pop <- merge( WB_pop_raw, WB_urban_pop_raw, all.x = T ) %>%
-      translateCountryCode( "ISO2_WB_CODE", "ISO3_WB_CODE", "ISO2_WB_CODE" ) %>%
-      select( -ISO2_WB_CODE ) %>% unique()  # ISO2 to ISO3
+        dplyr::left_join(WB_pop_UN_HYDE_ext_iso_map,
+                         by = c("Country", "ISO2_WB_CODE") ) %>%
+        dplyr::arrange(ISO2_WB_CODE) %>%
+        dplyr::select(ISO2_WB_CODE, ISO3_WB_CODE, Country, Year, pop, urban_pop) %>%
+        dplyr::select( -ISO2_WB_CODE ) %>%
+        unique()
+
     names( WB_pop ) <- c( "iso", "country", "year", "pop", "urban_pop" )
     WB_pop$iso <- tolower( WB_pop$iso )
     WB_pop$pop <- WB_pop$pop / 1000  # convert pop units to thous. people
@@ -170,7 +212,14 @@
     HYDE_pop <- bind_rows( HYDE_pop_raw, HYDE_urban_share_raw ) %>% data.frame()
 
     # Convert UN code to ISO code (note HYDE ISO-CODE column is actually UN code)
-    HYDE_pop <- translateCountryCode( HYDE_pop, "UN_CODE", "ISO3_WB_CODE", "ISO.CODE" )
+    HYDE_ALL_YEARS <- paste0("X", c(1700, 1710, 1720, 1730, 1740, 1750, 1760, 1770, 1780,
+                                1790, 1800, 1810, 1820, 1830, 1840, 1850, 1860, 1870,
+                                1880, 1890, 1900, 1910, 1920, 1930, 1940, 1950, 1951:2030) )
+    HYDE_pop <- HYDE_pop %>%
+        dplyr::left_join(HYDE_pop_UN_WB_ext_iso_map, by = c("ISO.CODE", "COUNTRY") ) %>%
+        dplyr::select("ISO.CODE", ISO3_WB_CODE, COUNTRY, HYDE_ALL_YEARS, type) %>%
+        dplyr::arrange(ISO.CODE, type)
+
     names( HYDE_pop )[ 1:3 ] <- c( "UN_code", "iso", "country" )
     HYDE_pop$iso <- tolower( HYDE_pop$iso )
     HYDE_pop$iso[ HYDE_pop$UN_code == 156 ] <- "chn"  # add ISO for China
@@ -390,7 +439,6 @@
     pop_master_ext <- bind_rows( done, needed ) %>%
       dplyr::arrange( iso, scenario, year )
 
-
 # ------------------------------------------------------------------------------
 # 4. Add HYDE data to produce 1700-2100 series and generate population for historical
 # dissolved countries
@@ -567,6 +615,8 @@
 
     pop_master_final[ is.na( pop_master_final ) ] <- ""
 
+    pop_master_final <- pop_master_final %>%
+        dplyr::arrange(iso, scenario, year)
 # ------------------------------------------------------------------------------
 # 5. Write output
     writeData( pop_master_final, "MED_OUT", "A.UN_pop_master" )
