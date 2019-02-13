@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: A6.1.extended_comb_sector_shares.R
 # Author: Rachel Hoesly, Caleb Braun, Patrick O'Rourke
-# Last Updated:    February 11, 2019
+# Last Updated:    February 13, 2019
 # Program Purpose: Calculate default combustion fuel shares for extended historical data
 #     Combines default CEDS estimates from IEA with Bond fuel share data to produce
 #     sectoral estimates of fossil fuel use (in the form of fuel shares) for the entire period
@@ -174,6 +174,10 @@ ceds_agg_percent_all <- calculate_shares(ceds_aggregate_sectors,
                                          target_column = c('ext_sector') )
 
 # Add column with the start year percent
+#       Note: Germany (iso = deu) is an OECD country, yet will have a start
+#             date of 1971 given that IEA data in the prior years (1960-1970)
+#             is for West Germany, and does not include East Germany.
+
 isos_start_1971 <- iea_start_year[ iea_start_year$start_year == 1971, 'iso' ]
 ceds_agg_percent <- ceds_agg_percent_all %>%
     dplyr::mutate(percent = if_else(iso %in% isos_start_1971, X1971, X1960)) %>%
