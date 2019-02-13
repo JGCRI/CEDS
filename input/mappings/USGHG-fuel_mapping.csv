@@ -7,3 +7,31 @@ Petroleum,diesel_oil
 Petroleum,heavy_oil
 Petroleum,light_oil
 Wood,biomass
+Diesel,diesel_oil
+2 Stroke,light_oil
+4 Stroke,light_oil
+Gasoline-Off-road Trucks,light_oil
+Diesel-Equipment,diesel_oil
+Diesel-Off-Road Trucks,diesel_oil
+CNG,natural_gas
+LPG,natural_gas
+Gasoline,light_oil
+CNG (million cubic ft),natural_gas
+  Diesel,diesel_oil
+  Gasoline,light_oil
+  CNG (million cubic ft),natural_gas
+  LPG,natural_gas
+Jet Fuel,light_oil
+Aviation Gasoline,light_oil
+  Jet Fuel,light_oil
+  Aviation Gasoline,light_oil
+Residual Fuel Oil,heavy_oil
+Distillate Fuel Oil,diesel_oil
+  Residual,heavy_oil
+Gasoline On-Roadb,light_oil
+Diesel On-Roadb,diesel_oil
+"Motor Gasolineb,c",light_oil
+"Distillate Fuel Oil (Diesel Fuel) b,c",diesel_oil
+Natural Gasf (trillion cubic feet),natural_gas
+LPGf,natural_gas
+Fuel Oil,heavy_oil

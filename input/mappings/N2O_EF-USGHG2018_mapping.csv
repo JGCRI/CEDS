@@ -14,3 +14,8 @@ Industrial,1A2g_Ind-Comb-mining-quarying,1A2g_Ind-Comb-mining-quarying,1A2_Indus
 Industrial,1A2g_Ind-Comb-wood-products,1A2g_Ind-Comb-wood-products,1A2_Industry-combustion
 Industrial,1A2g_Ind-Comb-textile-leather,1A2g_Ind-Comb-textile-leather,1A2_Industry-combustion
 Industrial,1A2g_Ind-Comb-other,1A2g_Ind-Comb-other,1A2_Industry-combustion
+Rail,1A3c_Rail,1A3c_Rail,1A3_Transportation
+Aircraft,1A3ai_International-aviation,1A3ai_International-aviation,1A3_Aviation
+Aircrafta,1A3ai_International-aviation,1A3ai_International-aviation,1A3_Aviation
+Ships and Boats,1A3di_International-shipping,1A3di_International-shipping,1A3_International-shipping
+Ships and Boats ,1A3di_International-shipping,1A3di_International-shipping,1A3_International-shipping
