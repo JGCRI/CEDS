@@ -499,95 +499,164 @@ interpolate_NAs2 <- function(df) {
 # Details:   Should not be called outside those 2 functions.
 # Author(s): Caleb Braun
 verify_calculate_share_params <- function(input_data, id_columns, target_column,
-                                          replace_with_zeros) {
+                                          corrections = NULL, match_columns = NULL) {
+    same_id_target <- F
 
-  if( length(target_column) != 1 )
-      stop('calulating shares: must select only one target_column' )
-  if( any(id_columns %in% target_column) && length(id_columns) > 1 )
-      stop('in calculate_shares: specified id_columns must be different than target_column, if more than one id column')
-  # if( all( id_columns %!in% names( input_data ) ) )
-  #     stop('in calculate_shares: specified id_columns are not all in original_data')
+    # Basic requirements the functions expect
+    if( length(target_column) != 1 )
+        stop('calulating shares: must select only one target column')
+    if( any( id_columns %in% target_column) && length(id_columns) > 1 )
+        stop('calculating shares: specified id columns must be different than ',
+             'target column, if more than one id column')
+    if( !all( c(target_column, id_columns) %in% names( input_data ) ) )
+        stop('calculating shares: some id or target columns are not in input')
+    if( !any( isXYear( names( input_data ) ) ) )
+        stop('calculating shares: no year data found')
+
+    if( length(id_columns) == 0 ) {
+        same_id_target <- T
+        id_columns <- target_column
+    }
+    if( length(id_columns) == 1 && id_columns == target_column )
+        same_id_target <- T
+    if( same_id_target )
+        printLog('calculating shares: id_column and target columns are the same.')
+
+    # Return here if there isn't a corrections file to verify
+    if( is.null(corrections) )
+        return( list(same_id_target = same_id_target, id_columns = id_columns))
+
+    # Verify correction file is okay (for calculate_correct_shares only)
+    fmt_err_msg <- paste("correction is in the wrong format, please check.",
+                         "Corrections must be in format of data.frame with",
+                         "column names 'target_column' and 'breakdown'.")
+    if( 'breakdown' %!in% names(corrections) )
+        stop(fmt_err_msg)
+    if( target_column %!in% names(corrections) )
+        stop(fmt_err_msg)
+    if( !all( names(corrections) %in% c(id_columns, target_column, "breakdown") ) )
+        stop(fmt_err_msg)
+
+    correction_id <- setdiff(names(corrections), c("breakdown", target_column))
+    if( length(correction_id) == 0 && sum(corrections['breakdown']) != 1 )
+        stop( 'correction breakdowns do not sum to 1' )
+    correction_sum <- corrections %>%
+        select(-one_of(target_column)) %>%
+        group_by_(correction_id) %>%
+        summarise_all(funs(sum))
+    if( !all(correction_sum$breakdown == 1) )
+        stop('breakdown must sum to 1 over target variable, check corrections')
+
+    # Check to see if there are corrections for all combinations in input data
+    # Do not stop, but throw warning if there are not defaults for all
+    # combinations.
+    no_defaults <- setdiff(
+        unique( apply(input_data[match_columns],  1, paste, collapse = "-" ) ),
+        unique( apply(corrections[match_columns], 1, paste, collapse = "-" ) )
+    )
+
+    if ( length(no_defaults) > 0 )
+        stop( paste( 'In calculate_correct_shares: defaults are not provided',
+                     'for all breakdowns. The following do not have defaults: ',
+                     paste(no_defaults, collapse = ", ") ) )
+
+    return( list(same_id_target = same_id_target, id_columns = id_columns))
 }
-
 
 
 # -----------------------------------------------------------------------------
 # calculate_shares
-# Brief:     calculate shares from data
-# Details:
-# Dependencies:
-# Author(s):
-# Params:
-          # input_data - data of which to compute shares. In id cols , X year format
-          # id_cols - vector of character strings, nanes of identifier columns for
-          #           which to compute shares, ex - c('sector','fuel)
-          # target_column - vector of character strings, nanes of identifier column for
-          #           which to compute shares over, ex - 'iso'
-          # replace_with_zeros - T/F boolean, defaults to T. If T, shares that are
-          #         calculated as NA (have zero data) are replaced with zeros
+# Brief:     Calculate shares from data
+# Details:   For each year in the data, determine what share of an aggregate
+#            grouping of the values belongs to each disaggregate grouping. For
+#            example, this function could calculate what percent of each sector
+#            fuel combination belongs to each iso.
 #
-# Return:  dataframe in same format as input, of calculated shares
-# Input Files:
-# Output Files:
+#            Example:
+#            > df
+#              iso   fuel       ext_sector X2000 X2001 X2002
+#              <chr> <chr>      <chr>      <dbl> <dbl> <dbl>
+#            1 usa   diesel_oil Industry       5     6     3
+#            2 usa   diesel_oil RCO           10     2     3
+#            >
+#            > calculate_shares(df, c('iso', 'fuel'), 'ext_sector')
+#             iso   fuel       ext_sector X2000 X2001 X2002
+#             <chr> <chr>      <chr>      <dbl> <dbl> <dbl>
+#            1 usa  diesel_oil Industry   0.667  0.25   0.5
+#            2 usa  diesel_oil RCO        0.333  0.75   0.5
+#
+# Author(s): Rachel Hoesly, Caleb Braun
+#
+# Params:
+#   input_data: Data of which to compute shares. In id cols, Xyear format
+#   id_cols: Vector of character strings, names of identifier columns for
+#            which to compute shares
+#   target_column: Character vector of length one, naming the identifier column
+#                  for which to compute shares over
+#   replace_with_zeros: T/F boolean, defaults to T. If T, shares that are
+#                       calculated as NA (have zero data) are replaced with
+#                       zeros
+#
+# Return: data.frame in same format as input, of calculated shares
 # Notes: often used to renormalize shares to 1
-# TODO:
+calculate_shares <- function(input_data, id_columns, target_column,
+                             replace_with_zeros = T) {
 
-calculate_shares <- function(input_data,
-                             id_columns,
-                             target_column,
-                             replace_with_zeros = T
+  verified_params <- verify_calculate_share_params(input_data, id_columns, target_column)
+  same_id_target  <- verified_params$same_id_target
+  id_columns      <- verified_params$id_columns
 
-){
-
-  same_id_target = F
-
-  # input parameter checks
-  if( length(target_column) != 1 ) stop('in calculate_shares: must select only one target_column' )
-  if( any(id_columns %in% target_column) & length(id_columns) > 1 ) stop('in calculate_shares: specified id_columns must be different than target_column, if more than one id column')
-  if( length(id_columns) == 0) {
-    same_id_target <- T
-    id_columns <- target_column    }
-  if( length(id_columns) == 1 & all(id_columns == target_column) ) same_id_target <- T
-  if( all( id_columns %!in% names(input_data )) ) stop('in calculate_shares: specified id_columns are not all in original_data')
-  if( same_id_target) printLog( 'in calculate_shares: id_column and target columns are the same.')
-
-  # useful variables
-  X_years <- names(input_data)[grep('X',names(input_data))]
+  # Get all the years in the input dataset
+  X_years <- names(input_data)[isXYear(names(input_data))]
 
   # aggregate data
-  if( ! same_id_target ) denominator <- aggregate( input_data[ X_years ],
-                            by = input_data[ c( id_columns ) ],
-                            sum )
   if( same_id_target ) {
     temp_input <- input_data
     temp_input$temp <- 'temp'
-    denominator <- aggregate( temp_input[ X_years ],
-                               by = list(temp_input$temp),
-                               sum )
+    denominator <- aggregate( temp_input[ X_years ], by = list(temp_input$temp), sum )
+  } else {
+    denominator <- input_data %>%
+        dplyr::group_by_at( id_columns ) %>%
+        dplyr::summarise_at( X_years, sum ) %>%
+        dplyr::ungroup()
   }
-  #To start, the shares will just be the unnormalized shares
+
+  # To start, the shares will just be the unnormalized shares
   shares <- input_data
 
   # apply function below only works for mutliple columns
-  if( length(id_columns) == 1){
-    if( !same_id_target ) shares[ X_years ] <- shares[ X_years ] / denominator[ match( shares[[id_columns]], denominator[[id_columns]] ), X_years ]
-    if( same_id_target ) shares[ X_years ] <- shares[ X_years ] / do.call("rbind", replicate(nrow(shares), denominator[  X_years ], simplify = FALSE))
-  }else if( length(id_columns) > 1){
-  shares[ X_years ] <- shares[ X_years ] / denominator[
-    match( apply(FUN = paste, MARGIN = 1, X = shares[ ,id_columns], collapse = '-'),
-           apply(FUN = paste, MARGIN = 1, X = denominator[ ,id_columns], collapse = '-')),
-    X_years ]
+  if( length(id_columns) == 1) {
+    if( same_id_target ) {
+      shares[ X_years ] <- shares[ X_years ] /
+          do.call("rbind", replicate(nrow(shares), denominator[  X_years ], simplify = FALSE))
+    } else {
+      shares[ X_years ] <- shares[ X_years ] /
+          denominator[ match( shares[[id_columns]], denominator[[id_columns]] ), X_years ]
+    }
+  } else if( length(id_columns) > 1) {
+    s2 <- dplyr::left_join( shares, denominator, by = id_columns )
+    value_cols <- intersect( paste0( X_years, '.x' ), names( s2 ) )
+    share_cols <- intersect( paste0( X_years, '.y' ), names( s2 ) )
+    stopifnot( identical( gsub( 'x$', '', value_cols ),
+                          gsub( 'y$', '', share_cols ) ) )
+
+    s2[ X_years ] <- s2[ value_cols ] / s2[ share_cols ]
+    s2 <- dplyr::select(s2, -value_cols, -share_cols)
+
+    shares[ X_years ] <- shares[ X_years ] / denominator[
+        match( apply(FUN = paste, MARGIN = 1, X = shares[ ,id_columns], collapse = '-'),
+               apply(FUN = paste, MARGIN = 1, X = denominator[ ,id_columns], collapse = '-')),
+        X_years ]
   }
 
-  shares[ is.na(shares) ]<- NA
+  shares[ is.na(shares) ] <- if( replace_with_zeros ) 0 else NA
 
-  if( replace_with_zeros ) shares[is.na(shares)] <- 0
-
-  shares <- arrange_(shares, c(target_column, id_columns))
+  order_cols <- rlang::syms(c(target_column, id_columns))
+  shares <- dplyr::arrange(shares, !!!order_cols)
 
   return(shares)
-
 }
+
 
 # -----------------------------------------------------------------------------
 # calculate_correct_shares
@@ -623,65 +692,14 @@ calculate_correct_shares <- function(a.input_data,
                                      a.match_columns = a.target_column,
                                      replace_with_zeros = T ){
 
-    # a.input_data = bond_sector_percentages_full
-    # a.id_columns = c("iso","fuel")
-    # a.target_column = c('ext_sector')
-    # replace_with_zeros = T
-    # a.corrections = ext_sector_percents_start_assumptions
-    # a.match_columns = c('fuel', 'ext_sector')
-
     # ---------------------------
-    #CR: Re-use the parameter verification in calculate_shares
     # 1. Input parameter checks
-    # id and target columns
-    same_id_target <- F
-    if( length(a.target_column) != 1 )
-        stop('in calculate_shares: must select only one a.target_column' )
-    if( any(a.id_columns %in% a.target_column) && length(a.id_columns) > 1 )
-        stop('in calculate_shares: specified a.id_columns must be different than a.target_column, if more than one id column')
-    if( length(a.id_columns) == 0) {
-        same_id_target <- T
-        a.id_columns <- a.target_column    }
-    if( length(a.id_columns) == 1 && all(a.id_columns == a.target_column) )
-        same_id_target <- T
-    if( all( a.id_columns %!in% names(a.input_data )) )
-        stop('in calculate_shares: specified a.id_columns are not all in original_data')
-    if( same_id_target)
-        printLog( 'in calculate_shares: id_column and target columns are the same.')
-
-    # correction file
-    correction_id <- names(a.corrections)[ names(a.corrections) %!in% c("breakdown", a.target_column) ]
-
-    if( 'breakdown' %!in% names(a.corrections) )
-        stop('correction is in the wrong format, please check. Corrections must be in for of data frame with column names a.target_column and "breakdown" ')
-    if( a.target_column %!in% names(a.corrections) )
-        stop('correction is in the wrong format, please check. Corrections must be in for of data frame with column names a.target_column and "breakdown" ')
-    if( all( names(a.corrections)[ names(a.corrections) %!in% c("breakdown") ] %!in% c(a.id_columns, a.target_column ) ) )
-        stop('correction is in the wrong format, please check. Corrections must be in for of data frame with column names a.target_column and "breakdown" (optionally an id column) ')
-
-    if( length(correction_id) == 0 && sum(a.corrections['breakdown']) != 1 )
-            stop( 'correction breakdowns do not sum to 1' )
-    if( length(correction_id > 0)) {
-        sum <- a.corrections %>%
-            select(-one_of(a.target_column)) %>%
-            group_by_(correction_id) %>%
-            summarise_all(funs(sum))
-        if( !all(sum$breakdown == 1) )
-            stop('breakdown must sum to 1 over target variable, check corrections')
-    }
-
-    # Check to see if there are corrections for all combinations in input data.
-    # Do not stop, but throw warning if there are not defaults for all
-    # combinations.
-    no_defaults <- setdiff(
-        unique( apply(a.input_data[a.match_columns],  1, paste, collapse = "-" ) ),
-        unique( apply(a.corrections[a.match_columns], 1, paste, collapse = "-" ) )
-    )
-
-    if ( length(no_defaults) > 0 )
-        stop( paste( 'In calculate_correct_shares: defaults are not provided for all breakdowns.',
-                     'The following do not have defautls: ',
-                     paste(no_defaults, collapse = ", ") ) )
+    verified_params <- verify_calculate_share_params(a.input_data,
+                                                     a.id_columns,
+                                                     a.target_column,
+                                                     a.match_columns)
+    same_id_target <- verified_params$same_id_target
+    id_columns     <- verified_params$id_columns
 
     # ---------------------------
     # 2. Define useful variables
