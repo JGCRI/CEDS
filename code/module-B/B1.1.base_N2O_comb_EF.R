@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------
 # Program Name: B1.1.base_N2O_comb_EF.R
 # Author: Patrick O'Rourke
-# Date Last Updated: February 13, 2019
+# Date Last Updated: February 27, 2019
 # Program Purpose: Generate default emission factors for N2O from US GHG Inventory data
 # Input Files: N2O_base_EF-stationary-US_GHG2018.csv, N2O_emissions-elec-US_GHG2018.csv
 #              N2O_fuel_consumption-elec-US_GHG2018.csv, N2O_base_EF-mobile_offroad-US_GHG2018.csv,
@@ -113,37 +113,59 @@ if ( em %!in% c( 'N2O' ) ) {
                          "Airport Equipment", "Industrial/Commercial Equipment", "Logging Equipment",
                          "Railroad Equipment", "Recreational Equipment")
 
-     OFF_ROAD_FUEL_SUBSEC <- c("Aircrafta", "Ships and Boats ", "Construction/Mining Equipmentc",
+    OFF_ROAD_FUEL_SUBSEC <- c("Aircrafta", "Ships and Boats ", "Construction/Mining Equipmentc",
                                "Agricultural Equipmentd", "Rail", "Othere")
 
-     natural_gas_onroad <- c("   CNG ICE", "   LPG ICE", "   LNG")
+    natural_gas_onroad <- c("   CNG ICE", "   LPG ICE", "   LNG")
 
-# ****  D.) Conversion factors (constants)
-     BTU_PER_TBTU <- 1000000000000          # Btu/TBtu
-     KG_PER_KT <- 1000000                   # kg/kt
-     KT_PER_GRAM <- 0.000000001             # kt/g
-     KT_PER_MMT <- 1000                     # ktN2O/MMTN2O
-     MJ_PER_GJ <- 1000                      # MJ/GJ
-     MMTCO2eq_TO_MMTN2O <- 298              # GWP, MMTCO2eq / (MMTCO2eq/MMTN2O) = MMTCO2eq * (MMNTN2O/MMTCO2eq)
-     TONNE_PER_KT <- 1000                   # tonne/kt
-     MILLION_PER_TRILLION <- 1000000        # million/trillion
+#   D.) Conversion factors (constants)
+#       1.) Unit conversions
+        BTU_PER_TBTU <- 1000000000000          # Btu/TBtu
+        GJ_PER_BTU <- (1/947086.28903179)      # GJ/Btu
+        TJ_PER_GJ <- (1/1000)                  # TJ/GJ
+        KG_PER_KT <- 1000000                   # kg/kt
+        KT_PER_GRAM <- 0.000000001             # kt/g
+        KT_PER_MMT <- 1000                     # ktN2O/MMTN2O
+        MJ_PER_GJ <- 1000                      # MJ/GJ
+        MMTCO2eq_TO_MMTN2O <- 298              # GWP, MMTCO2eq / (MMTCO2eq/MMTN2O) = MMTCO2eq * (MMNTN2O/MMTCO2eq) (from US GHG report)
 
-#*****
-     GALLON_PER_CUBIC_FOOT_NAT_GAS <- 0.012 # gallon natural gas/ cubic foot of natural gas https://www.ct.gov/drs/cwp/view.asp?a=1511&q=267170
-     GJ_PER_BTU <- (1/947086.28903179)      # GJ/Btu    https://www.unitjuggler.com/convert-energy-from-Btu-to-GJ.html
-     GJ_PER_METRIC_TONNE_COAL <- 16.75      # GJ/metric tonne     http://w.astro.berkeley.edu/~wright/fuel_energy.html
-#    Assuming that all coal was 50% hard or black coal (24 GJ/tonne, local (electrici)) and 50% brown coal (9.5 GJ/tonne)
-#    **** probably want to give coal coke its own conversion ? GJ / () = GJ ( tonne / GJ)
-     GJ_PER_METRIC_TONNE_BIOMASS <- 16.2    # GJ/metric tonne     http://w.astro.berkeley.edu/~wright/fuel_energy.html
-#    Biomass conversion is based on that for "dry wood"
-     GJ_PER_METRIC_TONNE_PETROLEUM <- 43.5  # GJ/metric tonne     http://w.astro.berkeley.edu/~wright/fuel_energy.html
-#    Petroleum (heavy_oil) - Assumes that heavy oil was 50%  low (44.1 GJ/t) and 50% high sulphur (42.9 GJ / t) fuel oil
-     KT_PER_GJ_TO_KT_PER_KT <- 4184
-     KG_PER_M3_NAT_GAS <- 0.8               # KG/cubic meter     https://www.engineeringtoolbox.com/gas-density-d_158.html
-     MJ_PER_M3_NAT_GAS <- 39                # MJ/cubic meter     http://w.astro.berkeley.edu/~wright/fuel_energy.html
-     MT_PER_GALLON_LIGHT_OIL <- 0.002791    # metric tonne / gallon of light oil https://www.extension.iastate.edu/agdm/wholefarm/html/c6-87.html)
-     MT_PER_GALLON_DIESEL_OIL <- 0.003192   # metric tonne / gallon of diesel oil https://www.extension.iastate.edu/agdm/wholefarm/html/c6-87.html)
-     MT_PER_GALLON_NAT_GAS <- 88.1*(1/3700)*0.086   # metric tonne / gallon of diesel oil https://www.extension.iastate.edu/agdm/wholefarm/html/c6-87.html)
+#       2.) Energy and weight conversions - from common_data.R unless otherwise stated
+
+#           a.) Coal TJ per kt - assuming 50% brown_coal, and 50% hard_coal
+            coal_conversion_factor_list <- c(conversionFactor_hard_coal_TJ_per_kt,
+                                         conversionFactor_brown_coal_TJ_per_kt)
+
+            COAL_TJ_PER_KT <- mean(coal_conversion_factor_list)
+
+#           b.) Biomass TJ per kt
+            BIOMASS_TJ_PER_KT <- conversionFactor_biomass_TJ_per_kt
+
+#           c.) Diesel Oil TJ per kt
+            DIESEL_OIL_TJ_PER_KT <- conversionFactor_diesel_oil_TJ_per_kt
+
+#           d.) Heavy oil TJ per kt
+            HEAVY_OIL_TJ_PER_KT <- conversionFactor_heavy_oil_TJ_per_kt
+
+#           e.) Light oil TJ per kt
+            LIGHT_OIL_TJ_PER_KT <- conversionFactor_light_oil_TJ_per_kt
+
+#           f.) LPG TJ per kt
+            LPG_TJ_PER_KT <- conversionFactor_liquefiedpetroleumgases_TJ_per_kt
+
+#           g.) Natural Gas TJ per kt
+            NATURAL_GAS_TJ_PER_KT <- conversionFactor_naturalgassubfuel_TJ_per_kt
+
+#           h.) Wood TJ per kt
+            WOOD_TJ_PER_KT <- conversionFactor_woodandwoodwaste_TJ_per_kt
+
+#           i.) Gasoline MJ per gallon (LHV). Source: https://www.extension.iastate.edu/agdm/wholefarm/html/c6-87.html)
+            LIGHT_OIL_MJ_PER_GALLON <- 121.7
+
+#           j.) Diesel MJ per gallon (LHV). Source: https://www.extension.iastate.edu/agdm/wholefarm/html/c6-87.html)
+            DIESEL_OIL_MJ_PER_GALLON <- 135.8
+
+#           k.) LPG MJ per gallon (LHV). Source: https://www.extension.iastate.edu/agdm/wholefarm/html/c6-87.html)
+            LPG_MJ_PER_GALLON <- 88.1
 
 #   E.) Define two functions to replace column names for year columns
      replace_year_colnames <- function(df_in, column_num_replace_start, year_col_start,
@@ -212,9 +234,18 @@ if ( em %!in% c( 'N2O' ) ) {
       dplyr::rename(EF = N2O) %>%
       dplyr::select(SEC_FUEL_UNITS_EF) %>%
 
-#   E.) Convert emissions factors from g/GJ to kt/kt (first to kt/GJ, and then to kt/kt)
+#   E.) Convert emissions factors from g/GJ to kt/kt (to kt/GJ, then kt/TJ, then to kt/kt)
 #       and redfine the units variable
-      dplyr::mutate(EF = EF*KT_PER_GRAM*KT_PER_GJ_TO_KT_PER_KT, units = "kt/kt")
+      dplyr::mutate(EF = if_else(fuel == "Coal",
+                                 EF*KT_PER_GRAM/TJ_PER_GJ*COAL_TJ_PER_KT,
+                         if_else(fuel == "Natural Gas",
+                                 EF*KT_PER_GRAM/TJ_PER_GJ*NATURAL_GAS_TJ_PER_KT,
+                         if_else(fuel == "Wood",
+                                 EF*KT_PER_GRAM/TJ_PER_GJ*WOOD_TJ_PER_KT,
+                         if_else(fuel == "Petroleum",
+                                 EF*KT_PER_GRAM/TJ_PER_GJ*HEAVY_OIL_TJ_PER_KT,
+                                 EF) ) ) ),
+                    units = "kt/kt")
 
 #   F.) Map sectors to CEDS working_sectors_2
 
@@ -336,13 +367,13 @@ if ( em %!in% c( 'N2O' ) ) {
                                                     fuel_consumption_GJ_or_MJ),
                         units = if_else(fuel != "natural_gas", "GJ", "MJ"),
                         fuel_consumption_kt = if_else( fuel %in% c("brown_coal", "hard_coal", "coal_coke"),
-                                              fuel_consumption_GJ_or_MJ/GJ_PER_METRIC_TONNE_COAL/TONNE_PER_KT,
+                                              fuel_consumption_GJ_or_MJ*TJ_PER_GJ/COAL_TJ_PER_KT,
                                               if_else( fuel == "biomass",
-                                              fuel_consumption_GJ_or_MJ/GJ_PER_METRIC_TONNE_BIOMASS/TONNE_PER_KT,
+                                              fuel_consumption_GJ_or_MJ*TJ_PER_GJ/BIOMASS_TJ_PER_KT,
                                               if_else( fuel == "heavy_oil",
-                                              fuel_consumption_GJ_or_MJ/GJ_PER_METRIC_TONNE_PETROLEUM/TONNE_PER_KT,
+                                              fuel_consumption_GJ_or_MJ*TJ_PER_GJ/HEAVY_OIL_TJ_PER_KT,
                                               if_else( fuel == "natural_gas",
-                                              fuel_consumption_GJ_or_MJ/MJ_PER_M3_NAT_GAS*KG_PER_M3_NAT_GAS/KG_PER_KT,
+                                              fuel_consumption_GJ_or_MJ/MJ_PER_GJ*TJ_PER_GJ/NATURAL_GAS_TJ_PER_KT,
                                               fuel_consumption_GJ_or_MJ) ) ) ),
                         units = "kt" ) %>%
           dplyr::select(fuel, years, units, fuel_consumption_kt)
@@ -438,35 +469,9 @@ if ( em %!in% c( 'N2O' ) ) {
              dplyr::mutate(fuel = Vehicle_Type) %>%
              dplyr::select(fuel, Vehicle_Type, USGHG_INVENTORY_YEARS_NO_X)
 
-#          b.) Resolve issue of two types of natural gas (natural gas and lpg) before mapping fuels (add
-#              natural gas (minus pipeline emissions) to lpg consumption )
-            ng_total <- onr_consump_clean %>%
-             dplyr::filter(fuel == "Natural Gasf (trillion cubic feet)") %>%
-             tidyr::gather(key = years, value = total_consump, USGHG_INVENTORY_YEARS_NO_X )
-
-            ng_pipe <- onr_consump_clean %>%
-             dplyr::filter(fuel == "  Pipelines") %>%
-             tidyr::gather(key = years, value = pipe_consump, USGHG_INVENTORY_YEARS_NO_X )
-
-            ng_fix <- ng_total %>%
-             dplyr::left_join(ng_pipe, by = "years") %>%
-             dplyr::group_by(fuel.x, Vehicle_Type.x, years, fuel.y, Vehicle_Type.y) %>%
-             dplyr::mutate(total_consump = as.numeric(total_consump),
-                          pipe_consump = as.numeric(pipe_consump),
-                          correct_consump = total_consump-pipe_consump) %>%
-             dplyr::ungroup(ng_total) %>%
-             dplyr::select(fuel.x, Vehicle_Type.x, years,  correct_consump) %>%
-             dplyr::rename(fuel = fuel.x, Vehicle_Type = Vehicle_Type.x) %>%
-             dplyr::mutate(correct_consump =
-                              correct_consump*MILLION_PER_TRILLION*GALLON_PER_CUBIC_FOOT_NAT_GAS,
-                          Vehicle_Type = "Natural gas (million gallons") %>%
-             tidyr::spread(years, correct_consump)
-
-#           c.) Map over to CEDS fuels
+#           b.) Map over to CEDS fuels
             onr_consump_clean <- onr_consump_clean %>%
-             dplyr::filter(!(fuel == "Natural Gasf (trillion cubic feet)" |
-                                fuel == "  Pipelines")) %>%
-             rbind(ng_fix) %>%
+             dplyr::slice(-(24:29)) %>%
              dplyr::left_join(USGHG_fuel_map, by = "fuel") %>%
              dplyr::mutate(fuel = ceds_fuel) %>%
              dplyr::select(fuel, Vehicle_Type, USGHG_INVENTORY_YEARS_NO_X)
@@ -478,7 +483,7 @@ if ( em %!in% c( 'N2O' ) ) {
             onr_consump_clean <- onr_consump_clean %>%
              dplyr::filter(!(is.na(fuel))) %>%
 
-#           d.) Aggregate by fuel
+#           c.) Aggregate by fuel
              dplyr::filter(!(Vehicle_Type %in% c("Motor Gasolineb,c", "  Recreational Boatsd",
                                                 "Distillate Fuel Oil (Diesel Fuel) b,c",
                                                 "  Recreational Boats", "  Ships and Non-Recreational Boats",
@@ -491,13 +496,15 @@ if ( em %!in% c( 'N2O' ) ) {
              dplyr::summarise_all(sum) %>%
              dplyr::mutate(units = "million gallons") %>%
 
-#           e.) Convert millions of gallons to kt
+#           d.) Convert millions of gallons to kt (Milligon gallons -> gallons --> MJ -->  GJ -->  TJ --> kt)
              dplyr::mutate( fuel_consumption = fuel_consumption*1000000,
-                           fuel_consumption = if_else( fuel == "light_oil", fuel_consumption*MT_PER_GALLON_LIGHT_OIL,
-                                              if_else( fuel == "diesel_oil", fuel_consumption*MT_PER_GALLON_DIESEL_OIL,
-                                              if_else( fuel == "natural_gas", fuel_consumption*MT_PER_GALLON_NAT_GAS,
-                                              fuel_consumption ) ) ),
-                           fuel_consumption = fuel_consumption/TONNE_PER_KT,
+                            fuel_consumption = if_else( fuel == "light_oil",
+                                                        fuel_consumption*LIGHT_OIL_MJ_PER_GALLON/MJ_PER_GJ*TJ_PER_GJ/LIGHT_OIL_TJ_PER_KT,
+                                               if_else( fuel == "diesel_oil",
+                                                        fuel_consumption*DIESEL_OIL_MJ_PER_GALLON/MJ_PER_GJ*TJ_PER_GJ/DIESEL_OIL_TJ_PER_KT,
+                                               if_else( fuel == "natural_gas",
+                                                        fuel_consumption*LPG_MJ_PER_GALLON/MJ_PER_GJ*TJ_PER_GJ/LPG_TJ_PER_KT,
+                                                        fuel_consumption) ) ),
                            units = "kt")
 
 #       III.) Generate EFs for on-road light_oil and diesel_oil
