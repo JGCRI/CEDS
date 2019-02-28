@@ -37,7 +37,7 @@
 # 1. Define parameters for inventory specific script
 
 # Stop script if running for unsupported species
-    if ( em %!in% c( 'CH4', 'N2O' ) ) {
+    if ( !(em %in% c( 'CH4', 'N2O' ) ) ) {
        stop( paste( 'US scaling is not supported for emission species ',
                     em, '. Remove from script list in F1.1.inventory_scaling.R' ) )
     }
@@ -48,7 +48,13 @@
 #   the inventory (as a vector of iso codes)
     inv_name <- 'US_GHG' #for naming diagnostic files
     region <- c( "usa" )
-    sector_fuel_mapping <- 'US-GHG_scaling_mapping'
+
+    if (em == "CH4"){
+        sector_fuel_mapping <- 'US-GHG_scaling_mapping'
+    } else if (em == "N2O") {
+        sector_fuel_mapping <- 'US-GHG_scaling_mapping_N2O'
+    }
+
     mapping_method <- 'sector'
     inv_years <- 1990:2014
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )

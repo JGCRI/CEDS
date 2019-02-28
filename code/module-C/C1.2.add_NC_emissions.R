@@ -29,7 +29,7 @@
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "N2O"
 em_lc <- tolower( em )
 
 MODULE_C <- "../code/module-C/"
@@ -76,7 +76,7 @@ if( em == "CO2" ){
   scripts <- c( scripts, "C1.2.add_CO2_NC_emissions_CDIAC.R" )
 }
 
-if ( em != "CO2" ) {
+if ( !(em %in% c("CO2","N2O") ) ) {
   scripts <- c( scripts, 'C1.2.ECLIPSE_flaring_emissions_extension.R' )
   scripts <- c( scripts, 'C1.2.Fugitive-petr-and-gas_default_process_emissions.R' )
 }

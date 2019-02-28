@@ -77,8 +77,8 @@ endif
 
 # --------------------------------------------------------------
 
-# TODO: Add CO2-emissions, BC-emissions, etc. as they are
-# integrated into the system.
+# TODO: 
+# 
 
 # The command "make all" will run the system for all emissions
 # species listed here. A command of "make ___-emissions" (for
@@ -519,7 +519,10 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 	$(MOD_C)/C1.2.add_NC_emissions.R \
 	$(MOD_C)/C1.2.add_SO2_NC_emissions_all.R \
 	$(MOD_C)/C1.2.add_SO2_NC_emissions_FAO.R \
+	$(MOD_C)/C1.2.add_NC_emissions_EDGAR_PEGASOS.R\
 	$(MOD_C)/C1.2.add_NC_emissions_EDGAR.R \
+	$(MOD_C)/C1.2.add_CH4_NC_emissions_FAO.R \
+	$(MOD_C)/C1.2.add_N2O_NC_emissions_FAO.R\
 	$(MOD_C)/C1.2.ECLIPSE_flaring_emissions_extension.R \
 	$(MOD_C)/C1.2.Fugitive-petr-and-gas_default_process_emissions.R \
 	$(MOD_C)/C1.2.add_CO2_NC_emissions_CDIAC.R \

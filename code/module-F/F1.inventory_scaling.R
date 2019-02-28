@@ -76,7 +76,7 @@
               c( scripts, 'F1.1.Edgar_PEGASOS_scaling.R' )
 
 # EDGAR 4.2
-    if ( em %in% c( 'CH4' ) ) scripts <-
+    if ( em %in% c( 'CH4', 'N2O' ) ) scripts <-
               c( scripts, 'F1.1.Edgar_scaling.R')
 
 # EMEP NFR09 (older data - use because has more sectors and goes back further)

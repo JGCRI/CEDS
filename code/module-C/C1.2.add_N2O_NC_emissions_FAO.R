@@ -136,7 +136,7 @@
 #      Remove Years not needed (2015, 2016)
        FAO_soil <- dplyr::select(FAO_soil, -X2015, -X2016)
 
-#   C.) Combine the oil and manure data into one data frame
+#   C.) Combine the soil and manure data into one data frame
 
 #      Row bind the data frame
        FAO <- rbind(FAO_manure, FAO_soil)
