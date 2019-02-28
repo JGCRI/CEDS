@@ -13,6 +13,7 @@ sbatch make-BC.sh
 sbatch make-OC.sh
 sbatch make-CH4.sh
 sbatch make-CO2.sh
+sbatch make-N2O.sh
 
 # Check once a minute if all the emissions are done
 while [ $( ls slurm-* 2>/dev/null | wc -l ) -le 1 ] || [ $( tail -n 1 slurm-* | grep 'Current time' | wc -l ) -ne $( ls slurm-* | wc -l ) ]
