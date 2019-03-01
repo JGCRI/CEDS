@@ -1,18 +1,21 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.3.proc_NC_emissions_user_added_waste.R
-# Author: Linh Vu
-# Date Last Updated: 6 June 2016
+# Author: Linh Vu, Patrick O'Rourke
+# Date Last Updated: March 1, 2019
 # Program Purpose:  Write out waste incineration emissions as default NC emissions. Outputs
 #                   of this program will be read in by C1.3.proc_NC_emissions_user_added.R
 #                   and overwrite existing Edgar emissions
-# Input Files: Global_Emissions_of_Pollutants_from_Open_Burning_of_Domestic_Waste.xlsx,
-#              Master_Country_List.csv
-# Output Files:    C.[em]_NC_emissions_waste.csv
+# Input Files: Master_Country_List.csv,
+#              PM25_Inventory_vs_Wiedinmyer.xlsx,
+#              Global_Emissions_of_Pollutants_from_Open_Burning_of_Domestic_Waste.xlsx,
+#              Wiedinmyer_domestic_waste_EF.csv,
+#              EDGAR42_N2O.csv, EDGAR42_NOx.csv
+# Output Files: C.[em]_NC_waste_emissions_no_wiedinmyer_user_added.csv
+#               C.[em]_NC_waste_emissions_wiedinmyer_no_trend_user_added.csv
+#               C.[em]_NC_waste_emissions_wiedinmyer_trend_user_added.csv
 # Notes:
-# TODO:
-#
-# ------------------------------------------------------------------------------
-
+# TODO: (1) Refine N2O per Nox ratio (See section 5, currently uses global average
+#           ratio from EDGAR 4.2, for 2008)
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
@@ -33,32 +36,52 @@ em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "NH3"
 
 # ------------------------------------------------------------------------------
-# 0.5 Initialize constants and prepare equations for Wiedinmyer replication
-    
+# 0.5 Initialize constants, prepare equations for Wiedinmyer replication, define functions
+
     burned_fraction = 0.6 # Paper's estimate--we might adjust
 
-    
+
 # The following are the general equations (taken from Wiedinmyer et al.)
 # that describe the calculations performed in this document
 # Emissions[i] = (Mass of waste burned) * EF[i]
 
-# (Waste burned) = Population * (Pct of pop that burns waste) * 
+# (Waste burned) = Population * (Pct of pop that burns waste) *
 #                  (Mass of annual per-capita waste) * (fraction of waste to burn that is combusted)
 
 # Residential waste burning:
-#     For developed (WB says high-income) countries: 
-#         Wb = (Mass of annual per-capita waste) * (Rural pop.) * (% waste uncollected) * 
+#     For developed (WB says high-income) countries:
+#         Wb = (Mass of annual per-capita waste) * (Rural pop.) * (% waste uncollected) *
 #              (fraction of waste to burn that is combusted)
-#     For developing countries: 
-#         Wb = [(Mass of annual per-capita waste) * (Rural pop.) +  
-#               (Mass of annual per-capita waste) * (Urban pop.) * (% waste uncollected)] 
+#     For developing countries:
+#         Wb = [(Mass of annual per-capita waste) * (Rural pop.) +
+#               (Mass of annual per-capita waste) * (Urban pop.) * (% waste uncollected)]
 #             * (fraction of waste to burn that is combusted)
 
 # Collected waste burned in open dumps:
-#    Wb_dump = (Mass of annual per-capita waste) * (Urban pop.) * (% waste collected) * 
+#    Wb_dump = (Mass of annual per-capita waste) * (Urban pop.) * (% waste collected) *
 #              (fraction of waste to burn that is combusted)
-    
-    
+
+# Function for EDGAR 4.2 cleansing
+EDGAR_clean <- function(df_in){
+
+    df_clean <- df_in %>%
+        dplyr::select( ISO_A3, Name, IPCC, IPCC_description, X2008 ) %>%
+        dplyr::filter( IPCC == "6C" & IPCC_description == "Waste incineration" ) %>%
+        dplyr::mutate( ISO_A3 = tolower( ISO_A3 ),
+                       IPCC_description = if_else (IPCC_description == "Waste incineration",
+                                                   "5C_Waste-incineration",
+                                                   IPCC_description) ) %>%
+        dplyr::select(-Name, -IPCC) %>%
+        dplyr::rename(iso = ISO_A3, sector = IPCC_description) %>%
+        dplyr::select(-iso) %>%
+        dplyr::group_by(sector) %>%
+        dplyr::summarise_all(sum) %>%
+        dplyr::ungroup()
+
+    return(df_clean)
+}
+
+
 # ------------------------------------------------------------------------------
 # 1. Read in & label Wiedinmyer et al. population, waste, and EF data
 
@@ -70,93 +93,100 @@ if ( is.na( em ) ) em <- "NH3"
     OC_conv <- 1/1.3  # weight to units of carbon
     NOx_conv <- (14 + 16*2)/(14 + 16)  # NO to NO2
 
-    all_waste_data <- readData( domain = "EM_INV", 
+    all_waste_data <- readData( domain = "EM_INV",
                                 file_name = "Global_Emissions_of_Pollutants_from_Open_Burning_of_Domestic_Waste",
                                 extension = ".xlsx",
                                 sheet_selection = "Table S1",
                                 skip_rows = 2 )[ , c( 1:3, 5:6, 8, 10 ) ]
-    
-    waste_column_names <- colnames(readData( domain = "EM_INV", 
+
+    waste_column_names <- colnames(readData( domain = "EM_INV",
                                 file_name = "Global_Emissions_of_Pollutants_from_Open_Burning_of_Domestic_Waste",
                                 extension = ".xlsx",
                                 sheet_selection = "Table S3",
                                 skip_rows = 1
                                 ) )
-    
+
 # Emissions factors, from Wiedinmyer et al. Table 1
     emissions_factors <- readData( domain = "EM_INV", file_name = "Wiedinmyer_domestic_waste_EF" )
     colnames( emissions_factors ) [ 2 ] <- "EF"
 
-    colnames( all_waste_data ) <- c( "Country", "income_level", "pop2010", 
-                                     "Urban_pop", "Waste_gen_rate", "Collection-efficiency", 
+    colnames( all_waste_data ) <- c( "Country", "income_level", "pop2010",
+                                     "Urban_pop", "Waste_gen_rate", "Collection-efficiency",
                                      "Frac_not_collected" )
-    
+
+# EDGAR 4.2 N2O and NOx
+    EDGAR42_N2O <- readData(domain = "EM_INV", domain_extension = "EDGAR/",
+                            file_name = "EDGAR42_N2O" )
+
+    EDGAR42_NOx <- readData(domain = "EM_INV", domain_extension = "EDGAR/",
+                            file_name = "EDGAR42_NOx" )
+
 # ------------------------------------------------------------------------------
 # 2. Wiedinmyer replication - calculate the amount of waste burned
 #    Using the equations outlined in 0.5, this section of code processes
 #    developing & developed data to determine the total volume of waste burned
 #    based on population, urban/rural proportion, and per capita waste gen.
-    
+
 # Waste produced = 2010 pop * waste generation rate
     all_waste_data$total_waste <- all_waste_data$pop2010 * all_waste_data$Waste_gen_rate
 
 # Calculate rural populations
     all_waste_data$Urban_pop[ is.na( all_waste_data$Urban_pop ) ] <- 0
     all_waste_data$Rural_pop <- all_waste_data$pop2010 - all_waste_data$Urban_pop
-    
+
 # Create variables holding indices for developing and developed countries
     developing <- which( all_waste_data$income_level != 'HIC' )
     developed <- which( all_waste_data$income_level == 'HIC' )
-    
+
 # Initialize residential mass burned
     all_waste_data$WB_res <- NA
-    
-# Residential mass burned in developing countries: whole rural pop, plus 
+
+# Residential mass burned in developing countries: whole rural pop, plus
 # whatever fraction of urban pop is not collected
-    all_waste_data$WB_res[ developing ] <- ( ( ( all_waste_data$Waste_gen_rate * 
-                                                all_waste_data$Rural_pop ) + 
+    all_waste_data$WB_res[ developing ] <- ( ( ( all_waste_data$Waste_gen_rate *
+                                                all_waste_data$Rural_pop ) +
                                               ( all_waste_data$Waste_gen_rate *
                                                 all_waste_data$Urban_pop *
                                                 all_waste_data$Frac_not_collected
                                                ) ) * burned_fraction )[ developing ]
-                                         
+
 # Residential waste burning in developed countries: non-collected rural pop only
-    all_waste_data$WB_res[ developed ] <- ( all_waste_data$Waste_gen_rate * 
+    all_waste_data$WB_res[ developed ] <- ( all_waste_data$Waste_gen_rate *
                                             all_waste_data$Rural_pop *
                                             all_waste_data$Frac_not_collected *
                                             burned_fraction )[ developed ]
-                                         
-    
+
+
 # Initialize open dump burning at 0; high-income countries are assumed to have
 # no waste burning of this type
     all_waste_data$WB_dump <- 0
-    
+
 # Developed waste burning: waste from urban centers that do get pick-up
-    all_waste_data$WB_dump[ developing ] <- ( all_waste_data$Waste_gen_rate * 
+    all_waste_data$WB_dump[ developing ] <- ( all_waste_data$Waste_gen_rate *
                                               all_waste_data$Urban_pop *
                                               ( all_waste_data$`Collection-efficiency` ) *
                                               burned_fraction )[ developing ]
-    
+
     all_waste_data$total_WB <- all_waste_data$WB_dump + all_waste_data$WB_res
     all_waste_data$pct_burned <- all_waste_data$total_WB / all_waste_data$total_waste
-    
+
 
 # ------------------------------------------------------------------------------
-# 3. Wiedinmyer replication - calculate emissions from emissions factors    
-    
+# 3. Wiedinmyer replication - calculate emissions from emissions factors
+
     emissions_factors$EF <- as.numeric( emissions_factors$EF ) / 10^6 # Units are in kg/tonne; for comparison,
                                                                       # we want Gg/tonne
-    
+
     total_burning_em <- data.frame( all_waste_data$total_WB %o% emissions_factors$EF )
-    
+
     colnames( total_burning_em ) <- emissions_factors$compound
     total_burning_em$Country <- all_waste_data$Country
-    
+
     total_burning_em <- subset( total_burning_em, select = c( Country, 1:25 ) )
-    
+
     waste_input <- total_burning_em
     colnames(waste_input) <- waste_column_names
-    
+
 # ------------------------------------------------------------------------------
 # 4. Process and convert to standard CEDS format
 # Add ISO code
@@ -184,7 +214,7 @@ if ( is.na( em ) ) em <- "NH3"
     waste_input$iso[ waste_input$`Country Name` == "Wallis and Futuna" ] <- "wlf"
     waste_input <- filter( waste_input, !is.na( iso ) ) %>%  # drop countries not in CEDS
       dplyr::arrange( iso )
-    
+
 ### TODO: add these countries in. We have population values in CEDS, and could just use per-capita values from a comparable country.
     drop_countries <- c( "Cyprus", "Luxembourg", "Malta", "Singapore", "Slovakia" )
     waste_input <- filter( waste_input, `Country Name` %!in% drop_countries ) %>%  # drop 5 countries with no vals (to match pre-Wiedinmyer)
@@ -203,18 +233,57 @@ if ( is.na( em ) ) em <- "NH3"
     waste_input$OC <- waste_input$OC * OC_conv
     waste_input$NOx <- waste_input$NOx * NOx_conv
 
+# ------------------------------------------------------------------------------
+
+# 5. Calculate N2O emissions based on EDGAR 4.2 ratio of NOx to N2O emissions for 2008
+#   Note: EDGAR 4.2 is being used, thus 2008 data is being used to create the ratio,
+#         as 2010 data is not available within EDGAR 4.2.
+
+# Clean EDGAR N2O and NOx data (select 2008 and 5C_Waste-incineration data)
+  EDGAR42_N2O_global_sum <- EDGAR_clean(EDGAR42_N2O) %>%
+        dplyr::rename(X2008_N2O = X2008)
+
+  EDGAR42_NOx_global_sum <- EDGAR_clean(EDGAR42_NOx) %>%
+        dplyr::rename(X2008_NOx = X2008)
+
+# Calculate ratio of N2O emissions per NOx emissions (N2O/NOx)
+  EDGAR_N2O_NOx_ratio <- EDGAR42_N2O_global_sum %>%
+      dplyr::left_join(EDGAR42_NOx_global_sum, by = "sector" ) %>%
+      dplyr::group_by(sector) %>%
+      dplyr::mutate(N2O_per_NOx = X2008_N2O/X2008_NOx) %>%
+      dplyr::select(sector, N2O_per_NOx) %>%
+      dplyr::ungroup()
+
+  EDGAR_N2O_NOx_ratio_5C_Waste_incineration <- EDGAR_N2O_NOx_ratio[[1,2]]
+
+
+# Apply EDGAR N2O_per_NOx waste ratio to waste data to generate N2O emissions estimate
+  waste_input_add_N2O <- waste_input %>%
+      dplyr::mutate(N2O_per_NOx = EDGAR_N2O_NOx_ratio_5C_Waste_incineration) %>%
+      dplyr::group_by(iso, SO2, CO, NMVOC, BC, OC, NH3, CH4, CO2) %>%
+      dplyr::mutate(N2O = NOx*N2O_per_NOx) %>%
+      dplyr::ungroup() %>%
+      dplyr::select(-N2O_per_NOx)
+
 # Convert to standard CEDS input format
-    waste_input <- melt( waste_input, id = "iso" )
-    names( waste_input )[ names( waste_input ) %in% c( "variable", "value" ) ] <- c( "emission", "X2010" )
-    waste_input$sector <- "5C_Waste-incineration"
-    waste_input$fuel <- "process"
-    waste_input$units <- "kt"
+  em_species <- c(em_names, "N2O")
+
+  waste_input <- waste_input_add_N2O %>%
+      dplyr::group_by(iso) %>%
+      tidyr::gather(key = variable, value = value, em_species) %>%
+      dplyr::ungroup()
+
+  names( waste_input )[ names( waste_input ) %in% c( "variable", "value" ) ] <- c( "emission", "X2010" )
+  waste_input$sector <- "5C_Waste-incineration"
+  waste_input$fuel <- "process"
+  waste_input$units <- "kt"
 
 # Filter out emission being processed
-    waste_inventory <- filter( waste_input, emission == em ) %>% select( iso, sector, fuel, units, X2010 )
+    waste_inventory <- dplyr::filter( waste_input, emission == em ) %>%
+        dplyr::select( iso, sector, fuel, units, X2010 )
 
 # ------------------------------------------------------------------------------
-# 5. Match to wiedinmyer PM2.5 inventory
+# 6. Match to wiedinmyer PM2.5 inventory
     other_europe <- wiedinmyer[which( wiedinmyer$iso == 'other_europe_default'),'X2010_inv_to_wiedinmyer']
     europe_isos <- MCL[grep('Euro',MCL$Region),'iso']
 
@@ -255,7 +324,7 @@ if ( is.na( em ) ) em <- "NH3"
                                                                      range = 1)
     waste_inventory_wiedinmyer_trend <- replace(waste_inventory_wiedinmyer_trend, waste_inventory_wiedinmyer_trend == 0, NA)
 # ------------------------------------------------------------------------------
-# 6. Output
+# 7. Output
     writeData( waste_inventory_no_wiedinmyer, "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
                fn = paste0( "C.", em, "_NC_waste_emissions_no_wiedinmyer_user_added" ) )
 
