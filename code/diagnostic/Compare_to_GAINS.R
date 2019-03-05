@@ -27,10 +27,8 @@ args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "NOx"
 
-# Stop script if running for unsupported species
-if ( em %!in% c('SO2','NOx','NMVOC','BC','OC','CH4','CO','CO2') ) {
-  stop (paste( 'GAINS EMF-30 is not supported for emission species', em))
-}
+# Run for the following ems only
+if ( em %in% c('SO2','NOx','NMVOC','BC','OC','CH4','CO','CO2') ) {
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -370,6 +368,9 @@ grid.arrange(plot_list[[1]],plot_list[[2]],
              top = paste('GAINS vs CEDS - Regional',em,'Emissions (Non-Residential)'))
 dev.off()
 
+} else {
+    print("Selected emissions species is not configured to compare to GAINS.")
+}
 
 # ---------------------------------------------------------------------------
 # 5. End
