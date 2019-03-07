@@ -164,7 +164,8 @@ df1[df1 == 0] <- NA # We can do this because there are no zeros in original data
     GBR_coal_final <- GBR_coal_final %>%
         tidyr::gather(key = years, value = activity, gbr_all_years) %>%
         dplyr::mutate(activity = if_else(years %in% gbr_zero_total_years & sectors != "Total", 0, activity)) %>%
-        tidyr::spread(years, activity)
+        tidyr::spread(years, activity) %>%
+        dplyr::rename(sector = sectors)
 
 # Save final output
 writeData(GBR_coal_final, 'EXT_IN', paste0(FPATH, 'GBR_historical_coal'))
