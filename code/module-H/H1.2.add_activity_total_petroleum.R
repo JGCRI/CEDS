@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: H1.2.add_activity_total_petroleum.R
 # Author: Rachel Hoesly
-# Program Purpose: Extend Natural Gas data back for all countries from IEA data start (1960, 1971)
+# Program Purpose: Extend petroleum data back for all countries from IEA data start (1960, 1971)
 #                 using CDIAC, Bond data, IEA data
 #
 # Output Files:  H.EM_total_activity_extended_db
