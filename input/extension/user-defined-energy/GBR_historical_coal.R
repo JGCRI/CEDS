@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # Program Name: GBR_historical_coal.R
 # Author: Caleb Braun and Patrick O'Rourke
-# Date: January 10, 2019
+# Date: March 7, 2019
 #
 # Transforms raw UK historical coal data into a CEDS format .csv file.
 #
@@ -57,11 +57,12 @@ ceds_sector_map <- c(
     "Distributed Stocks"              = "ignore",
 
     "Collieries"                      = "1A1_Energy-transformation", # "1A1bc_Other-transformation"
-    "Electricity"                     = "1A1_Energy-transformation", # "1A1_Electricity-public"
-    "Gas"                             = "1A1_Energy-transformation", # "1A1bc_Other-transformation"
+    "Electricity"                     = "1A1a_Electricity", # "1A1_Electricity-public"
+    "Gas"                             = "1A4_Stationary_RCO", # While this is a transformation,
+                                                              # town gas is counted in the IEA data as residential
     "Coke Ovens & MSF"                = "1A1_Energy-transformation", # "1A1bc_Other-transformation"
     "Railways"                        = "1A3_Transportation",        # "1A3c_Rail"
-    "Domestic"                        = "1A4_Stationary_RCO",        # "1A4b_Residential"
+    "Domestic"                        = "1A4_Stationary_RCO",
     "Industry"                        = "1A2_Industry-combustion",
     "Miscellaneous"                   = "6A_Other-in-total",
     "Miners"                          = "1A2_Industry-combustion",   # "1A2g_Ind-Comb-mining-quarying"
@@ -164,10 +165,6 @@ df1[df1 == 0] <- NA # We can do this because there are no zeros in original data
         tidyr::gather(key = years, value = activity, gbr_all_years) %>%
         dplyr::mutate(activity = if_else(years %in% gbr_zero_total_years & sectors != "Total", 0, activity)) %>%
         tidyr::spread(years, activity)
-
-# Rename sectors variable to agg_sector
-    names(GBR_coal_final)[names(GBR_coal_final) == 'sectors'] <- 'agg_sector'
-
 
 # Save final output
 writeData(GBR_coal_final, 'EXT_IN', paste0(FPATH, 'GBR_historical_coal'))
