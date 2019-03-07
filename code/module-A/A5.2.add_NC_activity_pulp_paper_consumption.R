@@ -3,10 +3,10 @@
 # Authors: Linh Vu
 # Date Last Modified: 28 June 2016
 # Program Purpose: Process FAO wood pulp consumption as driver for waste incineration
-# Input Files: A.NC_activty_db.csv, Wood_Pulp_Consumption.xlsx, Master_Country_List.csv,
-#             A.UN_pop_master.csv
-# Output Files: A.NC_activty_db.csv, A.pulp_paper_consumption_full.csv,
-#               A.FAO_pulp_paper_all_flows.csv
+# Input Files: FAO_wood_pulp_activity.csv, A.UN_pop_master.csv
+#              Master_Country_List.csv, activity_input_mapping.csv, Master_Fuel_Sector_List.xlsx
+# Output Files: A.pulp_paper_consumption_full.csv, A.FAO_pulp_paper_all_flows.csv,
+#               A.pulp_paper_consumption_driver_replace.csv
 # To Do:
 # Notes: The following countries will use pulp consumption driver for waste incineration:
 #       chn, ind, bra, mex, zaf, egy; remaining countries use regional average
