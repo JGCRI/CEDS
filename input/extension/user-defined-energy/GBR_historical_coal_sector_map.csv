@@ -1,5 +1,4 @@
-﻿CEDS_sector,sector
-,<NA>
+CEDS_sector,sector
 1A1a_Heat-production,1A1_Energy-transformation
 1A1bc_Other-transformation,1A1_Energy-transformation
 1A1a_Electricity-public,1A1a_Electricity
@@ -28,4 +27,3 @@
 1A1bc_Other-feedstocks,6A_Other-in-total
 1A3di_International-shipping,6A_Other-in-total
 1A3di_Oil_Tanker_Loading,6A_Other-in-total
-,Total
