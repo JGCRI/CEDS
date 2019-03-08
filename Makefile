@@ -21,6 +21,7 @@ MED_OUT = intermediate-output
 DIAG_OUT = diagnostic-output
 FINAL_OUT = final-emissions
 EXT_IN = input/extension
+USER_EN_IN = input/extension/user-defined-energy
 EXT_DATA = input/extension/extension-data
 LOGS = code/logs
 DOCS = documentation

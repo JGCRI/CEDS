@@ -11,6 +11,7 @@ GAINS_MAPPINGS,../input/mappings/GAINS
 ACTIVITY_IN,../input/activity
 ENERGY_IN,../input/energy
 EXT_IN,../input/extension
+USER_EN_IN,../input/extension/user-defined-energy
 GEN_IN,../input/general
 GRIDDING,../input/gridding
 DEFAULT_EF_IN,../input/default-emissions-data
