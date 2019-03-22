@@ -16,8 +16,6 @@
 # TODO:
 #
 # ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
@@ -341,7 +339,7 @@ initialize( script_name, log_msg, headers )
       merge( last_IEA_gap ) %>%
       filter( year < last_yr + 4, year > last_yr  ) %>%  # keep 3 years following gap
       group_by( iso ) %>%
-      dplyr::summarise( IEA_pc = mean( IEA_pc, na.rm = T ), 
+      dplyr::summarise( IEA_pc = mean( IEA_pc, na.rm = T ),
                  Fern_pc = mean( Fern_pc, na.rm = T ) )
     max_post_gap$max_post_gap <- apply( max_post_gap[, 2:3 ], 1, max, na.rm = T)
 

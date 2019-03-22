@@ -496,7 +496,7 @@ if ( em %!in% c( 'N2O' ) ) {
              dplyr::summarise_all(sum) %>%
              dplyr::mutate(units = "million gallons") %>%
 
-#           d.) Convert millions of gallons to kt (Milligon gallons -> gallons --> MJ -->  GJ -->  TJ --> kt)
+#           d.) Convert millions of gallons to kt (Million gallons -> gallons --> MJ -->  GJ -->  TJ --> kt)
              dplyr::mutate( fuel_consumption = fuel_consumption*1000000,
                             fuel_consumption = if_else( fuel == "light_oil",
                                                         fuel_consumption*LIGHT_OIL_MJ_PER_GALLON/MJ_PER_GJ*TJ_PER_GJ/LIGHT_OIL_TJ_PER_KT,
