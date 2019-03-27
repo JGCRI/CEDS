@@ -1,11 +1,11 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: data analysis functions
-# Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen
-# Last Updated: 22 June 2015
+# Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Patrick O'Rourke
+# Last Updated: 27 March 2019
 
 # This file should be sourced by any R script running diagnostics on CEDS data.
 # Functions contained:
-#   activityCheck, sectorCheck, fuelCheck, CountryCheck, mapCEDS_sector_fuel
+#   activityCheck, sectorCheck, fuelCheck, CountryCheck, iso_check, mapCEDS_sector_fuel
 
 # ----------------------------------------------------------------------------------
 # activityCheck
@@ -301,7 +301,178 @@ countryCheck <- function( data, cols = 1, convention = "ISO" ) {
     return( valid )
 }
 
+# ----------------------------------------------------------------------------------
+# iso_check
+# Brief:         Checks whether the given dataset's isos are all CEDS isos
+#                (within Master_Country_List.csv), (optionally) whether all
+#                CEDS isos are within the given dataset, and (optionally)
+#                whether the given dataset has any duplicated CEDS isos. CEDS isos are further
+#                defined as srb (kosovo), gum, and those which have a final_data_flag value of 1.
+# Details:       Uses printlog functions to print out results: must be called while the log is running.
+# Dependencies:  IO_functions.R
+# Author(s):     Patrick O'Rourke
+# Params:
+#   data_to_check:                           the dataset being checked for CEDS isos [required as class -data.frame-]
+#   data_to_check_iso_colname:               the name of the column containing CEDS isos in data_to_check
+#                                            [required as class -character-]
+#   provided_data_needs_all_ceds_isos:       a boolean indicating whether or not data_to_check needs to contain all
+#                                            CEDS isos [default: T]
+#   provided_data_contains_unique_isos_only: a boolean indicating whether or not to check data_to_check for duplicated
+#                                            CEDS isos [default: T]
+# Return:        A log message notifying the user that the dataset passed the iso check (or why it failed).
+# Input Files:   Master_Country_List.csv
+# Output Files:  None
+# Usage examples: iso_check( data_frame, "iso_col" )
+#                 iso_check( data_frame, "iso.col", provided_data_needs_all_ceds_isos = F )
+#                 iso_check( data_frame, "iso col", provided_data_contains_unique_isos_only = F)
+#                 iso_check( data_frame, "iso", provided_data_needs_all_ceds_isos = F
+#                            provided_data_contains_unique_isos_only = F)
 
+iso_check <- function(data_to_check, data_to_check_iso_colname,
+                      provided_data_needs_all_ceds_isos = T,
+                      provided_data_contains_unique_isos_only = T) {
+  
+#   Check if data_to_check was provided as class -data.frame-
+  if ( is.data.frame( data_to_check ) == FALSE ) {
+    
+    stop (  paste0 ("The function iso_check requires the parameter data_to_check to be class -data.frame- ." ) )
+  
+  } else {
+    
+#       Check if data_to_check_iso_colname is a column name in data_to_check
+        if ( ( data_to_check_iso_colname %in% colnames( GCP_region_map) ) == FALSE ) {
+      
+            stop (  paste0 ("The function iso_check requires the parameter data_to_check_iso_colname ",
+                      "to be a column name of the parameter data_to_check." ) )
+      
+        } else {
+      
+#           Check if data_to_check_iso_colname is class -character- (in quotes)
+            if ( is.character ( data_to_check_iso_colname ) == FALSE ) {
+        
+                stop (  paste0 ("The function iso_check expects the parameter data_to_check_iso_colname",
+                        " to be class -character- ." ) )
+        
+            } else {
+        
+#               Initial data processing - select iso columns
+                MCL <- readData( "MAPPINGS", "Master_Country_List" )
+        
+                MCL_countries <- MCL %>%
+                  dplyr::filter( final_data_flag == 1  | iso %in% c( "srb (kosovo)", "gum" ) ) %>%
+                  dplyr::select( iso ) %>%
+                  dplyr::distinct( )
+        
+               data_to_check_countries <- data_to_check %>%
+                  dplyr::select( data_to_check_iso_colname )
+            
+#               Check that data_to_check doesn't have duplicated CEDS isos. This is only necessary when
+#               provided_data_contains_unique_isos_only = T, as this states that the user only wants unique isos.
+        
+                if ( provided_data_contains_unique_isos_only == T ){
+          
+                    printLog ( paste0 ( "Checking if the provided data has any duplicated CEDS isos..." ) )
+          
+#                   Remove NAs for isos, as NAs are not CEDS isos, and will get caught later when checking if data contains all CEDS isos
+                    data_to_check_countries_noNA <- dplyr::filter(data_to_check_countries,
+                                                        ! (is.na ( data_to_check_countries[ , data_to_check_iso_colname] ) ) )
+          
+                    data_to_check_unique_isos_noNA <- list( sort ( unique( data_to_check_countries_noNA[, data_to_check_iso_colname ] ) ) )
+          
+                    if ( nrow ( data_to_check_countries_noNA) !=  length ( data_to_check_unique_isos_noNA[[1]] ) ){
+            
+                    duplicated_isos <- data_to_check_countries %>%
+                      count( data_to_check_iso_colname ) %>%
+                      dplyr::filter( freq > 1)
+                    
+                    printLog ( "Duplicated CEDS isos:", duplicated_isos[[1]] )
+                    
+                    stop (  paste0 ("The provided data has duplicated CEDS isos. If this is okay,",
+                                    " then set provided_data_contains_unique_isos_only to F .",
+                                    " If this is not expected, then double check the provided data",
+                                    " for the isos listed above.") )
+                    
+                    } else {
+            
+                      printLog ( paste0 ( "The provided data does not have duplicated CEDS isos." ) )
+            
+                    }
+          
+              } else if ( provided_data_contains_unique_isos_only == F ) {
+          
+                data_to_check_countries <- data_to_check_countries
+          
+              } else {
+          
+                  stop (  paste0 ("The function iso_to check expects the parameter provided_data_contains_unique_isos_only",
+                          " to be set to T or F ." ) )
+          
+              }
+        
+#               Check that all of the isos from the provided data are within the MCL
+                printLog ( paste0 ( "Checking if all of the provided data's isos are CEDS isos..." ) )
+        
+                data_to_check_countries_not_in_MCL <- dplyr::filter(data_to_check_countries, 
+                                                      ! ( data_to_check_countries[ , data_to_check_iso_colname ] %in% MCL_countries$iso ) )
+                
+                data_to_check_countries_not_in_MCL_list <- list( sort ( unique( data_to_check_countries_not_in_MCL[, data_to_check_iso_colname ] ) ) )
+        
+                if ( length ( data_to_check_countries_not_in_MCL_list[[1]] ) > 0 ){
+                  
+                  printLog ( "Non-CEDS isos:", data_to_check_countries_not_in_MCL_list[[1]] )
+                  
+                  stop (  paste ("The above countries in the provided data are not contained within",
+                                 "CEDS Master_Country_List.csv (or MCL, found in the input/mappings directory)." ) )
+                  
+                } else {
+                  
+                  printLog ( paste0 ( "Check 1 completed and passed - All countries from the provided",
+                                      " data are CEDS isos defined in Master_Country_List.csv ." ) )
+                }
+        
+#       Check that all CEDS isos are within the provided data
+        printLog ( paste0 ( "Checking if all CEDS isos are within the provided data's isos..." ) )
+        
+        MCL_countries_not_in_provided_data <- MCL_countries %>%
+          dplyr::filter( ! ( iso %in% data_to_check_countries[, data_to_check_iso_colname ] ) )
+        
+        MCL_countries_not_in_provided_data_list <- list( sort ( unique( MCL_countries_not_in_provided_data$iso) ) )
+        
+        if ( length ( MCL_countries_not_in_provided_data_list[[1]] ) == 0 ) {
+          
+          printLog ( paste0 ( "Check 2 completed and Passed - All countries from CEDS Master_Country_List.csv",
+                              " are within the provided data." ) )
+          
+        } else if ( length ( MCL_countries_not_in_provided_data_list[[1]] ) > 0 ) {
+          
+          printLog ( "The following isos are missing:", MCL_countries_not_in_provided_data_list[[1]] )
+          
+          if ( provided_data_needs_all_ceds_isos == T) {
+            
+            stop (  paste0 ("The above countries from CEDS Master_Country_List.csv (or MCL, ",
+                            "found in the input/mappings directory) are not contained within the provided data." ) )
+            
+          } else if ( provided_data_needs_all_ceds_isos == F ) {
+            
+            warning (  paste0 ("The above countries from CEDS Master_Country_List.csv (or MCL, ",
+                               "found in the input/mappings directory) are not contained within the provided data." ) )
+            
+          } else {
+            
+            stop (  paste0 ("Parameter provided_data_needs_all_ceds_isos in function iso_check must be set to",
+                            "T or F ." ) )
+            
+          }
+          
+        }
+        
+      }
+      
+    }
+    
+  }
+  
+}
 
 # ----------------------------------------------------------------------------------
 # EDGARcheck
