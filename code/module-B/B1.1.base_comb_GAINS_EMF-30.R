@@ -8,10 +8,10 @@
 #              GAINS_EMF30_ACTIVITIES_extended_Ev5a_Nov2015.xlsx,
 #              OECD_Conversion_Factors.csv,
 #              NonOECD_Conversion_Factors.csv
-# Output Files: B1.2.energy_conversion_factors,
-#               B1.1.Europe_heat_content_IEA,
-#               B.[em]_NC_EF_GAINS_EMF30,
-#               B.[em]_comb_EF_GAINS_EMF30
+# Output Files: B1.2.energy_conversion_factors.csv,
+#               B1.1.Europe_heat_content_IEA.csv,
+#               B.[em]_NC_EF_GAINS_EMF30.csv,
+#               B.[em]_comb_EF_GAINS_EMF30.csv
 # Notes: transportation_rail only hase a 2020 values, so interpolated values are
 #           constant extended back from 2020 to 2011
 # TODO:  For SO2, create post 2010 S control trends instead of EFs
@@ -403,7 +403,7 @@
 
 # Replace new brown coal values into main EF dataframe
     gainsEMF30_all <- filter( gainsEMF30_all, fuel != "brown_coal" ) %>%
-                                           rbind( gains_brown_coal ) %>% 
+                                           rbind( gains_brown_coal ) %>%
                                         dplyr::arrange( iso, sector, fuel )
 
 # Separate process and combustion

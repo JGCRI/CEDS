@@ -2,8 +2,8 @@
 # Program Name: A2.1.IEA_en_bal.R
 # Author's Name: Page Kyle, for GCAM; modified for use in CEDS Project by
 #               Steve Smith, Emily Voelker, Tyler Pitkanen, Jon Seibert,
-#               Rachel Hoesly, Linh Vu
-# Date Last Modified: 19 February 2016
+#               Rachel Hoesly, Linh Vu, Patrick O'Rourke
+# Date Last Modified: 25 March 2019
 # Program Purpose:
 # Input Files: A.IEA_en_stat_ctry_hist.csv, IEA_flow_sector.csv,
 #              IEA_product_fuel.csv, Master_Fuel_Sector_List.xlsx,
@@ -15,8 +15,6 @@
 #   and units match up across the board.
 #   -- Adjust biomass TJ/kt conversion factors for regions that use industrial
 #   biomass fuels other than wood
-# -----------------------------------------------------------------------------
-
 # -----------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
@@ -47,15 +45,6 @@
 # Check that files contain the proper names
     sectorCheck( IEA_flow_sector )
     fuelCheck( IEA_product_fuel )
-
-# Define conversion factors for use later:        ### The use of these conversion factors will have to be included from the common_data update
-#   conversion factors defined in common_data.R
-#   conversionFactor_biomass_kt_TJ <- 16  # Biomass - For kt to TJ (multiply by kt to get TJ)
-#   conversionFactor_biomass_TJ_kt <- 0.0238846  # For kt to TJ (multiply by kt to get TJ)
-#   conversionFactor_refinerygas_TJ_per_kt <- 48.5 #Refinery Gas TJ/kt. (Multiply by kt to get TJ)
-#   49.5 TJ/Gg- 2006 IPCC guidelines for National GHG inventories Vol 2 - Energy, Ch 1 - Intro Table 1.2
-#   IEA
-#   conversionFactor_naturalgas_TJ_per_kt <- 54 #Natural Gas TJ/kt. (Divide TJ by heating value to get kt)
 
 # Read biomass conversion factors
     biomass_conversion <- readData( "MED_OUT", "A.Fernandes_biomass_conversion", meta = F )
@@ -105,10 +94,21 @@
 # Natural Gas
     TJ_to_kt_natural_gas <- TJ_products[ TJ_products$fuel == "natural_gas", ]
 
-    A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in%
-                               TJ_to_kt_natural_gas$product, X_IEA_years ] <-
-      A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in%
-                                 TJ_to_kt_natural_gas$product, X_IEA_years ] /  conversionFactor_naturalgas_TJ_per_kt
+    TJ_to_kt_natural_gas_no_tjnet <- TJ_to_kt_natural_gas %>%
+        dplyr::filter( product != "Biogases (TJ-net)" )
+
+    TJ_to_kt_natural_gas_list_no_tjnet <- TJ_to_kt_natural_gas_no_tjnet$product
+
+    A.IEA_en_stat_ctry_hist <- A.IEA_en_stat_ctry_hist %>%
+        dplyr::group_by( iso, FLOW, PRODUCT, sector, fuel ) %>%
+        tidyr::gather( key = years, value = energy_consumption, X_IEA_years) %>%
+        dplyr::mutate( energy_consumption = if_else( PRODUCT %in% TJ_to_kt_natural_gas_list_no_tjnet,
+                                                     energy_consumption/conversionFactor_naturalgas_TJ_per_kt_gross,
+                                            if_else( PRODUCT == "Biogases (TJ-net)",
+                                                     energy_consumption/conversionFactor_naturalgas_TJ_per_kt_net,
+                                                     energy_consumption ) ) ) %>%
+        tidyr::spread( years, energy_consumption ) %>%
+        dplyr::select( iso, FLOW, PRODUCT, X_IEA_years, sector, fuel )
 
 # Add units to dataframe
     A.IEA_en_stat_ctry_hist$units <- "kt"

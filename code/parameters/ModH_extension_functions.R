@@ -80,69 +80,69 @@
    # a.bond_start = bond_start
    # a.bond_end = bond_end
    # a.X_bond_years = X_bond_years
-   # 
+   #
    # import data and mapping files
    bond_ctypes = c(rep("text", 5), rep("numeric", 4), "skip") # last column contains value in last cell: set option to skip
    bond_import <- readData( "EM_INV", domain_extension = "Bond-BCOC/" ,"160227_SPEW_BCOCemission", ".xlsx", column_types = bond_ctypes, meta = T )
-   
+
    fuel_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_fuel_map", meta = F )
    bond_sector_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_sector_ext_map", ".xlsx", sheet_selection = 'Bond_to_ext',meta = F )
-   
+
    ext_sectors <- unique(bond_sector_map$Ext_Sector)[!is.na(unique(bond_sector_map$Ext_Sector))]
    ext_sectors <- ext_sectors[order(ext_sectors)]
-   
+
    if(a.extension_fuel_category == 'coal' ){ iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_country_map", meta = F )
    } else{  warning('Bond mapping double counts energy use. Totals are no longer real values.')
             iso_map <- readData( "MAPPINGS", domain_extension = "Bond/" , "Bond_historical_country_map", meta = F )}
-   
-   # map to ceds iso, sector, fuels 
+
+   # map to ceds iso, sector, fuels
    if(a.extension_fuel_category == 'coal' ){
             bond <- merge( bond_import, iso_map[,c('iso','Country')], all.x=T, all.y=F)} else{
-           
-            bond <- merge( bond_import, iso_map[,c('iso','Country')], all.x=T, all.y=T)  
+
+            bond <- merge( bond_import, iso_map[,c('iso','Country')], all.x=T, all.y=T)
             }
-   
-   
+
+
    bond <- merge( bond, fuel_map, all.x=T, all.y=F)
    bond <- merge( bond, bond_sector_map, all.x=T, all.y=F)
- 
+
    # filter data and aggregate/cast
    bond <- bond[which(bond$fuel %in% a.ceds_extension_fuels) , ]
    bond <- bond[which( bond[,'Fuel (kt)'] > 0),]
    bond$Year <- paste0('X',bond$Year)
-   
+
    bond_long <- aggregate(bond["Fuel (kt)"],
                                 by = list(iso = bond$iso,
                                           ext_sector = bond$Ext_Sector,
                                           fuel = bond$fuel,
                                           Year = bond$Year),
                                 FUN = sum)
-   
-   
+
+
    # convert natural gas from TJ to kt. (It's labeled as kt in the original data, but actually in TJ)
    if ( a.extension_fuel_category == 'natural_gas') {
-   bond_long['Fuel (kt)'] <- bond_long['Fuel (kt)'] / conversionFactor_naturalgas_TJ_per_kt 
+   bond_long['Fuel (kt)'] <- bond_long['Fuel (kt)'] / conversionFactor_naturalgas_TJ_per_kt_net
    # Manually correct bond values
    bond_long[which( bond_long$iso == 'usa' & bond_long$Year %in% c(paste0('X',a.bond_start:1955))),'Fuel (kt)'] <- NA
    }
    # Manually correct bond values
    if( a.extension_fuel_category == 'petroleum'){
-    bond_long[which( bond_long$Year %in% c(paste0('X',a.bond_start:1915))),'Fuel (kt)'] <- NA 
+    bond_long[which( bond_long$Year %in% c(paste0('X',a.bond_start:1915))),'Fuel (kt)'] <- NA
    }
-   
-   
+
+
    # cast
    bond_wide <- cast(bond_long, iso + ext_sector + fuel ~ Year, value = 'Fuel (kt)')
    bond_wide[ names(bond_wide)[ grep('X',names(bond_wide)) ] ] <- interpolate_NAs(bond_wide[names(bond_wide)[ grep('X',names(bond_wide)) ]])
-   
+
    # Intepolate years (keep 5 year intervals, fill in missing data)
    X_all_bond_years <- paste0('X',a.bond_start:a.bond_end)
    bond_wide [ X_all_bond_years[ X_all_bond_years %!in% names(bond_wide)[names(bond_wide) %!in% c('iso','ext_sector','fuel')] ]  ] <- NA
    bond_wide <- bond_wide [ , c('iso', 'ext_sector', 'fuel' ,X_all_bond_years) ]
-   bond_wide[ X_all_bond_years] <- interpolate_NAs(bond_wide[ X_all_bond_years]) 
+   bond_wide[ X_all_bond_years] <- interpolate_NAs(bond_wide[ X_all_bond_years])
    # replace NAs with 0
    bond_wide[ is.na( bond_wide )] <- 0
-   
+
    bond_iso <- aggregate(bond_wide[X_all_bond_years],
                          by = list(iso = bond_wide$iso),
                          FUN = sum)

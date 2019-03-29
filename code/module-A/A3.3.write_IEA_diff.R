@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A3.3.write_IEA_diff.R
 # Authors Names: Linh Vu
-# Date Last Modified: 16 May 2016
+# Date Last Modified: 26 March 2019
 # Program Purpose:    Write out difference between IEA DOMSUP and CEDS
 #                     consumption for coal, natural gas, petroleum
 # Input Files: A.IEA_en_stat_ctry_hist.csv, A.IEA_BP_energy_ext.csv
@@ -165,12 +165,25 @@
 
 # ------------------------------------------------------------------------------
 # 2. Write out difference between IEA DOMSUP and CEDS consumption for each fuel
-# Prelim processing: Some IEA natural gas PRODUCTS are in TJ, so convert to kt
+# Prelim processing: Some IEA natural gas PRODUCTS are in TJ (net and gross), so convert to kt
     IEA_TJ_gas <- unique( IEA_en_stat_ctry_hist$PRODUCT[ IEA_en_stat_ctry_hist$PRODUCT %in% IEA_natural_gas_list &
                                                           grepl( "TJ", IEA_en_stat_ctry_hist$PRODUCT ) ] )
-    IEA_en_stat_ctry_hist[ IEA_en_stat_ctry_hist$PRODUCT %in% IEA_TJ_gas, X_IEA_years ] <-
-      IEA_en_stat_ctry_hist[ IEA_en_stat_ctry_hist$PRODUCT %in% IEA_TJ_gas, X_IEA_years ] /
-      conversionFactor_naturalgas_TJ_per_kt
+
+#   Remove Biogases since units are TJ-net and require a different conversion factor than
+#   gases in TJ-gross
+    IEA_TJ_gas_no_TJnet <- IEA_TJ_gas[-5]
+
+    IEA_en_stat_ctry_hist <- IEA_en_stat_ctry_hist %>%
+        dplyr::group_by( iso, FLOW, PRODUCT) %>%
+        tidyr::gather( key = years, value = energy_consumption, X_IEA_years) %>%
+        dplyr::mutate( energy_consumption = if_else( PRODUCT %in% IEA_TJ_gas_no_TJnet,
+                                                     energy_consumption/conversionFactor_naturalgas_TJ_per_kt_gross,
+                                                     if_else( PRODUCT == "Biogases (TJ-net)",
+                                                              energy_consumption/conversionFactor_naturalgas_TJ_per_kt_net,
+                                                              energy_consumption ) ) ) %>%
+        tidyr::spread( years, energy_consumption ) %>%
+        dplyr::select( iso, FLOW, PRODUCT, X_IEA_years )
+
 
 # Coal
     out <- writeDiff( IEA_en_stat_ctry_hist, IEA_BP_energy_ext, IEA_coal_list, CEDS_coal_list,
@@ -216,7 +229,7 @@
     IEA_nonenergy$sector <- IEA_flow_sector$sector[ match( IEA_nonenergy$FLOW, IEA_flow_sector$flow_code ) ]
     IEA_nonenergy$fuel <- IEA_product_fuel$fuel[ match( IEA_nonenergy$PRODUCT, IEA_product_fuel$product ) ]
     IEA_nonenergy$units <- "kt"
-    diag_nonenergy <- filter( IEA_nonenergy, fuel %in% CEDS_fuels ) %>% 
+    diag_nonenergy <- filter( IEA_nonenergy, fuel %in% CEDS_fuels ) %>%
                                       dplyr::arrange( iso, FLOW, PRODUCT )
     diag_nonenergy <- diag_nonenergy[ c( "iso", "FLOW", "PRODUCT", "sector", "fuel", "units", X_IEA_years ) ]
 

@@ -1,11 +1,12 @@
 #------------------------------------------------------------------------------
 # Program Name: B1.1.base_BCOC_comb_EF.R
 # Author: Rachel Hoesly, Linh Vu
-# Date Last Updated: 21 April 2016
-# Program Purpose: 1. Produce OC emissions factors from SPEW (i.e. Bond) data.
+# Date Last Updated: 26 March 2019
+# Program Purpose: 1. Produce BC and OC emissions factors from SPEW (i.e. Bond) data.
 #
-# Input Files: Bond_ctry_mapping.csv, Bond_fuel_mapping.csv, Bond_sector_mapping.csv,
-#              A.comb_activity.csv, 160227_SPEW_BCOCemission.xlsx
+# Input Files: Bond_country_map.csv, Bond_fuel_map.csv, Bond_sector_map.csv,
+#              A.comb_activity.csv, 160227_SPEW_BCOCemission.xlsx, Master_Fuel_Sector_List.xlsx,
+#              Master_Sector_Level_map.csv, Master_Country_List.csv
 # Output Files: B.[em]_comb_EF_db.csv, B.[em]_SPEW_comb_EF.csv, B.[em]_SPEW_NC_em.csv
 # Notes: 1. Emission factors (ef) are calculated as emissions divided by consumption.
 #           Missing (zero or NA) ef are replaced using the following rules, in order:
@@ -15,8 +16,6 @@
 #           d. then replace with region fuel average
 #           e. then global sector fuel average
 #           f. then global fuel average
-
-# ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
@@ -116,10 +115,11 @@
     names( bond ) <- c( "Region", "Country", "Fuel", "Tech",
                         "Sector", "Year", "Fuel_kt", "BC_kt", "OC_kt" )
 
-# convert natural gas from TJ to kt
+# convert natural gas from TJ to kt - Although the units in SPEW db indicate
+# that the data is already in kt, natural gas data is still in TJ
     bond[ which( bond$Fuel == " Natural Gas    " ), 'Fuel_kt' ] <-
       bond[ which( bond$Fuel == " Natural Gas    " ), 'Fuel_kt' ] /
-      conversionFactor_naturalgas_TJ_per_kt
+      conversionFactor_naturalgas_TJ_per_kt_net
 
 # map to ceds fuel
 # map to ceds sector
