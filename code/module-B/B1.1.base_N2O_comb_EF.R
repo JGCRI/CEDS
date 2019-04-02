@@ -1,14 +1,16 @@
 # ---------------------------------------------------------------------------
 # Program Name: B1.1.base_N2O_comb_EF.R
 # Author: Patrick O'Rourke
-# Date Last Updated: February 27, 2019
+# Date Last Updated: April 2, 2019
 # Program Purpose: Generate default emission factors for N2O from US GHG Inventory data
 # Input Files: N2O_base_EF-stationary-US_GHG2018.csv, N2O_emissions-elec-US_GHG2018.csv
 #              N2O_fuel_consumption-elec-US_GHG2018.csv, N2O_base_EF-mobile_offroad-US_GHG2018.csv,
 #              N2O_fuel_consumption-mobile_offroad-US_GHG2018.csv, N2O_emissions-mobile_onroad-US_GHG2018.csv,
 #              N2O_fuel_consumption-mobile_onroad-US_GHG2018.csv, N2O_VMT-mobile_onroad-US_GHG2018.csv,
 #              N2O_base_EF-mobile_onroad-US_GHG2018.csv, N2O_EF-USGHG2018_mapping.csv,
-#              USGHG-fuel_mapping.csv, Master_Country_List.csv
+#              USGHG-fuel_mapping.csv, Master_Country_List.csv, A.Fernandes_biomass_conversion.csv
+#              OECD_Conversion_Factors_Full.csv, A.IEA_en_stat_ctry_hist.csv,
+#              IEA_product_fuel.csv
 # Output Files: B.N2O_comb_EF_db.csv
 # Notes:
 #TODO:
@@ -26,7 +28,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 headers <- c( 'data_functions.R' )
 
 # First messages to be printed to the log
-log_msg <- "Produce N2O emissions factors from US EPA GHG data"
+log_msg <- "Producing default N2O emissions factors from US EPA GHG data..."
 script_name <- 'B1.1.base_N2O_comb_EF.R'
 
 source( paste0( PARAM_DIR, "header.R" ) )
@@ -43,58 +45,74 @@ if ( em %!in% c( 'N2O' ) ) {
 
 # ------------------------------------------------------------------------------
 
-# 1. Read in files for stationary EFs
+# 1.
 
-#   A. Load US EPA N2O stationary emissions factors
+#   A. Read in files for stationary EFs
+
+#    Load US EPA N2O stationary emissions factors
      stationary_ef <- readData( "DEFAULT_EF_IN", domain_extension = "N2O/",
                                 "N2O_base_EF-stationary-US_GHG2018", ".csv")
 
-#   B. Load US EPA N2O electricity emissions
+#    Load US EPA N2O electricity emissions
      elec_emissions <- readData( "DEFAULT_EF_IN", domain_extension = "N2O/",
                                  "N2O_emissions-elec-US_GHG2018", ".csv")
 
-#   C. Load US EPA electricity fuel consumption
+#    Load US EPA electricity fuel consumption
      elec_fc <- readData( "DEFAULT_EF_IN", domain_extension = "N2O/",
                           "N2O_fuel_consumption-elec-US_GHG2018", ".csv")
 
-# 2. Read in files for mobile EFs
+#   B. Read in files for mobile EFs
 
-#   A. Load US EPA N2O mobile off-road emissions factors
+#    Load US EPA N2O mobile off-road emissions factors
      off_road_ef <- readData( "DEFAULT_EF_IN", domain_extension = "N2O/",
                               "N2O_base_EF-mobile_offroad-US_GHG2018", ".csv")
 
-#   B. Load US EPA N2O mobile off-road fuel consumption
+#    Load US EPA N2O mobile off-road fuel consumption
      or_consump <- readData( "DEFAULT_EF_IN", domain_extension = "N2O/",
                              "N2O_fuel_consumption-mobile_offroad-US_GHG2018", ".csv")
 
-#   C. Load US EPA N2O emissions for on-road mobile (for gasoline and diesel vehicles)
+#    Load US EPA N2O emissions for on-road mobile (for gasoline and diesel vehicles)
      onr_emissions <- readData( "DEFAULT_EF_IN", domain_extension = "N2O/",
                                 "N2O_emissions-mobile_onroad-US_GHG2018", ".csv",
                                 skip_rows = 2)
 
-#   D. Load US EPA on-road mobile Fuel Consumption (gasoline, natural gas, diesel)
+#    Load US EPA on-road mobile Fuel Consumption (gasoline, natural gas, diesel)
      onr_consump <- readData( "DEFAULT_EF_IN", domain_extension = "N2O/",
                               "N2O_fuel_consumption-mobile_onroad-US_GHG2018",  ".csv")
 
-#   E. Load US EPA on-road mobile VMT (natural gas)
+#    Load US EPA on-road mobile VMT (natural gas)
      onr_VMT <- readData( "DEFAULT_EF_IN", domain_extension = "N2O/",
                           "N2O_VMT-mobile_onroad-US_GHG2018", ".csv")
 
-#   F. Load US EPA N2O mobile on-road emissions factors (natural gas)
+#    Load US EPA N2O mobile on-road emissions factors (natural gas)
      onr_EF <- readData( "DEFAULT_EF_IN", domain_extension = "N2O/",
                          "N2O_base_EF-mobile_onroad-US_GHG2018", ".csv")
 
-# 3. Read in mapping files
+#   C. Read in mapping files
 
-#   A. Load US GHG inventory sector map
+#    Load US GHG inventory sector map
      USGHG_sector_map <- readData( "MAPPINGS", "N2O_EF-USGHG2018_mapping",
                                    ".csv" )
 
-#   B. Load US GHG inventory fuel map
+#    Load US GHG inventory fuel map
      USGHG_fuel_map <- readData( "MAPPINGS", "USGHG-fuel_mapping", ".csv" )
 
-#   C. Load the CEDS master country list
+#    Load the CEDS master country list
      MCL <- readData( "MAPPINGS", "Master_Country_List" )
+
+#    Load the IEA fuel map
+     IEA_fuel_map <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
+
+#   D. Read in energy to weight conversion files
+
+#    Residential biomass conversion from TJ to kt
+     biomass_residential <- readData( "MED_OUT", "A.Fernandes_biomass_conversion" )
+
+#    Conversions other than natural gas and biomass from IEA data
+     OECD_Conversion_Factors <- readData( "ENERGY_IN", "OECD_Conversion_Factors_Full" )
+
+#    IEA energy data for creating weights for IEA conversion factors
+     IEA_en_stat_ctry_hist <- readData( "MED_OUT", "A.IEA_en_stat_ctry_hist" )
 
 # ------------------------------------------------------------------------------
 # 2. Define script constants and helper functions
@@ -121,50 +139,45 @@ if ( em %!in% c( 'N2O' ) ) {
 #   D.) Conversion factors (constants)
 #       1.) Unit conversions
         BTU_PER_TBTU <- 1000000000000          # Btu/TBtu
-        GJ_PER_BTU <- (1/947086.28903179)      # GJ/Btu
-        TJ_PER_GJ <- (1/1000)                  # TJ/GJ
+        GJ_PER_BTU <- ( 1/ 947086.28903179 )   # GJ/Btu
+        TJ_PER_GJ <- ( 1 / 1000 )              # TJ/GJ
+        TJ_PER_KJ <- ( 1/ 1000000000 )         # TJ/kj
         KG_PER_KT <- 1000000                   # kg/kt
         KT_PER_GRAM <- 0.000000001             # kt/g
         KT_PER_MMT <- 1000                     # ktN2O/MMTN2O
         MJ_PER_GJ <- 1000                      # MJ/GJ
         MMTCO2eq_TO_MMTN2O <- 298              # GWP, MMTCO2eq / (MMTCO2eq/MMTN2O) = MMTCO2eq * (MMNTN2O/MMTCO2eq) (from US GHG report)
 
-#       2.) Energy and weight conversions - from common_data.R unless otherwise stated
+#       2.) Energy and weight conversions - IEA conversions are defined in section 3
 
-#           a.) Coal TJ per kt - assuming 50% brown_coal, and 50% hard_coal
-            coal_conversion_factor_list <- c(conversionFactor_hard_coal_TJ_per_kt,
-                                         conversionFactor_brown_coal_TJ_per_kt)
+#           a.) LPG TJ per kt - Source: 2006 IPCC guidelines for National GHG inventories Vol 2 - Energy, Ch 1 - Intro Table 1.2
+#           https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/2_Volume2/V2_1_Ch1_Introduction.pdf
+            LPG_TJ_PER_KT <- 47.3
 
-            COAL_TJ_PER_KT <- mean(coal_conversion_factor_list)
+#           b.) Natural Gas TJ per kt - Source: common_data.R
+            NATURAL_GAS_TJ_PER_KT <- conversionFactor_naturalgas_TJ_per_kt_net
 
-#           b.) Biomass TJ per kt
-            BIOMASS_TJ_PER_KT <- conversionFactor_biomass_TJ_per_kt
+#           c.) Wood TJ per kt, used for biomass non-residential - Source: common_data.R
+            WOOD_TJ_PER_KT <- conversionFactor_biomass_kt_TJ
 
-#           c.) Diesel Oil TJ per kt
-            DIESEL_OIL_TJ_PER_KT <- conversionFactor_diesel_oil_TJ_per_kt
+#           d.) Residential Biomass - Source: common_data.R
+            FERNANDES_YEARS <- paste0( "X", 1960:2013 )
 
-#           d.) Heavy oil TJ per kt
-            HEAVY_OIL_TJ_PER_KT <- conversionFactor_heavy_oil_TJ_per_kt
+            biomass_residential_usa <- biomass_residential %>%
+                dplyr::filter( iso == "usa" ) %>%
+                tidyr::gather( key = year, value = conversionfac, FERNANDES_YEARS)
 
-#           e.) Light oil TJ per kt
-            LIGHT_OIL_TJ_PER_KT <- conversionFactor_light_oil_TJ_per_kt
+#           Note: we can make this ignore time given that all values for the USA are the same
+#                 in the timeseries, but if Fernandes data is every updated this shold be reviewed
+            BIOMASS_RESIDENTIAL_TJ_PER_KT <- unique( biomass_residential_usa$conversionfac )
 
-#           f.) LPG TJ per kt
-            LPG_TJ_PER_KT <- conversionFactor_liquefiedpetroleumgases_TJ_per_kt
-
-#           g.) Natural Gas TJ per kt
-            NATURAL_GAS_TJ_PER_KT <- conversionFactor_naturalgassubfuel_TJ_per_kt
-
-#           h.) Wood TJ per kt
-            WOOD_TJ_PER_KT <- conversionFactor_woodandwoodwaste_TJ_per_kt
-
-#           i.) Gasoline MJ per gallon (LHV). Source: https://www.extension.iastate.edu/agdm/wholefarm/html/c6-87.html)
+#           e.) Gasoline MJ per gallon (LHV). Source: https://www.extension.iastate.edu/agdm/wholefarm/html/c6-87.html)
             LIGHT_OIL_MJ_PER_GALLON <- 121.7
 
-#           j.) Diesel MJ per gallon (LHV). Source: https://www.extension.iastate.edu/agdm/wholefarm/html/c6-87.html)
+#           f.) Diesel MJ per gallon (LHV). Source: https://www.extension.iastate.edu/agdm/wholefarm/html/c6-87.html)
             DIESEL_OIL_MJ_PER_GALLON <- 135.8
 
-#           k.) LPG MJ per gallon (LHV). Source: https://www.extension.iastate.edu/agdm/wholefarm/html/c6-87.html)
+#           g.) LPG MJ per gallon (LHV). Source: https://www.extension.iastate.edu/agdm/wholefarm/html/c6-87.html)
             LPG_MJ_PER_GALLON <- 88.1
 
 #   E.) Define two functions to replace column names for year columns
@@ -195,7 +208,119 @@ if ( em %!in% c( 'N2O' ) ) {
 
 # ------------------------------------------------------------------------------
 
-# 3. Reformat Stationary Emissions Factors
+# 3. Create default conversion factors (from energy to weight) for coal, diesel, heavy oil,
+#    and light oil -- using IEA data from the USA for 2000
+
+#   A. Reformat IEA energy conversion data
+#      Units defined here: IEA-OECD_EnergyStats_Documentation.pdf, page 18
+    IEA_fuel_map_for_conversions <- IEA_fuel_map %>%
+         dplyr::mutate( product = gsub( " \\(.*", "", product ),
+                        product = if_else( product == "Liquefied petroleum gases",
+                                           "Liquefied petroleum gases (LPG)",
+                                           product ) ) %>%
+        dplyr::select( product, fuel ) %>%
+        dplyr::filter( ! ( is.na ( fuel ) ) ) %>%
+        dplyr::rename( PRODUCT = product )
+
+    other_usa_conversions <- OECD_Conversion_Factors %>%
+        dplyr::filter( COUNTRY == "United States",
+                       FLOW == "Average net calorific value" ) %>%
+        dplyr::select( COUNTRY, FLOW, PRODUCT, X2000 ) %>%
+        dplyr::filter( ! (is.na ( X2000 ) ) ) %>%
+        dplyr::left_join( IEA_fuel_map_for_conversions, by = "PRODUCT" ) %>%
+        dplyr::filter( fuel %in% c( "brown_coal", "diesel_oil", "hard_coal",
+                                   "heavy_oil", "light_oil" ) ) %>%
+        dplyr::select( COUNTRY, FLOW, PRODUCT, fuel, X2000 ) %>%
+        dplyr::mutate( units = "kj/kg")
+
+#   B. Reformat IEA energy data for weights to apply to other_usa_conversion
+#      Note: Weights are made for each IEA fuel that corresponds to a CEDS fuel,
+#            based on total consumption of the IEA fuel across all sectors --> Filtering for "DOMSUP"
+#            Gasoline type jet fuel (kt) has a negative value for 2000, but positive values in other years,
+#            so it will be summed over as a negative value
+    IEA_energy_data <- IEA_en_stat_ctry_hist %>%
+        dplyr::filter( iso == "usa", FLOW == "DOMSUP"  ) %>%
+        dplyr::select( iso, FLOW, PRODUCT, X2000 ) %>%
+        dplyr::rename( product = PRODUCT ) %>%
+        dplyr::left_join( IEA_fuel_map, by = "product" ) %>%
+        dplyr::select( iso, FLOW, product, fuel, X2000) %>%
+        dplyr::group_by( iso, FLOW, product, fuel ) %>%
+        dplyr::summarise_all( sum ) %>%
+        dplyr::ungroup( ) %>%
+        dplyr::filter( fuel %in% c( "brown_coal", "diesel_oil", "hard_coal",
+                                    "heavy_oil", "light_oil" ) )
+
+    IEA_energy_aggregated_to_CEDS_fuel <- IEA_energy_data %>%
+        dplyr::select( -product ) %>%
+        dplyr::group_by( iso, FLOW, fuel ) %>%
+        dplyr::summarise_all( sum ) %>%
+        dplyr::ungroup( ) %>%
+        dplyr::rename( X2000_tot_ceds_fuel_cons = X2000 )
+
+    IEA_energy_weights <- IEA_energy_data %>%
+        dplyr::left_join( IEA_energy_aggregated_to_CEDS_fuel,
+                          by = c( "iso", "FLOW", "fuel" ) ) %>%
+        dplyr::mutate( X2000_Energy_Con_Weight = X2000 / X2000_tot_ceds_fuel_cons ) %>%
+        dplyr::select( iso, product, fuel, X2000_Energy_Con_Weight ) %>%
+        dplyr::mutate( product = gsub( " \\(.*", "", product ),
+                       product = if_else( product == "Liquefied petroleum gases",
+                                          "Liquefied petroleum gases (LPG)",
+                                          product ) )
+
+#   C. Apply IEA energy data weights to conversion factors and convert conversion
+#      factors from kj/kg to TJ_PER_KT = (kj/kg)*(TJ/kj)*(kg/kt)
+    other_usa_conversions_WeightedByEnergyCon <- other_usa_conversions %>%
+        dplyr::rename( product = PRODUCT ) %>%
+        dplyr::left_join( IEA_energy_weights, by = c( "product", "fuel" ) ) %>%
+        dplyr::mutate( X2000_weighted_conversion_factor = X2000 * X2000_Energy_Con_Weight ) %>%
+        dplyr::select( iso, FLOW, fuel, units, X2000_weighted_conversion_factor ) %>%
+        dplyr::group_by( iso, FLOW, fuel, units ) %>%
+        dplyr::summarise_all( sum ) %>%
+        dplyr::ungroup( ) %>%
+        dplyr::mutate( X2000_weighted_confac_TJperkt =
+                           X2000_weighted_conversion_factor * TJ_PER_KJ * KG_PER_KT,
+                       units = "TJ/kt" ) %>%
+        dplyr::select( -X2000_weighted_conversion_factor )
+
+#   D. Assign conversion factors to weighted IEA conversions
+
+#       Coal TJ per kt - assuming 50% brown_coal, and 50% hard_coal
+        conversionFac_hard_coal_TJ_per_kt <- other_usa_conversions_WeightedByEnergyCon %>%
+            dplyr::filter( fuel == "hard_coal" )
+
+        conversionFac_hard_coal_TJ_per_kt <- conversionFac_hard_coal_TJ_per_kt[[5]]
+
+        conversionFac_brown_coal_TJ_per_kt <- other_usa_conversions_WeightedByEnergyCon %>%
+            dplyr::filter( fuel == "brown_coal" )
+
+        conversionFac_brown_coal_TJ_per_kt <- conversionFac_brown_coal_TJ_per_kt[[5]]
+
+        coal_conversion_factor_list <- c( conversionFac_hard_coal_TJ_per_kt,
+                                          conversionFac_brown_coal_TJ_per_kt )
+
+        COAL_TJ_PER_KT <- mean(coal_conversion_factor_list)
+
+#       Diesel Oil TJ per kt
+        conversionFac_diesel_oil_TJ_per_kt <- other_usa_conversions_WeightedByEnergyCon %>%
+            dplyr::filter( fuel == "diesel_oil" )
+
+        DIESEL_OIL_TJ_PER_KT <- conversionFac_diesel_oil_TJ_per_kt[[5]]
+
+#       Heavy oil TJ per kt
+        conversionFac_heavy_oil_TJ_per_kt <- other_usa_conversions_WeightedByEnergyCon %>%
+            dplyr::filter( fuel == "heavy_oil" )
+
+        HEAVY_OIL_TJ_PER_KT <- conversionFac_heavy_oil_TJ_per_kt[[5]]
+
+#       Light oil TJ per kt
+        conversionFac_light_oil_TJ_per_kt <- other_usa_conversions_WeightedByEnergyCon %>%
+            dplyr::filter( fuel == "light_oil" )
+
+        LIGHT_OIL_TJ_PER_KT <- conversionFac_light_oil_TJ_per_kt[[5]]
+
+# ------------------------------------------------------------------------------
+
+# 4. Reformat Stationary Emissions Factors
 
 #   A. Define relevant fuels from stationary data
     fuels <- c("Coal", "Petroleum", "Natural Gas", "Wood")
@@ -240,12 +365,14 @@ if ( em %!in% c( 'N2O' ) ) {
                                  EF*KT_PER_GRAM/TJ_PER_GJ*COAL_TJ_PER_KT,
                          if_else(fuel == "Natural Gas",
                                  EF*KT_PER_GRAM/TJ_PER_GJ*NATURAL_GAS_TJ_PER_KT,
-                         if_else(fuel == "Wood",
+                         if_else(fuel == "Wood" & sector %in% c( "Commercial", "Industrial" ),
                                  EF*KT_PER_GRAM/TJ_PER_GJ*WOOD_TJ_PER_KT,
+                         if_else(fuel == "Wood" & sector %in% c( "Residential" ),
+                                         EF*KT_PER_GRAM/TJ_PER_GJ*BIOMASS_RESIDENTIAL_TJ_PER_KT,
                          if_else(fuel == "Petroleum",
                                  EF*KT_PER_GRAM/TJ_PER_GJ*HEAVY_OIL_TJ_PER_KT,
-                                 EF) ) ) ),
-                    units = "kt/kt")
+                                 EF) ) ) ) ),
+                    units = "kt/kt" )
 
 #   F.) Map sectors to CEDS working_sectors_2
 
@@ -309,7 +436,7 @@ if ( em %!in% c( 'N2O' ) ) {
 
 # ------------------------------------------------------------------------------
 
-# 4. Generate electricity N2O EFs
+# 5. Generate electricity N2O EFs
 
 #   A. Reformat electricity emissions data
         colnames(elec_emissions) = elec_emissions[2, ]
@@ -369,7 +496,7 @@ if ( em %!in% c( 'N2O' ) ) {
                         fuel_consumption_kt = if_else( fuel %in% c("brown_coal", "hard_coal", "coal_coke"),
                                               fuel_consumption_GJ_or_MJ*TJ_PER_GJ/COAL_TJ_PER_KT,
                                               if_else( fuel == "biomass",
-                                              fuel_consumption_GJ_or_MJ*TJ_PER_GJ/BIOMASS_TJ_PER_KT,
+                                              fuel_consumption_GJ_or_MJ*TJ_PER_GJ/WOOD_TJ_PER_KT,
                                               if_else( fuel == "heavy_oil",
                                               fuel_consumption_GJ_or_MJ*TJ_PER_GJ/HEAVY_OIL_TJ_PER_KT,
                                               if_else( fuel == "natural_gas",
@@ -430,7 +557,7 @@ if ( em %!in% c( 'N2O' ) ) {
 
 # ------------------------------------------------------------------------------
 
-# 4. Add on-road mobile
+# 6. Add on-road mobile
 
 #   A.) Generate EFs for diesel and gasoline vehicles
 
@@ -617,9 +744,10 @@ if ( em %!in% c( 'N2O' ) ) {
         missing_road <- rbind(missing_road_set_diesel_oil, missing_road_set_zero_2)
 
         on_road_final_EFs <- rbind(on_road_final_EFs, missing_road)
+
 # ------------------------------------------------------------------------------
 
-# 5. Reformat mobile off-road emissions factor data
+# 7. Reformat mobile off-road emissions factor data
 
 #   A.) Initial cleaning / formatting
     off_road_ef <- off_road_ef %>%
@@ -934,7 +1062,7 @@ if ( em %!in% c( 'N2O' ) ) {
 
 # ------------------------------------------------------------------------------
 
-# 6. Final Data Cleansing
+# 8. Final Data Cleansing
 
 #   A.) Apply the EFs to all relevant years (1960-2014)
     comb_ef <- off_road_ef_df %>%
@@ -983,7 +1111,7 @@ if ( em %!in% c( 'N2O' ) ) {
 
 # ------------------------------------------------------------------------------
 
-# 7. Write output
+# 9. Write output
     writeData( comb_ef_final , "MED_OUT", paste0( "B.", em, "_comb_EF_db" ) )
 
 # Every script should finish with this line
