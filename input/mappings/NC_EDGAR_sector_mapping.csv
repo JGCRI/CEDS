@@ -31,6 +31,8 @@ edgar_sector,edgar_descr,ceds_sector,units,Not-included-in-CEDS-CMIP6
 6B,Wastewater handling,5D_Wastewater-handling,kt,
 ,,6B_Other-not-in-total,kt,
 7A,Fossil fuel fires,7A_Fossil-fuel-fires,kt,
+7B,Indirect N2O from non-agricultural NOx,7BC_Indirect-N2O-non-agricultural-N,kt,
+7C,Indirect N2O from non-agricultural NH3,7BC_Indirect-N2O-non-agricultural-N,kt,
 ,,11A_Volcanoes,kt,
 5A,Forest fires,,kt,11B_Forest-fires
 ,,11C_Other-natural,kt,

@@ -290,7 +290,7 @@ if ( em == 'CH4' ){
 #    Note: This is done because addToEmissionsDb expects there to only be 1 value
 #          for each CEDS sector (for each CEDS sec, fuel, and iso combination),
 #          thus without doing this addToEmissionsDb would only copy the first value for
-#          a CEDS sector, fuel, iso combination, when there could be more than 1
+#          a CEDS sector, fuel, and iso combination, when there could be more than 1 value
 #    docTODO: It should be checked to see if this needs to occur for other ems in this script
 #             as well as the Module C EDGAR PEGASOS script for any ems
 if ( em == 'N2O' ){

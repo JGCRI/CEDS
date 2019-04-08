@@ -108,6 +108,8 @@ detailed_sectors,working_sectors_v1,working_sectors_v2,aggregate_sectors,FSU_ext
 6A_Other-in-total,6A_Other-in-total,6A_Other-in-total,6_Other-in-total,,Industry
 6B_Other-not-in-total,6B_Other-not-in-total,6B_Other-not-in-total,,,Industry
 7A_Fossil-fuel-fires,7A_Fossil-fuel-fires,7A_Fossil-fuel-fires,7_Fossil-fuel-fires,,Energy Transf/Ext
+7B_Indirect-N2O-non-agricultural-NOx,7BC_Indirect-N2O-non-agricultural-N,7BC_Indirect-N2O-non-agricultural-N,2L_Other-process-emissions,,Industry
+7C_Indirect-N2O-non-agricultural-NH3,7BC_Indirect-N2O-non-agricultural-N,7BC_Indirect-N2O-non-agricultural-N,2L_Other-process-emissions,,Industry
 11A_Volcanoes,11A_Volcanoes,11A_Volcanoes,,,
 11B_Forest-fires,11B_Forest-fires,11B_Forest-fires,,,
 11C_Other-natural,11C_Other-natural,11C_Other-natural,,,
