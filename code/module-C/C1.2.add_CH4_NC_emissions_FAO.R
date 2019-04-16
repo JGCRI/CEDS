@@ -1,12 +1,12 @@
 # ------------------------------------------------------------------------------
 # Program Name: C.1.2.add_CH4_NC_emissions_FAO.R
 # Authors: Rachel Hoesly
-# Date Last Modified: 04 April 2017
+# Date Last Modified: 16 April 2019
 # Program Purpose: Use the package FAOSTAT to retrieve methane emissions
 #             data for agriculture.
-# Input Files:
+# Input Files: FAO_methane_API.csv, Master_Country_List.csv
 # Output Files: C.CH4_NC_emissions_agriculture.csv
-# To Do:
+# TODO:
 # Notes:
 # -----------------------------------------------------------------------------
 # 0. Read in global settings and headers

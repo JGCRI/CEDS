@@ -1,10 +1,17 @@
 # ------------------------------------------------------------------------------
 # Program Name: E.CDIAC_emissions.R
 # Author(s): Rachel Hoesly, Linh Vu
-# Date Last Updated: 15 Sept 2016
+# Date Last Updated: 16 April 2019
 # Program Purpose: To read in & reformat CDIAC emissions data.
 # Input Files: A.UN_pop_master.csv,CDIAC_national_1751_2011.csv, CDIAC_country_map.csv
-# Output Files:
+#              Master_Country_List,csv, A.UN_pop_master.csv,
+#              USGS_Commodity_Summaries_Cement_Production.xlsx
+# Output Files: E.CO2_CDIAC_inventory.csv, E.CO2_CDIAC_Cement.csv, E.CO2_CDIAC_Total_CO2.csv,
+#               E.CO2_CDIAC_liquid_and_gas.csv, E.CO2_CDIAC_solid_fuel.csv,
+#               E.CO2_CDIAC_solid_fuel_cumulative.csv,
+#               E.CO2_CDIAC_by_figure_region_CDIAC_fuel.csv,
+#               E.CO2_CDIAC_by_iso_CDIAC_fuel.csv, E.CDIAC_cement_EF.csv,
+#               E.USGS_cement_production.csv
 # Notes: Cement data is extended to last availale year for USGS cement data. Other data ends at last CDIAC year, with zeros afterward.
 # TODO:
 # ------------------------------------------------------------------------------

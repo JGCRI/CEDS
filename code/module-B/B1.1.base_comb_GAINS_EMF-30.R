@@ -1,13 +1,13 @@
 # ---------------------------------------------------------------------------
 # Program Name: B1.1.base_comb_GAINS_EMF-30.R
 # Author: Rachel Hoesly, Linh Vu
-# Date Last Updated: 25 Mar 2016
+# Date Last Updated: 16 April 2019
 # Program Purpose: Generate base emission factors from global GAINS EMF-30 data
 #                  SO2, BC, OC, CO2, and CH4 are just used as diagnostics
 # Input Files: GAINS_EMF30_EMISSIONS_extended_Ev5a_CLE_Nov2015.xlsx,
 #              GAINS_EMF30_ACTIVITIES_extended_Ev5a_Nov2015.xlsx,
-#              OECD_Conversion_Factors.csv,
-#              NonOECD_Conversion_Factors.csv
+#              OECD_Conversion_Factors.csv, NonOECD_Conversion_Factors.csv,
+#              emf-30_ctry_map.csv, emf-30_fuel_sector_map.csv
 # Output Files: B1.2.energy_conversion_factors.csv,
 #               B1.1.Europe_heat_content_IEA.csv,
 #               B.[em]_NC_EF_GAINS_EMF30.csv,

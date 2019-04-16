@@ -1,9 +1,9 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.3.proc_NC_emissions_user_added_inventories.R
 # Author(s): Rachel Hoesly
-# Date Last Modified: August 19, 2015
+# Date Last Modified: April 16, 2019
 # Program Purpose: To fill out missing sections in the process emissions database
-# Input Files: C.[em]_NC_emissions.csv
+# Input Files: Master_Fuel_Sector_List.xlsx, C.[em]_NC_emissions.csv
 # Output Files:  C.[em]_NC_emissions.csv
 # Notes:
 # TODO:
