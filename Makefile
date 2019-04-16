@@ -561,6 +561,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv : \
 	$(MED_OUT)/E.$(EM)_Japan_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
+	$(MED_OUT)/E.$(EM)_UNFCCC_inventory_update.csv \
 	$(MED_OUT)/E.$(EM)_US_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US-EPA_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US_GHG_inventory.csv \
@@ -609,6 +610,11 @@ $(MED_OUT)/D.$(EM)_default_nc_emissions.csv : \
 # Creates formatted emissions inventory
 $(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv : \
 	$(MOD_E)/E.UNFCCC_emissions.R
+	Rscript $< $(EM) --nosave --no-restore
+
+# ee1-2
+$(MED_OUT)/E.$(EM)_UNFCCC_inventory_update.csv : \
+	$(MOD_E)/E.UNFCCC_emissions_update.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2

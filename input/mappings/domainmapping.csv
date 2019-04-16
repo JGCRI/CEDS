@@ -24,3 +24,4 @@ DIAG_OUT,../diagnostic-output
 DOCUMENTATION,../documentation
 UNFCCC_IN,../input/emissions-inventories/UNFCCC
 GRIDDING,../input/gridding
+UNFCCC__NEW_IN,../input/emissions-inventories/UNFCCC_update
