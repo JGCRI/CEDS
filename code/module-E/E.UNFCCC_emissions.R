@@ -3,10 +3,10 @@
 # Author(s): Patrick O'Rourke, Rachel Hoesly, Jon Seibert, Presley Muwan
 # Date Last Updated: October 4, 2018
 # Program Purpose: To read in and reformat UNFCCC emissions data.
-# Input Files: All UNFCCC Emissions Data
-# Output Files: E.[EM]_UNFCCC_inventory.csv
-#               E.[EM]__UNFCCC_inventory.cvs
-#               E.[EM]_UNFCCC_filename_Sector_mapping.cvs
+# Input Files: All UNFCCC Emissions Data, Master_Country_List.csv
+# Output Files: E.[em]_UNFCCC_inventory.csv
+#               E.[em]_UNFCCC_filename_Sector_mapping.cvs
+#               E.[em]_WARNING_UNFCCC_inventory_mismatch_list.csv
 # Notes: UNFCCC  Emissions are provided from 1990-2012.
 # TODO:
 # ------------------------------------------------------------------------------
@@ -191,7 +191,7 @@ if ( is.na( em ) ) em <- "CO2"
                        meta = FALSE )
         }
 
-    # Generate (the second) diagnostic file contianing the list of file names and
+    # Generate (the second) diagnostic file containing the list of file names and
     # sector names
         writeData( diagnostic_general_data, domain = "DIAG_OUT",
                    fn = paste0( "E.", em, "_UNFCCC_filename_Sector_mapping" ),

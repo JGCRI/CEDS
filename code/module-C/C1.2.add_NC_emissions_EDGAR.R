@@ -1,14 +1,14 @@
 # ------------------------------------------------------------------------------
-# Program Name: C.1.2.add_NC_emissions_EDGAR.R
+# Program Name: C1.2.add_NC_emissions_EDGAR.R
 # Author(s): Jon Seibert, Rachel Hoesly, Patrick O'Rourke
-# Date Last Modified: 4 April 2019
+# Date Last Modified: 16 April 2019
 # Program Purpose: To reformat the non-combustion sections of the EDGAR default emissions
 #                      data and add it to the database for the relevant emissions species.
 # Input Files: NC_EDGAR_sector_mapping.csv, BP_energy_data.xlsx, Master_Country_List.csv,
 #              EDGAR42_[em].csv
 # Output Files: C.CH4_EDGAR_NC_Emissions_fugitive_solid_fuels.csv,
 #               C.EDGAR_NC_Emissions_[em].csv, C.EDGAR_NC_Emissions_[em]_negative.csv
-# To Do:
+# TODO:
 #      ext_backward = TRUE extended back only one year. (extend forward worked)
 #      Extend forward should extend forward with constant EFs, not linear trend
 # Notes:
@@ -24,7 +24,7 @@
     headers <- c( "common_data.R","data_functions.R", "analysis_functions.R",
                   "process_db_functions.R", 'timeframe_functions.R') # Additional function files required.
     log_msg <- paste0( "Processing EDGAR non-combustion default emissions data." ) # First message to be printed to the log
-    script_name <- "C.1.2.add_NC_emissions_EDGAR.R"
+    script_name <- "C1.2.add_NC_emissions_EDGAR.R"
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
