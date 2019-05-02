@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A1.2.Fernandes_biomass.R
 # Author: Linh Vu
-# Date Last Updated: 19 February 2016
+# Date Last Updated: 2 May 2019
 # Program Purpose: This program produces 1850-2013 time series of residential biomass
 #                  consumption by country and fuel type from Fernandes biofuels data.
 #                  The program also produces fuel-weighted biomass conversion factors
@@ -47,7 +47,6 @@
 # ------------------------------------------------------------------------------
 # 1. Read raw input files and define useful values
   library( "zoo" )
-#  library( "FAOSTAT" )
 
   input <- readData( "ENERGY_IN", "Fernandes_Biofuels_9", ".xlsx" )[ 2:11 ] # read in excel sheets from 2 to 11
   Master_Country_List <- readData( "MAPPINGS", "Master_Country_List" )
