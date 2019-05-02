@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: A5.2.add_NC_activity_pulp_paper_consumption.R
 # Authors: Linh Vu
-# Date Last Modified: 28 June 2016
+# Date Last Modified: 2 May 2019
 # Program Purpose: Process FAO wood pulp consumption as driver for waste incineration
 # Input Files: A.NC_activty_db.csv, Wood_Pulp_Consumption.xlsx, Master_Country_List.csv,
 #             A.UN_pop_master.csv
@@ -147,7 +147,7 @@
 # The script currently reads FAO data from a local copy so that running does not require
 # Internet connection. Just know it's an option and update the local copy when new data are
 # released.
-#   library( "FAOSTAT" )
+#   Using the "FAOSTAT" package
 #   fao_ls <- list( getFAO( domainCode = "FO", elementCode = 5510, itemCode = 1875 ),  # production
 #                       getFAO( domainCode = "FO", elementCode = 5610, itemCode = 1875 ),  # import
 #                       getFAO( domainCode = "FO", elementCode = 5910, itemCode = 1875 ) ) # export
