@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A1.1.UN_pop_WB_HYDE_extension.R
 # Author: Linh Vu, Rachel Hoesly, Patrick O'Rourke
-# Date Last Updated: May 2, 2019
+# Date Last Updated: May 10, 2019
 # Program Purpose: Produce input population data for CEDS emissions system from
 #                  United Nations data, World Bank (WB) data, and the History
 #                  Database of the Global Environment (HYDE) data.
@@ -112,6 +112,10 @@
                            "Low fertility", "Constant fertility", "Instant-replacement",
                            "Zero-migration", "Constant-mortality", "No change" )
 
+# Define UN population historical end year (last year of UN population "Estimates",
+# and the first year of other 'Variant' values of UN population data).
+  UN_POP_HISTORICAL_END_YEAR <- 2015
+
 # ------------------------------------------------------------------------------
 # 2. Clean up UN and WB population input
     printLog( "Processing UN, WB and HYDE population input to standard format..." )
@@ -122,11 +126,11 @@
 
         if( i == 1 ) {
 
-            UN_years <-  as.character ( 1950:2015 )
+            UN_years <-  as.character ( 1950:UN_POP_HISTORICAL_END_YEAR )
 
         } else {
 
-            UN_years <-  as.character( 2015:2100 )
+            UN_years <-  as.character( UN_POP_HISTORICAL_END_YEAR:2100 )
 
         }
 
