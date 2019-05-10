@@ -1,10 +1,10 @@
 # ------------------------------------------------------------------------------
-# Program Name: C.1.2.add_CH4_NC_emissions_FAO.R
+# Program Name: C1.2.add_CH4_NC_emissions_FAO.R
 # Authors: Rachel Hoesly
-# Date Last Modified: 2 May 2019
+# Date Last Modified: 10 May 2019
 # Program Purpose: Use the package FAOSTAT to retrieve methane emissions
 #             data for agriculture.
-# Input Files:
+# Input Files: Master_Coutnry_list.csv, FAO_methane_API.csv
 # Output Files: C.CH4_NC_emissions_agriculture.csv
 # To Do:
 # Notes:
@@ -22,9 +22,6 @@
     script_name <- "C.1.2.add_CH4_NC_emissions_FAO.R"
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
-
-# -----------------------------------------------------------------------------
-# 0.5 Load Package and define variables
 
 # -----------------------------------------------------------------------------
 # 1. Load Data
