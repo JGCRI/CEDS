@@ -1,28 +1,29 @@
 emf_name,country_name,iso,emf_number
-Rest Southern Africa,Zimbabwe                                        ,zwe,
-Rest Southern Africa,Zambia                                          ,zmb,
-Rest Southern Africa,"Tanzania, United Republic of",tza,
-Rest Southern Africa,Swaziland                                        ,swz,
-Rest Southern Africa,Namibia                                         ,nam,
-Rest Southern Africa,Malawi                                          ,mwi,
-Rest Southern Africa,Mozambique                                      ,moz,
-Rest Southern Africa,Lesotho                                          ,lso,
-Rest Southern Africa,Botswana                                        ,bwa,
-Eastern Africa,Uganda                                          ,uga,
-Eastern Africa,Seychelles                                      ,syc,
-Eastern Africa,Somalia,som,
-Eastern Africa,Sudan                                       ,sdn,
-Eastern Africa,Rwanda,rwa,
-Eastern Africa,R_union                                 ,reu,
-Eastern Africa,Mauritius                                       ,mus,
-Eastern Africa,Madagascar                                      ,mdg,
-Eastern Africa,Kenya                                           ,ken,
-Eastern Africa,Ethiopia,eth,
-Eastern Africa,Eritrea                                 ,eri,
-Eastern Africa,Djibouti                                        ,dji,
-Eastern Africa,Comoros                     ,com,
-Eastern Africa,Burundi                                         ,bdi,
-Eastern Africa,Mayotte                                 ,,
+8 Western Africa,Zimbabwe                                        ,zwe,8
+8 Western Africa,Zambia                                          ,zmb,8
+8 Western Africa,"Tanzania, United Republic of",tza,8
+8 Western Africa,Swaziland                                        ,swz,8
+8 Western Africa,Namibia                                         ,nam,8
+8 Western Africa,Malawi                                          ,mwi,8
+8 Western Africa,Mozambique                                      ,moz,8
+8 Western Africa,Lesotho                                          ,lso,8
+8 Western Africa,Botswana                                        ,bwa,8
+8 Western Africa,Angola,ago,8
+8 Western Africa,Uganda                                          ,uga,8
+8 Western Africa,Seychelles                                      ,syc,8
+8 Western Africa,Somalia,som,8
+8 Western Africa,Sudan                                       ,sdn,8
+8 Western Africa,Rwanda,rwa,8
+8 Western Africa,R_union                                 ,reu,8
+8 Western Africa,Mauritius                                       ,mus,8
+8 Western Africa,Madagascar                                      ,mdg,8
+8 Western Africa,Kenya                                           ,ken,8
+8 Western Africa,Ethiopia,eth,8
+8 Western Africa,Eritrea                                 ,eri,8
+8 Western Africa,Djibouti                                        ,dji,8
+8 Western Africa,Comoros                     ,com,8
+8 Western Africa,Burundi                                         ,bdi,8
+8 Western Africa,Mayotte                                 ,,8
 8 Western Africa,Togo,tgo,8
 8 Western Africa,Chad                                            ,tcd,8
 8 Western Africa,Sao Tome and Principe                ,stp,8
@@ -41,7 +42,7 @@ Eastern Africa,Mayotte                                 ,,
 8 Western Africa,Gabon,gab,8
 8 Western Africa,Cape Verde                                      ,cpv,8
 8 Western Africa,Congo                                       ,cog,8
-8 Western Africa,"Congo, the Democratic Republic of the",cog,8
+8 Western Africa,"Congo, the Democratic Republic of the",cod,8
 8 Western Africa,Cameroon                                        ,cmr,8
 8 Western Africa,Cªte d'Ivoire                                    ,civ,8
 8 Western Africa,Central African Republic                ,caf,8
@@ -50,7 +51,7 @@ Eastern Africa,Mayotte                                 ,,
 8 Western Africa,Saint Helena                            ,,8
 7 Northern Africa,Tunisia                                         ,tun,7
 7 Northern Africa,Morocco                                          ,mar,7
-7 Northern Africa,Libyan Arab Jamahiriya,lbr,7
+7 Northern Africa,Libyan Arab Jamahiriya,lby,7
 7 Northern Africa,Western Sahara                          ,esh,7
 7 Northern Africa,Egypt                                      ,egy,7
 7 Northern Africa,Algeria                      ,dza,7
@@ -98,7 +99,8 @@ Eastern Africa,Mayotte                                 ,,
 4 Rest Central America,Belize                                  ,blz,4
 4 Rest Central America,Bahamas                                 ,bhs,4
 4 Rest Central America,Antigua and Barbuda                       ,atg,4
-4 Rest Central America,Netherlands Antilles                    ,ant,4
+4 Rest Central America,Curacao,cuw,4
+4 Rest Central America,Sint Maarten,sxm,4
 4 Rest Central America,Aruba                                   ,abw,4
 4 Rest Central America,Anguilla                                ,,4
 4 Rest Central America,"Virgin Islands, British                                      ",vgb,4
@@ -142,7 +144,7 @@ Eastern Africa,Mayotte                                 ,,
 23 Japan,Japan                                   ,jpn,23
 22 Indonesia+,Papua New Guinea                                            ,png,22
 22 Indonesia+,Indonesia                                       ,idn,22
-22 Indonesia+,East Timor,,22
+22 Indonesia+,East Timor,tls,22
 21 Southeastern Asia,Viet Nam                              ,vnm,21
 21 Southeastern Asia,Thailand                                         ,tha,21
 21 Southeastern Asia,Singapore                                       ,sgp,21
@@ -150,7 +152,7 @@ Eastern Africa,Mayotte                                 ,,
 21 Southeastern Asia,Malaysia                                ,mys,21
 21 Southeastern Asia,Myanmar                                            ,mmr,21
 21 Southeastern Asia,Cambodia                                         ,khm,21
-21 Southeastern Asia,Lao People's Democratic Republic,kgz,21
+21 Southeastern Asia,Lao People's Democratic Republic,lao,21
 21 Southeastern Asia,Brunei Darussalam                       ,brn,21
 20 China+,Mongolia                                ,mng,20
 20 China+,Macau                                   ,mac,20
@@ -171,6 +173,7 @@ Eastern Africa,Mayotte                                 ,,
 17 Middle East,Lebanon,lbn,17
 17 Middle East,Kuwait                                             ,kwt,17
 17 Middle East,Jordan                                 ,jor,17
+17 Middle East,Palestine,pse,17
 17 Middle East,Israel                                             ,isr,17
 17 Middle East,Iraq                                            ,irq,17
 17 Middle East,"Iran, Islamic Republic of",irn,17
@@ -189,7 +192,6 @@ Eastern Africa,Mayotte                                 ,,
 14 Ukraine+,"Moldova, Republic of",mda,14
 14 Ukraine+,Belarus                                         ,blr,14
 13 Turkey,Turkey                                          ,tur,13
-12 Central Europe,Yugoslavia                              ,yug,12
 12 Central Europe,Slovenia                                        ,svn,12
 12 Central Europe,Slovakia,svk,12
 12 Central Europe,Romania                                 ,rou,12
@@ -206,6 +208,9 @@ Eastern Africa,Mayotte                                 ,,
 12 Central Europe,Bosnia and Herzegovina                          ,bih,12
 12 Central Europe,Bulgaria                                        ,bgr,12
 12 Central Europe,Albania                                         ,alb,12
+12 Central Europe,Serbia,srb,12
+12 Central Europe,Kosovo,srb (kosovo),12
+12 Central Europe,Montenegro,mne,12
 11 Western Europe,Sweden                                           ,swe,11
 11 Western Europe,Portugal,prt,11
 11 Western Europe,Norway                                           ,nor,11
@@ -223,6 +228,7 @@ Eastern Africa,Mayotte                                 ,,
 11 Western Europe,Finland                                         ,fin,11
 11 Western Europe,Spain                                            ,esp,11
 11 Western Europe,Denmark                                          ,dnk,11
+11 Western Europe,Greenland,grl,11
 11 Western Europe,Germany                                 ,deu,11
 11 Western Europe,Switzerland,che,11
 11 Western Europe,Belgium                                          ,bel,11
