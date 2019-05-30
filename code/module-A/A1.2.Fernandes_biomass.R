@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A1.2.Fernandes_biomass.R
 # Author: Linh Vu
-# Date Last Updated: 19 February 2016
+# Date Last Updated: 10 May 2019
 # Program Purpose: This program produces 1850-2013 time series of residential biomass
 #                  consumption by country and fuel type from Fernandes biofuels data.
 #                  The program also produces fuel-weighted biomass conversion factors
@@ -47,7 +47,6 @@
 # ------------------------------------------------------------------------------
 # 1. Read raw input files and define useful values
   library( "zoo" )
-  library( "FAOSTAT" )
 
   input <- readData( "ENERGY_IN", "Fernandes_Biofuels_9", ".xlsx" )[ 2:11 ] # read in excel sheets from 2 to 11
   Master_Country_List <- readData( "MAPPINGS", "Master_Country_List" )
@@ -201,8 +200,8 @@
 # Change NA consumption_pc to 0
   full$consumption_pc[ is.na( full$consumption_pc ) ] <- 0
 
-# For countries/years without original Fernandes data, use per-capita value of
-# a proxy country
+# For countries/years without original Fernandes data (per-capita consumption is 0),
+# use per-capita value of a proxy country
   proxied <- filter( full, iso %in% proxy_mapping$iso ) %>%
     merge( select( proxy_mapping, iso, iso_proxy ), all.x = T ) %>%
     merge( select( full, fuel, year, iso_proxy = iso,
@@ -211,7 +210,7 @@
     proxied$consumption_pc_proxy[ proxied$consumption_pc == 0 ]
 
 # Bind back proxied values
-  full_proxied <- bind_rows( filter( full, iso %!in% proxy_mapping$iso ), 
+  full_proxied <- bind_rows( filter( full, iso %!in% proxy_mapping$iso ),
                              select( proxied, -iso_proxy, -consumption_pc_proxy ) ) %>%
     dplyr::arrange( iso, year )
 
