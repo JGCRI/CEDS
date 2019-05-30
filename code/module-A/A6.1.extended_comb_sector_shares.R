@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: A6.1.extended_comb_sector_shares.R
 # Author: Rachel Hoesly, Caleb Braun, Patrick O'Rourke
-# Last Updated:    February 13, 2019
+# Last Updated:    May 24, 2019
 # Program Purpose: Calculate default combustion fuel shares for extended historical data
 #     Combines default CEDS estimates from IEA with Bond fuel share data to produce
 #     sectoral estimates of fossil fuel use (in the form of fuel shares) for the entire period
@@ -52,14 +52,12 @@ ext_sector_map <- readData("MAPPINGS", "Bond_sector_ext_map", ".xlsx",
 # ---------------------------------------------------------------------------
 # 2. Define Variables, select options, and define functions used within script
 
-# bond_merge_start: year when aggregate sectors are 100% Bond data. Method is
-# to slowly transition from Bond to CEDS after this year, ending with 100% CEDS
-# default in IEA start year (which is either 1960 or 1971, varies by iso)
-
-bond_merge_start <- bond_start
-if (bond_merge_start %!in% bond_start:1959) {
-    stop('bond_merge_start must be between ', bond_start, ' and 1959')
-}
+# Define the number of years before extended aggregate sector splits are fully from BOND
+# data. This is used when transitioning from CEDS to BOND agg. sector splits (extending back in time).
+# For example, if for a given iso the IEA start_year is 1960, or the earliest year with IEA data
+# (1960 for most OECD countries), and the "years_until_100percent_BOND_split" is 20,
+# then in 1940 agg. sector splits will be fully from BOND data.
+years_until_100percent_BOND_split <- 20
 
 ceds_extension_fuels <- c("hard_coal", "brown_coal", "coal_coke", "natural_gas",
                           "heavy_oil", "diesel_oil", "light_oil")
@@ -230,6 +228,16 @@ printLog('Merge Bond and CEDS sector extension sector breakdowns')
 # to create combined_sector_percentages.
 combined_sector_percentages_list <- list()
 for (start_year in start_years) {
+
+    # bond_merge_start: year when aggregate sectors are 100% Bond data. Method is
+    # to transition from Bond to CEDS after this year for agg splits, ending with 100% CEDS
+    # default in IEA start year (which is either 1960 or 1971, varies by iso)
+    bond_merge_start <- start_year - years_until_100percent_BOND_split
+
+    if (bond_merge_start %!in% bond_start:1959) {
+        stop('bond_merge_start must be between ', bond_start, ' and 1959')
+    }
+
     years <- bond_merge_start:start_year
     xyears <- paste0('X', years)
     pre_merge_years <- historical_pre_extension_year:(bond_merge_start - 1)
@@ -347,14 +355,24 @@ extended_breakdown_not_coal <- ceds_extsector_percentages_corrected %>%
                      by = c("ext_sector", "sector") )
 
 # Combine and interpolate between the NAs
-# Note: The mutate_at() call creates columns, but it requires a function as its
+# Note: 1) The mutate_at() call creates columns, but it requires a function as its
 #       second argument, even though we just want to give it a value (NA). To
 #       address this we use the `+` function as an identity function that also
 #       ensures its argument is numeric.
+#       2) Countries with iea_start_years equal to 1971 need to have their disagg splits converted to
+#       NA from 1960-1970 (currently all = 0) so that interpolation is between their 1971 value and the default assumptions back to 1750,
+#       instead of between 0 and the default assumptions back to 1750
+# TODO: If future IEA energy data provides data for non-OECD countries from 1960-1970 the values
+#       will not need to be set to NA
+nonOECD_NA_years <- paste0( "X", 1960 : extension_end_year )
+
 extended_breakdown <- extended_breakdown_coal %>%
     rbind.fill(extended_breakdown_not_coal) %>%
     mutate_at(setdiff(X_extended_years, names(.)), funs(+NA)) %>%
-    select(iso, fuel, ext_sector, sector, one_of(X_extended_years)) %>%
+    dplyr::left_join( iea_start_year, by = "iso" ) %>%
+    select(iso, fuel, ext_sector, sector, one_of(X_extended_years), start_year ) %>%
+    dplyr::mutate_at( nonOECD_NA_years, funs( if_else( start_year == 1971, NA_real_, . ) ) ) %>%
+    dplyr::select( - start_year ) %>%
     interpolate_NAs2()
 
 # Make sure all combinations are included
