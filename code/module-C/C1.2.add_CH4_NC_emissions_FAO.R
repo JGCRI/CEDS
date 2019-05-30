@@ -1,10 +1,10 @@
 # ------------------------------------------------------------------------------
-# Program Name: C.1.2.add_CH4_NC_emissions_FAO.R
+# Program Name: C1.2.add_CH4_NC_emissions_FAO.R
 # Authors: Rachel Hoesly
-# Date Last Modified: 04 April 2017
+# Date Last Modified: 10 May 2019
 # Program Purpose: Use the package FAOSTAT to retrieve methane emissions
 #             data for agriculture.
-# Input Files:
+# Input Files: Master_Coutnry_list.csv, FAO_methane_API.csv
 # Output Files: C.CH4_NC_emissions_agriculture.csv
 # To Do:
 # Notes:
@@ -22,10 +22,6 @@
     script_name <- "C.1.2.add_CH4_NC_emissions_FAO.R"
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
-
-# -----------------------------------------------------------------------------
-# 0.5 Load Package and define variables
- loadPackage('FAOSTAT')
 
 # -----------------------------------------------------------------------------
 # 1. Load Data
@@ -124,7 +120,7 @@ FAO <- FAO_API %>%
   FAO_last <- max( as.numeric ( gsub('X','',names ( FAO_out ) ) ), na.rm = T )
   years <- paste0('X',1961:end_year)
   add_years <- years[ years %!in% names( FAO_out ) ]
-  FAO_out[ add_years ] <- FAO_out[ paste0('X', FAO_last ) ] 
+  FAO_out[ add_years ] <- FAO_out[ paste0('X', FAO_last ) ]
 
   FAO_out <- FAO_out %>%
     dplyr::mutate(units = 'kt') %>%
