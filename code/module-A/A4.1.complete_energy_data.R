@@ -130,13 +130,18 @@
         group_by(iso, fuel, sector, units) %>%
         summarize_all(funs(sum))
 
+    # Add aggregate oil category to MFL so can aggreate correctly below
+    new_oil_row <- cbind("oil","oil","","aggreagte oil") %>%
+        as.data.frame()
+    names_for_oil <- colnames(MFL)
+    names(new_oil_row) = names_for_oil
+    MFL <- rbind(MFL, new_oil_row)
+
     total_fuel_consumption <- full_energy_data_combustion %>%
         left_join(MFL[c('fuel','aggregated_fuel')], by = "fuel") %>%
-        mutate(fuel = ifelse(is.na(aggregated_fuel), "coal", aggregated_fuel)) %>%
-        select(-aggregated_fuel) %>%
-        rbind.fill(other_transformation_aggregate) %>%
         select(-sector) %>%
-        group_by(iso, fuel, units) %>%
+        select(-fuel) %>%
+        group_by(iso, aggregated_fuel, units) %>%
         summarize_all(funs(sum))
 
 # ------------------------------------------------------------------------------
@@ -158,6 +163,7 @@
                fn = "A.comb_activity_with_other", comments = comments.A.comb_activity )
     writeData( other_transformation, domain = "MED_OUT",
                fn = "A.Other_transformation_fuel")
+    # A.total_agg_fuel contains total consumption of each fuel, including other transformation and feedstocks for reference
     writeData( total_fuel_consumption, domain = "MED_OUT",
                fn = "A.total_agg_fuel")
     writeData( IEA_other_energy_trends, domain = "MED_OUT",
