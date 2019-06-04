@@ -1,14 +1,16 @@
 # ------------------------------------------------------------------------------
 # Program Name: A6.2.extended_default_activity_natural_gas.R
 # Author: Presley Muwan
-# Date Last Updated: 20 Apr 2018
+# Date Last Updated: 4 June 2019
 # Program Purpose: Create the default activity natural gas data for CEDS following these three steps:
 #                 * Merge IEA coal data (2014 - 1960/1971) to UNSD coal data (1959/1970 - 1950)
 #                   and extend the merged data from 1950 to 1850 using CDIAC data.
 #                 * Disaggregate the merge data by iso-fuel
 #                 * Disaggregate the merged data by CEDS iso-fuel-Sector
-#
-# Output Files:  A.CEDS_default_actvity_natural_gas
+# Input Files: CDA1_UNSD_Energy_Final_Consumption_by_Ctry.csv, A.comb_activity_with_other.csv,
+#              E.CO2_CDIAC_inventory.csv, A.final_sector_shares.csv,
+#              IEA_iso_start_data.csv, IEA_product_fuel.csv
+# Output Files:  A.CEDS_default_actvity_natural_gas.csv
 # ---------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
@@ -28,7 +30,6 @@ initialize( script_name, log_msg, headers )
 # 1. Read in Files
 
 UNSD_Energy_Final_Consumption_all <- readData( 'EXT_IN',"CDA1_UNSD_Energy_Final_Consumption_by_Ctry" , meta = F)
-other_transformation_all <- readData( 'MED_OUT','A.Other_transformation_fuel' )
 A.comb_activity_all <- readData( 'MED_OUT', paste0("A.comb_activity_with_other") , meta = F)
 final_sector_shares_all <- readData( 'MED_OUT', 'A.final_sector_shares')
 cdiac_fuel_all <- readData( 'MED_OUT' , 'E.CO2_CDIAC_inventory')
@@ -60,10 +61,6 @@ UNSD_Energy_Final_Consumption <- UNSD_Energy_Final_Consumption_all %>%
             iso %in% UN_countries)
 
 # Filter Input data for fuels and zero data
-# Filter Input data for fuels
-# other_transformation <- other_transformation_all %>%
-#     filter( fuel %in% ceds_extension_fuels) %>%
-#     filter( iso != 'global ')
 A.comb_activity_with_other <- A.comb_activity_all %>%
     filter( fuel %in% ceds_extension_fuels) %>%
     filter( iso != 'global ')
