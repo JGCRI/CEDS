@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: A6.1.extended_comb_sector_shares.R
 # Author: Rachel Hoesly, Caleb Braun, Patrick O'Rourke
-# Last Updated:    June 3, 2019
+# Last Updated:    June 4, 2019
 # Program Purpose: Calculate default combustion fuel shares for extended historical data
 #     Combines default CEDS estimates from IEA with Bond fuel share data to produce
 #     sectoral estimates of fossil fuel use (in the form of fuel shares) for the entire period
@@ -31,7 +31,7 @@ initialize( script_name, log_msg, headers )
 # 1. Load files
 
 bond_sector_percentages <-
-    readData( 'EXT_IN', 'CD.Bond_sector_percentages.csv', '.zip', 'CD.Bond_sector_percentages' )
+    readData( 'EXT_IN', 'CD.Bond_sector_percentages.csv' )
 
 ext_sector_breakdown_assumptions <-
     readData( 'EXT_IN', 'ext_sector_breakdown_assumptions')
