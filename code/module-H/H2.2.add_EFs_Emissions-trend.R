@@ -175,7 +175,7 @@ activity_trends <- replaceValueColMatch(activity_trends, activity,
                                         addEntries = FALSE)
 
 if( !identical(emissions_trends[,c('iso','sector','fuel')], activity_trends[,c('iso','sector','fuel')]))
-  stop('Extendted emissions trends and activity trends are not identical, cannot calculate extended EF trend.')
+  stop('Extended emissions trends and activity trends are not identical, cannot calculate extended EF trend.')
 
 EF_trends <- emissions_trends
 EF_trends[years] <- emissions_trends[years]/activity_trends[ years ]

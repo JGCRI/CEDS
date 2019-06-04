@@ -3,8 +3,12 @@
 # Author: Rachel Hoesly
 # Date Last Updated: 15 Nov 2016
 # Program Purpose: Process extendtion EFs database to finalize and sort CEDS EFs database.
-# Input Files: None
-# Output Files: None
+# Input Files: H.[em]_total_EFs_extended_adjusted-pathway.csv,
+#              A.total_activity_extended.csv
+# Output Files: H.SO2_final_other_tranformation_emissions.csv,
+#               H.[em]_total_CEDS_emissions_before_other_transformation_replacement.csv,
+#               H.CO2_final_other_transformation_emissions.csv,
+#               [em]_total_CEDS_emissions.csv
 # Notes:
 # TODO:
 # ------------------------------------------------------------------------------------
