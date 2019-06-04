@@ -1,10 +1,10 @@
 #------------------------------------------------------------------------------
 # Program Name: A7.3.proc_activity.R
 # Author: Rachel Hoesly
-# Date Last Updated: March 22, 2016
+# Date Last Updated: June 4, 2019
 # Program Purpose: Process extention activity database to finalize and sort CEDS activity database.
-# Input Files: None
-# Output Files: None
+# Input Files: A.NC_activity_extended_db.csv
+# Output Files: A.NC_default_activity_extended.csv
 # Notes:
 
 # ------------------------------------------------------------------------------------

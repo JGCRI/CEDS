@@ -3,8 +3,8 @@
 # Author: Rachel Hoesly
 # Date Last Updated: March 22, 2016
 # Program Purpose: Process extendtion EFs database to finalize and sort CEDS EFs database.
-# Input Files: None
-# Output Files: None
+# Input Files: H.[em]_total_EFs_extended_db.csv
+# Output Files: H.[em]_total_EFs_extended.csv
 # Notes:
 # TODO:
 # ------------------------------------------------------------------------------------
