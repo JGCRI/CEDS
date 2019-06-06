@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # Program Name: GBR_historical_coal.R
 # Author: Caleb Braun and Patrick O'Rourke
-# Date: May 6, 2019
+# Date: June 6, 2019
 #
 # Transforms raw UK historical coal data into a CEDS format .csv file.
 #
@@ -19,6 +19,8 @@
 # Output Files: GBR_historical_coal.csv
 #-------------------------------------------------------------------------------
 
+# 1.) Set constants, load data, make mapping
+
 # for writeData function
 setwd( '../../' )
 PARAM_DIR <- '../code/parameters/'
@@ -31,7 +33,7 @@ SHEET <- 'Coal Availability & Consumption'
 
 FULLRANGE <- "A5:S131" # The range of cells containing relevant information
 DATASTART <- 23        # The row in FULLRANGE where the data actually starts
-
+ALL_YEARS <- paste0( 1913:2016 )
 
 xl <- readData( 'EXT_IN', paste0(FPATH, FNAME), '.xls', sheet = SHEET,
                 range = FULLRANGE, missing_value = c( '', '..', '-' ), trim_ws = T )
@@ -64,10 +66,10 @@ ceds_sector_map <- c(
     "Railways"                        = "1A3_Transportation",        # "1A3c_Rail"
     "Domestic"                        = "1A4_Stationary_RCO",
     "Industry"                        = "1A2_Industry-combustion",
-    "Miscellaneous"                   = "6A_Other-in-total",
+    "Miscellaneous"                   = "1A2g_Ind-Comb-other",
     "Miners"                          = "1A2_Industry-combustion",   # "1A2g_Ind-Comb-mining-quarying"
     "Coastwise Bunkers"               = "1A3_Transportation",        # "1A3dii_Domestic-navigation"
-    "Other"                           = "6A_Other-in-total",
+    "Other"                           = "1A2g_Ind-Comb-other",
 
 #   "Northern Ireland"                = NA,
     "Total Inland Consumption"        = "ignore",
@@ -78,89 +80,81 @@ ceds_sector_map <- data.frame( sector = names( ceds_sector_map ),
                                agg_sector = ceds_sector_map,
                                stringsAsFactors = F )
 
-df1 <- df %>%
-        dplyr::mutate_at( yrs, as.numeric ) %>%
-        dplyr::mutate_at( yrs, funs( . * 1000 ) ) %>%
-        dplyr::mutate_at( 'sector', as.character ) %>%
-        dplyr::left_join( ceds_sector_map, by = 'sector' ) %>%
-        dplyr::filter( is.na( agg_sector ) | agg_sector != 'ignore' ) %>%
-        dplyr::mutate( iso = 'gbr', agg_fuel = 'coal' ) %>%
+#-------------------------------------------------------------------------------
+
+#2. Process gbr coal data
+
+# Initial data cleaning - convert units, map sectors
+GBR_coal <- df %>%
+    dplyr::mutate_at( yrs, as.numeric ) %>%
+    dplyr::mutate_at( yrs, funs( . * 1000 ) ) %>%
+    dplyr::mutate_at( 'sector', as.character ) %>%
+    dplyr::left_join( ceds_sector_map, by = 'sector' ) %>%
+    dplyr::filter( is.na( agg_sector ) | agg_sector != 'ignore' ) %>%
+    dplyr::mutate( iso = 'gbr', agg_fuel = 'coal' ) %>%
+    dplyr::select( iso, agg_fuel, agg_sector, dplyr::everything( ) ) %>%
+    tidyr::gather(key = years, value = coal_consumption, ALL_YEARS )
+
+# Fix Domestic, Industry and Miscellaneous values from 1923-1942 (currently all assigned to Domestic)
+# based on their relative amounts from 1943
+    sectors_to_fix <- c( "Domestic",  "Industry", "Miscellaneous" )
+    years_to_fix <- paste0( 1923 : 1942 )
+    domestic_1943_share <- 0.44
+    industry_1943_share <- 0.4
+    misc_1943_share <- 0.16
+
+#   Subset data to fix, distribute data to the 3 sectors based on their shares, map to agg_sectors
+    GBR_coal_to_fix <- GBR_coal %>%
+        dplyr::select( -iso, -agg_fuel, -agg_sector ) %>%
+        dplyr::filter( sector %in% sectors_to_fix,
+                       years %in% years_to_fix ) %>%
+        tidyr::spread( sector, coal_consumption ) %>%
+        dplyr::mutate( Industry = Domestic,
+                       Miscellaneous = Domestic ) %>%
+        dplyr::mutate( Domestic = Domestic * domestic_1943_share,
+                      Industry = Industry * industry_1943_share,
+                      Miscellaneous = Miscellaneous * misc_1943_share ) %>%
+        dplyr::select( years, Domestic, Industry, Miscellaneous ) %>%
+        tidyr::gather( key = sector, value = coal_consumption_disaggregate_to_add, sectors_to_fix ) %>%
+        dplyr::left_join( ceds_sector_map, by = "sector" ) %>%
+        dplyr::select( agg_sector, years, coal_consumption_disaggregate_to_add )
+
+#   Summarize original GBR data with Domestic turned to NA from 1923 to 1942 (since that data actually the combination of
+#   Domestic, Industry, and Misc. that we just disaggregated)
+    GBR_coal_summarized <- GBR_coal %>%
+        dplyr::mutate( coal_consumption = if_else( sector %in% sectors_to_fix & years %in% years_to_fix,
+                                                   NA_real_, coal_consumption ) ) %>%
         dplyr::select( iso, agg_fuel, agg_sector, dplyr::everything( ), -sector ) %>%
-        dplyr::group_by( iso, agg_fuel, agg_sector ) %>%
-        dplyr::summarise_all( sum, na.rm = TRUE)
-
-df1[df1 == 0] <- NA # We can do this because there are no zeros in original data
-
-# For df1 Split the 1A4_Stationary_RCO values by a proportion among 1A4_Stationary_RCO, 1A2_Industry-combustion,
-# and 6A_Other-in-total from 1923 to 1942
-
-    df1 <- df1 %>%
-      tidyr::gather( year, value, -iso, -agg_fuel, -agg_sector ) %>%
-      tidyr::spread( agg_sector, value ) -> GBR_coal
-
-    yrs2 <- 1923:1942
-
-#   Define the function split_RCO
-
-    split_RCO <- function( df_in ){
-      names( df_in )[names( df_in ) == '1A4_Stationary_RCO'] <- 'RCO'
-      names( df_in )[names( df_in ) == '1A2_Industry-combustion'] <- 'ind'
-      names( df_in )[names( df_in ) == '6A_Other-in-total'] <- 'other'
-      df_in$year <- as.numeric( df_in$year )
-      df_in$ind <- ifelse( df_in$year %in% yrs2, ( df_in$RCO )*0.40, df_in$ind )
-      df_in$other <- ifelse( df_in$year %in% yrs2, ( df_in$RCO )*0.16, df_in$other )
-      df_in$RCO <- ifelse( df_in$year %in% yrs2, ( df_in$RCO )*0.44, df_in$RCO )
-      names( df_in )[names( df_in ) == 'RCO'] <- '1A4_Stationary_RCO'
-      names( df_in )[names( df_in ) == 'ind'] <- '1A2_Industry-combustion'
-      names( df_in )[names( df_in ) == 'other'] <- '6A_Other-in-total'
-      df_in$year <- as.character( df_in$year )
-      df_in <- as.data.frame( df_in )
-    }
-
-#   Use split_RCO
-    GBR_coal2 <- split_RCO( GBR_coal )
-
-#   Cast back to wide
-    sectors <-c( "1A1_Energy-transformation", "1A2_Industry-combustion", "1A3_Transportation", "1A4_Stationary_RCO",
-                 "6A_Other-in-total", "<NA>" )
-
-    GBR_coal2 <- GBR_coal2 %>%
-      gather( sectors, value, -iso, -agg_fuel, -year ) %>%
-      spread( year, value ) -> GBR_coal3
-
-#   Make this a data frame
-    GBR_coal3 <- as.data.frame( GBR_coal3 )
-
-# Reformat df2 - create "Total" consumption data
-    df2 <- df %>%
-        dplyr::mutate_at( yrs, as.numeric ) %>%
-        dplyr::mutate_at( yrs, funs( . * 1000 ) ) %>%
-        dplyr::mutate_at( 'sector', as.character ) %>%
-        dplyr::left_join( ceds_sector_map, by = 'sector') %>%
-        dplyr::filter( is.na( agg_sector ) | agg_sector != 'ignore' ) %>%
-        dplyr::mutate( iso = 'gbr', agg_fuel = 'coal') %>%
-        dplyr::select( iso, agg_fuel, dplyr::everything( ), -agg_sector, -sector ) %>%
-        dplyr::group_by( iso, agg_fuel ) %>%
+        dplyr::group_by( iso, agg_fuel, agg_sector, years ) %>%
         dplyr::summarise_all( sum, na.rm = TRUE )
 
-    df2[df2 == 0] <- NA # We can do this because there are no zeros in original data
+#   Add disaggregated Domestic, Industry, and Misc. to aggregated data
+    GBR_coal_fixed <- GBR_coal_summarized %>%
+        dplyr::left_join( GBR_coal_to_fix, by = c( "agg_sector", "years" ) ) %>%
+        dplyr::mutate( final_coal_consumption = if_else( is.na( coal_consumption_disaggregate_to_add ),
+                                                         coal_consumption,
+                                                if_else( !( is.na( coal_consumption_disaggregate_to_add) ),
+                                                         coal_consumption + coal_consumption_disaggregate_to_add,
+                                                         NA_real_ ) ) ) %>%
+        dplyr::select( -coal_consumption, -coal_consumption_disaggregate_to_add ) %>%
+        tidyr::spread( years, final_coal_consumption ) %>%
+        dplyr::ungroup( ) %>%
+        dplyr::rename( sector = agg_sector )
 
-    df2$sectors <- "Total"
-    yrs3 <- 1913:2016
-    yrs3 <- as.character( yrs3 )
-    df2 <- df2[ c( "iso", "agg_fuel", "sectors", yrs3 ) ]
+    GBR_coal_fixed[GBR_coal_fixed == 0] <- NA # We can do this because there are no zeros in original data
 
-    GBR_coal_total_final <- df2 %>%
-        as.data.frame( ) %>%
-        dplyr::rename( sector = sectors )
+# Create "Total" consumption data
+  GBR_coal_total <- GBR_coal_fixed %>%
+        tidyr::gather( key = years, value = coal_consumption, ALL_YEARS ) %>%
+        dplyr::mutate( sector = "Total" ) %>%
+        dplyr::group_by( iso, agg_fuel, sector, years ) %>%
+        dplyr::summarise_all( sum, na.rm = TRUE ) %>%
+        tidyr::spread( years, coal_consumption )
 
-# Rename sectors variable to sector forr agg_sec consumption data
-    GBR_coal_agg_sec_final <- GBR_coal3 %>%
-        dplyr::rename( sector = sectors )
 
 # Save final output
-writeData( GBR_coal_agg_sec_final, 'EXT_IN', paste0( FPATH, 'GBR_historical_coal_aggsec' ) )
-writeData( GBR_coal_total_final, 'EXT_IN', paste0( FPATH, 'GBR_historical_coal_total' ) )
+writeData( GBR_coal_fixed, 'EXT_IN', paste0( FPATH, 'GBR_historical_coal_aggsec' ) )
+writeData( GBR_coal_total, 'EXT_IN', paste0( FPATH, 'GBR_historical_coal_total' ) )
 
 
 logStop()
