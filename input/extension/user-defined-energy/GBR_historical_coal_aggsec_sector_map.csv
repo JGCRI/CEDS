@@ -2,7 +2,7 @@ CEDS_sector,sector
 1A1a_Electricity-autoproducer,1A1a_Electricity
 1A1a_Electricity-public,1A1a_Electricity
 1A1a_Heat-production,1A1_Energy-transformation
-1A1bc_Other-feedstocks,6A_Other-in-total
+1A1bc_Other-feedstocks,1A2g_Ind-Comb-other
 1A1bc_Other-transformation,1A1_Energy-transformation
 1A2a_Ind-Comb-Iron-steel,1A2_Industry-combustion
 1A2b_Ind-Comb-Non-ferrous-metals,1A2_Industry-combustion
@@ -13,7 +13,7 @@ CEDS_sector,sector
 1A2g_Ind-Comb-Construction,1A2_Industry-combustion
 1A2g_Ind-Comb-machinery,1A2_Industry-combustion
 1A2g_Ind-Comb-mining-quarying,1A2_Industry-combustion
-1A2g_Ind-Comb-other,1A2_Industry-combustion
+1A2g_Ind-Comb-other,1A2g_Ind-Comb-other
 1A2g_Ind-Comb-textile-leather,1A2_Industry-combustion
 1A2g_Ind-Comb-transpequip,1A2_Industry-combustion
 1A2g_Ind-Comb-wood-products,1A2_Industry-combustion
