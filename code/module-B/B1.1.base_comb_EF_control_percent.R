@@ -32,9 +32,6 @@
 # 1. Read in files
 # for running directly from R - defines emission species (normally from command line)
 
-# "em" is defined from parent script
-    em_lc <- tolower( em )
-
     activity_data <- readData( "MED_OUT", "A.comb_activity" )
 
 # ------------------------------------------------------------------------------

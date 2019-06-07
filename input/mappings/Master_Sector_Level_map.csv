@@ -6,6 +6,7 @@ detailed_sectors,working_sectors_v1,working_sectors_v2,aggregate_sectors,FSU_ext
 1A1c_Coke-ovens,1A1bc_Other-transformation,1A1bc_Other-transformation,1A1_Energy-transformation,Power,Energy Transf/Ext
 1A1c_Coal-liquefaction,1A1bc_Other-transformation,1A1bc_Other-transformation,1A1_Energy-transformation,Power,Energy Transf/Ext
 1A1g_Other-energy-transf,1A1bc_Other-transformation,1A1bc_Other-transformation,1A1_Energy-transformation,Power,Energy Transf/Ext
+1A1bc_Other-feedstocks,1A1bc_Other-feedstocks,1A1bc_Other-feedstocks,1A1bc_Other-feedstocks,1A1bc_Other-feedstocks,
 1A2a_Ind-Comb-Iron-steel,1A2a_Ind-Comb-Iron-steel,1A2a_Ind-Comb-Iron-steel,1A2_Industry-combustion,Industry,Industry
 1A2b_Ind-Comb-Non-ferrous-metals,1A2b_Ind-Comb-Non-ferrous-metals,1A2b_Ind-Comb-Non-ferrous-metals,1A2_Industry-combustion,Industry,Industry
 1A2c_Ind-Comb-Chemicals,1A2c_Ind-Comb-Chemicals,1A2c_Ind-Comb-Chemicals,1A2_Industry-combustion,Industry,Industry

@@ -44,7 +44,7 @@
     iea_data <- readData( "MED_OUT", "A.IEA_en_stat_ctry_hist" )
     iea_data_extended <- readData( "MED_OUT", "A.IEA_BP_energy_ext" )
     shipping_fuel <- readData( "ENERGY_IN", "Shipping_Fuel_Consumption" , ".xlsx",
-                                   skip_rows = 4, sheet_selection = "Data" )
+                                   skip = 4, sheet_selection = "Data" )
     IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
 
 # Pre-1855 shipping coal extrapolation
@@ -211,7 +211,7 @@
     ship_out[ is.na( ship_out ) ] <- 0
     ship_out <- ship_out[ c( "iso", "sector", "fuel", "units", X_extended_years ) ]
     ship_out <- group_by( ship_out, iso, sector, fuel, units ) %>%
-      summarise_each( fun = "max" )
+      summarise_all( max )
 
 # Separate for output
     global_shipping <- ship_out[which(ship_out$iso == 'global'),]

@@ -40,12 +40,13 @@
 # for non-methane read in the EDGAR JRC PEGASOS data
 if ( em != 'CH4' )
     EDGAR_raw <- readData( 'EM_INV', domain_extension = "EDGAR/", file_name = paste0( 'JRC_PEGASOS_', em, '_TS_REF' ),
-                           extension = ".xlsx", sheet_selection = 1, skip_rows = 8 )
+                           extension = ".xlsx", sheet_selection = 1, skip = 8 )
 # for methane read in the EDGAR 4.2 and Edgar fast track
     if ( em == 'CH4' ) {
     EDGAR_raw <- readData( "EM_INV", file_name = '/EDGAR/EDGAR42_CH4' )
-    EDGAR_FT_raw <- readData( "EM_INV", file_name = '/EDGAR/v42FT_CH4_2000_2010' ,
-                              extension = ".xlsx", sheet_selection = 1, skip_rows = 9 , headers = T) }
+    EDGAR_FT_raw <- readData( "EM_INV", file_name = '/EDGAR/v42FT_CH4_2000_2010',
+                              extension = ".xlsx", sheet_selection = 1, skip = 9 )
+    }
 
 # ------------------------------------------------------------------------------
 # 2. Pre-processing

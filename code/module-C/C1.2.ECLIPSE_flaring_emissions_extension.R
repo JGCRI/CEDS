@@ -44,7 +44,7 @@
 # read in the en_stat_sector_fuel.csv to extract IEA crude oil production data
     en_stat_sector_fuel <- readData( 'MED_OUT', file_name = 'A.en_stat_sector_fuel' )
 # read in the BP
-    BP_energy_data <- readData( 'ENERGY_IN', file_name = 'BP_energy_data', extension = ".xlsx", sheet_selection = 5, skip_rows = 2 ) # Oil Production - Tonnes
+    BP_energy_data <- readData( 'ENERGY_IN', file_name = 'BP_energy_data', extension = ".xlsx", sheet_selection = 5, skip = 2 ) # Oil Production - Tonnes
 # read in master country list
     mcl <- readData( 'MAPPINGS', 'Master_Country_List' )
 # read in the population data

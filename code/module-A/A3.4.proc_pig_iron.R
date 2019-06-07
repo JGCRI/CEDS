@@ -108,7 +108,7 @@
 # Standardize format, drop rows of NA, short ton to metric ton, etc.
     names( spew ) <- make.names( names( spew ) )
     spew_pre <- group_by( spew_pre, iso ) %>%
-            summarise_each( funs( sum ) )
+            summarise_all( sum )
     spew_pre <- subset( spew_pre, rowSums( spew_pre[, grepl("X", names( spew_pre ) ) ], na.rm = T ) != 0 )  # drop NA rows
     mitchell$units <- NULL
     mitchell$iso[ mitchell$iso == "rus" ] <- "ussr"  # Change rus to ussr
@@ -116,7 +116,7 @@
     us[ grepl( "X", names( us ) ) ] <- us[ grepl( "X", names( us ) ) ] * SHORT_TO_METRIC
 
 # Format population
-    un_pop$X_year <- paste0( "X" , un_pop$year)
+    un_pop$X_year <- paste0( 'X', un_pop$year)
     un_pop$pop <- as.numeric(un_pop$pop)
     population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_year:end_year ) , ] ,
                         iso ~ X_year, value = 'pop')
@@ -158,6 +158,7 @@
     all_wide$iso <- as.character( all_wide$iso )
 
 # Interpolate NAs
+  if (!all_equal(interpolate_NAs(  all_wide[ X_extended_years ]), interpolate_NAs2( all_wide[ X_extended_years ]))) stop()
     all_wide[ X_extended_years ] <- interpolate_NAs( all_wide[ X_extended_years ] )
     all_wide[ is.na( all_wide ) ] <- 0
 

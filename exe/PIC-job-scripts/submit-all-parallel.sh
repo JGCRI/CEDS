@@ -1,8 +1,8 @@
 #!/bin/bash
 
-sbatch make-activity.sh
+sbatch make-extended-activity.sh
 
-sleep 1800s
+sleep 54000s
 
 sbatch make-SO2.sh
 sbatch make-NOx.sh
