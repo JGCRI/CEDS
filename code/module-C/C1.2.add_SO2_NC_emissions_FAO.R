@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: C.1.2.add_SO2_NC_emissions_FAO_pulp_paper.R
 # Authors: Ryan Bolt, Jon Seibert, Linh Vu
-# Date Last Modified: 19 December 2015
+# Date Last Modified: 10 May 2019
 # Program Purpose: Use the package FAOSTAT to retrieve data on pulp production
 #                  and with an emission factor to produce driver data.
 # Input Files: Master_Country_List.csv, FAO_SO2_emissions.csv
@@ -24,8 +24,7 @@
     initialize( script_name, log_msg, headers )
 
 # -----------------------------------------------------------------------------
-# 1. We need to start up the library and define a few things
- loadPackage('FAOSTAT')
+# 1. Define constants and load Master_Country_List
 
  iso.codes <- readData( "MAPPINGS", "Master_Country_List", meta = F )
 

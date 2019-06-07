@@ -1,9 +1,9 @@
 # ------------------------------------------------------------------------------
 # Program Name: H2.2.add_EFs_constant.R
 # Author: Rachel Hoesly
-# Program Purpose:
-#
-# Output Files:
+# Program Purpose: Extend EFs back to 1750 with constant values
+# Input Files: H.[em]_total_EFs_extended_db.csv, CEDS_historical_extension_methods_EF.csv
+# Output Files: H.[em]_total_EFs_extended_db.csv
 # TODO:
 # ---------------------------------------------------------------------------
 

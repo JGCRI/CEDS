@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name:    A8.1.add_user-defined_data.R
 # Authors:         Ben Goldstein, Caleb Braun, Patrick O'Rourke
-# Last Updated:    February 7 2019
+# Last Updated:    June 4, 2019
 # Program Purpose: To process user-defined datasets for use in the historical
 #                  energy extension. See Section 3 of the CEDS User Guide
 #                  (https://github.com/JGCRI/CEDS-dev/wiki/User-Guide) for
@@ -9,7 +9,7 @@
 #
 # Input Files:  A.comb_default_activity_extended.csv
 #               U.*.csv, U.*-instructions.csv, U.*-mapping.xslx
-# Output Files: A.comb_user_added.csv
+# Output Files: A.comb_user_added.csv, A.user_added_changed_rows.csv
 # Notes: Relies on functions from the following files:
 #   - parameters/user_data_inclusion_functions.R
 #   - parameters/user_data_processing.R

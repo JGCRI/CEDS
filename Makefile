@@ -63,7 +63,7 @@ activity : $(MED_OUT)/A.total_activity.csv \
 	$(MED_OUT)/A.coal_heat_content.csv
 
 extended-activity : $(MED_OUT)/A.total_activity_extended.csv \
-	$(EXT_DATA)/A.Pig_Iron_Production.csv 
+	$(EXT_DATA)/A.Pig_Iron_Production.csv
 
 else
 
@@ -486,7 +486,7 @@ $(MED_OUT)/A.NC_activity.csv : \
 # Combustion data
 $(MED_OUT)/A.final_sector_shares.csv : \
 	$(MOD_A)/A6.1.extended_comb_sector_shares.R \
-	$(EXT_IN)/CD.Bond_sector_percentages.csv.zip \
+	$(EXT_IN)/CD.Bond_sector_percentages.csv \
 	$(MED_OUT)/A.Other_transformation_fuel.csv \
 	$(MED_OUT)/A.comb_activity.csv \
 	$(EXT_IN)/ext_sector_breakdown_assumptions.csv \
