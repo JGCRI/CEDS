@@ -102,7 +102,7 @@
     inv_data_sheet <-
         inv_data_sheet[ apply( X = inv_data_sheet[ , paste0( "X", inv_years ) ],
                                MARGIN = 1, function( x ) 
-                                             ( !all( is.na( x ) ) ) ) ,]
+                                             ( !all.na( x ) ) ) ,]
   
 # write standard form inventory
     writeData( inv_data_sheet, domain = "MED_OUT", 

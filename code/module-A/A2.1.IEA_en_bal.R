@@ -218,7 +218,8 @@
 
 # Check Combustion Sectors vs Process Sectors - If non process fuels for process sectors, seperate and
 #   write to diagnostic file
-    combustion_sectors <- MSL[ which( MSL$activity == 'Energy_Combustion' ), 'sector' ]
+    combustion_sectors <- c(MSL[ which( MSL$activity %in% c('Energy_Combustion')), 'sector' ],
+                            '1A1bc_Other-transformation','1A1bc_Other-feedstocks')
 
     combustion_data_process_sectors <- A.en_stat_sector_fuel[ which( A.en_stat_sector_fuel$sector %!in% combustion_sectors & A.en_stat_sector_fuel$fuel != 'process' ), ]
 

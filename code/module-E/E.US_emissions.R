@@ -79,7 +79,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
         
     # Remove rows with all NAs
         remove.na <- which( apply( inv_data_sheet[ , paste0( 'X', inv_years ) ],
-                                   1, function( x ) all( is.na( x ) ) ) )
+                                   1, function( x ) all.na( x ) ) )
         inv_data_sheet <- inv_data_sheet[ -remove.na, ]
         
     # Make numeric, convert "NA" to NA
@@ -101,8 +101,8 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
                            X_inv_years ] - wildfire_emissions
         
     # Convert to metric tonnes
-        inv_data_sheet[ , paste0( 'X' , inv_years ) ] <- 
-          as.matrix( inv_data_sheet[ , paste0( 'X' , inv_years ) ] ) * 0.9072
+        inv_data_sheet[ , paste0( 'X', inv_years ) ] <- 
+          as.matrix( inv_data_sheet[ , paste0( 'X', inv_years ) ] ) * 0.9072
         
     # Seems this introduces too many NAs for NH3, so only run for other species
         if ( em != 'NH3' ) {

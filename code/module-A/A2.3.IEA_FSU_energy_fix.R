@@ -41,12 +41,6 @@
 
 # -------------------------------------------------------------------------------------------
 
-    loadPackage('zoo')
-    loadPackage('ggplot2')
-    loadPackage('plyr')
-    loadPackage('scales')
-    loadPackage('gridExtra')
-
     end_BP_year <- 2013
 
 # -------------------------------------------------------------------------------------------
@@ -57,15 +51,18 @@
     MSLevel <- readData( "MAPPINGS", "Master_Sector_Level_map" )
     MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
     un_pop <- readData( "MED_OUT", "A.UN_pop_master" )
-    bp_oil_full  <- readData( "ENERGY_IN", "BP_energy_data", ".xlsx", sheet_selection = 7 ) 
+    bp_oil_gas_coal <- readData( "ENERGY_IN", "BP_energy_data", ".xlsx",
+                                 sheet_selection = c( 7, 24, 33 ) )
+
+# Oil Consumption  - Million Tonnes = 10^3 kt
+    bp_oil_full  <- bp_oil_gas_coal[[1]]
     printLog( c( "Read in BP data sheet: ", names( bp_oil_full )[[1]] ) )
-# Oil Consumption- Million Tonnes = 10^3 kt
-    bp_gas_full  <- readData( "ENERGY_IN", "BP_energy_data", ".xlsx", sheet_selection = 24 ) 
+# Gas Consumption  - tonnes
+    bp_gas_full  <- bp_oil_gas_coal[[2]]
     printLog( c( "Read in BP data sheet: ", names( bp_gas_full )[[1]] ) )
-# Gas Consumption – tonnes
-    bp_coal_full <- readData( "ENERGY_IN", "BP_energy_data", ".xlsx", sheet_selection = 33 ) 
+# Coal Consumption - Mtoe
+    bp_coal_full <- bp_oil_gas_coal[[3]]
     printLog( c( "Read in BP data sheet: ", names( bp_coal_full )[[1]] ) )
-# Coal Consumption -  Mtoe
 
 
 # -------------------------------------------------------------------------------------------
@@ -326,7 +323,7 @@
 
     # Fix names of columns; they get messed up because BP has useless rows
     #   at the top of their files and R makes the top row the name of the column
-        names( bp_data_clean[[i]] ) <- c( "BPName", paste0( "X", 
+        names( bp_data_clean[[i]] ) <- c( "BPName", paste0( "X",
                                           bp_data_full[[i]][ 2, 2:ncol(bp_data_full[[i]]) ] ) )
     # remove rows with NA iso codes
         bp_data_clean[[i]] <- bp_data_clean[[i]][ -which( is.na( bp_data_clean[[i]]['BPName'] ) ), ]
@@ -350,10 +347,10 @@
 
     # Aggregate the 3 corrected files into one data frame, bp_data
     bp_data <- do.call( rbind, bp_data_clean )
-    
+
     # Remove countries that are not in the FSU
     bp_data <- bp_data[ which( bp_data$iso %in% c( FSU, 'ussr' ) ) , ]
-    
+
     # Remove data from before 1985
     bp_data <- bp_data[, c( 'iso', 'bp_fuel', paste0( 'X', 1985:end_BP_year ) ) ]
 
@@ -866,7 +863,7 @@
 # The result of our corrections:
     FSU_activity_agg_corrected <- corrected
     FSU_activity_agg_corrected <- FSU_activity_agg_corrected[ c( "iso", "agg_fuel", "agg_sector", paste0('X', 1971:2013) ) ]
-    if( any( is.na(FSU_activity_agg_corrected) ) ) stop( "NAs in database please check code" )
+    if( anyNA( FSU_activity_agg_corrected ) ) stop( "NAs in database please check code" )
 
 # Create & write diagnostic output for checking what corrections were made
     check <- FSU_activity_agg_corrected
@@ -963,9 +960,9 @@
     names( FSU_activity_disaggregate_fuel )[1:3] <- c( 'iso', 'fuel', 'agg_sector' )
     FSU_activity_disaggregate_fuel <-  FSU_activity_disaggregate_fuel[ with( FSU_activity_disaggregate_fuel, order( iso, fuel, agg_sector ) ), ]
 
-    if ( abs( sum( FSU_activity_agg_corrected[ paste0('X' ,1971:2013) ] ) - sum( FSU_activity_disaggregate_fuel[ paste0('X', 1971:2013) ] ) ) > 1 ) stop( 'Bad Disaggregation' )
+    if ( abs( sum( FSU_activity_agg_corrected[ paste0( 'X',1971:2013) ] ) - sum( FSU_activity_disaggregate_fuel[ paste0('X', 1971:2013) ] ) ) > 1 ) stop( 'Bad Disaggregation' )
 
-    if ( any( is.na( FSU_activity_disaggregate_fuel ) ) ) stop( 'NAs in FSU data please check code' )
+    if ( anyNA( FSU_activity_disaggregate_fuel  ) ) stop( 'NAs in FSU data please check code' )
 
     check <- FSU_activity_disaggregate_fuel
     activity_summary <- aggregate( check[, paste0('X', seq(1975,2010,5) ) ],
@@ -1074,7 +1071,7 @@
     FSU_final[ paste0('X', "", 1960:1970) ] <- 0
     FSU_final$units <- 'kt'
     FSU_final <- FSU_final[ c( 'iso', 'sector', 'fuel', 'units', paste0('X', "", 1960:2013) ) ]
-    if( any( is.na(FSU_final) ) ) stop( 'NAs in final FSU data, please check code' )
+    if( anyNA( FSU_final ) ) stop( 'NAs in final FSU data, please check code' )
 
 
     check <- FSU_final
@@ -1088,27 +1085,26 @@
     summary <-melt(summary)
     summary <- cast( summary, fuel + variable ~ set )
     summary <- summary[ -which( summary$fuel %in% c( 'biomass', 'process' ) ), ]
-    writeData( summary, 'DIAG_OUT', 'A.FSU_energy_corrected_summary', meta=F )
+
 
 # -------------------------------------------------------------------------------------------
 # 14. Combine New FSU data and other energy data
 
-    Final_activity <- rbind ( original_activity_other, FSU_final )
-
-# add non-combustion FSU activity back to final_activity
-    Final_activity <- rbind ( Final_activity, original_activity_FSU_nc )
+    final_activity <- rbind ( original_activity_other,
+                              FSU_final,
+                              original_activity_FSU_nc)
 
 # Replace biomass with original data
-    Final_activity[ which( Final_activity$fuel == 'biomass' ), X_IEA_years ] <- 0
-    Final_activity <- replaceValueColMatch( Final_activity, biomass_activity,
+    final_activity[ which( final_activity$fuel == 'biomass' ), X_IEA_years ] <- 0
+    final_activity <- replaceValueColMatch( final_activity, biomass_activity,
                                             x.ColName = X_IEA_years,
                                             match.x = c( 'iso', 'sector', 'fuel', 'units' ),
                                             addEntries = FALSE )
 # remove zero rows
-    Final_activity <- Final_activity[ which( rowSums( Final_activity[X_IEA_years] ) != 0 ), ]
+    final_activity <- final_activity[ which( rowSums( final_activity[X_IEA_years] ) != 0 ), ]
 
 # sort
-    Final_activity <- Final_activity[ with( Final_activity, order( iso, sector, fuel ) ), ]
+    final_activity <- final_activity[ with( final_activity, order( iso, sector, fuel ) ), ]
 
 
 
@@ -1116,7 +1112,8 @@
 # 15. Write Output
 
     writeData( summary, 'DIAG_OUT', 'FSU_corrected_summary' )
-    writeData( Final_activity, 'MED_OUT', 'A.en_biomass_fsu_fix' )
+    writeData( final_activity, 'MED_OUT', 'A.en_biomass_fsu_fix' )
+    writeData( summary, 'DIAG_OUT', 'A.FSU_energy_corrected_summary', meta=F )
 
     logStop()
 

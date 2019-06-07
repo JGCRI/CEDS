@@ -31,7 +31,7 @@
 # scalePopNA(): Takes df in long format, returns df with NAs scaled with population.
     scalePopNA <- function( df ) {  # df in long format
     # Merge with population
-        df <- merge( df, UN_pop, all.x = T )
+        # df <- merge( df, UN_pop, all.x = T )
         if ( nrow( df ) >= 2 ) {
         # Order in descending years (data is in long form)
             df <- dplyr::arrange( df, dplyr::desc( year ) )
@@ -176,12 +176,11 @@
     X_pulp_years <- paste0( "X", pulp_years )
 # Create a long-form data frame with the necessary years and columns and fao
 # activity data
-    fao_full <- data.frame( year = pulp_years ) %>%
-                merge( data.frame( flow = c( "production",
-                                             "imports",
-                                             "exports" ) ) ) %>%
-                merge( data.frame( iso = unique( fao$iso ) ) ) %>%
-                merge( fao, all.x = T )
+    fao_full <- expand.grid( year = pulp_years,
+                              flow = c( "production", "imports", "exports" ),
+                              iso = unique( fao$iso ), stringsAsFactors = F ) %>%
+        dplyr::left_join( fao, by = c( "year", "flow", "iso" ) )
+
 # Add units
     fao_full$units <- "tonnes"
 # Isolate 5 needed columns (the rest were used for merging)
@@ -230,14 +229,23 @@
     prod$year <- xYearToNum( prod$year )
 
 # For imports/exports, scale NA with population then do 4-year running average
-    imp <- filter( fao_full, flow == "imports" ) %>%
-           ddply( .(iso), scalePopNA ) %>%
-           smoothRunningAvg( k = 4, val_var = "value",
-                             group_vars = c( "iso", "flow" ) ) ### Some aspect of this operation is very slow. Worth investigating
-    exp <- filter( fao_full, flow == "exports" ) %>%
-           ddply( .( iso ), scalePopNA ) %>%
-           smoothRunningAvg( k = 4, val_var = "value",
-                             group_vars = c( "iso", "flow" ) )
+    fao_full <- dplyr::left_join( fao_full, UN_pop, by = c( "iso", "year" ) )
+
+    imp <- fao_full %>%
+        dplyr::filter( flow == "imports" ) %>%
+        dplyr::group_by( iso ) %>%
+        dplyr::do( scalePopNA( . ) ) %>%
+        dplyr::ungroup() %>%
+       smoothRunningAvg( k = 4, val_var = "value",
+                         group_vars = c( "iso", "flow" ) )
+
+    exp <- fao_full %>%
+        dplyr::filter( flow == "exports" ) %>%
+        dplyr::group_by( iso ) %>%
+        dplyr::do( scalePopNA( . ) ) %>%
+        dplyr::ungroup() %>%
+       smoothRunningAvg( k = 4, val_var = "value",
+                         group_vars = c( "iso", "flow" ) )
 
 # Combine production, import, exports into one df
     fao_full_fixed <- bind_rows( prod, imp, exp ) %>%

@@ -1,0 +1,7 @@
+iso,agg_fuel,agg_sector,start_year,end_year,priority,start_continuity,end_continuity,specified_breakdowns,method,preprocessing_script,sector_map,keep_total_cols
+gbr,coal,1A1_Energy-transformation,1923,1959,1,T,T,F,match_to_default,GBR_historical_coal.R,GBR_historical_coal_aggsec_sector_map.csv,agg_fuel
+gbr,coal,1A1a_Electricity,1923,1959,1,T,T,F,match_to_default,GBR_historical_coal.R,GBR_historical_coal_aggsec_sector_map.csv,agg_fuel
+gbr,coal,1A2_Industry-combustion,1923,1959,1,T,T,F,match_to_default,GBR_historical_coal.R,GBR_historical_coal_aggsec_sector_map.csv,agg_fuel
+gbr,coal,1A2g_Ind-Comb-other,1923,1959,1,T,T,F,match_to_default,GBR_historical_coal.R,GBR_historical_coal_aggsec_sector_map.csv,agg_fuel
+gbr,coal,1A3_Transportation,1923,1959,1,T,T,F,match_to_default,GBR_historical_coal.R,GBR_historical_coal_aggsec_sector_map.csv,agg_fuel
+gbr,coal,1A4_Stationary_RCO,1923,1959,1,T,T,F,match_to_default,GBR_historical_coal.R,GBR_historical_coal_aggsec_sector_map.csv,agg_fuel

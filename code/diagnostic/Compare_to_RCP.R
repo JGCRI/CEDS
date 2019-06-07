@@ -15,7 +15,7 @@
 # Note: (1) Shipping emissions is included in global comparison.
 #       (2) RCP shipping emissions does not have data for NH3
 # TODO: (1) In RCP shipping data NMVOC and CH4 data doesn't include emissions for tanker loading.
-#           Change the sector drop mapping when tanker loading sector is added for CEDS. 
+#           Change the sector drop mapping when tanker loading sector is added for CEDS.
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
@@ -82,10 +82,10 @@ Master_Country_List <- readData('MAPPINGS', 'Master_Country_List')
 
 Total_Emissions <- readData('MED_OUT', paste0(em,'_total_CEDS_emissions'))
 
-rcp_ship_emissions <- readData( domain = 'EM_INV', domain_extension = 'RCP/', 
-                                file_name = 'Historicalshipemissions_IPCC_FINAL_Jan09_updated_1850', 
-                                extension = '.xlsx',  sheet_selection = 'CO2Emis_TgC', 
-                                column_types = 'numeric', skip_rows = 8 )[ 1:140, 1:12 ]
+rcp_ship_emissions <- readData( domain = 'EM_INV', domain_extension = 'RCP/',
+                                file_name = 'Historicalshipemissions_IPCC_FINAL_Jan09_updated_1850',
+                                extension = '.xlsx',  sheet_selection = 'CO2Emis_TgC',
+                                col_types = 'numeric', skip = 8 )[ 1:140, 1:12 ]
 
 # ---------------------------------------------------------------------------
 # 1.5. Other script Options
@@ -294,7 +294,7 @@ df <- global_long
 df$total_emissions <- global_long$total_emissions/1000 #convert from Gg to Tg
 max <- 1.2 * ( max( df$total_emissions ) )
 
-plot <- ggplot(df, aes(x=year,y=total_emissions,group=Inventory,shape=Inventory,linetype=Inventory)) +
+ggplot(df, aes(x=year,y=total_emissions,group=Inventory,shape=Inventory,linetype=Inventory)) +
   geom_line(data = subset(df, Inventory=='CEDS'),size=1, color = 'black') +
   geom_point(data = subset(df, Inventory=='RCP'),color='dodgerblue1') +
   scale_x_continuous(limits = c(min(CEDS_start_year,rcp_start_year),2015 ),
@@ -382,11 +382,10 @@ for(i in 1:6){
                        values = c('solid','blank'))
   plot_list[[i]]<-plot
 
-  savePlot( 'DIAG_OUT', 'ceds-comparisons/', 
-            paste0('RCP_', em,'_Regional_Comparison_', 
+  savePlot( 'DIAG_OUT', 'ceds-comparisons/',
+            paste0('RCP_', em,'_Regional_Comparison_',
                    paste(plot_regions,collapse = '-' )),
             width = 7, height = 4)
-
 }
 
 pdf(paste0('../diagnostic-output/ceds-comparisons/RCP_',em,'_Regional_Comparison_All.pdf'),width=12,height=10,paper='special')
@@ -431,7 +430,7 @@ plot_df$Inventory <- as.factor(plot_df$Inventory)
 plot_df$sector <- as.factor(plot_df$sector)
 max <- 1.2*(max(plot_df$total_emissions))
 
-plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = sector,
+ggplot(plot_df, aes(x=year,y=total_emissions, color = sector,
                             shape=Inventory,linetype = Inventory)) +
   geom_line(data = subset(plot_df, Inventory =='CEDS'),size=1,aes(x=year,y=total_emissions, color = sector), alpha= .5) +
   geom_point(data = subset(plot_df, Inventory =='RCP'),size=1,aes(x=year,y=total_emissions, color = sector), alpha= .5) +
@@ -449,7 +448,7 @@ plot <- ggplot(plot_df, aes(x=year,y=total_emissions, color = sector,
                         breaks = c('CEDS','RCP'),
                         values = c('solid','blank'))
 
-savePlot( 'DIAG_OUT', 'ceds-comparisons/', paste0('RCP_', em,'_sector_Comparison'), 
+savePlot( 'DIAG_OUT', 'ceds-comparisons/', paste0('RCP_', em,'_sector_Comparison'),
           width = 7, height = 4 )
 
 # ---------------------------------------------------------------------------

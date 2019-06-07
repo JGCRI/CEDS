@@ -48,7 +48,7 @@ sheet_name = paste0( 'NEW_v4.3_EM_', em, '_ref' )
 
 edgar <-  readData( domain, domain_extension = domain_ext,
 				    inventory_data_file,  ".xlsx",
-					sheet_selection = sheet_name, skip_rows = 8 )
+					sheet_selection = sheet_name, skip = 8 )
 
 NC_sector_map <- readData( "MAPPINGS", "NC_EDGAR_sector_mapping" )
 
@@ -65,7 +65,7 @@ edgar$iso <- tolower(edgar$iso)
 
 #remove rows with all NA's
 edgar <- edgar[ apply( X=edgar[,paste0("X",inv_years)],
-                                         MARGIN = 1, function(x) (!all(is.na(x))) ) ,]
+                                         MARGIN = 1, function(x) (!all.na( x )) ) ,]
 
 
 # Add fuel column

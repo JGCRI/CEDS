@@ -204,7 +204,7 @@ if ( em == "NH3" ) {  # only run script for NH3
   ww$ww_percent[ is.na( ww$ww_percent ) ] <- ww$ww_percent_REAS[ is.na( ww$ww_percent ) ]
 
   # Diagnostics: Write out countries using REAS and either OECD/UN (note chn 2000, 2004 and sgp 2009)
-  diag_REAS <- group_by( ww, iso ) %>% filter( any( is.na( use_REAS ) ) & any( use_REAS ) ) %>%
+  diag_REAS <- group_by( ww, iso ) %>% filter( anyNA( use_REAS ) & any( use_REAS ) ) %>%
     dplyr::arrange( iso, year )
 
 # Manually remove REAS data for sgp to avoid jumps
