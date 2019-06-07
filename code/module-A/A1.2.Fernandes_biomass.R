@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A1.2.Fernandes_biomass.R
 # Author: Linh Vu
-# Date Last Updated: 19 February 2016
+# Date Last Updated: 7 June 2019
 # Program Purpose: This program produces 1850-2013 time series of residential biomass
 #                  consumption by country and fuel type from Fernandes biofuels data.
 #                  The program also produces fuel-weighted biomass conversion factors
@@ -46,7 +46,7 @@
 
 # ------------------------------------------------------------------------------
 # 1. Read raw input files and define useful values
-  library( "FAOSTAT" )
+  library( "zoo" )
 
   # The guess_max prevents some columns from being read in as numeric when there
   # are notes at the bottom that cause warnings
@@ -203,8 +203,8 @@
 # Change NA consumption_pc to 0
   full$consumption_pc[ is.na( full$consumption_pc ) ] <- 0
 
-# For countries/years without original Fernandes data, use per-capita value of
-# a proxy country
+# For countries/years without original Fernandes data (per-capita consumption is 0),
+# use per-capita value of a proxy country
   proxied <- filter( full, iso %in% proxy_mapping$iso ) %>%
     merge( select( proxy_mapping, iso, iso_proxy ), all.x = T ) %>%
     merge( select( full, fuel, year, iso_proxy = iso,
