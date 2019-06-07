@@ -2,9 +2,9 @@
 # Program Name: H2.2.add_EFs_default.R.R
 # Author: Rachel Hoesly
 # Program Purpose: Extend Efs - or replace extended EFs - with default EFs
-# Input Files: 'H.EM_total_EFs_extended_db.csv, 'D.EM_default_total_EF.csv
+# Input Files: H.[em]_total_EFs_extended_db.csv, D.[em]_default_total_EF.csv
 #               CEDS_historical_extension_methods_EF.csv
-# Output Files:
+# Output Files: H.[em]_total_EFs_extended_db'
 # TODO:
 # ---------------------------------------------------------------------------
 

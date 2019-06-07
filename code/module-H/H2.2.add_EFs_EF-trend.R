@@ -2,8 +2,8 @@
 # Program Name: H2.2.add_EFs_EF-trend.R
 # Author: Rachel Hoesly
 # Program Purpose: Extend EFs back by EF trend
-#
-# Output Files:
+# Input Files: H.[em]_total_EFs_extended_db.csv, CEDS_historical_extension_methods_EF.csv
+# Output Files: H.[em]_total_EFs_extended_db.csv
 # TODO:
 # ---------------------------------------------------------------------------
 

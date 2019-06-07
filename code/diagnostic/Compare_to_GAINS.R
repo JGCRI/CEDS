@@ -1,10 +1,9 @@
 # ------------------------------------------------------------------------------
 # Program Name: Compare_to_GAINS.R
 # Author: Rachel Hoesly
-# Date Last Updated: 28 June 2016
+# Date Last Updated: 30 April 2019
 # Program Purpose:
 # Input Files: [em]_total_CEDS_emissions.csv
-#
 # Output Files: figures in the diagnostic-output
 # TODO:
 # ---------------------------------------------------------------------------
@@ -248,7 +247,8 @@ regions_list <- regions_list[order(-regions_list$total),]
 regions_list_order <- unique(regions_list$Region)
 regions_df_order <- data.frame(Region=regions_list_order,
                                plot = c(unlist(lapply(X=1:4,FUN=rep, times=4)),
-                                        unlist(lapply(X=5:6,FUN=rep, times=5))))
+                                        unlist(lapply(X=5,FUN=rep, times=5)),
+                                        unlist( lapply( X = 6, FUN = rep, times =  3 ) ) ) )
 
 plot_list <- list()
 for(i in 1:6){
@@ -293,7 +293,8 @@ regions_list <- regions_list[order(-regions_list$total),]
 regions_list_order <- unique(regions_list$Region)
 regions_df_order <- data.frame(Region=regions_list_order,
                                plot = c(unlist(lapply(X=1:4,FUN=rep, times=4)),
-                                        unlist(lapply(X=5:6,FUN=rep, times=5))))
+                                        unlist(lapply(X=5,FUN=rep, times=5)),
+                                        unlist( lapply( X = 6, FUN = rep, times =  3 ) ) ) )
 
 plot_list <- list()
 for(i in 1:6){
@@ -339,7 +340,8 @@ regions_list <- regions_list[order(-regions_list$total),]
 regions_list_order <- unique(regions_list$Region)
 regions_df_order <- data.frame(Region=regions_list_order,
                                plot = c(unlist(lapply(X=1:4,FUN=rep, times=4)),
-                                        unlist(lapply(X=5:6,FUN=rep, times=5))))
+                                        unlist(lapply(X=5,FUN=rep, times=5)),
+                                        unlist( lapply( X = 6, FUN = rep, times =  3 ) ) ) )
 
 plot_list <- list()
 for(i in 1:6){
