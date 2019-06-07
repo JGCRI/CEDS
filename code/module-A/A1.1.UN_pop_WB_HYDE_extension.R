@@ -97,7 +97,8 @@
                                              sheet_selection = "UN_pop_WB_HYDE_ext_iso_map" )
 
     UN_pop_shares_WB_HYDE_ext_iso_map <- readData ( "MAPPINGS", "UN_pop_WB_HYDE_ext_iso_map", ".xlsx",
-                                                    sheet_selection = "UN_pop_shares_WB_HYDE_ext" )
+                                                    sheet_selection = "UN_pop_shares_WB_HYDE_ext",
+                                                    missing_value = "NA" )
 
     WB_pop_UN_HYDE_ext_iso_map <- readData ( "MAPPINGS", "UN_pop_WB_HYDE_ext_iso_map", ".xlsx",
                                              sheet_selection = "WB_pop_UN_HYDE_ext_iso_map" )
@@ -161,11 +162,9 @@
         dplyr::left_join( UN_pop_shares_WB_HYDE_ext_iso_map,
                           by = c( "Index", "Major area, region, country or area",
                                   "Country Code" ) ) %>%
-        dplyr::select( UN_CODE, ISO3_WB_CODE, Index, "Major area, region, country or area",
-                       Note, UN_years ) %>%
-        dplyr::arrange( UN_CODE )
+        dplyr::select( UN_code = UN_CODE, iso = ISO3_WB_CODE, UN_years ) %>%
+        dplyr::arrange( UN_code )
 
-    UN_urban_share_raw <- UN_urban_share_raw[ -c( 3:5 ) ]
     names( UN_urban_share_raw )[ 1:2 ] <- c( "UN_code", "iso" )
     UN_urban_share_raw <- melt( UN_urban_share_raw, id = c( "UN_code", "iso" ),
                              variable_name = "year", na.rm = T )
