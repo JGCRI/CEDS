@@ -116,7 +116,7 @@
 
 # ------------------------------------------------------------------------------
 # 2. Clean up UN and WB population input
-    printLog( "Processing UN, WB and HYDE population input to standard format" )
+    printLog( "Processing UN, WB and HYDE population input to standard format..." )
 
 # Prepare UN population
     # Read all population scenarios into one df
