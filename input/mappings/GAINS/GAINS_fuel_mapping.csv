@@ -1,0 +1,25 @@
+fuel,GAINS fuel,GAINS definition 
+brown_coal,BC1,brown coal/lignite grade 1
+brown_coal,BC2,brown coal/lignite grade 2
+hard_coal,HC1,"Hard coal, grade 1"
+hard_coal,HC2,"Hard coal, grade 2"
+hard_coal,HC3,"Hard coal, grade 3"
+hard_coal,DC,"Derived coal (coke, briquettes)"
+biomass,OS1,Biomass fuels
+biomass,ARD,agricultural residuals - direct use
+biomass,BGS,Bagasse
+biomass,BIOG,Biogas
+biomass,BMG,Biomass gasification
+biomass,CHCOA,Charcoal
+biomass,DNG,Dung
+biomass,FWD,Fuelwood direct
+biomass,OS2,Other biomass and waste fuels
+biomass,BLIQ,Black liquor
+biomass,WSFNR,"Waste fuels, non-renewable"
+biomass,WSFR,"Waste fuels, non-renewable"
+natural_gas,GAS,Gas OR Natural gas
+heavy_oil,HF,Heavy fuel oil
+,H2,Hydrogen
+diesel_oil,MD,"Medium Distillates (diesel, light fuel oil)"
+light_oil,GSL,Gasoline and other light fraction of oil (includes kerosene)
+light_oil,LPG,Liquefied petroleum gas

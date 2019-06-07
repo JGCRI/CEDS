@@ -1,0 +1,5 @@
+#README
+
+This folder contains process emissions the user would like to the process emissions data base.
+Emissions should be in standard ceds format (iso-sector-fuel-units-Xyears). Files do not
+need to contain all CEDS years - (1960 - 2014)

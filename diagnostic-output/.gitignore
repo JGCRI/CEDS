@@ -1,0 +1,14 @@
+# Ignore everything in this directory
+*
+# Except this file and folders
+!.gitignore
+!summary-plots
+!ceds-comparisons
+!ceds-comparisons/sector-level
+!EMEP
+!README
+!country-sector
+!total-emissions-grids
+!paper-figures
+!sub-VOCs
+!value-meta-heatmaps

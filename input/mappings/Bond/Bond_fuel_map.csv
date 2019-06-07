@@ -1,0 +1,20 @@
+fuel,Fuel
+diesel_oil, Middle distilla
+coal_coke, Petroleum Coke 
+hard_coal, Coking Coal    
+hard_coal, Briquettes     
+brown_coal, Brown Coal     
+hard_coal, Hard Coal      
+heavy_oil, Heavy Fuel Oil 
+light_oil, Light distillat
+natural_gas, Natural Gas    
+NA, Waste-- Municip
+biomass, Wood           
+process, Waste/open     
+process, Manufacturing  
+biomass, Agricultural Wa
+biomass, Animal wastes  
+biomass, Charcoal       
+light_oil, Kerosene       
+light_oil, Liquefied Petro
+light_oil, Aviation Gasoli

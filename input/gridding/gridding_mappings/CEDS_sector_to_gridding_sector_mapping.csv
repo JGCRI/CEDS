@@ -1,0 +1,60 @@
+CEDS_working_sector,CEDS_int_gridding_sector,CEDS_int_gridding_sector_short,CEDS_final_gridding_sector,CEDS_final_gridding_sector_short
+1A1a_Electricity-public,Electricity and heat production,ELEC,Energy Sector,ENE
+1A1a_Electricity-autoproducer,Electricity and heat production,ELEC,Energy Sector,ENE
+1A1a_Heat-production,Electricity and heat production,ELEC,Energy Sector,ENE
+1A1bc_Other-transformation,Fuel Production and Transformation,ETRN,Energy Sector,ENE
+1A2a_Ind-Comb-Iron-steel,Industrial combustion,INDC,Industrial Sector,IND
+1A2b_Ind-Comb-Non-ferrous-metals,Industrial combustion,INDC,Industrial Sector,IND
+1A2c_Ind-Comb-Chemicals,Industrial combustion,INDC,Industrial Sector,IND
+1A2d_Ind-Comb-Pulp-paper,Industrial combustion,INDC,Industrial Sector,IND
+1A2e_Ind-Comb-Food-tobacco,Industrial combustion,INDC,Industrial Sector,IND
+1A2f_Ind-Comb-Non-metalic-minerals,Industrial combustion,INDC,Industrial Sector,IND
+1A2g_Ind-Comb-Construction,Industrial combustion,INDC,Industrial Sector,IND
+1A2g_Ind-Comb-transpequip,Industrial combustion,INDC,Industrial Sector,IND
+1A2g_Ind-Comb-machinery,Industrial combustion,INDC,Industrial Sector,IND
+1A2g_Ind-Comb-mining-quarying,Industrial combustion,INDC,Industrial Sector,IND
+1A2g_Ind-Comb-wood-products,Industrial combustion,INDC,Industrial Sector,IND
+1A2g_Ind-Comb-textile-leather,Industrial combustion,INDC,Industrial Sector,IND
+1A2g_Ind-Comb-other,Industrial combustion,INDC,Industrial Sector,IND
+1A3ai_International-aviation,Aircraft,AIR,Aircraft,AIR
+1A3aii_Domestic-aviation,Aircraft,AIR,Aircraft,AIR
+1A3b_Road,Road transportation,ROAD,Transportation Sector,TRA
+1A3c_Rail,Non-road Transportation,NRTR,Transportation Sector,TRA
+1A3di_International-shipping,International shipping,SHP,International shipping,SHP
+1A3di_Oil_Tanker_Loading,Tanker Loading,TANK,International Shipping,SHP
+1A3dii_Domestic-navigation,Non-road Transportation,NRTR,Transportation Sector,TRA
+1A3eii_Other-transp,Non-road Transportation,NRTR,Transportation Sector,TRA
+1A4a_Commercial-institutional,"Residential, Commercial, Other - Residential, Commercial",RCORC,"Residential, Commercial, Other",RCO
+1A4b_Residential,"Residential, Commercial, Other - Residential, Commercial",RCORC,"Residential, Commercial, Other",RCO
+1A4c_Agriculture-forestry-fishing,"Residential, Commercial, Other - Other",RCOO,"Residential, Commercial, Other",RCO
+1A5_Other-unspecified,Industrial combustion,INDC,Industrial Sector,IND
+1B1_Fugitive-solid-fuels,Fuel Production and Transformation,ETRN,Energy Sector,ENE
+1B2_Fugitive-petr-and-gas,Oil and Gas Fugitive/Flaring,FLR,Energy Sector,ENE
+1B2d_Fugitive-other-energy,Fuel Production and Transformation,ETRN,Energy Sector,ENE
+2A1_Cement-production,Industrial process and product use,INPU,Industrial Sector,IND
+2A2_Lime-production,Industrial process and product use,INPU,Industrial Sector,IND
+2A6_Other-minerals,Industrial process and product use,INPU,Industrial Sector,IND
+2B_Chemical-industry,Industrial process and product use,INPU,Industrial Sector,IND
+2C_Metal-production,Industrial process and product use,INPU,Industrial Sector,IND
+2D_Degreasing-Cleaning,Solvents production and application,SLV,Solvents production and application,SLV
+2D3_Other-product-use,Solvents production and application,SLV,Solvents production and application,SLV
+2D_Paint-application,Solvents production and application,SLV,Solvents production and application,SLV
+2D3_Chemical-products-manufacture-processing,Solvents production and application,SLV,Solvents production and application,SLV
+2H_Pulp-and-paper-food-beverage-wood,Industrial process and product use,INPU,Industrial Sector,IND
+2L_Other-process-emissions,Industrial process and product use,INPU,Industrial Sector,IND
+3B_Manure-management,Agriculture,AGR,Agriculture,AGR
+3D_Soil-emissions,Agriculture,AGR,Agriculture,AGR
+3I_Agriculture-other,Agriculture,AGR,Agriculture,AGR
+3D_Rice-Cultivation,Agriculture,AGR,Agriculture,AGR
+3E_Enteric-fermentation,Agriculture,AGR,Agriculture,AGR
+3F_Agricultural-residue-burning-on-fields,Agriculture,AGR,Agriculture,AGR
+5A_Solid-waste-disposal,Waste,WST,Waste,WST
+5E_Other-waste-handling,Waste,WST,Waste,WST
+5C_Waste-incineration,Waste,WST,Waste,WST
+6A_Other-in-total,Industrial process and product use,INPU,Industrial Sector,IND
+5D_Wastewater-handling,Waste,WST,Waste,WST
+6B_Other-not-in-total,,,,
+7A_Fossil-fuel-fires,Fossil Fuel Fires,FFFI,Energy Sector,ENE
+11A_Volcanoes,,,,
+11B_Forest-fires,,,,
+11C_Other-natural,,,,

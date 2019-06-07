@@ -1,0 +1,7 @@
+README
+This folder contains .sh files for running the system on PIC.
+The .sh files in this folder remain in the repository, but all changes are
+ignored by git.
+The only documents in this folder that are versioned are this README document
+and .gitignore file, which tells git to ignore changes to the other files in
+this folder.

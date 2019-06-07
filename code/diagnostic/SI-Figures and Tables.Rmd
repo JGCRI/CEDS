@@ -1,0 +1,812 @@
+---
+title: "Supplemental Figures and Tables"
+
+subtitle: "Historical (1750 – 2014) anthropogenic emissions of reactive gases and aerosols from the  \nCommunity Emission Data System (CEDS)  \nSubmitted to Geoscientific Model Development (GMD),  http://www.geosci-model-dev.net/special_issue590.html"
+
+author:
+- Rachel M. Hoesly
+- Steven J. Smith
+- Leyang Feng
+- Zbigniew Klimont
+- Greet Janssens-Maenhout
+- Tyler Pitkanen
+- Jonathan J. Seibert
+- Linh Vu
+- Robert J. Andres
+- Ryan M. Bolt
+- Tami C. Bond
+- Laura Dawidowski
+- Nazar Kholod
+- Jun-ichi Kurokawa
+- Meng Li
+- Liang Liu
+- Zifeng Lu 
+- Maria Cecilia P. Moura
+- Patrick R. O’Rourke
+- Qiang Zhang
+
+output:
+  pdf_document:
+    fig_caption: yes
+geometry: margin=.75in
+header-includes: \usepackage{float}
+                 \usepackage{placeins}
+                 \usepackage{caption}
+                 \usepackage{fancyhdr}
+                 \usepackage{array}
+                 \usepackage{multirow}
+                 \usepackage{tocloft}
+                 \usepackage{graphicx} 
+                 
+---
+
+<!-- This is an R markdown file that uses knitr to compile the pdf. Most of the code below uses Latex to control "floats" (basically how it lays out figures). The line "\FloatBarrier" after every section, forces the figures/floats to print, so they don't end up at the end of the document. -->
+
+<!-- Numbering Commands -->
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+
+<!-- Header Commands -->
+\pagestyle{fancy}
+\fancyhead[LE,RO]{}
+\fancyhead[LO,RE]{}
+\renewcommand{\headrulewidth}{.5pt}
+\renewcommand{\footrulewidth}{0pt}
+
+<!-- Define the path for figures -->
+\graphicspath{ {../../diagnostic-output/paper-figures/Supplement/} }
+
+<!-- Add a list of figures -->
+\newpage
+\renewcommand*\listfigurename{List of Tables and Figures}
+\cftsetindents{figure}{0em}{2 em}
+
+<!-- Add list of figures with the word "Figure" before label. instead of  \listoffigures -->
+\let\oldnumberline\numberline
+\renewcommand{\numberline}{\figurename~\oldnumberline}
+\listoffigures
+
+\FloatBarrier
+\newpage
+
+<!-- New Section ---------------------------------------------------------- -->
+\section{A. Country and Sector Mapping Tables}
+\fancyhead[RO,RE]{A. Country and Sector Mapping Tables}
+\addcontentsline{lof}{section}{A. Country and Sector Mapping Tables}
+
+\addcontentsline{lof}{figure}{Table S1   Mapping of CEDS working sectors (shown in Table 1 in the main text) to aggregate sectors used in the figures in the main text and this supplement.}
+\begin{table}[!ht]
+\caption{Mapping of CEDS working sectors (shown in Table 1 in the main text) to aggregate sectors used in the figures in the main text and this supplement.}
+\footnotesize
+\begin{center}
+\begin{tabular}{ | l | l | } 
+ \hline
+ Aggregate Sector & CEDS Working Sector \\ 
+ \hline
+ \multirow{2}{4cm}{Agriculture} & B\textunderscore Manure-management  \\ 
+ & 3D\textunderscore Soil-emissions  \\ 
+ & 3D\textunderscore Rice-Cultivation  \\
+ & 3E\textunderscore Enteric-fermentation  \\
+ & 3F\textunderscore Agricultural-residue-burning-on-fields \\
+ & 3I\textunderscore Agriculture-other  \\
+ \hline
+ \multirow{2}{4cm}{Air} & 1A3ai\textunderscore International-aviation \\ 
+ & 1A3aii\textunderscore Domestic-aviation  \\
+ \hline
+  \multirow{2}{4cm}{Energy Transformation and Extraction (Energy Transf/Ext)} & 1A1a\textunderscore Electricity-public  \\ 
+ & 1A1a\textunderscore Electricity-autoproducer  \\ 
+ & 1A1a\textunderscore Heat-production  \\
+ & 1A1bc\textunderscore Other-transformation  \\
+ & 1B1\textunderscore Fugitive-solid-fuels \\
+ & 1B2\textunderscore Fugitive-petr-and-gas  \\
+ & 1B2d\textunderscore Fugitive-other-energy \\
+ \hline
+  \multirow{2}{4cm}{Industry} & 1A2a\textunderscore Ind-Comb-Iron-steel  \\ 
+ & 1A2b\textunderscore Ind-Comb-Non-ferrous-metals  \\ 
+ & 1A2c\textunderscore Ind-Comb-Chemicals  \\
+ & 1A2d\textunderscore Ind-Comb-Pulp-paper   \\
+ & 1A2e\textunderscore Ind-Comb-Food-tobacco  \\
+ & 1A2f\textunderscore Ind-Comb-Non-metalic-minerals   \\
+ & 1A2g\textunderscore Ind-Comb-Construction  \\
+ & 1A2g\textunderscore Ind-Comb-transpequip  \\
+ & 1A2g\textunderscore Ind-Comb-machinery  \\
+ & 1A2g\textunderscore Ind-Comb-mining-quarying  \\
+ & 1A2g\textunderscore Ind-Comb-wood-products  \\
+ & 1A2g\textunderscore Ind-Comb-textile-leather  \\
+ & 1A2g\textunderscore Ind-Comb-other  \\
+ & 2A1\textunderscore Cement-production  \\
+ & 2A2\textunderscore Lime-production  \\
+ & 2Ax\textunderscore Other-minerals  \\
+ & 2B\textunderscore Chemical-industry  \\
+ & 2C\textunderscore Metal-production  \\
+ & 2H\textunderscore Pulp-and-paper-food-beverage-wood  \\
+ \hline
+\multirow{2}{4cm}{Residential, Commercial, Other (RCO)} &  1A4b\textunderscore Residential \\ 
+ & 1A4a\textunderscore Commercial-institutional  \\ 
+ & 1A4c\textunderscore Agriculture-forestry-fishing  \\
+ & 1A5\textunderscore Other-unspecified \\
+ \hline
+ \multirow{2}{4cm}{Shipping} & 1A3di\textunderscore International-shipping  \\
+ & 1A3di\textunderscore Oil\textunderscore tanker\textunderscore loading \\
+ \hline
+\multirow{2}{4cm}{Solvents} &  2D\textunderscore Degreasing-Cleaning \\ 
+ & 2D\textunderscore Paint-application  \\ 
+ & 2D\textunderscore Chemical-products-manufacture-processing  \\
+ & 2D\textunderscore Other-product-use \\
+\hline
+\multirow{2}{4cm}{Transportation} & 1A3b\textunderscore Road  \\
+ & 1A3c\textunderscore Rail \\
+ & 1A3dii\textunderscore Domestic-navigation \\
+ & 1A3eii\textunderscore Other-transp \\
+\hline
+\multirow{2}{4cm}{Waste} &  5A\textunderscore Solid-waste-disposal \\ 
+ & 5E\textunderscore Other-waste-handling  \\ 
+ & 5C\textunderscore Waste-combustion  \\
+ & 5D\textunderscore Wastewater-handling \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\FloatBarrier
+\newpage
+
+\addcontentsline{lof}{figure}{Table S2   Mapping of countries to regions used in the figures in the main text and this supplement.}
+\begin{table}[!ht]
+\caption{Mapping of countries to regions used in the figures in the main text and this supplement.}
+\footnotesize
+\begin{center}
+\begin{tabular}{ | m{2.3cm} | m{3cm} m{3cm} m{3cm} m{3.4cm}|} 
+\hline
+ Region & \multicolumn{4}{c|}{Countries} \\ 
+\hline
+\multirow{14}{3em}{Africa} & Angola & Burundi & Benin & Burkina Faso \\
+& Botswana & Cote dIvoire & Cameroon & Central African Republic\\
+& DR Congo & Congo & Comoros & Cape Verde \\
+& Djibouti & Algeria & Egypt & Eritrea \\
+& Western Sahara & Ethiopia & Gabon & Ghana \\
+& Guinea & Gambia & Guinea-Bissau & Equatorial Guinea \\
+& Kenya & Liberia & Libya & Lesotho \\
+& Morocco & Madagascar & Mali & Mozambique \\
+& Mauritania & Mauritius & Malawi & Namibia \\
+& Niger & Nigeria & Reunion & Rwanda \\
+& Sudan & Senegal & Sierra Leone & Somalia \\
+& South Sudan & Swaziland & Seychelles & Sao Tome and Principe \\
+& Chad & Togo & Tunisia & Tanzania \\
+& Uganda & South Africa & Zambia & Zimbabwe \\
+\hline
+China & China & & & \\ 
+\hline
+\multirow{10}{3em}{Europe}  & Albania & Austria & Belgium & Bosnia and Herzegovina\\
+& Bulgaria & Switzerland & Cyprus & Czech Republic  \\
+& Germany & Denmark & Spain & Finland  \\
+& France & United Kingdom & Gibraltar & Greece  \\
+& Greenland & Croatia & Croatia & Hungary  \\
+& Ireland & Iceland & Italy & Liechtenstein  \\
+& Luxembourg & Macedonia & Malta & Netherlands  \\
+& Norway & Poland & Portugal & Romania  \\
+& Serbia & Slovakia & Slovenia & Sweden  \\
+& Turkey &  &  & \\
+\hline
+\multirow{5}{3em}{Former Soviet Union} & Armenia & Azerbaijan & Belarus & Estonia \\
+& Georgia & Kazakhstan & Kyrgyzstan & Lithuania \\
+& Latvia & Moldova & Russia & Tajikistan \\
+& Turkmenistan & Ukraine & Uzbekistan & \\
+\hline
+International & \multicolumn{4}{l|}{International Shipping and Aviation} \\ 
+\hline
+\multirow{5}{3em}{Latin America} & Aruba & Argentina & Antigua and Barbuda & Bahamas   \\
+& Belize & Bermuda & Bolivia & Brazil  \\
+& Barbados & Chile & Colombia & Costa Rica  \\
+& Cuba & Curacao & Cayman Islands & Dominica  \\
+& Dominican Republic & Ecuador & Falkland Islands & Faeroe Islands  \\
+& Guadeloupe & Grenada & Guatemala & French Guiana \\
+& Guyana & Honduras & Haiti & Turks and Caicos Islands \\
+& Saint Lucia & Mexico & Montserrat & Saint Kitts and Nevis  \\
+& Jamaica & Martinique & Nicaragua & Panama   \\
+& Paraguay & El Salvador & Suriname & Saint Pierre and Miquelon   \\
+& Peru & Sint Maarten  & Uruguay & Trinidad and Tobago\\
+& Venezuela & British Virgin Islands& \multicolumn{2}{l|}{United States Virgin Islands} \\
+& \multicolumn{4}{l|}{Saint Vincent And Grenadines} \\
+\hline
+North America & Canada & United States & Puerto Rico & \\ 
+\hline
+\multirow{16}{3em}{Other Asia/Pacific} & Afghanistan & United Arab Emirates & American Samoa & Australia  \\
+& Bangladesh & Bahrain & Brunei Darussalam & Bhutan  \\
+& Cook Islands & Fiji & Micronesia & Guam  \\
+& Hong Kong & Indonesia & India & Iran  \\
+& Iraq & Israel & Jordan & Japan  \\
+& Cambodia & Kiribati & Republic of Korea & Kuwait  \\
+& Laos & Lebanon & Sri Lanka & Macao  \\
+& Maldives & Marshall Islands & Myanmar (Burma) & Montenegro  \\
+& Mongolia & Malaysia & New Caledonia & Niue  \\
+& Nepal & New Zealand & Oman & Pakistan  \\
+& Philippines & Palau & Papua New Guinea & DPR Korea  \\
+& Palestine  & French Polynesia & Qatar & Saudi Arabia   \\
+& Singapore & Soloman Islands & Syria  & Thailand  \\
+& Tokelau & Timor-Leste  & Tongo & Chinese Taipei  \\
+& Vietnam  & Vanuatu & Samoa & Wallis and Futuna Islands    \\
+& Yemen & & & \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+
+
+<!-- New Section ---------------------------------------------------------- -->
+\FloatBarrier
+\newpage
+\section{B. Global CEDS Emissions (1750 - 2014)}
+\fancyhead[RO,RE]{B. Global CEDS Emissions (1750 - 2014)}
+\addcontentsline{lof}{section}{B. Global CEDS Emissions (1750 - 2014)}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.6\paperheight]{Paper_Figures_fuel_stacked.pdf}
+  \caption{CEDS emissions estimates by aggregate fuel compared to Lamarque et al. (2010) (dots) and CDIAC for CO2. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields. Format is similar to Figures 2 and 3 in the the main text. "Process" notes CEDS non-combustion emissions (see §2.3.2).}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Paper_Figures_sector_line.pdf}
+  \caption{Global CEDS emissions estimates by aggregate sector, showing the same data as Figure 2 in the main text as a line graph. Figure does not include aviation emissions.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Paper_Figures_region_line.pdf}
+  \caption{Global CEDS emissions estimates by aggregate region, showing the same data as Figure 3 in the main text as a line graph. Figure does not include aviation emissions.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Paper_Figures_fuel_line.pdf}
+  \caption{Global CEDS emissions estimates by aggregate fuel, showing the same data as Figure S1 as a line graph. Figure does not include aviation emissions. "Process" notes non-combustion emissions.}
+  \label{fig:non:float}
+\end{figure}
+
+<!-- New Section ---------------------------------------------------------- -->
+\FloatBarrier
+\section{C. Recent Global CEDS Emissions  (1990 - 2014)}
+\fancyhead[RO,RE]{C. Recent Global CEDS Emissions  (1990 - 2014)}
+\addcontentsline{lof}{section}{C. Recent Global CEDS Emissions  (1990 - 2014)}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.6\paperheight]{Recent_Paper_Figures_sector_stacked.pdf}
+\caption{CEDS emissions estimates by aggregate sector compared to Lamarque et al. (2010) (dots) and CDIAC for CO2, showing the same data as Figure 2 in the main text over 1990 - 2014. Format is similar to Figures 5 in the the main text. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=0.6\paperheight]{Recent_Paper_Figures_fuel_stacked.pdf}
+  \caption{CEDS emissions estimates by aggregate fuel compared to Lamarque et al. (2010) (dots) and CDIAC for CO2, showing the same data as Figure S1 over 1990 - 2014. Format is similar to Figures 5 in the the main text. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields. "Process" denotes  CEDS non-combustion emissions (see §2.3.2).}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Recent_Paper_Figures_sector_line.pdf}
+  \caption{Global CEDS emissions estimates by aggregate sector, showing the same data as Figure S5 as a line graph. Figure does not include aviation emissions. }
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Recent_Paper_Figures_region_line.pdf}
+  \caption{Global CEDS emissions estimates by aggregate region, showing the same data as Figure 5 in the main text as a line graph. Figure does not include aviation emissions.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Recent_Paper_Figures_fuel_line.pdf}
+  \caption{Global CEDS emissions estimates by aggregate fuel, showing the same data as Figure S6 as a line graph. Figure does not include aviation emissions. "Process" notes non-combustion emissions.}
+  \label{fig:non:float}
+\end{figure}
+
+<!-- New Section ---------------------------------------------------------- -->
+\FloatBarrier
+\section{D. CEDS Emissions (1750 - 2014): Regional Summaries by Sector }
+\fancyhead[RO,RE]{D. CEDS Emissions: Regional Summaries by Sector}
+\addcontentsline{lof}{section}{D. CEDS Emissions: Regional Summaries by Sector}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Regional_summaries_Africa.pdf}
+  \caption{Africa: CEDS emissions by aggregate sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Regional_summaries_China.pdf}
+  \caption{China: CEDS emissions by aggregate sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Regional_summaries_Europe.pdf}
+  \caption{Europe: CEDS emissions by aggregate sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Regional_summaries_Former Soviet Union.pdf}
+  \caption{Former Soviet Union: CEDS emissions by aggregate sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Regional_summaries_Latin America.pdf}
+  \caption{Latin America: CEDS emissions by aggregate sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Regional_summaries_North America.pdf}
+  \caption{North America: CEDS emissions by aggregate sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Regional_summaries_OtherAsia.pdf}
+  \caption{Other Asia/Pacific: CEDS emissions by aggregate sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Regional_summaries_International Air-Ship.pdf}
+  \caption{Global International Shipping and Aircraft: CEDS emissions by aggregate sector}
+  \label{fig:non:float}
+\end{figure}
+
+<!-- New Section ---------------------------------------------------------- -->
+\FloatBarrier
+\section{E. Recent CEDS Emissions (1990-2014): Sector Summaries by Region}
+\fancyhead[RO,RE]{E. Recent CEDS Emissions (1990-2014): Sector Summaries by Region}
+\addcontentsline{lof}{section}{E. Recent CEDS Emissions (1990-2014): Sector Summaries by Region}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Recent_Regional_summaries_Africa.pdf}
+  \caption{Recent CEDS Emissions: Africa emissions by Sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Recent_Regional_summaries_China.pdf}
+  \caption{Recent CEDS Emissions: China emissions by Sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Recent_Regional_summaries_Europe.pdf}
+  \caption{Recent CEDS Emissions: Europe emissions by Sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Recent_Regional_summaries_Former Soviet Union.pdf}
+  \caption{Recent CEDS Emissions: Former Soviet Union emissions by Sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Recent_Regional_summaries_Latin America.pdf}
+  \caption{Recent CEDS Emissions: Latin America emissions by Sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Recent_Regional_summaries_North America.pdf}
+  \caption{Recent CEDS Emissions: North America emissions by Sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Recent_Regional_summaries_OtherAsia.pdf}
+  \caption{Recent CEDS Emissions: Other Asia emissions by Sector}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Regional_summaries_International Air-Ship.pdf}
+  \caption{Recent CEDS Emissions: International Shipping and Aircraft emissions by Sector}
+  \label{fig:non:float}
+\end{figure}
+
+<!-- New Section ---------------------------------------------------------- -->
+\FloatBarrier
+\section{F. CEDS Emissions (1750 - 2014): Sector Summaries by Region }
+\fancyhead[RO,RE]{F. CEDS Emissions (1750 - 2014): Sector Summaries by Region}
+\addcontentsline{lof}{section}{F. CEDS Emissions (1750 - 2014): Sector Summaries by Region}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Sector_summaries_Agriculture.pdf}
+  \caption{Recent CEDS Emissions: Agriculture emissions by Region}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Sector_summaries_Energy_Transf_Ext.pdf}
+  \caption{Recent CEDS Emissions: Energy, Transformation, and Extraction emissions by Region}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Sector_summaries_Industry.pdf}
+  \caption{Recent CEDS Emissions: Industry emissions by Region}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Sector_summaries_RCO.pdf}
+  \caption{Recent CEDS Emissions: RCO emissions by Region}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Sector_summaries_Shipping.pdf}
+  \caption{Recent CEDS Emissions: Shipping emissions by Region}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Sector_summaries_Transportation.pdf}
+  \caption{Recent CEDS Emissions: Transportation emissions by Region}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Sector_summaries_Waste.pdf}
+  \caption{Recent CEDS Emissions: Waste emissions by Region}
+  \label{fig:non:float}
+\end{figure}
+
+<!-- New Section ---------------------------------------------------------- -->
+\FloatBarrier
+\section{G. Recent CEDS Emissions (1990-2014): Sector Summaries by Region}
+\fancyhead[RO,RE]{G. Recent CEDS Emissions (1990-2014): Sector Summaries by Region}
+\addcontentsline{lof}{section}{G. Recent CEDS Emissions (1990-2014): Sector Summaries by Region}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Recent_Sector_summaries_Agriculture.pdf}
+  \caption{Recent CEDS Emissions: Agriculture emissions by Region}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Recent_Sector_summaries_Energy_Transf_Ext.pdf}
+  \caption{Recent CEDS Emissions: Energy, Transformation, and Extraction emissions by Region}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Recent_Sector_summaries_Industry.pdf}
+  \caption{Recent CEDS Emissions: Industry emissions by Region}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Recent_Sector_summaries_RCO.pdf}
+  \caption{Recent CEDS Emissions: RCO emissions by Region}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Recent_Sector_summaries_Shipping.pdf}
+  \caption{Recent CEDS Emissions: Shipping emissions by Region}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Recent_Sector_summaries_Transportation.pdf}
+  \caption{Recent CEDS Emissions: Transportation emissions by Region}
+  \label{fig:non:float}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Recent_Sector_summaries_Waste.pdf}
+  \caption{Recent CEDS Emissions: Waste emissions by Region}
+  \label{fig:non:float}
+\end{figure}
+
+<!-- New Section ---------------------------------------------------------- -->
+\FloatBarrier
+\section{H. Comparisons to Other Inventories}
+\fancyhead[RO,RE]{H. Comparisons to Other Inventories}
+\addcontentsline{lof}{section}{H. Comparisons to Other Inventories}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{Paper_Figure_other_inventories.pdf}
+  \caption{Like with like comparison of global CEDS emissions with EDGAR, GAINS, CMIP5, and CDIAC (for CO2 only)}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{CMIP5_Region_Comparison.pdf}
+  \caption{CEDS versus CMIP5: Top 5 emitting regions (CMIP 5 definitions) compared to comprable CEDS regions. Like with like comparison of regional emissions of top emitters. These figures do not include open burning (grassland or forest fires), fossil-fuel fires, agricultural waste burning on fields, or aviation. "China+" includes China, Hong Kong, Macau, Mongolia, and Chinese Taipei. "Russia+" includes Russia, Armenia, Azerbaijan, and Georgia. "Western Africa" includes Benin, Burkina Faso, Central African Republic, Cote d'Ivoire, Cameroon, DR Congo, Congo, Cape Verde, Gabon, Ghana, Guinea, Gambia, Guinea-Bissau, Equatorial Guinea, Liberia, Mali, Mauretania, Niger, Nigeria, Senegal, St Helena, Sierra Leone, Sao Tome and Principe, Chad, and Togo}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{CMIP5_Sector_Comparison.pdf}
+  \caption{CEDS versus CMIP5: Like with like comparison of global emissions by aggregate sector. These figures do not include open burning (grassland or forest fires), fossil-fuel fires, agricultural waste burning on fields, or aviation.}
+\end{figure}
+
+<!-- New Section ---------------------------------------------------------- -->
+\FloatBarrier
+\section{I. Global Emission Summaries for Select Years}
+\fancyhead[RO,RE]{I. Global Emission Summaries for Select Years}
+\addcontentsline{lof}{section}{I. Global Emission Summaries for Select Years}
+
+\addcontentsline{lof}{figure}{Table S3   Global Emissions Estimates for 1990, 2000, and 2010.}
+\begin{table}[!ht]
+\caption{Global Emissions Estimates for 1990, 2000, and 2010.}
+\footnotesize
+\begin{center}
+\begin{tabular}{ | c | c | c | c | c | } 
+\hline
+Emissions Species & Units & 1990 & 2000 & 2010 \\
+\hline
+BC & kt C/year & 5,898 & 5,808 & 7,755 \\
+\hline
+OC & kt C/year & 13,245 & 14,595 & 18,755 \\
+\hline
+NOx & kt NOx/year & 112,879 & 122,103 & 140,651 \\
+\hline
+SO2 & kt SO2/year & 131,926 & 109,131 & 114,082 \\
+\hline
+CO & kt CO/year & 639,591 & 598,356 & 616,991 \\
+\hline
+NH3 & kt NH3/year & 48,928 & 51,112 & 58,383 \\
+\hline
+NMVOC & kt NMVOC/year & 144,884 & 140,749 & 160,887 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+<!-- New Section ---------------------------------------------------------- -->
+\FloatBarrier
+\newpage
+\section{J. Inventory Scaling of Final Estimates}
+\fancyhead[RO,RE]{J. Inventory Scaling of Final Estimates}
+\addcontentsline{lof}{section}{J. Inventory Scaling of Final Estimates}
+
+These figures show the inventories (if any) to which final estimate are scaled. Saturated colors note that the final value is matched to a specific inventory value. Lighter colors note that final values are scaled by extending scaling factors beyond years for which the inventory is available. Grey notes that final estimates are default estimates and are not scaled ot inventory value. More detail on scaling factors and scaling methods are available in Section 2.4 of the manuscript.
+
+For example, SO2 estimates are mostly default estimates in Latin America, Africa, the Former Soviet Union, and International shipping and aviation, but scaled to many different inventories in different regions.
+
+Figures for BC, OC are not shown as they are not scaled to any invenotry values and all final estimates are defaults. Methane values are only scaled to the US GHG inventory. All methane values, other than US emissions are default values.
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/CO-MasterHeatmapByRegion.png}
+  \caption{Final CO emissions estimates by region. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/CO-MasterHeatmapBySector.png}
+  \caption{Final CO emissions estimates by sector. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/NOx-MasterHeatmapByRegion.png}
+  \caption{Final NOx emissions estimates by region. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/NOx-MasterHeatmapBySector.png}
+  \caption{Final NOx emissions estimates by sector. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/SO2-MasterHeatmapByRegion.png}
+  \caption{Final SO2 emissions estimates by region. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/SO2-MasterHeatmapBySector.png}
+  \caption{Final SO2 emissions estimates by sector. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/NH3-MasterHeatmapByRegion.png}
+  \caption{Final NH3 emissions estimates by region. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/NH3-MasterHeatmapBySector.png}
+  \caption{Final NH3 emissions estimates by sector. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/CO2-MasterHeatmapByRegion.png}
+  \caption{Final CO2 emissions estimates by region. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/CO2-MasterHeatmapBySector.png}
+  \caption{Final CO2 emissions estimates by sector. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/NMVOC-MasterHeatmapByRegion.png}
+  \caption{Final NMVOC emissions estimates by region. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+\FloatBarrier
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=7in]{inventory_scaling/NMVOC-MasterHeatmapBySector.png}
+  \caption{Final NMVOC emissions estimates by sector. Colors correspond to the inventory to which final estimates were scaled. Saturated colors note that estimates were scaled to inventory values while lighter colors show that scaling factors were extended past inventory years. More detail on scaling methods are available in Section 2.4 of the manuscript.}
+\end{figure}
+
+<!-- New Section ---------------------------------------------------------- -->
+\FloatBarrier
+\newpage
+\section{K. Gridded Emissions - Difference with CMIP5}
+\fancyhead[RO,RE]{K. Gridded Emissions - Difference with CMIP5}
+\addcontentsline{lof}{section}{K. Gridded Emissions - Difference with CMIP5}
+
+These figures show differences, by grid cell, between CMIP5 (Lamarque et al. 2010) and CEDS gridded estimates. Values show are CEDS - CMIP5 values. Larger CEDS estimates are shown as blue while smaller CEDS estimates are shown as red. Note that for many emission species differences in spatial distribution of anthropogenic emissions in 1850 are numerically small relative, for example, to natural emissions and emissions from open burning (e.g. forest and grassland fires). Differences in later years where emission magnitudes are larger can have more influence on model results.
+
+These differences can stem from several sources: differences in country and sector level aggregate emission totals and differences in the way total emissions were mapped to spatial grids. In the CEDS estimates, consistent spatial distributions were used across all sectors and aggregate emissions were mapped to a spatial grid for each individual country (with tiling to account for multiple countries at boundary grid cells). In CMIP5 spatial grids were not consistent across species, and for most emissions (except for SO2), emissions were mapped on the basis of 38 regions instead of individual countries. So changes in aggregate totals, sectoral emissions split, spatial proxy data, and gridding methodology all contribute to differences at the spatial scale. 
+
+Referring to the figures below, CEDS OC emissions in 1850 are slightly lower over the eastern US, Europe and eastern China and larger over India and some central European countries such as Austria. Given the dominance of residential biofuel for this time period, these differences may reflect differences in the way residential sector emissions were mapped to population distributions. OC emissions in 2000 are most notably larger over Nigeria, India, and Pakistan, which reflect larger CEDS totals in 2000 for these regions. OC emissions are slightly smaller in parts of Eastern Europe and the Middle East.
+
+CEDS CH4 emissions in 1850 (supplemental extended emissions) are smaller in China, India, Eastern US, and the UK, but larger in the Western US, and pockets of Europe and India. In 2000, CH4 are also smaller in India and Eastern China. There are concentrated pockets of increased methane emissions in Venezuela, Russia, the Middle East, Algeria and Libya.
+
+Globally, CEDS NOx emissions in 1850 are smaller than CMIP6 estimates, largely due to explicit representation of biomass fuels. In the gridded data, this decrease is concentrated over the eastern US, India, and eastern China. In 2000, global CEDS NOx emissions are largely, and most noticeably larger over the US, western China, India, western Europe, and some Atlantic shipping routes.
+
+CO data show similar but opposite trends of NOx emissions. Globally in 1850, CEDS CO estimates are larger than CMIP6 and are most noticeable over the eastern US and Europe, while CEDS estimates are smaller over some parts of Africa, the middle east and Asia. In 2000, CEDS CO emissions are most notably larger over China and smaller over India.
+
+CEDS NMVOC emissions in 1850 are smaller over China, India, the Middle East, and parts of South America and Africa, while larger of the US and Europe. In 2000 differences are more concentrated in hot spots and are often not consistently large or smaller in aggregate within most countries. NMVOC are notably smaller in eastern China and Saudi Arabia.
+
+CEDS NH3 emissions in 1850 are smaller in India and the US, while consistently larger over Europe and China. CEDS NH3 emissions in 2000 are smaller over most of the world, but noticeably larger over India, Mongolia, and parts of Europe. Differences over Mongolia, address a previously known issue in the CMIP5 gridded data.
+While most emissions show differences spread out over countries and regions, SO2 shows highly concentrated differences in individual grid cells in both 1850 and 2000. In 1850, differences are small but are concentrated in the UK, Germany and France. Differences in 2000 gridded data have a similar character. Globally CEDS SO2 emissions are very similar to CMIP5 and differences largely are due to different proxy gridding data that incorporates the locations of power plants or metal smelters. CEDS emissions are slightly smaller over Mexico and the distribution of emissions shows changes in Eastern China, now more concentrated in the north. This comparison indicates the importance of accurate spatial proxy data for large SO2 point sources. Ideally individual point source data can be used to generate spatial maps, although such data is not available for all countries for all years.
+
+
+\FloatBarrier
+\newpage
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/SO2_1850_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total SO2 emissions in 1850. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/SO2_2000_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total SO2 emissions in 2000. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\FloatBarrier
+\newpage
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/NOx_1850_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total NOx emissions in 1850. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/NOx_2000_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total NOx emissions in 2000. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/CO_1850_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total CO emissions in 1850. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/CO_2000_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total CO emissions in 2000. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/OC_1850_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total OC emissions in 1850. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/OC_2000_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total OC emissions in 2000. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/BC_1850_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total BC emissions in 1850. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/BC_2000_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total BC emissions in 2000. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/NH3_1850_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total NH3 emissions in 1850. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/NH3_2000_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total NH3 emissions in 2000. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/NMVOC_1850_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total NMVOC emissions in 1850. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=6.5in]{gridded_emissions_diff/NMVOC_2000_CEDS_RCP_diff_mass.jpg}
+  \caption{Difference in CEDS and CMIP5 gridded total NMVOC emissions in 2000. For like with like comparison, these figures do not include aviation, or agricultural waste burning on fields.}
+\end{figure}
+
+

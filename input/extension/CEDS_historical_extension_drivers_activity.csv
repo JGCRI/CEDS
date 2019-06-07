@@ -1,0 +1,243 @@
+sector,fuel,driver_data_source,extra_driver_info,ext_start_year,ext_end_year,Notes
+1A1a_Electricity-autoproducer,biomass,,,,,replaced with H1.2.add_other_biomass.R Does not use extention activity driver file to select
+1A1a_Electricity-public,biomass,,,,,replaced with H1.2.add_other_biomass.R Does not use extention activity driver file to select
+1A1a_Heat-production,biomass,,,,,replaced with H1.2.add_other_biomass.R Does not use extention activity driver file to select
+1A2a_Ind-Comb-Iron-steel,biomass,,,,,replaced with H1.2.add_industrial_biomass.R Does not use extention activity driver file to select
+1A2b_Ind-Comb-Non-ferrous-metals,biomass,,,,,replaced with H1.2.add_industrial_biomass.R Does not use extention activity driver file to select
+1A2c_Ind-Comb-Chemicals,biomass,,,,,replaced with H1.2.add_industrial_biomass.R Does not use extention activity driver file to select
+1A2d_Ind-Comb-Pulp-paper,biomass,,,,,replaced with H1.2.add_industrial_biomass.R Does not use extention activity driver file to select
+1A2e_Ind-Comb-Food-tobacco,biomass,,,,,replaced with H1.2.add_industrial_biomass.R Does not use extention activity driver file to select
+1A2f_Ind-Comb-Non-metalic-minerals,biomass,,,,,replaced with H1.2.add_industrial_biomass.R Does not use extention activity driver file to select
+1A2g_Ind-Comb-Construction,biomass,,,,,replaced with H1.2.add_industrial_biomass.R Does not use extention activity driver file to select
+1A2g_Ind-Comb-machinery,biomass,,,,,replaced with H1.2.add_industrial_biomass.R Does not use extention activity driver file to select
+1A2g_Ind-Comb-mining-quarying,biomass,,,,,replaced with H1.2.add_industrial_biomass.R Does not use extention activity driver file to select
+1A2g_Ind-Comb-other,biomass,,,,,replaced with H1.2.add_industrial_biomass.R Does not use extention activity driver file to select
+1A2g_Ind-Comb-textile-leather,biomass,,,,,replaced with H1.2.add_industrial_biomass.R Does not use extention activity driver file to select
+1A2g_Ind-Comb-transpequip,biomass,,,,,replaced with H1.2.add_industrial_biomass.R Does not use extention activity driver file to select
+1A2g_Ind-Comb-wood-products,biomass,,,,,replaced with H1.2.add_industrial_biomass.R Does not use extention activity driver file to select
+1A3ai_International-aviation,biomass,,,,,replaced with H1.2.add_other_biomass.R Does not use extention activity driver file to select
+1A3aii_Domestic-aviation,biomass,,,,,replaced with H1.2.add_other_biomass.R Does not use extention activity driver file to select
+1A3b_Road,biomass,,,,,replaced with H1.2.add_other_biomass.R Does not use extention activity driver file to select
+1A3c_Rail,biomass,,,,,replaced with H1.2.add_other_biomass.R Does not use extention activity driver file to select
+1A3dii_Domestic-navigation,biomass,,,,,replaced with H1.2.add_other_biomass.R Does not use extention activity driver file to select
+1A3eii_Other-transp,biomass,,,,,replaced with H1.2.add_other_biomass.R Does not use extention activity driver file to select
+1A4a_Commercial-institutional,biomass,,,,,replaced with H1.2.add_other_biomass.R Does not use extention activity driver file to select
+1A4b_Residential,biomass,,,,,replaced wih A8É.
+1A4c_Agriculture-forestry-fishing,biomass,,,,,replaced with H1.2.add_other_biomass.R Does not use extention activity driver file to select
+1A5_Other-unspecified,biomass,,,,,replaced with H1.2.add_other_biomass.R Does not use extention activity driver file to select
+1A1a_Electricity-autoproducer,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A1a_Electricity-public,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A1a_Heat-production,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2a_Ind-Comb-Iron-steel,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2b_Ind-Comb-Non-ferrous-metals,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2c_Ind-Comb-Chemicals,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2d_Ind-Comb-Pulp-paper,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2e_Ind-Comb-Food-tobacco,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2f_Ind-Comb-Non-metalic-minerals,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2f_Ind-Comb-Non-metalic-minerals,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-Construction,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-machinery,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-mining-quarying,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-other,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-textile-leather,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-transpequip,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-wood-products,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3ai_International-aviation,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3aii_Domestic-aviation,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3b_Road,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3c_Rail,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3dii_Domestic-navigation,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3eii_Other-transp,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A4a_Commercial-institutional,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A4b_Residential,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A4c_Agriculture-forestry-fishing,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A5_Other-unspecified,brown_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A1a_Electricity-autoproducer,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A1a_Electricity-public,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A1a_Heat-production,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2a_Ind-Comb-Iron-steel,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2b_Ind-Comb-Non-ferrous-metals,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2c_Ind-Comb-Chemicals,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2d_Ind-Comb-Pulp-paper,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2e_Ind-Comb-Food-tobacco,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2f_Ind-Comb-Non-metalic-minerals,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2f_Ind-Comb-Non-metalic-minerals,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-Construction,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-machinery,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-mining-quarying,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-other,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-textile-leather,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-transpequip,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-wood-products,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3ai_International-aviation,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3aii_Domestic-aviation,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3b_Road,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3c_Rail,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3dii_Domestic-navigation,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3eii_Other-transp,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A4a_Commercial-institutional,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A4b_Residential,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A4c_Agriculture-forestry-fishing,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A5_Other-unspecified,coal_coke,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A1a_Electricity-autoproducer,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A1a_Electricity-public,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A1a_Heat-production,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2a_Ind-Comb-Iron-steel,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2b_Ind-Comb-Non-ferrous-metals,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2c_Ind-Comb-Chemicals,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2d_Ind-Comb-Pulp-paper,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2e_Ind-Comb-Food-tobacco,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2f_Ind-Comb-Non-metalic-minerals,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-Construction,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-machinery,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-mining-quarying,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-other,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-textile-leather,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-transpequip,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-wood-products,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3ai_International-aviation,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3aii_Domestic-aviation,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3b_Road,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3c_Rail,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3dii_Domestic-navigation,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3eii_Other-transp,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A4a_Commercial-institutional,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A4b_Residential,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A4c_Agriculture-forestry-fishing,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A5_Other-unspecified,diesel_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A1a_Electricity-autoproducer,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A1a_Electricity-public,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A1a_Heat-production,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2a_Ind-Comb-Iron-steel,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2b_Ind-Comb-Non-ferrous-metals,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2c_Ind-Comb-Chemicals,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2d_Ind-Comb-Pulp-paper,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2e_Ind-Comb-Food-tobacco,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2f_Ind-Comb-Non-metalic-minerals,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2f_Ind-Comb-Non-metalic-minerals,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-Construction,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-machinery,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-mining-quarying,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-other,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-textile-leather,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-transpequip,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-wood-products,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3ai_International-aviation,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3aii_Domestic-aviation,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3b_Road,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3c_Rail,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3dii_Domestic-navigation,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A3eii_Other-transp,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A4a_Commercial-institutional,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A4b_Residential,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A4c_Agriculture-forestry-fishing,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A5_Other-unspecified,hard_coal,,,,,*Extended with H.1.add_total_coal. Does not use extention activity driver file to select activities to extend
+1A1a_Electricity-autoproducer,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A1a_Electricity-public,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A1a_Heat-production,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2a_Ind-Comb-Iron-steel,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2b_Ind-Comb-Non-ferrous-metals,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2c_Ind-Comb-Chemicals,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2d_Ind-Comb-Pulp-paper,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2e_Ind-Comb-Food-tobacco,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2f_Ind-Comb-Non-metalic-minerals,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-Construction,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-machinery,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-mining-quarying,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-other,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-textile-leather,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-transpequip,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-wood-products,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3ai_International-aviation,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3aii_Domestic-aviation,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3b_Road,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3c_Rail,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3dii_Domestic-navigation,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3eii_Other-transp,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A4a_Commercial-institutional,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A4b_Residential,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A4c_Agriculture-forestry-fishing,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A5_Other-unspecified,heavy_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A1a_Electricity-autoproducer,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A1a_Electricity-public,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A1a_Heat-production,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2a_Ind-Comb-Iron-steel,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2b_Ind-Comb-Non-ferrous-metals,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2c_Ind-Comb-Chemicals,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2d_Ind-Comb-Pulp-paper,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2e_Ind-Comb-Food-tobacco,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2f_Ind-Comb-Non-metalic-minerals,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-Construction,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-machinery,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-mining-quarying,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-other,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-textile-leather,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-transpequip,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-wood-products,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3ai_International-aviation,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3aii_Domestic-aviation,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3b_Road,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3c_Rail,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3dii_Domestic-navigation,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A3eii_Other-transp,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A4a_Commercial-institutional,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A4b_Residential,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A4c_Agriculture-forestry-fishing,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A5_Other-unspecified,light_oil,,,,,*Extended with H.1.add_total_petroleum. Does not use extention activity driver file to select activities to extend
+1A1a_Electricity-autoproducer,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A1a_Electricity-public,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A1a_Heat-production,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A2a_Ind-Comb-Iron-steel,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A2b_Ind-Comb-Non-ferrous-metals,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A2c_Ind-Comb-Chemicals,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A2d_Ind-Comb-Pulp-paper,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A2e_Ind-Comb-Food-tobacco,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A2f_Ind-Comb-Non-metalic-minerals,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-Construction,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-machinery,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-mining-quarying,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-other,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-textile-leather,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-transpequip,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A2g_Ind-Comb-wood-products,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A3ai_International-aviation,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A3aii_Domestic-aviation,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A3b_Road,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A3c_Rail,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A3dii_Domestic-navigation,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A3eii_Other-transp,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A4a_Commercial-institutional,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A4b_Residential,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A4c_Agriculture-forestry-fishing,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A5_Other-unspecified,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
+1A1bc_Other-transformation,process,population,,1750,1965,
+1B1_Fugitive-solid-fuels,process,population,,1750,1965,
+1B2_Fugitive-petr-and-gas,process,CDIAC,liquid_and_gas_fuels,1750,1970,
+1B2d_Fugitive-other-energy,process,CDIAC,liquid_and_gas_fuels,1750,1970,
+2A1_Cement-production,process,population,,1750,1965,
+2A2_Lime-production,process,population,,1750,1965,
+2A6_Other-minerals,process,population,,1750,1965,
+2B_Chemical-industry,process,CDIAC,liquid_fuels,1750,1965,
+2C_Metal-production,process,population,,1750,1965,
+2D_Degreasing-Cleaning,process,CDIAC,liquid_fuels,1750,1970,
+2D_Paint-application,process,CDIAC,liquid_fuels,1750,1970,
+2D3_Chemical-products-manufacture-processing,process,CDIAC,liquid_fuels,1750,1970,
+2D3_Other-product-use,process,CDIAC,liquid_fuels,1750,1970,
+2H_Pulp-and-paper-food-beverage-wood,process,population,,1750,1965,
+2L_Other-process-emissions,process,CDIAC,liquid_fuels,1750,1965,
+3B_Manure-management,process,population,,1750,1965,
+3D_Rice-Cultivation,process,population,,1750,1965,
+3D_Soil-emissions,process,population,,1750,1965,
+3E_Enteric-fermentation,process,population,,1750,1965,
+3F_Agricultural-residue-burning-on-fields,process,population,,1750,1965,
+3I_Agriculture-other,process,population,,1750,1965,
+5A_Solid-waste-disposal,process,population,,1750,1965,
+5C_Waste-incineration,process,pulp_paper_consumption,,1750,1960,
+5D_Wastewater-handling,process,population,,1750,1960,
+5E_Other-waste-handling,process,population,,1750,1965,
+6A_Other-in-total,process,population,,1750,1965,
+6B_Other-not-in-total,process,population,,1750,1965,
+7A_Fossil-fuel-fires,process,CDIAC,solid_fuels_cumulative,1750,1965,
+11A_Volcanoes,,population,,1750,1965,not used in CEDS
+11B_Forest-fires,,population,,1750,1965,not used in CEDS
+11C_Other-natural,,population,,1750,1965,not used in CEDS

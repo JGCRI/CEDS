@@ -1,0 +1,242 @@
+emf_name,country_name,iso,emf_number
+8 Western Africa,Zimbabwe                                        ,zwe,8
+8 Western Africa,Zambia                                          ,zmb,8
+8 Western Africa,"Tanzania, United Republic of",tza,8
+8 Western Africa,Swaziland                                        ,swz,8
+8 Western Africa,Namibia                                         ,nam,8
+8 Western Africa,Malawi                                          ,mwi,8
+8 Western Africa,Mozambique                                      ,moz,8
+8 Western Africa,Lesotho                                          ,lso,8
+8 Western Africa,Botswana                                        ,bwa,8
+8 Western Africa,Angola,ago,8
+8 Western Africa,Uganda                                          ,uga,8
+8 Western Africa,Seychelles                                      ,syc,8
+8 Western Africa,Somalia,som,8
+8 Western Africa,Sudan                                       ,sdn,8
+8 Western Africa,Rwanda,rwa,8
+8 Western Africa,R_union                                 ,reu,8
+8 Western Africa,Mauritius                                       ,mus,8
+8 Western Africa,Madagascar                                      ,mdg,8
+8 Western Africa,Kenya                                           ,ken,8
+8 Western Africa,Ethiopia,eth,8
+8 Western Africa,Eritrea                                 ,eri,8
+8 Western Africa,Djibouti                                        ,dji,8
+8 Western Africa,Comoros                     ,com,8
+8 Western Africa,Burundi                                         ,bdi,8
+8 Western Africa,Mayotte                                 ,,8
+8 Western Africa,Togo,tgo,8
+8 Western Africa,Chad                                            ,tcd,8
+8 Western Africa,Sao Tome and Principe                ,stp,8
+8 Western Africa,Sierra Leone                                    ,sle,8
+8 Western Africa,Senegal                                         ,sen,8
+8 Western Africa,Nigeria                                 ,nga,8
+8 Western Africa,Niger                                       ,ner,8
+8 Western Africa,Mauritania                              ,mrt,8
+8 Western Africa,Mali                                            ,mli,8
+8 Western Africa,Liberia                                         ,lbr,8
+8 Western Africa,Equatorial Guinea                               ,gnq,8
+8 Western Africa,Guinea-Bissau                                   ,gnb,8
+8 Western Africa,Gambia                                      ,gmb,8
+8 Western Africa,Guinea                                          ,gin,8
+8 Western Africa,Ghana                                           ,gha,8
+8 Western Africa,Gabon,gab,8
+8 Western Africa,Cape Verde                                      ,cpv,8
+8 Western Africa,Congo                                       ,cog,8
+8 Western Africa,"Congo, the Democratic Republic of the",cod,8
+8 Western Africa,Cameroon                                        ,cmr,8
+8 Western Africa,Cªte d'Ivoire                                    ,civ,8
+8 Western Africa,Central African Republic                ,caf,8
+8 Western Africa,Burkina Faso                            ,bfa,8
+8 Western Africa,Benin                                           ,ben,8
+8 Western Africa,Saint Helena                            ,,8
+7 Northern Africa,Tunisia                                         ,tun,7
+7 Northern Africa,Morocco                                          ,mar,7
+7 Northern Africa,Libyan Arab Jamahiriya,lby,7
+7 Northern Africa,Western Sahara                          ,esh,7
+7 Northern Africa,Egypt                                      ,egy,7
+7 Northern Africa,Algeria                      ,dza,7
+6 Rest South America,Venezuela                                       ,ven,6
+6 Rest South America,Uruguay                                 ,ury,6
+6 Rest South America,Suriname                                        ,sur,6
+6 Rest South America,South Georgia and the South Sandwich Islands,ssd,6
+6 Rest South America,Paraguay                                        ,pry,6
+6 Rest South America,Peru                                            ,per,6
+6 Rest South America,Guyana                                          ,guy,6
+6 Rest South America,French Guiana                           ,guf,6
+6 Rest South America,Falklands Islands (Malvinas),flk,6
+6 Rest South America,Ecuador                                         ,ecu,6
+6 Rest South America,Colombia                                        ,col,6
+6 Rest South America,Chile                                           ,chl,6
+6 Rest South America,Bolivia,bol,6
+6 Rest South America,Argentina,arg,6
+6 Rest South America,Bouvet Island,,6
+5 Brazil,Brazil                               ,bra,5
+4 Rest Central America,"Virgin Islands, U.S.",vir,4
+4 Rest Central America,Saint Vincent and the Grenadines,vct,4
+4 Rest Central America,Trinidad and Tobago                             ,tto,4
+4 Rest Central America,Turks and Caicos Islands                                    ,tca,4
+4 Rest Central America,El Salvador                                     ,slv,4
+4 Rest Central America,Puerto Rico                                                 ,pri,4
+4 Rest Central America,Panama                                          ,pan,4
+4 Rest Central America,Nicaragua                                       ,nic,4
+4 Rest Central America,Martinique                              ,mtq,4
+4 Rest Central America,Montserrat                              ,msr,4
+4 Rest Central America,Saint Lucia                             ,lca,4
+4 Rest Central America,Saint Kitts and Nevis ,kna,4
+4 Rest Central America,Jamaica                                 ,jam,4
+4 Rest Central America,Haiti                                           ,hti,4
+4 Rest Central America,Honduras                                        ,hnd,4
+4 Rest Central America,Guatemala                                       ,gtm,4
+4 Rest Central America,Grenada                                 ,grd,4
+4 Rest Central America,Guadeloupe                              ,glp,4
+4 Rest Central America,Dominican Republic                      ,dom,4
+4 Rest Central America,Dominica                                    ,dma,4
+4 Rest Central America,Cayman Islands                          ,cym,4
+4 Rest Central America,Cuba                                            ,cub,4
+4 Rest Central America,Costa Rica                                      ,cri,4
+4 Rest Central America,Barbados                                ,brb,4
+4 Rest Central America,Bermuda                                 ,bmu,4
+4 Rest Central America,Belize                                  ,blz,4
+4 Rest Central America,Bahamas                                 ,bhs,4
+4 Rest Central America,Antigua and Barbuda                       ,atg,4
+4 Rest Central America,Curacao,cuw,4
+4 Rest Central America,Sint Maarten,sxm,4
+4 Rest Central America,Aruba                                   ,abw,4
+4 Rest Central America,Anguilla                                ,,4
+4 Rest Central America,"Virgin Islands, British                                      ",vgb,4
+3 Mexico,Mexico,mex,3
+25 Rest South Asia,Pakistan                                ,pak,25
+25 Rest South Asia,Nepal                                            ,npl,25
+25 Rest South Asia,Maldives                                        ,mdv,25
+25 Rest South Asia,Sri Lanka                  ,lka,25
+25 Rest South Asia,Bhutan                                           ,btn,25
+25 Rest South Asia,Bangladesh,bgd,25
+25 Rest South Asia,Afghanistan                                ,afg,25
+25 Rest South Asia,British Indian Ocean Territory,,25
+24 Oceania,Samoa                          ,wsm,24
+24 Oceania,Wallis and Futuna,wlf,24
+24 Oceania,Vanuatu                                         ,vut,24
+24 Oceania,Tonga                                            ,ton,24
+24 Oceania,Tokelau                                 ,tkl,24
+24 Oceania,Solomon Islands                         ,slb,24
+24 Oceania,French Polynesia,pyf,24
+24 Oceania,Palau                                           ,plw,24
+24 Oceania,New Zealand                             ,nzl,24
+24 Oceania,Niue                                    ,niu,24
+24 Oceania,New Caledonia                           ,ncl,24
+24 Oceania,Marshall Islands                            ,mhl,24
+24 Oceania,Kiribati                                ,kir,24
+24 Oceania,Guam                                    ,gum,24
+24 Oceania,"Micronesia, Federated States of",fsm,24
+24 Oceania,Fiji                                            ,fji,24
+24 Oceania,Cook Islands                            ,cok,24
+24 Oceania,Australia                               ,aus,24
+24 Oceania,American Samoa                          ,asm,24
+24 Oceania,Christmas Island                        ,,24
+24 Oceania,Cocos (Keeling) Islands                 ,,24
+24 Oceania,French Southern Territories             ,,24
+24 Oceania,Heard Island and McDonald Islands         ,,24
+24 Oceania,Nauru                                           ,,24
+24 Oceania,Norfolk Island                          ,,24
+24 Oceania,Northern Mariana Islands                ,,24
+24 Oceania,Pitcairn                                ,,24
+24 Oceania,Tuvalu                                  ,,24
+23 Japan,Japan                                   ,jpn,23
+22 Indonesia+,Papua New Guinea                                            ,png,22
+22 Indonesia+,Indonesia                                       ,idn,22
+22 Indonesia+,East Timor,tls,22
+21 Southeastern Asia,Viet Nam                              ,vnm,21
+21 Southeastern Asia,Thailand                                         ,tha,21
+21 Southeastern Asia,Singapore                                       ,sgp,21
+21 Southeastern Asia,Philippines                                 ,phl,21
+21 Southeastern Asia,Malaysia                                ,mys,21
+21 Southeastern Asia,Myanmar                                            ,mmr,21
+21 Southeastern Asia,Cambodia                                         ,khm,21
+21 Southeastern Asia,Lao People's Democratic Republic,lao,21
+21 Southeastern Asia,Brunei Darussalam                       ,brn,21
+20 China+,Mongolia                                ,mng,20
+20 China+,Macau                                   ,mac,20
+20 China+,Hong Kong                               ,hkg,20
+20 China+,China,chn,20
+20 China+,"Taiwan, Province of China                                   ",twn,20
+2 USA,United States,usa,2
+2 USA,United States Minor Outlying Islands    ,usa,2
+2 USA,Saint Pierre and Miquelon    ,spm,2
+19 Korea,"Korea, Democratic People's Republic of",prk,19
+19 Korea,"Korea, Republic of",kor,19
+18 India,India                                           ,ind,18
+17 Middle East,Yemen                                           ,yem,17
+17 Middle East,Syrian Arab Republic,syr,17
+17 Middle East,Saudi Arabia                                     ,sau,17
+17 Middle East,Qatar                                              ,qat,17
+17 Middle East,Oman                                           ,omn,17
+17 Middle East,Lebanon,lbn,17
+17 Middle East,Kuwait                                             ,kwt,17
+17 Middle East,Jordan                                 ,jor,17
+17 Middle East,Palestine,pse,17
+17 Middle East,Israel                                             ,isr,17
+17 Middle East,Iraq                                            ,irq,17
+17 Middle East,"Iran, Islamic Republic of",irn,17
+17 Middle East,Bahrain                                            ,bhr,17
+17 Middle East,United Arab Emirates                    ,are,17
+16 Russia+,Russian Federation                      ,rus,16
+16 Russia+,Georgia                                 ,geo,16
+16 Russia+,Azerbaijan,aze,16
+16 Russia+,Armenia                                         ,arm,16
+15 Asia-Stan,Uzbekistan                                      ,uzb,15
+15 Asia-Stan,Turkmenistan                            ,tkm,15
+15 Asia-Stan,Tajikistan                                      ,tjk,15
+15 Asia-Stan,Kyrgyzstan,kgz,15
+15 Asia-Stan,Kazakstan                                      ,kaz,15
+14 Ukraine+,Ukraine                                 ,ukr,14
+14 Ukraine+,"Moldova, Republic of",mda,14
+14 Ukraine+,Belarus                                         ,blr,14
+13 Turkey,Turkey                                          ,tur,13
+12 Central Europe,Slovenia                                        ,svn,12
+12 Central Europe,Slovakia,svk,12
+12 Central Europe,Romania                                 ,rou,12
+12 Central Europe,Poland                                          ,pol,12
+12 Central Europe,Malta                                           ,mlt,12
+12 Central Europe,"Macedonia, the former Yugoslav Republic of",mkd,12
+12 Central Europe,Latvia                                          ,lva,12
+12 Central Europe,Lithuania                                       ,ltu,12
+12 Central Europe,Hungary                                         ,hun,12
+12 Central Europe,Croatia                                         ,hrv,12
+12 Central Europe,Estonia                                         ,est,12
+12 Central Europe,Czech Republic                          ,cze,12
+12 Central Europe,Cyprus                                          ,cyp,12
+12 Central Europe,Bosnia and Herzegovina                          ,bih,12
+12 Central Europe,Bulgaria                                        ,bgr,12
+12 Central Europe,Albania                                         ,alb,12
+12 Central Europe,Serbia,srb,12
+12 Central Europe,Kosovo,srb (kosovo),12
+12 Central Europe,Montenegro,mne,12
+11 Western Europe,Sweden                                           ,swe,11
+11 Western Europe,Portugal,prt,11
+11 Western Europe,Norway                                           ,nor,11
+11 Western Europe,Netherlands                                  ,nld,11
+11 Western Europe,Luxembourg                                   ,lux,11
+11 Western Europe,Liechtenstein                               ,lie,11
+11 Western Europe,Italy,ita,11
+11 Western Europe,Iceland                                         ,isl,11
+11 Western Europe,Ireland                                 ,irl,11
+11 Western Europe,Greece,grc,11
+11 Western Europe,Gibraltar                               ,gib,11
+11 Western Europe,United Kingdom,gbr,11
+11 Western Europe,Faroe Islands,fro,11
+11 Western Europe,France,fra,11
+11 Western Europe,Finland                                         ,fin,11
+11 Western Europe,Spain                                            ,esp,11
+11 Western Europe,Denmark                                          ,dnk,11
+11 Western Europe,Greenland,grl,11
+11 Western Europe,Germany                                 ,deu,11
+11 Western Europe,Switzerland,che,11
+11 Western Europe,Belgium                                          ,bel,11
+11 Western Europe,Austria                                         ,aut,11
+11 Western Europe,Andorra                                     ,,11
+11 Western Europe,Holy See (Vatican City State),,11
+11 Western Europe,Monaco                                      ,,11
+11 Western Europe,San Marino                                      ,,11
+11 Western Europe,Svalbard and Jan Mayen                                      ,,11
+10 South Africa,South Africa                                    ,zaf,10
+1 Canada,Canada                                  ,can,1

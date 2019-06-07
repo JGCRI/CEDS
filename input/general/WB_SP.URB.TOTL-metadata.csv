@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
+Population,NA,Global,NA,1960,2014,World Bank urban population shares by country. Pulled from the WDI API using the R package FAOSTAT. Accessed Nov 2015.

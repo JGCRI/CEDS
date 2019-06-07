@@ -1,0 +1,115 @@
+detailed_sectors,working_sectors_v1,working_sectors_v2,aggregate_sectors,FSU_extension,Figure_sector
+1A1a_Electricity-public,1A1a_Electricity-public,1A1a_Electricity-public,1A1_Energy-transformation,Power,Energy Transf/Ext
+1A1a_Electricity-autoproducer,1A1a_Electricity-autoproducer,1A1a_Electricity-autoproducer,1A1_Energy-transformation,Industry,Energy Transf/Ext
+1A1a_Heat-production,1A1a_Heat-production,1A1a_Heat-production,1A1_Energy-transformation,Power,Energy Transf/Ext
+1A1b_Pet-refining-comb,1A1bc_Other-transformation,1A1bc_Other-transformation,1A1_Energy-transformation,Power,Energy Transf/Ext
+1A1c_Coke-ovens,1A1bc_Other-transformation,1A1bc_Other-transformation,1A1_Energy-transformation,Power,Energy Transf/Ext
+1A1c_Coal-liquefaction,1A1bc_Other-transformation,1A1bc_Other-transformation,1A1_Energy-transformation,Power,Energy Transf/Ext
+1A1g_Other-energy-transf,1A1bc_Other-transformation,1A1bc_Other-transformation,1A1_Energy-transformation,Power,Energy Transf/Ext
+1A1bc_Other-feedstocks,1A1bc_Other-feedstocks,1A1bc_Other-feedstocks,1A1bc_Other-feedstocks,1A1bc_Other-feedstocks,
+1A2a_Ind-Comb-Iron-steel,1A2a_Ind-Comb-Iron-steel,1A2a_Ind-Comb-Iron-steel,1A2_Industry-combustion,Industry,Industry
+1A2b_Ind-Comb-Non-ferrous-metals,1A2b_Ind-Comb-Non-ferrous-metals,1A2b_Ind-Comb-Non-ferrous-metals,1A2_Industry-combustion,Industry,Industry
+1A2c_Ind-Comb-Chemicals,1A2c_Ind-Comb-Chemicals,1A2c_Ind-Comb-Chemicals,1A2_Industry-combustion,Industry,Industry
+1A2d_Ind-Comb-Pulp-paper,1A2d_Ind-Comb-Pulp-paper,1A2d_Ind-Comb-Pulp-paper,1A2_Industry-combustion,Industry,Industry
+1A2e_Ind-Comb-Food-tobacco,1A2e_Ind-Comb-Food-tobacco,1A2e_Ind-Comb-Food-tobacco,1A2_Industry-combustion,Industry,Industry
+1A2f_Ind-Comb-Non-metalic-minerals,1A2f_Ind-Comb-Non-metalic-minerals,1A2f_Ind-Comb-Non-metalic-minerals,1A2_Industry-combustion,Industry,Industry
+1A2g_Ind-Comb-Construction,1A2g_Ind-Comb-Construction,1A2g_Ind-Comb-Construction,1A2_Industry-combustion,Industry,Industry
+1A2g_Ind-Comb-transpequip,1A2g_Ind-Comb-transpequip,1A2g_Ind-Comb-transpequip,1A2_Industry-combustion,Industry,Industry
+1A2g_Ind-Comb-machinery,1A2g_Ind-Comb-machinery,1A2g_Ind-Comb-machinery,1A2_Industry-combustion,Industry,Industry
+1A2g_Ind-Comb-mining-quarying,1A2g_Ind-Comb-mining-quarying,1A2g_Ind-Comb-mining-quarying,1A2_Industry-combustion,Industry,Industry
+1A2g_Ind-Comb-wood-products,1A2g_Ind-Comb-wood-products,1A2g_Ind-Comb-wood-products,1A2_Industry-combustion,Industry,Industry
+1A2g_Ind-Comb-textile-leather,1A2g_Ind-Comb-textile-leather,1A2g_Ind-Comb-textile-leather,1A2_Industry-combustion,Industry,Industry
+1A2g_Ind-Comb-other,1A2g_Ind-Comb-other,1A2g_Ind-Comb-other,1A2_Industry-combustion,Industry,Industry
+1A3ai_International-aviation-LTO,1A3ai_International-aviation,1A3ai_International-aviation,1A3_Aviation,Transportation,Air
+1A3ai_International-aviation-cruise,1A3ai_International-aviation,1A3ai_International-aviation,1A3_Aviation,Transportation,Air
+1A3aii_Domestic-aviation-LTO,1A3aii_Domestic-aviation,1A3aii_Domestic-aviation,1A3_Aviation,Transportation,Air
+1A3aii_Domestic-aviation-cruise,1A3aii_Domestic-aviation,1A3aii_Domestic-aviation,1A3_Aviation,Transportation,Air
+1A3bii_Road-LDV,1A3b_Road,1A3b_Road,1A3_Transportation,Transportation,Transportation
+1A3biii_Road-truck-bus,1A3b_Road,1A3b_Road,1A3_Transportation,Transportation,Transportation
+1A3biv_Road-mopeds-motorcycles,1A3b_Road,1A3b_Road,1A3_Transportation,Transportation,Transportation
+1A3b_Road-noncomb,1A3b_Road,1A3b_Road,1A3_Transportation,Transportation,Transportation
+1A3c_Rail,1A3c_Rail,1A3c_Rail,1A3_Transportation,Transportation,Transportation
+1A3di_Oil_Tanker_Loading,1A3di_Oil_Tanker_Loading,1A3di_Oil_Tanker_Loading,1A3_International-shipping,,Shipping
+1A3di_International-shipping,1A3di_International-shipping,1A3di_International-shipping,1A3_International-shipping,Transportation,Shipping
+1A3dii_Domestic-navigation,1A3dii_Domestic-navigation,1A3dii_Domestic-navigation,1A3_Transportation,Transportation,Transportation
+1A3ei_Pipelines,1A3eii_Other-transp,1A3eii_Other-transp,1A3_Transportation,Transportation,Transportation
+1A3eii_Other-unspecified-transp,1A3eii_Other-transp,1A3eii_Other-transp,1A3_Transportation,Transportation,Transportation
+1A4ai_Commercial-institutional-stationary,1A4a_Commercial-institutional,1A4a_Commercial-institutional,1A4_Stationary_RCO,Residential,RCO
+1A4aii_Commercial-institutional-mobile,1A4a_Commercial-institutional,1A4a_Commercial-institutional,1A4_Stationary_RCO,Residential,RCO
+1A4bi_Residential-stationary,1A4b_Residential,1A4b_Residential,1A4_Stationary_RCO,Residential,RCO
+1A4bii_Residential-mobile,1A4b_Residential,1A4b_Residential,1A4_Stationary_RCO,Residential,RCO
+1A4c_Agriculture-forestry-fishing,1A4c_Agriculture-forestry-fishing,1A4c_Agriculture-forestry-fishing,1A4_Stationary_RCO,Agriculture,RCO
+1A4c_Fishing,1A4c_Agriculture-forestry-fishing,1A4c_Agriculture-forestry-fishing,1A4_Stationary_RCO,Agriculture,RCO
+1A5_Other-unspecified,1A5_Other-unspecified,1A5_Other-unspecified,1A4_Stationary_RCO,Other,RCO
+1B1a_Fugitive-coal-mining,1B1_Fugitive-solid-fuels,1B1_Fugitive-solid-fuels,1B_Fugitive,,Energy Transf/Ext
+1B1_Fugitive-coal-otherSolid,1B1_Fugitive-solid-fuels,1B1_Fugitive-solid-fuels,1B_Fugitive,,Energy Transf/Ext
+1B2ai_Fugitive-petr-prod,1B2_Fugitive-petr-and-gas,1B2ai_Fugitive-petr-prod,1B_Fugitive,,Energy Transf/Ext
+1B2aiv_Fugitive-petr-refining,1B2_Fugitive-petr-and-gas,1B2aiv_Fugitive-petr-refining,1B_Fugitive,,Energy Transf/Ext
+1B2av_Fugitive-petr-distr,1B2_Fugitive-petr-and-gas,1B2av_Fugitive-petr-distr,1B_Fugitive,,Energy Transf/Ext
+1B2b_Fugitive-NG-prod-distr,1B2_Fugitive-petr-and-gas,1B2b_Fugitive-NG-prod-distr,1B_Fugitive,,Energy Transf/Ext
+1B2c_Venting-flaring-oil-gas,1B2_Fugitive-petr-and-gas,1B2c_Venting-flaring-oil-gas,1B_Fugitive,,Energy Transf/Ext
+1B2d_Fugitive-other-energy,1B2d_Fugitive-other-energy,1B2d_Fugitive-other-energy,1B_Fugitive,,Energy Transf/Ext
+2A1_Cement-production,2A1_Cement-production,2A1_Cement-production,2A_Minerals-production,,Industry
+2A2_Lime-production,2A2_Lime-production,2A2_Lime-production,2A_Minerals-production,,Industry
+2A6_Other-minerals,2A6_Other-minerals,2A6_Other-minerals,2A_Minerals-production,,Industry
+2A5b_Construction-and-demolition,2A6_Other-minerals,2A6_Other-minerals,2A_Minerals-production,,Industry
+2B1_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,,Industry
+2B2_Chemicals-Nitric-acid,2B_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,,Industry
+2B3_Chemicals-Adipic-acid,2B_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,,Industry
+2B_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,,Industry
+2C_Iron-steel-alloy-prod,2C_Metal-production,2C_Iron-steel-alloy-prod,2C_Metals-industry,,Industry
+2C3_Aluminum-production,2C_Metal-production,2C3_Aluminum-production,2C_Metals-industry,,Industry
+2C4_Magnesium-Production,2C_Metal-production,2C4_Non-Ferrous-other-metals,2C_Metals-industry,,Industry
+2C5_Lead-production,2C_Metal-production,2C4_Non-Ferrous-other-metals,2C_Metals-industry,,Industry
+2C6_Zinc-production,2C_Metal-production,2C4_Non-Ferrous-other-metals,2C_Metals-industry,,Industry
+2C7a_Copper-production,2C_Metal-production,2C4_Non-Ferrous-other-metals,2C_Metals-industry,,Industry
+2C7b_Nickel-production,2C_Metal-production,2C4_Non-Ferrous-other-metals,2C_Metals-industry,,Industry
+2C7_Other-metal,2C_Metal-production,2C4_Non-Ferrous-other-metals,2C_Metals-industry,,Industry
+2D3a_Domestic-solvent-use,2D_Degreasing-Cleaning,2D_Degreasing-Cleaning,2D_Solvents,,Solvents
+2D3b_Road-paving,2D3_Other-product-use,2D3_Other-product-use,2D_Solvents,,Solvents
+2D3c_Asphalt-roofing,2D3_Other-product-use,2D3_Other-product-use,2D_Solvents,,Solvents
+2D3d_Coating-application,2D_Paint-application,2D_Paint-application,2D_Solvents,,Solvents
+2D3e_Degreasing,2D_Degreasing-Cleaning,2D_Degreasing-Cleaning,2D_Solvents,,Solvents
+2D3f_Dry-cleaning,2D_Degreasing-Cleaning,2D_Degreasing-Cleaning,2D_Solvents,,Solvents
+2D3g_Chemical-products,2D3_Chemical-products-manufacture-processing,2D3_Chemical-products-manufacture-processing,2D_Solvents,,Solvents
+2D3h_Printing,2D3_Chemical-products-manufacture-processing,2D3_Chemical-products-manufacture-processing,2D_Solvents,,Solvents
+2D3i_Other-solvent-use,2D3_Other-product-use,2D3_Other-product-use,2D_Solvents,,Solvents
+2G_Other-product-use,2D3_Other-product-use,2D3_Other-product-use,2D_Solvents,,Solvents
+2H1_Pulp-and-paper,2H_Pulp-and-paper-food-beverage-wood,2H_Pulp-and-paper-food-beverage-wood,2H_Pulp-and-paper-food-beverage-wood,,Industry
+2H2_Food-and-beverage,2H_Pulp-and-paper-food-beverage-wood,2H_Pulp-and-paper-food-beverage-wood,2H_Pulp-and-paper-food-beverage-wood,,Industry
+2H3_Other-industrial-processes,2L_Other-process-emissions,2L_Other-process-emissions,2L_Other-process-emissions,,Industry
+2I_Wood-processing,2H_Pulp-and-paper-food-beverage-wood,2H_Pulp-and-paper-food-beverage-wood,2H_Pulp-and-paper-food-beverage-wood,,Industry
+2J_Production-of-POPs,2L_Other-process-emissions,2L_Other-process-emissions,2L_Other-process-emissions,,Industry
+2K_POPs-and-heavy-metals-cons,2L_Other-process-emissions,2L_Other-process-emissions,2L_Other-process-emissions,,Industry
+2L_Other-sources,2L_Other-process-emissions,2L_Other-process-emissions,2L_Other-process-emissions,,Industry
+3B1a_Cattle-dairy,3B_Manure-management,3B_Manure-management,3_Agriculture_non-combustion,,Agriculture
+3B1b_Cattle-non-dairy,3B_Manure-management,3B_Manure-management,3_Agriculture_non-combustion,,Agriculture
+3B2_Manure-sheep,3B_Manure-management,3B_Manure-management,3_Agriculture_non-combustion,,Agriculture
+3B3_Manure-swine,3B_Manure-management,3B_Manure-management,3_Agriculture_non-combustion,,Agriculture
+3B4d_Manure-goats,3B_Manure-management,3B_Manure-management,3_Agriculture_non-combustion,,Agriculture
+3B4_Manure-other,3B_Manure-management,3B_Manure-management,3_Agriculture_non-combustion,,Agriculture
+3B4_Manure-poultry,3B_Manure-management,3B_Manure-management,3_Agriculture_non-combustion,,Agriculture
+3Da1_Inorganic-N-fertilizers,3D_Soil-emissions,3D_Soil-emissions,3_Agriculture_non-combustion,,Agriculture
+3Da_Other-soil,3D_Soil-emissions,3D_Soil-emissions,3_Agriculture_non-combustion,,Agriculture
+3Dc_Other-farm,3I_Agriculture-other,3I_Agriculture-other,3_Agriculture_non-combustion,,Agriculture
+3Df_Use-of-pesticides,3I_Agriculture-other,3I_Agriculture-other,3_Agriculture_non-combustion,,Agriculture
+3D_Rice-Cultivation,3D_Rice-Cultivation,3D_Rice-Cultivation,3_Agriculture_non-combustion,,Agriculture
+3E_Enteric-fermentation-cattle,3E_Enteric-fermentation,3E_Enteric-fermentation,3_Agriculture_non-combustion,,Agriculture
+3E_Enteric-fermentation-other,3E_Enteric-fermentation,3E_Enteric-fermentation,3_Agriculture_non-combustion,,Agriculture
+3F_Agricultural-residue-burning-on-fields,3F_Agricultural-residue-burning-on-fields,3F_Agricultural-residue-burning-on-fields,,,Agriculture
+3I_Agriculture-other,3I_Agriculture-other,3I_Agriculture-other,3_Agriculture_non-combustion,,Agriculture
+5A_Solid-waste-disposal,5A_Solid-waste-disposal,5A_Solid-waste-disposal,5_Waste,,Waste
+5B_Compost-biogas,5E_Other-waste-handling,5E_Other-waste-handling,5_Waste,,Waste
+5C_Waste-incineration,5C_Waste-incineration,5C_Waste-incineration,5_Waste,,Waste
+5C_Other-open-burning,6A_Other-in-total,6A_Other-in-total,6A_Other-in-total,,Waste
+5D1_Wastewater-domestic,5D_Wastewater-handling,5D_Wastewater-handling,5_Waste,,Waste
+5D2_Wastewater-industrial,5D_Wastewater-handling,5D_Wastewater-handling,5_Waste,,Waste
+5D3_Wastewater-other,5D_Wastewater-handling,5D_Wastewater-handling,5_Waste,,Waste
+5E_Other-waste,5E_Other-waste-handling,5E_Other-waste-handling,5_Waste,,Waste
+6A_Other-in-total,6A_Other-in-total,6A_Other-in-total,6_Other-in-total,,Industry
+6B_Other-not-in-total,6B_Other-not-in-total,6B_Other-not-in-total,,,Industry
+7A_Fossil-fuel-fires,7A_Fossil-fuel-fires,7A_Fossil-fuel-fires,7_Fossil-fuel-fires,,Energy Transf/Ext
+11A_Volcanoes,11A_Volcanoes,11A_Volcanoes,,,
+11B_Forest-fires,11B_Forest-fires,11B_Forest-fires,,,
+11C_Other-natural,11C_Other-natural,11C_Other-natural,,,
+0_Temp-Aggregated,0_Temp-Aggregated,0_Temp-Aggregated,,,

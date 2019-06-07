@@ -1,0 +1,29 @@
+#Unversioned files
+
+#Logs and History
+.log
+.R.d
+.Rhistory
+.Rdata
+
+#System Generated Documentation
+IO_documentation.csv
+CM_IO_documentation.csv
+BC_IO_documentation.csv
+SO2_IO_documentation.csv
+NOx_IO_documentation.csv
+NH3_IO_documentation.csv
+NMVOC_IO_documentation.csv
+CO_IO_documentation.csv
+OC_IO_documentation.csv
+CO2_IO_documentation.csv
+CH4_IO_documentation.csv
+
+#Proprietory Data
+input/energy/NonOECD_E_Stat.csv
+input/energy/OECD_E_Stat.csv
+
+.Rproj.user
+
+#Other
+.DS_Store

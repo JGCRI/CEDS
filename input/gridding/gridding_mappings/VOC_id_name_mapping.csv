@@ -1,0 +1,24 @@
+VOC_id,VOC_name,molecular weight
+VOC01,alcohols,46.2
+VOC02,ethane,30
+VOC03,propane,44
+VOC04,butanes,57.8
+VOC05,pentanes,72
+VOC06,hexanes_plus_higher_alkanes,106.8
+VOC07,ethene,28
+VOC08,propene,42
+VOC09,ethyne,26
+VOC12,other_alkenes_and_alkynes,67
+VOC13,benzene,78
+VOC14,toluene,92
+VOC15,xylene,106
+VOC16,trimethylbenzenes,120
+VOC17,other_aromatics,126.8
+VOC18,esters,104.7
+VOC19,ethers,81.5
+VOC20,chlorinated_hydrocarbons,138.8
+VOC21,methanal,30
+VOC22,other_alkanals,68.8
+VOC23,ketones,75.3
+VOC24,acids,59.1
+VOC25,other_voc,68.9

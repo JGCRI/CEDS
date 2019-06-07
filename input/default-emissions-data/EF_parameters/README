@@ -1,0 +1,35 @@
+This folder contains data files with default emissions factors and default emission factor parameters (sulfur content, ash retention, and control percentage) to be added to the data system.
+This include both input data files and files written out by various scripts in module B.
+
+
+These data files are added to the data system in Module B, scripts
+	B1.2.add_comb_control_percent.R
+	B1.2.add_comb_default_EF.R
+	B1.2.add_SO2_comb_S_content_ash.R
+
+These scripts automatically load data files based on file naming conventions below
+
+Types of data are filtered based on the naming conventions below
+sulfur content 
+	contains "s_content"
+	example:
+ash content 
+	contains “_s_ash_ret"
+	example:
+default efs 
+	contain "_EF"
+	example:
+control percent 
+	contains ”_control_percent"
+	example:
+
+Files added to the system by the users (unprocessed by scripts) should begin with “U_”
+	example: U_S_Africa_coal_electricity_SO2_ash_ret.csv
+
+Files that are processed by scripts in the system begin with “B.[em]_”
+	example: “B.SO2_GAINS_control_percent.csv”
+
+Files that begin with "B." will be deleted on make clean-all or make clean-modB
+
+Files will be process in alphabetical order.
+(If there is a reason that user files need to be run before the system-generated files, then they could be named "AU_...").

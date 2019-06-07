@@ -1,0 +1,17 @@
+CEDS_int_sector,CEDS_int_sector_short,CEDS_fin_sector,CEDS_fin_sector_short
+Agriculture,AGR,Agriculture,AGR
+Electricity and Heat Production,ELEC,Energy Sector,ENE
+Fossil Fuel Fires,FFFI,Energy Sector,ENE
+Fuel Production and Transformation,ETRN,Energy Sector,ENE
+Industrial Combustion,INDC,Industrial Sector,IND
+Industrial Process and Product Use,INPU,Industrial Sector,IND
+Non-road Transportation,NRTR,Transportation Sector,TRA
+"Residential, Commercial, Other - Residential, Commercial",RCORC,"Residential, Commercial, Other",RCO
+"Residential, Commercial, Other - Other",RCOO,"Residential, Commercial, Other",RCO
+Road Transportation,ROAD,Transportation Sector,TRA
+Solvents Production and Application,SLV,Solvents Production and Application,SLV
+Waste,WST,Waste,WST
+International Shipping,SHP,International Shipping,SHP
+Oil and Gas Fugitive/Flaring,FLR,Energy Sector,ENE
+International Shipping - Tanker Loading,TANK,International Shipping,SHP
+Aircraft,AIR,Aircraft,AIR

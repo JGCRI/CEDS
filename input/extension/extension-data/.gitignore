@@ -1,0 +1,7 @@
+#Unversioned files
+
+#System generated inputs
+A.*.csv
+B.*.csv
+C.*.csv
+H.*.csv
