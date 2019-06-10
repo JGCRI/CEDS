@@ -19,7 +19,7 @@ OC_IO_documentation.csv
 CO2_IO_documentation.csv
 CH4_IO_documentation.csv
 
-#Proprietory Data
+#Proprietary Data
 input/energy/NonOECD_E_Stat.csv
 input/energy/OECD_E_Stat.csv
 input/energy/NonOECD_Conversion_Factors_Full.csv
