@@ -73,7 +73,7 @@ Write_value_metadata <- FALSE
 #follow the instruction in the next comment
 
 # User should uncomment the following line if he/she has a specific cedsUserVersionNumber to use
-## options(cedsUserVersionNumber = "v_YYYY_MM_DD")
+ options(cedsUserVersionNumber = "v_2019_06_07")
 
 getcedsVersionNumber <- function( ) {
 
