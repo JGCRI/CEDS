@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.inventory_scaling.R
 # Author: Rachel Hoesly adapted from Jon Seibert
-# Date Last Updated: Sept 24, 2015
+# Date Last Updated: June 14, 2019
 # Program Purpose: To select and run script(s) to scale default emissions and
 #           emission factors to inventories.
 # Input Files: None
@@ -12,7 +12,6 @@
 #       as they are added to the system.
 # ------------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
@@ -88,7 +87,7 @@
               c( scripts, 'F1.1.EMEP_NFR14_scaling.R' )
 
 # UNFCCC
-    if ( em %in% c( 'SO2', 'CO', 'NMVOC', 'NOx', 'CO2' ) ) scripts <-
+    if ( em %in% c( 'SO2', 'CO', 'NMVOC', 'NOx', 'CO2', 'CH4' ) ) scripts <-
               c( scripts, 'F1.1.UNFCCC_scaling.R' )
 
 # REAS
@@ -98,7 +97,7 @@
     if ( em %in% c('SO2','NOx','NMVOC','CO','PM10','PM25' ) ) scripts <-
               c( scripts, 'F1.1.CAN_scaling_olderData.R' )
 
-# Newer data must run latter
+# CAN - Newer data must run latter
     if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) scripts <-
               c( scripts, 'F1.1.CAN_scaling_newerData.R' )
 
@@ -110,6 +109,11 @@
 # US EPA
     if ( em %in% c( 'CO2' ) ) scripts <-
               c( scripts, 'F1.1.US-EPA_scaling.R' )
+
+
+# US GHG
+    if ( em %in% c( 'CH4' ) ) scripts <-
+        c( scripts, 'F1.1.US-GHG_scaling.R')
 
 # China
     if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO' ) ) scripts <-

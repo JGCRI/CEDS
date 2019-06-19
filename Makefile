@@ -705,6 +705,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US-EPA_inventory.csv \
+	$(MED_OUT)/E.$(EM)_US_GHG_inventory.csv \
 	$(MED_OUT)/A.UN_pop_master.csv \
 	$(ACTIV)/wastewater/UN_Percentage_WW_Treatment.xlsx \
 	$(ACTIV)/wastewater/OECD_Percentage_WW_Treatment.xlsx \
@@ -809,7 +810,7 @@ $(MED_OUT)/E.$(EM)_US-EPA_inventory.csv: \
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
-$(MED_OUT)/E.$(EM)_US-GHG_inventory.csv: \
+$(MED_OUT)/E.$(EM)_US_GHG_inventory.csv : \
 	$(MOD_E)/E.US-GHG_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
 
@@ -841,6 +842,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MOD_F)/F1.1.UNFCCC_scaling.R \
 	$(MOD_F)/F1.1.US_scaling.R \
 	$(MOD_F)/F1.1.US-EPA_scaling.R \
+	$(MOD_F)/F1.1.US-GHG_scaling.R \
 	$(MOD_F)/F1.1.Australia_scaling.R \
 	$(MOD_F)/F1.1.Taiwan_scaling.R \
 	$(PARAMS)/emissions_scaling_functions.R \
@@ -855,6 +857,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US-EPA_inventory.csv \
+	$(MED_OUT)/E.$(EM)_US_GHG_inventory.csv \
 	$(MED_OUT)/E.$(EM)_AUS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_TWN_inventory.csv \
 	$(SC_MAPPINGS)/Argentina_scaling_mapping.xlsx \
@@ -866,6 +869,8 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(SC_MAPPINGS)/jpn_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/UNFCCC_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/US_scaling_mapping.xlsx \
+	$(SC_MAPPINGS)/US-EPA_scaling_mapping.xlsx \
+	$(SC_MAPPINGS)/US-GHG_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/Australia_scaling_mapping.xlsx \
 	$(SC_MAPPINGS)/Taiwan_scaling_mapping.xlsx \
 	$(MED_OUT)/D.$(EM)_default_total_EF.csv \
