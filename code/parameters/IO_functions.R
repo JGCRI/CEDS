@@ -6,7 +6,7 @@
 # This file must be sourced by all CEDS R scripts, generally as the second sourced script.
 # Functions contained:
 #   readData, writeData, sourceData, readMetaData, addMetaData,
-#   addMetaNote, clearMeta, logStart, printLog, logStop, addDependency, writeMakeFileDepend,
+#   addMetaNote, clearMeta, logStart, printLog, logStop, addDependency, writeMakefileDepend,
 #   readDomainPathMap, filePath, collapseList, readExcel
 
 # Notes: Many of these functions were originally written for the GCAM data system.
@@ -59,7 +59,7 @@ logStart <- function( fn, savelog=T ) {
 }
 
 # -----------------------------------------------------------------------------
-# writeMakeFileDepend
+# writeMakefileDepend
 # Brief:        Write dependency information for inclusion in makefile
 # Details:      Writes the .d file for the current script
 # Dependencies: None
@@ -69,16 +69,17 @@ logStart <- function( fn, savelog=T ) {
 # Return:       None
 # Input Files:  None
 # Output Files: [fn].log
-writeMakeFileDepend <- function(outfile) {
-	of_parts <- unlist(strsplit(outfile,"\\."))
+writeMakefileDepend <- function(outfile) {
+	of_parts <- unlist(strsplit(outfile, ".", fixed=TRUE))
 	if(length(of_parts) == 1) {
 	    of_root <- of_parts[1]
 	    of_ext  <- ""
 	} else {
-	    of_root = paste(of_parts[1:length(of_parts)-1], collapse=".")
-	    of_ext  = of_parts[-1]
+	    of_root <- paste(of_parts[1:length(of_parts)-1], collapse=".")
+	    of_ext  <- of_parts[-1]
 	}
-        fn <- GCAM_SOURCE_FN[ GCAM_SOURCE_RD ]
+
+    fn <- GCAM_SOURCE_FN[ GCAM_SOURCE_RD ]
 	dfile <- paste(of_root, ".d", sep="")
 	write(paste(outfile,": \\",sep=""),file=dfile)
 	cat("  ", DEPENDENCIES[[ fn ]], file=dfile, append=TRUE, sep=" \\\n  ")
@@ -183,7 +184,7 @@ logStop <- function() {
 
 
 	logfile <- paste( MODULE_PROC_ROOT, "/../logs/", fn, ".log", sep="" )
-	writeMakeFileDepend(logfile)
+	writeMakefileDepend(logfile)
 
 	printLog( "All done with", fn, "\n" )
 	if( GCAM_SOURCE_RD > 0 ) {
@@ -207,32 +208,17 @@ logStop <- function() {
 # Input Files:  domainmappings.csv
 # Output Files: None
 readDomainPathMap <- function() {
-	fn <- DOMAINPATHMAP
-	fpm <- tryCatch( {
-		 read.csv( fn, comment.char="#" )
-#	}, warning=function( war ) {
-#		warning( "Warning in read of", fn )
-#		warning( war )
-#		printLog( as.character( war ) )
-	}, error=function( err ) {
-		printLog( "Error in read of", fn )
-		printLog( as.character( err ) )
-		stop( err )		# can't recover from this
-#	}, finally={
+    fn <- DOMAINPATHMAP  # Defined in global_settings.R
 
-	} )	# end tryCatch
+    fpm <- tryCatch({
+        read.csv( fn, comment.char = "#", stringsAsFactors = F )
+    }, error = function( err ) {
+        printLog( "Error reading domain path mapping file:", fn )
+        stop( err )  # Can't recover from this
+    })
 
-	if( length( fpm ) > 0 ) {
-#		print( "All done reading", fn )
-	} else {
-		printLog( "Error: zero rows read from", fn )
-		stop()
-	}
-
-	mylist <- list( NULL )		# make a lookup list of file names and paths
-	for( i in 1:nrow( fpm ) )
-		mylist[ as.character( fpm[ i, 1 ] ) ] <- as.character( fpm[ i, 2 ] )
-	return( mylist )
+    # return a lookup list of file names and paths
+    setNames( as.list( fpm[ , 2 ] ), fpm[ , 1 ] )
 }
 
 # -----------------------------------------------------------------------------

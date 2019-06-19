@@ -51,6 +51,10 @@ DOMAINPATHMAP 			<- paste0( MODULE_PROC_ROOT, "../input/mappings/domainmapping.c
 # Specify the location of the module from the data system root directory
 MODULE_PROC_ROOT		<- PARAM_DIR
 
+# Should gridding be done with subregional data products or not?
+GRID_SUBREGIONS         <- FALSE
+GRIDDING_VERSION        <- as.character( Sys.Date() )
+
 
 # -----------------------------------------------------------------------------
 # Logical Check - Options
