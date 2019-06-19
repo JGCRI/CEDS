@@ -142,6 +142,18 @@ all.na  <- function(x) return( all( is.na(x) ) )
 some.na <- function(x) anyNA(x) & !all.na(x)
 
 
+
+# -----------------------------------------------------------------------------
+# is.nan/finite/infinite.df
+# Brief: Makes up for the fact that R has no built-in vectorized check for
+#    is.nan, is.infinite, or is.finite.
+# Params:
+#    x: a dataframe that may or may not contain NaN values
+is.nan.df      <- function(x) do.call( cbind, lapply( x, is.nan ) )
+is.finite.df   <- function(x) do.call( cbind, lapply( x, is.finite ) )
+is.infinite.df <- function(x) do.call( cbind, lapply( x, is.infinite ) )
+
+
 # -----------------------------------------------------------------------------
 # repeatAndAddVector
 # Brief:            Function for repeating a dataframe in order to add a new vector.
@@ -809,7 +821,6 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
                                  IEA_mode = F,
                                  iea_start,
                                  iea_start_years_df){
-
 
   # Expand fuels - all-comb
   expand <- driver_trend[which(driver_trend$fuel == 'all' ) ,]
