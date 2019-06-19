@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: E.UNFCCC_emissions.R
 # Author(s): Patrick O'Rourke, Rachel Hoesly, Jon Seibert, Presley Muwan
-# Date Last Updated: January 18, 2016
+# Date Last Updated: June 14, 2019
 # Program Purpose: To read in and reformat UNFCCC emissions data.
 # Input Files: All UNFCCC Emissions Data
 # Output Files: E.[EM]_UNFCCC_inventory.csv
@@ -23,21 +23,21 @@
 
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
-    
+
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "NOx"
+    if ( is.na( em ) ) em <- "CH4"
 
 # -----------------------------------------------------------------------------------------------------------
 # 0.5 Settings
 
     loadPackage( 'tools' )
-    
+
     domain <- "EM_INV"
     domain_ext <- "UNFCCC/"
     file_name <- em
     extension <- ".zip"
-    
+
     file_path <- filePath( domain, file_name, extension, domain_ext )
 
 #-------------------------------------------------------------------------------------------------------
@@ -257,56 +257,87 @@
         	  names[ length( names ) ] <- 'sector'
         	  names[ 1 ] <- 'country'
         	  names( df ) <- names
-          
+
     	  # Remove First Row
     	      df <- df[ -1, ]
-      
+
     	  # Creates Column for Units (Gg for SO2)
     	      df$units <- "kt"
     	  # Reorder Columns of Interest
     	      df <- df[ , c( 'country', 'sector', 'units', years ) ]
-      
+
     	  # Remove All Information from Sectors Before "_" From File Name
     	      df <- dplyr::mutate( df, sector = as.character( sector ) )
-    	      df <- dplyr::mutate( df, sector = sapply( strsplit( df$sector, split = '_', 
-    	                                                   fixed = TRUE ), 
+    	      df <- dplyr::mutate( df, sector = sapply( strsplit( df$sector, split = '_',
+    	                                                   fixed = TRUE ),
     	                                         function( x ) ( x [ 2 ] ) ) )
-      
+
     	      UNFCCC_clean[[ i ]] <- df
     	  }
-    
+
   	# Make the List of Files 1 Data Frame
     	  UNFCCCdf <- do.call( rbind, UNFCCC_clean )
-    
+
   	# Convert Values to Numeric: Remove Commas in Formatting, then Convert to Numeric
-    	  UNFCCCdf[ years ] <- apply( X = UNFCCCdf[ years ], MARGIN = 2, 
+    	  UNFCCCdf[ years ] <- apply( X = UNFCCCdf[ years ], MARGIN = 2,
     	                              FUN = sub, pattern = ',', replacement = "" )
     	  UNFCCCdf[ years ] <- as.numeric( as.matrix( UNFCCCdf [ years ] ) )
-    
+
   	# Mapping Country Names to ISO Codes
     	  UNFCCCdf$iso <- MCL[ match( UNFCCCdf$country, MCL$UNFCCC ), 'iso' ]
-    
+
   	# Remove Unmapped Lines and Reorder
       	UNFCCCdf <- UNFCCCdf[ complete.cases( UNFCCCdf$iso ), ]
-      
+
       	UNFCCCdf <- UNFCCCdf[ , c( 'iso', 'sector', 'units', years ) ]
       	UNFCCCdf <- UNFCCCdf[ order( UNFCCCdf$iso, UNFCCCdf$sector ), ]
-    
+
+    # Convert to kt of methane from CO2e
+      	if( em == 'CH4'){
+
+      	    UNFCCCdf_convert <- UNFCCCdf %>%
+      	        filter(units == 'kt') %>%
+      	        mutate_if(is.numeric, funs(./21)) %>% #100yr GWP
+      	        mutate(units = 'kt')
+
+      	    UNFCCCdf <- UNFCCCdf %>%
+      	        filter(units != 'kt')
+
+      	    UNFCCCdf <- rbind(UNFCCCdf_convert, UNFCCCdf) %>%
+      	        arrange(iso, sector)
+      	}
+
 # ------------------------------------------------------------------------------
 # 3. Removed "Bad" Data
 
     # Remove Canada, Russian Fed, Luxembourg, and Poland
-      	remove_iso <- c( 'can', 'rus', 'pol', 'lux' )
+
+      	if (em == 'CH4'){
+
+      	    # TODO: The df maniupulation after this block fails if only 'rus' is
+      	    #       in the list below since rus is not in the current data. (this may be outdated)
+      	    # TODO: Fix to be more robust
+
+      	    remove_iso <- c('rus', 'lux')
+
+      	} else {
+
+      	    # Remove Canada, Russian Fed, Luxembourg, and Poland for other emission
+      	    # species
+
+      	    remove_iso <- c( 'can', 'rus', 'pol', 'lux' )
+      	}
+
       	UNFCCC <- UNFCCCdf[ -which( UNFCCCdf$iso %in% remove_iso ), ]
-      
+
   	# Drop Lines With Only NA Values
       	drop <- which( apply( X = is.na( UNFCCC[ years ] ), MARGIN = 1, FUN = all ) == TRUE )
       	UNFCCC <- UNFCCC[ -drop, ]
-    
+
 # ------------------------------------------------------------------------------
 # 4. Dummy files
-    
-    } else { 
+
+    } else {
     # If length( UNFCCC) == 0 (if no data to process for this emissions species), create dummy file.
         UNFCCC <- data.frame()
     }
