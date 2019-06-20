@@ -2137,10 +2137,16 @@ add_dimension_attributes <- function( nc_new, air = FALSE ) {
 add_global_attributes <- function( nc_new, title ) {
   # nc global attributes
   now <- as.POSIXlt( Sys.time(), "UTC")
+  # ********************************************************************************
+  # EDIT THE METADATA BELOW TO BE APPROPRIATE FOR YOUR PROJECT
+  # Search for the word "your" and replace with appropriate text
+  #
+  # NOTE- This data must currently be edited in two separate places within this file
+  # ********************************************************************************
   ncatt_put( nc_new, 0, 'title', title )
-  ncatt_put( nc_new, 0, 'institution_id', 'PNNL-JGCRI' )
-  ncatt_put( nc_new, 0, 'institution', 'Pacific Northwest National Laboratory - JGCRI' )
-  ncatt_put( nc_new, 0, 'activity_id', 'input4MIPs' )
+  ncatt_put( nc_new, 0, 'institution', 'your institution full name, city, state, zip, country' )
+  ncatt_put( nc_new, 0, 'institution_id', 'your institution abbreviation' )
+  ncatt_put( nc_new, 0, 'activity_id', 'NA' )
   ncatt_put( nc_new, 0, 'Conventions', 'CF-1.6' )
   ncatt_put( nc_new, 0, 'creation_date', as.character( format( now, format = '%Y-%m-%dT%H:%M:%SZ' ) ) )
   ncatt_put( nc_new, 0, 'data_structure', 'grid' )
@@ -2149,20 +2155,23 @@ add_global_attributes <- function( nc_new, title ) {
   ncatt_put( nc_new, 0, 'source', paste0( 'CEDS ', as.character( format( now, format = '%m-%d-%Y' ) ),
                                           ': Community Emissions Data System (CEDS) for Historical Emissions' ) )
   ncatt_put( nc_new, 0, 'source_id', paste0( 'CEDS-', as.character( format( now, format = '%m-%d-%Y' ) ) ) )
-  ncatt_put( nc_new, 0, 'further_info_url', 'http://www.globalchange.umd.edu/ceds/' )
+  ncatt_put( nc_new, 0, 'further_info_url', 'your.web.site' )
   ncatt_put( nc_new, 0, 'history', paste0( as.character( format( now, format = '%d-%m-%Y %H:%M:%S %p %Z' ) ),
-                                           '; College Park, MD, USA') )
-  ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes of all oxidized fossil carbon. CO2 from solid and liquid biofuel combustion is not included.' )
+                                           '; your city, state, country') )
+#  Specific metadata for CO2 emissions
+#  ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes of all oxidized fossil carbon. CO2 from solid and liquid biofuel combustion is not included.' )
+  ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes.' )
   ncatt_put( nc_new, 0, 'host', 'TBD' )
-  ncatt_put( nc_new, 0, 'contact', 'ssmith@pnnl.gov' )
-  ncatt_put( nc_new, 0, 'references', 'http://www.geosci-model-dev.net/special_issue590.html' )
+  ncatt_put( nc_new, 0, 'contact', 'Your Name Here (your-email@where.you.are)' )
+  ncatt_put( nc_new, 0, 'references', 'Your journal paper or other reference for this work.' )
   ncatt_put( nc_new, 0, 'dataset_category', 'emissions' )
   ncatt_put( nc_new, 0, 'dataset_version_number', '1.0.0' )
   ncatt_put( nc_new, 0, 'grid_label', 'gr' )
   ncatt_put( nc_new, 0, 'grid_resolution', '50 km' )
   ncatt_put( nc_new, 0, 'grid', '0.5x0.5 degree latitude x longitude' )
-  ncatt_put( nc_new, 0, 'mip_era', 'CMIP6' )
-  ncatt_put( nc_new, 0, 'target_mip', 'CMIP' )
+  ncatt_put( nc_new, 0, 'mip_era', 'post-CMIP6' )
+# Used for generating data for CMIP
+# ncatt_put( nc_new, 0, 'target_mip', 'CMIP' )
 }
 
 
@@ -2206,32 +2215,39 @@ add_global_attributes_single_var <- function( nc_new, title, flat_var_name, MD_d
   ncatt_put( nc_new, flat_var_name, 'cell_methods', 'time: mean' )
   #ncatt_put( nc_new, flat_var_name, 'long_name', flat_var_longname )
   ncatt_put( nc_new, flat_var_name, 'missing_value', 1e+20, prec = 'float' )
+  # ********************************************************************************
+  # EDIT THE METADATA BELOW TO BE APPROPRIATE FOR YOUR PROJECT
+  # Search for the word "your" and replace with appropriate text
+  #
+  # NOTE- This data must currently be edited in two separate places
+  # ********************************************************************************
   # nc global attributes
   ncatt_put( nc_new, 0, 'Conventions', 'CF-1.6' )
-  ncatt_put( nc_new, 0, 'activity_id', 'input4MIPs' )
-  ncatt_put( nc_new, 0, 'comment', 'This data supersedes 2016-06-18, 2016-06-18-sectorDimV2, 2016-07-26, and 2016-07-26-sectorDim data versions. See README file at the project web site.' )
-  ncatt_put( nc_new, 0, 'contact', 'Steven J. Smith (ssmith@pnnl.gov)' )
+  ncatt_put( nc_new, 0, 'activity_id', 'NA' )
+  ncatt_put( nc_new, 0, 'comment', 'Research data produced using CEDS.' )
+  ncatt_put( nc_new, 0, 'contact', 'Your Name Here (your-email@where.you.are)' )
   ncatt_put( nc_new, 0, 'creation_date', as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%Y-%m-%dT%H:%M:%SZ' ) ) )
   ncatt_put( nc_new, 0, 'data_structure', 'grid' )
   ncatt_put( nc_new, 0, 'dataset_category', 'emissions' )
   ncatt_put( nc_new, 0, 'dataset_version_number', MD_dataset_version_number_value )
   ncatt_put( nc_new, 0, 'external_variables', 'gridcell_area' )
   ncatt_put( nc_new, 0, 'frequency', 'mon' )
-  ncatt_put( nc_new, 0, 'further_info_url', 'http://www.globalchange.umd.edu/ceds/' )
+  ncatt_put( nc_new, 0, 'further_info_url', 'your.web.site' )
   ncatt_put( nc_new, 0, 'grid', '0.5x0.5 degree latitude x longitude' )
   ncatt_put( nc_new, 0, 'grid_label', 'gn' )
   ncatt_put( nc_new, 0, 'nominal_resolution', '50 km' )
-  ncatt_put( nc_new, 0, 'history', paste0( as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%d-%m-%Y %H:%M:%S %p %Z' ) ), '; College Park, MD, USA') )
-  ncatt_put( nc_new, 0, 'institution', 'Pacific Northwest National Laboratory - Joint Global Change Research Institute, College Park, MD, 20740, USA' )
-  ncatt_put( nc_new, 0, 'institution_id', 'PNNL-JGCRI' )
-  ncatt_put( nc_new, 0, 'mip_era', 'CMIP6' )
+  ncatt_put( nc_new, 0, 'history', paste0( as.character( format( as.POSIXlt( Sys.time(), "UTC"), format = '%d-%m-%Y %H:%M:%S %p %Z' ) ), '; your city, state, country') )
+  ncatt_put( nc_new, 0, 'institution', 'your institution full name, city, state, zip, country' )
+  ncatt_put( nc_new, 0, 'institution_id', 'your institution abbreviation' )
+  ncatt_put( nc_new, 0, 'mip_era', 'post-CMIP6' )
   ncatt_put( nc_new, 0, 'product', ifelse( primary, 'primary-emissions-data', 'supplementary-emissions-data' ) )
   ncatt_put( nc_new, 0, 'realm', 'atmos' )
-  ncatt_put( nc_new, 0, 'references', 'Hoesly, R. M., Smith, S. J., Feng, L., Klimont, Z., Janssens-Maenhout, G., Pitkanen, T., Seibert, J. J., Vu, L., Andres, R. J., Bolt, R. M., Bond, T. C., Dawidowski, L., Kholod, N., Kurokawa, J.-I., Li, M., Liu, L., Lu, Z., Moura, M. C. P., O\'Rourke, P. R., and Zhang, Q.: Historical (1750-2014) anthropogenic emissions of reactive gases and aerosols from the Community Emission Data System (CEDS), Geosci. Model Dev. Discuss., doi:10.5194/gmd-2017-43, in review, 2017.' )
+  ncatt_put( nc_new, 0, 'references', 'Your journal paper or other reference for this work.' )
   ncatt_put( nc_new, 0, 'source', MD_source_value )
   ncatt_put( nc_new, 0, 'source_id', MD_source_id_value )
-  ncatt_put( nc_new, 0, 'table_id', 'input4MIPs' )
-  ncatt_put( nc_new, 0, 'target_mip', 'CMIP' )
+# Used for generating data for CMIP
+#  ncatt_put( nc_new, 0, 'table_id', 'input4MIPs' )
+#  ncatt_put( nc_new, 0, 'target_mip', 'CMIP' )
   ncatt_put( nc_new, 0, 'title', title )
   ncatt_put( nc_new, 0, 'variable_id', MD_variable_id_value )
 }
