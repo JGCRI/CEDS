@@ -1,15 +1,18 @@
-# test_data_prep.R
+# test_calculate_shares.R
 #
-# Tests for the module-U data prepration functions.
+# Tests for the function calculate_shares, in data_functions.R
 #
 # Caleb Braun
-# 3/11/19
+# 6/20/19
 #
-# To run test use testthat::test_dir('tests') from the root level directory.
+# To run test interactively, use testthat::test_dir('tests') from the root
+# level directory.
+#
+# To run test from command line, run:
+#     Rscript -e "testthat::test_dir('tests')"
 source("../code/parameters/data_functions.R")
 
 context("Calculate shares")
-
 
 df <- dplyr::tribble(
      ~iso,  ~fuel,        ~ext_sector, ~X2000, ~X2001, ~X2002,
