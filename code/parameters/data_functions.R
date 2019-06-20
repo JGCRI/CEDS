@@ -589,8 +589,8 @@ verify_calculate_share_params <- function(input_data, id_columns, target_column,
 #
 # Params:
 #   input_data: Data of which to compute shares. In id cols, Xyear format
-#   id_cols: Vector of character strings, names of identifier columns for
-#            which to compute shares
+#   id_cols: Vector of character strings, names of identifier columns (the
+#            aggregate grouping) for which to compute shares
 #   target_column: Character vector of length one, naming the identifier column
 #                  for which to compute shares over
 #   replace_with_zeros: T/F boolean, defaults to T. If T, shares that are
@@ -634,22 +634,13 @@ calculate_shares <- function(input_data, id_columns, target_column,
           denominator[ match( shares[[id_columns]], denominator[[id_columns]] ), X_years ]
     }
   } else if( length(id_columns) > 1) {
-    s2 <- dplyr::left_join( shares, denominator, by = id_columns )
-    value_cols <- intersect( paste0( X_years, '.x' ), names( s2 ) )
-    share_cols <- intersect( paste0( X_years, '.y' ), names( s2 ) )
-    stopifnot( identical( gsub( 'x$', '', value_cols ),
-                          gsub( 'y$', '', share_cols ) ) )
-
-    s2[ X_years ] <- s2[ value_cols ] / s2[ share_cols ]
-    s2 <- dplyr::select(s2, -value_cols, -share_cols)
-
-    shares[ X_years ] <- shares[ X_years ] / denominator[
-        match( apply(FUN = paste, MARGIN = 1, X = shares[ ,id_columns], collapse = '-'),
-               apply(FUN = paste, MARGIN = 1, X = denominator[ ,id_columns], collapse = '-')),
-        X_years ]
+    shares[ X_years ] <- shares[ X_years ] /
+        denominator[ match( apply(FUN = paste, MARGIN = 1, X = shares[ ,id_columns], collapse = '-'),
+                            apply(FUN = paste, MARGIN = 1, X = denominator[ ,id_columns], collapse = '-')),
+                     X_years ]
   }
 
-  shares[ is.na(shares) ] <- if( replace_with_zeros ) 0 else NA
+  shares[ is.na(shares) ] <- dplyr::if_else( replace_with_zeros, 0, NA_real_ )
 
   order_cols <- rlang::syms(c(target_column, id_columns))
   shares <- dplyr::arrange(shares, !!!order_cols)
