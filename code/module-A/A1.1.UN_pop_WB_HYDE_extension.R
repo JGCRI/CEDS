@@ -64,6 +64,9 @@
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
+    # This is the first file that is run in the system, check for correct inputs
+    checkSystemInputs( commandArgs( TRUE )[1] )
+
 # ------------------------------------------------------------------------------
 # 1. Read in files and do preliminary setup
 

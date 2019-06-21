@@ -345,7 +345,7 @@ readData <- function( domain = NULL, file_name = NULL, extension = ".csv",
 		DEPENDENCIES[[ GCAM_SOURCE_FN[ GCAM_SOURCE_RD ] ]] <<- c( deps, full_file_path )
 	}
 
-	if( !mute ) printLog( "Reading", full_file_path, "\n", cr=F )
+	if( !mute & VERBOSE ) printLog( "Reading", full_file_path, "\n", cr=F )
 	if( !file.exists( full_file_path ) ) {
 		stop( "readData cannot read non-existent file: ", full_file_path )
 	}
@@ -393,7 +393,7 @@ readData <- function( domain = NULL, file_name = NULL, extension = ".csv",
 	# Pull out only data frame if multiple were expected, but just one was found
     if( !is.data.frame( x ) && length( x ) == 1 ) x <- x[[ 1 ]]
 
-	if( !mute ) { # Print stats
+	if( !mute & VERBOSE ) { # Print stats
         if( !is.data.frame( x ) ) {  # Multiple sheets read
             lapply( names(x), function( sheet ) {
                 dm <- dim( x[[ sheet ]] )
@@ -599,7 +599,7 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
     # Ensure all data entries are strings, not lists, to avoid strange errors in write.csv
     x <- data.frame( lapply( x, as.character ), stringsAsFactors = FALSE )
 
-	if( !mute ) printLog( "Writing", myfn, "w/", length( comments ), "comments" )
+	if( !mute & VERBOSE ) printLog( "Writing", myfn, "w/", length( comments ), "comments" )
 
 	tryCatch( {
 		# Write the comments, if any, then the data

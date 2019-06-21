@@ -55,6 +55,11 @@ MODULE_PROC_ROOT		<- PARAM_DIR
 GRID_SUBREGIONS         <- FALSE
 GRIDDING_VERSION        <- as.character( Sys.Date() )
 
+SUPPORTED_SPECIES       <- c( 'BC', 'CH4', 'CO', 'CO2', 'NH3', 'NMVOC', 'NOx', 'OC', 'SO2' )
+PROPRIETARY_FILES       <- c( 'OECD_E_Stat.csv', 'NonOECD_E_Stat.csv',
+                              'OECD_Conversion_Factors_Full.csv', 'NonOECD_Conversion_Factors_Full.csv',
+                              'OECD_Conversion_Factors.csv', 'NonOECD_Conversion_Factors.csv' )
+
 
 # -----------------------------------------------------------------------------
 # Logical Check - Options
@@ -68,6 +73,9 @@ na_error <- 1
 
 # If true write value meta data in scaling module (FALSE to save time while test running)
 Write_value_metadata <- FALSE
+
+# Verbosity of output logging
+VERBOSE <- TRUE
 
 
 #-----------------------------------------------------------------------------------------
@@ -99,3 +107,22 @@ getcedsVersionNumber <- function( ) {
 
 # create system version stamp
 version_stamp <- getcedsVersionNumber( )
+
+
+# Check that required inputs are available
+checkSystemInputs <- function(em) {
+    # Make sure a valid emission species was given
+    if (!em %in% SUPPORTED_SPECIES) {
+        if (grepl('0', em)) {
+            em <- paste0(em, ', did you mean ', gsub('0', 'O', em), '?')
+        }
+        stop("CEDS does not support ", em)
+    }
+
+    # Make sure the files that do not come with CEDS exist
+    required_files <- file.exists(sapply(PROPRIETARY_FILES, filePath, domain = 'ENERGY_IN'))
+    if (!all(required_files)) {
+        stop("The following required input files are missing:\n\t",
+             paste(PROPRIETARY_FILES[!required_files], collapse = '\n\t'))
+    }
+}
