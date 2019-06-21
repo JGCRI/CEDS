@@ -1,26 +1,24 @@
 #!/bin/bash
+# Submit all CEDS species to run in parallel.
 
-sbatch make-extended-activity.sh
+# Run extended activity first, get the ID of that job and have all
+# other species run only if activity completed successfully.
+actid=$(sbatch --parsable make-extended-activity.sh)
 
-sleep 54000s
+# Wait for activity to finish, then run all species as their own jobs
+SO2id=$(sbatch --parsable --dependency=afterok:$actid make-SO2.sh)
+NOxid=$(sbatch --parsable --dependency=afterok:$actid make-NOx.sh)
+NMVOCid=$(sbatch --parsable --dependency=afterok:$actid make-NMVOC.sh)
+NH3id=$(sbatch --parsable --dependency=afterok:$actid make-NH3.sh)
+COid=$(sbatch --parsable --dependency=afterok:$actid make-CO.sh)
+BCid=$(sbatch --parsable --dependency=afterok:$actid make-BC.sh)
+OCid=$(sbatch --parsable --dependency=afterok:$actid make-OC.sh)
+CH4id=$(sbatch --parsable --dependency=afterok:$actid make-CH4.sh)
+CO2id=$(sbatch --parsable --dependency=afterok:$actid make-CO2.sh)
 
-sbatch make-SO2.sh
-sbatch make-NOx.sh
-sbatch make-NMVOC.sh
-sbatch make-NH3.sh
-sbatch make-CO.sh
-sbatch make-BC.sh
-sbatch make-OC.sh
-sbatch make-CH4.sh
-sbatch make-CO2.sh
+# Do the non-parallel stuff only after all species have finished 
+# without erroring
+sbatch --dependency=afterok:$SO2id:$NOxid:$NMVOCid:$NH3id:$COid:$BCid:$OCid:$CH4id:$CO2id ./summary-script.sh 
 
-# Check once a minute if all the emissions are done
-while [ $( ls slurm-* 2>/dev/null | wc -l ) -le 1 ] || [ $( tail -n 1 slurm-* | grep 'Current time' | wc -l ) -ne $( ls slurm-* | wc -l ) ]
-do
-sleep 60s
-done
-
-# Do the non-parallel stuff
-cd ../../
-module load R
-Rscript code/module-S/S1.2.aggregate_summary_data.R
+# show dependencies in squeue output:
+squeue -u $USER -a -o "%.5a %.10l %.6D %.6t %N %.40E"
