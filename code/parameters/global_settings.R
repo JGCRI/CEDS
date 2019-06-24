@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: global settings
 # Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Rachel Hoesly, Huong Nguyen
-# Last Updated: 29 January 2018
+# Last Updated: 24 June 2019
 #
 # Provides global variables and necessary system settings. This file must be
 # sourced by all CEDS R scripts, before any other sourced files.
@@ -55,7 +55,8 @@ MODULE_PROC_ROOT		<- PARAM_DIR
 GRID_SUBREGIONS         <- FALSE
 GRIDDING_VERSION        <- as.character( Sys.Date() )
 
-SUPPORTED_SPECIES       <- c( 'BC', 'CH4', 'CO', 'CO2', 'NH3', 'NMVOC', 'NOx', 'OC', 'SO2' )
+SUPPORTED_SPECIES       <- c( 'BC', 'CH4', 'CO', 'CO2', 'NH3', 'NMVOC', 'NOx', 'OC', 'SO2', 'NONE' ) # Note that 'NONE' is a supported em,
+                                                                                                     # as this allows the user to make activity data.
 PROPRIETARY_FILES       <- c( 'OECD_E_Stat.csv', 'NonOECD_E_Stat.csv',
                               'OECD_Conversion_Factors_Full.csv', 'NonOECD_Conversion_Factors_Full.csv',
                               'OECD_Conversion_Factors.csv', 'NonOECD_Conversion_Factors.csv' )
