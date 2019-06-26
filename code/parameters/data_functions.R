@@ -541,9 +541,9 @@ verify_calculate_share_params <- function(input_data, id_columns, target_column,
     if( length(correction_id) == 0 && sum(corrections['breakdown']) != 1 )
         stop( 'correction breakdowns do not sum to 1' )
     correction_sum <- corrections %>%
-        select(-one_of(target_column)) %>%
-        group_by_(correction_id) %>%
-        summarise_all(funs(sum))
+        dplyr::select(-one_of(target_column)) %>%
+        dplyr::group_by_(correction_id) %>%
+        dplyr::summarise_all(funs(sum))
     if( !all(correction_sum$breakdown == 1) )
         stop('breakdown must sum to 1 over target variable, check corrections')
 
