@@ -19,12 +19,12 @@ CEDS_sector,sector
 1A2g_Ind-Comb-wood-products,Industry
 1A2g_Ind-Comb-textile-leather,Industry
 1A2g_Ind-Comb-other,Industry
-1A3ai_International-aviation,Transportation
+1A3ai_International-aviation,
 1A3aii_Domestic-aviation,Transportation
 1A3b_Road,Transportation
 1A3c_Rail,Transportation
-1A3di_Oil_Tanker_Loading,Transportation
-1A3di_International-shipping,Transportation
+1A3di_Oil_Tanker_Loading,
+1A3di_International-shipping,
 1A3dii_Domestic-navigation,Transportation
 1A3eii_Other-transp,Transportation
 1A4c_Agriculture-forestry-fishing,Industry

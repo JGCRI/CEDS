@@ -2,9 +2,9 @@
 # Program Name: H2.2.add_EFs_EF-converge.R
 # Author: Rachel Hoesly
 # Program Purpose: extend EF back by converging to a given value
-# Input Files : H.EM_total_EFs_extended_db.csv,CEDS_historical_extension_methods_EF.csv,
+# Input Files : H.[em]_total_EFs_extended_db.csv,CEDS_historical_extension_methods_EF.csv,
 #               regional_biomass_CO_converge.csv
-# Output Files: H.EM_total_EFs_extended_db.csv
+# Output Files: H.[em]_total_EFs_extended_db.csv
 # TODO: Add guards for year intervals in bounds (add utility function for this)
 # ---------------------------------------------------------------------------
 

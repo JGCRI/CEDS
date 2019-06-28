@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: B1.1.base_BCOC_comb_EF.R
 # Author: Rachel Hoesly, Linh Vu, Patrick O'Rourke
-# Date Last Updated: 28 January 2019
+# Date Last Updated: 10 May 2019
 # Program Purpose: 1. Produce BC and OC emissions factors from SPEW (i.e. Bond) data.
 # Input Files:  A.comb_activity.csv
 #               CD.SPEW_iso_map.csv
@@ -229,7 +229,7 @@
     writeData( final_full, "EXT_IN", paste0( "B.", em, "_SPEW_comb_EF" ),
                domain_extension = "extension-data/" )
 
-#   Note that the non-comb SPEW db has is an input from CEDS_data, and no longer output
+#   Note that the non-comb SPEW db is an input from CEDS_data, and no longer output
 #   by this script
 
 # Every script should finish with this line

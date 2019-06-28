@@ -7,16 +7,17 @@
 #                  - Coal, Natural Gas, Oil
 #                  - Residential Biomass (Fernandez) (previously extended in earlier mod A script)
 #                  - Shipping (IMO) (previously extended in earlier mod A script)
-#                  - Industrial and Other Bionass
+#                  - Industrial and Other Biomass
 # Input Files: A.comb_activity_extended_natural_gas.csv,
 #              A.comb_activity_extended_coal.csv,
-#              A.comb_activity_extended_oil.csv
-#              A.residential_biomass_full
-#              A.industrial_biomass_extended
-#              A.other_biomass_extended
-#              A.comb_activity
-#              A.intl_shipping_en
-# Output Files: A.combustion_default_activity_extended
+#              A.comb_activity_extended_oil.csv,
+#              A.residential_biomass_full.csv,
+#              A.industrial_biomass_extended.csv,
+#              A.other_biomass_extended.csv,
+#              A.comb_activity_with_other.csv,
+#              A.intl_shipping_en.csv,
+#              IEA_iso_start_data.csv
+# Output Files: A.combustion_default_activity_extended.csv
 # Notes: industrial biomass and other biomass need to be added
 # -----------------------------------------------------------------------------
 

@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: global settings
 # Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Rachel Hoesly, Huong Nguyen
-# Last Updated: 29 January 2018
+# Last Updated: 24 June 2019
 #
 # Provides global variables and necessary system settings. This file must be
 # sourced by all CEDS R scripts, before any other sourced files.
@@ -51,6 +51,16 @@ DOMAINPATHMAP 			<- paste0( MODULE_PROC_ROOT, "../input/mappings/domainmapping.c
 # Specify the location of the module from the data system root directory
 MODULE_PROC_ROOT		<- PARAM_DIR
 
+# Should gridding be done with subregional data products or not?
+GRID_SUBREGIONS         <- FALSE
+GRIDDING_VERSION        <- as.character( Sys.Date() )
+
+SUPPORTED_SPECIES       <- c( 'BC', 'CH4', 'CO', 'CO2', 'NH3', 'NMVOC', 'NOx', 'OC', 'SO2', 'NONE' ) # Note that 'NONE' is a supported em,
+                                                                                                     # as this allows the user to make activity data.
+PROPRIETARY_FILES       <- c( 'OECD_E_Stat.csv', 'NonOECD_E_Stat.csv',
+                              'OECD_Conversion_Factors_Full.csv', 'NonOECD_Conversion_Factors_Full.csv',
+                              'OECD_Conversion_Factors.csv', 'NonOECD_Conversion_Factors.csv' )
+
 
 # -----------------------------------------------------------------------------
 # Logical Check - Options
@@ -65,6 +75,9 @@ na_error <- 1
 # If true write value meta data in scaling module (FALSE to save time while test running)
 Write_value_metadata <- FALSE
 
+# Verbosity of output logging
+VERBOSE <- TRUE
+
 
 #-----------------------------------------------------------------------------------------
 #Generate system-wise version_stamp
@@ -73,7 +86,7 @@ Write_value_metadata <- FALSE
 #follow the instruction in the next comment
 
 # User should uncomment the following line if he/she has a specific cedsUserVersionNumber to use
-## options(cedsUserVersionNumber = "v_YYYY_MM_DD")
+ options(cedsUserVersionNumber = "v_2019_06_07")
 
 getcedsVersionNumber <- function( ) {
 
@@ -95,3 +108,22 @@ getcedsVersionNumber <- function( ) {
 
 # create system version stamp
 version_stamp <- getcedsVersionNumber( )
+
+
+# Check that required inputs are available
+checkSystemInputs <- function(em) {
+    # Make sure a valid emission species was given
+    if (!em %in% SUPPORTED_SPECIES) {
+        if (grepl('0', em)) {
+            em <- paste0(em, ', did you mean ', gsub('0', 'O', em), '?')
+        }
+        stop("CEDS does not support ", em)
+    }
+
+    # Make sure the files that do not come with CEDS exist
+    required_files <- file.exists(sapply(PROPRIETARY_FILES, filePath, domain = 'ENERGY_IN'))
+    if (!all(required_files)) {
+        stop("The following required input files are missing:\n\t",
+             paste(PROPRIETARY_FILES[!required_files], collapse = '\n\t'))
+    }
+}

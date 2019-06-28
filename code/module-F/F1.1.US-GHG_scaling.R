@@ -1,14 +1,14 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.US-GHG_scaling.R
 # Authors' Names: Rachel Hoesly
-# Date Last Modified: 10 April 2017
+# Date Last Modified: June 14, 2019
 # Program Purpose: To create scaling factors and update emissions estimate for
 # the USA for methane emissions from the US GHG inventory
-# Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv, 
+# Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
 #              F.[em]_scaled_emissions.csv, US-GHG_scaling_mapping.xlsx
-#              E.[em]_US-GHG_inventory.csv
+#              E.[em]_US_GHG_inventory.csv
 # Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
-# Notes: 
+# Notes:
 # TODO:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
@@ -22,11 +22,11 @@
     em <- args_from_makefile[1]
     if ( is.na( em ) ) em <- "CH4"
 
-# Call standard script header function to read in universal header files - 
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( 'common_data.R', "data_functions.R", 
+    headers <- c( 'common_data.R', "data_functions.R",
                   "emissions_scaling_functions.R", "analysis_functions.R",
-                  "interpolation_extention_functions.R" ) # Additional function files required.
+                  "interpolation_extension_functions.R" ) # Additional function files required.
     log_msg <- "US-EPA inventory scaling" # First message to be printed to the log
     script_name <- paste0( em, "-F1.1.US-GHG_scaling.R" )
 
@@ -46,8 +46,8 @@
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-    inv_name <- 'US-GHG' #for naming diagnostic files
-    region <- c( "usa" ) 
+    inv_name <- 'US_GHG' #for naming diagnostic files and reading data
+    region <- c( "usa" )
     sector_fuel_mapping <- 'US-GHG_scaling_mapping'
     mapping_method <- 'sector'
     inv_years <- 1990:2014

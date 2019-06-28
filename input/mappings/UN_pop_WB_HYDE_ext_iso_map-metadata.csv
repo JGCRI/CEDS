@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
+Mapping,NA,All,NA,NA,NA,"Region mapping codes taken from FAOSTAT package (translateCountryCode function), for mapping between UN, HYDE, and WB population data regions."
