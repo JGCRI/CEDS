@@ -540,12 +540,15 @@ verify_calculate_share_params <- function(input_data, id_columns, target_column,
     correction_id <- setdiff(names(corrections), c("breakdown", target_column))
     if( length(correction_id) == 0 && sum(corrections['breakdown']) != 1 )
         stop( 'correction breakdowns do not sum to 1' )
-    correction_sum <- corrections %>%
-        dplyr::select(-one_of(target_column)) %>%
-        dplyr::group_by_(correction_id) %>%
-        dplyr::summarise_all(funs(sum))
-    if( !all(correction_sum$breakdown == 1) )
-        stop('breakdown must sum to 1 over target variable, check corrections')
+
+    if (length(correction_id)) {
+        correction_sum <- corrections %>%
+            dplyr::select(-one_of(target_column)) %>%
+            dplyr::group_by_at(correction_id) %>%
+            dplyr::summarise_all(funs(sum))
+        if( !all(correction_sum$breakdown == 1) )
+            stop('breakdown must sum to 1 over target variable, check corrections')
+    }
 
     # Check to see if there are corrections for all combinations in input data
     # Do not stop, but throw warning if there are not defaults for all
@@ -688,6 +691,7 @@ calculate_correct_shares <- function(a.input_data,
     verified_params <- verify_calculate_share_params(a.input_data,
                                                      a.id_columns,
                                                      a.target_column,
+                                                     a.corrections,
                                                      a.match_columns)
     same_id_target <- verified_params$same_id_target
     id_columns     <- verified_params$id_columns
