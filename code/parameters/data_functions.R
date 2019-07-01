@@ -381,8 +381,7 @@ buildCEDSTemplate <- function( iso_list = NULL, sector_list = NULL, fuel_list = 
     # If any of the required id lists were not given in the function call, stop.
     if( is.null( iso_list ) || ( ( iso_sector_fuel && is.null( sector_list ) && is.null( fuel_list ) )
                                  || ( iso_activity && is.null( activity_list ) ) ) ){
-        cat( "Error in buildCEDSTemplate: Must specify all identifying lists \n" )
-        return( data.frame() )
+        stop( "Error in buildCEDSTemplate: Must specify all identifying lists \n" )
     }
 
     # If template is to be in sector-fuel format
