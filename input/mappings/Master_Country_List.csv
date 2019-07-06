@@ -104,7 +104,7 @@ hun,1,Hungary,Central European countries,Hungary,Hungary,OECD,97,Hungary,Eastern
 idn,1,Indonesia,Other Asia,Indonesia,Indonesia,NonOECD,101,Indonesia,Asia,South East Asia and Aust/NZ,Other Asia/Pacific,,ID,Indonesia,,
 ind,1,India,India,India,India,NonOECD,100,India,Asia,Other Asia,Other Asia/Pacific,,IN,India,,
 irl,1,Ireland,Western Europe,Republic of Ireland,Ireland,OECD,104,Ireland,Western Europe,Western Europe,Europe,IE,IE,,high-income,
-irl,1,Ireland,Western Europe,Ireland,Ireland,OECD,104,Ireland,Western Europe,Western Europe,Europe,IE,IE,Duplicate line added to account for alternative country name used in latest version of BP energy data,high-income,
+irl,1,Ireland,Western Europe,Ireland,Ireland,OECD,104,Ireland,Western Europe,Western Europe,Europe,IE,IE,,high-income,Duplicate line added to account for alternative country name used in latest version of BP energy data
 irn,1,Islamic Republic of Iran,Middle East,Iran,Islamic Republic of Iran,NonOECD,102,Islamic Republic of Iran,Middle East,Middle East,Other Asia/Pacific,,IR,Iran,,
 irq,1,Iraq,Middle East,Other Middle East,Iraq,NonOECD,103,Iraq,Middle East,Middle East,Other Asia/Pacific,,IQ,Iraq,,
 isl,1,Iceland,Western Europe,Other Europe & Eurasia,Iceland,OECD,99,Iceland,Western Europe,Western Europe,Europe,IS,IS,,high-income,

@@ -5,7 +5,7 @@
 # Program Purpose:  This program corrects system (IEA) residential biomass using
 #                   EIA, Fernandes et al. 2007, and Denier van der Gon et al. 2015
 #                   (European) biomass data.
-#                   The program also produces 1700-2013 residential biomass series
+#                   The program also produces 1700-IEA_end_year residential biomass series
 #                   for all CEDS countries.
 # Input Files:     A.en_stat_sector_fuel.csv, A.Fernandes_residential_biomass,
 #                  Europe_wooduse_Europe_TNO_4_Steve.xlsx, A.UN_pop_master.csv,
@@ -233,7 +233,7 @@ initialize( script_name, log_msg, headers )
     diag_IEA_NA_irreg <- filter( diag_IEA_NA, first_yr > min( IEA_years ) | diff != 1 )
     diag_IEA_NA_irreg <- filter( diag_IEA_NA, iso %in% diag_IEA_NA_irreg$iso )
 
-# kwt has NA IEA for the rightmost edge years (1997-2013) -- extend average
+# kwt has NA IEA for the rightmost edge years (1997-IEA_end_year) -- extend average
 # of the last 3 available years (1994-1996) forward
     kwt_avg <- filter( biomass_1a_IEA, iso == "kwt", year %in% seq( 1994, 1996 ) )
     kwt_avg <- mean( kwt_avg$IEA_pc )
@@ -374,16 +374,16 @@ initialize( script_name, log_msg, headers )
     biomass_IEA_final$IEA_ext_total <- biomass_IEA_final$IEA_pc_ext_final * biomass_IEA_final$pop2
 
 # ------------------------------------------------------------------------------
-# 5. Merge all sources to compile final 1700-2013 residential biomass series
-    printLog( "Compile 1700-2013 residential biomass series" )
+# 5. Merge all sources to compile final 1700-IEA_end_year residential biomass series
+    printLog( "Compile 1700-IEA_end_year residential biomass series" )
 
 # Define values
     CONVERGENCE_YEAR <- 1920  # what year to converge to Fernandes?
     LAST_IEA_YEAR <- min( IEA_years )  # 1960
     LAST_FERN_YEAR <- min( Fern_biomass$year )  # 1850
-    biomass_years <- seq( min( pop_master$year ), max( biomass_IEA_final$year ) )  # 1700-2013
+    biomass_years <- seq( min( pop_master$year ), max( biomass_IEA_final$year ) )  # 1700-IEA_end_year
 
-# Combine IEA and Fern to get 1960-2013 series
+# Combine IEA and Fern to get 1960-IEA_end_year series
     added_Fern <- filter( biomass_1, iso %in% iso_Fern, year %in% emissions_years ) %>%
       select( iso, year, units, ceds = Fern )
     biomass_final <- bind_rows( select( biomass_IEA_final, iso, year, units,
@@ -408,7 +408,7 @@ initialize( script_name, log_msg, headers )
     biomass_final_ext$ceds_pc_ext[ Fern_years ] <- biomass_final_ext$Fern_pc[ Fern_years ]
 
 
-# For 1921-2013, IEA should be adjusted to converge to Fernandes by 1920. For each country,
+# For 1921-IEA_end_year, IEA should be adjusted to converge to Fernandes by 1920. For each country,
 # define start_yr to be the last year where extrapolated IEA falls below Fernandes (if
 # applicable) and LAST_IEA_YEAR otherwise. Interpolate start_yr delta so that IEA rural
 # per-capita matches Fernandes in 1920, and take
@@ -464,20 +464,20 @@ initialize( script_name, log_msg, headers )
 # Add source note
     biomass_final_ext$src <- "Fernandes"
 
-    # countries using IEA for 1960-2013
+    # countries using IEA for 1960-IEA_end_year
     IEA_used <- biomass_final_ext$year %in% IEA_years & biomass_final_ext$iso %in% iso_IEA
     biomass_final_ext$src[ IEA_used ] <- "IEA"
     biomass_final_ext$src[ IEA_used & biomass_final_ext$is_ext ] <-
       "IEA - extrapolated/adjusted using Fernandes trend"
 
-    # countries using delta-interpolated IEA for 1921-2013
+    # countries using delta-interpolated IEA for 1921-IEA_end_year
     IEA_delta_interp <- biomass_final_ext$year > CONVERGENCE_YEAR &
       biomass_final_ext$year <= biomass_final_ext$start_yr & biomass_final_ext$iso %in% iso_IEA
     biomass_final_ext$src[ IEA_delta_interp ] <-
       paste0( "IEA - interpolated ", biomass_final_ext$start_yr[ IEA_delta_interp ],
               " delta to match Fernandes per-capita by ", CONVERGENCE_YEAR )
 
-    # countries using min-adjusted interpolated IEA for 1921-2013
+    # countries using min-adjusted interpolated IEA for 1921-IEA_end_year
     biomass_final_ext$src[ IEA_delta_interp & biomass_final_ext$is_adj ] <-
       paste0( "IEA - taken to be min of IEA ",
               biomass_final_ext$start_yr[ IEA_delta_interp & biomass_final_ext$is_adj ],

@@ -2,7 +2,7 @@
 # Program Name: A1.2.Fernandes_biomass.R
 # Author: Linh Vu
 # Date Last Updated: 7 June 2019
-# Program Purpose: This program produces 1850-2013 time series of residential biomass
+# Program Purpose: This program produces 1850-IEA_end_year time series of residential biomass
 #                  consumption by country and fuel type from Fernandes biofuels data.
 #                  The program also produces fuel-weighted biomass conversion factors
 #                  (TJ/kt) by country and year.

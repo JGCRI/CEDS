@@ -41,7 +41,9 @@
 
 # -------------------------------------------------------------------------------------------
 
-    end_BP_year <- 2013
+	# Because this code is operating before overall energy data is extended using BP
+	# statistics, only use BP data up to the last IEA data year
+	end_BP_year <- IEA_end_year
 
 # -------------------------------------------------------------------------------------------
 # 1. Load Data. Create the initial datasets from mapping and data files.
@@ -51,19 +53,13 @@
     MSLevel <- readData( "MAPPINGS", "Master_Sector_Level_map" )
     MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
     un_pop <- readData( "MED_OUT", "A.UN_pop_master" )
-    bp_oil_gas_coal <- readData( "ENERGY_IN", "BP_energy_data", ".xlsx",
-                                 sheet_selection = c( 7, 24, 33 ) )
+    bp_energy_data <- readData( "ENERGY_IN",BP_data_file_name, ".xlsx")
 
-# Oil Consumption  - Million Tonnes = 10^3 kt
-    bp_oil_full  <- bp_oil_gas_coal[[1]]
-    printLog( c( "Read in BP data sheet: ", names( bp_oil_full )[[1]] ) )
-# Gas Consumption  - tonnes
-    bp_gas_full  <- bp_oil_gas_coal[[2]]
-    printLog( c( "Read in BP data sheet: ", names( bp_gas_full )[[1]] ) )
-# Coal Consumption - Mtoe
-    bp_coal_full <- bp_oil_gas_coal[[3]]
-    printLog( c( "Read in BP data sheet: ", names( bp_coal_full )[[1]] ) )
-
+    # Read in BP energy data
+    printLog( c("Reading in BP energy consumption data."))
+    bp_oil_full <- bp_energy_data[[ getBPSheetNumber( "oil", "consumption", "tonnes", bp_energy_data ) ]]
+    bp_gas_full <- bp_energy_data[[ getBPSheetNumber( "gas", "consumption", "tonnes", bp_energy_data ) ]]
+    bp_coal_full <- bp_energy_data[[ getBPSheetNumber( "coal", "consumption", "mtoe", bp_energy_data ) ]]
 
 # -------------------------------------------------------------------------------------------
 # 2. Define some Variable, seperate activity data.
@@ -318,24 +314,9 @@
     # Loop through each bp dataset (separated by fuel) to make the relevant corrections.
     # Result is bp_data_clean, which holds the corrected info
     for ( i in seq_along( bp_fuel) ) {
-    # Remove rows without relevant data
-        bp_data_clean[[i]] <- bp_data_full[[i]][ which( bp_data_full[[i]][, 1] %in% MCL$BPName ), ]
+        bp_data_clean[[i]] <- cleanBPDataSheet( bp_data_full[[i]], X_BP_years, MCL )
 
-    # Fix names of columns; they get messed up because BP has useless rows
-    #   at the top of their files and R makes the top row the name of the column
-        names( bp_data_clean[[i]] ) <- c( "BPName", paste0( "X",
-                                          bp_data_full[[i]][ 2, 2:ncol(bp_data_full[[i]]) ] ) )
-    # remove rows with NA iso codes
-        bp_data_clean[[i]] <- bp_data_clean[[i]][ -which( is.na( bp_data_clean[[i]]['BPName'] ) ), ]
-
-    # Account for BP notation. The symbol "-" means 0 Mtoe, "^" means <0.05 Mtoe
-    # NOTE: Actual values for countries with "^" not given for coal consumption
-    #   only. Not sure why this is. Assume values of "^" = 0.05 for these
-    #   instances
-        bp_data_clean[[i]][ bp_data_clean[[i]] == "n/a" ] <- NA
-        bp_data_clean[[i]][ bp_data_clean[[i]] == "-" ] <- 0
-        bp_data_clean[[i]][ bp_data_clean[[i]] == "^" ] <- 0.05
-    # Convert to numeric
+   # Convert to numeric
         bp_data_clean[[i]][ X_BP_years ] <- sapply( X = bp_data_clean[[i]][ X_BP_years ], FUN = as.numeric )
     # add iso
         bp_data_clean[[i]]$iso <- MCL[ match( bp_data_clean[[i]]$BPName, MCL$BPName )  ,'iso' ]
@@ -359,7 +340,7 @@
 
 # -------------------------------------------------------------------------------------------
 # 6. FSU country total fuel use ratios (energy use by fuel: coal, oil, gas) as a share of USSR.
-#    Based on BP data 1985 - 2013, then extended backward using population. Operates directly
+#    Based on BP data 1985 - IEA_end_year, then extended backward using population. Operates directly
 #    on BP countries and infers based on population and unaccounted-for activity to determine
 #    activity in non-BP countries. Result is a data frame holding the activity proportions
 #    by BP fuel.
@@ -388,9 +369,9 @@
 # Extend Country Shares Back for BP countries linearly from last
     FSU_countries_fuel_share_bp_extended <- FSU_countries_fuel_share_bp
     FSU_countries_fuel_share_bp_extended[ paste0('X', 1971:1984) ] <- NA
-    FSU_countries_fuel_share_bp_extended <- FSU_countries_fuel_share_bp_extended[, c( 'iso', 'bp_fuel', paste0('X', 1971:2013) ) ]
-    FSU_countries_fuel_share_bp_extended[ paste0('X', 1971:2013) ] <-
-        t( na.locf( t( FSU_countries_fuel_share_bp_extended[ paste0('X', 1971:2013) ] ), fromLast = TRUE ) )
+    FSU_countries_fuel_share_bp_extended <- FSU_countries_fuel_share_bp_extended[, c( 'iso', 'bp_fuel', paste0('X', 1971:IEA_end_year) ) ]
+    FSU_countries_fuel_share_bp_extended[ paste0('X', 1971:IEA_end_year) ] <-
+        t( na.locf( t( FSU_countries_fuel_share_bp_extended[ paste0('X', 1971:IEA_end_year) ] ), fromLast = TRUE ) )
 
 # Dissaggregate leftover share to non-BP countries
     FSU_not_BP <- unique( FSU[ which( FSU %!in% unique(bp_data$iso) ) ] )
@@ -444,9 +425,9 @@
 
     for ( i in seq_along(agg_fuel) ) {
         USSR_sector_by_fuel_df <- USSR_sector_fuel[ which(USSR_sector_fuel$agg_fuel == agg_fuel[i] ), ]
-        USSR_sector_by_fuel_df[,paste0('X',1971:2013)] <- USSR_sector_by_fuel_df[,paste0('X',1971:2013)] /
-                                                          matrix( data = rep( colSums( USSR_sector_by_fuel_df[, paste0('X', 1971:2013) ] ), times = nrow( USSR_sector_by_fuel_df ) ) ,
-                                                          nrow = nrow(USSR_sector_by_fuel_df) , ncol= length(paste0('X',1971:2013)),
+        USSR_sector_by_fuel_df[,paste0('X',1971:IEA_end_year)] <- USSR_sector_by_fuel_df[,paste0('X',1971:IEA_end_year)] /
+                                                          matrix( data = rep( colSums( USSR_sector_by_fuel_df[, paste0('X', 1971:IEA_end_year) ] ), times = nrow( USSR_sector_by_fuel_df ) ) ,
+                                                          nrow = nrow(USSR_sector_by_fuel_df) , ncol= length(paste0('X',1971:IEA_end_year)),
                                                           byrow = T)
         USSR_sector_shares_by_fuel_list[[i]] <-  USSR_sector_by_fuel_df
     }
@@ -455,7 +436,7 @@
 
 # Calculate FSU sector share of each aggregate sector x fuel, by iso
 # wrangle activity data
-    FSU_iso_agg_sector_agg_fuel <- aggregate( activity[ paste0('X', 1990:2013) ],
+    FSU_iso_agg_sector_agg_fuel <- aggregate( activity[ paste0('X', 1990:IEA_end_year) ],
                                               by = list( iso = activity$iso,
                                                          sector = activity$agg_sector,
                                                          fuel = activity$agg_fuel ),
@@ -471,11 +452,11 @@
                         fuel = rep(   rep(agg_fuel, each = length(agg_sector) ), len = temp_nrow),
                         sector = rep( agg_sector, len = temp_nrow ) )
 
-    temp[ paste0('X', 1990:2013) ] <- 0
+    temp[ paste0('X', 1990:IEA_end_year) ] <- 0
 
 # ... then replace the values by iso/fuel/sector.
     FSU_iso_agg_sector_agg_fuel <- replaceValueColMatch(x = temp, y = FSU_iso_agg_sector_agg_fuel,
-                         x.ColName = paste0('X', 1990:2013),
+                         x.ColName = paste0('X', 1990:IEA_end_year),
                          match.x = c( 'iso', 'fuel', 'sector'),
                          addEntries = TRUE)
 
@@ -497,11 +478,11 @@
             iso_data <- fuel_data[ which( fuel_data$iso == FSU[n] ), ]
             if ( nrow( iso_data ) > 0 ){
                 iso_shares <- iso_data
-                iso_shares[, paste0('X', 1990:2013) ] <- iso_shares[, paste0('X', 1990:2013) ] /
-                                        matrix(  data = rep( colSums( iso_data[,paste0('X', 1990:2013) ] ),
+                iso_shares[, paste0('X', 1990:IEA_end_year) ] <- iso_shares[, paste0('X', 1990:IEA_end_year) ] /
+                                        matrix(  data = rep( colSums( iso_data[,paste0('X', 1990:IEA_end_year) ] ),
                                                                             times = nrow(iso_data)) ,
                                                                       nrow = nrow(iso_data) ,
-                                                                      ncol= length( paste0('X', 1990:2013) ),
+                                                                      ncol= length( paste0('X', 1990:IEA_end_year) ),
                                                                       byrow = T )
 
                 iso_shares <- replace( iso_shares, is.na(iso_shares), 0 )
@@ -555,7 +536,7 @@
             shares <- FSU_iso_sector_shares_by_fuel[which(FSU_iso_sector_shares_by_fuel$iso == FSU_iso[i] &
                                                           FSU_iso_sector_shares_by_fuel$fuel == agg_fuel[n]  ),]
             shares[ paste0('X', 1971:1989) ] <- NA
-            shares <- shares[, c( 'iso', 'fuel', 'sector', paste0('X',1971:2013) ) ]
+            shares <- shares[, c( 'iso', 'fuel', 'sector', paste0('X',1971:IEA_end_year) ) ]
 
             shares <- replaceValueColMatch( shares, USSR_sector_shares_by_fuel,
                                          x.ColName = paste0('X', 1971:1985),
@@ -564,8 +545,8 @@
                                          addEntries = FALSE )
             shares <- interpolateValues(shares)
         # increase ratios so that they sum to 1
-            sum <- colSums( shares[ paste0('X', 1971:2013) ] )
-            shares[ paste0('X', 1971:2013) ] <- shares[ paste0('X', 1971:2013) ] /
+            sum <- colSums( shares[ paste0('X', 1971:IEA_end_year) ] )
+            shares[ paste0('X', 1971:IEA_end_year) ] <- shares[ paste0('X', 1971:IEA_end_year) ] /
                                                     matrix( data = rep( sum , times =  nrow(shares) ),
                                                             nrow = nrow( shares ), byrow = TRUE )
            fuel_list[[n]] <- shares
@@ -580,13 +561,13 @@
     corrected <- FSU_iso_sector_shares_by_fuel_extended
 
     corrected[ which( corrected$iso == 'arm' & corrected$fuel == 'coal' ), paste0( "X", '', 1995:2011 ) ] <- NA
-    corrected[ which( corrected$iso == 'arm' & corrected$fuel == 'heavy_oil' ), paste0( "X", '', 1997:2013 ) ] <- NA
-    corrected[ which( corrected$iso == 'arm' & corrected$fuel == 'diesel_oil' ), paste0( "X", '', 1991:2013 ) ] <- NA
+    corrected[ which( corrected$iso == 'arm' & corrected$fuel == 'heavy_oil' ), paste0( "X", '', 1997:IEA_end_year ) ] <- NA
+    corrected[ which( corrected$iso == 'arm' & corrected$fuel == 'diesel_oil' ), paste0( "X", '', 1991:IEA_end_year ) ] <- NA
 
-    corrected[ which( corrected$iso == 'aze' & corrected$fuel == 'coal' ), paste0( "X", '', 1999:2013 ) ] <- NA
-    corrected[ which( corrected$iso == 'aze' & corrected$fuel == 'diesel_oil' ), paste0( "X", '', 2009:2013 ) ] <- NA
+    corrected[ which( corrected$iso == 'aze' & corrected$fuel == 'coal' ), paste0( "X", '', 1999:IEA_end_year ) ] <- NA
+    corrected[ which( corrected$iso == 'aze' & corrected$fuel == 'diesel_oil' ), paste0( "X", '', 2009:IEA_end_year ) ] <- NA
 
-    corrected[ which( corrected$iso == 'tjk' & corrected$fuel %in% c( 'heavy_oil','diesel_oil', 'coal' ) ), paste0( "X", '', 1985:2013 ) ] <- NA
+    corrected[ which( corrected$iso == 'tjk' & corrected$fuel %in% c( 'heavy_oil','diesel_oil', 'coal' ) ), paste0( "X", '', 1985:IEA_end_year ) ] <- NA
 
     corrected[ which( corrected$iso == 'uzb' & corrected$fuel %in% c( 'diesel_oil') ), paste0( "X", '', 1985:1995 ) ] <- NA
 
@@ -671,16 +652,16 @@
         # ratios
             ratios <- FSU_iso_sector_shares_by_fuel_extended[ which( FSU_iso_sector_shares_by_fuel_extended$iso == iso_name &
                                                                        FSU_iso_sector_shares_by_fuel_extended$fuel == fuel_name ), ]
-            names(ratios) <- c( 'iso', 'agg_fuel', 'agg_sector', paste0( 'X', 1971:2013 ) )
+            names(ratios) <- c( 'iso', 'agg_fuel', 'agg_sector', paste0( 'X', 1971:IEA_end_year ) )
 
         #new activity data
             new_activity <- ratios[, c( 'iso', 'agg_fuel', 'agg_sector' ) ]
-            new_activity[ paste0( 'X', 1971:2013 ) ] <- 0
+            new_activity[ paste0( 'X', 1971:IEA_end_year ) ] <- 0
 
             if( !identical( ratios$sector, new_activity$sector ) ) stop( 'In Fix_FSU.R Rows out of order, please sort' )
 
-            new_activity[ paste0( 'X', 1971:2013 ) ] <- ratios[ paste0( 'X', 1971:2013 ) ] *
-              matrix( data = rep( as.numeric( total_activity[ paste0( 'X', 1971:2013 ) ] ) , times =  nrow(ratios) ),
+            new_activity[ paste0( 'X', 1971:IEA_end_year ) ] <- ratios[ paste0( 'X', 1971:IEA_end_year ) ] *
+              matrix( data = rep( as.numeric( total_activity[ paste0( 'X', 1971:IEA_end_year ) ] ) , times =  nrow(ratios) ),
                       nrow = nrow(ratios), byrow = TRUE)
 
             fuel_list[[n]] <- new_activity
@@ -692,7 +673,7 @@
     FSU_disaggregated_activity_agg <- replace( FSU_disaggregated_activity_agg, is.na( FSU_disaggregated_activity_agg ), 0 )
 
     check <- FSU_disaggregated_activity_agg
-    activity_summary <- aggregate( check[, paste0( 'X', 1971:2013 ) ],
+    activity_summary <- aggregate( check[, paste0( 'X', 1971:IEA_end_year ) ],
                                    by = list( fuel = check$agg_fuel ),
                                    FUN = sum )
     original_activity_summary_agg$set <- 'original'
@@ -726,11 +707,11 @@
         temp <- data.frame( iso = rep( iso_name, each = length(agg_fuel) * length(agg_sector) , len = temp_nrow ),
                             agg_fuel = rep( rep( agg_fuel, each = length(agg_sector) ), len = temp_nrow ),
                             agg_sector = rep( agg_sector, len = temp_nrow ) )
-        temp[ paste0('X', 1971:2013) ] <- 0
+        temp[ paste0('X', 1971:IEA_end_year) ] <- 0
 
     # add CEDS and FSU data
         CEDS_activity <- replaceValueColMatch( temp, CEDS_activity_agg_fuels_agg_sectors,
-                                                  x.ColName = paste0('X', 1971:2013),
+                                                  x.ColName = paste0('X', 1971:IEA_end_year),
                                                   match.x = c( 'iso', 'agg_fuel', 'agg_sector'),
                                                   addEntries = FALSE )
         FSU_activity <- FSU_disaggregated_activity_agg[ which( FSU_disaggregated_activity_agg$iso == iso_name ), ]
@@ -741,8 +722,8 @@
 
     # make merged data set
     # FSU dissaggregated data untill merge start
-        merged_data <- FSU_activity[ , c( 'iso', 'agg_fuel', 'agg_sector', paste0('X',1971:2013) ) ]
-        merged_data[, c( paste0('X', start_merge:2014) ) ] <- NA
+        merged_data <- FSU_activity[ , c( 'iso', 'agg_fuel', 'agg_sector', paste0('X',1971:IEA_end_year) ) ]
+        merged_data[, c( paste0('X', start_merge:BP_last_year) ) ] <- NA
 
     # merge: slowly switch from FSU dissaggregated to CEDS reported
         for ( n in seq_along(merge_years) ) {
@@ -752,7 +733,7 @@
                                                                       CEDS_activity[, c( paste0('X', merge_years[n]) ) ] * (ceds_percent_step)
         }
     # ceds reported data
-        merged_data[, c( paste0( 'X', (end_merge + 1):2013 ) ) ] <- CEDS_activity[, c( paste0( 'X', (end_merge + 1):2013 ) ) ]
+        merged_data[, c( paste0( 'X', (end_merge + 1):IEA_end_year ) ) ] <- CEDS_activity[, c( paste0( 'X', (end_merge + 1):IEA_end_year ) ) ]
         iso_list[[i]] <- merged_data
     }
     FSU_activity_agg <- do.call( rbind, iso_list )
@@ -780,7 +761,7 @@
                                                                         FSU_disaggregated_activity_agg$agg_fuel %in% c('light_oil') ), ] )
 
     FSU_activity_agg <- replaceValueColMatch( FSU_activity_agg, replace,
-                                              x.ColName = paste0( 'X', 1971:2013 ),
+                                              x.ColName = paste0( 'X', 1971:IEA_end_year ),
                                               match.x = c( 'iso', 'agg_fuel', 'agg_sector' ),
                                               addEntries = FALSE )
 
@@ -801,15 +782,15 @@
 
 # correct some tjk values using the calculated ratio
     corrected[ which( corrected$iso == 'tjk' & corrected$agg_fuel == 'natural_gas' &
-                        corrected$agg_sector == 'Industry' ), paste0('X', 1986:2013) ] <-
+                        corrected$agg_sector == 'Industry' ), paste0('X', 1986:IEA_end_year) ] <-
       ratio*corrected[ which( corrected$iso == 'tjk' & corrected$agg_fuel == 'natural_gas' &
-                                corrected$agg_sector == 'Other' ), paste0('X', 1986:2013) ]
+                                corrected$agg_sector == 'Other' ), paste0('X', 1986:IEA_end_year) ]
     corrected[ which( corrected$iso == 'tjk' & corrected$agg_fuel == 'natural_gas' &
-                        corrected$agg_sector == 'Residential' ), paste0('X', 1986:2013) ] <-
+                        corrected$agg_sector == 'Residential' ), paste0('X', 1986:IEA_end_year) ] <-
       (1-ratio)*corrected[ which( corrected$iso == 'tjk' & corrected$agg_fuel == 'natural_gas' &
-                                    corrected$agg_sector == 'Other'), paste0('X', 1986:2013) ]
+                                    corrected$agg_sector == 'Other'), paste0('X', 1986:IEA_end_year) ]
     corrected[ which( corrected$iso == 'tjk' & corrected$agg_fuel == 'natural_gas' &
-                        corrected$agg_sector == 'Other' ), paste0('X', 1986:2013) ] <- 0
+                        corrected$agg_sector == 'Other' ), paste0('X', 1986:IEA_end_year) ] <- 0
 
 # Russia
 # heavy_oil. Add Other to Transportation 1995 - 2000
@@ -833,20 +814,20 @@
                            paste0('X', 1985) ] )
 # correct Kaz using calculated ratio
     corrected[ which( corrected$iso == 'kaz' & corrected$fuel == 'light_oil' &
-                        corrected$agg_sector == 'Agriculture' ), paste0('X', 1986:2013) ] <-
+                        corrected$agg_sector == 'Agriculture' ), paste0('X', 1986:IEA_end_year) ] <-
       ratio*corrected[ which( corrected$iso == 'kaz' & corrected$fuel == 'light_oil' &
-                                corrected$agg_sector == 'Other' ), paste0('X', 1986:2013) ]
+                                corrected$agg_sector == 'Other' ), paste0('X', 1986:IEA_end_year) ]
     corrected[ which( corrected$iso == 'kaz' & corrected$fuel == 'light_oil' &
-                        corrected$agg_sector == 'Residential' ), paste0('X', 1986:2013) ] <-
+                        corrected$agg_sector == 'Residential' ), paste0('X', 1986:IEA_end_year) ] <-
       (1-ratio)/2*corrected[ which( corrected$iso == 'kaz' & corrected$fuel == 'light_oil' &
-                                    corrected$agg_sector == 'Other' ), paste0('X', 1986:2013) ]
+                                    corrected$agg_sector == 'Other' ), paste0('X', 1986:IEA_end_year) ]
     corrected[ which( corrected$iso == 'kaz' & corrected$fuel == 'light_oil' &
-                        corrected$agg_sector == 'Industry' ), paste0('X', 1986:2013) ] <-
+                        corrected$agg_sector == 'Industry' ), paste0('X', 1986:IEA_end_year) ] <-
       (1-ratio)/2*corrected[ which( corrected$iso == 'kaz' & corrected$fuel == 'light_oil' &
-                                    corrected$agg_sector == 'Other' ), paste0('X', 1986:2013) ]
+                                    corrected$agg_sector == 'Other' ), paste0('X', 1986:IEA_end_year) ]
 
     corrected[ which( corrected$iso == 'kaz' & corrected$fuel == 'light_oil' &
-                        corrected$agg_sector == 'Other' ), paste0('X', 1986:2013) ] <- 0
+                        corrected$agg_sector == 'Other' ), paste0('X', 1986:IEA_end_year) ] <- 0
 
 # aze diesel
     corrected[ which( corrected$iso == 'aze' & corrected$agg_fuel == 'diesel_oil' &
@@ -858,11 +839,11 @@
                         corrected$agg_sector %in% c( 'Residential' ) ) ,
                paste0( 'X', 1997:1998 ) ] <- NA
 
-    corrected[ paste0( 'X', 1971:2013 ) ] <- interpolateValues( corrected[ paste0('X', 1971:2013) ] )
+    corrected[ paste0( 'X', 1971:IEA_end_year ) ] <- interpolateValues( corrected[ paste0('X', 1971:IEA_end_year) ] )
 
 # The result of our corrections:
     FSU_activity_agg_corrected <- corrected
-    FSU_activity_agg_corrected <- FSU_activity_agg_corrected[ c( "iso", "agg_fuel", "agg_sector", paste0('X', 1971:2013) ) ]
+    FSU_activity_agg_corrected <- FSU_activity_agg_corrected[ c( "iso", "agg_fuel", "agg_sector", paste0('X', 1971:IEA_end_year) ) ]
     if( anyNA( FSU_activity_agg_corrected ) ) stop( "NAs in database please check code" )
 
 # Create & write diagnostic output for checking what corrections were made
@@ -888,9 +869,9 @@
     temp <- data.frame( iso = rep( FSU_iso, each = length(ceds_fuel) * length(agg_sector), len = temp_nrow),
                         fuel = rep( rep( ceds_fuel, each = length( agg_sector ) ), len = temp_nrow),
                         sector = rep( agg_sector, len = temp_nrow ) )
-    temp[ paste0( 'X', 1971:2013 ) ] <- NA
+    temp[ paste0( 'X', 1971:IEA_end_year ) ] <- NA
     FSU_activity_ceds_fuel_agg_sector <- replaceValueColMatch( temp, FSU_activity_agg_corrected,
-                                  x.ColName = paste0( 'X', 1971:2013 ),
+                                  x.ColName = paste0( 'X', 1971:IEA_end_year ),
                                   match.x = c( 'iso', 'sector', 'fuel' ),
                                   match.y = c( 'iso', 'agg_sector', 'agg_fuel' ),
                                   addEntries = FALSE )
@@ -919,18 +900,18 @@
             breakdown <- CEDS_activity_ceds_fuels_agg_sectors[ which( CEDS_activity_ceds_fuels_agg_sectors$iso == iso_name &
                                                                         CEDS_activity_ceds_fuels_agg_sectors$agg_sector == sector_name &
                                                                         CEDS_activity_ceds_fuels_agg_sectors$fuel %in% c( 'brown_coal', 'hard_coal' ) ),
-                                                                c( 'fuel', paste0('X',1971:2013) ) ]
+                                                                c( 'fuel', paste0('X',1971:IEA_end_year) ) ]
 
-            if( nrow(breakdown) < 2 | sum( breakdown[ paste0('X',1990:2013) ] ) == 0) {
-                breakdown <- USSR_coal_breakdown[which(USSR_coal_breakdown$sector == sector_name), c('fuel', paste0('X',1971:2013)) ]
+            if( nrow(breakdown) < 2 | sum( breakdown[ paste0('X',1990:IEA_end_year) ] ) == 0) {
+                breakdown <- USSR_coal_breakdown[which(USSR_coal_breakdown$sector == sector_name), c('fuel', paste0('X',1971:IEA_end_year)) ]
             }
 
             breakdown[ paste0('X', 1971:1989) ] <- breakdown[ paste0('X', 1990) ]
 
-            if( any( colSums( breakdown[ paste0('X',1971:2013) ] ) == 0 ) ) {
-                breakdown[, which( colSums( breakdown[ paste0('X', 1971:2013) ] ) == 0 ) + 1 ] <- rowMeans( breakdown[ paste0('X', 1990:2013) ] )
+            if( any( colSums( breakdown[ paste0('X',1971:IEA_end_year) ] ) == 0 ) ) {
+                breakdown[, which( colSums( breakdown[ paste0('X', 1971:IEA_end_year) ] ) == 0 ) + 1 ] <- rowMeans( breakdown[ paste0('X', 1990:IEA_end_year) ] )
             }
-            ratio <- breakdown[ paste0('X',1971:2013) ] / matrix( data = rep( as.numeric( colSums( breakdown[ paste0('X',1971:2013) ] ) ), times = 2 ),
+            ratio <- breakdown[ paste0('X',1971:IEA_end_year) ] / matrix( data = rep( as.numeric( colSums( breakdown[ paste0('X',1971:IEA_end_year) ] ) ), times = 2 ),
                                           nrow = 2, byrow = TRUE)
 
             aggregate <- FSU_activity_agg_corrected[ which( FSU_activity_agg_corrected$iso == iso_name &
@@ -938,19 +919,19 @@
                                                               FSU_activity_agg_corrected$agg_fuel %in% c( 'coal' ) ) , ]
 
 
-            if( nrow(aggregate) == 0 ) { disag_new[ paste0('X', 1971:2013) ] <- 0
+            if( nrow(aggregate) == 0 ) { disag_new[ paste0('X', 1971:IEA_end_year) ] <- 0
 
-            } else if ( sum( breakdown[ which( breakdown$fuel == 'hard_coal'), paste0('X', 1971:2013) ] ) == 0 ) {
-              disag_new[ paste0('X', 1971:2013) ] <-  matrix( data = as.numeric( rep( aggregate[ paste0( 'X', 1971:2013 ) ] , times = 2 ) ), nrow = 2, byrow = TRUE ) * matrix(
-                  data = rep( c(1, 0), times = length( paste0('X', 1971:2013) ) ), nrow = 2, byrow = FALSE )
-            } else if ( sum( breakdown[ which( breakdown$fuel == 'brown_coal' ), paste0('X', 1971:2013) ] ) == 0 ) {
-                disag_new[ paste0('X',1971:2013) ] <-  matrix( data = as.numeric(rep(aggregate[ paste0('X',1971:2013) ] , times = 2 )), nrow = 2, byrow = TRUE)*matrix(
-                  data = rep( c(0, 1), times = length( paste0('X', 1971:2013) ) ), nrow = 2, byrow = FALSE)
+            } else if ( sum( breakdown[ which( breakdown$fuel == 'hard_coal'), paste0('X', 1971:IEA_end_year) ] ) == 0 ) {
+              disag_new[ paste0('X', 1971:IEA_end_year) ] <-  matrix( data = as.numeric( rep( aggregate[ paste0( 'X', 1971:IEA_end_year ) ] , times = 2 ) ), nrow = 2, byrow = TRUE ) * matrix(
+                  data = rep( c(1, 0), times = length( paste0('X', 1971:IEA_end_year) ) ), nrow = 2, byrow = FALSE )
+            } else if ( sum( breakdown[ which( breakdown$fuel == 'brown_coal' ), paste0('X', 1971:IEA_end_year) ] ) == 0 ) {
+                disag_new[ paste0('X',1971:IEA_end_year) ] <-  matrix( data = as.numeric(rep(aggregate[ paste0('X',1971:IEA_end_year) ] , times = 2 )), nrow = 2, byrow = TRUE)*matrix(
+                  data = rep( c(0, 1), times = length( paste0('X', 1971:IEA_end_year) ) ), nrow = 2, byrow = FALSE)
             } else {
-                disag_new[ paste0('X', 1971:2013) ] <-  matrix( data = as.numeric( rep( aggregate[ paste0('X', 1971:2013) ], times = 2 ) ),
+                disag_new[ paste0('X', 1971:IEA_end_year) ] <-  matrix( data = as.numeric( rep( aggregate[ paste0('X', 1971:IEA_end_year) ], times = 2 ) ),
                                                                nrow = 2, byrow = TRUE) * ratio
             }
-            if( any( abs( aggregate[ paste0('X', 1971:2013) ] - colSums( disag_new[ paste0('X', 1971:2013) ] ) ) > 1 ) ) stop( 'Disaggregation from coal to hard and brown coal is incorrect. Please Check Code' )
+            if( any( abs( aggregate[ paste0('X', 1971:IEA_end_year) ] - colSums( disag_new[ paste0('X', 1971:IEA_end_year) ] ) ) > 1 ) ) stop( 'Disaggregation from coal to hard and brown coal is incorrect. Please Check Code' )
             sector_list[[n]] <-  disag_new
         } #END sector loop
         iso_list[[i]] <- do.call( rbind, sector_list )
@@ -960,7 +941,7 @@
     names( FSU_activity_disaggregate_fuel )[1:3] <- c( 'iso', 'fuel', 'agg_sector' )
     FSU_activity_disaggregate_fuel <-  FSU_activity_disaggregate_fuel[ with( FSU_activity_disaggregate_fuel, order( iso, fuel, agg_sector ) ), ]
 
-    if ( abs( sum( FSU_activity_agg_corrected[ paste0( 'X',1971:2013) ] ) - sum( FSU_activity_disaggregate_fuel[ paste0('X', 1971:2013) ] ) ) > 1 ) stop( 'Bad Disaggregation' )
+    if ( abs( sum( FSU_activity_agg_corrected[ paste0( 'X',1971:IEA_end_year) ] ) - sum( FSU_activity_disaggregate_fuel[ paste0('X', 1971:IEA_end_year) ] ) ) > 1 ) stop( 'Bad Disaggregation' )
 
     if ( anyNA( FSU_activity_disaggregate_fuel  ) ) stop( 'NAs in FSU data please check code' )
 
@@ -982,13 +963,13 @@
 
 ### New code block?
 
-# Disaggregate from agg_sectors to sectors using 1990-2013 data
+# Disaggregate from agg_sectors to sectors using 1990-IEA_end_year data
 
     temp_nrow <- length(FSU_iso) * length(ceds_fuel) * length(ceds_sector)
     temp <- data.frame( iso = rep( FSU_iso, each = length(ceds_fuel) * length(ceds_sector) , len = temp_nrow ),
                         fuel = rep( rep( ceds_fuel, each = length(ceds_sector) ), len = temp_nrow ),
                         sector = rep( ceds_sector, len = temp_nrow ) )
-    temp[ paste0('X', 1971:2013) ] <- NA
+    temp[ paste0('X', 1971:IEA_end_year) ] <- NA
     temp$agg_sector <-  MSLevel[ match( temp$sector, MSLevel$working_sectors_v2 ) ,"FSU_extension" ]
     USSR_ceds_sector_fuel$agg_sector <-  MSLevel[ match( USSR_ceds_sector_fuel$sector, MSLevel$working_sectors_v2 ) ,"FSU_extension"]
 
@@ -1006,56 +987,56 @@
                 sector_name = agg_sector[m]
                 disag_new <-  temp[ which( temp$iso == iso_name &
                                              temp$agg_sector == sector_name &
-                                             temp$fuel == fuel_name ) , c( 'iso', 'sector', 'fuel', paste0('X', 1971:2013) ) ]
+                                             temp$fuel == fuel_name ) , c( 'iso', 'sector', 'fuel', paste0('X', 1971:IEA_end_year) ) ]
                 breakdown <- activity[ which( activity$iso == iso_name &
                                                 activity$agg_sector == sector_name &
-                                                activity$fuel == fuel_name ) , c( 'sector', 'fuel', paste0('X', 1990:2013) ) ]
+                                                activity$fuel == fuel_name ) , c( 'sector', 'fuel', paste0('X', 1990:IEA_end_year) ) ]
 
                 aggregate <- FSU_activity_disaggregate_fuel[ which( FSU_activity_disaggregate_fuel$iso == iso_name &
                                                                       FSU_activity_disaggregate_fuel$agg_sector == sector_name &
                                                                       FSU_activity_disaggregate_fuel$fuel == fuel_name ), ]
 
                 if ( nrow( breakdown ) < 2 |
-                     sum( breakdown[ , paste0('X', 1990:2013) ] ) == 0) {
+                     sum( breakdown[ , paste0('X', 1990:IEA_end_year) ] ) == 0) {
                     breakdown <- USSR_ceds_sector_fuel[ which( USSR_ceds_sector_fuel$agg_sector == sector_name &
-                                                                 USSR_ceds_sector_fuel$fuel == fuel_name ) , c( 'sector','fuel' , paste0('X',1990:2013)) ]
+                                                                 USSR_ceds_sector_fuel$fuel == fuel_name ) , c( 'sector','fuel' , paste0('X',1990:IEA_end_year)) ]
                 }
                 if (nrow(breakdown)!= nrow(disag_new)) {
-                    breakdown <- replaceValueColMatch(disag_new[ , c( 'sector','fuel' , paste0('X', 1990:2013) ) ], breakdown,
-                                                      x.ColName = paste0('X', 1990:2013) ,
+                    breakdown <- replaceValueColMatch(disag_new[ , c( 'sector','fuel' , paste0('X', 1990:IEA_end_year) ) ], breakdown,
+                                                      x.ColName = paste0('X', 1990:IEA_end_year) ,
                                                       match.x = c( 'sector', 'fuel' ),
                                                       addEntries = FALSE )
                     breakdown[ is.na( breakdown ) ] <- 0
                 }
 
                 if( nrow(aggregate) == 0 |
-                    rowSums( aggregate[ paste0('X', 1971:2013) ] ) == 0 ) { disag_new[ paste0('X', 1971:2013) ] <- 0
+                    rowSums( aggregate[ paste0('X', 1971:IEA_end_year) ] ) == 0 ) { disag_new[ paste0('X', 1971:IEA_end_year) ] <- 0
                 } else {
                     breakdown[ , paste0('X', 1971:1989) ] <-  breakdown[, 'X1990']
-                    breakdown <- breakdown[ c( 'sector', 'fuel', paste0('X', 1971:2013) ) ]
+                    breakdown <- breakdown[ c( 'sector', 'fuel', paste0('X', 1971:IEA_end_year) ) ]
 
-                    if( length( which( colSums( breakdown[ paste0('X', 1971:2013) ] ) == 0 ) ) > 0 ) {
-                         if( any( ncol( breakdown[ , which( colSums( breakdown[ paste0('X', 1971:2013) ] ) != 0) + 2 ] ) > 0 ) ) {
-                             breakdown[, which(colSums(breakdown[ paste0('X', 1971:2013) ] ) == 0 ) + 2 ] <- rowMeans(
-                                                                    breakdown[ , ( which( colSums( breakdown[ paste0('X', 1971:2013) ] ) != 0 ) + 2 ) ] )
+                    if( length( which( colSums( breakdown[ paste0('X', 1971:IEA_end_year) ] ) == 0 ) ) > 0 ) {
+                         if( any( ncol( breakdown[ , which( colSums( breakdown[ paste0('X', 1971:IEA_end_year) ] ) != 0) + 2 ] ) > 0 ) ) {
+                             breakdown[, which(colSums(breakdown[ paste0('X', 1971:IEA_end_year) ] ) == 0 ) + 2 ] <- rowMeans(
+                                                                    breakdown[ , ( which( colSums( breakdown[ paste0('X', 1971:IEA_end_year) ] ) != 0 ) + 2 ) ] )
                          }else{
-                             breakdown[, which( colSums( breakdown[ paste0('X',1971:2013)]) == 0) + 2] <- breakdown[ ,
-                                                                                      ( which( colSums( breakdown[ paste0('X', 1971:2013) ] ) != 0) + 2) ]
+                             breakdown[, which( colSums( breakdown[ paste0('X',1971:IEA_end_year)]) == 0) + 2] <- breakdown[ ,
+                                                                                      ( which( colSums( breakdown[ paste0('X', 1971:IEA_end_year) ] ) != 0) + 2) ]
                          }
                     }
 
-                    ratio <- breakdown[ paste0('X',1971:2013)]/matrix(
-                                                data = rep(colSums(breakdown[ paste0('X',1971:2013)]) , times = nrow(breakdown) ),
+                    ratio <- breakdown[ paste0('X',1971:IEA_end_year)]/matrix(
+                                                data = rep(colSums(breakdown[ paste0('X',1971:IEA_end_year)]) , times = nrow(breakdown) ),
                                                 nrow = nrow(breakdown),
                                                 byrow = TRUE)
 
-                    disag_new[ paste0('X', 1971:2013) ] <- ratio[ paste0('X', 1971:2013) ] * matrix(
-                                                                data = rep( as.numeric( aggregate[ paste0('X', 1971:2013) ] ) , times = nrow(breakdown) ),
+                    disag_new[ paste0('X', 1971:IEA_end_year) ] <- ratio[ paste0('X', 1971:IEA_end_year) ] * matrix(
+                                                                data = rep( as.numeric( aggregate[ paste0('X', 1971:IEA_end_year) ] ) , times = nrow(breakdown) ),
                                                                 nrow = nrow(breakdown),
                                                                 byrow = TRUE )
                 }
 
-                if( any( abs( aggregate[ paste0('X', 1971:2013) ] - colSums( disag_new[ paste0('X', 1971:2013) ] ) ) > .1 ) ) stop( 'Disaggregation from agg sectors to ceds sectors is bad' )
+                if( any( abs( aggregate[ paste0('X', 1971:IEA_end_year) ] - colSums( disag_new[ paste0('X', 1971:IEA_end_year) ] ) ) > .1 ) ) stop( 'Disaggregation from agg sectors to ceds sectors is bad' )
                 sector_list[[m]] <- disag_new
             }
             fuel_list[[n]] <- do.call( rbind, sector_list )
@@ -1065,12 +1046,12 @@
 
     FSU_final <- do.call( rbind, iso_list )
 
-    if ( abs( sum( FSU_final[ paste0('X', 1971:2013) ] ) - sum( FSU_activity_disaggregate_fuel[ paste0('X', 1971:2013) ] ) ) > 1 ) stop( 'Bad Disaggregation' )
+    if ( abs( sum( FSU_final[ paste0('X', 1971:IEA_end_year) ] ) - sum( FSU_activity_disaggregate_fuel[ paste0('X', 1971:IEA_end_year) ] ) ) > 1 ) stop( 'Bad Disaggregation' )
 
 
     FSU_final[ paste0('X', "", 1960:1970) ] <- 0
     FSU_final$units <- 'kt'
-    FSU_final <- FSU_final[ c( 'iso', 'sector', 'fuel', 'units', paste0('X', "", 1960:2013) ) ]
+    FSU_final <- FSU_final[ c( 'iso', 'sector', 'fuel', 'units', paste0('X', "", 1960:IEA_end_year) ) ]
     if( anyNA( FSU_final ) ) stop( 'NAs in final FSU data, please check code' )
 
 

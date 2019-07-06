@@ -19,7 +19,6 @@
 # Input: A.IEA_BP_energy_ext.csv, A.IEA_en_stat_ctry_hist.csv, Shipping_Fuel_Consumption.xlsx
 #        IEA_product_fuel.csv
 # Output: A.IEA_BP_energy_ext.csv, A.intl_shipping_en.csv
-# TODO: Remove hard coded end years (e.g. 2012 and 2014), derive from input data and system respectively
 #-------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -43,6 +42,7 @@
 # 1. Read in files
     iea_data <- readData( "MED_OUT", "A.IEA_en_stat_ctry_hist" )
     iea_data_extended <- readData( "MED_OUT", "A.IEA_BP_energy_ext" )
+    iea_data_before_shipping_adj <- iea_data_extended
     shipping_fuel <- readData( "ENERGY_IN", "Shipping_Fuel_Consumption" , ".xlsx",
                                    skip = 4, sheet_selection = "Data" )
     IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
@@ -61,6 +61,7 @@
 # Melt and recast
     shipping_fuel <- melt( shipping_fuel, id = "year" )  ### TODO: use gather()
     names( shipping_fuel ) <- c( "year", "fuel", "ship_fuel" )
+    last_shipping_data_year <- max( shipping_fuel$year )
 
 # -----------------------------------------------------------------------------------------
 # 3. Compute IEA shipping fuel. Aggregates fishing, bunker, shipping fuel
@@ -158,11 +159,15 @@
     global_intl_ship_full$global_fuel[ before_IEA ] <- global_intl_ship_full$ship_fuel[ before_IEA ]
     global_intl_ship_full$ship_fuel <- NULL  # already copied over so don't need this anymore
 
-# For 2013-2014, extend using average IEA underreport for 2010-2012
-    avg <- filter( global_intl_ship_full, year %in% seq( 2010, 2012 ) ) %>%
+# To extend beyond IEA, extend using average absolute IEA underreport for last three years with shipping data
+    # Find year range, default is last 3 years of shipping data, check if IEA data doesn't go that far
+    range_min = min( last_shipping_data_year - 2, IEA_end_year -2)
+    range_max = min( last_shipping_data_year, IEA_end_year )
+
+    avg <- filter( global_intl_ship_full, year %in% seq( range_min, range_max ) ) %>%
       group_by( fuel ) %>%
       dplyr::summarise( global_fuel = mean( global_fuel ) )
-    extended <- global_intl_ship_full$year %in% c( 2013, 2014 )
+    extended <- global_intl_ship_full$year %in% c( seq( IEA_end_year, end_year )  )
     global_intl_ship_full$global_fuel[ extended ] <-
       avg$global_fuel[ match( global_intl_ship_full$fuel[ extended ], avg$fuel ) ]
 
@@ -222,9 +227,11 @@
     writeData( global_shipping, "MED_OUT", "A.intl_shipping_en" )
     writeData( else_shipping, "DIAG_OUT", "A.intl_shipping_en_country_break-out" )
     writeData( iea_data_extended, "MED_OUT", "A.IEA_BP_energy_ext" )
+    writeData( iea_data_before_shipping_adj, "DIAG_OUT", "A.IEA_BP_energy_ext_before_shipadj" )
     writeData( ship_check, "DIAG_OUT", "A.intl_shipping_discrepancy" )
 
 # Every script should finish with this line
     logStop()
 
 # END
+

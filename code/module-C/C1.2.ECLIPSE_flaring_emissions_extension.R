@@ -2,12 +2,12 @@
 # Program Name: C1.2.ECLIPSE_flaring_emissions_extension.R
 # Author: Leyang Feng
 # Date Last Modified: June 28, 2016
-# Program Purpose: Extends ECLIPSE flaring emissions to period 1960 - 2014 using IEA
+# Program Purpose: Extends ECLIPSE flaring emissions to period 1960 - last BP year using IEA
 #                  and BP crude oil production data
 # Input Files: [em]_eclipse_flr_emissions.csv
 # Output Files: C.[em]_ECLIPSE_flaring_emissions_extended.csv
 # Notes: In section 3.2 the 1970 data are manually 'extended' using 1971 data,
-#        the 2014 data are manually 'extended' using 2013 data.
+#        the data to last BP year are manually 'extended' using 2013 data.
 #
 # TODO: 1. About 70 countries in [em]_eclipse_flr_emissions.csv get picked out in the routine
 #          because IEA/BP oil production data does not include those countries. Update when
@@ -35,7 +35,7 @@
 # Define emissions species variable
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "SO2"
+    if ( is.na( em ) ) em <- "BC"
 
     MODULE_C <- "../code/module-C/"
 
@@ -43,33 +43,34 @@
     ECLIPSE_flaring <- readData( "EM_INV", domain_extension = "ECLIPSE-flaring/", file_name = paste0( em, '_eclipse_flr_emissions' ) )
 # read in the en_stat_sector_fuel.csv to extract IEA crude oil production data
     en_stat_sector_fuel <- readData( 'MED_OUT', file_name = 'A.en_stat_sector_fuel' )
-# read in the BP
-    BP_energy_data <- readData( 'ENERGY_IN', file_name = 'BP_energy_data', extension = ".xlsx", sheet_selection = 5, skip = 2 ) # Oil Production - Tonnes
+# read in the BP oil production data since this is a longer more consistent time series than IEA
+    bp_energy_data <- readData( 'ENERGY_IN', file_name = BP_data_file_name, extension = ".xlsx", skip = 2 )
+    bp_oil_prod  <- bp_energy_data[[ getBPSheetNumber( "oil", "production", "tonnes", bp_energy_data ) ]]
+
 # read in master country list
     mcl <- readData( 'MAPPINGS', 'Master_Country_List' )
 # read in the population data
-    pop <- readData( "MED_OUT", "A.UN_pop_master" )
+    pop_raw <- readData( "MED_OUT", "A.UN_pop_master" )
 
 # ------------------------------------------------------------------------------
 # 2. Pre-processing
-# all years list
-    all_Xyears <- paste0( 'X', 1960 : 2014 ) # begining of the IEA year to the end of the BP year
 # 2.1. pre-processing of BP data
 # 2.1.1 cleaning from raw data
-    BP_countries <- c( "US", "Canada", "Mexico", "Argentina", "Brazil", "Colombia", "Ecuador",
-                       "Peru", "Trinidad & Tobago", "Venezuela", "Azerbaijan", "Denmark", "Italy",
-                       "Kazakhstan", "Norway", "Romania", "Russian Federation", "Turkmenistan",
-                       "United Kingdom", "Uzbekistan", "Iran", "Iraq", "Kuwait", "Oman", "Qatar",
-                       "Saudi Arabia", "Syria", "United Arab Emirates", "Yemen", "Algeria", "Angola",
-                       "Chad", "Rep. of Congo (Brazzaville)", "Egypt", "Equatorial Guinea", "Gabon",
-                       "Libya", "Nigeria", "South Sudan", "Sudan", "Tunisia", "Australia", "Brunei",
-                       "China", "India", "Indonesia", "Malaysia", "Thailand", "Vietnam", "Former Soviet Union" )
-    BP_years <- 1965 : 2014
-    BP_Xyears <- paste0( 'X', BP_years )
-    BP_data <- BP_energy_data[ , 1 : ( ncol( BP_energy_data ) - 2 ) ]
+    BP_oil_years <- 1965 : BP_last_year
+    BP_Xyears <- paste0( 'X', BP_oil_years )
+    # Remove last columns, which are not time series data
+    BP_data <- bp_oil_prod[ , 1 : ( ncol( bp_oil_prod ) - 2 ) ]
+
+    # Hard coded name that will need to be changed if BP uses different terminology
     BP_data[ BP_data == "                 Former Soviet Union" ] <- "Former Soviet Union"
+
+    # Note - BP data has a different set of countries for oil production as compared to their energy
+    #        consumpteion data, so this is listed in a different column, BPName_Oil_production, in
+    #        the master country list
     colnames( BP_data ) <- c( 'BPName_Oil_production', BP_Xyears )
-    BP_data <- BP_data[ BP_data$BPName_Oil_production %in% BP_countries, ]
+    BP_data <- BP_data[ BP_data$BPName_Oil_production %in% mcl$BPName_Oil_production, ]
+    BP_data <- na.omit( BP_data )
+    BP_countries <- na.omit(mcl$BPName_Oil_production)
     mcl_bp <- mcl[ mcl$BPName_Oil_production %in% BP_countries, c( 'iso', 'BPName_Oil_production' ) ]
     mcl_bp <- mcl_bp[ !duplicated( mcl_bp ), ]
     BP_merge <- merge( BP_data, mcl_bp, by = c( "BPName_Oil_production" ), all.y = T )
@@ -91,7 +92,7 @@
     BP_fsu_members <- BP_oil[ BP_oil$iso %in% fsu_members, ]
 
     # re-format the pop data
-    pop <- pop[ pop$iso %in% c( fsu, fsu_members ), ]
+    pop <- pop_raw[ pop_raw$iso %in% c( fsu, fsu_members ), ]
     pop$year <- paste0( 'X', pop$year )
     pop_wide <- cast( pop, iso ~ year, value = 'pop', fun.aggregate = sum )
     pop_wide <- pop_wide[ , c( 'iso', BP_Xyears ) ]
@@ -153,10 +154,10 @@
     IEA_flrieaiso <- IEA_flrieaiso[ order( IEA_flrieaiso$iso ), ]
 
 # combine BP_flrbpiso and IEA_flrieaiso together as unified layout
-    IEA_flrieaiso$X2014 <- IEA_flrieaiso$X2013
+    IEA_flrieaiso[[X_BP_last_year]] <- IEA_flrieaiso[[X_IEA_end_year]]
     IEA_flrieaiso$X1970 <- IEA_flrieaiso$X1971
 
-    extend_years <- 1965 : 2014
+    extend_years <- 1965 : BP_last_year
     extend_Xyears <- paste0( 'X', extend_years )
 
     flaring_bp_iea <- rbind( BP_flrbpiso[ , c( 'iso', extend_Xyears ) ], IEA_flrieaiso[ , c( 'iso', extend_Xyears ) ] )
@@ -169,9 +170,9 @@
 # ------------------------------------------------------------------------------
 # 3. Extending
 # method: The ECLIPSE flaring only has data for year 1990, 2000, 2010 while the BP/IEA crude oild production has
-#         time series data from 1965 to 2014. The extending procedure first calculates ratios between
+#         time series data from 1965 to last BP year. The extending procedure first calculates ratios between
 #         ECLIPSE data and BP/IEA data for avaliable years ( 1990, 2000, 2010 ), then extends the ratios to
-#         all years( 1965 - 2014 ) using linear method and multiply the ratios to BP/IEA data to have
+#         all years( 1965 - last BP year ) using linear method and multiply the ratios to BP/IEA data to have
 #         full time series data of ECLIPSE flaring.
     flaring_ratio <- data.frame( iso = flaring_eclipse$iso, X1990 = ( flaring_eclipse$X1990 / flaring_bp_iea$X1990 ),
                                     X2000 = ( flaring_eclipse$X2000 / flaring_bp_iea$X2000 ),

@@ -83,7 +83,7 @@ for(emiss in seq_along(emissions)){
 # Data Processing
 
 # 2. Prepare Data for GGplot
-    x_years<-paste('X',1960:2013,sep="")
+    x_years<-paste('X',1960:end_year,sep="")
 
     CountryEmissions.long <- melt(CountryEmissions,id.vars = c('iso','sector','fuel','units'))
     names(CountryEmissions.long) <- c('iso','sector','fuel','units','year','Emissions')
