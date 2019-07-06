@@ -10,6 +10,9 @@ X_IEA_end_year  <- paste0( "X", IEA_end_year  )
 #The set of years for the BP data extendForwards further, and is used to augment the IEA.
 BP_years <- 2014 #The years for which there is only BP data
 X_BP_years <- paste0("X", BP_years)
+BP_last_year <- 2014 # Last years for BP data
+X_BP_last_year <- paste0("X", BP_last_year)
+BP_data_file_name <- "BP_energy_data"
 
 #Edgar year
 EDGAR_start_year <- 1971

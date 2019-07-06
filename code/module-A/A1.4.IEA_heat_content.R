@@ -104,7 +104,6 @@
 # Combine into one df, convert to numeric
   conversion_all <- bind_rows( conversion_OECD, conversion_NonOECD )
   conversion_all$X2014E <- NULL
-  conversion_all[ paste0('X', BP_years ) ] <- conversion_all$X2014
   conversion_all[ , X_emissions_years ] <- suppressWarnings( lapply( conversion_all[ , X_emissions_years ], function( x ) { as.numeric( as.character( x ) ) } ) )
 
 # Conversion years

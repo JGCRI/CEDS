@@ -33,16 +33,16 @@
 # 1. Read in files
 
     iea_data_full <- readData( "MED_OUT", "A.IEA_BP_energy_ext" )
-    bp_energy_data <- readData( "ENERGY_IN", "BP_energy_data", ".xlsx")
+    iea_data_before_BP_PRE <- iea_data_full
+    bp_energy_data <- readData( "ENERGY_IN", BP_data_file_name, ".xlsx")
     ctry_mapping <- readData( "MAPPINGS", "Master_Country_List" )
     fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
 
-    bp_oil_full  <- readData( "ENERGY_IN", "BP_energy_data", ".xlsx", sheet_selection = 7 ) # Oil Consumption- Tonnes
-    printLog( c( "Read in BP data sheet: ", names( bp_oil_full )[[1]] ) )
-    bp_gas_full  <- readData( "ENERGY_IN", "BP_energy_data", ".xlsx", sheet_selection = 24 ) # Gas Consumption – tonnes
-    printLog( c( "Read in BP data sheet: ", names( bp_gas_full )[[1]] ) )
-    bp_coal_full <- readData( "ENERGY_IN","BP_energy_data", ".xlsx", sheet_selection = 33 ) # Coal Consumption -  Mtoe
-    printLog( c( "Read in BP data sheet: ", names( bp_coal_full )[[1]] ) )
+    # Read in BP energy data
+    printLog( c("Reading in BP energy consumption data."))
+    bp_oil_full <- bp_energy_data[[ getBPSheetNumber( "oil", "consumption", "tonnes", bp_energy_data ) ]]
+    bp_gas_full <- bp_energy_data[[ getBPSheetNumber( "gas", "consumption", "tonnes", bp_energy_data ) ]]
+    bp_coal_full <- bp_energy_data[[ getBPSheetNumber( "coal", "consumption", "mtoe", bp_energy_data ) ]]
 
 # Check input data for proper sector and fuel names
     sectorCheck( iea_data_full )  ### TODO: Currently shows all sectors are mislabeled. Is this a problem? The script doesn't do anyhting with this info
@@ -93,41 +93,18 @@
     iea_data_full_original <- iea_data_full
     iea_data_full <- iea_data_full[ , c( "iso", "sector", "fuel", "units", paste0( "X", IEA_start_year:end_year ) ) ]
 
-# Input the years of interest
+# Variable with the years of interest
     ext_years <- c( BP_years, IEA_start_year ) # Years used to extendBackward data
     X_ext_years <- paste0( "X", ext_years )
 
-
-# Account for differences in naming and regional associations. Also remove
-#   blank rows, titles, etc. in BP data
+# Clean-up BP data
     bp_data_full <- list( bp_oil_full, bp_gas_full, bp_coal_full )
     names( bp_data_full ) <- c( "bp_oil", "bp_gas", "bp_coal" )
 
-    bp_data_clean <- list()
     bp_data <- list()
-
     for ( i in 1:length( bp_data_full ) ) {
-    # Remove rows without relevant data
-        bp_data_clean[[i]] <- bp_data_full[[i]][ bp_data_full[[i]][, 1] %in%
-                                                 ctry_mapping$BPName, ]
-
-    # Fix names of columns; they get messed up because BP has useless rows
-    #   at the top of their files and R makes the top row the name of the column
-        names( bp_data_clean[[i]] ) <- c( "BPName", paste0( "X",
-            bp_data_full[[i]][ 2, 2:ncol(bp_data_full[[i]]) ] ) )
-
-    # Take only the years used for calcs and the column with BP ctry names
-        bp_data[[i]] <- subset( bp_data_clean[[i]], T,
-                                c( "BPName", X_ext_years ) )
-
-    # Account for BP notation. The symbol "-" means 0 Mtoe, "^" means <0.05 Mtoe
-    # NOTE: Actual values for countries with "^" not given for coal consumption
-    #   only. Not sure why this is. Assume values of "^" = 0.05 for these
-    #   instances
-        bp_data[[i]][ bp_data[[i]] == "-" ] <- 0
-        bp_data[[i]][ bp_data[[i]] == "^" ] <- 0.05
-    } # END loop
-
+      bp_data[[i]] <- cleanBPDataSheet( bp_data_full[[i]], X_ext_years, ctry_mapping )
+    }
     names( bp_data ) <- c( "bp_oil", "bp_gas", "bp_coal" )
 
 # Reduce IEA data to only what's needed to calculate projections
@@ -273,6 +250,10 @@
 # write extended energy data
     writeData( IEA_BP_ext, domain = "MED_OUT", fn = "A.IEA_BP_energy_ext",
              comments = comments.A.energy_data_extension )
+
+# Write out Diagnostic Output
+  writeData( iea_data_before_BP_PRE, domain = "DIAG_OUT", fn =
+               "A.IEA_BP_energy_ext_before_PRE-ext", comments = NULL, meta = F )
 
 # Every script should finish with this line
   logStop()

@@ -228,7 +228,9 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
 
   # if current-run and last-run are identical, delete current-run and move last-run to current-versions/
   } else if ( identical( em_current, em_last ) ) {
+    warning("**************************************************************************" )
     warning( paste( base_fn, "did not change from last run." ) )
+    warning("**************************************************************************" )
     unlink( dir( "../final-emissions/current-versions/",
                  pattern = paste0( "_", em, "_" ), full.names = T ) )
     fl <- list.files( paste0( "../final-emissions/", em, "_last-run/" ), pattern = paste0( "_", em, "_" ), full.names = T )

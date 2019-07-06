@@ -358,7 +358,6 @@ readData <- function( domain = NULL, file_name = NULL, extension = ".csv",
         x <- readExcel( full_file_path, sheet_selection, missing_value, trim_ws,
                         guess_max, ... )
 
-
     } else if( extension == ".zip" ) {
 
         # .zip segment only accepts zipped .csv files at this time
@@ -917,4 +916,85 @@ savePlot <- function( domain, domain_ext, file_name, width, height, ext = '.pdf'
                       plot = last_plot() ) {
     fp <- filePath( domain, file_name, ext, domain_ext )
     ggsave( fp, plot, width = width, height = height )
+}
+
+
+# -----------------------------------------------------------------------------
+# getBPSheetNumber
+# Brief:        Return sheet number within BP energy data.
+# Details:      Searches BP energy data excel readin for the sheet with specified data
+# Dependencies: None
+# Author(s):    Steve Smith (from code originally in IEA_BP_data_extension)
+# Params:
+#   fuel:       name of BP fuel
+#   data_type:  data type in BP terminology (can be any character string in sheet name)
+#   data_unit:  unit as specified in BP sheet name
+#   bp_dataframe: dataframe containing BP data as readin
+#   return_name:optional boolean to return sheet name
+# Error Condition:       If data is not found prints an error and stops
+# Return:       Ordinal location of requested data (optionally return sheetname)
+getBPSheetNumber <- function( fuel, data_type, data_unit, bp_dataframe, return_name = F ){
+  sheets <- tolower( names( bp_dataframe ) )
+  bp_sheet_name <- grep( data_unit, grep( data_type, grep( fuel, sheets,
+												 value = T ), value = T ), value = T )
+
+  if ( (length(bp_sheet_name) == 0 ) ) {
+	stop( paste("Error: BP sheet for ",fuel, data_type, data_unit,"not found"))
+  } else {
+	if ( return_name ) {
+	    return( bp_sheet_name )
+	} else {
+        return( grep( bp_sheet_name, sheets ) )
+    }
+  }
+}
+
+# -----------------------------------------------------------------------------
+# cleanBPDataSheet
+# Brief:        Return dataframe with cleaned sheet of BP energy data.
+# Details:      Cleans up BP energy data sheet, returning dataframe 
+#               accounting for differences in naming and regional associations, remove
+#               blank rows, titles, etc, and return in xyears format only the specific
+#                data used in CEDS (as defined in the master country list).
+# Dependencies: None
+# Author(s):    Steve Smith (from code originally in IEA_BP_data_extension)
+# Params:
+#   a_bp_sheet:  dataframe with one sheet's worth of BP country data
+#   x_bp_years:  year range of data to use in x-years format
+#   master_country_list:  master country list
+# Error Condition:       None
+# Return:       dataframe with cleaned up BP energy data
+cleanBPDataSheet <-function( a_bp_sheet, x_bp_years, master_country_list, x_years_flag = TRUE ) {
+
+	# Remove rows without relevant data
+	bp_sheet_clean <- a_bp_sheet[ a_bp_sheet[, 1] %in%
+												 master_country_list$BPName, ]
+
+    # Remove rows of all NAs
+    bp_sheet_clean <- bp_sheet_clean[ rowSums( is.na( bp_sheet_clean ) ) != ncol( bp_sheet_clean ), ]
+
+	x_years_tag = "X"
+	if ( !x_years_flag ) { 
+	    x_years_tag = ""
+	    x_bp_years <- as.numeric(gsub( 'X','', x_bp_years))
+	}
+	
+	# Fix names of columns; they get messed up because BP has useless rows
+	#   at the top of their files and R makes the top row the name of the column
+	names( bp_sheet_clean ) <- c( "BPName", paste0( x_years_tag,
+		a_bp_sheet[ 2, 2:ncol( a_bp_sheet ) ] ) )
+
+	# Take only the years used for calcs and the column with BP ctry names
+	final_cleaned_data <- subset( bp_sheet_clean, T,
+							c( "BPName", x_bp_years ) )
+
+	# Account for BP notation. The symbol "-" means 0 Mtoe, "^" means <0.05 Mtoe
+	# NOTE: Actual values for countries with "^" not given for coal consumption
+	#   only. Not sure why this is. Assume values of "^" = 0.05 for these
+	#   instances
+        final_cleaned_data[ final_cleaned_data == "n/a" ] <- NA
+		final_cleaned_data[ final_cleaned_data == "-" ] <- 0
+		final_cleaned_data[ final_cleaned_data == "^" ] <- 0.05
+	
+	return( final_cleaned_data )
 }

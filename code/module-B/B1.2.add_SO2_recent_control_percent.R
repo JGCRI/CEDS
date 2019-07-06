@@ -47,7 +47,7 @@
 # equation: Ratio = EF( GAINS_year ) / EF( GAINS_lastinvyear)
 
 # define recent years
-    recent_years <- as.character( min( last_inv_year_csv$last_inv_year ) : 2014 )
+    recent_years <- as.character( min( last_inv_year_csv$last_inv_year ) : end_year )
     recent_Xyears <- paste0( 'X', recent_years )
 
 # remove undesired sector fuel combination from gains_ef_db

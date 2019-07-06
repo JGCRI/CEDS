@@ -52,7 +52,7 @@ if ( em != 'CH4' )
 # 2. Pre-processing
 
 # set the output years
-    all_Xyear <- paste0( 'X', 1970 : 2014 )
+    all_Xyear <- paste0( 'X', 1970 : end_year )
 
 # extract year_list in flaring data
     flaring_Xyear <- colnames( flaring )[ grep( 'X', colnames( flaring ) ) ]
@@ -161,7 +161,7 @@ if ( em == 'CH4' ){
 # 4. Write output
     meta_names <- c( "Data.Type", "Emission", "Sector", "Start.Year", "End.Year", "Source.Comment")
     meta_note <- c( "default process emissions for 1B2c_Venting-flaring-oil-gas", em, "1B2_Fugitive-petr-and-gas",
-        "1970", "2014", "Max value between EDGAR JRC PEGASOS data and extended ECLIPSE flaring emissions is taken as default process emissions for country-year combination for sector 1B2c_Venting-flaring-oil-gas" )
+        "1970", end_year, "Max value between EDGAR JRC PEGASOS data and extended ECLIPSE flaring emissions is taken as default process emissions for country-year combination for sector 1B2c_Venting-flaring-oil-gas" )
     addMetaData( meta_note, meta_names )
 
     writeData( emissions , "DEFAULT_EF_IN", domain_extension = 'non-combustion-emissions/' ,paste0( "C.", em, "_Fugitive-petr-and-gas_default_process_emissions" ) )

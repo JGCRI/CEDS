@@ -82,7 +82,7 @@
                    IEA_aggregate[ X_IEA_years ]
 # Clean up the resulting dataframe
     IEA_biofuels_fraction <-
-        IEA_biofuels_fraction[ which( !is.na( IEA_biofuels_fraction$X2013 ) ), ]
+        IEA_biofuels_fraction[ which( !is.na( IEA_biofuels_fraction[ X_IEA_end_year ] ) ), ]
     IEA_biofuels_fraction <-
         replace( IEA_biofuels_fraction, is.na( IEA_biofuels_fraction ), 0 )
     IEA_biofuels_fraction <-

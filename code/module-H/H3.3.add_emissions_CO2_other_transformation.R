@@ -224,7 +224,7 @@ if( em != 'CO2') {
   #Extension driver data
   CO2_Coalgases_driver_trend <- A.total_activity_extended_natural_gas
 
-  # b. Extend CO2 coalgas emmissions backward to 1850, from 1960 for OECD countries and 1971 for Non-OECD countries, and forward from 2013 - 2014
+  # b. Extend CO2 coalgas emmissions backward to 1850, from 1960 for OECD countries and 1971 for Non-OECD countries, and forward from last IEA year
   CO2_Coalgases_as_ng_for_total_natural_gas_list = lapply(unique(iea_start$start_year), function(sy) {
       extend_data_on_trend_range(input_data = CO2_Coalgases_as_ng,
                                  driver_trend = CO2_Coalgases_driver_trend,
@@ -238,8 +238,8 @@ if( em != 'CO2') {
   #Rebind the list and aggregate data for duplicate countries
   CO2_Coalgases_as_ng_for_total_natural_gas <- do.call( rbind, CO2_Coalgases_as_ng_for_total_natural_gas_list) %>%
                                                         dplyr::mutate( units = 'kt', fuel = 'process')  %>% dplyr::arrange(iso)
-  #Linearly extend CO2 coal gas data from 2013 to 2014
-  CO2_Coalgases_as_ng_for_total_natural_gas[paste0('X',BP_years)] <- CO2_Coalgases_as_ng_for_total_natural_gas[paste0('X', 2013)]
+  #Linearly extend CO2 coal gas data from last IEA year to last data year
+  CO2_Coalgases_as_ng_for_total_natural_gas[paste0('X',BP_years)] <- CO2_Coalgases_as_ng_for_total_natural_gas[paste0('X', IEA_end_year)]
 
   #add columns X1750 to X1849 and initialized them with zero
   excluded_years <- X_extended_years[X_extended_years %!in% names(CO2_Coalgases_as_ng_for_total_natural_gas)]
@@ -289,7 +289,8 @@ if( em != 'CO2') {
   if ( any( extended_coke$iso != IEA_coke$iso ) ) { stop('Rows do not match for ') }
 
 
-  #**** extend IEA coke back to 1750, from 1960 for OECD countries and 1971 for Non-OECD countries and forward from 2013 - 2014
+  #**** extend IEA coke back to 1750, from 1960 for OECD countries and 1971 for Non-OECD 
+  # countries and forward from last iea year
   iea_extended_coke_list = lapply(unique(iea_start$start_year), function(sy) {
 
 
@@ -307,8 +308,8 @@ if( em != 'CO2') {
   iea_extended_coke <- do.call( rbind, iea_extended_coke_list) %>%
                           dplyr::mutate( units = 'kt')
 
-  #Linearly extend coke data from 2013 to 2014
-  iea_extended_coke[paste0('X',BP_years)] <- iea_extended_coke[paste0('X', 2013)]
+  #Linearly extend coke data from last IEA year to last data year
+  iea_extended_coke[paste0('X',BP_years)] <- iea_extended_coke[paste0('X', IEA_end_year)]
 
   #Re-arange dataframe column
   iea_extended_coke <- iea_extended_coke[ c('iso','fuel','units', X_extended_years ) ] %>% dplyr::arrange(iso)
@@ -345,7 +346,7 @@ if( em != 'CO2') {
     summarise_all( funs( sum(., na.rm = T ) ) ) %>% data.frame()
   IEA_neuse_coal$units <- "kt"
 
-# Extend 2013 value to 2014
+# Extend last IEA year to last data year
   IEA_neuse_coal[paste0('X',BP_years)] <- IEA_neuse_coal[paste0('X',IEA_end_year)]
 
 # # To determine what year has most values (2007)

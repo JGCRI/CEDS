@@ -417,7 +417,7 @@
 
 # Ratio of the emissions factors in the last CEDS year to the EF in the last
 # inventory year (2008)
-    gains_diagnostics$ratio <- gains_diagnostics$X2014 /
+    gains_diagnostics$ratio <- gains_diagnostics[[X_end_year]] /
                                gains_diagnostics$X2008
 
 # Only write output for extreme ratios

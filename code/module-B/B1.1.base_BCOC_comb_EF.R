@@ -105,7 +105,7 @@
 #    aggregate sector level, etc
 
 # Create year sequences for handling input data
-    Xyears_full <- paste0( "X", 1850:2014 )
+    Xyears_full <- paste0( "X", 1850:end_year )
     Xyears <- names( bond_EF_country )[ grep( "X",
                                               names( bond_EF_country ) ) ] %>%
         sort()

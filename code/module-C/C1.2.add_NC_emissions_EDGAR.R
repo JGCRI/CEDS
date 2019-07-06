@@ -62,15 +62,16 @@ fn <- c( paste0( "EDGAR", gsub( "[.]", "", vn ), "_", em  ), ".csv" )
 
 NC_sector_map <- readData( "MAPPINGS", "NC_EDGAR_sector_mapping" )
 edgar <- readData( domain, fn[[ 1 ]], fn[[ 2 ]], domain_extension = domain_ext )
+Master_Country_List <- readData("MAPPINGS", 'Master_Country_List')
 
 if ( em == 'CH4' ){
-  BP_energy_data <- readData( 'ENERGY_IN', file_name = 'BP_energy_data', extension = ".xlsx",
-                              sheet_selection = 'Coal Production - Tonnes', skip = 2 )
-  names(BP_energy_data)[1] <- 'BPName'
-
+  bp_energy_data <- readData( "ENERGY_IN",BP_data_file_name, ".xlsx")
+  BP_coal_production_raw <- bp_energy_data[[ getBPSheetNumber( "coal", "production", "tonnes", bp_energy_data ) ]]
+  # First coal production data year is 1981
+  X_BP_years <- paste0( 'X', 1981:BP_last_year )
+  BP_coal_production <- cleanBPDataSheet( BP_coal_production_raw, X_BP_years, Master_Country_List, x_years_flag = FALSE )
 }
 
-Master_Country_List <- readData("MAPPINGS", 'Master_Country_List')
 # ------------------------------------------------------------------------------
 # 3. Reformatting
 
@@ -132,7 +133,7 @@ if ( em == 'CH4' ){
     unique() %>%
     filter(!duplicated(iso)) %>%
     unique() %>%
-    left_join( BP_energy_data, by = 'BPName') %>%
+    left_join( BP_coal_production, by = 'BPName') %>%
     gather(year, value, -iso,-BPName) %>%
     dplyr::mutate(year = as.numeric(year)) %>%
     filter(!is.na(year), !is.na(value)) %>%
@@ -143,12 +144,12 @@ if ( em == 'CH4' ){
 
   fugitive_solid_extended <- extend_data_on_trend_range(driver_trend = bp,
                                                         input_data = fugitive_solid,
-                                                        start = 2009, end = 2014,
+                                                        start = 2009, end = BP_last_year,
                                                         ratio_start_year = 2007,
                                                         expand = T,
                                                         range = 2,
                                                         id_match.driver = c('iso'))
-  fugitive_solid_extended <- fugitive_solid_extended[ , c('iso','sector','fuel','units',paste0('X',1971:2014) ) ]
+  fugitive_solid_extended <- fugitive_solid_extended[ , c('iso','sector','fuel','units',paste0('X',1971:BP_last_year) ) ]
 
 }
 

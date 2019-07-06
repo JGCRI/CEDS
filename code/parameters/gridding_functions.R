@@ -710,7 +710,7 @@ rotate_lat_lon <- function( grids, direction = 1 ) {
 #       see chapter 6
 gridding_initialize <- function( grid_resolution = 0.5,
                                  start_year = 1970,
-                                 end_year = 2014,
+                                 end_year = end_year,
                                  load_masks = T,
                                  load_seasonality_profile = T
                                  ){
