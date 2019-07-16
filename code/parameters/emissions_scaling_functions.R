@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: F.emissions_scaling_functions.R
 # Author's Name: Tyler Pitkanen, Rachel Hoesly
-# Date Last Modified: 2 Jun 2016
+# Date Last Modified: July 15, 2019
 # Program Purpose: Header file containing generalized functions designed to
 #   scale CEDS emissions data and emissions factors based on inventory data.
 #   This file is made to be sourced at the beginning of each module F script to
@@ -799,7 +799,7 @@ F.scaling <- function( ceds_data, inv_data, region,
                                              addEntries = TRUE)
         }}
 
-      linear_int <- interpolate_NAs(linear[,X_inv_years_full])
+      linear_int <- interpolate_NAs2( linear[,X_inv_years_full] )
       linear <- cbind( linear[,c('iso', scaling_name)] , linear_int)
       names(linear) <- c('iso', scaling_name , X_inv_years_full ) }
     if (nrow(cant_interp)>0) linear <- rbind(linear,cant_interp)
