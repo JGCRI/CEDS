@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: user_data_inclusion_functions.R
-# Author: Ben Goldstein, Caleb Braun
-# Date Last Updated: December, 2018
+# Author: Ben Goldstein, Caleb Braun, Patrick O'Rourke
+# Date Last Updated: July 8, 2019
 # Program Purpose: Contains functions for including pre-processed user-defined
 #                  energy extension data. This file focuses mainly on the
 #                  functionality for the actual integration of user and default
@@ -72,6 +72,8 @@ includeUserData <- function( usrdata, default_data, Xyears, keep_total_cols,
 
     return( list( all_data = all_activity_data, diagnostics = diagnostics ) )
 }
+
+# ----------------------------------------------------------------------------------
 
 # normalize
 #
@@ -175,65 +177,91 @@ normalize <- function( default_data, usrdata_disagg, keep_total_cols,
     return( list( data = normalized_final, diagnostics = diagnostics ) )
 }
 
+# ----------------------------------------------------------------------------------
 
-# handle_nan_breakdowns
-#
-# This function addresses the case where user-specified emissions
-# replace zero-emissions cells. The user data cannot be disaggregated using
-# factors of zero, so the percent breakdowns must be calculated by other means.
-#
-# Three options are tried:
-#   1. Use data from other years to interpolate breakdowns:
-#      If other years in the same row have non-zero values, they can be used to
-#      determine the breakdowns for the years with zero values being replaced.
-#      In this case, the breakdowns are linearly interpolated.
-#   2. Interpolate using data from global default dataset:
-#      This is done in the case that the entire row in question contains zeros.
-#      In this case, the breakdowns are calculated from the default activity.
-#   3. Disaggregate with equal values:
-#      If the first two options didn't find values to interpolate breakdowns
-#      from, just breakdown evenly across all disaggregation levels. There is
-#      likely something wrong in this case, so throw a warning.
-#
-# Args:
-#  disagg_pct_breakdowns: df of proportions at the most disaggregate level
-#  global_data: global activity data just in case one cannot interpolate
-#  Xyears: years we need the breakdown for
-#  agg_id_cols: the columns specifying the aggregate group for the breakdowns
-#
-# Returns:
+# handleNanBreakdowns
+# Brief:        This function addresses the case where user-specified emissions
+#               replace zero-emissions cells. The user data cannot be disaggregated using
+#               factors of zero, so the percent breakdowns must be calculated by other means.
+# Details:      Takes percent breakdowns and replaces NaNs.
+#               Three options are tried:
+#                  1. Use data from other years to interpolate breakdowns:
+#                     If other years in the same row have non-zero values, their breakdowns can be used to
+#                     determine the breakdowns for the years with zero values being replaced.
+#                     In this case, the breakdowns are linearly interpolated.
+#                  2. Interpolate using data from global default dataset:
+#                     This is done in the case that the entire row in question contains zeros.
+#                     In this case, the breakdowns are intially all NaN, and then are replaced with
+#                     breakdowns calculated from the default activity.
+#                  3. Disaggregate with equal values:
+#                     If the first two options didn't find values to interpolate breakdowns
+#                     from, just breakdown evenly across all disaggregation levels. T
+# Dependencies: is.nan.df, breakdownFromGlobal, interpBreakdowns_df, update_join, readData,
+# Author:       Ben Goldstein, Caleb Braun, Patrick O'Rourke
+# Parameters:
+#               disagg_pct_breakdowns   ---     DF of proportions at the most disaggregate level
+#               global_data             ---     Global activity data just in case one cannot interpolate
+#               Xyears                  ---     Years the breakdown is needed for
+#               agg_id_cols             ---     The columns specifying the aggregate group for the breakdowns
+# Dependencies: interpolate_NAs2, breakdownFromGlobal, isXYear, update_join, interpBreakdowns_df
+# Returns:      DF of proportions at the most disaggregate level with NaNs handled
+# Input Files:  none
+# Output Files: none
+
 handleNanBreakdowns <- function( disagg_pct_breakdown, global_data, Xyears, agg_id_cols ) {
+
     disagg_breakdown_nans <- is.nan.df( disagg_pct_breakdown[ , Xyears ] )
 
     # We don't need to handle NaNs if there aren't any
     if ( !any( disagg_breakdown_nans ) ) {
-        return(disagg_pct_breakdown)
+
+        return( disagg_pct_breakdown )
+
     }
 
     # Extract just the breakdown rows that contain NaNs
     any_nan <- disagg_pct_breakdown[ apply( disagg_breakdown_nans, 1, any ), ]
 
-    all_years <- isXYear( names( disagg_pct_breakdown ) )
+    all_years <- ( names( disagg_pct_breakdown )[isXYear( names( disagg_pct_breakdown ) ) ] )
 
-    for ( row_num in 1:nrow(any_nan) ) {
-        current_row <- any_nan[row_num, ]
+    # Split any_nan df based on whether or not the whole row is all NaN or if there are any NaN in the row
 
-        # Try option 1 (see function documentation)
-        if ( !all( is.nan.df( current_row[ , all_years ] ) ) ) {
-            current_row_no_NaN <- interpBreakdowns( current_row, all_years,
-                                                    nan_replace_zeroes = TRUE )
+    #   Option 2 (and 3)
+        all_nan_rows <- any_nan %>%
+            dplyr::filter_at( .vars = all_years, .vars_predicate = all_vars( is.nan( . ) ) )
+
+        if( nrow( all_nan_rows ) != 0 ){
+
+            all_nan_rows_fix <- breakdownFromGlobal( all_nan_rows, global_data,
+                                                     Xyears, agg_id_cols )
+
+        } else {
+
+            all_nan_rows_fix <- all_nan_rows
         }
-        # Try options 2 and 3
-        else {
-            current_row_no_NaN <- breakdownFromGlobal( current_row, global_data,
-                                                       Xyears, agg_id_cols )
+
+    #   Option 1 - For rows meeting criteria for option 1, interpolate between the NaNs (after correct end value NaN and NAs)
+        not_all_nan_rows <- setdiff( any_nan, all_nan_rows )
+
+        if( nrow( not_all_nan_rows ) != 0 ){
+
+            not_all_nan_rows_fixed <- interpBreakdowns_df( not_all_nan_rows, all_years )
+
+        } else {
+
+            not_all_nan_rows_fixed <- not_all_nan_rows
+
         }
 
-        # overwrite the rows to replace (r2r) with the new breakdowns
-        r2r <- disagg_pct_breakdown$CEDS_fuel %in% current_row_no_NaN$CEDS_fuel &
-            disagg_pct_breakdown$CEDS_sector %in% current_row_no_NaN$CEDS_sector
-        disagg_pct_breakdown[ r2r, Xyears ] <- current_row_no_NaN[ Xyears ]
-    }
+    # Combine fixed data
+    nans_handled <- dplyr::bind_rows( not_all_nan_rows_fixed, all_nan_rows_fix )
+
+    # Update_join fixed data
+
+    # Define non-year columns for grouping
+    non_year_columns <- setdiff( colnames( disagg_pct_breakdown ), all_years )
+
+    disagg_pct_breakdown <- update_join( disagg_pct_breakdown, nans_handled, by = non_year_columns )
 
     # specified breakdowns are currently not supported by the CEDS data system
     specified_breakdowns <- FALSE
@@ -286,9 +314,10 @@ handleNanBreakdowns <- function( disagg_pct_breakdown, global_data, Xyears, agg_
         }
     }
 
-    return(disagg_pct_breakdown)
+    return( disagg_pct_breakdown )
 }
 
+# ----------------------------------------------------------------------------------
 
 # generateWarnings
 #
@@ -335,6 +364,7 @@ generateWarnings <- function ( Xyears, disagg_data_changed, data_to_use,
     return( warning_diag )
 }
 
+# ----------------------------------------------------------------------------------
 
 # enforceContinuity
 #
@@ -367,6 +397,7 @@ enforceContinuity <- function( activity, yearsAllowed ) {
     return( final_activity_data )
 }
 
+# ----------------------------------------------------------------------------------
 
 # addContinuityFactors
 #
@@ -447,6 +478,7 @@ addContinuityFactors <- function( activity, instructions, all_yrs, interval_len 
     return( activity )
 }
 
+# ----------------------------------------------------------------------------------
 
 # breakdownFromGlobal
 #
@@ -463,6 +495,10 @@ addContinuityFactors <- function( activity, instructions, all_yrs, interval_len 
 #     breaking down (that is, the yearly sum of rows with matching id columns
 #     will be 1)
 breakdownFromGlobal <- function( pct_breakdown, global_data, Xyears, agg_id_cols ) {
+    if( nrow( pct_breakdown ) == 0 ){
+        return( pct_breakdown )
+    }
+
     stopifnot("iso" %!in% agg_id_cols)
 
     global_filtered <- global_data %>%
@@ -496,7 +532,9 @@ breakdownFromGlobal <- function( pct_breakdown, global_data, Xyears, agg_id_cols
     # If only some years had zero values for their aggregate total, interpolate
     # the breakdowns from years with useful data
     if ( any( is.nan.df( new_breakdowns[ , Xyears ] ) ) ) {
-        new_breakdowns <- interpBreakdowns( new_breakdowns, all_years, TRUE )
+
+        new_breakdowns <- interpBreakdowns_df( new_breakdowns, all_years )
+
     }
 
     join_cols <- intersectNames( pct_breakdown, new_breakdowns )
@@ -506,46 +544,106 @@ breakdownFromGlobal <- function( pct_breakdown, global_data, Xyears, agg_id_cols
                           match.x = join_cols, addEntries = F )
 }
 
-# interpBreakdowns
-#
-# For rows that have some but not all zero cells (some 0 rows available)
-# we can use interpolate_NA() to fill in percent breakdowns linearly,
-# making sure to retain a total of 100%.
-interpBreakdowns <- function( pct_breakdown, Xyears, nan_replace_zeroes = FALSE ) {
+# ----------------------------------------------------------------------------------
 
-    breakdowns_to_correct <- pct_breakdown[ , Xyears ]
+# interpBreakdowns_df
+# Brief:        A function which interpolates data percentage breakdowns for user-defined energy.
+# Details:      Takes a df of percentage breakdowns and interpolates to replace NaN and NA
+#               values. The function check to see if for each row there is a value assigned in the
+#               first and last years of interpolation, and if not assigns them values
+#               from the closet neighbor. This function is only used from rows that have some but
+#               not all NaN r NA cells (some columns in the row have non-NaN or non-NA values available)
+# Dependencies: interpolate_NAs2
+# Author:       Patrick O'Rourke
+# Parameters:   pct_breakdown   ---     A dataframe of percentage breakdowns which need interpolation to
+#                                       replace NaN and NA values
+#               Xyears          ---     The year range for interpolation
+# Return:       A dataframe with NA and NaN values replaced via interpolation
+# Input Files:  none
+# Output Files: none
 
-    if (nan_replace_zeroes){
-        # All columns containing all NaN will be replaced with NA, so we can use
-        # interpolate_NAs() to replace them
-        zcols <- colSums( is.nan.df(breakdowns_to_correct )) > 0
+interpBreakdowns_df <- function( pct_breakdown, Xyears ) {
 
-    } else {
-        # All columns containing all zeros will be replaced with NA, so we can use
-        # interpolate_NAs() to replace them
-        zcols <- colSums( breakdowns_to_correct ) == 0
-    }
+#   Ensure the parameters were defined appropriately
 
-    breakdowns_to_correct[ , zcols ] <- NA_real_
+#       Check that pct_breakdown is a df
+        if( !is.data.frame( pct_breakdown ) ) {
 
-    # If the first or last year is NA this will make complete interpolation
-    # impossible. We will therefore come up with a default if it is NA; we will
-    # use the nearest cell with values.
-    if ( zcols[1] ) {
-        first_non_NA <- min( which( !zcols ) )
-        breakdowns_to_correct[ , 1 ] <- breakdowns_to_correct[ , first_non_NA ]
-    }
-    if ( zcols[ length( zcols ) ] ) {
-        last_non_NA <- max( which( !zcols ) )
-        breakdowns_to_correct[ , length( zcols ) ] <- breakdowns_to_correct[ , last_non_NA ]
-    }
+            stop ( "The function interpBreakdowns_df requires the parameter pct_breakdown to be class -data.frame- ." )
 
-    # Interpolate and assign the values to new_percent_breakdowns
-    pct_breakdown[ , Xyears ] <- interpolate_NAs( breakdowns_to_correct )
+        }
+
+#       Check that Xyears are column names in pct_breakdown
+        all_cols <- colnames( pct_breakdown )
+
+        if( any( Xyears %!in% all_cols ) ){
+
+            stop (  paste0 ("The function interpBreakdowns_df requires the parameter Xyears to contain only ",
+                            "column names in pct_breakdown." ) )
+
+        }
+
+
+#   Define columns which are not Xyears and will be needed for grouping (assumed to be all non-year columns)
+    grouping_cols <- subset( all_cols, all_cols %!in% Xyears )
+
+#   Replace NaNs with NAs
+    breakdowns_to_correct <- pct_breakdown %>%
+        dplyr::mutate_at( Xyears, funs( if_else( is.nan( . ), NA_real_, . ) ) )
+
+#   For the interpolation process to work, the first and last values in each row
+#   must be non-NA
+
+#       Define the first and last years
+    first_year <- Xyears[ 1 ]
+    last_year <- Xyears[ length( Xyears ) ]
+
+#       If there are NAs for the first year or last year in any rows,
+#       assign the first non-NA value from those rows to the first year,
+#       and last non-NA value from those rows to to last year.
+        if( any( is.na( breakdowns_to_correct[ , first_year ] ) |
+                 is.na( breakdowns_to_correct[ , last_year ] ) ) ){
+
+            na_first_or_last_year <- breakdowns_to_correct %>%
+                dplyr::filter( is.na( !!rlang::sym( first_year ) ) |
+                               is.na( !!rlang::sym( last_year ) ) )
+
+            non_na_first_or_last_year <- setdiff( breakdowns_to_correct, na_first_or_last_year ) # setdiff(x, y) returns elements in x that aren't in y
+
+            na_first_or_last_year_ends_not_na <- na_first_or_last_year %>%
+                tidyr::gather( key = year, value = Value, Xyears ) %>%
+                dplyr::group_by_( .dots = grouping_cols ) %>%
+                dplyr::mutate( first_non_na = dplyr::first( na.omit( Value ) ),
+                               last_non_na = dplyr::last( na.omit( Value ) ) ) %>%
+                tidyr::spread( year, Value ) %>%
+                dplyr::ungroup( ) %>%
+                dplyr::mutate( !!first_year := first_non_na,
+                               !!last_year := last_non_na ) %>%
+                dplyr::select( grouping_cols, Xyears )
+
+            breakdowns_to_correct_new <- dplyr::bind_rows( non_na_first_or_last_year , na_first_or_last_year_ends_not_na )
+
+#           Check that the new data (NA end values replaced where needed) has the same number of rows
+#           and columns as the original data
+            if( ( length( breakdowns_to_correct_new ) != length( breakdowns_to_correct ) ) |
+                ( nrow( breakdowns_to_correct_new ) != nrow( breakdowns_to_correct ) ) ){
+
+                stop( paste0( "The number of rows and/or columns of the the new data do(es) not equal the original data ",
+                              "after ensuring end values were not NA. See the function -interpBreakdowns_df- ." ) )
+
+            }
+
+        }
+
+#   Interpolate to define values for all years in each row
+    pct_breakdown <- breakdowns_to_correct_new %>%
+        interpolate_NAs2( )
 
     return( pct_breakdown )
+
 }
 
+# ----------------------------------------------------------------------------------
 
 # Map aggregate level ID number to column names
 #
@@ -584,6 +682,7 @@ aggLevelToNormalize <- function(agg_level) {
     )
 }
 
+# ----------------------------------------------------------------------------------
 
 # Identify the aggregation level ID of a CEDS dataset
 #
