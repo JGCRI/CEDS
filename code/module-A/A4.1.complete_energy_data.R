@@ -52,14 +52,14 @@
 # Separate CEDS combustion and other transformation from other tracked
 #    IEA energy trends (ex: domestic supply)
     IEA_other_energy_trends <- energy_data %>%
-        filter( sector %!in% MSL$sector ) %>%
-        mutate_at( grep( 'X\\d{4}', names( energy_data ) ),
+        dplyr::filter( sector %!in% MSL$sector ) %>%
+        dplyr::mutate_at( grep( 'X\\d{4}', names( energy_data ) ),
                    funs( if_else( sector == 'refinery-and-natural-gas' & . < 0, 0, .)))
 
     other_transformation <- energy_data %>%
-        filter( sector %in% c( "1A1bc_Other-feedstocks", "1A1bc_Other-transformation" ))
+      dplyr::filter( sector %in% c( "1A1bc_Other-feedstocks", "1A1bc_Other-transformation" ))
     energy_data <- energy_data %>%
-        filter( sector %in% MSL$sector )
+      dplyr::filter( sector %in% MSL$sector )
 
     energy_data_combustion <- energy_data[ energy_data$fuel != 'process', ]
 

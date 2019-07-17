@@ -117,7 +117,7 @@ checkSystemInputs <- function(em) {
         if (grepl('0', em)) {
             em <- paste0(em, ', did you mean ', gsub('0', 'O', em), '?')
         }
-        stop("CEDS does not support ", em)
+        stop("CEDS does not support emissions of ", em)
     }
 
     # Make sure the files that do not come with CEDS exist

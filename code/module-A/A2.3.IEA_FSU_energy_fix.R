@@ -319,7 +319,8 @@
 
     # Create MCL version with just BPName and iso with unique
     MCL_unique <- MCL %>% dplyr::select(iso,BPName) %>% dplyr::distinct()
-    # Remove Other CIS (this caued mda to stay in data for reasons unknown)
+    # Remove Other CIS (this caused mda to stay in data for reasons unknown)
+    # TODO - Make sure this is robust
     MCL_unique <- dplyr::filter(MCL_unique, BPName != "Other CIS")
 
     # Loop through each bp dataset (separated by fuel) to make the relevant corrections.
@@ -328,8 +329,7 @@
         bp_data_clean[[i]] <- cleanBPDataSheet( bp_data_full[[i]], X_BP_years, MCL )
 
      # add iso
-    #    bp_data_clean[[i]]$iso <- MCL[ match( bp_data_clean[[i]]$BPName, MCL_unique$BPName )  ,'iso' ]
-        bp_data_clean[[i]] <- dplyr::left_join(bp_data_clean[[i]], MCL_unique, by = 'BPName')
+         bp_data_clean[[i]] <- dplyr::left_join(bp_data_clean[[i]], MCL_unique, by = 'BPName')
 
     # add fuel column
         bp_data_clean[[i]]$bp_fuel <- bp_fuel[[i]]
@@ -400,7 +400,6 @@
 # check FSU_leftover_shares not sure if its right  ### TODO: this comment makes it sound like this section needs checking.
                                                    ###       As it stands, "test" does not return a series of 1s as it should
 
-# TODO: In this branch left_over_share is zero, which zeros out energy data for these countries (not the case in public version)
     not_BP_energy_shares <- list()
     for ( i in seq_along( bp_fuel ) ) {
         left_over_share <- as.numeric( 1-colSums( FSU_countries_fuel_share_bp_extended[ which( FSU_countries_fuel_share_bp_extended$bp_fuel == bp_fuel[i] ),

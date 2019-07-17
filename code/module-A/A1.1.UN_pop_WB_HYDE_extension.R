@@ -646,14 +646,14 @@
         dplyr::arrange(iso, scenario, year)
 
 # 4f. Create data with one time series into future with no duplicate years
-    population_data_historical <- subset( pop_master_final, scenario %in% c("Estimates") )
+    population_data_historical <- dplyr::filter( pop_master_final, scenario == "Estimates" )
 
     max_year <- as.numeric( max( population_data_historical$year ) )
     population_data_cleaned <- subset( pop_master_final, scenario %in% c("Estimates","Medium fertility") )
-
-    # Remove duplicate year data where historical estimates and projections overlap
-    population_data_cleaned <- population_data_cleaned %>%
-                              filter( !(year == max_year & scenario == "Medium fertility") )
+    population_data_cleaned <- pop_master_final %>%
+      dplyr::filter( scenario %in% c( "Estimates","Medium fertility" ) ) %>%
+      # Remove duplicate year data where historical estimates and projections overlap
+      dplyr::filter( !( year == max_year & scenario == "Medium fertility" ) )
 
 # ------------------------------------------------------------------------------
 # 5. Write output
