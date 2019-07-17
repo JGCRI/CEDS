@@ -153,6 +153,33 @@ is.nan.df      <- function(x) do.call( cbind, lapply( x, is.nan ) )
 is.finite.df   <- function(x) do.call( cbind, lapply( x, is.finite ) )
 is.infinite.df <- function(x) do.call( cbind, lapply( x, is.infinite ) )
 
+# -----------------------------------------------------------------------------
+# removeNARows
+# Brief: Removes rows from a wide dataframe whose data columns are all na's
+# Params:
+#    a_dataframe: dataframe to process
+#    year_cols: list of data column names
+removeNARows <- function( a_dataframe, year_cols) {
+
+temp_dataframe <- a_dataframe %>%
+   dplyr::filter_at( .vars = year_cols, any_vars( !is.na( .) ) )
+
+return(temp_dataframe)
+}
+
+# -----------------------------------------------------------------------------
+# NAsToZeros
+# Brief: Changes NAs to zeros in data columns of a dataframe
+# Params:
+#    a_dataframe: dataframe to process
+#    year_cols: list of data column names
+NAsToZeros <- function( a_dataframe, year_cols) {
+
+temp_dataframe <- a_dataframe %>%
+   dplyr::mutate_at( .vars = year_cols, ~replace( ., is.na( . ), 0 ) )
+
+return(temp_dataframe)
+}
 
 # -----------------------------------------------------------------------------
 # repeatAndAddVector

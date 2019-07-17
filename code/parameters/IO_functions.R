@@ -934,7 +934,13 @@ savePlot <- function( domain, domain_ext, file_name, width, height, ext = '.pdf'
 # Error Condition:       If data is not found prints an error and stops
 # Return:       Ordinal location of requested data (optionally return sheetname)
 getBPSheetNumber <- function( fuel, data_type, data_unit, bp_dataframe, return_name = F ){
+
+  # Convert everything to lower case
   sheets <- tolower( names( bp_dataframe ) )
+  fuel <- tolower(fuel)
+  data_type <- tolower(data_type)
+  data_unit <- tolower(data_unit)
+
   bp_sheet_name <- grep( data_unit, grep( data_type, grep( fuel, sheets,
 												 value = T ), value = T ), value = T )
 
@@ -952,7 +958,7 @@ getBPSheetNumber <- function( fuel, data_type, data_unit, bp_dataframe, return_n
 # -----------------------------------------------------------------------------
 # cleanBPDataSheet
 # Brief:        Return dataframe with cleaned sheet of BP energy data.
-# Details:      Cleans up BP energy data sheet, returning dataframe 
+# Details:      Cleans up BP energy data sheet, returning dataframe
 #               accounting for differences in naming and regional associations, remove
 #               blank rows, titles, etc, and return in xyears format only the specific
 #                data used in CEDS (as defined in the master country list).
@@ -974,11 +980,11 @@ cleanBPDataSheet <-function( a_bp_sheet, x_bp_years, master_country_list, x_year
     bp_sheet_clean <- bp_sheet_clean[ rowSums( is.na( bp_sheet_clean ) ) != ncol( bp_sheet_clean ), ]
 
 	x_years_tag = "X"
-	if ( !x_years_flag ) { 
+	if ( !x_years_flag ) {
 	    x_years_tag = ""
 	    x_bp_years <- as.numeric(gsub( 'X','', x_bp_years))
 	}
-	
+
 	# Fix names of columns; they get messed up because BP has useless rows
 	#   at the top of their files and R makes the top row the name of the column
 	names( bp_sheet_clean ) <- c( "BPName", paste0( x_years_tag,
@@ -995,6 +1001,79 @@ cleanBPDataSheet <-function( a_bp_sheet, x_bp_years, master_country_list, x_year
         final_cleaned_data[ final_cleaned_data == "n/a" ] <- NA
 		final_cleaned_data[ final_cleaned_data == "-" ] <- 0
 		final_cleaned_data[ final_cleaned_data == "^" ] <- 0.05
-	
+
+	# Convert to numeric
+	final_cleaned_data[ x_bp_years ] <- sapply( X = final_cleaned_data[ x_bp_years ], FUN = as.numeric )
+
+	# Create ussr total if not present already
+	if ( BP_FSU_aggregate ) {
+	   FSU_regions <- unique( master_country_list[ which( master_country_list$Figure_Region == 'FSU' ), 'BPName' ] )
+	   final_cleaned_data <- sumAggregateRegion_BPName( final_cleaned_data, "", FSU_regions, "USSR" )
+	}
 	return( final_cleaned_data )
 }
+
+# -----------------------------------------------------------------------------
+# sumAggregateRegion
+# Brief:        Creates an aggregate region sum in a dataframe
+# Details:      Defaults to sum ussr region. Could be generalized to other regions if needed.
+# Dependencies: None
+# Author(s):    Steve Smith
+# Params:
+#   a_data_sheet: dataframe with country data
+#   region_column:  name of column to use in a_data_sheet
+#   region_list:  member countries of the region
+#   sum_row_name:  name of sum row to create
+# Error Condition:       None
+# Return:       dataframe with row that contains summed data
+sumAggregateRegion <-function( a_data_sheet, region_column, region_list, sum_row_name ) {
+
+    # Sum acrross these isos to form a continous ussr time series
+    region_sum <- a_data_sheet %>%
+#        dplyr::filter_at( 'iso', region_column %in% region_list ) %>% 
+#        dplyr::mutate_at(  (!!sym(region_column)) = sum_row_name )  %>%
+#        dplyr::group_by( !! sym(region_column) ) %>%
+#        dplyr::summarise_all( funs( sum (., na.rm = TRUE ) ) )
+
+    # Replace previous specified rows with new ones (delete lower case and original)
+#    a_data_sheet <- a_data_sheet  %>% dplyr::filter( BPName != tolower(sum_row_name))
+#    a_data_sheet <- a_data_sheet  %>% dplyr::filter( BPName != sum_row_name)
+#    a_data_sheet <- dplyr::bind_rows( a_data_sheet, region_sum)
+
+    return( a_data_sheet )
+}
+
+sumAggregateRegion_BPName <-function( a_data_sheet, region_column, region_list, sum_row_name ) {
+
+    # Sum acrross these isos to form a continous ussr time series
+    region_sum <- a_data_sheet %>%
+        dplyr::filter(  BPName %in% region_list )  %>%
+           dplyr::mutate(  BPName = sum_row_name )  %>%
+           dplyr::group_by( BPName ) %>%
+           dplyr::summarise_all( funs( sum (., na.rm = TRUE ) ) )
+
+    # Replace previous specified rows with new ones (delete lower case and original)
+        a_data_sheet <- a_data_sheet  %>% dplyr::filter( BPName != tolower(sum_row_name))
+        a_data_sheet <- a_data_sheet  %>% dplyr::filter( BPName != toupper(sum_row_name))
+        a_data_sheet <- dplyr::bind_rows( a_data_sheet, region_sum)
+
+    return( a_data_sheet )
+}
+
+sumAggregateRegion_Oil_production <-function( a_data_sheet, region_column, region_list, sum_row_name ) {
+
+    # Sum acrross these isos to form a continous ussr time series
+    region_sum <- a_data_sheet %>%
+        dplyr::filter(  BPName_Oil_production %in% region_list )  %>%
+        dplyr::mutate(  BPName_Oil_production = sum_row_name )  %>%
+        dplyr::group_by( BPName_Oil_production ) %>%
+        dplyr::summarise_all( funs( sum (., na.rm = TRUE ) ) )
+
+    # Replace previous specified rows with new ones (delete lower case and original)
+    a_data_sheet <- a_data_sheet  %>% dplyr::filter( BPName_Oil_production != tolower(sum_row_name))
+    a_data_sheet <- a_data_sheet  %>% dplyr::filter( BPName_Oil_production != toupper(sum_row_name))
+    a_data_sheet <- dplyr::bind_rows( a_data_sheet, region_sum)
+
+    return( a_data_sheet )
+}
+

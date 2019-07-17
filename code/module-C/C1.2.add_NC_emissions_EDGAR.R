@@ -1,12 +1,14 @@
 # ------------------------------------------------------------------------------
-# Program Name: C.1.2.add_NC_emissions_EDGAR.R
-# Author(s): Jon Seibert, Rachel Hoesly
-# Date Last Modified: 20 April 2017
+# Program Name: C1.2.add_NC_emissions_EDGAR.R
+# Author(s): Jon Seibert, Rachel Hoesly, Steve Smith, Patrick O'Rourke
+# Date Last Modified: July 17, 2019
 # Program Purpose: To reformat the non-combustion sections of the EDGAR default emissions
 #                      data and add it to the database for the relevant emissions species.
-# Input Files:
-# Output Files:
-# To Do:
+# Input Files: NC_EDGAR_sector_mapping.csv, Master_Country_List.csv,
+#              BP_energy_data.xlsx
+# Output Files: C.[em]_EDGAR_NC_Emissions_fugitive_solid_fuels.csv, C.EDGAR_NC_Emissions_[em].csv,
+#               C.EDGAR_NC_Emissions_[em]_negative.csv, C.[em]_type_emissions_db.csv
+# TODO:
 #      ext_backward = TRUE extended back only one year. (extend forward worked)
 #      Extend forward should extend forward with constant EFs, not linear trend
 # Notes:
@@ -20,7 +22,7 @@
     headers <- c( "common_data.R","data_functions.R", "analysis_functions.R",
                   "process_db_functions.R", 'timeframe_functions.R') # Additional function files required.
     log_msg <- paste0( "Processing EDGAR non-combustion default emissions data." ) # First message to be printed to the log
-    script_name <- "C.1.2.add_NC_emissions_EDGAR.R"
+    script_name <- "C1.2.add_NC_emissions_EDGAR.R"
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
@@ -69,7 +71,7 @@ if ( em == 'CH4' ){
   BP_coal_production_raw <- bp_energy_data[[ getBPSheetNumber( "coal", "production", "tonnes", bp_energy_data ) ]]
   # First coal production data year is 1981
   X_BP_years <- paste0( 'X', 1981:BP_last_year )
-  BP_coal_production <- cleanBPDataSheet( BP_coal_production_raw, X_BP_years, Master_Country_List, x_years_flag = FALSE )
+  BP_coal_production <- cleanBPDataSheet( BP_coal_production_raw, X_BP_years, Master_Country_List )
 }
 
 # ------------------------------------------------------------------------------
@@ -104,7 +106,7 @@ edgar <- cbind( edgar[ id_cols ], edgar[ 1:( len - 5 ) ] )
 edgar <- edgar[ with( edgar, order( iso, sector, fuel ) ), ]
 
 # get rid of 2008 and 2009. Strange Values
-edgar <- edgar[,c('iso','sector','fuel','units', paste0('X',EDGAR_start_year:EDGAR42_end_year))]
+edgar <- edgar[,c('iso','sector','fuel','units', paste0( 'X',EDGAR_start_year:EDGAR42_end_year ) ) ]
 
 # leave out excluded sectors
   edgar <- filter( edgar, sector %!in% excl_sectors )
@@ -116,40 +118,41 @@ edgar <- edgar[,c('iso','sector','fuel','units', paste0('X',EDGAR_start_year:EDG
   edgar[ edgar < 0 ] <- 0
 
 # filter isos in Master Country List
-  edgar <- edgar %>% filter(iso %in% Master_Country_List$iso)
+  edgar <- edgar %>%
+      dplyr::filter( iso %in% Master_Country_List$iso )
 # ------------------------------------------------------------------------------
 # 4. Extend Fugitive Solid Fuels for methane
 
 if ( em == 'CH4' ){
 
   # seperate fugitive solid fuels and other emissions
-  fugitive_solid <- edgar %>% filter(sector == '1B1_Fugitive-solid-fuels')
-  edgar <- edgar %>% filter(sector != '1B1_Fugitive-solid-fuels')
+  fugitive_solid <- edgar %>%
+      dplyr::filter( sector == '1B1_Fugitive-solid-fuels' )
+
+  edgar <- edgar %>%
+      dplyr::filter( sector != '1B1_Fugitive-solid-fuels' )
 
   # process BP data for extension
   bp <- Master_Country_List %>%
-    select(iso, BPName) %>%
-    filter(!is.na(BPName), BPName != 'ussr') %>%
-    unique() %>%
-    filter(!duplicated(iso)) %>%
-    unique() %>%
-    left_join( BP_coal_production, by = 'BPName') %>%
-    gather(year, value, -iso,-BPName) %>%
-    dplyr::mutate(year = as.numeric(year)) %>%
-    filter(!is.na(year), !is.na(value)) %>%
-    dplyr::mutate(year = paste0('X',year)) %>%
-    dplyr::mutate(value = as.numeric(value)) %>%
-    spread(year, value) %>%
-    select(-BPName)
+    dplyr::select( iso, BPName ) %>%
+    dplyr::filter( !is.na( BPName ), BPName != 'ussr' ) %>%
+    dplyr::distinct( ) %>%
+    # dplyr::filter( !duplicated( iso ) ) %>%                       # I don't think this is needed? There don't appear to be any duplicated isos
+    dplyr::left_join( BP_coal_production, by = 'BPName' ) %>%
+    tidyr::gather( year, value, -iso, -BPName ) %>%
+    dplyr::filter( !is.na( value ) ) %>%
+    tidyr::spread( year, value ) %>%
+    dplyr::select( -BPName )
 
-  fugitive_solid_extended <- extend_data_on_trend_range(driver_trend = bp,
-                                                        input_data = fugitive_solid,
-                                                        start = 2009, end = BP_last_year,
-                                                        ratio_start_year = 2007,
-                                                        expand = T,
-                                                        range = 2,
-                                                        id_match.driver = c('iso'))
-  fugitive_solid_extended <- fugitive_solid_extended[ , c('iso','sector','fuel','units',paste0('X',1971:BP_last_year) ) ]
+  fugitive_solid_extended <- extend_data_on_trend_range( driver_trend = bp,
+                                                         input_data = fugitive_solid,
+                                                         start = 2009, end = BP_last_year,
+                                                         ratio_start_year = 2007,
+                                                         expand = T,
+                                                         range = 2,
+                                                         id_match.driver = c( 'iso' ) )
+
+  fugitive_solid_extended <- fugitive_solid_extended[ , c( 'iso','sector','fuel','units',paste0( 'X', 1971 : BP_last_year ) ) ]
 
 }
 

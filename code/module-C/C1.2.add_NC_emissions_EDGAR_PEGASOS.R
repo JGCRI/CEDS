@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: C.1.2.add_NC_emissions_EDGAR.R
+# Program Name: C1.2.add_NC_emissions_EDGAR.R
 # Author(s): Jon Seibert
 # Date Last Modified: 5 January 2016
 # Program Purpose: To reformat the non-combustion sections of the EDGAR default emissions

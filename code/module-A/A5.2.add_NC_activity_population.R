@@ -47,7 +47,6 @@
                      ".xlsx", sheet_selection = "Sectors" )
 
     population_data <- readData( "MED_OUT", "A.UN_pop_master" )
-    population_data <- subset( population_data, scenario == "Estimates" )
 
     unit <- '1000'
 

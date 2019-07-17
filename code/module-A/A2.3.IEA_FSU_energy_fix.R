@@ -58,7 +58,7 @@
     # Read in BP energy data
     printLog( c("Reading in BP energy consumption data."))
     bp_oil_full <- bp_energy_data[[ getBPSheetNumber( "oil", "consumption", "tonnes", bp_energy_data ) ]]
-    bp_gas_full <- bp_energy_data[[ getBPSheetNumber( "gas", "consumption", "tonnes", bp_energy_data ) ]]
+    bp_gas_full <- bp_energy_data[[ getBPSheetNumber( "gas", "consumption", "Mtoe", bp_energy_data ) ]]
     bp_coal_full <- bp_energy_data[[ getBPSheetNumber( "coal", "consumption", "mtoe", bp_energy_data ) ]]
 
 # -------------------------------------------------------------------------------------------
@@ -311,15 +311,26 @@
 
     bp_data_clean <- list()
 
+    # Add USSR to MCL for newer BP data so that clean function retains USSR data
+    ussr_row <- MCL[ which( MCL$iso %in% c( 'ukr' ) ) , ]
+    ussr_row$BPName <- "USSR"
+    ussr_row$iso <- "ussr"
+    MCL <- rbind(MCL, ussr_row )
+
+    # Create MCL version with just BPName and iso with unique
+    MCL_unique <- MCL %>% dplyr::select(iso,BPName) %>% dplyr::distinct()
+    # Remove Other CIS (this caued mda to stay in data for reasons unknown)
+    MCL_unique <- dplyr::filter(MCL_unique, BPName != "Other CIS")
+
     # Loop through each bp dataset (separated by fuel) to make the relevant corrections.
     # Result is bp_data_clean, which holds the corrected info
     for ( i in seq_along( bp_fuel) ) {
         bp_data_clean[[i]] <- cleanBPDataSheet( bp_data_full[[i]], X_BP_years, MCL )
 
-   # Convert to numeric
-        bp_data_clean[[i]][ X_BP_years ] <- sapply( X = bp_data_clean[[i]][ X_BP_years ], FUN = as.numeric )
-    # add iso
-        bp_data_clean[[i]]$iso <- MCL[ match( bp_data_clean[[i]]$BPName, MCL$BPName )  ,'iso' ]
+     # add iso
+    #    bp_data_clean[[i]]$iso <- MCL[ match( bp_data_clean[[i]]$BPName, MCL_unique$BPName )  ,'iso' ]
+        bp_data_clean[[i]] <- dplyr::left_join(bp_data_clean[[i]], MCL_unique, by = 'BPName')
+
     # add fuel column
         bp_data_clean[[i]]$bp_fuel <- bp_fuel[[i]]
     # arrange columns
@@ -382,10 +393,14 @@
     not_BP_pop_shares[, -1] <- not_BP_pop[, -1]/matrix( data = rep( colSums( not_BP_pop[, -1] ), times = length( FSU_not_BP ) ) ,
                                                         nrow = length( FSU_not_BP ) , ncol = length( colSums( not_BP_pop[,-1] ) ),
                                                         byrow = T )
+
+# Determine a fuel breakdown for the countries that are not separated out in the BP data
 # Use the population shares for each not BP country of the BP countries to
 #      dissagregate left over.
 # check FSU_leftover_shares not sure if its right  ### TODO: this comment makes it sound like this section needs checking.
                                                    ###       As it stands, "test" does not return a series of 1s as it should
+
+# TODO: In this branch left_over_share is zero, which zeros out energy data for these countries (not the case in public version)
     not_BP_energy_shares <- list()
     for ( i in seq_along( bp_fuel ) ) {
         left_over_share <- as.numeric( 1-colSums( FSU_countries_fuel_share_bp_extended[ which( FSU_countries_fuel_share_bp_extended$bp_fuel == bp_fuel[i] ),

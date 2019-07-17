@@ -213,8 +213,13 @@
 # Subset X_emissions_years
     final_out <- final_full[ , c( 'iso', 'sector', 'fuel',
                                   'units', X_emissions_years ) ]
+# Removed values are recent bond values for cases that only had 2005 or 2010 values)
+# This input file only extends to 2014, so copy values out to last data year
+	X_Extend_Years <- paste0("X", 2015:BP_last_year)
+    bond_remove_values <- bond_remove_values %>%
+      dplyr::mutate_at( X_Extend_Years, funs( identity( !!rlang::sym( "X2014" ) ) ) )
 
-# Replace bond values that were removed in section 2
+# Replace bond values that were removed
     final_out <- replaceValueColMatch( final_out, bond_remove_values,
                                        x.ColName = paste0( 'X', 2001:end_year ),
                                        match.x = c( 'iso', 'sector', 'fuel' ),
@@ -229,10 +234,8 @@
     writeData( final_full, "EXT_IN", paste0( "B.", em, "_SPEW_comb_EF" ),
                domain_extension = "extension-data/" )
 
-#   Note that the non-comb SPEW db is an input from CEDS_data, and no longer output
-#   by this script
-
 # Every script should finish with this line
     logStop()
 
 # END
+

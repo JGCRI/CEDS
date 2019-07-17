@@ -55,6 +55,7 @@
         filter( sector %!in% MSL$sector ) %>%
         mutate_at( grep( 'X\\d{4}', names( energy_data ) ),
                    funs( if_else( sector == 'refinery-and-natural-gas' & . < 0, 0, .)))
+
     other_transformation <- energy_data %>%
         filter( sector %in% c( "1A1bc_Other-feedstocks", "1A1bc_Other-transformation" ))
     energy_data <- energy_data %>%

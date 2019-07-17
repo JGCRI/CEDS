@@ -83,6 +83,10 @@
   gridding_emissions$iso <- 'global'
   gridding_emissions <- gridding_emissions[ , c( 'iso', 'sector', paste0( 'X', year_list ) ) ]
 
+#Extend to last year
+proxy_mapping <- extendProxyMapping( proxy_mapping )
+seasonality_mapping <- extendSeasonalityMapping( seasonality_mapping )
+
 # ------------------------------------------------------------------------------
 # 3. Gridding and writing output data
 

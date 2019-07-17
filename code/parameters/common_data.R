@@ -1,30 +1,43 @@
-#Define historical years variables.
+# Define historical years variables.
 
-#Set of historical years for which the CEDS system has IEA data.
-IEA_years <- 1960:2013
+# Set of historical years for which the CEDS system has IEA data.
+
+# USER SET DATA - Set this to the last year of the IEA data used
+IEA_end_year  <- 2013  # Latest year of IEA data; used to compare BP and IEA
+
+IEA_start_year  <- 1960
+X_IEA_end_year  <- paste0( "X", IEA_end_year  )
+IEA_years <- IEA_start_year:IEA_end_year
 X_IEA_years <- paste0( "X", IEA_years)
 
-IEA_end_year  <- 2013  # Latest year of IEA data; used to compare BP and IEA
-X_IEA_end_year  <- paste0( "X", IEA_end_year  )
+# USER SET DATA - Set this to the last year of the BP data used
+# The set of years for the BP data extendForwards further, and is used to augment the IEA.
+BP_last_year <- 2018 # Last years for BP data
 
-#The set of years for the BP data extendForwards further, and is used to augment the IEA.
-BP_years <- 2014 #The years for which there is only BP data
+# USER SET DATA - Set this to point to the name of the BP statisical data, which should be
+# Located in the inputs/energy folder
+BP_data_file_name <- "bp-stats-review-2019-all-data"
+
+BP_first_year <- IEA_end_year + 1 # First year for BP only data
+BP_years <- BP_first_year:BP_last_year # The years for which there is only BP data
+
 X_BP_years <- paste0("X", BP_years)
-BP_last_year <- 2014 # Last years for BP data
 X_BP_last_year <- paste0("X", BP_last_year)
-BP_data_file_name <- "BP_energy_data"
 
-#Edgar year
+# If this flag is set then a consistent fromer USSR line needs to be created during BP sheet processing
+BP_FSU_aggregate <- TRUE
+
+# Edgar year
 EDGAR_start_year <- 1971
 EDGAR_end_year <- 2010
 
-#The combined overall yearset for the ceds system
+# The combined yearset for historical emission years
 emissions_years <- c(IEA_years,BP_years)
 X_emissions_years <- paste0( "X", emissions_years)
 
-start_year = 1960
+start_year = IEA_start_year # In present configuration, start year is first year of IEA data
 X_start_year = paste0("X",start_year)
-end_year = 2014
+end_year = BP_last_year # In present configuration, end year is last BP year
 X_end_year = paste0("X",end_year)
 
 # historical extension using CDIAC and RCP
@@ -46,14 +59,14 @@ cdiac_end_year_cement <- 2015
 
 
 
-#---------------------------------
+# ---------------------------------
 # Conversion Factors
 conversionFactor_biomass_kt_TJ <- 16  # Biomass - For kt to TJ (multiply by kt to get TJ)    
-#conversionFactor_biomass_TJ_kt <- 0.0238846  # For kt to TJ (multiply by kt to get TJ)
-# conversionFactor_refinerygas_TJ_per_kt <- 48.5 #Refinery Gas TJ/kt. (Multiply by kt to get TJ)
-#49.5 TJ/Gg- 2006 IPCC guidelines for National GHG inventories Vol 2 - Energy, Ch 1 - Intro Table 1.2
+# conversionFactor_biomass_TJ_kt <- 0.0238846  # For kt to TJ (multiply by kt to get TJ)
+# conversionFactor_refinerygas_TJ_per_kt <- 48.5 # Refinery Gas TJ/kt. (Multiply by kt to get TJ)
+# 49.5 TJ/Gg- 2006 IPCC guidelines for National GHG inventories Vol 2 - Energy, Ch 1 - Intro Table 1.2
 
-conversionFactor_naturalgas_TJ_per_kt <- 44.2 #Natural Gas TJ/kt. (Divide TJ by heating value to get kt)
-#44.2 TJ/Gg- 2006 IPCC guidelines for National GHmG inventories Vol 2 - Energy, Ch 1 - Intro Table 1.2
+conversionFactor_naturalgas_TJ_per_kt <- 44.2 # Natural Gas TJ/kt. (Divide TJ by heating value to get kt)
+# 44.2 TJ/Gg- 2006 IPCC guidelines for National GHmG inventories Vol 2 - Energy, Ch 1 - Intro Table 1.2
 
 conversionFactor_C_CO2 <- 3.664  # multiply C to get CO2

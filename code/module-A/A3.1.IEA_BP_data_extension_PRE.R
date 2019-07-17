@@ -41,7 +41,7 @@
     # Read in BP energy data
     printLog( c("Reading in BP energy consumption data."))
     bp_oil_full <- bp_energy_data[[ getBPSheetNumber( "oil", "consumption", "tonnes", bp_energy_data ) ]]
-    bp_gas_full <- bp_energy_data[[ getBPSheetNumber( "gas", "consumption", "tonnes", bp_energy_data ) ]]
+    bp_gas_full <- bp_energy_data[[ getBPSheetNumber( "gas", "consumption", "mtoe", bp_energy_data ) ]]
     bp_coal_full <- bp_energy_data[[ getBPSheetNumber( "coal", "consumption", "mtoe", bp_energy_data ) ]]
 
 # Check input data for proper sector and fuel names
