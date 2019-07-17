@@ -102,16 +102,16 @@
 # ---------------------------------------------------------------------------
 # 3. Calculate shares of fuel for each CEDS fuel (for weighted average)
 # Combine into one df, convert to numeric
-  conversion_all <- bind_rows( conversion_OECD, conversion_NonOECD )
 
   # Keep data for only IEA years
   id_cols <- names( conversion_OECD )[1:3]
-  conversion_all <- conversion_all[c(id_cols,X_IEA_years)]
+  conversion_all <- dplyr::bind_rows( conversion_OECD, conversion_NonOECD ) %>%
+    dplyr::select( id_cols, X_IEA_years )
 
   conversion_all[ , X_IEA_years ] <- suppressWarnings( lapply( conversion_all[ , X_IEA_years ], function( x ) { as.numeric( as.character( x ) ) } ) )
 
 # Conversion years
-  X_IEA_years <-  select( conversion_all, contains ('X') ) %>%
+  X_IEA_years <-  dplyr::select( conversion_all, contains ('X') ) %>%
     names
 
 # Clean up mapping
@@ -130,8 +130,8 @@
 # Calculate shares of energy data for countries by fuel type
   coal_data <- filter( activity_data, FLOW == 'DOMSUP' ) %>%
     left_join( IEA_product_fuel[ c( 'product', 'fuel' ) ] , by = c( 'PRODUCT' = 'product' ) ) %>%
-    group_by( iso, PRODUCT, fuel ) %>%
-    summarise_if( is.numeric, sum ) %>%
+    dplyr::group_by( iso, PRODUCT, fuel ) %>%
+    dplyr::summarise_if( is.numeric, sum ) %>%
     filter( fuel %in% fuels ) %>%
     unite( "iso_fuel", c( iso, fuel ), sep = "-" )
 
@@ -208,12 +208,9 @@
   hc_coal_all_ext <- cast( hc_coal_all_ext )
 
   # Constantly extend heat value forward
-  # TODO: ask how to do this right
-  hc_coal_all_ext$X2014 <- hc_coal_all_ext$X2013
-  hc_coal_all_ext$X2015 <- hc_coal_all_ext$X2013
-  hc_coal_all_ext$X2016 <- hc_coal_all_ext$X2013
-  hc_coal_all_ext$X2017 <- hc_coal_all_ext$X2013
-  hc_coal_all_ext$X2018 <- hc_coal_all_ext$X2013
+  extended_years <- paste0( "X", X_BP_years )
+  hc_coal_all_ext<- hc_coal_all_ext %>%
+    dplyr::mutate_at( extended_years, funs( identity ( !!rlang::sym( X_IEA_end_year ) ) ) )
 
 # ---------------------------------------------------------------------------
 # 5. Output

@@ -137,7 +137,6 @@ if ( em == 'CH4' ){
     dplyr::select( iso, BPName ) %>%
     dplyr::filter( !is.na( BPName ), BPName != 'ussr' ) %>%
     dplyr::distinct( ) %>%
-    # dplyr::filter( !duplicated( iso ) ) %>%                       # I don't think this is needed? There don't appear to be any duplicated isos
     dplyr::left_join( BP_coal_production, by = 'BPName' ) %>%
     tidyr::gather( year, value, -iso, -BPName ) %>%
     dplyr::filter( !is.na( value ) ) %>%
