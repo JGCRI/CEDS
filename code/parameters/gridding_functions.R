@@ -744,3 +744,66 @@ gridding_initialize <- function( grid_resolution = 0.5,
 }
 
 
+# ------------------------------------------------------------------------------
+# extendProxyMapping
+# Brief: Extend pre-existing proxy mapping to last year needed by copying last year of data
+# Dependencies: null
+# Author: Steve Smith, Patrick O'Rourke
+# parameters: proxy_mapping - proxy mapping dataframe
+# return: extended proxy mapping dataframe
+# input files: null
+# output: null
+# NOTE: Code assumes that current mapping file is complete for all years in the last year provided
+# TODO: See if extendProxyMapping and extendSeasonalityMapping can be combined using scoped function variants
+extendProxyMapping <- function( a_proxy_mapping ) {
+  last_proxy_data_year <- as.numeric( max( a_proxy_mapping$year ) )
+  last_proxy_data_year_string <- paste( last_proxy_data_year )
+
+  extra_years_needed <- (last_proxy_data_year+1):end_year
+  extra_years_needed_string <- paste( extra_years_needed )
+
+  final_years <- 1750:end_year
+  final_years_string <- paste( final_years )
+
+  a_proxy_mapping_temp <- a_proxy_mapping %>%
+    tidyr::spread( year, proxybackup_file ) %>%
+    dplyr::mutate_at( extra_years_needed_string, funs( identity (  !!rlang::sym( last_proxy_data_year_string ) ) ) ) %>%
+    tidyr::gather( key = year, value = proxybackup_file, final_years_string ) %>%
+    dplyr::arrange( em, sector, year, proxy_file ) %>%
+    dplyr::select( em, sector,  year, proxy_file, proxybackup_file ) %>%
+    dplyr::filter( !is.na( proxybackup_file ) )
+
+  return(a_proxy_mapping_temp)
+}
+
+# ------------------------------------------------------------------------------
+# extendSeasonalityMapping
+# Brief: Extend pre-existing seasonality mapping to last year needed by copying last year of data
+# Dependencies: null
+# Author: Steve Smith, Patrick O'Rourke
+# parameters: seasonality_mapping - seasonality mapping dataframe
+# return: extended seasonality mapping dataframe
+# input files: null
+# output: null
+# NOTE: Code assumes that current mapping file is complete for all years in the last year provided
+# TODO: See if extendProxyMapping and extendSeasonalityMapping can be combined using scoped function variants
+extendSeasonalityMapping <- function( a_seasonality_mapping ) {
+  last_seasonality_data_year <- as.numeric( max( a_seasonality_mapping$year ) )
+   last_seasonality_data_year_string <- paste( last_seasonality_data_year )
+
+  extra_years_needed <- (last_seasonality_data_year+1):end_year
+  extra_years_needed_string <- paste( extra_years_needed )
+
+  final_years <- 1750:end_year
+  final_years_string <- paste( final_years )
+
+  a_seasonality_mapping <- a_seasonality_mapping %>%
+    tidyr::spread( year, seasonality_file ) %>%
+    dplyr::mutate_at( extra_years_needed_string, funs( identity (  !!rlang::sym( last_seasonality_data_year_string ) ) ) ) %>%
+    tidyr::gather( key = year, value = seasonality_file, final_years_string ) %>%
+    dplyr::arrange( em, sector, year, seasonality_file ) %>%
+    dplyr::select( em, sector,  year, seasonality_file ) %>%
+    dplyr::filter( !is.na( seasonality_file ) )
+
+  return( a_seasonality_mapping )
+}

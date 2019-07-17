@@ -2267,8 +2267,9 @@ chunk_emissions <- function(singleVarChunkingFun, em, ... ) {
 
     # Chunking variables
     grid_resolution <- 0.5
-    start_year <- 1750
-    end_year <- 1850
+# If chunking years should be different than the full dataset specify that here
+#    start_year <- 1750
+#    end_year <- 1850
     chunk_years <- 50
 
     # basic start year/end year check

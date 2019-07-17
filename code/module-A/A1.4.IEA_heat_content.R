@@ -103,11 +103,15 @@
 # 3. Calculate shares of fuel for each CEDS fuel (for weighted average)
 # Combine into one df, convert to numeric
   conversion_all <- bind_rows( conversion_OECD, conversion_NonOECD )
-  conversion_all$X2014E <- NULL
-  conversion_all[ , X_emissions_years ] <- suppressWarnings( lapply( conversion_all[ , X_emissions_years ], function( x ) { as.numeric( as.character( x ) ) } ) )
+
+  # Keep data for only IEA years
+  id_cols <- names( conversion_OECD )[1:3]
+  conversion_all <- conversion_all[c(id_cols,X_IEA_years)]
+
+  conversion_all[ , X_IEA_years ] <- suppressWarnings( lapply( conversion_all[ , X_IEA_years ], function( x ) { as.numeric( as.character( x ) ) } ) )
 
 # Conversion years
-  conversion_years <-  select( conversion_all, contains ('X') ) %>%
+  X_IEA_years <-  select( conversion_all, contains ('X') ) %>%
     names
 
 # Clean up mapping
@@ -120,8 +124,8 @@
 
 # Constantly extend heat value forward and back
   conversion_extended <- conversion_all
-  conversion_extended[ conversion_years ] <- t( na.locf( t( conversion_extended[ conversion_years ] ) ) )
-  conversion_extended[ conversion_years ] <- t( na.locf( t( conversion_extended[ conversion_years ] ) , fromLast = T ) )
+  conversion_extended[ X_IEA_years ] <- t( na.locf( t( conversion_extended[ X_IEA_years ] ) ) )
+  conversion_extended[ X_IEA_years ] <- t( na.locf( t( conversion_extended[ X_IEA_years ] ) , fromLast = T ) )
 
 # Calculate shares of energy data for countries by fuel type
   coal_data <- filter( activity_data, FLOW == 'DOMSUP' ) %>%
@@ -166,15 +170,15 @@
 # Map heat content to iso
   conversion_extended_iso <- conversion_extended
   conversion_extended_iso$iso <- MCL[ match( conversion_extended_iso$COUNTRY, MCL$IEAName ), 'iso' ]
-  conversion_extended_iso <- conversion_extended_iso[ c( 'iso', 'fuel', 'PRODUCT', conversion_years ) ]
+  conversion_extended_iso <- conversion_extended_iso[ c( 'iso', 'fuel', 'PRODUCT', X_IEA_years ) ]
   conversion_extended_iso <- conversion_extended_iso %>%
     drop_na( iso, fuel, PRODUCT )
 
 # Combine Conversion and energy shares into same df
   combined_df <- left_join( conversion_extended_iso, coal_shares_corrected, by = c( 'iso', 'fuel', 'PRODUCT' ) )
-  combined_df[ conversion_years ] <- combined_df[ paste0( conversion_years , '.x' ) ] * combined_df[ paste0( conversion_years , '.y' ) ]
+  combined_df[ X_IEA_years ] <- combined_df[ paste0( X_IEA_years , '.x' ) ] * combined_df[ paste0( X_IEA_years , '.y' ) ]
 
-  weighted_average_heat_content <- combined_df[ c( 'iso', 'fuel', conversion_years ) ] %>%
+  weighted_average_heat_content <- combined_df[ c( 'iso', 'fuel', X_IEA_years ) ] %>%
     group_by( iso, fuel ) %>%
     summarise_all( funs( sum( ., na.rm = T ) ) )
 
@@ -184,7 +188,7 @@
     dplyr::distinct() # drop duplicates
 
 # Drop rows of all NAs
-  hc_coal_all <- hc_coal[ rowSums( is.na( hc_coal ) ) != length( X_emissions_years ), ]
+  hc_coal_all <- hc_coal[ rowSums( is.na( hc_coal ) ) != length( X_IEA_years ), ]
 
 # Remaining iso+fuel duplicates seem mostly composite/broken up countries that cover
 # separate years, so okay to combine by summing these rows.
@@ -194,7 +198,7 @@
 
 # Interpolate NAs, extend last non-NAs forward/backward
   hc_coal_all_ext <- data.frame( hc_coal_all )
-  hc_coal_all_ext[ , X_emissions_years ] <- interpolate_NAs( hc_coal_all_ext[ , X_emissions_years ] )
+  hc_coal_all_ext[ , X_IEA_years ] <- interpolate_NAs( hc_coal_all_ext[ , X_IEA_years ] )
   hc_coal_all_ext <- melt( hc_coal_all_ext, id = c( "iso", "fuel", "units" ) )
   hc_coal_all_ext <- ddply( hc_coal_all_ext, .( iso, fuel, units ), function( df ) {
     df$value <- na.locf( df$value, na.rm = F )
@@ -202,6 +206,14 @@
     return( df )
   } )
   hc_coal_all_ext <- cast( hc_coal_all_ext )
+
+  # Constantly extend heat value forward
+  # TODO: ask how to do this right
+  hc_coal_all_ext$X2014 <- hc_coal_all_ext$X2013
+  hc_coal_all_ext$X2015 <- hc_coal_all_ext$X2013
+  hc_coal_all_ext$X2016 <- hc_coal_all_ext$X2013
+  hc_coal_all_ext$X2017 <- hc_coal_all_ext$X2013
+  hc_coal_all_ext$X2018 <- hc_coal_all_ext$X2013
 
 # ---------------------------------------------------------------------------
 # 5. Output

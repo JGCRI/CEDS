@@ -49,6 +49,7 @@
 
 # read in master country list
     mcl <- readData( 'MAPPINGS', 'Master_Country_List' )
+
 # read in the population data
     pop_raw <- readData( "MED_OUT", "A.UN_pop_master" )
 
@@ -60,19 +61,33 @@
     BP_Xyears <- paste0( 'X', BP_oil_years )
     # Remove last columns, which are not time series data
     BP_data <- bp_oil_prod[ , 1 : ( ncol( bp_oil_prod ) - 2 ) ]
+    colnames( BP_data ) <- c( 'BPName_Oil_production', BP_Xyears )
 
-    # Hard coded name that will need to be changed if BP uses different terminology
-    BP_data[ BP_data == "                 Former Soviet Union" ] <- "Former Soviet Union"
+    # Take only the years used for calcs and the column with BP ctry names
+    BP_data <- subset( BP_data, T,c( "BPName_Oil_production", BP_Xyears ) )
+
+    # Add USSR to MCL for newer BP data so that clean function retains USSR data
+    ussr_row <- mcl[ which( mcl$iso %in% c( 'ukr' ) ) , ]
+    ussr_row$BPName_Oil_production <- "USSR"
+    MCL_with_ussr <- rbind(mcl, ussr_row )
+
+    fsu_ussr <- c( "arm", "aze", "blr", "est", "geo", "kaz", "kgz", "ltu", "lva", "mda", "rus", "tjk", "tkm", "ukr", "uzb", "ussr")
+    MCL_ussr <- MCL_with_ussr[ MCL_with_ussr$iso %in% fsu_ussr, ]
+    FSU_countries <- na.omit(MCL_ussr$BPName_Oil_production)
+
+    # Convert to numeric
+    BP_data[ BP_Xyears ] <- sapply( X = BP_data[ BP_Xyears ], FUN = as.numeric )
+
+    BP_data <- sumAggregateRegion_Oil_production( BP_data, "", FSU_countries, "ussr" )
 
     # Note - BP data has a different set of countries for oil production as compared to their energy
-    #        consumpteion data, so this is listed in a different column, BPName_Oil_production, in
+    #        consumption data, so this is listed in a different column, BPName_Oil_production, in
     #        the master country list
-    colnames( BP_data ) <- c( 'BPName_Oil_production', BP_Xyears )
-    BP_data <- BP_data[ BP_data$BPName_Oil_production %in% mcl$BPName_Oil_production, ]
-    BP_data <- na.omit( BP_data )
+    BP_data <- BP_data[ BP_data$BPName_Oil_production %in% c(mcl$BPName_Oil_production,"ussr"), ]
     BP_countries <- na.omit(mcl$BPName_Oil_production)
     mcl_bp <- mcl[ mcl$BPName_Oil_production %in% BP_countries, c( 'iso', 'BPName_Oil_production' ) ]
     mcl_bp <- mcl_bp[ !duplicated( mcl_bp ), ]
+
     BP_merge <- merge( BP_data, mcl_bp, by = c( "BPName_Oil_production" ), all.y = T )
     BP_merge[ BP_merge == 'n/a' ] <- 0
     BP_oil <- BP_merge[ , c( 'iso', BP_Xyears ) ]
@@ -92,9 +107,9 @@
     BP_fsu_members <- BP_oil[ BP_oil$iso %in% fsu_members, ]
 
     # re-format the pop data
-    pop <- pop_raw[ pop_raw$iso %in% c( fsu, fsu_members ), ]
-    pop$year <- paste0( 'X', pop$year )
-    pop_wide <- cast( pop, iso ~ year, value = 'pop', fun.aggregate = sum )
+    pop_fsu <- pop_raw[ pop_raw$iso %in% c( fsu, fsu_members ), ]
+    pop_fsu$year <- paste0( 'X', pop_fsu$year )
+    pop_wide <- cast( pop_fsu, iso ~ year, value = 'pop', fun.aggregate = sum )
     pop_wide <- pop_wide[ , c( 'iso', BP_Xyears ) ]
 
     # split using disaggregate_country function
@@ -154,7 +169,10 @@
     IEA_flrieaiso <- IEA_flrieaiso[ order( IEA_flrieaiso$iso ), ]
 
 # combine BP_flrbpiso and IEA_flrieaiso together as unified layout
-    IEA_flrieaiso[[X_BP_last_year]] <- IEA_flrieaiso[[X_IEA_end_year]]
+    # Extend data out to last year by copying last IEA year
+    IEA_flrieaiso <- IEA_flrieaiso %>%
+      dplyr::mutate_at( X_BP_years, funs( identity( !!rlang::sym( X_IEA_end_year ) ) ) )
+
     IEA_flrieaiso$X1970 <- IEA_flrieaiso$X1971
 
     extend_years <- 1965 : BP_last_year
@@ -204,6 +222,11 @@
     flaring_extended$units <- 'kt'
     flaring_extended <- flaring_extended[ , c( 'iso', 'em', 'sector', 'units', extend_Xyears ) ]
 
+    # Clean-up data
+    data_columns <- names( flaring_extended )[5:length(names(flaring_extended))]
+    flaring_extended <- removeNARows(flaring_extended, data_columns )
+    flaring_extended <- NAsToZeros(flaring_extended, data_columns )
+
 # -----------------------------------------------------------------------------
 # 4. Write output
     writeData( flaring_extended , "MED_OUT", paste0( "C.", em, "_ECLIPSE_flaring_emissions_extended" ) )
@@ -211,3 +234,4 @@
 
 # Every script should finish with this line:
     logStop()
+
