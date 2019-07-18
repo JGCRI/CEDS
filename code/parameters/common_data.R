@@ -12,7 +12,7 @@ X_IEA_years <- paste0( "X", IEA_years)
 
 # USER SET DATA - Set this to the last year of the BP data used
 # The set of years for the BP data extendForwards further, and is used to augment the IEA.
-BP_last_year <- 2018 # Last years for BP data
+BP_last_year <- 2014 # Last years for BP data
 
 # USER SET DATA - Set this to point to the name of the BP statisical data, which should be
 # Located in the inputs/energy folder

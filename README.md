@@ -2,7 +2,7 @@
 The Community Emissions Data System (CEDS) produces consistent estimates of global air emissions species over the industrial era (1750 - present). The system is written in R and uses open-source data (with the exception of the IEA energy statistics which must be purchased from IEA). CEDS is publicly available through an [Open Source License](#license-section).
 
 ***
-**Pre-release Version:** June 7, 2019. The current code and data in the repository is a pre-release version. Please feel free to explore, comment on this version and send us any questions. Note that we will be pushing several updates to the system over the few weeks leading up to the first public release. These will include updates to:
+**Pre-release Version:** July 17, 2019. The current code and data in the repository is a pre-release version. Please feel free to explore, comment on this version and send us any questions. Note that we will be pushing several updates to the system over the few weeks leading up to the first public release. These will include updates to:
 
 * SO2, CO2, and CH4 emissions will be updated to better match the results from CMIP6 data release from Hoesly et al. (2018a). There will likely be some changes to other emission species as well.
 * Updates to waste burning emissions.
