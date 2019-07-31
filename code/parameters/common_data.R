@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: common_data.R
-# Date Last Updated: March 26, 2019
+# Date Last Updated: July 31, 2019
 # Program Purpose:: Provides common constants and conversion factors
 # Input Files: None
 # Output Files: None
@@ -80,3 +80,13 @@ cdiac_end_year_cement <- 2015
 # 2.) C to CO2
 
 conversionFactor_C_CO2 <- 3.664  # multiply C to get CO2
+
+# 3.) TJ per Million tonnes of oil equivalent (Mtoe) --> TJ/Mtoe
+# Source: IEA Energy Statistics of OECD Countries: Beyond 2020 Documentation (2014 edition), pg. 61
+# Note: Multiply Mtoe by conversion factor below to get TJ
+conversionFactor_TJ_per_Mtoe <- 4.1868 * (10^4)
+
+
+
+
+

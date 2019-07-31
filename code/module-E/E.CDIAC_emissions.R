@@ -11,7 +11,7 @@
 #               E.CO2_CDIAC_by_figure_region_CDIAC_fuel.csv,
 #               E.CO2_CDIAC_by_iso_CDIAC_fuel.csv, E.CDIAC_cement_EF.csv,
 #               E.USGS_cement_production.csv
-# Notes: Cement data is extended to last availale year for USGS cement data. Other data ends at last CDIAC year, with zeros afterward.
+# Notes: Cement data is extended to last available year for USGS cement data. Other data ends at last CDIAC year, with zeros afterward.
 # TODO:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
