@@ -1,12 +1,17 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.add_NC_emissions_GAINS.R
 # Author(s): Patrick O'Rourke
-# Date Last Modified: July 31, 2019
+# Date Last Modified: August 1, 2019
 # Program Purpose: To reformat the non-combustion fugitive oil and gas emissions
 #                  from GAINS.
-#***** Input Files:
-#***** Output Files:
-# TODO: Needs updating once use new BP or IEA, list doc todos and stars
+# Input Files: GAINS_EMF30_EMISSIONS_extended_Ev5a_CLE_Nov2015.xlsx,
+#              emf-30_ctry_map.csv, emf-30_fuel_sector_map.csv,
+#              Master_Country_List.csv, E.CO2_CDIAC_inventory.csv,
+#              BP_energy_data.xlsx, A.en_stat_sector_fuel.csv,
+#              A.UN_pop_master.csv
+# Output Files: C.GAINS_NC_Emissions_[em].csv, C.BP_and_IEA_oil_production.csv,
+#               C.BP_and_IEA_natural_gas_production.csv
+# TODO: Go through  doc todos and stars,  Needs updating once use new BP or IEA
 # Notes:
 
 # -----------------------------------------------------------------------------
@@ -86,9 +91,6 @@
         IEA_NA_YEARS <- paste0( "X", start_year : 1970 )                           # Currently: X1960-X1970, years where IEA data is all NAs for every iso #***check this is true
 
 #   Define GAINS fugitive sectors for oil and gas
-    #***Delete? GAINS_FUGITIVE_SECTORS <- c( "Losses_Distribution_Use" , "Losses_Prod_Conventional_Gas",
-    #                              "Losses_Prod_Shale_Gas", "Losses_Prod_Oil",
-    #                              "Losses_Prod_Oil", "Losses_Prod_Oil" )
     GAINS_FUGITIVE_SECTORS <- c( "Losses_Distribution_Use" , "Losses_Prod_Conventional_Gas",
                                  "Losses_Prod_Shale_Gas", "Losses_Prod_Oil",
                                  "Losses_Prod_Oil", "Losses_Prod_Oil" )
@@ -166,7 +168,6 @@
 
     BP_gas_production <- readData( 'ENERGY_IN', file_name = 'BP_energy_data',
                                    extension = ".xlsx", sheet_selection = "Gas Production – tonnes", skip_rows = 2 )
-#*** may not be needed BP_gas_iso_map <- readData( domain = 'EN_MAPPINGS', file_name = 'BP_energy_NG_production_map' )
 
 #   IEA crude oil and NG production data
     en_stat_sector_fuel <- readData( 'MED_OUT', file_name = 'A.en_stat_sector_fuel' )
@@ -692,7 +693,7 @@
 
      }
 
-#   Map oil production data to GAINS regions and aggregate
+#   Map oil production data to GAINS regions
     Oil_production_region_mapped <- Oil_production %>%
         dplyr::left_join( GAINS_country_map_clean, by = "iso" ) %>%
         dplyr::select( Region, iso, sector, fuel, units, X_emissions_years )
@@ -724,12 +725,15 @@
 #   TODO: Confirm this assumption with Steve
     global_total_production <- Oil_prod_EF %>%
         dplyr::select( years, Oil_production ) %>%
+        dplyr::distinct( ) %>%                         # distinct is needed, as currently regional production is repeated for each iso within the given region
         dplyr::group_by( years ) %>%
         dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
         dplyr::ungroup( ) %>%
         dplyr::rename( global_total_production = Oil_production )
 
     Weighted_EF <- Oil_prod_EF %>%
+        dplyr::select( Region, years, ceds_sector, sector, Oil_production, units_production, EF, EF_units ) %>%
+        dplyr::distinct( ) %>%  # Needed as regions are duplicated currently (Oil_prod_EF has regional EFs duplicated for each iso within the given region)
         dplyr::left_join( global_total_production, by = "years" ) %>%
         dplyr::mutate( EF_replacement_weights = Oil_production / global_total_production ) %>%
         dplyr::mutate( Weighted_EF_contribution = EF_replacement_weights * EF ) %>%
@@ -765,7 +769,7 @@
 
     Oil_prod_EF_extended_isos <- sort( unique( Oil_production_region_mapped_long$iso ) )
 
-    GAINS_fug_OilProd_final_emiss <- Oil_prod_EF_extended %>%
+    GAINS_fug_oil_prod_final_emissions <- Oil_prod_EF_extended %>%
           dplyr::left_join( Oil_production_region_mapped_long, by = c( "Region", "iso", "years" ) ) %>%
           dplyr::mutate( oil_production = if_else( iso %!in% Oil_prod_EF_extended_isos & years %in% BP_OIL_YEARS_x, 0,  oil_production ) ) %>%
           dplyr::mutate( Down_scaled_emissions = EFs * oil_production ) %>%
@@ -774,12 +778,11 @@
           dplyr::rename( sector = ceds_sector )
 
 # ------------------------------------------------------------------------------
+
 # 9. Process BP and IEA natural gas production data - BP( favored over IEA (IEA provides only what BP is missing)
 #TODO: Confirm this detail (BP favored)
 #TODO: Disaggregate BP data for "other region" isos ("other africa"...), and split historical data for certain regions (for example: Sudan and S. Sudan)
 #TODO: Align this with the MCL BP_oil name column (so can just use the mapping file - MCL may need to be fixed)
-
-#******************* start here
 
 #   Initial cleaning of BP data (clean, map, convert units)
     not_BP_countries <- c( not_BP_countries,
@@ -868,14 +871,15 @@
 
 #   Initial cleaning of IEA gas production data:
 #   Select isos that are not in the BP dataSet,
-#   set production to NA from 1960-1970 (since all data is currently 0 (for Non-OECD isos),
+#   set production to NA from 1960-1970 (since all data is currently 0 (for Non-OECD isos not present in BP - data begins in 1971 for Non-OECD),
 #   and extend 2013 (final IEA production year) to 2014 (final CEDS year).
 #   TODO: This may not be 0 for 1960-1970 in future IEA data - this should be checked when updating IEA data versions.
+#   TODO: do we want to set NA 1960-1970 for the OECDs that are all 0 for these years ? (seems to be missing data for these isos too)
     IEA_gas <- en_stat_sector_fuel %>%
         dplyr::filter( sector == "natural_gas-production",
                        !( iso %in% BP_gas_isos ) ) %>%
         dplyr::left_join( MCL_unique_with_OECD_flag, by = "iso" ) %>%
-        dplyr::mutate_at( IEA_NA_YEARS, funs( if_else( OECD_flag == "NonOECD", NA_real_ , . ) ) )  %>%  # All data in these years is currently 0 for countries not in BP, and begins in 1971 (when non-oecd data begins)
+        dplyr::mutate_at( IEA_NA_YEARS, funs( if_else( OECD_flag == "NonOECD", NA_real_ , . ) ) )  %>%
         dplyr::mutate( !!X_end_year := !!rlang::sym( X_IEA_end_year ),
                        sector = "gas_production",
                        data_source = "IEA" ) %>%
@@ -886,26 +890,136 @@
 
 # ------------------------------------------------------------------------------
 
-#****** Start back here
+# 10. Downscale fugitive natural gas production emisisons using BP and IEA natural gas production data
 
-# 9. Downscale fug. ng production emissions.
+#   Check if all isos listed in IEA and BP NG production data are within GAINS fugitive
+#   gas production emissions data
+#   TODO: Change this to the updated iso check function once available
+#         (iso_check in analysis_functions.R) - with a stop not a warning
+    unique_GAINS_fug_gas_prod <- sort( unique( GAINS_fug_NG_prod$iso ) )
+    unique_gas_production <- sort( unique( Gas_production$iso ) )
 
+    GAS_production_isos_not_in_GAINS_fug_gas_prod_isos <- subset( unique_gas_production,
+                                                                 !( unique_gas_production
+                                                                 %in% unique_GAINS_fug_gas_prod ) )
 
+    if( length( GAS_production_isos_not_in_GAINS_fug_gas_prod_isos ) != 0 ){
 
+        printLog( GAS_production_isos_not_in_GAINS_fug_gas_prod_isos )
 
+        warning( "The above isos are in the gas production data but ",
+                 "not within the GAINS gas production fugitive emissions data...")
 
-# ******7. Final data processing
-#****add X's eventually to years
+    } else {
+
+        printLog( "All isos in the gas production data are",
+                  "within the GAINS gas production fugitive emissions data..." )
+
+    }
+
+#   Map gas production data to GAINS regions
+    Gas_production_region_mapped <- Gas_production %>%
+        dplyr::left_join( GAINS_country_map_clean, by = "iso" ) %>%
+        dplyr::select( Region, iso, sector, fuel, units, X_emissions_years )
+
+#   Aggregate by region for each year, extend aggregate data forward to 2020 for EF (currently extending 2014 to 2020)
+#   TODO: Confirm that we want to aggregate even after IEAs last reported year of data (1971) - as Only BP data would be available.
+#         Probably doesn't matter since for EF cut off aggregated data to GAINS_EMISS_YEARS_KEEP_X (2000, 2005, 2015, 2020)
+    gas_production_extension_years <- paste0( "X", ( end_year + 1 ): LAST_GAINS_YEAR_FOR_INTERP )
+
+    Gas_production_aggRegion_for_EF <- Gas_production_region_mapped %>%
+        dplyr::select( -iso ) %>%
+        dplyr::group_by( Region, sector, fuel, units ) %>%
+        dplyr::summarise_all( funs( sum ( ., na.rm = TRUE) ) ) %>%
+        dplyr::ungroup( ) %>%
+        dplyr::mutate_at( gas_production_extension_years, funs( identity( !!rlang::sym( X_end_year ) ) ) ) %>%
+        dplyr::rename( units_production = units ) %>%
+        dplyr::select( Region, sector, fuel, units_production, GAINS_EMISS_YEARS_KEEP_X ) %>%
+        tidyr::gather( key = years, value = gas_production, GAINS_EMISS_YEARS_KEEP_X )
+
+#   Create emissions factor by GAINS Regions
+#   Regional EF = (GAINS fugitive gas production dist. emiss by GAINS reg. / IEA and BP gas production activity by GAINS reg.)
+    gas_prod_EF <- GAINS_fug_NG_prod %>%
+        dplyr::rename( GAINS_fug_gas_prod_emissions = Emissions ) %>%
+        dplyr::left_join( Gas_production_aggRegion_for_EF, by = c("Region", "years" ) ) %>%
+        dplyr::select( Region, iso, years, ceds_sector, units, GAINS_fug_gas_prod_emissions, sector, units_production, gas_production  ) %>%
+        dplyr::mutate( EF = GAINS_fug_gas_prod_emissions / gas_production,
+                       EF_units = "(GAINS_gasProd_Emiss / IEAbp_gas_prod), by GAINS reg." )
+
+#   If region's EF = 0 or if regional EF is NaN (0/0), assign global weighted average EF
+#   TODO: Confirm this assumption with Steve
+    global_total_production <- gas_prod_EF %>%
+        dplyr::select( years, gas_production ) %>%
+        dplyr::distinct( ) %>%                         # distinct is needed, as currently regional production is repeated for each iso within the given region
+        dplyr::group_by( years ) %>%
+        dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+        dplyr::ungroup( ) %>%
+        dplyr::rename( global_total_production = gas_production )
+
+    Weighted_EF <- gas_prod_EF %>%
+        dplyr::select( Region, years, ceds_sector, sector, gas_production, units_production, EF, EF_units ) %>%
+        dplyr::distinct( ) %>%  # Needed as regions are duplicated currently (Oil_prod_EF has regional EFs duplicated for each iso within the given region)
+        dplyr::left_join( global_total_production, by = "years" ) %>%
+        dplyr::mutate( EF_replacement_weights = gas_production / global_total_production ) %>%
+        dplyr::mutate( Weighted_EF_contribution = EF_replacement_weights * EF ) %>%
+        dplyr::select( years, Weighted_EF_contribution ) %>%
+        dplyr::group_by( years ) %>%
+        dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+        dplyr::ungroup( ) %>%
+        dplyr::rename( Weighted_EF = Weighted_EF_contribution )
+
+    gas_prod_EF_fixed <- gas_prod_EF %>%
+        dplyr::left_join( Weighted_EF, by = "years" ) %>%
+        dplyr::mutate( EF = if_else( is.na( EF ) | EF == 0, Weighted_EF, EF ) ) %>%
+        dplyr::select( Region, iso, ceds_sector, sector, EF_units, years, EF )
+
+#   Interpolate the EF between GAINS years, retain only CEDS years (2000-2014)
+    gas_prod_EF_interp <- gas_prod_EF_fixed %>%
+        tidyr::spread( years, EF ) %>%
+        dplyr::mutate_at( MISSING_GAINS_YEARS_TO_MAKE, funs( identity( NA ) ) ) %>%
+        dplyr::select( Region, iso, ceds_sector, EF_units, GAINS_INTERP_YEARS_X ) %>%
+        interpolate_NAs_new( ) %>%
+        dplyr::select( Region, iso, ceds_sector, EF_units, GAINS_FINAL_YEARS_WITH_X )
+
+#   Extend earliest EF year gas_prod_EF_interp to start_year (2000 back to 1960)
+    gas_prod_EF_extended <- gas_prod_EF_interp %>%
+        dplyr::mutate_at( missing_years_for_extending, funs( identity( !!rlang::sym( GAINS_START_YEAR_X ) ) ) ) %>%
+        dplyr::select( Region, iso, ceds_sector, EF_units, X_emissions_years ) %>%
+        tidyr::gather( key = years, value = EFs, X_emissions_years )
+
+#   Downscale GAINS fugitive gas production emissions by multiplying EF by IEA and BP gas production data
+#   Note: production values are set to 0 for isos which are not within the combined IEA and BP production data (assumes theyu were NA because 0 production )
+    gas_production_region_mapped_long <- Gas_production_region_mapped %>%
+        tidyr::gather( key = years, value = gas_production, X_emissions_years )
+
+    gas_prod_EF_extended_isos <- sort( unique( gas_production_region_mapped_long$iso ) )
+
+    GAINS_fug_gas_prod_final_emissions <- gas_prod_EF_extended %>%
+        dplyr::left_join( gas_production_region_mapped_long, by = c( "Region", "iso", "years" ) ) %>%
+        dplyr::mutate( gas_production = if_else( iso %!in% gas_prod_EF_extended_isos & years %in% X_emissions_years, 0,  gas_production ) ) %>%
+        dplyr::mutate( Down_scaled_emissions = EFs * gas_production ) %>%
+        dplyr::select( iso, ceds_sector, units, years, Down_scaled_emissions ) %>%
+        tidyr::spread( years, Down_scaled_emissions ) %>%
+        dplyr::rename( sector = ceds_sector )
+
+# ------------------------------------------------------------------------------
+# 10. Final data processing - combine into 1 data frame, provide units and fuel (process)
+
+GAINS_fugitive_emissions_final <- dplyr::bind_rows( GAINS_fug_gas_prod_final_emissions,
+                                                    GAINS_fug_oil_prod_final_emissions,
+                                                    GAINS_fug_NGdist_final_emiss ) %>%
+        dplyr::mutate( units = "kt",
+                       fuel = "process") %>%
+        dplyr::select( iso, sector, fuel, units, X_emissions_years )
 
 # ------------------------------------------------------------------------------
 
+# 11. Output
+writeData( GAINS_fugitive_emissions_final, domain = "DIAG_OUT", fn = paste0( "C.GAINS_NC_Emissions_",em ) )
+writeData( Oil_production, domain = "DIAG_OUT", fn = paste0( "C.BP_and_IEA_oil_production"  ) )
+writeData( Gas_production, domain = "DIAG_OUT", fn = paste0( "C.BP_and_IEA_natural_gas_production" ) )
 
-#**** 8. Output
-
-
-# addToEmissionsDb( edgar, em = em, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
-# writeData( edgar, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em ) )
-#***** check over full script
+addToEmissionsDb( GAINS_fugitive_emissions_final, em = em, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
 
 logStop()
 # END
