@@ -51,12 +51,13 @@
     region <- c( "usa" ) 
     sector_fuel_mapping <- 'US_scaling_mapping'
     mapping_method <- 'sector'
-    inv_years <- c( 1970, 1975, 1980, 1985, 1990:2014 )
+    last_inv_year <- min(2018,BP_last_year)
+    inv_years <- c( 1970, 1975, 1980, 1985, 1990:last_inv_year )
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
     inv_data_folder <- 'MED_OUT'
 
     if ( em == 'NH3' ) {
-        inv_years <- c( 1990:2014 )
+        inv_years <- c( 1990:last_inv_year )
     }
 
 # ------------------------------------------------------------------------------

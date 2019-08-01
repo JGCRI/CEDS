@@ -1,11 +1,12 @@
 #------------------------------------------------------------------------------
 # Program Name: B1.1.base_SO2_comb_EF_parameters.R
 # Authors: Leyang Feng, Jon Seibert, Tyler Pitkanen
-# Date Last Updated: Nov 4, 2015
+# Date Last Updated: August 25, 2019
 # Program Purpose: Use the default sulfur content, ash retention, control percentage for a
 # specified combustion emission species to create default sulfur content, ash retention, control
-# percentage databases accurately corresponding to the fuels and sectors in A.comb_activity.csv
-# Input Files: A.comb_activity.csv
+# percentage databases corresponding to the fuels and sectors in A.final_comb_activity_modern.csv
+# Input Files: A.final_comb_activity_modern.csv, Master_Fuel_Sector_List.xlsx, Master_Fuel_Sector_List.xlsx,
+#              [em]_base_EF.csv, fuel_sector_ash_retention_mapping.xlsx
 # Output Files: B.[em]_S_Content_db.csv, B.[em]_S_AshRet_db.csv
 # Notes:
 # TODO: For ash retention, use join instead of for loop
@@ -18,7 +19,7 @@
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( "data_functions.R", "analysis_functions.R" ) # Additional function files required.
+    headers <- c( "IO_functions.R", "data_functions.R", "analysis_functions.R" ) # Additional function files required.
     log_msg <- "Extrapolating default emissions factors to full dataset" # First message to be printed to the log
     script_name <- "B1.1.base_SO2_comb_EF_parameters.R"
     source( paste0( PARAM_DIR, "header.R" ) )
@@ -32,7 +33,7 @@
 # 1. Read in files and pre processing
 
 # Read in Module A activity data
-    activity_data <- readData( "MED_OUT", "A.comb_activity" )
+    activity_data <- readData( "MED_OUT", "A.final_comb_activity_modern" )
 
 # Read in mapping files
     fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List",
@@ -44,6 +45,7 @@
                              ".xlsx", sheet_selection = "fuel" )
     sector_AshRet <- readData( "MAPPINGS", "fuel_sector_ash_retention_mapping",
                                ".xlsx", sheet_selection = "sector" )
+
 # Fill out and combine ash_retention map
     fuel_sector_AshRet <- merge( fuel_AshRet, sector_AshRet,
                                  all = TRUE )

@@ -1,0 +1,12 @@
+iso,sector,fuel,units,X1989,X1990,X1999,X2000,X2004,X2005,X2009,X2010,X2016,X2017
+ind,1A3b_Road,diesel_oil,fraction,0.01,0.005,0.005,0.0025,0.0025,0.0005,0.0005,0.00035,0.00035,0.00005
+ind,1A3c_Rail,diesel_oil,fraction,0.01,0.005,0.005,0.0025,0.0025,0.0005,0.0005,0.00035,0.00035,0.00005
+ind,1A4c_Agriculture-forestry-fishing,diesel_oil,fraction,0.01,0.005,0.005,0.0025,0.0025,0.0005,0.0005,0.00035,0.00035,0.00005
+ind,1A2g_Ind-Comb-Construction,diesel_oil,fraction,0.01,0.005,0.005,0.0025,0.0025,0.0005,0.0005,0.00035,0.00035,0.00005
+ind,1A3eii_Other-transp,diesel_oil,fraction,0.01,0.005,0.005,0.0025,0.0025,0.0005,0.0005,0.00035,0.00035,0.00005
+ind,1A4b_Residential,diesel_oil,fraction,0.01,0.005,0.005,0.0025,0.0025,0.0005,0.0005,0.00035,0.00035,0.00005
+ind,1A3b_Road,light_oil,fraction,,,,,0.002,0.0005,0.0005,0.00015,0.00015,0.00005
+ind,1A3c_Rail,light_oil,fraction,,,,,0.002,0.0005,0.0005,0.00015,0.00015,0.00005
+ind,1A4c_Agriculture-forestry-fishing,light_oil,fraction,,,,,0.002,0.0005,0.0005,0.00015,0.00015,0.00005
+ind,1A2g_Ind-Comb-Construction,light_oil,fraction,,,,,0.002,0.0005,0.0005,0.00015,0.00015,0.00005
+ind,1A3eii_Other-transp,light_oil,fraction,,,,,0.002,0.0005,0.0005,0.00015,0.00015,0.00005

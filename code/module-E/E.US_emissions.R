@@ -5,7 +5,7 @@
 # Program Purpose: To read in & reformat US emissions inventory data
 # Input Files: national_tier1_caps.xlsx
 # Output Files: E.[em]_US_inventory.csv
-# Notes: 
+# Notes:
 # TODO:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
@@ -18,15 +18,15 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
     if ( is.na( em ) ) em <- "NOx"
-  
-# Call standard script header function to read in universal header files - 
+
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( 'common_data.R', "data_functions.R", 
+    headers <- c( 'common_data.R', "data_functions.R",
                   "emissions_scaling_functions.R", "analysis_functions.R",
                   "interpolation_extension_functions.R" ) # Additional function files required.
     log_msg <- "Initial reformatting of US emissions" # First message to be printed to the log
     script_name <- "E.US_emissions.R"
-    
+
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
@@ -36,7 +36,13 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     inventory_data_file <- 'USA/national_tier1_caps'
     inv_data_folder <- "EM_INV"
     inv_name <- 'US' #for naming diagnostic files
-    inv_years<-c( 1970, 1975, 1980, 1985, 1990:2014 )
+    # Set last year for inventory data here
+    # This can be either before or after the last year for the data system
+    # Any differences between the two are to be resolved in the module F script.
+    # The job of the module E scripts is simply to supply available emissions data
+    last_year <- 2018
+
+    inv_years<-c( 1970, 1975, 1980, 1985, 1990:last_year )
 
 # ------------------------------------------------------------------------------
 # 2. Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
@@ -48,72 +54,79 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     if ( em == 'PM25' ) sheet_name <- 'PM25Primary'
     if ( em == 'PM10' ) sheet_name <- 'PM10Primary'
 
-    inv_data_sheet <- readData( inv_data_folder, inventory_data_file , ".xlsx" ) 
+    inv_data_sheet <- readData( inv_data_folder, inventory_data_file , ".xlsx" )
 
 # Process given emission if inventory data exists
     if ( sheet_name %in% names( inv_data_sheet ) ) {
     # Extract the data sheet corresponding to the emissions species
-        inv_data_sheet <- data.frame( inv_data_sheet[ sheet_name ] ) 
-      
+        inv_data_sheet <- data.frame( inv_data_sheet[ sheet_name ] )
+
     # Clean rows and columns to standard format; different emissions species
     # require different columns and year ranges
         if ( em == 'NH3' ) {
-            inv_years <- c( 1990:2014 )
-            inv_data_sheet <- inv_data_sheet[ -1:-3, 1:26 ]
+            inv_years <- c( 1990:last_year )
+            number_of_years <- last_year - 1988
+            inv_data_sheet <- inv_data_sheet[ -1:-3, 1:number_of_years ]
         } else if ( em == 'NMVOC' ) {
-            inv_data_sheet <- inv_data_sheet[ -1:-3, 1:30 ]
+            number_of_years <- last_year - 1984
+            inv_data_sheet <- inv_data_sheet[ -1:-3, 1:number_of_years ]
         } else {
-            inv_data_sheet <- inv_data_sheet[ -1:-4, 1:30 ]
+          number_of_years <- last_year - 1984
+          inv_data_sheet <- inv_data_sheet[ -1:-4,  1:number_of_years ]
         }
-        
+
     # Name columns
         names( inv_data_sheet ) <- c( 'sector', paste0( 'X', inv_years ) )
-        
+
     # Convert years to Xyears
         X_inv_years <- paste0( 'X', inv_years )
-        
+
     # Set iso
         inv_data_sheet$iso <- 'usa'
-        inv_data_sheet <- inv_data_sheet[ , c( 'iso', 'sector', 
+        inv_data_sheet <- inv_data_sheet[ , c( 'iso', 'sector',
                                                paste0( 'X', inv_years ) ) ] ### use X_inv_years
-        
+
     # Remove rows with all NAs
         remove.na <- which( apply( inv_data_sheet[ , paste0( 'X', inv_years ) ],
                                    1, function( x ) all.na( x ) ) )
         inv_data_sheet <- inv_data_sheet[ -remove.na, ]
-        
+
     # Make numeric, convert "NA" to NA
-        inv_data_sheet[ , paste0( 'X', inv_years ) ] <- 
+        inv_data_sheet[ , paste0( 'X', inv_years ) ] <-
                 suppressWarnings( sapply( inv_data_sheet[ , paste0( 'X',
                                                                     inv_years ) ],
                                           as.numeric ) )
-        
-    # Remove wildfire emissions; identify those rows with sector "Wildfires" and
+
+    # Remove wildfire emissions; identify the row with sector "Wildfires" and
     # subtract from "Miscellaneous"
         wildfire_emissions <-
                inv_data_sheet[ which( inv_data_sheet$sector == 'Wildfires' ),
                                X_inv_years ]
+        
+        # TODO: Since wildfire emisisons are not broken out for first few years, insert NA 
+        # instead for misc category in cases where wildfire emissions that are > 20%
+        # of Miscellaneous total. (only the case for NOx at present)
         wildfire_emissions[ is.na( wildfire_emissions ) ] <- 0
-        
-        inv_data_sheet[ which( inv_data_sheet$sector == 'MISCELLANEOUS' ), 
+
+        inv_data_sheet[ which( inv_data_sheet$sector == 'MISCELLANEOUS' ),
                                                             X_inv_years ] <-
-           inv_data_sheet[ which( inv_data_sheet$sector == 'MISCELLANEOUS' ), 
+           inv_data_sheet[ which( inv_data_sheet$sector == 'MISCELLANEOUS' ),
                            X_inv_years ] - wildfire_emissions
-        
+
     # Convert to metric tonnes
-        inv_data_sheet[ , paste0( 'X', inv_years ) ] <- 
+        inv_data_sheet[ , paste0( 'X', inv_years ) ] <-
           as.matrix( inv_data_sheet[ , paste0( 'X', inv_years ) ] ) * 0.9072
-        
+
     # Seems this introduces too many NAs for NH3, so only run for other species
         if ( em != 'NH3' ) {
         # Remove values that are the are constant carried forward
             check_years <- length( X_inv_years ):2
             check_against <- ( length( X_inv_years ) - 1 ):1
             for ( i in seq_along( check_years ) ) {
-              
+
                 for ( n in seq_along( inv_data_sheet[ , 1 ] ) ) {
-                    if ( any( inv_data_sheet[ n, X_inv_years[ check_years[ i ] ] ] == 
-                              inv_data_sheet[ n, X_inv_years[ check_against[ i ] ] ], 
+                    if ( any( inv_data_sheet[ n, X_inv_years[ check_years[ i ] ] ] ==
+                              inv_data_sheet[ n, X_inv_years[ check_against[ i ] ] ],
                               na.rm = TRUE ) )
                       inv_data_sheet[ n, X_inv_years[ check_years[ i ] ] ] <- NA
                 }
@@ -126,7 +139,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
 # ------------------------------------------------------------------------------
 # 3. Write standard form inventory
-    writeData( inv_data_sheet, domain = "MED_OUT", 
+    writeData( inv_data_sheet, domain = "MED_OUT",
                paste0( 'E.', em, '_', inv_name, '_inventory' ) )
 
 # Every script should finish with this line

@@ -4,7 +4,7 @@
 # Date Last Modified: Feb 1 2016
 # Program Purpose: Reads in emissions factors (EFs) and historical fuel
 #                      consumption data to calculate historical emissions.
-# Input Files: A.comb_activity.csv, B.[em]_default_EF.csv
+# Input Files: A.final_comb_activity_modern.csv, B.[em]_default_EF.csv
 # Output Files: D.[em]_default_comb_emissions.csv
 # Notes: Reads in emission species from Makefile. If running in R, specify
 #            emission species by changing the value of default_em_species
@@ -35,7 +35,7 @@
 # ------------------------------------------------------------------------------
 # 1. Read in files
 
-comb_energy_data <- readData( "MED_OUT", "A.comb_activity" )
+comb_energy_data <- readData( "MED_OUT", "A.final_comb_activity_modern" )
 comb_ef_data  <- readData( "MED_OUT", paste0("B.", em, "_comb_EF_db" ) )
 
 nc_energy_data <- readData( "MED_OUT", "A.NC_activity" )
@@ -43,11 +43,13 @@ nc_ef_data  <- readData( "MED_OUT", paste0("C.", em, "_NC_EF" ) )
 
 
 # Check input files for correct naming
+printLog( "Checking energy and combustion data" )
 fuelCheck( comb_energy_data )
 fuelCheck( comb_ef_data  )
 sectorCheck( comb_energy_data )
 sectorCheck( comb_ef_data  )
 
+printLog( "Checking non-combustion data" )
 fuelCheck( nc_energy_data )
 fuelCheck( nc_ef_data  )
 sectorCheck( nc_energy_data )
@@ -56,7 +58,7 @@ sectorCheck( nc_ef_data  )
 # ------------------------------------------------------------------------------
 # 2. Define Functions
 
-# Function to calculate default emissions data from energy data and emissions factors
+# Function to calculate default emissions data from driver data and emissions factors
 calculateEmissions <- function( drivers, efs ){
 
 #   # DEBUG

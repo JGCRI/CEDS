@@ -1,13 +1,13 @@
 #------------------------------------------------------------------------------
 # Program Name: A5.3.proc_activity.R
 # Author: Jon Seibert
-# Date Last Modified: June 16, 2015
+# Date Last Modified: August 23, 2019
 # Program Purpose: To process and reformat non-combustion (process) activity activity_data
 #                  and combine it with combustion activity activity_data to create a total
 #                  activity database.
-# Input Files: A.comb_activity.csv, A.NC_activity_db.csv, Master_Fuel_Sector_List.xlsx,
+# Input Files: A.final_comb_activity_modern.csv, A.NC_activity_db.csv, Master_Fuel_Sector_List.xlsx,
 #              Master_Country_List.csv
-# Output Files: A.NC_activity.csv, A.total_activity.csv, A.NC_missing_sectors.csv,
+# Output Files: A.NC_activity.csv, A.NC_missing_sectors.csv,
 #               A.NC_dropoff_sectors.csv
 # Notes:
 # TODO:
@@ -39,7 +39,6 @@ fuel <- "process"
 # ------------------------------------------------------------------------------
 # 1. Read in files
 
-energy_data <- readData( "MED_OUT","A.comb_activity" )
 activity_data <- readData( "MED_OUT", "A.NC_activity_db", meta = FALSE )
 
 # Master Sector List
@@ -78,18 +77,10 @@ nc_activity <- nc_activity[,c('iso','sector','fuel','units',X_emissions_years)]
 # Sort nc_activity by iso, sector, and then fuel
 nc_activity <- nc_activity[ with( nc_activity, order( iso, sector, fuel ) ), ]
 
-# Combine nc_activity with A.comb_activity
-total_activity <- rbind( energy_data,nc_activity )
-
-# Sort final by iso, sector, and then fuel
-total_activity <- total_activity[ with( total_activity, order( iso, sector, fuel ) ), ]
-
 # ------------------------------------------------------------------------------
 # 4. Output
 
 writeData( nc_activity, domain = "MED_OUT", fn = "A.NC_activity", meta = TRUE )
-writeData( total_activity, domain = "MED_OUT", fn = "A.total_activity", meta = TRUE )
-
 # ------------------------------------------------------------------------------
 # 5. Diagnostic
 

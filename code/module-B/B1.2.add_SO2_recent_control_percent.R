@@ -3,8 +3,9 @@
 # Author: Leyang Feng
 # Date Last Updated: 18 May 2016
 # Program Purpose: Adding EF trends for SO2 control percentage for recent years
-# Input Files: B.[em]_comb_EF_GAINS_EMF30, B.[em]_ControlFrac_db
-# Output Files: B.[em]_ControlFrac_db
+# Input Files: B.[em]_comb_EF_GAINS_EMF30, B.[em]_ControlFrac_db,
+#              SO2_control_frac_last_inv_year.xlsx, SO2_control_frac_exclude_fuel_sector.csv
+# Output Files: B.[em]_ControlFrac_db.csv
 # Notes:
 
 # ------------------------------------------------------------------------------
@@ -40,7 +41,7 @@
     exclude_sector_fuel_combination <-
                readData( 'MAPPINGS', 'SO2_control_frac_exclude_fuel_sector' )
 
-# read in the control percentage db
+# Read in the control percentage db
     control_db <- readData( 'MED_OUT', paste0( 'B.', em, '_ControlFrac_db' ) )
 # ------------------------------------------------------------------------------
 # 2. Recent year Gains EF ratio calculation

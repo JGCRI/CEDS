@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A8.2.combine_extended_activity.R
 # Author: Rachel Hoesly
-# Date Last Updated: 07 February 2019
+# Date Last Updated: August 19, 2019
 # Program Purpose:
 # Input Files: A.comb_user_added.csv
 #              A.NC_default_activity_extended.csv
@@ -31,7 +31,7 @@ initialize( script_name, log_msg, headers )
 
 A.comb_extended <- readData('MED_OUT','A.comb_user_added')
 A.NC_default_activity_extended <- readData('MED_OUT','A.NC_default_activity_extended')
-
+MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
 
 # ---------------------------------------------------------------------------
 # 2. Combine combustion and non combustion extended activity data
@@ -46,35 +46,51 @@ total <- A.comb_extended %>%
     dplyr::bind_rows( A.NC_default_activity_extended ) %>%
     dplyr::arrange(iso, sector, fuel)
 
+# Modern era energy data
+ceds_comb_modern <- total %>%
+    dplyr::filter( sector %!in% c( "1A1bc_Other-feedstocks", "1A1bc_Other-transformation" ) )
+
+column_names <-  c( "iso", "sector", "fuel", "units" )
+modern_years <- 1960:BP_last_year
+X_modern_years <- paste0("X", modern_years)
+
+ceds_comb_modern <-  ceds_comb_modern[ c( column_names,  X_modern_years ) ]
+
+# Keep only combustion sectors
+combustion_sectors <- c(MSL[ which( MSL$activity %in% c( 'Energy_Combustion' ) ), 'sector' ] )
+
+ceds_comb_modern <- ceds_comb_modern %>%
+    dplyr::filter( sector %in% combustion_sectors )
 
 # 10. Other Output ---------------------------------------------------------------------
 
 # Total fossil fuel by aggregate fuel
 total_coal <- A.comb_extended %>%
-    filter(fuel %in% c('hard_coal','brown_coal','coal_coke')) %>%
-    mutate(fuel = 'coal') %>%
-    group_by(iso, fuel, units) %>%
-    summarise_if(is.numeric, sum)
+    dplyr::filter( fuel %in% c( 'hard_coal','brown_coal','coal_coke' ) ) %>%
+    dplyr::mutate( fuel = 'coal' ) %>%
+    dplyr::group_by( iso, fuel, units ) %>%
+    dplyr::summarise_if(is.numeric, sum)
 total_natural_gas <- A.comb_extended %>%
-    filter(fuel %in% c('natural_gas')) %>%
-    group_by(iso, fuel, units) %>%
-    summarise_if(is.numeric, sum)
+    dplyr::filter( fuel %in% c( 'natural_gas' ) ) %>%
+    dplyr::group_by( iso, fuel, units ) %>%
+    dplyr::summarise_if( is.numeric, sum )
 total_oil <- A.comb_extended %>%
-    filter(fuel %in% c('light_oil','diesel_oil','heavy_oil','oil')) %>%
-    mutate(fuel = 'oil') %>%
-    group_by(iso,units) %>%
-    summarise_if(is.numeric, sum)
+    dplyr::filter( fuel %in% c( 'light_oil','diesel_oil','heavy_oil','oil' ) ) %>%
+    dplyr::mutate( fuel = 'oil' ) %>%
+    dplyr::group_by( iso,units ) %>%
+    dplyr::summarise_if( is.numeric, sum )
 
 # other_tranformation
 other_tranformation <- A.comb_extended %>%
-    filter(sector %in% "1A1bc_Other-transformation")
+    dplyr::filter( sector %in% "1A1bc_Other-transformation" )
 other_feedstocks <- A.comb_extended %>%
-    filter(sector %in% "1A1bc_Other-feedstocks")
+    dplyr::filter( sector %in% "1A1bc_Other-feedstocks" )
 
 # ----------------------------------------------------------------------------
 
 # Write out the data
 writeData( total , "MED_OUT", "A.total_activity_extended" )
+writeData( ceds_comb_modern , "MED_OUT", "A.final_comb_activity_modern" )
 
 writeData( total_coal , "MED_OUT", "A.activity_extended_coal" )
 writeData( total_natural_gas , "MED_OUT", "A.activity_extended_natural_gas" )

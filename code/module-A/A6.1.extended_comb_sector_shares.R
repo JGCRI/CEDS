@@ -8,10 +8,10 @@
 # Input Files:  CD.Bond_sector_percentages.csv
 #               ext_sector_breakdown_assumptions.csv
 #               ext_sector_percents_start_assumptions.csv
-#               A.comb_activity_with_other.csv
+#               A.default_comb_activity_with_other.csv
 #               IEA_iso_start_data.csv
 #               Bond_sector_ext_map.xlsx --> sheet CEDS_to_ext
-# Output Files: A.final_sector_shares.csv
+# Output Files: A.full_default_sector_shares.csv
 # TODO:
 #       - better feedstock extension
 # ---------------------------------------------------------------------------
@@ -39,7 +39,7 @@ ext_sector_breakdown_assumptions <-
 ext_sector_percents_start_assumptions <-
     readData( 'EXT_IN', 'ext_sector_percents_start_assumptions', meta = F )
 
-activity_all <- readData( 'MED_OUT', 'A.comb_activity_with_other', meta = F )
+activity_all <- readData( 'MED_OUT', 'A.default_comb_activity_with_other', meta = F )
 
 iea_start_year <- readData( 'ENERGY_IN' , 'IEA_iso_start_data' )
 
@@ -450,6 +450,6 @@ final_percentages_corrected <- final_percentages_corrected %>%
 # ---------------------------------------------------------------------------
 # 9. Write to database
 
-writeData( final_percentages_corrected, "MED_OUT", "A.final_sector_shares" )
+writeData( final_percentages_corrected, "MED_OUT", "A.full_default_sector_shares" )
 
 logStop( )

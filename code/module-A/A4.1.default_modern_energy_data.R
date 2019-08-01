@@ -1,12 +1,12 @@
 #------------------------------------------------------------------------------
-# Program Name: A4.1.complete_energy_data.R
+# Program Name: A4.1.default_modern_energy_data.R
 # Author(s): Jon Seibert, Linh Vu, Rachel Hoesly
 # Date Last Modified: 01 June 2018
 # Program Purpose: To expand IEA_BP energy data to include entries for all possible
 #                  id combinations.
 # Input Files: A.IEA_BP_energy_ext.csv, Master_Fuel_Sector_List.xlsx,
 #              Master_Country_List.csv, Master_Fuel_Sector_List.xlsx
-# Output Files: A.comb_activity.csv, A.Other_transformation_fuel,
+# Output Files: A.default_comb_activity.csv, A.Other_transformation_fuel,
 #               A.Other_transformation_agg_fuel, A.total_agg_fuel,
 #               A.other_IEA_energy_values",
 # Notes:
@@ -23,7 +23,7 @@
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "data_functions.R", "analysis_functions.R" ) # Additional function files required.
     log_msg <- "Completion of all combustion data entries" # First message to be printed to the log
-    script_name <- "A4.1.complete_energy_data.R"
+    script_name <- "A4.1.default_modern_energy_data.R"
 
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
@@ -148,7 +148,7 @@
 # ------------------------------------------------------------------------------
 # 5. Output
 # Add comments for each table
-    comments.A.comb_activity <- c( paste0( "IEA energy statistics",
+    comments.A.default_comb_activity <- c( paste0( "IEA energy statistics",
             " by intermediate sector / intermediate fuel / historical year,",
             " extended with BP data and filled out with all combustion",
             " iso-sector-fuel combinations." ) )
@@ -158,10 +158,8 @@
                                                  " iso-sector-fuel combinations." ) )
 # write out data
 
-    writeData( energy_data_combustion_no_other, domain = "MED_OUT",
-               fn = "A.comb_activity", comments = comments.A.comb_activity )
     writeData( full_energy_data_combustion, domain = "MED_OUT",
-               fn = "A.comb_activity_with_other", comments = comments.A.comb_activity )
+               fn = "A.default_comb_activity_with_other", comments = comments.A.default_comb_activity )
     writeData( other_transformation, domain = "MED_OUT",
                fn = "A.Other_transformation_fuel")
     # A.total_agg_fuel contains total consumption of each fuel, including other transformation and feedstocks for reference

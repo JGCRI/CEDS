@@ -5,7 +5,7 @@
 # Program Purpose: Add Sulfur Standards to default sulfur EF.
 # values from 2005 back to 1975. Does not take user input data.
 #
-# Input Files: Diesel_transport_S_trend.xlsx
+# Input Files: Diesel_transport_S_trend.xlsx, Master_Country_List.csv
 #
 # Output Files: B.SO2_diesel_s_content.csv
 # TODO:
