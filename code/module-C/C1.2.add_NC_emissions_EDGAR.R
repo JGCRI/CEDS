@@ -285,14 +285,14 @@ if ( em == 'CH4' ){
 }
 
 # ------------------------------------------------------------------------------
-# 7. For N2O, aggregate CEDS sectors, as multile EDGAR sectors mapped to 1 CEDS
+# 7. For N2O, aggregate CEDS sectors, as multiple EDGAR sectors are mapped to 1 CEDS
 #    sector (such as EDGAR sectors 4B and 4D2 mapping to CEDS 3B_Manure-management )
 #    Note: This is done because addToEmissionsDb expects there to only be 1 value
 #          for each CEDS sector (for each CEDS sec, fuel, and iso combination),
 #          thus without doing this addToEmissionsDb would only copy the first value for
 #          a CEDS sector, fuel, and iso combination, when there could be more than 1 value
-#    docTODO: It should be checked to see if this needs to occur for other ems in this script
-#             as well as the Module C EDGAR PEGASOS script for any ems
+#    TODO: It should be checked to see if this needs to occur for other ems in this script
+#          as well as the Module C EDGAR PEGASOS script for any ems
 if ( em == 'N2O' ){
 
     edgar <- edgar %>%

@@ -57,6 +57,11 @@
     e_sheet <- em
     if ( em == 'NMVOC' ) e_sheet <- 'VOC'
 
+    em_use <- em
+    if ( em == "N2O") em_use <- "NOx" # Use NOx for N2O (as no N2O GAINS data)
+
+#   TODO: confirm the use of NOx for N2O with EDGAR ratio (and that no GAINS N2O online)
+
 #   Define years of interest
 
 #       Years within GAINS emissions data, GAINS 1st year, and GAINS last year for extension and interpolation
@@ -175,6 +180,11 @@
 #   UN Population data
     pop <- readData( "MED_OUT", "A.UN_pop_master" )
 
+#*************start back here   Load EDGAR processed inventories if em is N2O (need ratio of fugitive oil and gas
+#   between NOx and N2O from EDGAR)
+    # writeData( edgar, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em ) )
+
+
 # ------------------------------------------------------------------------------
 
 # 3. Reformat mapping files
@@ -283,7 +293,7 @@
 
 #   Provide units - note that CO2 emissions are provided as Tg rather than GG or kt
 #   (as noted in B1.1.base_comb_GAINS_EMF-30.R) and must be converted.
-    if( em == 'CO2' ){
+    if( em_use == 'CO2' ){
 
         kt_per_Tg <- 1000
 
@@ -1015,11 +1025,11 @@ GAINS_fugitive_emissions_final <- dplyr::bind_rows( GAINS_fug_gas_prod_final_emi
 # ------------------------------------------------------------------------------
 
 # 11. Output
-writeData( GAINS_fugitive_emissions_final, domain = "DIAG_OUT", fn = paste0( "C.GAINS_NC_Emissions_",em ) )
+writeData( GAINS_fugitive_emissions_final, domain = "DIAG_OUT", fn = paste0( "C.GAINS_NC_Emissions_",em_use ) )
 writeData( Oil_production, domain = "DIAG_OUT", fn = paste0( "C.BP_and_IEA_oil_production"  ) )
 writeData( Gas_production, domain = "DIAG_OUT", fn = paste0( "C.BP_and_IEA_natural_gas_production" ) )
 
-addToEmissionsDb( GAINS_fugitive_emissions_final, em = em, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
+addToEmissionsDb( GAINS_fugitive_emissions_final, em = em_use, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
 
 logStop()
 # END
