@@ -57,6 +57,11 @@ cdiac_start_year <- 1750
 cdiac_end_year <- 2011
 cdiac_end_year_cement <- 2015
 
+# ---------------------------------
+# Define available CEDS releases
+# versions include:
+# 1) "v2016_07_26"    ---   CEDS Release 1 (CMIP release)
+available_CEDS_releases <- c( "v2016_07_26" )
 
 
 # ---------------------------------
