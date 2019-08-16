@@ -1,6 +1,6 @@
 # Program Name: A1.4.IEA_heat_content.R
 # Author: Linh Vu, Rachel Hoesly
-# Date Last Updated: 26 Jul 2016
+# Date Last Updated: 16, August 2019
 # Program Purpose: Computes weighted average heat content from IEA Conversion Factors
 #                  by country, year and fuel type. Currently doing this for coal.
 # Input Files: OECD_Conversion_Factors_Full.csv, NonOECD_Conversion_Factors_Full.csv,
@@ -208,7 +208,7 @@
   hc_coal_all_ext <- cast( hc_coal_all_ext )
 
   # Constantly extend heat value forward
-  extended_years <- paste0( "X", X_BP_years )
+  extended_years <- X_BP_years
   hc_coal_all_ext<- hc_coal_all_ext %>%
     dplyr::mutate_at( extended_years, funs( identity ( !!rlang::sym( X_IEA_end_year ) ) ) )
 
