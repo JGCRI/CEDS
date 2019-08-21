@@ -19,12 +19,12 @@ BP_last_year <- 2014 # Last years for BP data
 BP_data_file_name <- "bp-stats-review-2019-all-data"
 
 BP_first_year <- IEA_end_year + 1 # First year for BP only data
-BP_years <- BP_first_year:BP_last_year # The years for which there is only BP data
+BP_years <- BP_first_year : BP_last_year # The years for which there is only BP data
 
-X_BP_years <- paste0("X", BP_years)
-X_BP_last_year <- paste0("X", BP_last_year)
+X_BP_years <- paste0( "X", BP_years )
+X_BP_last_year <- paste0( "X", BP_last_year )
 
-# If this flag is set then a consistent fromer USSR line needs to be created during BP sheet processing
+# If this flag is set then a consistent former USSR line needs to be created during BP sheet processing
 BP_FSU_aggregate <- TRUE
 
 # Edgar year
@@ -32,19 +32,19 @@ EDGAR_start_year <- 1971
 EDGAR_end_year <- 2010
 
 # The combined yearset for historical emission years
-emissions_years <- c(IEA_years,BP_years)
-X_emissions_years <- paste0( "X", emissions_years)
+emissions_years <- c( IEA_years,BP_years )
+X_emissions_years <- paste0( "X", emissions_years )
 
-start_year = IEA_start_year # In present configuration, start year is first year of IEA data
-X_start_year = paste0("X",start_year)
-end_year = BP_last_year # In present configuration, end year is last BP year
-X_end_year = paste0("X",end_year)
+start_year <- IEA_start_year # In present configuration, start year is first year of IEA data
+X_start_year <- paste0( "X", start_year )
+end_year <- BP_last_year
+X_end_year <- paste0( "X", end_year )
 
 # historical extension using CDIAC and RCP
 historical_pre_extension_year <- 1750
 historical_end_extension_year <- 1965
-extended_years <- historical_pre_extension_year:end_year
-X_extended_years <- paste0('X',extended_years)
+extended_years <- historical_pre_extension_year : end_year
+X_extended_years <- paste0( 'X', extended_years )
 
 # Bond Data Years
 bond_start <- 1850
