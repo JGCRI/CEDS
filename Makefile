@@ -942,8 +942,31 @@ $(MED_OUT)/gridded-emissions/CEDS_$(EM)_anthro_%.csv: \
 	$(PARAMS)/nc_generation_functions.R \
 	$(FINAL_OUT)/current-versions/CEDS_$(EM)_emissions_by_country_CEDS_sector_*.csv
 	Rscript $< $(EM) --nosave --no-restore
+	
 ifeq ($(EM),NMVOC)
-	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R NMVOC --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC01 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC02 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC03 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC04 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC05 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC06 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC07 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC08 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC09 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC12 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC13 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC14 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC15 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC16 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC17 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC18 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC19 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC20 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC21 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC22 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC23 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC24 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC25 --nosave --no-restore
 endif
 
 $(FINAL_OUT)/gridded-emissions/$(EM)-em-anthro*: \
@@ -951,8 +974,31 @@ $(FINAL_OUT)/gridded-emissions/$(EM)-em-anthro*: \
 	$(MED_OUT)/gridded-emissions/CEDS_$(EM)_anthro_*.csv
 	rm -fv $(FINAL_OUT)/gridded-emissions/$(EM)-em-anthro*
 	Rscript $< $(EM) --nosave --no-restore
+
 ifeq ($(EM),NMVOC)
-	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R NMVOC --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC01 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC02 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC03 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC04 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC05 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC06 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC07 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC08 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC09 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC12 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC13 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC14 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC15 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC16 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC17 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC18 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC19 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC20 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC21 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC22 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC23 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC24 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC25 --nosave --no-restore
 endif
 
 
