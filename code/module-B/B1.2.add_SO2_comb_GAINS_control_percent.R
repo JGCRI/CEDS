@@ -1,18 +1,18 @@
 # ---------------------------------------------------------------------------
-# Program Name: B1.2.add_SO2_GAINS_control_percent.R
-# Author: Ryan Bolt, Leyang, Linh Vu
-# Date Last Updated: 19 April 2016
+# Program Name: B1.2.add_SO2_comb_GAINS_control_percent.R
+# Author: Ryan Bolt, Leyang, Linh Vu, Patrick O'Rourke
+# Date Last Updated: April 1, 2019
 # Program Purpose: Process 2005 GAINS emissions and fuel to calculate GAINS EF, then calculate
 # 2005 GAINS control percentage. Combine 2005 GAINS control percentage to SO2 control percentage
 # database in the end.
-#
 # Input Files: Master_Country_List.csv,
 #              GAINS_emiss_act_sect-EU28-2005-SO2_nohead.csv,
 #              GAINS_aen_act_sect-nohead-EU28.csv,
 #              GAINS_country_mapping.csv, GAINS_fuel_mapping.csv,
-#              GAINS_sector_mapping.csv, B.SO2_GAINS_s_ash_ret.csv,
+#              GAINS_sector_mapping.csv, B.SO2_GAINS_s_content,
+#              B.SO2_GAINS_s_ash_ret.csv, B1.1.Europe_heat_content_IEA,
 #              GAINS_pre_ext_year.csv
-# Output Files: B.SO2_GAINS_control_percent.csv, B1.2.heat_content.csv
+# Output Files: B.SO2_GAINS_control_percent.csv
 # Notes:
 # TODO:
 #
@@ -57,7 +57,7 @@
 # Previously processed GAINS S content
     s_content <- readData( "DEFAULT_EF_PARAM", "B.SO2_GAINS_s_content")
 
-# Previously processed GAINS S ash retention
+# Previously processed GAINS S ash retention - retain only EU
     gains_ashret <- readData('DEFAULT_EF_PARAM', 'B.SO2_GAINS_s_ash_ret')
 
 # Previously processed IEA heat content data
@@ -68,7 +68,25 @@
         pre_ext_year_map <- readData( "GAINS_MAPPINGS",  "GAINS_pre_ext_year" )
 
 # ---------------------------------------------------------------------------
-# 2. Pre-process EUfuel and EUemiss and map to CEDS
+
+# 2. Subset s content and ash retention data only for European countries in GAINS
+#    data
+    unique_GAINS_european_isos_list <- c("aut", "bel", "bgr", "cyp", "cze", "deu",
+                                        "dnk", "esp", "est", "fin", "fra", "gbr",
+                                        "grc", "hrv", "hun", "irl", "ita",
+                                        "ltu", "lux", "lva", "mlt", "nld", "pol",
+                                        "prt", "rou", "svk", "svn", "swe" )
+
+    s_content_EU <- s_content %>%
+        dplyr::filter( iso %in% unique_GAINS_european_isos_list ) %>%
+        dplyr::select_if( ~sum( ! is.na( . ) ) > 0 )
+
+    gains_ashret_EU <- gains_ashret %>%
+        dplyr::filter( iso %in% unique_GAINS_european_isos_list ) %>%
+        dplyr::select_if( ~sum( ! is.na( . ) ) > 0 )
+
+# ---------------------------------------------------------------------------
+# 3. Pre-process EUfuel and EUemiss and map to CEDS
 
 # Initialize processing dfs
     EUfuel <- EUfuel.import
@@ -108,8 +126,10 @@
 # EUfuel processing:
 # Rename columns
     colnames( EUfuel ) <- c( "iso", "reg_abb", "sector", "fuel", "Energy" )
+
 # Change from GAINS fuels to CEDS fuels
     EUfuel$fuel <- fuelmap[ match( EUfuel$fuel, fuelmap$GAINS.fuel ), 1 ]
+
 # Change from GAINS sectors to CEDS sectors
     EUfuel <- mapCEDS_sector_fuel( mapping_data = EUfuel,
                                    mapping_file = sectormap,
@@ -137,8 +157,10 @@
 # Rename columns again
     colnames( EUemiss ) <- c( "iso", "reg_abb", "sector",
                               "fuel", "Sulfur_emiss" )
+
 # Convert from GAINS fuels to CEDS fuels
     EUemiss$fuel <- fuelmap[ match( EUemiss$fuel, fuelmap$GAINS.fuel ), 1 ]
+
 # Convert from GAINS sectors to CEDS sectors
     EUemiss <- mapCEDS_sector_fuel( mapping_data = EUemiss,
                                     mapping_file = sectormap,
@@ -155,6 +177,7 @@
 # Disaggregate 0_Temp-Aggregated, a placeholder for reading in GAINS
     EUemiss_disagg <- filter( EUemiss, sector == "0_Temp-Aggregated" ) %>%
                         repeatAndAddVector( "sector", disagg_sectors )
+
 # Add disaggregated rows back into the main dataframe and remove 0_Temp-Aggregated
     EUemiss <- filter( EUemiss, sector != "0_Temp-Aggregated" ) %>%
                                     bind_rows( EUemiss_disagg ) %>%
@@ -167,7 +190,7 @@
                                                        gainstoiso$country ) ] )
 
 # ---------------------------------------------------------------------------
-# 3. Calculate emissions factors
+# 4. Calculate emissions factors
 #    First, convert fuels to mass values from energy values given heat content.
 #    Then calculate emissions factors by dividing emissions by fuel burned
 
@@ -179,6 +202,7 @@
     EUemiss <- aggregate( EUemiss[ c( "Sulfur_emiss" ) ],
                           by = EUemiss[ c( "iso", "sector", "fuel" ) ],
                           FUN = sum )
+
 # Combine fuel and emissions into a single df
     EmissFactors <- merge( EUfuel, EUemiss, all.x = T, all.y = F )
 
@@ -234,12 +258,16 @@
 # Calculate emissions factors by dividing emissions by fuel burned
 # (now in mass units)
     EmissFactors$EF_2005 <- EmissFactors$Sulfur_emiss / EmissFactors$Energy
+
 # Drop unneeded columns
     EmissFactors <- EmissFactors[ , c( "iso", "sector", "fuel", "units", "EF_2005" ) ]
+
 # Retain only complete cases
     EmissFactors <- EmissFactors[ complete.cases( EmissFactors ), ]
+
 # Drop values of infinity
     EmissFactors <- EmissFactors[ -which( EmissFactors$EF_2005 == 'Inf' ), ]
+
 # Rename columns ### this seems very unnecessary given that we just used these column names to order the rows
     names( EmissFactors ) <- c( "iso", "sector", "fuel", "units", "EF_2005" )
 
@@ -250,7 +278,7 @@
     EmissFactors <- EmissFactors[ which( EmissFactors$EF_2005 < 10^4 ), ]
 
 # -------------------------------------------------------------------------------
-# 4.Calculate GAINS control percentage using GAINS emission factors
+# 5.Calculate GAINS control percentage using GAINS emission factors
 
     Gains_EF  <- EmissFactors
 
@@ -258,15 +286,18 @@
     countries <- unique( Gains_EF$iso )
 
 # Calculate Default emissions factors (pre control) with base EF and ash retention
-    base <- s_content[ , c( 'iso', 'sector', 'fuel', 'X2005' ) ]
+    base <- s_content_EU[ , c( 'iso', 'sector', 'fuel', 'X2005' ) ]
+
 ### Why are we just multiplying by 2?
     base$X2005 <- base$X2005 * 2
     names( base ) <- c( 'iso', 'sector', 'fuel', 'X2005base' )
 
 # merge ash retention with S content
-    default <- merge( gains_ashret, base, all.x = TRUE, all.y = FALSE )
+    default <- merge( gains_ashret_EU, base, all.x = TRUE, all.y = FALSE )
+
 # Calculate default EFs from S content and ash retention
     default$default_EF <- default$X2005base * ( 1 - default$X2005 )
+
 # Drop columns that are NA (had NA for either calculation variable)
     default <- default[ !is.na( default$default_EF ), ]
     default$units <- 'kt/kt'
@@ -296,8 +327,10 @@
 
 # Calculate Control Percent
     combined.all$control_percent <- 1 - combined.all$gains / combined.all$default
+
 # Drop 0 control pct rows
     combined <- combined.all[ which( combined.all$control_percent > 0 ), ]
+
 # Drop control pct values over 1
     combined <- combined[ which( combined$control_percent <= 1 ), ]
     combined$units <- 'percent'
@@ -309,7 +342,7 @@
                             value = 'control_percent' )
 
 # -------------------------------------------------------------------------------
-# 4. Prepare for automated addition to ContFrac_db in other mod B scripts.
+# 6. Prepare for automated addition to ContFrac_db in other mod B scripts.
 #    Define extension options.
 
 # Split eastern and western europe
@@ -325,20 +358,24 @@
 
         names( pre_ext_year_map )[ names( pre_ext_year_map ) == "pre_ext_year" ] <-
                     "pre_ext_year_override"
+
     # Combine control_percent with pre_ext_year
         control_percent <- merge( control_percent, pre_ext_year_map, all.x = T )
+
     # Isolate rows with values for pre_ext-year
         override <- !is.na( control_percent$pre_ext_year_override )
+
     # Incorporate and drop old column
         control_percent$pre_ext_year[ override ] <- control_percent$pre_ext_year_override[ override ]
         control_percent$pre_ext_year_override <- NULL
     }
 
 # -------------------------------------------------------------------------------
-# 5. Write output
+# 7. Write output
 
     writeData( control_percent, domain = "DEFAULT_EF_PARAM",
                fn = "B.SO2_GAINS_control_percent")
 
     logStop()
+
 # END

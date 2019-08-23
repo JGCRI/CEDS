@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.Edgar_PEGASOS_scaling.R
 # Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly
-# Date Last Modified: Dec 27, 2015
+# Date Last Modified: June 10, 2019
 # Program Purpose: To create scaling factors and update emissions estimate for
 #                  Edgar PEGASOS
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
@@ -21,15 +21,15 @@
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
     if ( is.na( em ) ) em <- "NOx"
-
-# Call standard script header function to read in universal header files -
+  
+# Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( 'common_data.R', "data_functions.R",
                   "emissions_scaling_functions.R", "analysis_functions.R",
                   "interpolation_extension_functions.R" ) # Additional function files required.
     log_msg <- "Edgar inventory scaling" # First message to be printed to the log
     script_name <- paste0( em, "-F1.1.Edgar_PEGASOS_scaling.R" )
-
+    
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
@@ -38,12 +38,12 @@
 
 # Stop script if running for unsupported species
   if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO', 'CH4', 'NH3' ) ) {
-      stop( paste( 'Edgar scaling is not supported for emission species ',
+      stop( paste( 'Edgar scaling is not supported for emission species ', 
                     em, '. Remove from script
                     list in F1.1.inventory_scaling.R' ) )
   }
-
-
+  
+  
 # For each Module E script, define the following parameters:
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
@@ -75,7 +75,7 @@
                   "lva", "mkd", "pol", "rou", "scg", "svk", "svn", "blr", "mda",
                   "ukr", "kaz", "kgz", "tjk", "tkm", "uzb", "arm", "aze", "geo",
                   "rus", "are", "irn", "irq", "isr", "jor", "kwt", "lbn", "omn",
-                  "qat", "sau", "syr", "yem", "afg", "bgd", "btn", "ind", "lka",
+                  "qat", "sau", "syr", "yem", "afg", "bgd", "btn", "lka",
                   "mdv", "npl", "pak", "kor", "prk", "chn", "hkg", "mac", "mng",
                   "twn", "brn", "khm", "lao", "mmr", "mys", "phl", "sgp", "tha",
                   "tls", "vnm", "idn", "png", "jpn", "aus", "cok", "fji", "kir",
