@@ -83,11 +83,12 @@
 
 
 # Convert gas_fuels EF from kt/TJ to kt/kt
+# Gas_fuels EF from CDIAC is TJ gross (HHV), so use appropriate  conversion factor
     emission_coefficient$Emission_Coefficient[ emission_coefficient$fuel %in%
                                                  "natural_gas" ] <-
       emission_coefficient$Emission_Coefficient[ emission_coefficient$fuel %in%
                                                    "natural_gas" ] *
-      conversionFactor_naturalgas_TJ_per_kt  # kt/TJ * TJ/kt = kt/kt
+      conversionFactor_naturalgas_TJ_per_kt_Gross  # kt/TJ * TJ/kt = kt/kt
     emission_coefficient$units[ emission_coefficient$fuel %in% "natural_gas" ] <-
              "kt CO2/kt"
 

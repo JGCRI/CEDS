@@ -208,12 +208,13 @@
   hc_coal_all_ext <- cast( hc_coal_all_ext )
 
   # Constantly extend heat value forward
-  extended_years <- X_BP_years
-  hc_coal_all_ext<- hc_coal_all_ext %>%
-    dplyr::mutate_at( extended_years, funs( identity ( !!rlang::sym( X_IEA_end_year ) ) ) )
+  X_extended_years <- X_BP_years
+  hc_coal_all_ext_forward <- hc_coal_all_ext %>%
+    dplyr::mutate_at( X_extended_years, funs( identity ( !!rlang::sym( X_IEA_end_year ) ) ) )
+
 
 # ---------------------------------------------------------------------------
 # 5. Output
-  writeData( hc_coal_all_ext, "MED_OUT", "A.coal_heat_content" )
+  writeData( hc_coal_all_ext_forward, "MED_OUT", "A.coal_heat_content" )
 
   logStop()

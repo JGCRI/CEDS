@@ -52,15 +52,13 @@ initialize( script_name, log_msg, headers )
     IEA_correction <- readData( "ENERGY_IN", "IEA_biomass_double_counting", ".xlsx" )
 
 # Read/define conversion factors
-    # 2005 TJ/kt for USA and European countries
+    # Extract an average 2005 TJ/kt value to use below for USA and European countries
     Master_Country_List <- readData( "MAPPINGS", "Master_Country_List" )
-    kt_to_TJ <- readData( "MED_OUT", "A.Fernandes_biomass_conversion" )
-    kt_to_TJ$region <- Master_Country_List$Region[ match( kt_to_TJ$iso, Master_Country_List$iso ) ]
-    kt_to_TJ <- select( kt_to_TJ, iso, units, region, X2005 ) %>%
+    kt_to_TJ_US_EU <- readData( "MED_OUT", "A.Fernandes_biomass_conversion" )
+    kt_to_TJ_US_EU$region <- Master_Country_List$Region[ match( kt_to_TJ_US_EU$iso, Master_Country_List$iso ) ]
+    kt_to_TJ_US_EU <- select( kt_to_TJ_US_EU, iso, units, region, X2005 ) %>%
       filter( iso == "usa" | grepl( "Europe", region ) )
-    kt_to_TJ <- mean( kt_to_TJ$X2005, na.rm = T )
-
-    tBtu_to_TJ <- 0.94782 * 10^3 # source: eia.gov/cfapps/ipdbproject/docs/unitswithpetro.cfm
+    kt_to_TJ_US_EU <- mean( kt_to_TJ_US_EU$X2005, na.rm = T )
 
 
 # ------------------------------------------------------------------------------
@@ -96,7 +94,7 @@ initialize( script_name, log_msg, headers )
     Eur_biomass <- filter( Eur_biomass, !is.na( iso ) )
     Eur_biomass$iso[ Eur_biomass$iso == "yug" ] <- "scg"  # Serbia and Montenegro
     Eur_biomass$iso <- tolower( Eur_biomass$iso )
-    Eur_biomass$Eur <- Eur_biomass$Eur / kt_to_TJ  # convert from TJ to kt
+    Eur_biomass$Eur <- Eur_biomass$Eur / kt_to_TJ_US_EU  # convert from TJ to kt
     Eur_biomass$units <- "kt"
     Eur_biomass$year <- 2005
 
@@ -106,9 +104,14 @@ initialize( script_name, log_msg, headers )
     EIA_biomass$EIA <- as.numeric( as.character( EIA_biomass$EIA ) )
     EIA_biomass$iso <- "usa"
     EIA_biomass$EIA <- EIA_biomass$EIA * tBtu_to_TJ  # trillion Btu to TJ
-    EIA_biomass$EIA <- EIA_biomass$EIA / kt_to_TJ  # TJ to kt
+    EIA_biomass$EIA <- EIA_biomass$EIA / kt_to_TJ_US_EU  # TJ to kt
     EIA_biomass$units <- "kt"
 
+	# EIA uses higher heating value for wood, which we estimate to be 18.60 MJ/tonne
+	# so convert here to lower heating value
+	EIA_HHV = 18.60 # MJ/tonne
+	EIA_biomass$EIA <- EIA_biomass$EIA * conversionFactor_biomass_kt_TJ / EIA_HHV
+    
 # Merge all 4 datasets and keep only emissions years
     biomass_0 <- merge( IEA_biomass, Fern_biomass, all = T ) %>%
       merge( Eur_biomass, all.x = T ) %>%

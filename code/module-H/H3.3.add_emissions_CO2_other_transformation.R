@@ -97,16 +97,18 @@ if( em != 'CO2') {
     # 'other_recovered_gases' is represented by the name 'oxygen_steel_furnace_gas' within the emission_coeficient_df
     #  so 'oxygen_steel_furnace_gas' is used to extract the emission coeficient if the current coal gas is 'other_recovered_gases'.
     #  Else the coal gas' name is used; for other coal gases
+    
+    # TODO - Trace units here and make sure Net is the correct conversion factor
     if(coal_gas == "other_recovered_gases"){
       emission_coefficient_df$Emission_Coefficient[emission_coefficient_df$fuel == "oxygen_steel_furnace_gas"] <-
         (emission_coefficient_df$Emission_Coefficient[emission_coefficient_df$fuel == "oxygen_steel_furnace_gas"] *
-           conversionFactor_naturalgas_TJ_per_kt)
+           conversionFactor_naturalgas_TJ_per_kt_Net)
       emission_coefficient_df$units[ emission_coefficient_df$fuel == "oxygen_steel_furnace_gas" ] <- "kt CO2/kt"
 
     }else{
       emission_coefficient_df$Emission_Coefficient[emission_coefficient_df$fuel == coal_gas] <-
         (emission_coefficient_df$Emission_Coefficient[emission_coefficient_df$fuel == coal_gas] *
-           conversionFactor_naturalgas_TJ_per_kt)
+           conversionFactor_naturalgas_TJ_per_kt_Net)
       emission_coefficient_df$units[ emission_coefficient_df$fuel == coal_gas ] <- "kt CO2/kt"
 
     }#if-else

@@ -114,8 +114,8 @@ endif
 # If a multi-processor machine is available, CEDS should be instead run in parellel for multiple species
 all: SO2-emissions BC-emissions OC-emissions NOx-emissions CO-emissions NMVOC-emissions CO2-emissions NH3-emissions
 part1: SO2-emissions NOx-emissions NH3-emissions
-part2: CO-emissions NMVOC-emissions
-part3: BC-emissions OC-emissions CO2-emissions
+part2: BC-emissions OC-emissions CO2-emissions
+part3: CO-emissions NMVOC-emissions CH4-emissions
 
 # --------------------------------------------------------------
 
@@ -409,7 +409,7 @@ $(MED_OUT)/A.intl_shipping_en.csv: \
 # aa3-2
 # Write out difference between IEA and CEDS coal
 $(MED_OUT)/A.IEA_CEDS_coal_difference.csv: \
-	$(MOD_A)/A3.3.write_IEA_diff.R \
+	$(MOD_A)/A2.3.write_IEA_diff.R \
 	$(MED_OUT)/A.IEA_BP_energy_ext.csv
 	Rscript $< $(EM) --nosave --no-restore
 

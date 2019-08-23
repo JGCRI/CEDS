@@ -216,7 +216,10 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
   # read current-run and last-run emissions summary
   em_current <- readData( "FIN_OUT", summary_fn, domain_extension = "current-versions/", meta = F )
   em_last_fn <- list.files( paste0( "../final-emissions/", em, "_last-run/" ), pattern = base_fn )
-  stopifnot( length( em_last_fn ) == 1 )
+  if( length( em_last_fn ) != 1 ) {
+     stop( paste("ERROR: Multiple previous last emissions.",
+                 "Check that final-emissions/current-versions directory contains only one version per species") )
+  }
   em_last <- readData( "FIN_OUT", paste0( em, "_last-run/", em_last_fn ), meta = F )
   id_cols <- names( em_current )[ !grepl( "X", names( em_current ) ) ]
   id_cols_last <- names( em_last )[ !grepl( "X", names( em_last ) ) ]
