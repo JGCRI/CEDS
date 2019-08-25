@@ -7,7 +7,7 @@
 #                  Adds historical BP-projected data to historical IEA years data
 # Input Files: A.IEA_BP_energy_ext.csv, BP_energy_data.xlsx,
 #              Master_Country_List.csv, Master_Fuel_Sector_List.xlsx,
-# Output Files: A.comb_activity.csv, A.IEA_BP_sum_comparison.csv, A.IEA_BP_trend_comparison.csv
+# Output Files: IEA_BP_energy_ext.csv, A.IEA_BP_sum_comparison.csv, A.IEA_BP_trend_comparison.csv
 # Notes: IEA_years, BP_years, start_year and X_ variants defined in common_data.R
 # TODO: Clean up formatting and section breaks, add subsections
 #       Maybe expand on comments

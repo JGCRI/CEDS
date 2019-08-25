@@ -4,7 +4,7 @@
 # Program Purpose: Computes weighted average heat content from IEA Conversion Factors
 #                  by country, year and fuel type. Currently doing this for coal.
 # Input Files: OECD_Conversion_Factors_Full.csv, NonOECD_Conversion_Factors_Full.csv,
-#              IEA_product_fuel.csv, Master_Country_List.csv, A.comb_activity
+#              IEA_product_fuel.csv, Master_Country_List.csv, A.IEA_en_stat_ctry_hist
 # Output Files:  A.coal_heat_content.csv
 # Notes: This script handles iso+fuel+year duplicates by summing. This works
 #        because all duplicates are currently disaggregated countries and

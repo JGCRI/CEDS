@@ -47,7 +47,7 @@
                                    sheet_selection = "Fraction_Oxidized" )
 
 # Load base activity data from Module A
-    activity_data <- readData( "MED_OUT", "A.comb_activity" )
+    activity_data <- readData( "MED_OUT", "A.final_comb_activity_modern" )
 
 # Load mapping files
     MCL <- readData( "MAPPINGS", "Master_Country_List" )

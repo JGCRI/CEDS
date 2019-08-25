@@ -14,7 +14,7 @@
 #              A.residential_biomass_full.csv,
 #              A.industrial_biomass_extended.csv,
 #              A.other_biomass_extended.csv,
-#              A.comb_activity_with_other.csv,
+#              A.default_comb_activity_with_other.csv,
 #              A.intl_shipping_en.csv,
 #              IEA_iso_start_data.csv
 # Output Files: A.combustion_default_activity_extended.csv
@@ -59,7 +59,7 @@ A.industrial_biomass_extended  <- readData('MED_OUT', 'A.industrial_biomass_exte
 A.residential_biomass_extended <- readData('MED_OUT', 'A.residential_biomass_full')
 
 shipping_fuel      <- readData('MED_OUT', 'A.intl_shipping_en')
-ceds_comb_activity <- readData('MED_OUT', 'A.comb_activity_with_other')
+ceds_comb_activity <- readData('MED_OUT', 'A.default_comb_activity_with_other')
 iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
 
 
@@ -176,11 +176,10 @@ iea_start_year     <- readData('ENERGY_IN', 'IEA_iso_start_data')
     # Check for NAs
     if( anyNA( ceds_comb_extended ) ) stop('NAs in final extended combustion data. Please Check')
 
-
 # 10. Write out the data ---------------------------------------------------------------
 
     writeData( ceds_comb_extended , "MED_OUT", "A.comb_default_activity_extended" )
-
+  
     logStop()
 
 # END

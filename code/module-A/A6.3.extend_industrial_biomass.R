@@ -1,12 +1,10 @@
-# A6.3.extend_industrial_biomass.R ---------------------------------------------
-#
 # Program Name:  A6.3.extend_industrial_biomass.R
 # Authors:       Rachel Hoesly, Caleb Braun
-# Last Modified: May, 2018
+# Last Modified: August 19, 2019
 # Purpose:       Extend Industrial Biomass with Bond data.
 #                Transition from CEDS to Bond values
 #
-# Input Files:   A.total_activity, A.UN_pop_master, IEA_iso_start_data
+# Input Files:   A.default_comb_activity_with_other, A.UN_pop_master, IEA_iso_start_data
 #                CD.Bond_country_industrial_biomass
 # Output Files:  A.industrial_biomass_extended
 # Method Summary: 1. Disaggregate Bond data in CEDS Countries
@@ -33,7 +31,7 @@ initialize( script_name, log_msg, headers )
 
 iea_start_year <- readData( 'ENERGY_IN', 'IEA_iso_start_data', meta = F )
 bond_biomass   <- readData( 'EXT_IN', 'CD.Bond_country_industrial_biomass' )
-activity       <- readData( 'MED_OUT', 'A.total_activity' )
+activity <- readData( 'MED_OUT', "A.default_comb_activity_with_other" , meta = F)
 un_pop         <- readData( 'MED_OUT', 'A.UN_pop_master', meta = F )
 
 
