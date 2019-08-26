@@ -3,7 +3,7 @@
 # Authors: Rachel Hoesly
 # Date Last Updated: Nov 24, 2015
 # Program Purpose: Initialize default control percentage Db for all emission species
-# Input Files: A.comb_activity
+# Input Files: A.final_comb_activity_modern
 # Output Files: B.[em]_ControlFrac_db
 # Notes:
 # TODO:
@@ -32,7 +32,7 @@
 # 1. Read in files
 # for running directly from R - defines emission species (normally from command line)
 
-    activity_data <- readData( "MED_OUT", "A.comb_activity" )
+    activity_data <- readData( "MED_OUT", "A.final_comb_activity_modern" )
 
 # ------------------------------------------------------------------------------
 # 2. Create default sulfur content, ash retention, control percentage databases

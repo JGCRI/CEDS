@@ -4,7 +4,7 @@
 # Date Last Updated: 19 Jan 2016
 # Program Purpose: Generate base emission factors from global GAINS EMF-30 data
 #                  for NOx, NMVOC, CH4, CO
-# Input Files: Aviation_base_EF.xlsx, A.comb_activity.csv,
+# Input Files: Aviation_base_EF.xlsx, A.final_comb_activity_modern.csv,
 #              B.[em]_comb_EF_GAINS_EMF30
 # Output Files: B.[em]_comb_EF_db
 # Notes: transportation_rail only hase a 2020 values, so interpolated values are constant
@@ -49,7 +49,7 @@
 # 1. Load Data
 
 # Load Mod A activity data
-    activity_data <- readData( "MED_OUT", "A.comb_activity" )
+    activity_data <- readData( "MED_OUT", "A.final_comb_activity_modern" )
 
 # Load mapping files
     Master_Country_List <- readData( domain = 'MAPPINGS',

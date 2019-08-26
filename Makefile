@@ -19,6 +19,7 @@ SC_MAPPINGS = input/mappings/scaling
 ACTIV = input/activity
 INV_DATA = input/emissions-inventories
 MED_OUT = intermediate-output
+ENERGY_IN = input/energy
 DIAG_OUT = diagnostic-output
 FINAL_OUT = final-emissions
 EXT_IN = input/extension
@@ -69,13 +70,9 @@ export EM = NONE
 	@printf '%*s\n' "$${COLUMNS:-$$(tput cols)}" '' | tr ' ' =
 	@$(MAKE) gridded-emissions
 
-activity: $(MED_OUT)/A.total_activity.csv \
+activity: $(MED_OUT)/A.total_activity_extended.csv \
 	$(EXT_DATA)/A.Pig_Iron_Production.csv \
-	$(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv \
 	$(MED_OUT)/A.coal_heat_content.csv
-
-extended-activity: $(MED_OUT)/A.total_activity_extended.csv \
-	$(EXT_DATA)/A.Pig_Iron_Production.csv
 
 else
 
@@ -114,8 +111,8 @@ endif
 # If a multi-processor machine is available, CEDS should be instead run in parellel for multiple species
 all: SO2-emissions BC-emissions OC-emissions NOx-emissions CO-emissions NMVOC-emissions CO2-emissions NH3-emissions
 part1: SO2-emissions NOx-emissions NH3-emissions
-part2: CO-emissions NMVOC-emissions
-part3: BC-emissions OC-emissions CO2-emissions
+part2: BC-emissions OC-emissions CO2-emissions
+part3: CO-emissions NMVOC-emissions CH4-emissions
 
 # --------------------------------------------------------------
 
@@ -409,20 +406,15 @@ $(MED_OUT)/A.intl_shipping_en.csv: \
 # aa3-2
 # Write out difference between IEA and CEDS coal
 $(MED_OUT)/A.IEA_CEDS_coal_difference.csv: \
-	$(MOD_A)/A3.3.write_IEA_diff.R \
-	$(MED_OUT)/A.IEA_BP_energy_ext.csv
+	$(MOD_A)/A2.3.write_IEA_diff.R \
+	$(MED_OUT)/A.IEA_en_stat_ctry_hist.csv \
+	$(MED_OUT)/A.en_biomass_fsu_fix.csv
 	Rscript $< $(EM) --nosave --no-restore
-
-$(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv: \
-	$(MED_OUT)/A.IEA_CEDS_coal_difference.csv
 
 # Write out difference between IEA and CEDS coal
 #$(MED_OUT)/A.IEA_CEDS_coal_difference.csv: \
 	$(MED_OUT)/A.IEA_BP_energy_ext.csv
 #	Rscript $< $(EM) --nosave --no-restore
-
-#$(MED_OUT)/A.IEA_CEDS_natural_gas_difference.csv: \
-	$(MED_OUT)/A.IEA_CEDS_coal_difference.csv
 
 # aa3-3
 # Process pig iron production
@@ -438,20 +430,20 @@ $(EXT_DATA)/A.Pig_Iron_Production.csv: \
 # naming note: includes both module A3 and A4
 # Expands energy data to include all possible id combinations
 # Splits energy combustion data and energy activity data
-$(MED_OUT)/A.comb_activity.csv: \
-	$(MOD_A)/A4.1.complete_energy_data.R \
+$(MED_OUT)/A.default_comb_activity_with_other.csv: \
+	$(MOD_A)/A4.1.default_modern_energy_data.R \
 	$(MED_OUT)/A.IEA_BP_energy_ext.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.NC_activity_energy.csv: \
-	$(MED_OUT)/A.comb_activity.csv
+	$(MED_OUT)/A.default_comb_activity_with_other.csv
 
 $(MED_OUT)/A.other_IEA_energy_values.csv	: \
-	$(MED_OUT)/A.comb_activity.csv
+	$(MED_OUT)/A.default_comb_activity_with_other.csv
 
 $(MED_OUT)/A.Other_transformation_fuel.csv: \
-	$(MED_OUT)/A.comb_activity.csv
+	$(MED_OUT)/A.default_comb_activity_with_other.csv
 
 # aa5-1
 # BRANCH BLOCK
@@ -490,83 +482,77 @@ $(MED_OUT)/A.pulp_paper_consumption_full.csv: \
 	$(MED_OUT)/A.NC_activity_db.csv
 
 # aa5-2a
-# Converts activity database into CEDS Standard and combines
-# with combustion activity data
-$(MED_OUT)/A.total_activity.csv: \
+# Make non-combustion activity data
+$(MED_OUT)/A.NC_activity.csv: \
 	$(MOD_A)/A5.3.proc_activity.R \
 	$(MAPPINGS)/Master_Country_List.csv \
-	$(MED_OUT)/A.comb_activity.csv \
 	$(MED_OUT)/A.NC_activity_db.csv
 	Rscript $< $(EM) --nosave --no-restore
 
-# aa5-2b
-$(MED_OUT)/A.NC_activity.csv: \
-	$(MED_OUT)/A.total_activity.csv
-
 # aa6- Historical Energy extension
 # Combustion data
-$(MED_OUT)/A.final_sector_shares.csv: \
+$(MED_OUT)/A.full_default_sector_shares.csv: \
 	$(MOD_A)/A6.1.extended_comb_sector_shares.R \
 	$(EXT_IN)/CD.Bond_sector_percentages.csv \
 	$(MED_OUT)/A.Other_transformation_fuel.csv \
-	$(MED_OUT)/A.comb_activity.csv \
+	$(MED_OUT)/A.default_comb_activity_with_other.csv \
 	$(EXT_IN)/ext_sector_breakdown_assumptions.csv \
 	$(EXT_IN)/ext_sector_percents_start_assumptions.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.comb_activity_extended_coal.csv: \
 	$(MOD_A)/A6.2.extended_default_activity_coal.R \
-	$(MED_OUT)/A.final_sector_shares.csv \
+	$(MED_OUT)/A.full_default_sector_shares.csv \
 	$(MED_OUT)/A.Other_transformation_fuel.csv \
-	$(MED_OUT)/A.comb_activity.csv \
+	$(MED_OUT)/A.default_comb_activity_with_other.csv \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.comb_activity_extended_natural_gas.csv: \
 	$(MOD_A)/A6.2.extended_default_activity_natural_gas.R \
-	$(MED_OUT)/A.final_sector_shares.csv \
+	$(MED_OUT)/A.full_default_sector_shares.csv \
 	$(MED_OUT)/A.Other_transformation_fuel.csv \
-	$(MED_OUT)/A.comb_activity.csv \
+	$(MED_OUT)/A.default_comb_activity_with_other.csv \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.comb_activity_extended_oil.csv: \
 	$(MOD_A)/A6.2.extended_default_activity_oil.R \
-	$(MED_OUT)/A.final_sector_shares.csv \
+	$(MED_OUT)/A.full_default_sector_shares.csv \
 	$(MED_OUT)/A.Other_transformation_fuel.csv \
-	$(MED_OUT)/A.comb_activity.csv \
+	$(MED_OUT)/A.default_comb_activity_with_other.csv \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.industrial_biomass_extended.csv: \
 	$(MOD_A)/A6.3.extend_industrial_biomass.R \
-	$(MED_OUT)/A.comb_activity.csv
+	$(EXT_IN)/CD.Bond_country_industrial_biomass.csv \
+	$(MED_OUT)/A.default_comb_activity_with_other.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.other_biomass_extended.csv: \
 	$(MOD_A)/A6.3.extend_other_biomass.R \
-	$(EXT_IN)/CD.Bond_country_industrial_biomass.csv \
-	$(MED_OUT)/A.comb_activity.csv
+	$(MED_OUT)/A.default_comb_activity_with_other.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 # combine all combustion extension data
 $(MED_OUT)/A.comb_default_activity_extended.csv: \
 	$(MOD_A)/A6.4.extended_default_comb_activity.R \
 	$(MED_OUT)/A.comb_activity_extended_coal.csv \
-	$(MED_OUT)/A.comb_activity_extended_natural_gas.csv \
 	$(MED_OUT)/A.comb_activity_extended_oil.csv \
-	$(MED_OUT)/A.total_activity.csv \
-	$(MED_OUT)/A.intl_shipping_en.csv \
-	$(MED_OUT)/A.residential_biomass_full.csv \
+	$(MED_OUT)/A.comb_activity_extended_natural_gas.csv \
+	$(MED_OUT)/A.other_biomass_extended.csv \
 	$(MED_OUT)/A.industrial_biomass_extended.csv \
-	$(MED_OUT)/A.other_biomass_extended.csv
+	$(MED_OUT)/A.residential_biomass_full.csv \
+	#$(MED_OUT)/A.intl_shipping_en.csv \
+	$(MED_OUT)/A.default_comb_activity_with_other.csv \
+	$(ENERGY_IN)/IEA_iso_start_data.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 # Non Combustion activity data
 $(MED_OUT)/A.NC_activity_extended_db.csv: \
 	$(MOD_A)/A7.1.base_activity.R \
 	$(MOD_A)/A7.2.add_activity.R \
-	$(MOD_A)/A7.3.proc_activity.R \
 	$(MOD_A)/A7.2.add_activity_CDIAC.R \
 	$(MOD_A)/A7.2.add_activity_population.R \
 	$(MOD_A)/A7.2.add_activity_pulp_paper_consumption.R \
@@ -590,6 +576,12 @@ $(MED_OUT)/A.comb_user_added.csv: \
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.total_activity_extended.csv: \
+	$(MOD_A)/A8.2.combine_extended_activity.R \
+	$(MED_OUT)/A.NC_default_activity_extended.csv \
+	$(MED_OUT)/A.comb_user_added.csv
+	Rscript $< $(EM) --nosave --no-restore
+
+$(MED_OUT)/A.final_comb_activity_modern.csv: \
 	$(MOD_A)/A8.2.combine_extended_activity.R \
 	$(MED_OUT)/A.NC_default_activity_extended.csv \
 	$(MED_OUT)/A.comb_user_added.csv
@@ -644,12 +636,11 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv: \
 	$(PARAMS)/analysis_functions.R \
 	$(PARAMS)/interpolation_extension_functions.R \
 	$(EF_DATA)/SO2_base_EF.csv \
-	$(MED_OUT)/A.comb_activity.csv \
+	$(MED_OUT)/A.final_comb_activity_modern.csv \
 	$(MAPPINGS)/Bond/Bond_country_map.csv \
 	$(MAPPINGS)/Bond/Bond_fuel_map.csv \
 	$(MAPPINGS)/Bond/Bond_sector_map.csv \
 	$(EXT_IN)/CD.Bond_country_industrial_biomass.csv \
-	$(MED_OUT)/A.comb_activity.csv \
 	$(MED_OUT)/A.coal_heat_content.csv \
 	$(EF_DATA)/CO2_base_EF.xlsx
 	Rscript $< $(EM) --nosave --no-restore
@@ -731,7 +722,7 @@ $(MED_OUT)/C.$(EM)_NC_EF.csv: \
 
 $(MED_OUT)/D.$(EM)_default_total_emissions.csv: \
 	$(MOD_D)/D1.1.default_emissions.R \
-	$(MED_OUT)/A.comb_activity.csv \
+	$(MED_OUT)/A.final_comb_activity_modern.csv \
 	$(MED_OUT)/A.NC_activity.csv \
 	$(MED_OUT)/B.$(EM)_comb_EF_db.csv \
 	$(MED_OUT)/C.$(EM)_NC_EF.csv
@@ -942,8 +933,31 @@ $(MED_OUT)/gridded-emissions/CEDS_$(EM)_anthro_%.csv: \
 	$(PARAMS)/nc_generation_functions.R \
 	$(FINAL_OUT)/current-versions/CEDS_$(EM)_emissions_by_country_CEDS_sector_*.csv
 	Rscript $< $(EM) --nosave --no-restore
+	
 ifeq ($(EM),NMVOC)
-	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R NMVOC --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC01 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC02 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC03 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC04 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC05 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC06 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC07 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC08 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC09 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC12 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC13 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC14 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC15 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC16 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC17 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC18 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC19 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC20 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC21 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC22 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC23 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC24 --nosave --no-restore
+	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC25 --nosave --no-restore
 endif
 
 $(FINAL_OUT)/gridded-emissions/$(EM)-em-anthro*: \
@@ -951,8 +965,31 @@ $(FINAL_OUT)/gridded-emissions/$(EM)-em-anthro*: \
 	$(MED_OUT)/gridded-emissions/CEDS_$(EM)_anthro_*.csv
 	rm -fv $(FINAL_OUT)/gridded-emissions/$(EM)-em-anthro*
 	Rscript $< $(EM) --nosave --no-restore
+
 ifeq ($(EM),NMVOC)
-	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R NMVOC --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC01 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC02 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC03 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC04 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC05 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC06 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC07 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC08 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC09 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC12 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC13 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC14 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC15 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC16 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC17 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC18 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC19 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC20 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC21 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC22 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC23 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC24 --nosave --no-restore
+	Rscript $(MOD_G)/G2.2.chunk_subVOC_emissions.R VOC25 --nosave --no-restore
 endif
 
 

@@ -19,7 +19,7 @@
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c('data_functions.R') # Additional function files required.
-log_msg <- paste0( "Calling species-specific child script to extend CEDS activity data" ) # First message to be printed to the log
+log_msg <- paste0( "Calling sector-specific child scripts to extend CEDS activity data" ) # First message to be printed to the log
 script_name <- "A7.2.add_activity.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )

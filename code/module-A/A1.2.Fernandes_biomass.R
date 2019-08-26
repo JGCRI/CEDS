@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A1.2.Fernandes_biomass.R
 # Author: Linh Vu
-# Date Last Updated: 7 June 2019
+# Date Last Updated: 16 July 2019
 # Program Purpose: This program produces 1850-IEA_end_year time series of residential biomass
 #                  consumption by country and fuel type from Fernandes biofuels data.
 #                  The program also produces fuel-weighted biomass conversion factors
@@ -70,7 +70,11 @@
 
 # Define useful values
 # TODO: Move Fernandes_years to common_data.R?
-  ktoe_to_TJ <- 41.8680000  # TJ/ktoe
+  ktoe_to_TJ <- 41.868  # TJ/ktoe
+  TJ_per_MJ <- 1 / 1000000
+  kg_per_kt <- 1000000
+  GAINS_conversionFactor_fuelwood_ktoe_per_kt <- GAINS_conversionFactor_fuelwood_MJ_per_kg * TJ_per_MJ / ktoe_to_TJ * kg_per_kt
+
   Fernandes_regions <- c( "North America", "Latin America", "Africa",
                           "Western Europe", "Eastern Europe/FSU", "Middle East",
                           "South Asia", "East Asia", "Southeast Asia", "Oceania" )
@@ -288,22 +292,42 @@
 
 # ------------------------------------------------------------------------------
 # 6. Calculate residential fuel-weighted biomass conversion factors by country
-# Note: Exclude Dom Charcoal from computation since IEA Charcoal is already in kt
-  Fernandes_biomass_conversion <- filter( full_discont_fixed, fuel != "Dom Charcoal" ) %>%
-    select( -units ) %>%
-    merge( heat_content ) %>%
-    group_by( iso, units, year ) %>%
-    dplyr::summarise( heating_value = weighted.mean( heating_value, consumption ) ) %>%
-    data.frame()
+# Make a version of heat contents where fuel wood conversion factor is set to the value from GAINS
+  heat_content_GAINS_fuel_wood <- heat_content %>%
+      dplyr::mutate( heating_value = if_else(  fuel == "Dom Total FW",
+                                               GAINS_conversionFactor_fuelwood_ktoe_per_kt, heating_value ) )
 
-# Convert ktoe/kt to TJ/kt
-  Fernandes_biomass_conversion$heating_value <- Fernandes_biomass_conversion$heating_value * ktoe_to_TJ
-  Fernandes_biomass_conversion$units <- "TJ/kt"
+# Define function to create weighted average heating_value for biomass
+  weighted_average_bio_heating_value <- function( df_in, heating_values_df ){
 
-# Cast to wide format
-### TODO: moving towards tidyr functions: gather, spread
-  Fernandes_biomass_conversion <- filter( Fernandes_biomass_conversion, year %in% IEA_years ) %>%
-    cast( iso + units ~ year, value = "heating_value" )
+#   Note: Exclude Dom Charcoal from computation since IEA Charcoal is already in kt
+      biomass_conversion <- filter( df_in, fuel != "Dom Charcoal" ) %>%
+        dplyr::select( -units ) %>%
+        merge( heat_content ) %>%
+        dplyr::group_by( iso, units, year ) %>%
+        dplyr::summarise( heating_value = weighted.mean( heating_value, consumption ) ) %>%
+        data.frame( )
+
+#   Convert ktoe/kt to TJ/kt
+    biomass_conversion$heating_value <- biomass_conversion$heating_value * ktoe_to_TJ
+    biomass_conversion$units <- "TJ/kt"
+
+#   Cast to wide format
+    biomass_conversion <- biomass_conversion %>%
+        dplyr::filter( year %in% IEA_years ) %>%
+        tidyr::spread( year, heating_value )
+
+    return( biomass_conversion )
+
+  }
+
+# Create biomass conversions using Fernandes values only
+  Fernandes_biomass_conversion <- weighted_average_bio_heating_value( full_discont_fixed,
+                                                                      heat_content )
+
+ # Create biomass conversions using GAINS fuelwood value & other Fernandes values
+  Fernandes_biomass_conversion_with_GAINS_fuelwood <- weighted_average_bio_heating_value( full_discont_fixed,
+                                                                                          heat_content_GAINS_fuel_wood )
 
 # ------------------------------------------------------------------------------
 # 7. Write output
@@ -311,6 +335,7 @@
   full_discont_fixed[ is.na( full_discont_fixed ) ] <- ""
   writeData( full_discont_fixed, "MED_OUT", "A.Fernandes_residential_biomass" )
   writeData( Fernandes_biomass_conversion, "MED_OUT", "A.Fernandes_biomass_conversion" )
+  writeData( Fernandes_biomass_conversion_with_GAINS_fuelwood, "MED_OUT", "A.Fernandes_biomass_conversion_GAINS_FW" )
 
 # Diagnostics
   writeData( Fern_pc_wide, "DIAG_OUT", "A.Fernandes_biomass_pc" )

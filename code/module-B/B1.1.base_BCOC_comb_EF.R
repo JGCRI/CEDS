@@ -3,7 +3,7 @@
 # Author: Rachel Hoesly, Linh Vu, Patrick O'Rourke
 # Date Last Updated: 10 May 2019
 # Program Purpose: 1. Produce BC and OC emissions factors from SPEW (i.e. Bond) data.
-# Input Files:  A.comb_activity.csv
+# Input Files:  A.final_comb_activity_modern.csv
 #               CD.SPEW_iso_map.csv
 #               CD.[em]_bond_country_sector_fuel_2001.csv
 #               CD.[em]_bond_EF_region.csv
@@ -77,7 +77,7 @@
 # 1. Read in files and do preliminary setup
 
 # Read in combustion activity data
-    activity_data <- readData( "MED_OUT", "A.comb_activity" )
+    activity_data <- readData( "MED_OUT", "A.final_comb_activity_modern" )
 
 # Read in mapping files
     MCL <-     readData( "MAPPINGS", "Master_Country_List" )

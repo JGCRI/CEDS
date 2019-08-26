@@ -1,10 +1,10 @@
 # Program Name: A1.4.IEA_heat_content.R
 # Author: Linh Vu, Rachel Hoesly
-# Date Last Updated: 26 Jul 2016
+# Date Last Updated: 16, August 2019
 # Program Purpose: Computes weighted average heat content from IEA Conversion Factors
 #                  by country, year and fuel type. Currently doing this for coal.
 # Input Files: OECD_Conversion_Factors_Full.csv, NonOECD_Conversion_Factors_Full.csv,
-#              IEA_product_fuel.csv, Master_Country_List.csv, A.comb_activity
+#              IEA_product_fuel.csv, Master_Country_List.csv, A.IEA_en_stat_ctry_hist
 # Output Files:  A.coal_heat_content.csv
 # Notes: This script handles iso+fuel+year duplicates by summing. This works
 #        because all duplicates are currently disaggregated countries and
@@ -208,12 +208,13 @@
   hc_coal_all_ext <- cast( hc_coal_all_ext )
 
   # Constantly extend heat value forward
-  extended_years <- paste0( "X", X_BP_years )
-  hc_coal_all_ext<- hc_coal_all_ext %>%
-    dplyr::mutate_at( extended_years, funs( identity ( !!rlang::sym( X_IEA_end_year ) ) ) )
+  X_extended_years <- X_BP_years
+  hc_coal_all_ext_forward <- hc_coal_all_ext %>%
+    dplyr::mutate_at( X_extended_years, funs( identity ( !!rlang::sym( X_IEA_end_year ) ) ) )
+
 
 # ---------------------------------------------------------------------------
 # 5. Output
-  writeData( hc_coal_all_ext, "MED_OUT", "A.coal_heat_content" )
+  writeData( hc_coal_all_ext_forward, "MED_OUT", "A.coal_heat_content" )
 
   logStop()

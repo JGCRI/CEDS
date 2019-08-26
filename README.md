@@ -2,15 +2,14 @@
 The Community Emissions Data System (CEDS) produces consistent estimates of global air emissions species over the industrial era (1750 - present). The system is written in R and uses open-source data (with the exception of the IEA energy statistics which must be purchased from IEA). CEDS is publicly available through an [Open Source License](#license-section).
 
 ***
-**Pre-release Version:** July 17, 2019. The current code and data in the repository is a pre-release version. Please feel free to explore, comment on this version and send us any questions. Note that we will be pushing several updates to the system over the few weeks leading up to the first public release. These will include updates to:
+**Pre-release Version:** August 25, 2019. The current code and data in the repository is a pre-release version. Please feel free to explore, comment on this version and send us any questions. Note that we will be pushing several updates to the system leading up to the first public release. 
 
-* SO2, CO2, and CH4 emissions will be updated to better match the results from CMIP6 data release from Hoesly et al. (2018a). There will likely be some changes to other emission species as well.
-* Updates to waste burning emissions.
-* Several other updates to code and data files, including resolution of some current [open Issues](https://github.com/JGCRI/CEDS/issues).
+* Additional fixes to improve consistency of historical calcuations and user options
+* Resolution of some current [open Issues](https://github.com/JGCRI/CEDS/issues).
 * User guide additions.
 * Description and graphs of emission differences with the CMIP6 data release
 
-See [release notes](https://github.com/JGCRI/CEDS/wiki/Release-Notes) for change notes. 
+See [release notes](https://github.com/JGCRI/CEDS/wiki/Release-Notes) for a summary of changes. 
 
 ***
 
@@ -20,9 +19,9 @@ Current issues with the data or system are documented in the [CEDS Issues](https
 
 Further information can also be found at the [project web site](http://www.globalchange.umd.edu/ceds/), including a [CMIP6 page](http://www.globalchange.umd.edu/ceds/ceds-cmip6-data/) that provides details for obtaining gridded emission datasets produced by this project. 
 
-Over the summer 2019 we will be working on a major update which will extending the time series to 2019 and update historical assumptions.
+Over the summer and fall of 2019 we will be working on a major update which will extending the time series to 2018 and update historical assumptions.
 
-If you plan to use the CEDS data system for a research project you are encouraged to contact [Steve Smith](mailto:ssmith@pnnl.gov) so that we can coordinate with any on-going work on the CEDS system. 
+If you plan to use the CEDS data system for a research project you are encouraged to contact [Steve Smith](mailto:ssmith@pnnl.gov) so that we can coordinate with any on-going work on the CEDS system. CEDS is research software, and we will be happy to help you make sure and make the best possible use of this system. 
 
 # Journal Papers
 [Hoesly et al, Historical (1750–2014) anthropogenic emissions of reactive gases and aerosols from the Community Emissions Data System (CEDS). Geosci. Model Dev. 11, 369-408, 2018a.](https://www.geosci-model-dev.net/11/369/2018/gmd-11-369-2018.html)

@@ -16,7 +16,7 @@ now=$(date)
 echo "Current time : $now"
 
 cd /people/<user_name>/CEDS
-make extended-activity
+make activity
 
 now=$(date)
 echo "Current time : $now"

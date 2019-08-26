@@ -341,11 +341,11 @@
     bp_oil_prod_tot  <- bp_oil_prod_tot[  1:length( all_years ) ]
     bp_gas_prod_tot  <- bp_gas_prod_tot[  1:length( all_years ) ]
 
-# Convert units from millions of tonnes to thousands of tonnes for coal and oil, Mt to
-#   TJ for natural gas
+# Convert units from millions of tonnes to thousands
+# Convert natural gas to weight using net heat content. Is approximate, but is only used for scaling.
     bp_coal_prod_tot <- as.numeric( bp_coal_prod_tot ) * 1000
     bp_oil_prod_tot  <- as.numeric( bp_oil_prod_tot )  * 1000
-    bp_gas_prod_tot  <- as.numeric( bp_gas_prod_tot )  * 1000 * 41.868
+    bp_gas_prod_tot  <- as.numeric( bp_gas_prod_tot )  * 1000 * GJ_per_tonneOilEquivalent  /  conversionFactor_naturalgas_TJ_per_kt_Net
 
     coal_totals <- cbind( c( 'coal', 'coal' ), rbind( iea_coal_prod_tot,
         bp_coal_prod_tot ) )

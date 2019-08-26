@@ -120,8 +120,9 @@
 
 
    # convert natural gas from TJ to kt. (It's labeled as kt in the original data, but actually in TJ)
+   # We don't know for sure the net/gross units of the Bond data but assume is same as IEA 
    if ( a.extension_fuel_category == 'natural_gas') {
-   bond_long['Fuel (kt)'] <- bond_long['Fuel (kt)'] / conversionFactor_naturalgas_TJ_per_kt
+   bond_long['Fuel (kt)'] <- bond_long['Fuel (kt)'] / conversionFactor_naturalgas_TJ_per_kt_Gross
    # Manually correct bond values
    bond_long[which( bond_long$iso == 'usa' & bond_long$Year %in% c(paste0('X',a.bond_start:1955))),'Fuel (kt)'] <- NA
    }

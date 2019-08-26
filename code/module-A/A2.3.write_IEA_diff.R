@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A2.3.write_IEA_diff.R
-# Authors Names: Linh Vu, Rachel Hoesly
-# Date Last Modified: 16 May 2016
+# Authors Names: Linh Vu, Rachel Hoesly, Patrick O'Rourke
+# Date Last Modified: July 10, 2019
 # Program Purpose:    Write out difference between IEA DOMSUP and CEDS
 #                     consumption for coal, natural gas, oil
 # Input Files: A.IEA_en_stat_ctry_hist.csv, en_biomass_fsu_fix.csv
@@ -146,6 +146,7 @@
 #   Returns:  List of two data frames, where df1 contains IEA and CEDS difference and
 #             df2 contains diagnostics of where IEA < CEDS
     computeDiff <- function( IEA_subset, CEDS_subset, fuel_name ) {
+
     # Compute difference
         IEA_subset <- filter( IEA_subset, iso %in% CEDS_subset$iso ) %>% dplyr::arrange( iso )
         IEA_subset <- IEA_subset[ names( IEA_subset ) %in% names( CEDS_subset ) ]
@@ -176,23 +177,42 @@
 
 # ------------------------------------------------------------------------------
 # 2. Write out difference between IEA DOMSUP and CEDS consumption for each fuel
-# Prelim processing: Some IEA natural gas PRODUCTS are in TJ, so convert to kt
+
+# Prelim natural gas processing: Some IEA natural gas PRODUCTS are in TJ (net and gross), so convert to kt
+
+#   Define IEA gases that require fixing,
     IEA_TJ_gas <- unique( IEA_en_stat_ctry_hist$PRODUCT[ IEA_en_stat_ctry_hist$PRODUCT %in% IEA_natural_gas_list &
                                                           grepl( "TJ", IEA_en_stat_ctry_hist$PRODUCT ) ] )
-    IEA_en_stat_ctry_hist[ IEA_en_stat_ctry_hist$PRODUCT %in% IEA_TJ_gas, X_IEA_years ] <-
-      IEA_en_stat_ctry_hist[ IEA_en_stat_ctry_hist$PRODUCT %in% IEA_TJ_gas, X_IEA_years ] /
-      conversionFactor_naturalgas_TJ_per_kt
+
+#   Make a separate list of natural gas fuels without biogas, since the unit for biogas is TJ-net,
+#   while will require a different conversion factor than gases in TJ-gross
+    IEA_TJ_gas_no_TJnet <- subset( IEA_TJ_gas, IEA_TJ_gas != "Biogases (TJ-net)" )
+
+#   Convert gases to kt
+    IEA_en_stat_ctry_hist <- IEA_en_stat_ctry_hist %>%
+        dplyr::group_by( iso, FLOW, PRODUCT) %>%
+        tidyr::gather( key = years, value = energy_consumption, X_IEA_years) %>%
+        dplyr::mutate( energy_consumption = if_else( PRODUCT %in% IEA_TJ_gas_no_TJnet,
+                                                     energy_consumption/conversionFactor_naturalgas_TJ_per_kt_Gross,
+                                            if_else( PRODUCT == "Biogases (TJ-net)",
+                                                     energy_consumption/conversionFactor_naturalgas_TJ_per_kt_Net,
+                                                     energy_consumption ) ) ) %>%
+        tidyr::spread( years, energy_consumption ) %>%
+        dplyr::select( iso, FLOW, PRODUCT, X_IEA_years ) %>%
+        dplyr::ungroup( )
 
 # Coal
     out <- writeDiff( IEA_en_stat_ctry_hist, en_biomass_fsu_fix, IEA_coal_list, CEDS_coal_list,
                       "coal", "DOMSUP", NA )
     diff_coal <- out[[ "diff" ]]
     subzero_coal <- out[[ "subzero" ]]
+
 # hard coal
     out <- writeDiff( IEA_en_stat_ctry_hist, en_biomass_fsu_fix, IEA_hard_coal_list, c('hard_coal', 'coal_coke'),
                       "hard_coal", "DOMSUP", NA )
     diff_hard_coal <- out[[ "diff" ]]
     subzero_hard_coal <- out[[ "subzero" ]]
+
 # brown coal
     out <- writeDiff( IEA_en_stat_ctry_hist, en_biomass_fsu_fix,
                       IEA_brown_coal_list, c('brown_coal'),
@@ -204,7 +224,6 @@
     iea <- computeIEASupply(IEA_en_stat_ctry_hist, c("Hard coal (if no detail) (kt)", "Coking coal (kt)","Anthracite (kt)", "Patent fuel (kt)" )) %>%
         filter(iso == 'usa') %>%
         gather(year, value, -iso)
-
 
 # Natural gas
     out <- writeDiff( IEA_en_stat_ctry_hist, en_biomass_fsu_fix, IEA_natural_gas_list, CEDS_natural_gas_list,

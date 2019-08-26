@@ -5,7 +5,7 @@
 # Purpose:       Extend other Biomass back with population to zero by certain
 #                date.
 #
-# Input Files:   A.total_activity, A.UN_pop_master
+# Input Files:   A.default_comb_activity_with_other, A.UN_pop_master
 # Output Files:  A.industrial_biomass_extended
 # ------------------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ initialize( script_name, log_msg, headers )
 # 1. Load files
 
 un_pop   <- readData( "MED_OUT", 'A.UN_pop_master' )
-activity <- readData( 'MED_OUT', 'A.total_activity' )
+activity <- readData( 'MED_OUT', paste0("A.default_comb_activity_with_other") , meta = F)
 
 
 # ---------------------------------------------------------------------------

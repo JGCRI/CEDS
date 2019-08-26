@@ -1,16 +1,17 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.3.proc_NC_emissions_user_added_waste.R
-# Author: Linh Vu
-# Date Last Updated: 6 June 2016
+# Author: Linh Vu, Steve Smith, Patrick O'Rourke
+# Date Last Updated: 19 August, 2019
 # Program Purpose:  Write out waste incineration emissions as default NC emissions. Outputs
 #                   of this program will be read in by C1.3.proc_NC_emissions_user_added.R
 #                   and overwrite existing Edgar emissions
 # Input Files: Global_Emissions_of_Pollutants_from_Open_Burning_of_Domestic_Waste.xlsx,
-#              Master_Country_List.csv
-# Output Files:    C.[em]_NC_emissions_waste.csv
+#              Master_Country_List.csv, PM25_Inventory.xlsx
+# Output Files: C.[em]_NC_default_waste_emissions.csv, C.[em]_NC_waste_emissions_rescaled.csv,
+#               C.[em]_NC_waste_emissions_inventory_trend_user_added.csv
 # Notes:
-# TODO:
-#
+# TODO: Small iso issue fix
+#       Make flexible to work with years other than 2010?
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -30,13 +31,10 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NH3"
+if ( is.na( em ) ) em <- "NMVOC"
 
 # ------------------------------------------------------------------------------
-# 0.5 Initialize constants and prepare equations for Wiedinmyer replication
-
-    burned_fraction = 0.6 # Paper's estimate--we might adjust
-
+# 0.5 Initialize constants and prepare equations for to replicate Wiedinmyer proceedure
 
 # The following are the general equations (taken from Wiedinmyer et al.)
 # that describe the calculations performed in this document
@@ -62,13 +60,19 @@ if ( is.na( em ) ) em <- "NH3"
 # ------------------------------------------------------------------------------
 # 1. Read in & label Wiedinmyer et al. population, waste, and EF data
 
+    scenario <- "central"
+
     MCL <- readData( "MAPPINGS", "Master_Country_List" )
-    wiedinmyer <- readData( "EM_INV", "PM25_Inventory_vs_Wiedinmyer",
-                            ".xlsx", sheet_selection = "PM25_compare")
+
+    Europe_PM25_Compare <- readData( "EM_INV", "PM25_Inventory",
+                                     ".xlsx" , sheet_selection = "PM25_compare")
+
+    waste_burning_params <- readData( "ACTIVITY_IN",
+                                      "Waste_burning_pct_parameters")
 
 # Unit conversion factors
     OC_conv <- 1/1.3  # weight to units of carbon
-    NOx_conv <- (14 + 16*2)/(14 + 16)  # NO to NO2
+    NOx_conv <- ( 14 + 16*2 )/( 14 + 16 )  # NO to NO2
 
     all_waste_data <- readData( domain = "EM_INV",
                                 file_name = "Global_Emissions_of_Pollutants_from_Open_Burning_of_Domestic_Waste",
@@ -90,9 +94,11 @@ if ( is.na( em ) ) em <- "NH3"
     colnames( all_waste_data ) <- c( "Country", "income_level", "pop2010",
                                      "Urban_pop", "Waste_gen_rate", "Collection-efficiency",
                                      "Frac_not_collected" )
+# Inventory years
+  X_waste_inventory_years <- paste0( 'X', 1980 : 2010 )
 
 # ------------------------------------------------------------------------------
-# 2. Wiedinmyer replication - calculate the amount of waste burned
+# 2. Calculate the amount of waste burned
 #    Using the equations outlined in 0.5, this section of code processes
 #    developing & developed data to determine the total volume of waste burned
 #    based on population, urban/rural proportion, and per capita waste gen.
@@ -111,20 +117,57 @@ if ( is.na( em ) ) em <- "NH3"
 # Initialize residential mass burned
     all_waste_data$WB_res <- NA
 
-# Residential mass burned in developing countries: whole rural pop, plus
-# whatever fraction of urban pop is not collected
-    all_waste_data$WB_res[ developing ] <- ( ( ( all_waste_data$Waste_gen_rate *
-                                                all_waste_data$Rural_pop ) +
-                                              ( all_waste_data$Waste_gen_rate *
-                                                all_waste_data$Urban_pop *
-                                                all_waste_data$Frac_not_collected
-                                               ) ) * burned_fraction )[ developing ]
+# This uses a simple method to extend waste emisisons over time but instead of the flat 0.6 
+# burned fraction uses value input from the file Waste_burning_pct_parameters.csv.
 
-# Residential waste burning in developed countries: non-collected rural pop only
-    all_waste_data$WB_res[ developed ] <- ( all_waste_data$Waste_gen_rate *
-                                            all_waste_data$Rural_pop *
-                                            all_waste_data$Frac_not_collected *
-                                            burned_fraction )[ developed ]
+# Residential mass burned in developing countries: whole rural pop, plus
+# whatever fraction of urban pop is not collected (assumes 100% of rural is uncollected)
+    all_waste_data$WB_res_rural[ developing ] <-
+              ( ( all_waste_data$Waste_gen_rate *
+                  all_waste_data$Rural_pop *
+                  waste_burning_params[ which(waste_burning_params$collected_or_not == "uncollected" &
+                                              waste_burning_params$income_level == "developing" &
+                                              waste_burning_params$rural_or_urban == "rural" &
+                                              waste_burning_params$scenario == scenario), ]$fraction_burnt
+                      ) )[ developing ]
+
+    all_waste_data$WB_res_urban[ developing ] <-
+              ( ( all_waste_data$Waste_gen_rate *
+                  all_waste_data$Urban_pop *
+                  all_waste_data$Frac_not_collected *
+                  waste_burning_params[ which(waste_burning_params$collected_or_not == "uncollected" &
+                                              waste_burning_params$income_level == "developing" &
+                                              waste_burning_params$rural_or_urban == "urban" &
+                                              waste_burning_params$scenario == scenario), ]$fraction_burnt
+                      ) )[ developing ]
+
+
+# Residential waste burning in developed countries
+    all_waste_data$WB_res_rural[ developed ] <-
+          ( ( all_waste_data$Waste_gen_rate *
+              all_waste_data$Rural_pop *
+              all_waste_data$Frac_not_collected *
+              waste_burning_params[ which(waste_burning_params$collected_or_not == "uncollected" &
+                                          waste_burning_params$income_level == "developed" &
+                                          waste_burning_params$rural_or_urban == "rural" &
+                                          waste_burning_params$scenario == scenario), ]$fraction_burnt
+              ) )[ developed ]
+
+
+    all_waste_data$WB_res_urban[ developed ] <-
+          ( ( all_waste_data$Waste_gen_rate *
+              all_waste_data$Rural_pop *
+              (1 - all_waste_data$Frac_not_collected) *
+              waste_burning_params[ which(waste_burning_params$collected_or_not == "uncollected" &
+                                          waste_burning_params$income_level == "developed" &
+                                          waste_burning_params$rural_or_urban == "urban" &
+                                          waste_burning_params$scenario == scenario), ]$fraction_burnt
+          ) )[ developed ]
+
+# Sum rural and urban uncollected waste production
+    all_waste_data$WB_res <-
+              all_waste_data$WB_res_rural +
+              all_waste_data$WB_res_urban
 
 
 # Initialize open dump burning at 0; high-income countries are assumed to have
@@ -132,17 +175,47 @@ if ( is.na( em ) ) em <- "NH3"
     all_waste_data$WB_dump <- 0
 
 # Developed waste burning: waste from urban centers that do get pick-up
-    all_waste_data$WB_dump[ developing ] <- ( all_waste_data$Waste_gen_rate *
-                                              all_waste_data$Urban_pop *
-                                              ( all_waste_data$`Collection-efficiency` ) *
-                                              burned_fraction )[ developing ]
+# These calculations are producing NAs?
+# TODO: confirm that changes made here are correct
+    all_waste_data$WB_dump_rural[ developing ] <- ( all_waste_data$Waste_gen_rate * all_waste_data$Rural_pop *
+                                                  ( all_waste_data$`Collection-efficiency` ) *
+                                                    waste_burning_params[ which(waste_burning_params$collected_or_not == "collected" &
+                                                        waste_burning_params$income_level == "developing" &
+                                                        waste_burning_params$rural_or_urban == "rural" &
+                                                        waste_burning_params$scenario == scenario), ]$fraction_burnt )[ developing ]
+
+    all_waste_data$WB_dump_urban[ developing ] <- ( all_waste_data$Waste_gen_rate *
+                                                    all_waste_data$Urban_pop *
+                                                    ( all_waste_data$`Collection-efficiency` ) *
+                                                    waste_burning_params[ which(waste_burning_params$collected_or_not == "collected" &
+                                                        waste_burning_params$income_level == "developing" &
+                                                        waste_burning_params$rural_or_urban == "urban" &
+                                                        waste_burning_params$scenario == scenario), ]$fraction_burnt )[ developing ]
+
+    all_waste_data$WB_dump_rural[ developed ] <- ( all_waste_data$Waste_gen_rate *
+                                                  all_waste_data$Rural_pop *
+                                                  ( all_waste_data$`Collection-efficiency` ) *
+                                                  waste_burning_params[ which(waste_burning_params$collected_or_not == "collected" &
+                                                     waste_burning_params$income_level == "developed" &
+                                                     waste_burning_params$rural_or_urban == "rural" &
+                                                     waste_burning_params$scenario == scenario), ]$fraction_burnt )[ developed ]
+
+    all_waste_data$WB_dump_urban[ developed ] <- ( all_waste_data$Waste_gen_rate *
+                                                  all_waste_data$Urban_pop *
+                                                  ( all_waste_data$`Collection-efficiency` ) *
+                                                  waste_burning_params[ which(waste_burning_params$collected_or_not == "collected" &
+                                                    waste_burning_params$income_level == "developed" &
+                                                    waste_burning_params$rural_or_urban == "urban" &
+                                                    waste_burning_params$scenario == scenario), ]$fraction_burnt )[ developed ]
+
+    all_waste_data$WB_dump <- all_waste_data$WB_res_rural +
+                              all_waste_data$WB_res_urban
 
     all_waste_data$total_WB <- all_waste_data$WB_dump + all_waste_data$WB_res
     all_waste_data$pct_burned <- all_waste_data$total_WB / all_waste_data$total_waste
 
-
 # ------------------------------------------------------------------------------
-# 3. Wiedinmyer replication - calculate emissions from emissions factors
+# 3. Calculate emissions from emissions factors
 
     emissions_factors$EF <- as.numeric( emissions_factors$EF ) / 10^6 # Units are in kg/tonne; for comparison,
                                                                       # we want Gg/tonne
@@ -185,7 +258,7 @@ if ( is.na( em ) ) em <- "NH3"
     waste_input <- filter( waste_input, !is.na( iso ) ) %>%  # drop countries not in CEDS
       dplyr::arrange( iso )
 
-### TODO: add these countries in. We have population values in CEDS, and could just use per-capita values from a comparable country.
+# TODO: add these countries in. We have population values in CEDS, and could just use per-capita values from a comparable country.
     drop_countries <- c( "Cyprus", "Luxembourg", "Malta", "Singapore", "Slovakia" )
     waste_input <- filter( waste_input, `Country Name` %!in% drop_countries ) %>%  # drop 5 countries with no vals (to match pre-Wiedinmyer)
       dplyr::arrange( iso )
@@ -214,55 +287,127 @@ if ( is.na( em ) ) em <- "NH3"
     waste_inventory <- filter( waste_input, emission == em ) %>% select( iso, sector, fuel, units, X2010 )
 
 # ------------------------------------------------------------------------------
-# 5. Match to wiedinmyer PM2.5 inventory
-    other_europe <- wiedinmyer[which( wiedinmyer$iso == 'other_europe_default'),'X2010_inv_to_wiedinmyer']
-    europe_isos <- MCL[grep('Euro',MCL$Region),'iso']
+# 5. Compare selected inventory PM2.5 values to default calcuation and either match with
+#    inventory or replace with a European regional average if the inventory value is several
+#    orders of magnitude lower that default calcuation
 
-    wiedinmyer[which(is.na(wiedinmyer$X2010)),'X2010'] <- wiedinmyer[which(is.na(wiedinmyer$X2010)),'X2010_inventory']
+#   Calculate the ratio between the selected em and PM2.5 from emissions_factors data frame
+    em_filter_for <- em
+    if( em == "NMVOC" ){ em_filter_for <- "NMOC (identified + unidentified)" }
+    if( em == "NOx" ){ em_filter_for <- "Nox" }
 
-    # match waste inventory with wiedinmyer inventory data
-    waste_inventory_wiedinmyer_match <- merge(waste_inventory, wiedinmyer[ c('iso','X2010_inv_to_wiedinmyer',"Use_for_median","Use_for_trend") ],
-                                         all.x = T)
-    waste_inventory_wiedinmyer_match[c("Use_for_median","Use_for_trend")] <- replace(waste_inventory_wiedinmyer_match[c("Use_for_median","Use_for_trend")],
-                                                                                is.na(waste_inventory_wiedinmyer_match[c("Use_for_median","Use_for_trend")]),0)
+    emissions_factor_em <- emissions_factors %>%
+        dplyr::filter( compound == em_filter_for )
 
-    waste_inventory_wiedinmyer_match[which( waste_inventory_wiedinmyer_match$iso %in% europe_isos &
-                                            waste_inventory_wiedinmyer_match$Use_for_median == 0 ), 'X2010_inv_to_wiedinmyer'] <- other_europe
+    emissions_factor_PM2.5 <-  emissions_factors %>%
+        dplyr::filter( compound == "PM2.5" )
 
-    # seperate data frame into no wiedinmyer, wiedinmyer trend and wiedinmyer no trend
-    waste_inventory_no_wiedinmyer <- filter(waste_inventory_wiedinmyer_match,
-                                            Use_for_median == 0 & iso %!in% europe_isos ) %>% select( iso, sector, fuel, units, X2010 )
+    emissions_factor_ratio <- emissions_factor_PM2.5[[2]] / emissions_factor_em[[2]]
 
-    waste_inventory_wiedinmyer_no_trend <- filter(waste_inventory_wiedinmyer_match,
-                                             (Use_for_median == 1 | iso %in% europe_isos ) & Use_for_trend == 0) %>% select( iso, sector, fuel, units, X2010, X2010_inv_to_wiedinmyer )
+#   Apply ratio between selected em and PM2.5 emissions factors to the waste inventory, in order to convert waste emissions to PM2.5
+    waste_inventory_converted_to_PM25 <- waste_inventory %>%
+        dplyr::mutate( X2010_waste_inventory = X2010 * emissions_factor_ratio ) %>%
+        dplyr::select( -X2010 )
 
-    waste_inventory_wiedinmyer_trend <- filter(waste_inventory_wiedinmyer_match,
-                                               (Use_for_median == 1 | iso %in% europe_isos ) & Use_for_trend == 1)
+#   Calculate ratio between inventory and wiedinmyer
+    Europe_PM25_Compare_with_ratio <- Europe_PM25_Compare %>%
+        dplyr::left_join( waste_inventory_converted_to_PM25, by = c( "iso", "units" ) ) %>%
+        dplyr::mutate( X2010_inv_to_waste_inventory = X2010_inventory / X2010_waste_inventory ) %>%
+        dplyr::mutate( ratio_summary = if_else( X2010_inv_to_waste_inventory > 1, "> 1",
+                                       if_else( X2010_inv_to_waste_inventory <= 1 & X2010_inv_to_waste_inventory >= 0.1, "[ 0.1, 1 ]",
+                                       if_else( X2010_inv_to_waste_inventory < 0.1 & X2010_inv_to_waste_inventory >= 0.01, "[ 0.01, 0.1 )",
+                                       if_else( X2010_inv_to_waste_inventory < 0.01 & X2010_inv_to_waste_inventory >= 0.001, "[ 0.001, 0.01 )",
+                                       if_else( X2010_inv_to_waste_inventory < 0.001 & X2010_inv_to_waste_inventory > 0,  "< 0.001", NA_character_ ) ) ) ) ) )
 
-    # match to inventory  - wiedinmyer but no trend
-    waste_inventory_wiedinmyer_no_trend$X2010 <-  waste_inventory_wiedinmyer_no_trend$X2010 * waste_inventory_wiedinmyer_no_trend$X2010_inv_to_wiedinmyer
-    waste_inventory_wiedinmyer_no_trend <- waste_inventory_wiedinmyer_no_trend %>% select( iso, sector, fuel, units, X2010)
+#   Make mean ratio calculations
+#       All inventires with a value
+        mean_ratio_all_inv_with_value <- Europe_PM25_Compare_with_ratio %>%
+            dplyr::filter( X2010_inventory != 0 & !( is.na( X2010_inventory ) ) ) %>%
+            dplyr::select( X2010_inv_to_waste_inventory ) %>%
+            dplyr::summarise_all( funs( mean( . ) )  )
 
-    # match to inventory  - wiedinmyer but no trend
-    waste_inventory_wiedinmyer_trend$X2010 <-  waste_inventory_wiedinmyer_trend$X2010 * waste_inventory_wiedinmyer_trend$X2010_inv_to_wiedinmyer
-    waste_inventory_wiedinmyer_trend <- waste_inventory_wiedinmyer_trend %>% select( iso, sector, fuel, units, X2010)
+#       All inventires with values within 0.1% ( ratio > or = 0.001 )
+        mean_ratio_inv_0.1percent <- Europe_PM25_Compare_with_ratio %>%
+            dplyr::filter( X2010_inv_to_waste_inventory >= 0.001 ) %>%
+            dplyr::select( X2010_inv_to_waste_inventory ) %>%
+            dplyr::summarise_all( funs( mean( . ) )  )
 
-    waste_inventory_wiedinmyer_trend <- extend_data_on_trend_range( input_data = waste_inventory_wiedinmyer_trend,
-                                                                     driver_trend= wiedinmyer[c('iso', paste0('X', 1980:2010))],
-                                                                     start = 1980,
-                                                                     end = 2009,
-                                                                     id_match.driver = c('iso'),
-                                                                     range = 1)
-    waste_inventory_wiedinmyer_trend <- replace(waste_inventory_wiedinmyer_trend, waste_inventory_wiedinmyer_trend == 0, NA)
+#       All inventires judged "reasonable"
+        mean_ratio_reasonable <- Europe_PM25_Compare_with_ratio %>%
+            dplyr::filter( Use_for_median == 1 ) %>%
+            dplyr::select( X2010_inv_to_waste_inventory ) %>%
+            dplyr::summarise_all( funs( mean( . ) )  )
+
+#       All inventires judged "reasonable" and don't have a ratio to wideinmyer that is >1
+        mean_ratio_reasonable_no_greater_than_1 <- Europe_PM25_Compare_with_ratio %>%
+            dplyr::filter( Use_for_median == 1 &  ratio_summary != "> 1"   ) %>%
+            dplyr::select( X2010_inv_to_waste_inventory ) %>%
+            dplyr::summarise_all( funs( mean( . ) )  )
+
+#       Assign default oecd ratio to use
+        oecd_default_ratio <- mean_ratio_reasonable_no_greater_than_1[[1]]
+
+#   Set X2010 values to the value in X2010_inventory ( X2010_inventory = closest year available for the iso, if X2010 was NA)
+    Europe_PM25_replaced_NAs <- Europe_PM25_Compare_with_ratio %>%
+        dplyr::mutate( X2010 = if_else( is.na( X2010 ), X2010_inventory, X2010 ) )
+
+#   Join the waste inventory data with waste_inventory data
+    waste_inventory_match <- waste_inventory %>%
+        dplyr::left_join( dplyr::select( Europe_PM25_replaced_NAs, iso, X2010_inv_to_waste_inventory, Use_for_median, Use_for_trend ), by = "iso" ) %>%
+        dplyr::mutate_at( .vars = c( "Use_for_median", "Use_for_trend" ), funs( if_else( is.na( . ), 0, . ) ) )
+
+#   For European regions that don't appear to have reasonable data, change 2010 value to default average value
+#       Define european isos
+        europe_isos <- MCL[grep('Euro',MCL$Region),'iso'] %>%
+                    unique( )
+
+        waste_inventory_match <- waste_inventory_match %>%
+            dplyr::mutate( X2010_inv_to_waste_inventory = if_else( iso %in% europe_isos & Use_for_median == 0, oecd_default_ratio, X2010_inv_to_waste_inventory ) )
+
+# Split waste_inventory_match into 3 categories for different treatment
+
+#   1) For most values use the default inventory estimate and default extension over time
+    default_waste_only <- waste_inventory_match %>%
+        dplyr::filter( Use_for_median == 0 & iso %!in% europe_isos  ) %>%
+        dplyr::select( iso, sector, fuel, units, X2010 )
+
+#   2) For isos that had "reasonable" inventory emission values but no or limited trend data:
+#   Re-scale by inv_to_waste_inventory ratio so that waste emissions match inventory value in 2010,
+#   while also using the default trend over time ( reports out only 2010 data, CEDS will extend this later automatically with default trend)
+    waste_inventory_no_trend <-  waste_inventory_match %>%
+        dplyr::filter( ( Use_for_median == 1 | iso %in% europe_isos ) & Use_for_trend == 0)  %>%
+        dplyr::select( iso, sector, fuel, units, X2010, X2010_inv_to_waste_inventory ) %>%
+        dplyr::mutate( X2010 = X2010 * X2010_inv_to_waste_inventory ) %>%
+        dplyr::select( iso, sector, fuel, units, X2010 )
+
+#   3) For isos that had "reasonable" inventory emission values and trend data, re-scale by
+#   to match inventory and use inventory trends as much as available. Reports only to 2009 as this is the last year most inventories have data
+    waste_inventory_trend <- waste_inventory_match %>%
+        dplyr::filter( ( Use_for_median == 1 | iso %in% europe_isos ) & Use_for_trend == 1 ) %>%
+        dplyr::mutate( X2010 = X2010 * X2010_inv_to_waste_inventory ) %>%
+        dplyr::select( iso, sector, fuel, units, X2010 )
+
+    waste_inventory_trend <- extend_data_on_trend_range( input_data = waste_inventory_trend,
+                                                         driver_trend = Europe_PM25_Compare[c('iso', X_waste_inventory_years )],
+                                                         start = 1980,
+                                                         end = 2009,
+                                                         id_match.driver = c('iso'),
+                                                         range = 1 )
+
+    X_waste_inventory_years_no_2010 <- subset( X_waste_inventory_years, X_waste_inventory_years != "X2010" )
+
+    waste_inventory_trend <- waste_inventory_trend %>%
+        dplyr::mutate_at( .vars = X_waste_inventory_years_no_2010, funs( if_else( . == 0, NA_real_, . ) )  )
+
 # ------------------------------------------------------------------------------
 # 6. Output
-    writeData( waste_inventory_no_wiedinmyer, "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
-               fn = paste0( "C.", em, "_NC_waste_emissions_no_wiedinmyer_user_added" ) )
+    writeData( default_waste_only, "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
+               fn = paste0( "C.", em, "_NC_default_waste_emissions" ) )
 
-    writeData( waste_inventory_wiedinmyer_no_trend, "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
-               fn = paste0( "C.", em, "_NC_waste_emissions_wiedinmyer_no_trend_user_added" ) )
+    writeData( waste_inventory_no_trend, "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
+               fn = paste0( "C.", em, "_NC_waste_emissions_rescaled" ) )
 
-    writeData( waste_inventory_wiedinmyer_trend, "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
-               fn = paste0( "C.", em, "_NC_waste_emissions_wiedinmyer_trend_user_added" ) )
+    writeData( waste_inventory_trend, "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
+               fn = paste0( "C.", em, "_NC_waste_emissions_inventory_trend_user_added" ) )
 
 logStop()

@@ -7,8 +7,8 @@
 #                   and extend the merged data from 1950 to 1850 using CDIAC data.
 #                 * Disaggregate the merge data by iso-fuel
 #                 * Disaggregate the merged data by CEDS iso-fuel-Sector
-# Input Files: CDA1_UNSD_Energy_Final_Consumption_by_Ctry.csv, A.comb_activity_with_other.csv,
-#              E.CO2_CDIAC_inventory.csv, A.final_sector_shares.csv,
+# Input Files: CDA1_UNSD_Energy_Final_Consumption_by_Ctry.csv, A.default_comb_activity_with_other.csv,
+#              E.CO2_CDIAC_inventory.csv, A.full_default_sector_shares.csv,
 #              IEA_iso_start_data.csv, IEA_product_fuel.csv
 # Output Files:  A.comb_activity_extended_coal.csv
 # -----------------------------------------------------------------------------------------
@@ -30,9 +30,9 @@ initialize(script_name, log_msg, headers)
 # 1. Read in Files
 
 UNSD_Energy_Final_Consumption_all <- readData('EXT_IN',"CDA1_UNSD_Energy_Final_Consumption_by_Ctry" , meta = F)
-A.comb_activity_all <- readData('MED_OUT', paste0("A.comb_activity_with_other") , meta = F)
+A.comb_activity_all <- readData('MED_OUT', paste0("A.default_comb_activity_with_other") , meta = F)
 cdiac_fuel_all <- readData('MED_OUT' , 'E.CO2_CDIAC_inventory')
-final_sector_shares_all <- readData('MED_OUT', 'A.final_sector_shares')
+full_default_sector_shares_all <- readData('MED_OUT', 'A.full_default_sector_shares')
 iea_start_year_all <- readData('ENERGY_IN' , 'IEA_iso_start_data')
 iea_energy_mapping <- readData("MAPPINGS", domain_extension = "energy/" , "IEA_product_fuel", meta = F)
 
@@ -65,20 +65,20 @@ UNSD_Energy_Final_Consumption <- UNSD_Energy_Final_Consumption_all %>%
 # other_transformation <- other_transformation_all %>%
 #     filter(fuel %in% ceds_extension_fuels) %>%
 #     filter(iso != 'global ')
-A.comb_activity_with_other <- A.comb_activity_all %>%
+A.default_comb_activity_with_other <- A.comb_activity_all %>%
     filter(fuel %in% ceds_extension_fuels) %>%
     filter(iso != 'global ')
 cdiac_fuel <- cdiac_fuel_all %>%
     filter(fuel %in% cdiac_fuel_name) %>%
     filter(iso != 'global ')
-final_sector_shares <- final_sector_shares_all %>%
+full_default_sector_shares <- full_default_sector_shares_all %>%
     filter(fuel %in% ceds_extension_fuels) %>%
     filter(iso != 'global ')
 iea_start_year <- iea_start_year_all %>%
     filter(iso != 'global')
 
 # Filter combustion data for coal fuels
-A.comb_activity_with_other <- A.comb_activity_with_other%>% filter(fuel %in% ceds_extension_fuels)
+A.default_comb_activity_with_other <- A.default_comb_activity_with_other%>% filter(fuel %in% ceds_extension_fuels)
 
 #-------------------------------------------------------------------------------------
 # 1. process_and_combine_un_ced_data function is called to format CEDS and UN data
@@ -88,7 +88,7 @@ A.comb_activity_with_other <- A.comb_activity_with_other%>% filter(fuel %in% ced
 # Extend the coal data by CDIAC
 printLog(paste("Extending aggregate ", aggregate_fuel_name, ' with UN and CDIAC data back to 1750'))
 
-ceds_un_extended_data <- merge_extend_UN_CEDS_data(a.CEDS_data = A.comb_activity_with_other,
+ceds_un_extended_data <- merge_extend_UN_CEDS_data(a.CEDS_data = A.default_comb_activity_with_other,
                                                     a.CDIAC_data = cdiac_fuel,
                                                     a.UN_data = UNSD_Energy_Final_Consumption,
                                                     a.ceds_extension_fuels = ceds_extension_fuels,
@@ -107,7 +107,7 @@ printLog('Disaggregating total coal into fuel types')
 all_disaggregate_fuel <- fuel_breakdown(a.UN_data = UNSD_Energy_Final_Consumption,
                                          a.CEDS_UN_aggregate = ceds_un_extended_data$un_ceds ,
                                          a.CEDS_only_aggregate = ceds_un_extended_data$ceds_only,
-                                         a.CEDS_comb_with_other = A.comb_activity_with_other,
+                                         a.CEDS_comb_with_other = A.default_comb_activity_with_other,
                                          a.ceds_extension_fuels = ceds_extension_fuels,
                                          a.extension_start_year = 1750,
                                          a.aggregate_fuel = aggregate_fuel_name,
@@ -124,7 +124,7 @@ all_disaggregate_fuel <- fuel_breakdown(a.UN_data = UNSD_Energy_Final_Consumptio
 printLog('Disaggregating fuel_types into sector split')
 
 CEDS_default_actvity <- sector_breakdown(fuel_totals = all_disaggregate_fuel,
-                                         sector_shares = final_sector_shares_all,
+                                         sector_shares = full_default_sector_shares_all,
                                          iea_start_years = iea_start_year,
                                          ceds_extension_fuels = ceds_extension_fuels)
 

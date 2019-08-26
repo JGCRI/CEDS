@@ -160,10 +160,6 @@ End_Use_Transport_LDT_HLF,1A3b_Road,diesel_oil,
 End_Use_Transport_OFF_HLF,,,not mapped
 End_Use_Transport_OFF_LLF,,,not mapped
 Unattributed,,,not mapped
-Waste_Solid_Industrial,,,not mapped
-Waste_Solid_Municipal,,,not mapped
-Waste_Water_Industrial,,,not mapped
-Waste_Water_Municipal,,,not mapped
 Sum,,,not mapped
 Total,,,not mapped
 Losses_Coal,1B1_Fugitive-solid-fuels,hard_coal,
@@ -235,12 +231,12 @@ Transformations_HLF_Refinery,1A1bc_Other-transformation,process,
 Transformations_LLF,1A1bc_Other-transformation,process,
 Transformations_NatGas,1A1bc_Other-transformation,process,
 Transformations_NatGas_CO2,1A1bc_Other-transformation,process,
-Waste_solid_industrial,5A_Solid-waste-disposal,process,
-Waste_solid_industrial,5C_Waste-incineration,process,
-Waste_solid_municipal,5A_Solid-waste-disposal,process,
-Waste_solid_municipal,5C_Waste-incineration,process,
-Waste_water_industrial,5D_Wastewater-handling,process,
-Waste_water_municipal,5D_Wastewater-handling,process,
+Waste_Solid_Industrial,5A_Solid-waste-disposal,process,
+Waste_Solid_Industrial,5C_Waste-incineration,process,
+Waste_Solid_Municipal,5A_Solid-waste-disposal,process,
+Waste_Solid_Municipal,5C_Waste-incineration,process,
+Waste_Water_Industrial,5D_Wastewater-handling,process,
+Waste_Water_Municipal,5D_Wastewater-handling,process,
 ,2A6_Other-minerals,process,
 ,2D_Degreasing-Cleaning,process,
 ,2D_Paint-application,process,

@@ -187,7 +187,7 @@ gas_unit_conv <- gas_heat_content %>%
 # Convert from Btu/cubic foot to TJ/cubic foot, then to kt/cubic foot
 gas_unit_conv <- gas_unit_conv %>%
     dplyr::mutate( conv = Value * CONV_FACTOR_NATGAS_HHV_LHV * CONV_TJ_BBTU /
-                       conversionFactor_naturalgas_TJ_per_kt )
+                       conversionFactor_naturalgas_TJ_per_kt_Net )
 
 
 # Match petroleum to sectors based on ID indicators (manually identified)

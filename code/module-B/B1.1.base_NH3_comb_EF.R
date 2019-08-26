@@ -4,7 +4,7 @@
 # Date Last Updated: 19 Jan 2016
 # Program Purpose: Generate base emission factors for NH3 from NEI data
 # Input Files: NH3_Default_EF_US-NEI2011.xlsx - base efs estimated from US NEI
-#              A.total_activity.csv
+#              A.final_comb_activity_modern.csv
 # Output Files: Default B.[em]_comb_EF_db.csv
 # Notes:
 # ---------------------------------------------------------------------------
@@ -38,7 +38,7 @@
 # 1. Load Data
 
 # Read activity data calculated in Module A
-    activity_data <- readData( "MED_OUT", "A.comb_activity" )
+    activity_data <- readData( "MED_OUT", "A.final_comb_activity_modern" )
 # Read in NEI data
     nei_ef <- readData ( "DEFAULT_EF_IN", 'NH3_Default_EF_US-NEI2011',
                          '.xlsx', sheet = 'EF' )
