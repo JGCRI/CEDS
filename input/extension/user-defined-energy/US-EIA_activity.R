@@ -1,15 +1,14 @@
 #------------------------------------------------------------------------------
 # Program Name: US-EIA_activity.R
 # Authors: Ben Goldstein, Caleb Braun
-# Date Last Modified: June 29, 2017
-#
-# To read in & reformat EIA activity data from 1949 to present
-#
-# Units are initially in btu
-#
-# Input Files:  All files in the folder EIA-data
-# Output Files: US_EIA_inventory.csv
+# Date Last Modified: August 26, 2019
+# Program Purpose: To read in & reformat EIA activity data from 1949 to present
+# Input Files:  All files in the EIA-data subdirectory
+# Output Files: US-EIA_energy_data_aggsec.csv, US-EIA_energy_data_CEDSsec.csv
+# Notes: Units are initially in btu
 # ------------------------------------------------------------------------------
+
+# 0. Read in global settings and headers, define script constants
 
 library(dplyr)
 library(tidyr)
@@ -26,7 +25,7 @@ CONV_DIR <- paste0( EIA_DIR, "unit-conversion/" )
 
 # Define constants
 CONV_TJ_BBTU            <- 0.9478  # TJ per Billion Btu
-CONV_SHORTTON_TONNE     <- 1.1023  # Short Ton (US) per metric tonne
+CONV_SHORTTON_TONNE     <- 0.9072  # Short Ton (US) per metric tonne
 CONV_TONNE_BARREL       <- 7.33    # mass density factor from OPEC 2014
 
 CONV_FACTOR_NATGAS_HHV_LHV <- 0.9  # gross heat content (HHV) to net heat content (LHV)
@@ -38,7 +37,9 @@ CONV_FACTOR_NATGAS_TJ_KT <- 44.2 # See CEDS conversionFactor_naturalgas_TJ_per_k
 YYYYMM_to_Xyear <- function( YYYYMM ) paste0( "X", substr( YYYYMM, 1, 4 ) )
 
 
-# Read in relevant EIA data files -----------------------------------------
+# ------------------------------------------------------------------------------
+
+# 1. Read in relevant EIA data files
 
 # Prepare to read in all coal, oil, and gas .csv files from the EIA data folder
 files_to_read <- paste0( EIA_DIR, list.files( EIA_PATH, "(Coal|gas|Oil)\\.csv$" ) )
@@ -53,7 +54,9 @@ petrol_heat_content <- readData( "EXT_IN", paste0( CONV_DIR, "EIA_MER_TA3_Oil_he
 gas_heat_content    <- readData( "EXT_IN", paste0( CONV_DIR, "EIA_MER_TA4_Natural_gas_heat_content" ) )
 
 
-# Select only the annual EIA data -----------------------------------------
+# ------------------------------------------------------------------------------
+
+# 2. Select only the annual EIA data
 
 # Retain only annual info and drop not-available cells
 EIA_data <- all_EIA_raw_data %>%
@@ -64,8 +67,9 @@ EIA_data <- all_EIA_raw_data %>%
     dplyr::mutate( Value = as.numeric( Value ) ) %>%
     dplyr::select( MSN, Value, Description, Unit, year )
 
+# ------------------------------------------------------------------------------
 
-# Identify aggregate fuels and sectors from IEA data ----------------------
+# 3. Identify aggregate fuels and sectors from IEA data
 
 # Extract fuel and sector information from EIA descriptions and discard any data
 # that does not contain fuel or sector specific info
@@ -103,8 +107,10 @@ EIA_data <- EIA_data %>%
 
 stopifnot( !anyDuplicated( EIA_data ) )
 
+# ------------------------------------------------------------------------------
 
-# Remove liquid biofuels from biomass estimate ----------------------------
+# 4. Remove liquid biofuels from biomass estimate
+
 #   CEDS considers liquid biofuels (ethanol) in petroleum, but EIA counts it
 #   in renewable biomass. For the purposes of informing CEDS, we must remove
 #   liquid biomass from the EIA total biomass energy estimate. This also
@@ -153,8 +159,10 @@ EIA_data <- liquid_biofuels %>%
                    Value = Value - diff_val) %>%
     dplyr::select( iso, sector, fuel, Unit, year, Value )
 
+# ------------------------------------------------------------------------------
 
-# Prepare unit conversion -------------------------------------------------
+# 5. Prepare unit conversion
+
 #  - The next two code blocks use heat content conversion files to determine the
 #    mass of fuel consumed (when given energy EIA data).
 #  - Biomass is converted using a constant.
@@ -218,8 +226,10 @@ conversion_factors <- rbind( gas_unit_conv, oil_unit_conv ) %>%
     dplyr::select( sector, fuel, year, conv ) %>%
     dplyr::bind_rows( coal_unit_conv )
 
+# ------------------------------------------------------------------------------
 
-# Execute conversion to kt ------------------------------------------------
+# 6. Execute conversion to kt
+
 #    Executes the conversions described in the code block description above
 
 # Convert biomass to kt using CEDS standard conversion factor
@@ -239,15 +249,21 @@ EIA_convert <- EIA_data %>%
 
 stopifnot( !any( is.na( EIA_convert$Value ) ) )
 
+# ------------------------------------------------------------------------------
 
-# Cast to wide and write output -------------------------------------------
+# 7. Cast to wide
+
 EIA_final <- tidyr::spread( EIA_convert, key = year, value = Value )
 
 EIA_final_CEDSsec <- EIA_final[EIA_final$sector %in% c("Commercial", "Residential"), ]
 EIA_final_aggsec <- EIA_final[!EIA_final$sector %in% c("Commercial", "Residential"), ]
 
-writeData( EIA_final_CEDSsec, 'EXT_IN', 'user-defined-energy/US-EIA_inventory_CEDSsec' )
-writeData( EIA_final_aggsec, 'EXT_IN', 'user-defined-energy/US-EIA_inventory_aggsec' )
+# ------------------------------------------------------------------------------
+
+# 8. Write output
+
+writeData( EIA_final_CEDSsec, 'EXT_IN', 'user-defined-energy/US-EIA_energy_data_CEDSsec' )
+writeData( EIA_final_aggsec, 'EXT_IN', 'user-defined-energy/US-EIA_energy_data_aggsec' )
 
 
 logStop()
