@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: user_data_inclusion_functions.R
 # Author: Ben Goldstein, Caleb Braun, Patrick O'Rourke
-# Date Last Updated: July 8, 2019
+# Date Last Updated: August 27, 2019
 # Program Purpose: Contains functions for including pre-processed user-defined
 #                  energy extension data. This file focuses mainly on the
 #                  functionality for the actual integration of user and default
@@ -269,8 +269,7 @@ handleNanBreakdowns <- function( disagg_pct_breakdown, global_data, Xyears, agg_
     if ( any( specified_breakdowns ) ) {
         tryCatch({
             user_breakdown <- readData( paste0( filename, "-breakdowns" ),
-                                        domain = "EXT_IN",
-                                        domain_extension = "user-defined-energy/" )
+                                        domain = "USER_EN_IN" )
             user_breakdown <- as.data.frame(user_breakdown)
         }, error = function(e) {
             stop( paste( "No user specified breakdown found for", filename ) )

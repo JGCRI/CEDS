@@ -16,8 +16,6 @@
 #   - parameters/user_extension_instr_processing.R
 # -----------------------------------------------------------------------------
 
-
-# -----------------------------------------------------------------------------
 # 0. Read in global settings and headers
 PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 

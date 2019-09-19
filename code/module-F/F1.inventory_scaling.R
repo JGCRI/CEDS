@@ -4,8 +4,8 @@
 # Date Last Updated: June 14, 2019
 # Program Purpose: To select and run script(s) to scale default emissions and
 #           emission factors to inventories.
-# Input Files: None
-# Output Files: None
+# Input Files: D.[em]_default_total_EF.sv, D.[em]_default_total_emissions.csv
+# Output Files: F.[em]_scaled_EF.csv, F.[em]_scaled_emissions.csv
 # Functions Defined: source_child
 # Notes:
 # TODO: Add conditionals and script specifications for other emissions types

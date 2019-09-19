@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
+Oil Heating Content,NA,USA,All oil-consuming sectors,1949,2017,"EIA Annual Energy Review, oil heating content,  Downloaded July 18 2018, https://www.eia.gov/totalenergy/data/browser/csv.php?tbl=TA4"

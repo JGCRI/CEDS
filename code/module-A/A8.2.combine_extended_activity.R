@@ -5,12 +5,13 @@
 # Program Purpose:
 # Input Files: A.comb_user_added.csv
 #              A.NC_default_activity_extended.csv
-# Output Files: A.total_activity_extended.csv
+#              Master_Fuel_Sector_List.xlsx
+# Output Files: A.total_activity_extended.csv,
+#               A.final_comb_activity_modern.csv
 #               A.activity_extended_coal.csv
 #               A.activity_extended_natural_gas.csv
 #               A.activity_extended_oil.csv
 # Notes:
-
 # ------------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative

@@ -2,8 +2,9 @@
 # Program Name: H2.1.base_EFs.R
 # Author: Rachel Hoesly
 # Program Purpose: Create base database to extend EFs backward
-# Input Files: H.", em, "_total_EFs_adjusted-sector
-# Output Files:
+# Input Files: H.[em]_total_EFs_adjusted-sector.csv, CEDS_historical_extension_methods_EF.csv,
+#              CEDS_historical_extension_drivers_activity.csv
+# Output Files: H.[em_total_EFs_extended_db.csv
 # TODO: change default to NA and have a better check method for EF drivers
 # ---------------------------------------------------------------------------
 

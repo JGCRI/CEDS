@@ -3,7 +3,7 @@
 # Author: Linh Vu
 # Date Last Modified: 28 June 2016
 # Program Purpose: Extend CEDS activity backward with pulp and paper consumption data
-# Input Files:   A.NC_activity_extended_db.csv, CEDS_historical_extension_drivers_activity.csv,
+# Input Files:  A.NC_activity_extended_db.csv, CEDS_historical_extension_drivers_activity.csv,
 #               A.pulp_paper_consumption_full.csv
 # Output Files: A.NC_activity_extended_db.csv
 # TODO:

@@ -2,7 +2,7 @@
 # Program Name: H3.3.add_emissions_SO2_other_transformation.R
 # Author: Rachel Hoesly
 # Program Purpose: Extend emissions back for 1A1bc Other transformation for SO2
-#
+# Input Files: A.comb_activity_extended_coal.csv
 # Output Files:  H.SO2_other_transformation_emissions.csv
 # TODO:
 # ---------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: user_data_processing.R
 # Authors: Ben Goldstein, Caleb Braun
-# Date Last Updated: 12 July 2018
+# Date Last Updated: September 5, 2019
 # Program Purpose: Define some helper functions for processing user-defined
 #                  datasets for use in the historical energy extension.
 # -----------------------------------------------------------------------------
@@ -20,13 +20,13 @@
 #          year range.
 readInUserData <- function( fname, yearsAllowed, ftype = NULL ) {
     # Read in files
-    fpath <- paste0( "user-defined-energy/", fname, ftype )
+    fpath <- paste0( fname, ftype )
     if ( !is.null( ftype ) && ftype == "-mapping" )
         user_df <- tryCatch(
-            readData( fpath, domain = "EXT_IN", extension = ".xlsx" ),
+            readData( fpath, domain = "USER_EN_IN", extension = ".xlsx" ),
             error = function(e) NULL )
     else
-        user_df <- readData( "EXT_IN", fpath, missing_value = "NA" )
+        user_df <- readData( "USER_EN_IN", fpath, missing_value = "NA" )
 
     # Filter out any years not in the CEDS range
     bad_years <- isXYear( names( user_df ) ) &
@@ -247,8 +247,7 @@ interpolateData <- function( df, interp_instr, X_data_years, MSL, MCL, MFL,
     else if ( method == "match_to_trend" ) {
         # Execute trend-matching function
         # TODO: Error checking
-        trend <- readData( interp_instr$match_file_name, domain = "EXT_IN",
-                           domain_extension = "user-defined-energy/" )
+        trend <- readData( interp_instr$match_file_name, domain = "USER_EN_IN" )
         trend <- mapToCEDS( trend, MSL, MFL, iso_map = MCL,
                             CEDS_sector_map = MSL )
         df <- interpolateByTrend( df, trend )
@@ -381,7 +380,7 @@ interpolateData <- function( df, interp_instr, X_data_years, MSL, MCL, MFL,
 
             # Write out the new file.
             writeData( matched_trend,
-                       domain = "EXT_IN", domain_extension = "user-defined-energy/",
+                       domain = "USER_EN_IN",
                        fn = new_instruction$data_file )
             # Add the new instruction back into the main df.
             instructions <- rbind( instructions, new_instruction )
@@ -784,7 +783,7 @@ preprocUserData <- function( instructions ) {
     if ( !is.null( instructions$preprocessing_script ) ) {
         preproc <- unique( instructions$preprocessing_script )
         preproc <- preproc[ !is.na( preproc ) ]
-        preproc <- paste0( "extension/user-defined-energy/", preproc)
+        preproc <- paste0( "energy/user-defined-energy/", preproc)
         sapply( preproc, source, local = T, chdir = T )
         instructions$preprocessing_script <- NULL
     }

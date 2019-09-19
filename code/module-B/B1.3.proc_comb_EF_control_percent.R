@@ -4,7 +4,7 @@
 # Date Last Updated: Nov 9, 2015
 # Program Purpose: Use sulfur content, ash retention, control percentage database to
 # generate sulfur EF database corresponding to the fuels and sectors in A.final_comb_activity_modern.csv
-# Input Files:
+# Input Files: B.[em]_ControlFrac_db.csv, B.[em]_comb_EF_db.csv
 # Output Files: B.[em]_comb_EF_db.csv
 # Notes:
 # TODO:

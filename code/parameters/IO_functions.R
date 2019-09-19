@@ -1,13 +1,14 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: Input and Output functions
-# Author(s): Ben Bond-Lamberty, Page Kyle, Jon Seibert, Tyler Pitkanen, Linh Vu, Presley
-# Last Updated: 16 May 2017
+# Author(s): Ben Bond-Lamberty, Page Kyle, Jon Seibert, Tyler Pitkanen, Linh Vu, Presley,
+#            Steve Smith, Patrick O'Rourke
+# Last Updated: September 9, 2020
 
 # This file must be sourced by all CEDS R scripts, generally as the second sourced script.
 # Functions contained:
 #   readData, writeData, sourceData, readMetaData, addMetaData,
-#   addMetaNote, clearMeta, logStart, printLog, logStop, addDependency, writeMakefileDepend,
-#   readDomainPathMap, filePath, collapseList, readExcel
+#   addMetaNote, addSourceToMetadata, clearMeta, logStart, printLog, logStop, addDependency,
+#   writeMakeFileDepend, readDomainPathMap, filePath, collapseList, readExcel
 
 # Notes: Many of these functions were originally written for the GCAM data system.
 #        Some relics of this past remain, such as the global variable names.
@@ -49,7 +50,7 @@ logStart <- function( fn, savelog=T ) {
 	GCAM_SOURCE_RD <<- GCAM_SOURCE_RD + 1		# push
 	GCAM_SOURCE_FN[ GCAM_SOURCE_RD ]  <<- fn
 	GCAM_LOG_SAVE[ GCAM_SOURCE_RD ] <<- savelog
-	logpath <- paste( MODULE_PROC_ROOT, "/../logs/", sep = "")
+	logpath <- paste( MODULE_PROC_ROOT, "/../../logs/", sep = "")
 	if( savelog ) sink( paste( logpath, fn, ".log", sep = "" ), split=T )
 	printLog( "-----" )
 	printLog( "Starting", fn )
@@ -59,7 +60,7 @@ logStart <- function( fn, savelog=T ) {
 }
 
 # -----------------------------------------------------------------------------
-# writeMakefileDepend
+# writeMakeFileDepend
 # Brief:        Write dependency information for inclusion in makefile
 # Details:      Writes the .d file for the current script
 # Dependencies: None
@@ -69,7 +70,7 @@ logStart <- function( fn, savelog=T ) {
 # Return:       None
 # Input Files:  None
 # Output Files: [fn].log
-writeMakefileDepend <- function(outfile) {
+writeMakeFileDepend <- function(outfile) {
 	of_parts <- unlist(strsplit(outfile, ".", fixed=TRUE))
 	if(length(of_parts) == 1) {
 	    of_root <- of_parts[1]
@@ -111,7 +112,7 @@ collapseList <- function( src_list, sep = "\n" ){
 # Brief:        Stop the current log (to screen and optionally file)
 # Details:      End the current script's log file and write out its IO information
 #                   to IO_documentation.csv
-# Dependencies: readData, writeData, filePath, collapseList, printLog, writeMakefileDepend
+# Dependencies: readData, writeData, filePath, collapseList, printLog, writeMakeFileDepend
 # Author(s):    Ben Bond-Lamberty, Jon Seibert
 # Params:       None
 # Return:       None
@@ -183,8 +184,8 @@ logStop <- function() {
     writeData( IO_doc, "DOCUMENTATION", paste0( em, "_", "IO_documentation" ), meta = FALSE, mute = TRUE )
 
 
-	logfile <- paste( MODULE_PROC_ROOT, "/../logs/", fn, ".log", sep="" )
-	writeMakefileDepend(logfile)
+	logfile <- paste( MODULE_PROC_ROOT, "/../../logs/", fn, ".log", sep="" )
+	writeMakeFileDepend(logfile)
 
 	printLog( "All done with", fn, "\n" )
 	if( GCAM_SOURCE_RD > 0 ) {
@@ -551,7 +552,7 @@ addDependency <- function( fqn, ... ) {
 # writeData
 # Brief:            Write an arbitrary data file.
 # Details:          Write out an R data frame as a .csv file in CEDS standard format.
-# Dependencies:
+# Dependencies:     filePath, printLog
 # Author(s):        Page Kyle, Jon Seibert
 # params:
 #   x:                  Data frame to be output as a .csv file.
@@ -574,7 +575,6 @@ addDependency <- function( fqn, ... ) {
 #
 # Usage examples: writeData( A.energy_data, "MED_OUT", "A.energy_data" )
 #                 writeData( Xwalk_onetab, "EM_INV", domain_extension = "US_EPA/Processed_data/", fn = "Xwalk_onetab" )
-# TODO:
 writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL,
                        comments = NULL, meta = TRUE, mute = FALSE, domain_extension = "", ... ) {
 
@@ -582,6 +582,7 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
 		myfn <- paste0( fn, "_", fn_sfx )
 		stop( "fn_sfx parameter does not do anything" )
 	}
+
 	myfn <- filePath( domain, fn, domain_extension = domain_extension )
 
     full_fn <- paste0( fn, ".csv" )
@@ -601,21 +602,23 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
 	if( !mute & VERBOSE ) printLog( "Writing", myfn, "w/", length( comments ), "comments" )
 
 	tryCatch( {
+
 		# Write the comments, if any, then the data
 		cat( paste( GCAM_DATA_COMMENT, myfn ), file=myfn, sep="\n" )
-		cat( paste( GCAM_DATA_COMMENT, "Written by", GCAM_SOURCE_FN[ GCAM_SOURCE_RD ] ), file=myfn, sep="\n", append=T )
-		cat( paste( GCAM_DATA_COMMENT, date() ), file=myfn, sep="\n", append=T )
+		cat( paste( GCAM_DATA_COMMENT, "Written by", GCAM_SOURCE_FN[ GCAM_SOURCE_RD ] ), file = myfn, sep = "\n", append = T )
+		cat( paste( GCAM_DATA_COMMENT, date( ) ), file = myfn, sep="\n", append = T )
+
 		for( i in seq_along( comments ) ) {
-			cat( paste( GCAM_DATA_COMMENT, "\"", comments[ i ], "\"" ), file=myfn, sep="\n", append=T, ... )
+			cat( paste( GCAM_DATA_COMMENT, "\"", comments[ i ], "\"" ), file = myfn, sep = "\n", append = T, ... )
 		}
 
 		w <- getOption( "warn" )
-		options( warn=-1 )		# suppress the warning about columns names and appending
+		options( warn = -1 )	# suppress the warning about columns names and appending
 		# write.table( x, file = myfn, sep = ",", row.names = F, col.names = T, append = T, ... )
 		write.csv( x, file = myfn, row.names = F, append = T, ... )
-		options( warn=w )
+		options( warn = w )
 
-		}, error=function( err ) {
+		}, error = function( err ) {
 			printLog( "Error in write of", fn )
 			printLog( as.character( err ) )
 			stop( err )		# can't recover from this
@@ -625,18 +628,35 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
 
     # Write out accumulated metadata and notes if applicable
     if( meta == T ) {
-        mymetafn <- filePath( domain = domain, fn = paste0(fn, "-metadata"),
-                              domain_extension = domain_extension)
+        mymetafn <- filePath( domain = domain, fn = paste0( fn, "-metadata" ),
+                              domain_extension = domain_extension )
         w <- getOption( "warn" )
         options( warn = -1 )  # suppress the warning
-        if( exists( "all_metadata" ) ) {
-			# Remove duplicate entries if necessary
-			all_metadata <- all_metadata[ !duplicated( all_metadata ), ]
 
-            write.table( all_metadata, file=mymetafn, sep=",", row.names=F,
-                         col.names=T, append=F, ... )
+        if( exists( "all_metadata" ) ) {
+
+			# Remove duplicate entries if necessary
+            all_metadata_no_duplicates <- all_metadata %>%
+                dplyr::distinct( )
+
+            # Check if any duplicates were filtered out
+            if( nrow( all_metadata_no_duplicates ) != nrow( all_metadata ) ){
+
+                warning( paste0( "Some duplicated metadata was filtered out when calling writeData. ",
+                              "There should not have been duplicated metadata at this point. ",
+                              "See ", fn, ". This is likely because there are commas, quotation marks, ",
+                              "or apostrophes in the metadata file ..." ) )
+
+            }
+
+            # Save metadata
+             write.table( all_metadata_no_duplicates, file = mymetafn, sep =",", row.names = F,
+                          col.names = T, append = F, ... )
+
         }
-        options( warn=w )
+
+        options( warn = w )
+
     }
 
 }
@@ -679,16 +699,36 @@ readMetaData <- function( meta_domain = NULL, file_name = NULL, file_extension =
     # Check if the file exists and set 'new_metadata' object. If the file isn't
     #   found, make a note
     if( file.exists( mymeta_name ) ) {
+
         new_metadata_exists <- TRUE
-        new_metadata <- read.csv( mymeta_name, na.strings="", check.names = FALSE )
-        new_metadata <- data.frame( new_metadata, row.names = NULL )
+        new_metadata <- read.csv( mymeta_name, na.strings = c( "", "NA" ), check.names = FALSE, stringsAsFactors = F )
+        new_metadata <- data.frame( new_metadata, row.names = NULL,  stringsAsFactors = F )
+
+        # Convert columns to characters (if needed)
+        not_character <- function( x ){
+
+            !is.character( x )
+
+        }
+
+        if( any( sapply( new_metadata, not_character ) ) ){
+
+            new_metadata <- dplyr::mutate_if( new_metadata, not_character, as.character  )
+
+        }
+
     } else new_metadata_exists <- FALSE
 
     # If the object all_metadata doesn't exist, create it. This code should run once
     #   per script upon the first addition of metadata.
     if( !exists( 'all_metadata' ) ) {
+
         # If the new metadata file doesn't exist, use a default metadata placeholder
         if( !new_metadata_exists ) {
+
+            warning( paste0( "Metadata input file missing for data file ", file_name, ". System is generating ",
+                             "a general metadata note..." ) )
+
             default_names <- c( 'Data-Type', 'Emission', 'Region', 'Sector',
                                 'Start-Year', 'End-Year', 'Source/Comment' )
             colsize <- length( default_names )
@@ -696,10 +736,13 @@ readMetaData <- function( meta_domain = NULL, file_name = NULL, file_extension =
                                paste0( "Metadata input file missing for data file ", file_name ) )
             new_metadata <- data.frame( t( new_metadata ), row.names = NULL )
             colnames( new_metadata ) <- default_names
+
         }
 
-        #add the source column as a metadata column in the data frame
-        new_metadata$Source <- paste0( file_name, file_extension )
+        # Add the Source column to the metadata  if it doesn't exist.
+        # Set values to the file name and extension. If Source does exist,
+        # then add the file name and file extension as values to the Source column for rows which are currently NA for the column.
+        new_metadata <- addSourceToMetadata( new_metadata, file_name, file_extension )
 
         # Since no other metadata exists, set new_metadata as all_metadata
         all_metadata <- new_metadata
@@ -722,13 +765,17 @@ readMetaData <- function( meta_domain = NULL, file_name = NULL, file_extension =
             all_metadata <- bindMetaDataRecord( all_metadata, new_metadata, old_names,
                                                 file_name, file_extension )
         } else {
-            # If the metadata file doesn't exist, create a default entry with the
+            # If the metadata file doesn't exist, create a default entry
             new_metadata <- c( rep( "Unknown", ncol( all_metadata ) - 1 ),
                                paste0( "Metadata input file missing for data file ", file_name ) )
-            new_metadata <- data.frame( t( new_metadata ), row.names = NULL )
+            new_metadata <- data.frame( t( new_metadata ), row.names = NULL, stringsAsFactors = F  )
             colnames( new_metadata ) <- old_names
 
             new_metadata$Source <- paste0( file_name, file_extension )
+
+            # Only add new metadata (to avoid duplicates)
+            new_metadata <- new_metadata %>%
+                dplyr::setdiff( all_metadata )
 
             all_metadata <- rbind.fill( all_metadata, new_metadata )
         }
@@ -773,7 +820,7 @@ addMetaData <- function( metadata = NULL, metadata_names = NULL, source_info =" 
         return( warning( 'Metadata and names must have same length' ) )
     } else {
         # Make inputs into a data.frame and apply names
-        metadata <- data.frame( t( metadata ), row.names = NULL )
+        metadata <- data.frame( t( metadata ), row.names = NULL, stringsAsFactors = FALSE )
         colnames( metadata ) <- metadata_names
         new_metadata <- metadata
     }
@@ -870,13 +917,87 @@ bindMetaDataRecord <- function( all_metadata, new_metadata, old_names, fname, fe
                   paste( new_names[ new_cols ], collapse = ',' ) )
     }
 
-    # add the 'Source' column
-    new_metadata$Source <- paste0( fname, fext )
+    # Add the Source column to the metadata  if it doesn't exist.
+    # Set values to the file name and extension. If Source does exist,
+    # then add the file name and file extension as values to the Source column for rows which are currently NA for the column.
+    new_metadata <- addSourceToMetadata( new_metadata, fname, fext )
 
-    # bind the new metadata record
+    # Convert columns to characters (if needed)
+    not_character <- function( x ){
+
+        !is.character( x )
+
+    }
+
+    if( any( sapply( all_metadata, not_character ) ) ){
+
+        all_metadata <- dplyr::mutate_if( all_metadata, not_character, as.character  )
+
+    }
+
+    # Only add new metadata (to avoid duplicates)
+    new_metadata <- new_metadata %>%
+        dplyr::setdiff( all_metadata )
+
+    # Bind the new metadata record
     rbind.fill( all_metadata, new_metadata )
 }
 
+# -----------------------------------------------------------------------------
+
+# addSourceToMetadata
+# Brief:        Adds the "Source" column values where needed to metadata
+# Details:      The function will add a Source column to metadata where it does not exist.
+#               In this case, the values will be set to the file name and file extension
+#               of the relevant data. If the column does exist, then it only provides values
+#               to rows where this column is currently NA (also set to the file name and file extension)
+# Dependencies:
+# Author(s):    Patrick O'Rourke
+# Params:       metadata - a data.frame of metadata
+#               file_name - a string containing the name of the associated data file
+#               file_extension - a string containing the name of the associated data's file extension (such as .csv)
+# Return:       new_metadata - a data.frame containing the metadata for the current data file, to be added
+#               to all_metadata
+# Input Files:  NA
+# Output Files: NA
+addSourceToMetadata <- function( metadata, file_name, file_extension ){
+
+#   Check that parameters match type that is expected
+    if( !is.data.frame( metadata ) ) {
+
+        stop( "addSourceToMetadata expects the metadata parameter to be a class -data.frame- .")
+
+    }
+
+    if( !is.character( file_name ) | !is.character( file_extension ) ) {
+
+        stop( "addSourceToMetadata expects the file_name and file_extension parameters to both be of class -data.frame- .")
+
+    }
+
+#   Create the Source column and provide values where needed
+    if( "Source" %in% colnames( metadata ) ){
+
+        if( any( is.na( metadata$Source ) ) ){
+
+            metadata <- metadata %>%
+                dplyr::mutate( Source = if_else( is.na( Source ),
+                                                 paste0( file_name, file_extension ),
+                                                 Source ) )
+
+        }
+
+
+    } else {
+
+        metadata <- metadata %>%
+            dplyr::mutate( Source = paste0( file_name, file_extension ) )
+
+    }
+
+    return( metadata )
+
+}
 
 # -----------------------------------------------------------------------------
 # clearMeta
@@ -1030,7 +1151,7 @@ sumAggregateRegion <-function( a_data_sheet, region_column, region_list, sum_row
 
     # Sum acrross these isos to form a continous ussr time series
     region_sum <- a_data_sheet %>%
-#        dplyr::filter_at( 'iso', region_column %in% region_list ) %>% 
+#        dplyr::filter_at( 'iso', region_column %in% region_list ) %>%
 #        dplyr::mutate_at(  (!!sym(region_column)) = sum_row_name )  %>%
 #        dplyr::group_by( !! sym(region_column) ) %>%
 #        dplyr::summarise_all( funs( sum (., na.rm = TRUE ) ) )

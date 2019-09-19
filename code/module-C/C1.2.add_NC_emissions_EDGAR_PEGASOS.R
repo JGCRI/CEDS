@@ -4,8 +4,8 @@
 # Date Last Modified: 5 January 2016
 # Program Purpose: To reformat the non-combustion sections of the EDGAR default emissions
 #                      data and add it to the database for the relevant emissions species.
-# Input Files:
-# Output Files:
+# Input Files   JRC_PEGASOS_[em]_TS_REF.xlsx, NC_EDGAR_sector_mapping.csv
+# Output Files: C.EDGAR_NC_Emissions_[em].csv
 # To Do:
 #      ext_backward = TRUE extended back only one year. (extend forward worked)
 #      Extend forward should extend forward with constant EFs, not linear trend

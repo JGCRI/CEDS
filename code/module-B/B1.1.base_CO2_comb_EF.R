@@ -3,7 +3,9 @@
 # Date Last Updated: 14 December 2016
 # Program Purpose: Remove fraction of liquid biofuels from EFs
 # Input Files: A.coal_heat_content.csv, CO2_base_EF.xlsx,
-# Output Files:  B.[em]_comb_EF_db.csv, B.[em]_comb_EF_non-bunker
+#              A.final_comb_activity_modern.csv, Master_Country_List.csv,
+#              IEA_product_fuel.csv
+# Output Files:  B.[em]_comb_EF_db.csv, B.[em]_comb_EF_non-bunker.csv
 # Notes:
 # TODO:
 # ---------------------------------------------------------------------------

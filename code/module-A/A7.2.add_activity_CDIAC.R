@@ -2,8 +2,10 @@
 # Program Name: A7.2.add_activity_CDIAC.R
 # Author: Rachel Hoesly
 # Program Purpose: Extend CEDS activity backward with CDIAC data
-#
-# Output Files:
+# Date Last Updated: August 30, 2019
+# Input Files: A.NC_activity_extended_db.csv, CEDS_historical_extension_drivers_activity.csv
+#              CDIAC_fuel_map.csv, E.CO2_CDIAC_inventory.csv, E.CO2_CDIAC_solid_fuel_cumulative.csv
+# Output Files: A.NC_activity_extended_db.csv
 # TODO:
 # ---------------------------------------------------------------------------
 

@@ -5,8 +5,9 @@
 # Program Purpose: Generate base emission factors from global GAINS EMF-30 data
 #                  for NOx, NMVOC, CH4, CO
 # Input Files: Aviation_base_EF.xlsx, A.final_comb_activity_modern.csv,
-#              B.[em]_comb_EF_GAINS_EMF30
-# Output Files: B.[em]_comb_EF_db
+#              B.[em]_comb_EF_GAINS_EMF30, Master_Country_List.csv,
+#              Master_Sector_Level_map.xlsx
+# Output Files: B.[em]_comb_EF_db.csv
 # Notes: transportation_rail only hase a 2020 values, so interpolated values are constant
 #           extended back from 2020 to 2011
 # TODO:

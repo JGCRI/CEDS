@@ -1,7 +1,8 @@
 # -----------------------------------------------------------------------------
 # CEDS R header file: data molding functions
-# Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Caleb Braun
-# Last Updated: 10 August 2018
+# Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Caleb Braun,
+#          Steven Smith, Patrick O'Rourke
+# Last Updated: September 6, 2010
 #
 # This file should be sourced by any R script doing heavy-duty reformatting of
 # CEDS data. It contains helper functions for general data manipulation and some
@@ -111,6 +112,74 @@ update_join <- function(x, y, by = NULL, add_entries = FALSE) {
         full_join(x[by], ., by = by)
 }
 
+# -----------------------------------------------------------------------------
+# is.not.desired.type
+# Brief:        Checks if a vector is not the specified class / type
+# Details:      If the user's desired class to check is type "character", then the function will check if
+#               the object passed into the function is not a character
+# Dependencies: is.invalid, all.na, some.na
+# Author(s):    Patrick O'Rourke
+# Params:
+#   class:      Class to be checked - expected as a string [required]
+#   x:          Vector or column to check [required]
+# Return:       Boolean indicating whether x is NOT the desired class.
+# Input Files:  None
+# Output Files: None
+is.not.desired.type <- function( type, x ) {
+
+#   Check if the class parameter is of correct type
+    if( !is.character( type ) ){
+
+        stop( "is.not.desired.type expects the parameter -type- to be of type -character-..." )
+
+    }
+
+#   Check if type is of supported type
+    supported_types <- c( "all.na", "character" , "factor", "invalid", "logical", "numeric", "some.na" )
+
+    if( type %!in% supported_types ) {
+
+        stop( paste0( "is.not.desired.type expects the parameter -type- to be defined ",
+                      "as one of the following options: ", supported_types ) )
+
+    }
+
+#   Define the check based on the paramter "type"
+    if( type == "all.na" ){
+
+        check <- all.na
+
+    } else if( type == "character" ){
+
+        check <- is.character
+
+
+    } else if( type == "factor" ){
+
+        check <- is.factor
+
+    } else if( type == "invalid" ){
+
+        check <- is.invalid
+
+    } else if( type == "logical" ){
+
+        check <- is.logical
+
+    } else if( type == "numeric" ){
+
+        check <- is.numeric
+
+    } else if( type == "some.na" ){
+
+        check <- some.na
+
+    }
+
+#  Check object
+   !check( x )
+
+}
 
 # -----------------------------------------------------------------------------
 # is.invalid
@@ -156,6 +225,7 @@ is.infinite.df <- function(x) do.call( cbind, lapply( x, is.infinite ) )
 # -----------------------------------------------------------------------------
 # removeNARows
 # Brief: Removes rows from a wide dataframe whose data columns are all na's
+# Author(s): Steven Smith, Patrick O'Rourke
 # Params:
 #    a_dataframe: dataframe to process
 #    year_cols: list of data column names
@@ -170,6 +240,7 @@ return(temp_dataframe)
 # -----------------------------------------------------------------------------
 # NAsToZeros
 # Brief: Changes NAs to zeros in data columns of a dataframe
+# Author(s): Steven Smith, Patrick O'Rourke
 # Params:
 #    a_dataframe: dataframe to process
 #    year_cols: list of data column names

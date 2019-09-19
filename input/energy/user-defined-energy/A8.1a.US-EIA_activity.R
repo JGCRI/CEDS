@@ -1,26 +1,23 @@
 #------------------------------------------------------------------------------
-# Program Name: US-EIA_activity.R
+# Program Name: A8.1a.US-EIA_activity.R
 # Authors: Ben Goldstein, Caleb Braun
-# Date Last Modified: August 26, 2019
+# Date Last Modified: August 27, 2019
 # Program Purpose: To read in & reformat EIA activity data from 1949 to present
 # Input Files:  All files in the EIA-data subdirectory
-# Output Files: US-EIA_energy_data_aggsec.csv, US-EIA_energy_data_CEDSsec.csv
+# Output Files: A.US-EIA_energy_data_aggsec.csv, A.US-EIA_energy_data_CEDSsec.csv
 # Notes: Units are initially in btu
 # ------------------------------------------------------------------------------
 
 # 0. Read in global settings and headers, define script constants
 
-library(dplyr)
-library(tidyr)
-
 # for writeData function
-setwd('../../')
+setwd( '../../')
 PARAM_DIR <- '../code/parameters/'
 source( paste0( PARAM_DIR, "header.R" ) )
-initialize( 'US-EIA_activity.R', NULL, NULL )
+initialize( 'A8.1a.US-EIA_activity.R', NULL, NULL )
 
-EIA_DIR <- "user-defined-energy/EIA-data/"
-EIA_PATH <- filePath( "EXT_IN", EIA_DIR, extension = "" )
+EIA_DIR <- "EIA-data/"
+EIA_PATH <- filePath( "USER_EN_PROCESS", EIA_DIR, extension = "" )
 CONV_DIR <- paste0( EIA_DIR, "unit-conversion/" )
 
 # Define constants
@@ -45,13 +42,13 @@ YYYYMM_to_Xyear <- function( YYYYMM ) paste0( "X", substr( YYYYMM, 1, 4 ) )
 files_to_read <- paste0( EIA_DIR, list.files( EIA_PATH, "(Coal|gas|Oil)\\.csv$" ) )
 
 # Read each file of reported and combine into a single dataframe
-all_EIA_raw_data <- lapply( files_to_read, readData, domain = "EXT_IN" )
-all_EIA_raw_data <- do.call(rbind, all_EIA_raw_data)
+all_EIA_raw_data <- lapply( files_to_read, readData, domain = "USER_EN_PROCESS" )
+all_EIA_raw_data <- do.call( rbind, all_EIA_raw_data )
 
 # Read in heat content conversion files
 # Note that coal is already in physical units, so no energy conversion is needed
-petrol_heat_content <- readData( "EXT_IN", paste0( CONV_DIR, "EIA_MER_TA3_Oil_heat_content" ) )
-gas_heat_content    <- readData( "EXT_IN", paste0( CONV_DIR, "EIA_MER_TA4_Natural_gas_heat_content" ) )
+petrol_heat_content <- readData( "USER_EN_PROCESS", paste0( CONV_DIR, "EIA_MER_TA3_Oil_heat_content" ) )
+gas_heat_content    <- readData( "USER_EN_PROCESS", paste0( CONV_DIR, "EIA_MER_TA4_Natural_gas_heat_content" ) )
 
 
 # ------------------------------------------------------------------------------
@@ -120,11 +117,11 @@ stopifnot( !anyDuplicated( EIA_data ) )
 # Read in the sectoral renewable breakdowns, isolating only fuel ethanol columns
 ind_trn_file <- paste0( CONV_DIR, "Table_10.2b_Renewable_Energy_Consumption___Industrial_and_Transportation_Sectors.xlsx" )
 com_file <- paste0( CONV_DIR, "Table_10.2a_Renewable_Energy_Consumption___Residential_and_Commercial_Sectors.xlsx" )
-liquid_biofuels_ind <- readData( "EXT_IN", ind_trn_file, ".xlsx",
+liquid_biofuels_ind <- readData( "USER_EN_PROCESS", ind_trn_file, ".xlsx",
                                  sheet_selection = "Annual Data", skip = 10 )[ -1, c( 1, 8 ) ]
-liquid_biofuels_trn <- readData( "EXT_IN", ind_trn_file, ".xlsx",
+liquid_biofuels_trn <- readData( "USER_EN_PROCESS", ind_trn_file, ".xlsx",
                                  sheet_selection = "Annual Data", skip = 10 )[ -1, c( 1, 12, 13 ) ]
-liquid_biofuels_com <- readData( "EXT_IN", com_file,     ".xlsx",
+liquid_biofuels_com <- readData( "USER_EN_PROCESS", com_file,     ".xlsx",
                                  sheet_selection = "Annual Data", skip = 10 )[ -1, c( 1, 12 ) ]
 
 # In transportation, we need to sum diesel and ethanol.
@@ -255,15 +252,15 @@ stopifnot( !any( is.na( EIA_convert$Value ) ) )
 
 EIA_final <- tidyr::spread( EIA_convert, key = year, value = Value )
 
-EIA_final_CEDSsec <- EIA_final[EIA_final$sector %in% c("Commercial", "Residential"), ]
-EIA_final_aggsec <- EIA_final[!EIA_final$sector %in% c("Commercial", "Residential"), ]
+EIA_final_CEDSsec <- EIA_final[ EIA_final$sector %in% c( "Commercial", "Residential" ), ]
+EIA_final_aggsec <- EIA_final[ !EIA_final$sector %in% c( "Commercial", "Residential" ), ]
 
 # ------------------------------------------------------------------------------
 
 # 8. Write output
 
-writeData( EIA_final_CEDSsec, 'EXT_IN', 'user-defined-energy/US-EIA_energy_data_CEDSsec' )
-writeData( EIA_final_aggsec, 'EXT_IN', 'user-defined-energy/US-EIA_energy_data_aggsec' )
+writeData( EIA_final_CEDSsec, 'USER_EN_IN', 'A.US-EIA_energy_data_CEDSsec' )
+writeData( EIA_final_aggsec, 'USER_EN_IN', 'A.US-EIA_energy_data_aggsec' )
 
 
-logStop()
+logStop( )
