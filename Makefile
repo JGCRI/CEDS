@@ -23,9 +23,10 @@ ENERGY_IN = input/energy
 DIAG_OUT = diagnostic-output
 FINAL_OUT = final-emissions
 EXT_IN = input/extension
-USER_EN_IN = input/extension/user-defined-energy
+USER_EN_PROCESS	= input/energy/user-defined-energy
+USER_EN_IN = input/energy/user-defined-energy/user_energy_input
 EXT_DATA = input/extension/extension-data
-LOGS = code/logs
+LOGS = logs
 DOCS = documentation
 
 # --------------------------------------------------------------
@@ -119,7 +120,20 @@ part3: CO-emissions NMVOC-emissions CH4-emissions
 # Targets used to remove output files for a fresh run
 clean-all: \
 	clean-intermediate clean-diagnostic clean-final clean-logs clean-io clean-modA clean-modB clean-modC \
-	clean-modD clean-modE clean-modF clean-modH clean-gridding
+	clean-modD clean-modE clean-modF clean-modH clean-gridding clean-user_defined_energy
+
+clean-user_defined_energy:
+# Deletes all CSVs in the directory except for: 
+# 1) CEDS energy system inputs (A.*.csv, or A.*-metadata.csv, but not processed by Rscript)
+# 2) Relevant mapping and instructions files
+# 3) User files (U.*.csv)
+	find $(USER_EN_IN) -name "*.csv" ! -name "U.*.csv" ! -name "*-instructions.csv" ! -name "A.aircraft_fix*.csv" ! -name "A.DEU_Etemad_Luciani_1800-1890*.csv" ! -name "A.*_sector_map.csv" -delete
+
+# Deletes all xlsx files that don't end in -mapping.xlsx
+	find $(USER_EN_IN) -name "*.xlsx" ! -name "*-mapping.xlsx" -delete
+
+# Deletes all txt files that aren't the README file
+	find $(USER_EN_IN) -name "*.txt" ! -name "README.txt" -delete
 
 clean-intermediate:
 	rm -fv $(MED_OUT)/*.csv
@@ -129,7 +143,11 @@ clean-diagnostic:
 	rm -fv $(DIAG_OUT)/summary-plots/*.csv \
 	rm -fv $(DIAG_OUT)/summary-plots/*.pdf \
 	rm -fv $(DIAG_OUT)/ceds-comparisons/*.pdf \
-	rm -fv $(DIAG_OUT)/ceds-comparisons/*.csv
+	rm -fv $(DIAG_OUT)/ceds-comparisons/*.csv \
+	rm -fv $(DIAG_OUT)/ceds-comparisons/sector-level/*.csv \
+	rm -fv $(DIAG_OUT)/ceds-comparisons/sector-level/*.pdf \
+	rm -fv $(DIAG_OUT)/user-data/*.csv \
+	rm -fv $(DIAG_OUT)/user-data/*.png
 
 clean-final:
 	rm -fv $(FINAL_OUT)/*.csv

@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
-# Program Name: GBR_historical_coal.R
+# Program Name: A8.1a.GBR_historical_coal.R
 # Author: Caleb Braun and Patrick O'Rourke
-# Date: June 6, 2019
+# Date: August 27, 2019
 #
 # Transforms raw UK historical coal data into a CEDS format .csv file.
 #
@@ -16,7 +16,7 @@
 # coal-data-coal-production-availability-and-consumption-1853-to-2011
 #
 # Input File: Coal_since_1853.xls
-# Output Files: GBR_historical_coal.csv
+# Output Files: A.GBR_historical_coal_aggsec.csv, A.GBR_historical_coal_total.csv
 #-------------------------------------------------------------------------------
 
 # 1.) Set constants, load data, make mapping
@@ -24,30 +24,29 @@
 # for writeData function
 setwd( '../../' )
 PARAM_DIR <- '../code/parameters/'
-source( paste0(PARAM_DIR, "header.R" ) )
-initialize( 'GBR_historical_coal.R', NULL, NULL )
+source( paste0( PARAM_DIR, "header.R" ) )
+initialize( 'A8.1a.GBR_historical_coal.R', NULL, NULL )
 
 FNAME <- 'Coal_since_1853'
-FPATH <- 'user-defined-energy/'
 SHEET <- 'Coal Availability & Consumption'
 
 FULLRANGE <- "A5:S131" # The range of cells containing relevant information
 DATASTART <- 23        # The row in FULLRANGE where the data actually starts
-ALL_YEARS <- paste0( 1913:2016 )
+ALL_YEARS <- paste0( 1913 : 2016 )
 
-xl <- readData( 'EXT_IN', paste0(FPATH, FNAME), '.xls', sheet = SHEET,
+xl <- readData( 'USER_EN_PROCESS', FNAME , '.xls', sheet = SHEET,
                 range = FULLRANGE, missing_value = c( '', '..', '-' ), trim_ws = T )
 
 # Column names are distributed in first two rows of data
 cnames <- paste( xl[1, ], xl[2, ] )
 cnames <- gsub( '(NA |\\d|,)', '', cnames )
 
-df <- xl[DATASTART:nrow( xl ), ]                # Get dataframe of just the values
+df <- xl[DATASTART : nrow( xl ), ]                # Get dataframe of just the values
 yrs <- substr( df[[1]], 1, 4 )                  # Get years from first column
 df <- t( df )                                   # Convert data to wide-form
 df <- as.data.frame( df, stringsAsFactors = F ) # Convert back to dataframe
 df <- cbind( cnames, df )                       # Put row identifiers back in
-df <- df[-1, ]                                  # Remove years from first row
+df <- df[ -1, ]                                  # Remove years from first row
 colnames( df ) <- c( "sector", yrs )            # Set years as column names
 rownames( df ) <- NULL
 
@@ -58,17 +57,17 @@ ceds_sector_map <- c(
     "Colliery Stocks"                 = "ignore",
     "Distributed Stocks"              = "ignore",
 
-    "Collieries"                      = "1A1_Energy-transformation", # "1A1bc_Other-transformation"
-    "Electricity"                     = "1A1a_Electricity", # "1A1_Electricity-public"
-    "Gas"                             = "1A4_Stationary_RCO", # While this is a transformation,
-                                                              # town gas is counted in the IEA data as residential
-    "Coke Ovens & MSF"                = "1A1_Energy-transformation", # "1A1bc_Other-transformation"
-    "Railways"                        = "1A3_Transportation",        # "1A3c_Rail"
+    "Collieries"                      = "1A1_Energy-transformation",     # "1A1bc_Other-transformation"
+    "Electricity"                     = "1A1a_Electricity",              # "1A1_Electricity-public"
+    "Gas"                             = "1A4_Stationary_RCO",            # While this is a transformation,
+                                                                         # town gas is counted in the IEA data as residential
+    "Coke Ovens & MSF"                = "1A1_Energy-transformation",     # "1A1bc_Other-transformation"
+    "Railways"                        = "1A3_Transportation",            # "1A3c_Rail"
     "Domestic"                        = "1A4_Stationary_RCO",
     "Industry"                        = "1A2_Industry-combustion",
     "Miscellaneous"                   = "1A2g_Ind-Comb-other",
-    "Miners"                          = "1A2_Industry-combustion",   # "1A2g_Ind-Comb-mining-quarying"
-    "Coastwise Bunkers"               = "1A3_Transportation",        # "1A3dii_Domestic-navigation"
+    "Miners"                          = "1A2_Industry-combustion",       # "1A2g_Ind-Comb-mining-quarying"
+    "Coastwise Bunkers"               = "1A3_Transportation",            # "1A3dii_Domestic-navigation"
     "Other"                           = "1A2g_Ind-Comb-other",
 
 #   "Northern Ireland"                = NA,
@@ -76,6 +75,7 @@ ceds_sector_map <- c(
     "Overseas Shipments and Bunkers"  = "ignore",
     "Total Consumption and Shipments" = "ignore"
 )
+
 ceds_sector_map <- data.frame( sector = names( ceds_sector_map ),
                                agg_sector = ceds_sector_map,
                                stringsAsFactors = F )
@@ -93,7 +93,7 @@ GBR_coal <- df %>%
     dplyr::filter( is.na( agg_sector ) | agg_sector != 'ignore' ) %>%
     dplyr::mutate( iso = 'gbr', agg_fuel = 'coal' ) %>%
     dplyr::select( iso, agg_fuel, agg_sector, dplyr::everything( ) ) %>%
-    tidyr::gather(key = years, value = coal_consumption, ALL_YEARS )
+    tidyr::gather( key = years, value = coal_consumption, ALL_YEARS )
 
 # Fix Domestic, Industry and Miscellaneous values from 1923-1942 (currently all assigned to Domestic)
 # based on their relative amounts from 1943
@@ -141,7 +141,7 @@ GBR_coal <- df %>%
         dplyr::ungroup( ) %>%
         dplyr::rename( sector = agg_sector )
 
-    GBR_coal_fixed[GBR_coal_fixed == 0] <- NA # We can do this because there are no zeros in original data
+    GBR_coal_fixed[ GBR_coal_fixed == 0 ] <- NA # We can do this because there are no zeros in original data
 
 # Create "Total" consumption data
   GBR_coal_total <- GBR_coal_fixed %>%
@@ -153,8 +153,8 @@ GBR_coal <- df %>%
 
 
 # Save final output
-writeData( GBR_coal_fixed, 'EXT_IN', paste0( FPATH, 'GBR_historical_coal_aggsec' ) )
-writeData( GBR_coal_total, 'EXT_IN', paste0( FPATH, 'GBR_historical_coal_total' ) )
+writeData( GBR_coal_fixed, 'USER_EN_IN', 'A.GBR_historical_coal_aggsec' )
+writeData( GBR_coal_total, 'USER_EN_IN', 'A.GBR_historical_coal_total' )
 
 
-logStop()
+logStop( )

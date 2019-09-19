@@ -11,7 +11,6 @@
 #       as they are added to the system.
 # ------------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.

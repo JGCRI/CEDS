@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: E.UNFCCC_emissions.R
 # Author(s): Patrick O'Rourke, Rachel Hoesly, Jon Seibert, Presley Muwan
-# Date Last Updated: June 14, 2019
+# Date Last Updated: September 5, 2019
 # Program Purpose: To read in and reformat UNFCCC emissions data.
 # Input Files: All UNFCCC Emissions Data
 # Output Files: E.[EM]_UNFCCC_inventory.csv
@@ -345,23 +345,25 @@
 # ------------------------------------------------------------------------------
 # 5. Meta Data
 
-    meta_names <- c( "Data.Type", "Emission", "Region", "Sector", 
+    meta_names <- c( "Data.Type", "Emission", "Region", "Sector",
                      "Start.Year", "End.Year", "Source.Comment" )
-    
-    meta_note <- c( "Default Emissions", "NA", 
+
+    meta_note <- c( "Default Emissions", "NA",
                     "Russian Federation, Monaco & Liechtenstein", "All", "1990",
-                    "2012", paste0( "The Russian Federation's emissions are too",
-                                    "low to be accurate, and have thus been",
-                                    "removed. Additionally Liechtenstein and",
-                                    "Monaco emissions have been removed",
+                    "2012", paste0( "The Russian Federation's emissions are too ",
+                                    "low to be accurate, and have thus been ",
+                                    "removed. Additionally Liechtenstein and ",
+                                    "Monaco emissions have been removed ",
                                     "temporarily." ) )
-    
-    addMetaData( meta_note, meta_names )
+
+    source_info <- script_name
+
+    addMetaData( meta_note, meta_names, source_info )
 
 # ------------------------------------------------------------------------------
 # 6. Output
 
-    writeData( UNFCCC, domain = "MED_OUT", 
+    writeData( UNFCCC, domain = "MED_OUT",
                fn = paste0( "E.", em, "_UNFCCC_inventory" ), meta = TRUE )
 
 # Every script should finish with this line

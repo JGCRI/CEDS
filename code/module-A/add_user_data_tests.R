@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: add_user_data_tests.R
 # Author: Caleb Braun
-# Date Last Updated: 18 December 2017
+# Date Last Updated: August 27, 2019
 # Program Purpose: Rigorously test part 2 of the energy extension
 # Input Files: H.TEST_total_activity_extended_db.csv
 # Output Files: None
@@ -51,9 +51,9 @@ testpriority <- function(iname) {
     # dataset that is double the original.
     dname <- gsub('-instructions.xlsx', '.csv', iname) # data file name
     mname <- gsub('-instructions', '-mapping', iname) # mapping file name
-    new_iname <- 'extension/user-defined-energy/PRIORITY-instructions.xlsx'
-    new_mname <- 'extension/user-defined-energy/PRIORITY-mapping.xlsx'
-    new_dname <- 'extension/user-defined-energy/PRIORITY.csv'
+    new_iname <- 'energy/user-defined-energy/user_energy_input/PRIORITY-instructions.xlsx'
+    new_mname <- 'energy/user-defined-energy/user_energy_input/PRIORITY-mapping.xlsx'
+    new_dname <- 'energy/user-defined-energy/user_energy_input/PRIORITY.csv'
 
     orig_inst <- openxlsx::loadWorkbook(iname)
     orig_trnd <- openxlsx::readWorkbook(iname, sheet = "Trend_instructions")
@@ -115,7 +115,7 @@ runtests <- function(limit = NULL) {
             warning(paste("Not all files present for test level", tnum))
             next
         }
-        file.copy(from=fpaths, to='extension/user-defined-energy/')
+        file.copy(from=fpaths, to='energy/user-defined-energy/user_energy_input')
 
         instr_file <- fpaths[grep(paste0(tnum, '-instr'), fpaths)]
 
@@ -127,7 +127,7 @@ runtests <- function(limit = NULL) {
         # testbreakdowns()
 
         # Remove the test files after running
-        file.remove(paste0('extension/user-defined-energy/', files))
+        file.remove(paste0('energy/user-defined-energy/user_enregy_input', files))
     }
 }
 

@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: A6.2.extended_default_activity_oil.R
 # Author: Presley Muwan
-# Date Last Updated: 4 June 2019
+# Date Last Updated: September 5, 2019
 # Program Purpose: Create the default activity oil data for CEDS following these three steps:
 #                 * Merge IEA oil data (2014 - 1960/1971) to UNSD oil data (1959/1970 - 1950)
 #                   and extend the merged data from 1950 to 1850 using CDIAC data.
@@ -35,7 +35,7 @@ A.comb_activity_all <- readData( 'MED_OUT', paste0("A.default_comb_activity_with
 full_default_sector_shares_all <- readData( 'MED_OUT', 'A.full_default_sector_shares')
 cdiac_fuel_all <- readData( 'MED_OUT' , 'E.CO2_CDIAC_inventory')
 iea_start_year_all <- readData( 'ENERGY_IN' , 'IEA_iso_start_data')
-iea_energy_mapping <- readData( "MAPPINGS", domain_extension = "energy/" , "IEA_product_fuel", meta = F )
+iea_energy_mapping <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
 
 #-------------------------------------------------------------------------------------
 # 2. Define Variables and Filter and Process inputs

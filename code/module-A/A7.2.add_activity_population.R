@@ -1,9 +1,11 @@
 # ------------------------------------------------------------------------------
 # Program Name: A7.2.add_activity_population.R
 # Author: Rachel Hoesly
+# Date Last Updated: August 30, 2019
 # Program Purpose: Extend CEDS activity backward with population data
-#
-# Output Files:
+# Input Files: A.NC_activity_extended_db.csv, CEDS_historical_extension_drivers_activity.csv,
+#              A.UN_pop_master.csv
+# Output Files: A.NC_activity_extended_db.csv
 # TODO:
 # ---------------------------------------------------------------------------
 

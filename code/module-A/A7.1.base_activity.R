@@ -4,7 +4,7 @@
 # Date Last Modified: 20 April 2018
 # Program Purpose: Extend CEDS activity backward
 # Input Files:  A.NC_activity.csv
-# Output Files:
+# Output Files: A.NC_activity_extended_db.csv
 # TODO:
 # ---------------------------------------------------------------------------
 

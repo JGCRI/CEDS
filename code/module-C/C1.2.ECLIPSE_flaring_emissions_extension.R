@@ -4,8 +4,11 @@
 # Date Last Modified: June 28, 2016
 # Program Purpose: Extends ECLIPSE flaring emissions to period 1960 - last BP year using IEA
 #                  and BP crude oil production data
-# Input Files: [em]_eclipse_flr_emissions.csv
-# Output Files: C.[em]_ECLIPSE_flaring_emissions_extended.csv
+# Input Files: [em]_eclipse_flr_emissions.csv, A.en_stat_sector_fuel.csv,
+#              [BP_data_file_name].csv, Master_Country_List.csv,
+#              A.UN_pop_master.csv
+# Output Files: C.[em]_ECLIPSE_flaring_emissions_extended.csv,
+# "             C.[em]_ECLIPSE_flaring_to_crude_oil_production_ratios.csv
 # Notes: In section 3.2 the 1970 data are manually 'extended' using 1971 data,
 #        the data to last BP year are manually 'extended' using 2013 data.
 #

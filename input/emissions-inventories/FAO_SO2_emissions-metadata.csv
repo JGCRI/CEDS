@@ -1,0 +1,2 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+Emissions,SO2,All,Agriculture,NA,NA,"Element and item codes for FAOSTAT package query , get item codes by using FAOsearch() function in R - http://www.fao.org/faostat/en/#data"

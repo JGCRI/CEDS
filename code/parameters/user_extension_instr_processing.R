@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: user_extension_instr_processing.R
 # Authors: Ben Goldstein, Caleb Braun
-# Date Last Updated: 26 January 2018
+# Date Last Updated: September 5, 2019
 # Program Purpose: Provides functions for the add_user-defined_data script that
 #                  help process the instructions for handling user-defined
 #                  datasets.
@@ -29,13 +29,13 @@ orderInstructions <- function( instructions ) {
 
 # Get instruction filenames
 #
-# Retrieve instruction files from the user-defined-energy directory. They are
+# Retrieve instruction files from the user_energy_input directory. They are
 # all specified with the name [filename]-instructions.csv
 #
 # Returns:
 #   Vector of filenames of all instructions files to be processed
 getInstructionFilenames <- function() {
-    USER_DOM <- "extension/user-defined-energy/"
+    USER_DOM <- "energy/user-defined-energy/user_energy_input"
 
     # Get a list of all the files in the directory
     files_present <- list.files( USER_DOM )
@@ -50,7 +50,7 @@ getInstructionFilenames <- function() {
 
 # Read in user instructions
 #
-# Searches the user-defined-energy directory for instructions, filters out non-
+# Searches the user_energy_input directory for instructions, filters out non-
 # combustion data, and adds defaults.
 #
 # Returns:
@@ -60,8 +60,8 @@ getInstructionFilenames <- function() {
 readInUserInstructions <- function() {
     instr_names <- getInstructionFilenames()
     if ( length( instr_names ) == 0 ) return( NULL )
-    instr_files <- paste0( "user-defined-energy/" , instr_names ) %>%
-                   sapply( readData, domain = "EXT_IN", simplify = F ) %>%
+    instr_files <- paste0( instr_names ) %>%
+                   sapply( readData, domain = "USER_EN_IN", simplify = F ) %>%
                    setNames( sub( "-instructions", "", instr_names ) )
 
     return( instr_files )
@@ -93,7 +93,7 @@ readInUserInstructions <- function() {
 #   A dataframe containing all user instructions
 processInstructions <- function( comb_sectors, MSL, MFL, default_activity ) {
 
-    # Get list of all '-instructions.csv' files in the user-defined-energy dir
+    # Get list of all '-instructions.csv' files in the user_energy_input dir
     instructions <- readInUserInstructions()
 
     # Put all instructions into single dataframe with uniform columns

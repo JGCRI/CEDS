@@ -3,7 +3,7 @@
 # Author: Rachel Hoesly
 # Date Last Updated: 28 June 2016
 # Program Purpose: To select and run the correct script(s) to extend CEDS activity data.
-# Input Files: None
+# Input Files: CEDS_historical_extension_drivers_activity.csv
 # Output Files: None
 # Notes:
 # TODO: section 2 - Check CEDS_historical_extension_drivers_activity.csv to ensure all sectors/fuels/time

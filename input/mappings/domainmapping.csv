@@ -11,7 +11,8 @@ GAINS_MAPPINGS,../input/mappings/GAINS
 ACTIVITY_IN,../input/activity
 ENERGY_IN,../input/energy
 EXT_IN,../input/extension
-USER_EN_IN,../input/extension/user-defined-energy
+USER_EN_PROCESS,../input/energy/user-defined-energy
+USER_EN_IN,../input/energy/user-defined-energy/user_energy_input
 GEN_IN,../input/general
 GRIDDING,../input/gridding
 DEFAULT_EF_IN,../input/default-emissions-data
@@ -20,7 +21,7 @@ EM_INV,../input/emissions-inventories
 UNFCCC_IN,../input/emissions-inventories/UNFCCC
 DIAG_IN,../code/diagnostic
 PARAM,../code/parameters
-LOGS,../code/logs
+LOGS,../logs
 MED_OUT,../intermediate-output
 FIN_OUT,../final-emissions
 DIAG_OUT,../diagnostic-output

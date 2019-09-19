@@ -2,9 +2,10 @@
 # Program Name: E.South_korea_emissions.R
 # Authors' Names: Steve Smith, Ryan Bolt
 # Program Purpose: Read emissions estimate South Korea inventory file
-#  Note - this file is not in git due to size. This utility file should not be in makefile.
+# Note: This file is not in git due to size. This utility file should not be in makefile.
 # This extracts data from 1999 - 2012
 # Units are initially in Mg or Metric Tonnes
+# Input Files: Air pollutants_South Korea_1999_2012_Korean font.xlsx
 # Output Files: F.[em]Korea_inventory.csv
 # Notes:
 # TODO:

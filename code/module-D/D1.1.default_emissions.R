@@ -5,7 +5,8 @@
 # Program Purpose: Reads in emissions factors (EFs) and historical fuel
 #                      consumption data to calculate historical emissions.
 # Input Files: A.final_comb_activity_modern.csv, B.[em]_default_EF.csv
-# Output Files: D.[em]_default_comb_emissions.csv
+# Output Files: D.[em]_default_comb_emissions.csv, D.[em]_default_total_emissions.csv,
+#               D.[em]_default_total_EF.csv, D.[em_default_nc_emissions.csv
 # Notes: Reads in emission species from Makefile. If running in R, specify
 #            emission species by changing the value of default_em_species
 # TODO:
