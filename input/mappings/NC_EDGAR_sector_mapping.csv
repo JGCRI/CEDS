@@ -1,7 +1,10 @@
 edgar_sector,edgar_descr,ceds_sector,units,Not-included-in-CEDS-CMIP6
 1A1bc,Other Energy Industries,1A1bc_Other-transformation,kt,
 1B1,Fugitive emissions from solid fuels,1B1_Fugitive-solid-fuels,kt,
-1B2,Fugitive emissions from oil and gas,1B2_Fugitive-petr-and-gas,kt,
+1B2,Fugitive emissions from oil and gas,,,
+,,1B2_Fugitive-petr,kt,
+,,1B2b_Fugitive-NG-prod,kt,
+,,1B2b_Fugitive-NG-distr,kt,
 ,,1B2d_Fugitive-other-energy,kt,
 2A1,Production of cement,2A1_Cement-production,kt,
 2A2,Production of lime,2A2_Lime-production,kt,
