@@ -1,17 +1,18 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.add_NC_emissions_GAINS.R
 # Author(s): Patrick O'Rourke
-# Date Last Modified: October 3, 2019
+# Date Last Modified: October 7, 2019
 # Program Purpose: To reformat the non-combustion fugitive oil and gas emissions
 #                  from GAINS.
 # Input Files: GAINS_EMF30_EMISSIONS_extended_Ev5a_CLE_Nov2015.xlsx,
 #              emf-30_ctry_map.csv, emf-30_fuel_sector_map.csv,
 #              Master_Country_List.csv, E.CO2_CDIAC_inventory.csv,
 #              BP_energy_data.xlsx, A.en_stat_sector_fuel.csv,
-#              A.UN_pop_master.csv
+#              A.UN_pop_master.csv, EDGAR42_NOx.csv, EDGAR42_N2O.csv
 # Output Files: C.GAINS_NC_Emissions_[em].csv, C.BP_and_IEA_oil_production.csv,
-#               C.BP_and_IEA_natural_gas_production.csv
-# TODO: Go through  doc todos and stars,  Needs updating once use new BP or IEA
+#               C.BP_and_IEA_natural_gas_production.csv, C.[em]_NC_emissions_db.csv
+# TODO: 1) Address remaining doc TODOs
+#       2) Needs updating once uses new BP or IEA data
 # Notes:
 
 # -----------------------------------------------------------------------------
@@ -58,8 +59,6 @@
     if ( em == "NMVOC" ){ e_sheet <- "VOC" }
     if ( em == "N2O" ){ e_sheet <- "NOx" } # Use NOx for N2O (as no N2O GAINS data)
 
-#   TODO: confirm the use of NOx for N2O with EDGAR ratio (and that no GAINS N2O online)
-
 #   Define years of interest
 
 #       Years within GAINS emissions data, GAINS 1st year, and GAINS last year for extension and interpolation
@@ -78,7 +77,7 @@
 #       Final GAINS years retained (after interpolation between 2010 and 2020, drop years after CEDS end year)
         GAINS_FINAL_YEARS_WITH_X <- paste0( "X", min( as.numeric( GAINS_EMISS_YEARS_KEEP ) ):end_year ) # Currently: X2000-X2014
 
-#       CDIAC Years that are within CEDS years #****(was 1960-2010, trying 2011)
+#       CDIAC Years that are within CEDS years
         CDIAC_YEARS_X <- paste0( "X", start_year : cdiac_end_year ) # Currently X1960-X2011
 
 #       CDIAC Years extended years (1960-2020) and years which = cdiac_end_year after extension
@@ -91,7 +90,8 @@
         BP_GAS_YEARS <- 1970 : BP_years                                            # Currently: 1970-2014
         BP_GAS_YEARS_x <- paste0( 'X', BP_GAS_YEARS )                              # Currently: X1970-X2014
         IEA_PROD_YEARS_x <- X_emissions_years                                      # Currently: X1960-X2014, for after extending to 2014 (constant extension)
-        IEA_NA_YEARS <- paste0( "X", start_year : 1970 )                           # Currently: X1960-X1970, years where IEA data is all NAs for every iso #***check this is true
+        IEA_NA_YEARS <- paste0( "X", start_year : 1970 )                           # Currently: X1960-X1970 the data is 0 for all isos for crude oil production
+                                                                                   # TODO: This above note about NA IEA years may change with updated IEA data
 
 #   Define GAINS fugitive sectors for oil and gas
     GAINS_FUGITIVE_SECTORS <- c( "Losses_Distribution_Use" , "Losses_Prod_Conventional_Gas",
@@ -100,9 +100,8 @@
 
 #   Define function to check if all values are NA for interpolating
 #   Params: x -- an R atomic vector or list (including data frames)
-#   TODO: This is function is within the master branch already as all.na.
-#         Once both the N2O branch and the energy_data_extension branch are merged into the master branch
-#         this can be deleted and its use replaced with all.na.
+#   TODO: This  function is within the master branch already as "all.na."
+#         This can be deleted once this branch is updated with the master branch and its use replaced with all.na.
     all.na_new  <- function(x) return( all( is.na(x) ) )
 
 #   Define function interpolate_NAs_new
@@ -113,8 +112,8 @@
 #   Input files: none
 #   Output files: none
 #   TODO: This function is within the master branch already as interpolate_NAs2.
-#         Once both the N2O branch and the energy_data_extension branch are merged into the master branch
-#         this can be deleted and its use replaced with interpolate_NAs2.
+#         This can be deleted once this branch is updated with the master branch and its use replaced with all.na.
+
     interpolate_NAs_new <- function(df) {
 
         if( !is.data.frame( df ) ) {
@@ -331,7 +330,6 @@
 #       data are within the GAINS region map
 #       TODO: Change this to the updated iso check function once available potentially
 #             (iso_check in analysis_functions.R)
-
         unique_GAINS_map_regions <- sort( unique( GAINS_country_map_clean$Region ) )
         unique_GAINS_emiss_regions <- sort( unique( GAINS_FugEmiss_SecMapped$Region ) )
 
@@ -412,7 +410,7 @@
 
 # 5. Reformat CDIAC Driver data
 
-# Subset NG Emissions and retain appropriate years (1960-2011). #*** was 2010
+# Subset NG Emissions and retain appropriate years (1960-2011).
 # Note that CDIAC inventory only goes to 2011 (other than cement which was extended during initial CDIAC processing),
 # so after subsetting appropriate years, extend CDIAC emisisons to 2020 for EF (constant, equal to 2011 values).
   X_cdiac_end_year <- paste0( "X",  cdiac_end_year )
@@ -470,13 +468,14 @@
 # ------------------------------------------------------------------------------
 
 # 6. Downscale fugitive NG distribution emissions by CDIAC NG CO2 emissions
+    printLog( "Downscaling GAINS fugitive natural gas distribution emissions with",
+              "CDIAC natural gas CO2 emissions...")
 
 #   Check if all isos listed in GAINS NG distribution fugitive emissions data
 #   are within the CDIAC gas CO2 emissions data, and that all isos in CDIAC
 #   gas CO2 emissions are within GAINS GAINS NG distribution fugitive emissions data.
 #   TODO: Change this to the updated iso_check function once available
 #   (iso_check in analysis_functions.R)
-
     unique_GAINS_NGdist_emissions_isos <- sort( unique( GAINS_fug_NG_distribution$iso ) )
 
 #   A.) Check if all isos listed in GAINS NG distribution fugitive emissions data
@@ -576,7 +575,7 @@
 # 7. Process BP and IEA oil production data - BP( favored over IEA (IEA provides only what BP is missing)
 #TODO: confirm this detail (BP favored)
 #TODO: disaggregate BP data for "other region" isos ("other africa"...), and split historical data for certain regions (for example: Sudan and S. Sudan)
-#TODO: Align this with the MCL BP_oil name column (so can just use the mapping file - MCL may need to be fixed)
+#TODO: Align this with the MCL BP_oil name column (so only one mapping file is needed - MCL may need to be fixed)
 
 #   Initial cleaning of BP data (clean, map, convert units)
     not_BP_countries <- c( "                 European Union #", "                 Non-OECD",
@@ -682,6 +681,7 @@
 # ------------------------------------------------------------------------------
 
 # 8. Downscale fugitive oil production emissions using BP and IEA oil production data
+    printLog( "Downscaling GAINS fugitive oil emissions with BP and IEA oil production activity data...")
 
 #   Check if all isos listed in IEA and BP oil production data are within GAINS fugitive
 #   oil production emissions data
@@ -714,7 +714,9 @@
         dplyr::select( Region, iso, sector, fuel, units, X_emissions_years )
 
 #   Aggregate by region for each year, extend aggregate data forward to 2020 for EF
-#   TODO: Confirm that we want to aggregate even after IEAs last reported year of data (1971) - as Only BP data would be available.
+#   Note: We are aggregating data for which some isos might be NA (IEA's first reported year of data is 1971, so only
+#   isos for a given GAINS region which had data from BP are aggregated. However, this aggregate info isn't used below,
+#   as the aggRegion EF is created only for years within "GAINS_EMISS_YEARS_KEEP_X" (currently 2000, 2005, 2010, and 2020)
     oil_production_extension_years <- paste0( "X", ( end_year + 1 ): LAST_GAINS_YEAR_FOR_INTERP )
 
     Oil_production_aggRegion_for_EF <- Oil_production_region_mapped %>%
@@ -737,7 +739,6 @@
                          EF_units = "(GAINS_OilProd_Emiss / IEAbp_oil_prod), by GAINS reg." )
 
 #   If region's EF = 0 or if regional EF is NaN (0/0), assign global weighted average EF
-#   TODO: Confirm this assumption with Steve
     global_total_production <- Oil_prod_EF %>%
         dplyr::select( years, Oil_production ) %>%
         dplyr::distinct( ) %>%                         # distinct is needed, as currently regional production is repeated for each iso within the given region
@@ -795,6 +796,8 @@
 # ------------------------------------------------------------------------------
 
 # 9. Process BP and IEA natural gas production data - BP( favored over IEA (IEA provides only what BP is missing)
+    printLog( "Downscaling GAINS fugitive natural gas production emissions with BP and IEA gas production activity data...")
+
 #TODO: Confirm this detail (BP favored)
 #TODO: Disaggregate BP data for "other region" isos ("other africa"...), and split historical data for certain regions (for example: Sudan and S. Sudan)
 #TODO: Align this with the MCL BP_oil name column (so can just use the mapping file - MCL may need to be fixed)
@@ -886,10 +889,10 @@
 
 #   Initial cleaning of IEA gas production data:
 #   Select isos that are not in the BP dataSet,
-#   set production to NA from 1960-1970 (since all data is currently 0 (for Non-OECD isos not present in BP - data begins in 1971 for Non-OECD),
+#   set production to NA from 1960-1970 for non-OECD (since all data is currently 0 for Non-OECD isos not present in BP - data begins in 1971 for Non-OECD),
 #   and extend 2013 (final IEA production year) to 2014 (final CEDS year).
 #   TODO: This may not be 0 for 1960-1970 in future IEA data - this should be checked when updating IEA data versions.
-#   TODO: do we want to set NA 1960-1970 for the OECDs that are all 0 for these years ? (seems to be missing data for these isos too)
+#   TODO: Should we set 1960-1970 NA for the OECD countries that are all 0 for these years? (seem to be missing data for these isos too)
     IEA_gas <- en_stat_sector_fuel %>%
         dplyr::filter( sector == "natural_gas-production",
                        !( iso %in% BP_gas_isos ) ) %>%
@@ -938,8 +941,9 @@
         dplyr::select( Region, iso, sector, fuel, units, X_emissions_years )
 
 #   Aggregate by region for each year, extend aggregate data forward to 2020 for EF (currently extending 2014 to 2020)
-#   TODO: Confirm that we want to aggregate even after IEAs last reported year of data (1971) - as Only BP data would be available.
-#         Probably doesn't matter since for EF cut off aggregated data to GAINS_EMISS_YEARS_KEEP_X (2000, 2005, 2015, 2020)
+#   Note: We are aggregating data for which some isos might be NA (IEA's first reported year of data is 1971, so only
+#   isos for a given GAINS region which had data from BP are aggregated. However, this aggregate info isn't used below,
+#   as the aggRegion EF is created only for years within "GAINS_EMISS_YEARS_KEEP_X" (currently 2000, 2005, 2010, and 2020)
     gas_production_extension_years <- paste0( "X", ( end_year + 1 ): LAST_GAINS_YEAR_FOR_INTERP )
 
     Gas_production_aggRegion_for_EF <- Gas_production_region_mapped %>%
@@ -962,7 +966,6 @@
                        EF_units = "(GAINS_gasProd_Emiss / IEAbp_gas_prod), by GAINS reg." )
 
 #   If region's EF = 0 or if regional EF is NaN (0/0), assign global weighted average EF
-#   TODO: Confirm this assumption with Steve
     global_total_production <- gas_prod_EF %>%
         dplyr::select( years, gas_production ) %>%
         dplyr::distinct( ) %>%                         # distinct is needed, as currently regional production is repeated for each iso within the given region
@@ -1038,7 +1041,7 @@ if( em == "N2O" ){
 
 # Define function for cleaning EDGAR data
   EDGAR_clean_for_ratio <- function( EDGAR_data_in, EDGAR_years, MCL_final_isos, EDGAR_em ){
-
+#     TODO: Note the scg work below - this may not be necessary in future EDGAR versions
       EDGAR_clean <- EDGAR_data_in %>%
           dplyr::select( ISO_A3, Name, IPCC, IPCC_description, EDGAR_years ) %>%
           dplyr::rename( iso = ISO_A3 ) %>%
@@ -1065,9 +1068,12 @@ if( em == "N2O" ){
   }
 
 #   Process Edgar N2O and NOx data
-    EDGAR_inv_years <- paste0( "X", 1970 : 2008 )
-    EDGAR_N2O_clean <- EDGAR_clean_for_ratio( EDGAR_N2O, EDGAR_inv_years, MCL_clean, "N2O" )
-    EDGAR_NOx_clean <- EDGAR_clean_for_ratio( EDGAR_NOx, EDGAR_inv_years, MCL_clean, "NOx" )
+    EDGAR_inv_start_year <- 1970
+    EDGAR_inv_end_year <- 2008
+    EDGAR_inv_years <- EDGAR_inv_start_year : EDGAR_inv_end_year
+    X_EDGAR_inv_years <- paste0( "X", EDGAR_inv_years )
+    EDGAR_N2O_clean <- EDGAR_clean_for_ratio( EDGAR_N2O, X_EDGAR_inv_years, MCL_clean, "N2O" )
+    EDGAR_NOx_clean <- EDGAR_clean_for_ratio( EDGAR_NOx, X_EDGAR_inv_years, MCL_clean, "NOx" )
 
 #   Combine EDGAR N2O and NOx data into 1 data frame
     EDGAR_N2O_and_NOx <- EDGAR_N2O_clean %>%
@@ -1110,8 +1116,8 @@ if( em == "N2O" ){
         missing_isos_df <- missing_isos %>%
             dplyr::as_data_frame(  ) %>%
             dplyr::rename( iso = value ) %>%
-            dplyr::mutate_at( EDGAR_inv_years, funs( identity( NA_real_ ) ) ) %>%
-            tidyr::gather( year, Ratio_N2O_per_Nox, EDGAR_inv_years ) %>%
+            dplyr::mutate_at( X_EDGAR_inv_years, funs( identity( NA_real_ ) ) ) %>%
+            tidyr::gather( year, Ratio_N2O_per_Nox, X_EDGAR_inv_years ) %>%
             dplyr::mutate( IPCC = "1B2", IPCC_description = "Fugitive emissions from oil and gas" )
 
         EDGAR_national_ratio <- EDGAR_national_ratio %>%
@@ -1124,12 +1130,31 @@ if( em == "N2O" ){
     EDGAR_national_ratio_with_global_ratio_fix <- EDGAR_national_ratio %>%
         dplyr::left_join( EDGAR_N2O_NOx_global, by = c( "IPCC", "IPCC_description", "year" ) ) %>%
         dplyr::mutate( Ratio_N2O_per_Nox = if_else( is.na( Ratio_N2O_per_Nox ),
-                                                    Ratio_N2O_per_NOx_global, Ratio_N2O_per_Nox) ) %>%
-        dplyr::select( iso, year, Ratio_N2O_per_Nox ) #***********Start back here
+                                                    Ratio_N2O_per_NOx_global, Ratio_N2O_per_Nox ) ) %>%
+        dplyr::select( iso, year, Ratio_N2O_per_Nox )
+
+#   Extend ratios forwards and backwards to cover all CEDS years
+    missing_early_years_EDGAR <- subset( emissions_years, emissions_years < EDGAR_inv_start_year )
+    X_missing_early_years_EDGAR <- paste0( "X", missing_early_years_EDGAR )
+    missing_late_years_EDGAR <- subset( emissions_years, emissions_years > EDGAR_inv_end_year )
+    X_missing_late_years_EDGAR <- paste0( "X", missing_late_years_EDGAR )
+
+    EDGAR_ratios_extended <- EDGAR_national_ratio_with_global_ratio_fix %>%
+        tidyr::spread( year, Ratio_N2O_per_Nox ) %>%
+        dplyr::mutate_at( X_missing_early_years_EDGAR, funs( identity( !!rlang::sym( first( X_EDGAR_inv_years ) ) ) ) ) %>%
+        dplyr::mutate_at( X_missing_late_years_EDGAR, funs( identity( !!rlang::sym( last( X_EDGAR_inv_years ) ) ) ) ) %>%
+        dplyr::select( iso, X_emissions_years ) %>%
+        tidyr::gather( year, Ratio_N2O_per_Nox,  X_emissions_years )
 
 
-# Apply Ratio to emissions - make sure applied to only isos and all years, if something is missing use global ratio
-
+#   Apply Ratio to emissions
+    GAINS_fugitive_emissions_final <- GAINS_fugitive_emissions_final %>%
+        dplyr::ungroup( ) %>%
+        tidyr::gather( year, NOx_emissions, X_emissions_years ) %>%
+        dplyr::left_join( EDGAR_ratios_extended, by = c( "iso", "year" ) ) %>%
+        dplyr::mutate( N2O_emissions = NOx_emissions * Ratio_N2O_per_Nox ) %>%
+        dplyr::select( -NOx_emissions, -Ratio_N2O_per_Nox ) %>%
+        tidyr::spread( year, N2O_emissions )
 
 }
 
