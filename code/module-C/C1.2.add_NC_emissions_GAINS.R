@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.add_NC_emissions_GAINS.R
 # Author(s): Patrick O'Rourke
-# Date Last Modified: October 7, 2019
+# Date Last Modified: October 8, 2019
 # Program Purpose: To reformat the non-combustion fugitive oil and gas emissions
 #                  from GAINS.
 # Input Files: GAINS_EMF30_EMISSIONS_extended_Ev5a_CLE_Nov2015.xlsx,
@@ -10,7 +10,7 @@
 #              BP_energy_data.xlsx, A.en_stat_sector_fuel.csv,
 #              A.UN_pop_master.csv, EDGAR42_NOx.csv, EDGAR42_N2O.csv
 # Output Files: C.GAINS_NC_Emissions_[em].csv, C.BP_and_IEA_oil_production.csv,
-#               C.BP_and_IEA_natural_gas_production.csv, C.[em]_NC_emissions_db.csv
+#               C.BP_and_IEA_natural_gas_production.csv, C.[em]_GAINS_fug_oil_gas_shares.csv
 # TODO: 1) Address remaining doc TODOs
 #       2) Needs updating once uses new BP or IEA data
 # Notes:
@@ -1163,12 +1163,145 @@ if( em == "N2O" ){
 
 # ------------------------------------------------------------------------------
 
-# 12. Output
+# 12. Create a data frame of the shares of total oil and gas fugitive emissions for each of the
+#     3 disaggregate sectors (B2_Fugitive-petr, 1B2b_Fugitive-NG-prod, 1B2b_Fugitive-NG-distr)
+
+#   Reset NAs to 0
+    GAINS_fugitive_emissions_final_add_zeroes <- GAINS_fugitive_emissions_final %>%
+        dplyr::mutate_at( X_emissions_years, funs( if_else( is.na( . ),  0, .) ) )
+
+    GAINS_fugitive_emissions_final_long <- GAINS_fugitive_emissions_final_add_zeroes %>%
+        tidyr::gather( year, disagg_fugitive_emissions, X_emissions_years )
+
+#   Make a data frame of global totals for each of the 3 disaggregate sectors
+    GAINS_global_fugitive_disagg_emissions_oil_and_gas <- GAINS_fugitive_emissions_final_add_zeroes %>%
+        dplyr::mutate( iso = "global" ) %>%
+        dplyr::group_by( iso, sector, fuel, units ) %>%
+        dplyr::summarise_all( sum, na.rm = TRUE ) %>%
+        dplyr::ungroup( )
+
+    GAINS_global_fugitive_disagg_emissions_oil_and_gas_long <- GAINS_global_fugitive_disagg_emissions_oil_and_gas %>%
+        tidyr::gather( year, disagg_fugitive_emissions, X_emissions_years )
+
+#   Create data frames of total fugitive oil and gas emissions - by iso and global
+    GAINS_fugitive_total_oil_and_gas <- GAINS_fugitive_emissions_final_add_zeroes %>%
+        dplyr::mutate( sector = "total fugitive oil and gas emissions" ) %>%
+        dplyr::group_by( iso, sector, fuel, units ) %>%
+        dplyr::summarise_all( sum, na.rm = TRUE ) %>%
+        dplyr::ungroup( )
+
+    GAINS_fugitive_total_oil_and_gas_long <- GAINS_fugitive_total_oil_and_gas %>%
+        tidyr::gather( year, total_fugitive_oil_and_gas_emissions, X_emissions_years )
+
+    GAINS_global_fugitive_total_oil_and_gas <- GAINS_fugitive_total_oil_and_gas %>%
+        dplyr::mutate( iso = "global" ) %>%
+        dplyr::group_by( iso, sector, fuel, units ) %>%
+        dplyr::summarise_all( sum, na.rm = TRUE ) %>%
+        dplyr::ungroup( )
+
+    GAINS_global_fugitive_total_oil_and_gas_long <- GAINS_global_fugitive_total_oil_and_gas %>%
+        tidyr::gather( year, total_fugitive_oil_and_gas_emissions, X_emissions_years )
+
+#   Create data frames of global shares of total fugitive oil and gas emissions for each oil and gas fugitive subsector
+    GAINS_global_fug_oil_gas_splits_by_disaggsec <- GAINS_global_fugitive_disagg_emissions_oil_and_gas_long %>%
+        dplyr::left_join( GAINS_global_fugitive_total_oil_and_gas_long, by = c( "iso", "fuel", "units", "year" ) ) %>%
+        dplyr::mutate( global_share = disagg_fugitive_emissions / total_fugitive_oil_and_gas_emissions ) %>%
+        dplyr::rename( sector = sector.x ) %>%
+        dplyr::select( iso, sector, fuel, units, year, global_share )
+
+#   Check that no global shares are NA or NaN and that all shares sum to 1 for each year
+    if( any( is.na( GAINS_global_fug_oil_gas_splits_by_disaggsec$global_share ) |
+             is.nan( GAINS_global_fug_oil_gas_splits_by_disaggsec$global_share ) ) ){
+
+        stop( "No global fugitive oil and gas subsector shares should be Na or NaN.... see C1.2.add_NC_emissions_GAINS.R" )
+
+    }
+
+    GAINS_global_share_check <- GAINS_global_fug_oil_gas_splits_by_disaggsec %>%
+        dplyr::select( -sector ) %>%
+        dplyr::group_by( iso, fuel, units, year ) %>%
+        dplyr::summarise_all( sum, na.rm = TRUE )
+
+
+    if( any( round( GAINS_global_share_check$global_share, 15 ) != 1 ) ){
+
+        stop( "Global fugitive oil and gas subsector shares should sum to 1.... see C1.2.add_NC_emissions_GAINS.R" )
+
+    }
+
+#   Create data frames of iso specific shares of total fugitive oil and gas emissions for each oil and gas fugitive subsector
+    GAINS_fug_oil_gas_splits_by_iso <- GAINS_fugitive_emissions_final_long %>%
+        dplyr::left_join( GAINS_fugitive_total_oil_and_gas_long, by = c( "iso", "fuel", "units", "year" ) ) %>%
+        dplyr::mutate( share = disagg_fugitive_emissions / total_fugitive_oil_and_gas_emissions ) %>%
+        dplyr::rename( sector = sector.x ) %>%
+        dplyr::select( -sector.y )
+
+#   Create data frame of average sector split by iso and sector (across all CEDs years) and use to replace NaN values - unweighted average
+#   TODO: Could alternatively extend the first and final splits backwards and forwards
+    GAINS_fug_oil_gas_average_splits_by_iso <- GAINS_fug_oil_gas_splits_by_iso %>%
+        dplyr::filter( !is.nan( share ) ) %>%
+        dplyr::select( iso, sector, fuel, units, share ) %>%
+        dplyr::group_by( iso, sector, fuel, units ) %>%
+        dplyr::summarise_all( mean, na.rm = TRUE ) %>%
+        dplyr::ungroup( ) %>%
+        dplyr::rename( share_average = share )
+
+    if( any( is.na( GAINS_fug_oil_gas_average_splits_by_iso$share_average ) |
+             is.nan( GAINS_fug_oil_gas_average_splits_by_iso$share_average ) ) ){
+
+        stop( "No average fugitive oil and gas subsector share should be Na or NaN.... see C1.2.add_NC_emissions_GAINS.R" )
+
+    }
+
+    GAINS_fug_oil_gas_splits_by_iso_fixed_average <- GAINS_fug_oil_gas_splits_by_iso %>%
+        dplyr::left_join( GAINS_fug_oil_gas_average_splits_by_iso,  by = c( "iso", "sector", "fuel", "units" ) ) %>%
+        dplyr::mutate( share = if_else( disagg_fugitive_emissions == 0 & total_fugitive_oil_and_gas_emissions == 0 &
+                                        is.nan( share ), share_average, share ) )
+
+#   Replace any remaining NaNs with global average year specific shares
+    GAINS_fug_oil_gas_splits_by_iso_fixed_global <- GAINS_fug_oil_gas_splits_by_iso_fixed_average %>%
+      dplyr::left_join( GAINS_global_fug_oil_gas_splits_by_disaggsec, by = c( "sector", "fuel", "units", "year" ) ) %>%
+      dplyr::mutate( share = if_else( disagg_fugitive_emissions == 0 & total_fugitive_oil_and_gas_emissions == 0 &
+                                            ( is.na( share ) | is.nan( share ) ) ,
+                                              global_share, share ) ) %>%
+      dplyr::rename( iso = iso.x ) %>%
+      dplyr::select( -disagg_fugitive_emissions, -total_fugitive_oil_and_gas_emissions, -iso.y, -global_share, -share_average )
+
+
+#   Check that no final shares are NA or NaN and that all shares sum to 1 for each year
+    if( any( is.na( GAINS_fug_oil_gas_splits_by_iso_fixed_global$share ) |
+             is.nan( GAINS_fug_oil_gas_splits_by_iso_fixed_global$share ) ) ){
+
+        stop( "No final fugitive oil and gas subsector share should be Na or NaN.... see C1.2.add_NC_emissions_GAINS.R" )
+
+    }
+
+    GAINS_share_check <- GAINS_fug_oil_gas_splits_by_iso_fixed_global %>%
+        dplyr::select( -sector ) %>%
+        dplyr::group_by( iso, fuel, units, year ) %>%
+        dplyr::summarise_all( sum, na.rm = TRUE )
+
+
+    if( any( round( GAINS_share_check$share, 15 ) != 1 ) ){
+
+        stop( "Final GAINS fugitive oil and gas subsector shares should sum to 1.... see C1.2.add_NC_emissions_GAINS.R" )
+
+    }
+
+#   Spread shares and change units
+    GAINS_fug_oil_gas_splits_final <- GAINS_fug_oil_gas_splits_by_iso_fixed_global %>%
+        tidyr::spread( year, share ) %>%
+        dplyr::mutate( units = "diaggregate fugitive oil and gas shares" )
+
+# ------------------------------------------------------------------------------
+
+# 13. Output
 writeData( GAINS_fugitive_emissions_final, domain = "DIAG_OUT", fn = paste0( "C.GAINS_NC_Emissions_", em ) )
 writeData( Oil_production, domain = "DIAG_OUT", fn = paste0( "C.BP_and_IEA_oil_production"  ) )
 writeData( Gas_production, domain = "DIAG_OUT", fn = paste0( "C.BP_and_IEA_natural_gas_production" ) )
 
-addToEmissionsDb( GAINS_fugitive_emissions_final, em = em, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
+writeData( C, domain = "MED_OUT", fn = paste0( "C.", em, "_GAINS_fug_oil_gas_shares" ) )
 
-logStop()
+
+logStop( )
 # END
