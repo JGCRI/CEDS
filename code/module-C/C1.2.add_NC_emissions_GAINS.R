@@ -1,9 +1,10 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.add_NC_emissions_GAINS.R
 # Author(s): Patrick O'Rourke
-# Date Last Modified: October 8, 2019
+# Date Last Modified: October 18, 2019
 # Program Purpose: To reformat the non-combustion fugitive oil and gas emissions
-#                  from GAINS.
+#                  from GAINS and create gain fugitive subsector shares of total
+#                  fugitive oil and gas related emissions
 # Input Files: GAINS_EMF30_EMISSIONS_extended_Ev5a_CLE_Nov2015.xlsx,
 #              emf-30_ctry_map.csv, emf-30_fuel_sector_map.csv,
 #              Master_Country_List.csv, E.CO2_CDIAC_inventory.csv,
@@ -11,8 +12,8 @@
 #              A.UN_pop_master.csv, EDGAR42_NOx.csv, EDGAR42_N2O.csv
 # Output Files: C.GAINS_NC_Emissions_[em].csv, C.BP_and_IEA_oil_production.csv,
 #               C.BP_and_IEA_natural_gas_production.csv, C.[em]_GAINS_fug_oil_gas_shares.csv
-# TODO: 1) Address remaining doc TODOs
-#       2) Needs updating once uses new BP or IEA data
+# TODO: Address remaining doc TODOs
+#       This will likely need updating once CEDS uses the new BP or IEA data
 # Notes:
 
 # -----------------------------------------------------------------------------
@@ -119,50 +120,6 @@
 #   Define aggregate Former Soviet Union (FSU) iso and subregional FSU isos. Used for disaggregating fossil fuel production data
     fsu <- 'ussr'
     fsu_members <- c( "arm", "aze", "blr", "est", "geo", "kaz", "kgz", "ltu", "lva", "mda", "rus", "tjk", "tkm", "ukr", "uzb" )
-
-#   Define function to check if all values are NA for interpolating
-#   Params: x -- an R atomic vector or list (including data frames)
-#   TODO: This  function is within the master branch already as "all.na."
-#         This can be deleted once this branch is updated with the master branch and its use replaced with all.na.
-    all.na_new  <- function(x) return( all( is.na(x) ) )
-
-#   Define function interpolate_NAs_new
-#   Brief: Linearly interpolate over NA values
-#   Author: Rachel hoesly and Caleb Braun
-#   Parameters: df -- data frame of numeric values (no id columns)
-#   Return: data frame of same size as df, with interpolated values
-#   Input files: none
-#   Output files: none
-#   TODO: This function is within the master branch already as interpolate_NAs2.
-#         This can be deleted once this branch is updated with the master branch and its use replaced with all.na.
-
-    interpolate_NAs_new <- function(df) {
-
-        if( !is.data.frame( df ) ) {
-
-            warning( "interpolate_NAs expects a data frame; attempting to convert" )
-
-            df <- as.data.frame( df )
-
-        }
-
-#       I.) Convert columns that are all NA to numeric
-        df <- dplyr::mutate_if( df, function( x ) all.na_new( x ), as.numeric )
-
-        if( length( rle( sapply( df, is.numeric ) )$lengths ) > 2) {
-
-            warning( "interpolate_NAs found mixed numeric and non-numeric columns;
-                    make sure all value columns are numeric")
-
-        }
-
-        value.cols <- sapply( df, is.numeric )
-        df_flipped <- t( df[value.cols] )
-        df[ , value.cols] <- t( na.approx( df_flipped, na.rm = F ) )
-
-        return(df)
-
-    }
 
 # ------------------------------------------------------------------------------
 
@@ -1102,7 +1059,7 @@ if( em == "N2O" ){
                                                             is.na( NOx_emissions ), NA_real_, . ) ) )
 
 #   Make global summed emissions for each year and global ratio
-#   TODO: use regional ratios for isos which do not have ratio from EDGAR
+#   TODO: use regional ratios for isos which do not have ratio from EDGAR, instead of global ratio
     EDGAR_N2O_NOx_global <- EDGAR_N2O_and_NOx_NA_fix %>%
         dplyr::select( -iso, -Name ) %>%
         dplyr::filter( !is.na( N2O_emissions ), !is.na( NOx_emissions ) ) %>%
@@ -1170,20 +1127,10 @@ if( em == "N2O" ){
     GAINS_fugitive_emissions_final_add_zeroes <- GAINS_fugitive_emissions_final %>%
         dplyr::mutate_at( X_emissions_years, funs( if_else( is.na( . ),  0, .) ) )
 
-    GAINS_fugitive_emissions_final_long <- GAINS_fugitive_emissions_final_add_zeroes %>%
+    GAINS_fug_emiss_final_add_zero_long <- GAINS_fugitive_emissions_final_add_zeroes %>%
         tidyr::gather( year, disagg_fugitive_emissions, X_emissions_years )
 
-#   Make a data frame of global totals for each of the 3 disaggregate sectors
-    GAINS_global_fugitive_disagg_emissions_oil_and_gas <- GAINS_fugitive_emissions_final_add_zeroes %>%
-        dplyr::mutate( iso = "global" ) %>%
-        dplyr::group_by( iso, sector, fuel, units ) %>%
-        dplyr::summarise_all( sum, na.rm = TRUE ) %>%
-        dplyr::ungroup( )
-
-    GAINS_global_fugitive_disagg_emissions_oil_and_gas_long <- GAINS_global_fugitive_disagg_emissions_oil_and_gas %>%
-        tidyr::gather( year, disagg_fugitive_emissions, X_emissions_years )
-
-#   Create data frames of total fugitive oil and gas emissions - by iso and global
+#   Create data frames of total fugitive oil and gas emissions - by iso
     GAINS_fugitive_total_oil_and_gas <- GAINS_fugitive_emissions_final_add_zeroes %>%
         dplyr::mutate( sector = "total fugitive oil and gas emissions" ) %>%
         dplyr::group_by( iso, sector, fuel, units ) %>%
@@ -1193,115 +1140,203 @@ if( em == "N2O" ){
     GAINS_fugitive_total_oil_and_gas_long <- GAINS_fugitive_total_oil_and_gas %>%
         tidyr::gather( year, total_fugitive_oil_and_gas_emissions, X_emissions_years )
 
-    GAINS_global_fugitive_total_oil_and_gas <- GAINS_fugitive_total_oil_and_gas %>%
-        dplyr::mutate( iso = "global" ) %>%
-        dplyr::group_by( iso, sector, fuel, units ) %>%
-        dplyr::summarise_all( sum, na.rm = TRUE ) %>%
-        dplyr::ungroup( )
-
-    GAINS_global_fugitive_total_oil_and_gas_long <- GAINS_global_fugitive_total_oil_and_gas %>%
-        tidyr::gather( year, total_fugitive_oil_and_gas_emissions, X_emissions_years )
-
-#   Create data frames of global shares of total fugitive oil and gas emissions for each oil and gas fugitive subsector
-    GAINS_global_fug_oil_gas_splits_by_disaggsec <- GAINS_global_fugitive_disagg_emissions_oil_and_gas_long %>%
-        dplyr::left_join( GAINS_global_fugitive_total_oil_and_gas_long, by = c( "iso", "fuel", "units", "year" ) ) %>%
-        dplyr::mutate( global_share = disagg_fugitive_emissions / total_fugitive_oil_and_gas_emissions ) %>%
-        dplyr::rename( sector = sector.x ) %>%
-        dplyr::select( iso, sector, fuel, units, year, global_share )
-
-#   Check that no global shares are NA or NaN and that all shares sum to 1 for each year
-    if( any( is.na( GAINS_global_fug_oil_gas_splits_by_disaggsec$global_share ) |
-             is.nan( GAINS_global_fug_oil_gas_splits_by_disaggsec$global_share ) ) ){
-
-        stop( "No global fugitive oil and gas subsector shares should be Na or NaN.... see C1.2.add_NC_emissions_GAINS.R" )
-
-    }
-
-    GAINS_global_share_check <- GAINS_global_fug_oil_gas_splits_by_disaggsec %>%
-        dplyr::select( -sector ) %>%
-        dplyr::group_by( iso, fuel, units, year ) %>%
-        dplyr::summarise_all( sum, na.rm = TRUE )
-
-
-    if( any( round( GAINS_global_share_check$global_share, 15 ) != 1 ) ){
-
-        stop( "Global fugitive oil and gas subsector shares should sum to 1.... see C1.2.add_NC_emissions_GAINS.R" )
-
-    }
-
 #   Create data frames of iso specific shares of total fugitive oil and gas emissions for each oil and gas fugitive subsector
-    GAINS_fug_oil_gas_splits_by_iso <- GAINS_fugitive_emissions_final_long %>%
+    GAINS_fug_oil_gas_splits_by_iso <- GAINS_fug_emiss_final_add_zero_long %>%
         dplyr::left_join( GAINS_fugitive_total_oil_and_gas_long, by = c( "iso", "fuel", "units", "year" ) ) %>%
         dplyr::mutate( share = disagg_fugitive_emissions / total_fugitive_oil_and_gas_emissions ) %>%
         dplyr::rename( sector = sector.x ) %>%
         dplyr::select( -sector.y )
 
-#   Create data frame of average sector split by iso and sector (across all CEDs years) and use to replace NaN values - unweighted average
-#   TODO: Could alternatively extend the first and final splits backwards and forwards
-    GAINS_fug_oil_gas_average_splits_by_iso <- GAINS_fug_oil_gas_splits_by_iso %>%
-        dplyr::filter( !is.nan( share ) ) %>%
-        dplyr::select( iso, sector, fuel, units, share ) %>%
-        dplyr::group_by( iso, sector, fuel, units ) %>%
-        dplyr::summarise_all( mean, na.rm = TRUE ) %>%
-        dplyr::ungroup( ) %>%
-        dplyr::rename( share_average = share )
+#   Subset splits based on whether a row has (1) no NAs in X_emissions_years, (2) at least 1 NA value in X_emissions_years,
+#   or (3) NA values for each column within X_emissions_years.
+    GAINS_fug_oil_gas_splits_by_iso <- GAINS_fug_oil_gas_splits_by_iso %>%
+        dplyr::select( -disagg_fugitive_emissions, -total_fugitive_oil_and_gas_emissions ) %>%
+        tidyr::spread( year, share ) %>%
+        dplyr::select( iso, sector, fuel, units, X_emissions_years )
 
-    if( any( is.na( GAINS_fug_oil_gas_average_splits_by_iso$share_average ) |
-             is.nan( GAINS_fug_oil_gas_average_splits_by_iso$share_average ) ) ){
+    GAINS_fug_splits_no_NA <- GAINS_fug_oil_gas_splits_by_iso %>%
+        dplyr::mutate_at( X_emissions_years, funs( if_else( is.nan( . ), NA_real_, . ) ) ) %>%
+        dplyr::filter_at( .vars = X_emissions_years, all_vars( !is.na( .) ) )
 
-        stop( "No average fugitive oil and gas subsector share should be Na or NaN.... see C1.2.add_NC_emissions_GAINS.R" )
+    GAINS_fug_splits_all_NA <- GAINS_fug_oil_gas_splits_by_iso %>%
+        dplyr::mutate_at( X_emissions_years, funs( if_else( is.nan( . ), NA_real_, . ) ) ) %>%
+        dplyr::filter_at( .vars = X_emissions_years, all_vars( is.na( .) ) )
+
+    GAINS_fug_splits_some_NA <- GAINS_fug_oil_gas_splits_by_iso %>%
+        dplyr::mutate_at( X_emissions_years, funs( if_else( is.nan( . ), NA_real_, . ) ) ) %>%
+        dplyr::filter_at( .vars = X_emissions_years, any_vars( is.na( .) ) ) %>%
+        dplyr::filter_at( .vars = X_emissions_years, any_vars( !is.na( .) ) )
+
+#   For splits which have some NAs, extend first and last non-NA values backwards and
+#   forwards (and interpolates NAs if needed)
+    if( nrow( GAINS_fug_splits_some_NA ) != 0 ){
+
+        GAINS_fug_splits_some_NA_fixed <- extend_and_interpolate( GAINS_fug_splits_some_NA , X_emissions_years )
 
     }
 
-    GAINS_fug_oil_gas_splits_by_iso_fixed_average <- GAINS_fug_oil_gas_splits_by_iso %>%
-        dplyr::left_join( GAINS_fug_oil_gas_average_splits_by_iso,  by = c( "iso", "sector", "fuel", "units" ) ) %>%
-        dplyr::mutate( share = if_else( disagg_fugitive_emissions == 0 & total_fugitive_oil_and_gas_emissions == 0 &
-                                        is.nan( share ), share_average, share ) )
+#   Check and make sure that none of the isos with all NAs for splits produce oil or NG, as those isos
+#   should have emissions in at least one of the fugitive production subsectors, given that production data
+#   was used to downscale GAINS regional emissions data.
+#   Note: This may not be true for an emission species that doesn't get emitted by fugitive production subsectors.
+#         Currently all emissions using this script ( GAINS emissions [and N2O]: BC, CH4, CO, CO2, NOx,
+#         N2O, NMVOC, OC, SO2) all have emissions for oil and/or NG production, making this check work, but adding future
+#         ems may mean this check needs to change (could add an if statement - if any isos have non-NA or non-zero values
+#         for the production related fugitive emisisons, then continue with the check...)
+    if( nrow( GAINS_fug_splits_all_NA ) != 0 ){
 
-#   Replace any remaining NaNs with global average year specific shares
-    GAINS_fug_oil_gas_splits_by_iso_fixed_global <- GAINS_fug_oil_gas_splits_by_iso_fixed_average %>%
-      dplyr::left_join( GAINS_global_fug_oil_gas_splits_by_disaggsec, by = c( "sector", "fuel", "units", "year" ) ) %>%
-      dplyr::mutate( share = if_else( disagg_fugitive_emissions == 0 & total_fugitive_oil_and_gas_emissions == 0 &
-                                            ( is.na( share ) | is.nan( share ) ) ,
-                                              global_share, share ) ) %>%
-      dplyr::rename( iso = iso.x ) %>%
-      dplyr::select( -disagg_fugitive_emissions, -total_fugitive_oil_and_gas_emissions, -iso.y, -global_share, -share_average )
+    all_na_isos <- sort( unique( GAINS_fug_splits_all_NA$iso ) )
 
+    Oil_producing_isos <- Oil_production %>%
+        dplyr::filter_at( .vars = X_emissions_years, any_vars( !(is.na( .) ) ) ) %>%
+        dplyr::select( iso ) %>%
+        dplyr::distinct( )
+
+    Gas_producing_isos <- Gas_production %>%
+        dplyr::filter_at( .vars = X_emissions_years, any_vars( !(is.na( .) ) ) ) %>%
+        dplyr::select( iso ) %>%
+        dplyr::distinct( )
+
+    all_na_isos_that_produce_oil_or_ng <- subset(  all_na_isos, all_na_isos %in%
+                                                   c( Gas_producing_isos, Oil_producing_isos ) )
+
+    if( length( all_na_isos_that_produce_oil_or_ng ) != 0 ){
+
+        stop( "isos which produce oil or gas should not have all NA share splits ",
+              "for fugitive oil and gas emissions subsectors...See C1.2.add_NC_emissions_GAINS.R")
+
+    }
+
+# For isos with all NA shares for fugitive oil and gas subsector emissions:
+# TODO: Confirm these assumptions
+
+#   If em is BC, CO, CO2, NMVOC, NOx, N2O, OC, or SO2 - set default values to "1B2_Fugitive-petr" = 1,
+#       "1B2b_Fugitive-NG-prod" = 0, and "1B2b_Fugitive-NG-distr" = 0, as only oil production emits these emisisons species
+#       (according to  the GAINS inventory). When these splits are applied to EDGAR-ECLIPSE aggregate fugitive oil and gas
+#       emissions, these defaults will provide emisisons to the right sectors for isos which have no BP or IEA production
+#       data but have emissions from aggregative fugitive oil and gas emisisons for an em which only can come from oil production.
+    if( em %in% c( "BC", "CO", "CO2", "NMVOC", "NOx", "N2O", "OC", "SO2" ) ){
+
+        GAINS_fug_splits_all_NA_fixed <- GAINS_fug_splits_all_NA %>%
+            dplyr::mutate_at( X_emissions_years, funs( if_else( sector == "1B2_Fugitive-petr", 1,
+                                                       if_else( sector == "1B2b_Fugitive-NG-prod", 0,
+                                                       if_else( sector == "1B2b_Fugitive-NG-distr", 0,
+                                                                NA_real_ ) ) ) ) )
+
+    } else if( em == "CH4" ){
+
+#   If em is CH4 - set default values to "1B2_Fugitive-petr" = 0, "1B2b_Fugitive-NG-prod" = 0,
+#       and "1B2b_Fugitive-NG-distr" = 0, as these isos are not supposed to be producing oil or gas, meaning
+#       the fugitive emissions should only come from NG distribution. While it is possible that some of the CH4
+#       emissions could come from oil and NG production, since we don't have production data for these isos
+#       we wouldn't know what split the 2 production subsectors should receive.
+        GAINS_fug_splits_all_NA_fixed <- GAINS_fug_splits_all_NA %>%
+            dplyr::mutate_at( X_emissions_years, funs( if_else( sector == "1B2_Fugitive-petr", 0,
+                                                   if_else( sector == "1B2b_Fugitive-NG-prod", 0,
+                                                   if_else( sector == "1B2b_Fugitive-NG-distr", 1,
+                                                            NA_real_ ) ) ) ) )
+    } else {
+
+        stop( "options have not been set for how to replace all NA row fugitive oil and gas subsector emissions for ",
+              em, ". See C1.2.add_NC_emissions_GAINS.R" )
+
+    }
+
+}
+
+#   Combine all of the GAINS fugitive split data frames
+
+#       If there was at originally least 1 row that was all NA for X_emissions_years,
+#       and at least one row which was had at least one NA value for X_emissions_years (but not all NA),
+#       rbind these 2 fixed splits dfs to the df of no NAs.
+        if( nrow( GAINS_fug_splits_all_NA ) != 0 & nrow( GAINS_fug_splits_some_NA ) != 0 ){
+
+            GAINS_fug_oil_gas_splits_final <- dplyr::bind_rows( GAINS_fug_splits_no_NA,
+                                                                GAINS_fug_splits_some_NA_fixed,
+                                                                GAINS_fug_splits_all_NA_fixed )
+
+#       If there was originally at least 1 row that was all NA, but no rows which had at least NA (but not all NA),
+#       rbind the 1 fixed split df to the df of no NAs
+        } else if( nrow( GAINS_fug_splits_all_NA ) != 0 & nrow( GAINS_fug_splits_some_NA ) == 0 ){
+
+            GAINS_fug_oil_gas_splits_final <- dplyr::bind_rows( GAINS_fug_splits_no_NA,
+                                                                GAINS_fug_splits_all_NA_fixed )
+
+#       If there were originally no rows that were all NA, but was at least 1 row which had at
+        # least one NA (but not all NA), rbind the 1 fixed split df to the df of no NAs
+        } else if( nrow( GAINS_fug_splits_all_NA ) == 0 & nrow( GAINS_fug_splits_some_NA ) != 0 ) {
+
+            GAINS_fug_oil_gas_splits_final <- dplyr::bind_rows( GAINS_fug_splits_no_NA,
+                                                                GAINS_fug_splits_some_NA_fixed )
+
+#       If there were no rows that were all NA, and no rows that were at least 1 NA (but not all NA),
+#       rename the data frame with no NAs as the final splits df.
+        } else if( nrow( GAINS_fug_splits_all_NA ) == 0 & nrow( GAINS_fug_splits_some_NA ) == 0 ){
+
+            GAINS_fug_oil_gas_splits_final <- GAINS_fug_splits_no_NA
+
+        }
+
+#   Check that the final splits have the same number of rows and the same column names as the original splits
+#   df
+    GAINS_fug_oil_gas_splits_final <- GAINS_fug_oil_gas_splits_final %>%
+        dplyr::arrange( iso, sector )
+
+    if( nrow( GAINS_fug_oil_gas_splits_final ) != nrow( GAINS_fug_oil_gas_splits_by_iso ) ){
+
+        stop( "Fixed fugitive subsector emission splits created from GAINS do not have the same ",
+              "number of rows as the original splits..." )
+    }
+
+    if( any( colnames( GAINS_fug_oil_gas_splits_final ) != colnames( GAINS_fug_oil_gas_splits_by_iso ) ) ){
+
+        stop( "Fixed fugitive subsector emission splits created from GAINS do not have the same ",
+              "column names as the original splits..." )
+    }
 
 #   Check that no final shares are NA or NaN and that all shares sum to 1 for each year
-    if( any( is.na( GAINS_fug_oil_gas_splits_by_iso_fixed_global$share ) |
-             is.nan( GAINS_fug_oil_gas_splits_by_iso_fixed_global$share ) ) ){
+    check_NA <- GAINS_fug_oil_gas_splits_final %>%
+        dplyr::filter_at( .vars = X_emissions_years, any_vars( is.na( . ) ) )
+
+    check_NaN <- GAINS_fug_oil_gas_splits_final %>%
+        dplyr::filter_at( .vars = X_emissions_years, any_vars( is.nan( . ) ) )
+
+    if( nrow( check_NA ) != 0 | nrow( check_NaN ) ){
 
         stop( "No final fugitive oil and gas subsector share should be Na or NaN.... see C1.2.add_NC_emissions_GAINS.R" )
 
     }
 
-    GAINS_share_check <- GAINS_fug_oil_gas_splits_by_iso_fixed_global %>%
+    GAINS_share_check <- GAINS_fug_oil_gas_splits_final %>%
         dplyr::select( -sector ) %>%
-        dplyr::group_by( iso, fuel, units, year ) %>%
+        dplyr::group_by( iso, fuel, units ) %>%
         dplyr::summarise_all( sum, na.rm = TRUE )
 
+    if( any( round( GAINS_share_check[ , X_emissions_years] , 15 ) != 1 ) ){
 
-    if( any( round( GAINS_share_check$share, 15 ) != 1 ) ){
-
-        stop( "Final GAINS fugitive oil and gas subsector shares should sum to 1.... see C1.2.add_NC_emissions_GAINS.R" )
+        stop( "Final GAINS fugitive oil and gas subsector shares should sum to 1.... see C1.2.add_NC_emissions_GAINS.R..." )
 
     }
 
-#   Spread shares and change units
-    GAINS_fug_oil_gas_splits_final <- GAINS_fug_oil_gas_splits_by_iso_fixed_global %>%
-        tidyr::spread( year, share ) %>%
+#   Fix units
+    GAINS_fug_oil_gas_splits_final <- GAINS_fug_oil_gas_splits_final %>%
         dplyr::mutate( units = "diaggregate fugitive oil and gas shares" )
 
 # ------------------------------------------------------------------------------
 
 # 13. Output
+
+# Final GAINS emissions
 writeData( GAINS_fugitive_emissions_final, domain = "DIAG_OUT", fn = paste0( "C.GAINS_NC_Emissions_", em ) )
+
+#  BP & IEA Oil Production Data
 writeData( Oil_production, domain = "DIAG_OUT", fn = paste0( "C.BP_and_IEA_oil_production"  ) )
+
+#  BP & IEA Gas Production Data
 writeData( Gas_production, domain = "DIAG_OUT", fn = paste0( "C.BP_and_IEA_natural_gas_production" ) )
 
-writeData( C, domain = "MED_OUT", fn = paste0( "C.", em, "_GAINS_fug_oil_gas_shares" ) )
-
+#  GAINS fugitive oil and gas subsector emission shares (relative to total fugitivce oil and gas emissions)
+writeData( GAINS_fug_oil_gas_splits_final, domain = "MED_OUT", fn = paste0( "C.", em, "_GAINS_fug_oil_gas_shares" ) )
 
 logStop( )
 # END

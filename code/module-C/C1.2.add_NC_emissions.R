@@ -76,11 +76,18 @@ if( em == "CO2" ){
   scripts <- c( scripts, "C1.2.add_CO2_NC_emissions_CDIAC.R" )
 }
 
-if ( !(em %in% c("CO2","N2O") ) ) {
+
+# Add Fugitive defaults
+if ( !( em %in% c( "CO2", "NH3" ) ) ){
+    
+    scripts <- c( scripts, 'C1.2.add_NC_emissions_GAINS.R' )
+
+}
+
+if ( !(em %in% c( "CO2" ) ) ) {
   scripts <- c( scripts, 'C1.2.ECLIPSE_flaring_emissions_extension.R' )
   scripts <- c( scripts, 'C1.2.Fugitive-petr-and-gas_default_process_emissions.R' )
 }
-
 
 # Run all child scripts for the given emissions type. The call to
 # invisible() prevents extraneous output from appearing in the console.
