@@ -1208,8 +1208,6 @@ if( em == "N2O" ){
     }
 
 # For isos with all NA shares for fugitive oil and gas subsector emissions:
-# TODO: Confirm these assumptions
-
 #   If em is BC, CO, CO2, NMVOC, NOx, N2O, OC, or SO2 - set default values to "1B2_Fugitive-petr" = 1,
 #       "1B2b_Fugitive-NG-prod" = 0, and "1B2b_Fugitive-NG-distr" = 0, as only oil production emits these emissions species
 #       (according to  the GAINS inventory). When these splits are applied to EDGAR-ECLIPSE aggregate fugitive oil and gas
