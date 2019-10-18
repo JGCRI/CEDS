@@ -523,7 +523,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv : \
 	$(MOD_C)/C1.2.add_NC_emissions_EDGAR.R \
 	$(MOD_C)/C1.2.add_CH4_NC_emissions_FAO.R \
 	$(MOD_C)/C1.2.add_N2O_NC_emissions_FAO.R\
-	$(MOD_C)/C1.2.add_NC_emissions_GAINS.R \
+	$(MOD_C)/C1.2.GAINS_fugitive_petr_gas_emissions.R \
 	$(MOD_C)/C1.2.ECLIPSE_flaring_emissions_extension.R \
 	$(MOD_C)/C1.2.Fugitive-petr-and-gas_default_process_emissions.R \
 	$(MOD_C)/C1.2.add_CO2_NC_emissions_CDIAC.R \

@@ -79,8 +79,8 @@ if( em == "CO2" ){
 
 # Add Fugitive defaults
 if ( !( em %in% c( "CO2", "NH3" ) ) ){
-    
-    scripts <- c( scripts, 'C1.2.add_NC_emissions_GAINS.R' )
+
+    scripts <- c( scripts, 'C1.2.GAINS_fugitive_petr_gas_emissions.R' )
 
 }
 

@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name: C1.2.add_NC_emissions_GAINS.R
+# Program Name: C1.2.GAINS_fugitive_petr_gas_emissions.R
 # Author(s): Patrick O'Rourke
 # Date Last Modified: October 18, 2019
 # Program Purpose: To reformat the non-combustion fugitive oil and gas emissions
@@ -31,7 +31,7 @@
 #   First message to be printed to the log
     log_msg <- paste0( "Processing GAINS non-combustion default oil and gas fugitive emissions data..." )
 
-    script_name <- "C1.2.add_NC_emissions_GAINS.R"
+    script_name <- "C1.2.GAINS_fugitive_petr_gas_emissions.R"
 
     source( paste0( PARAM_DIR, "header.R" ) )
 
@@ -1203,7 +1203,7 @@ if( em == "N2O" ){
     if( length( all_na_isos_that_produce_oil_or_ng ) != 0 ){
 
         stop( "isos which produce oil or gas should not have all NA share splits ",
-              "for fugitive oil and gas emissions subsectors...See C1.2.add_NC_emissions_GAINS.R")
+              "for fugitive oil and gas emissions subsectors...See C1.2.GAINS_fugitive_petr_gas_emissions.R")
 
     }
 
@@ -1238,7 +1238,7 @@ if( em == "N2O" ){
     } else {
 
         stop( "options have not been set for how to replace all NA row fugitive oil and gas subsector emissions for ",
-              em, ". See C1.2.add_NC_emissions_GAINS.R" )
+              em, ". See C1.2.GAINS_fugitive_petr_gas_emissions.R" )
 
     }
 
@@ -1303,7 +1303,7 @@ if( em == "N2O" ){
 
     if( nrow( check_NA ) != 0 | nrow( check_NaN ) ){
 
-        stop( "No final fugitive oil and gas subsector share should be Na or NaN.... see C1.2.add_NC_emissions_GAINS.R" )
+        stop( "No final fugitive oil and gas subsector share should be Na or NaN.... see C1.2.GAINS_fugitive_petr_gas_emissions.R" )
 
     }
 
@@ -1314,7 +1314,7 @@ if( em == "N2O" ){
 
     if( any( round( GAINS_share_check[ , X_emissions_years] , 15 ) != 1 ) ){
 
-        stop( "Final GAINS fugitive oil and gas subsector shares should sum to 1.... see C1.2.add_NC_emissions_GAINS.R..." )
+        stop( "Final GAINS fugitive oil and gas subsector shares should sum to 1.... see C1.2.GAINS_fugitive_petr_gas_emissions.R..." )
 
     }
 
