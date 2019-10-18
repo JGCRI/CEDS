@@ -391,7 +391,7 @@
 
 # Subset NG Emissions and retain appropriate years (1960-2011).
 # Note that CDIAC inventory only goes to 2011 (other than cement which was extended during initial CDIAC processing),
-# so after subsetting appropriate years, extend CDIAC emisisons to 2020 for EF (constant, equal to 2011 values).
+# so after subsetting appropriate years, extend CDIAC emissions to 2020 for EF (constant, equal to 2011 values).
   CDIAC_CO2_gas <- CDIAC_CO2_inventory %>%
     dplyr::filter( fuel == "gas_fuels" ) %>%
     dplyr::select( iso, fuel, CDIAC_YEARS_X ) %>%
@@ -879,7 +879,7 @@
 
 # ------------------------------------------------------------------------------
 
-# 10. Downscale fugitive natural gas production emisisons using BP and IEA natural gas production data
+# 10. Downscale fugitive natural gas production emissions using BP and IEA natural gas production data
 
 #   Check if all isos listed in IEA and BP NG production data are within GAINS fugitive
 #   gas production emissions data
@@ -1182,7 +1182,7 @@ if( em == "N2O" ){
 #         Currently all emissions using this script ( GAINS emissions [and N2O]: BC, CH4, CO, CO2, NOx,
 #         N2O, NMVOC, OC, SO2) all have emissions for oil and/or NG production, making this check work, but adding future
 #         ems may mean this check needs to change (could add an if statement - if any isos have non-NA or non-zero values
-#         for the production related fugitive emisisons, then continue with the check...)
+#         for the production related fugitive emissions, then continue with the check...)
     if( nrow( GAINS_fug_splits_all_NA ) != 0 ){
 
     all_na_isos <- sort( unique( GAINS_fug_splits_all_NA$iso ) )
@@ -1211,10 +1211,10 @@ if( em == "N2O" ){
 # TODO: Confirm these assumptions
 
 #   If em is BC, CO, CO2, NMVOC, NOx, N2O, OC, or SO2 - set default values to "1B2_Fugitive-petr" = 1,
-#       "1B2b_Fugitive-NG-prod" = 0, and "1B2b_Fugitive-NG-distr" = 0, as only oil production emits these emisisons species
+#       "1B2b_Fugitive-NG-prod" = 0, and "1B2b_Fugitive-NG-distr" = 0, as only oil production emits these emissions species
 #       (according to  the GAINS inventory). When these splits are applied to EDGAR-ECLIPSE aggregate fugitive oil and gas
-#       emissions, these defaults will provide emisisons to the right sectors for isos which have no BP or IEA production
-#       data but have emissions from aggregative fugitive oil and gas emisisons for an em which only can come from oil production.
+#       emissions, these defaults will provide emissions to the right sectors for isos which have no BP or IEA production
+#       data but have emissions from aggregative fugitive oil and gas emissions for an em which only can come from oil production.
     if( em %in% c( "BC", "CO", "CO2", "NMVOC", "NOx", "N2O", "OC", "SO2" ) ){
 
         GAINS_fug_splits_all_NA_fixed <- GAINS_fug_splits_all_NA %>%
@@ -1226,10 +1226,11 @@ if( em == "N2O" ){
     } else if( em == "CH4" ){
 
 #   If em is CH4 - set default values to "1B2_Fugitive-petr" = 0, "1B2b_Fugitive-NG-prod" = 0,
-#       and "1B2b_Fugitive-NG-distr" = 0, as these isos are not supposed to be producing oil or gas, meaning
+#       and "1B2b_Fugitive-NG-distr" = 1, as these isos are not supposed to be producing oil or gas, meaning
 #       the fugitive emissions should only come from NG distribution. While it is possible that some of the CH4
-#       emissions could come from oil and NG production, since we don't have production data for these isos
-#       we wouldn't know what split the 2 production subsectors should receive.
+#       emissions could come from oil and NG production (implying we don't have production data for an iso which
+#       does produce NG or oil), since we don't have production data for these isos we wouldn't know what split
+#       the 2 production subsectors should receive.
         GAINS_fug_splits_all_NA_fixed <- GAINS_fug_splits_all_NA %>%
             dplyr::mutate_at( X_emissions_years, funs( if_else( sector == "1B2_Fugitive-petr", 0,
                                                    if_else( sector == "1B2b_Fugitive-NG-prod", 0,
