@@ -1,23 +1,24 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: data moulding functions
-# Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen
-# Last Updated: 22 June 2015
-  
+# Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Patrick O'Rourke
+# Last Updated: 16 October 2019
+
 # This file should be sourced by any R script doing heavy-duty reformatting of CEDS data.
 # Functions contained:
 #   %!in%, replaceValueColMatch ,gsub2, repeatAndAddVector, addCols, findDataStart, naReplace, addCols,
-#   buildCEDSTemplate, removeBlanks
+#   buildCEDSTemplate, interpolate_NAs, all.na_new, interpolate_NAs_new, extend_and_interpolate,
+#   removeBlanks
 # Notes:
 # -----------------------------------------------------------------------------
-# Brief:        
-# Details:      
-# Dependencies: 
-# Author(s):    
-# Params:       
-#  
-# Return:       
-# Input Files:  
-# Output Files: 
+# Brief:
+# Details:
+# Dependencies:
+# Author(s):
+# Params:
+#
+# Return:
+# Input Files:
+# Output Files:
 
 # -----------------------------------------------------------------------------
 
@@ -433,34 +434,234 @@ interpolate_NAs <- function( df){
 }
 
 # -----------------------------------------------------------------------------
+#   Define function to check if all values are NA for interpolating
+#   Params: x -- an R atomic vector or list (including data frames)
+#   TODO: This  function is within the master branch already as "all.na."
+#         This can be deleted once this branch is updated with the master branch and its use replaced with all.na.
+all.na_new  <- function( x ) return( all( is.na( x ) ) )
+
+# -----------------------------------------------------------------------------
+#   Define function interpolate_NAs_new
+#   Brief: Linearly interpolate over NA values
+#   Author: Rachel hoesly and Caleb Braun
+#   Dependencies: all.na_new
+#   Parameters: df -- data frame of numeric values (no id columns)
+#   Return: data frame of same size as df, with interpolated values
+#   Input files: none
+#   Output files: none
+#   TODO: This function is within the master branch already as interpolate_NAs2.
+#         This can be deleted once this branch is updated with the master branch and its use replaced with all.na.
+interpolate_NAs_new <- function( df ) {
+
+    if( !is.data.frame( df ) ) {
+
+        warning( "interpolate_NAs expects a data frame; attempting to convert" )
+
+        df <- as.data.frame( df )
+
+    }
+
+#   I.) Convert columns that are all NA to numeric
+    df <- dplyr::mutate_if( df, function( x ) all.na_new( x ), as.numeric )
+
+    if( length( rle( sapply( df, is.numeric ) )$lengths ) > 2) {
+
+        warning( "interpolate_NAs found mixed numeric and non-numeric columns;
+                 make sure all value columns are numeric")
+
+    }
+
+    value.cols <- sapply( df, is.numeric )
+    df_flipped <- t( df[value.cols] )
+    df[ , value.cols] <- t( na.approx( df_flipped, na.rm = F ) )
+
+    return(df)
+
+}
+
+# -----------------------------------------------------------------------------
+# extend_and_interpolate
+# Brief: Linearly interpolate over NA values and extend first and last
+#        non-NA values backwards and forwards
+# Details: Interpolates and extends to columns that already exist in the data.
+#          The function expects the df to be orded with the non-numeric columns
+#          before the numeric columns ( numeric columns parameter defined below as "data_columns" ).
+#          The function also expects there to be no rows with all NAs
+# Dependencies: interpolate_NAs_new, printLog
+# Author(s): Patrick O'Rourke
+# Parameters: df_in             a data frame with numeric columns which need extension and
+#                               (possibly) interpolation
+#             data_columns      columns in df_in which need extension and/or interpolation
+# Return: df_no_NAs    a data frame with numeric values interpolated
+# Input Files:      NA
+# Output Files:     NA
+extend_and_interpolate <- function( df_in, data_columns ){
+
+# Check that df_in is a data frame
+ if( !(is.data.frame( df_in ) ) ){
+
+    stop( "The function extend_and_interpolate expects df_in to be a data frame..." )
+
+    }
+
+# Check that data_columns are columns in df_in
+  column_names <- colnames( df_in )
+  data_columns_not_in_column_names <- subset( data_columns,
+                                              !( data_columns %in% column_names ) )
+
+  if( length( data_columns_not_in_column_names ) != 0 ){
+
+      printLog( data_columns_not_in_column_names )
+
+      stop( "The above elements in parameter data_columns are not column names in ",
+            "df_in. Elements of data_columns must be column names of parameter df_in for ",
+            "function extend_and_interpolate..." )
+  }
+
+#   Check that there are no columns after data_columns in the data frame
+    data_column_positions <- which( colnames( df_in ) %in% data_columns )
+    last_data_column_position <- data_column_positions[[ length( data_column_positions ) ]]
+
+    if( last_data_column_position < length( df_in ) ){
+
+        stop( "The function extend_and_interpolate expects there to be no ",
+              "columns in df_in after the data_columns..." )
+
+    }
+
+#   Convert NaNs to NAs
+    df_no_NaN <- df_in %>%
+        dplyr::mutate_at( data_columns, funs( if_else( is.nan( . ), NA_real_, . ) ) )
+
+#   Check that all data_columns are numeric
+    data_column_classes <- lapply( df_no_NaN[, data_columns ], class )
+
+    if( any( data_column_classes != "numeric" ) ){
+
+        stop( "The function extend_and_interpolate expects all columns within the parameter ",
+              "data_columns to be class --numeric-- ...")
+
+    }
+
+#   Check that there are no rows which are all NA ( or NaN - since NaNs were converted to NAs )
+    df_all_na <- df_no_NaN %>%
+        dplyr::filter_at( .vars = data_columns, all_vars( is.na( .) ) )
+
+    if( nrow( df_all_na) != 0 ){
+
+        stop( "The function extend_and_interpolate expects there to be no rows in df_in ",
+              "which are all NA or NaN for the data_columns..." )
+
+    }
+
+#   Create a data frame with rows that are not NA for any columns in data_columns
+    df_no_NAs <- df_no_NaN %>%
+        dplyr::filter_at( .vars = data_columns, all_vars( !is.na( . ) ) )
+
+#   Create a data frame with rows which have some NAs but are not all NA for data_columns
+#   (since no rows should be all NA at this point)
+    df_some_na <- df_no_NaN %>%
+        dplyr::filter_at( .vars = data_columns, any_vars( is.na( . ) ) )
+
+#   Begin loop to extend and interpoalte
+    for( row in 1:nrow( df_some_na ) ){
+
+        row_use <- df_some_na[ row, ]
+
+#       Define first and last non-NA values, as well as length of non-numeric columns
+        length_of_non_numeric_columns <- row_use %>%
+            dplyr::select( -data_columns ) %>%
+            length( )
+
+        NonNAindex <- which( !is.na( row_use[ , data_columns ] ) )
+        NonNAindex_first <- min( NonNAindex ) + length_of_non_numeric_columns
+        NonNAindex_last <- max( NonNAindex ) + length_of_non_numeric_columns
+
+
+#       Extend first non-NA value backwards if needed
+        if( NonNAindex_first > length_of_non_numeric_columns + 1 ){
+
+            NonNAindex_first <-  row_use[ , NonNAindex_first ]
+            NonNAindex_first_value <- NonNAindex_first[[1]]
+            first_numeric_column <- data_columns[[1]]
+
+            first_non_NA_extended_backwards <- row_use %>%
+                dplyr::mutate( !!rlang::sym( first_numeric_column ) := NonNAindex_first_value  )
+
+        } else {
+
+            first_non_NA_extended_backwards <- row_use
+
+        }
+
+#       Extend last non-NA value forward if needed
+        if( NonNAindex_last < length_of_non_numeric_columns + length( data_columns ) ){
+
+            NonNAindex_last <-  row_use[ , NonNAindex_last ]
+            NonNAindex_last_value <- NonNAindex_last[[1]]
+            last_numeric_column <- data_columns[[ length( data_columns ) ]]
+
+            last_non_NA_extended_forwards <- first_non_NA_extended_backwards %>%
+                dplyr::mutate( !!rlang::sym( last_numeric_column ) := NonNAindex_last_value  )
+
+        } else {
+
+            last_non_NA_extended_forwards <- first_non_NA_extended_backwards
+
+        }
+
+#       Interpolate over NAs
+        if( any( is.na( last_non_NA_extended_forwards[, data_columns ] ) ) ){
+
+            df_interpolated <- last_non_NA_extended_forwards
+            df_interpolated[ , data_columns ] <- interpolate_NAs_new( df_interpolated[ , data_columns ] )
+
+        } else {
+
+            df_interpolated <- last_non_NA_extended_forwards
+
+        }
+
+#       Bind fixed row to data frame of rows with NAs for data_columns
+        df_no_NAs <- dplyr::bind_rows( df_no_NAs, df_interpolated)
+
+#   End Loop
+    }
+
+#   Return df_no_NAs
+    return( df_no_NAs )
+
+}
+
+# -----------------------------------------------------------------------------
 # calculate_shares
 # Brief:     calculate shares from data
-# Details:     
-# Dependencies: 
-# Author(s):    
-# Params:    
+# Details:
+# Dependencies:
+# Author(s):
+# Params:
           # input_data - data of which to compute shares. In id cols , X year format
-          # id_cols - vector of character strings, nanes of identifier columns for 
+          # id_cols - vector of character strings, nanes of identifier columns for
           #           which to compute shares, ex - c('sector','fuel)
-          # target_column - vector of character strings, nanes of identifier column for 
+          # target_column - vector of character strings, nanes of identifier column for
           #           which to compute shares over, ex - 'iso'
-          # replace_with_zeros - T/F boolean, defaults to T. If T, shares that are 
+          # replace_with_zeros - T/F boolean, defaults to T. If T, shares that are
           #         calculated as NA (have zero data) are replaced with zeros
-#  
-# Return:  dataframe in same format as input, of calculated shares     
-# Input Files:  
-# Output Files: 
-# TODO: 
+#
+# Return:  dataframe in same format as input, of calculated shares
+# Input Files:
+# Output Files:
+# TODO:
 
 calculate_shares <- function(input_data,
                              id_columns,
                              target_column,
                              replace_with_zeros = T
-                             
+
 ){
-  
+
   same_id_target = F
-  
+
   # input parameter checks
   if( length(target_column) != 1 ) stop('in calculate_shares: must select only one target_column' )
   if( any(id_columns %in% target_column) & length(id_columns) > 1 ) stop('in calculate_shares: specified id_columns must be different than target_column, if more than one id column')
