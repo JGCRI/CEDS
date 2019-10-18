@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.2.Fugitive-petr-and-gas_default_process_emissions.R
-# Author: Leyang Feng
-# Date Last Modified: June 28, 2016
+# Author: Leyang Feng, Patrick O'Rourke
+# Date Last Modified: October 18, 2019
 # Program Purpose: Generates default process emissions for 1B2c_Venting-flaring-oil-gas
 #                  using part of EDGAR JRC PEGASOS data
 # Input Files: C.[em]_ECLIPSE_flaring_emissions_extended.csv,
@@ -14,7 +14,7 @@
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
+    PARAM_DIR <- if( "input" %in% dir( ) ) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
@@ -31,93 +31,120 @@
 # Define emissions species variable
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "CO"
+    if ( is.na( em ) ) em <- "CH4"
 
     MODULE_C <- "../code/module-C/"
 
-# read in the extended flaring data
+# Read in the extended flaring data
     flaring <- readData( "MED_OUT", file_name = paste0( 'C.', em, '_ECLIPSE_flaring_emissions_extended' ) )
-# for non-methane read in the EDGAR JRC PEGASOS data
-if ( em != 'CH4' )
+
+# For non-methane read in the EDGAR JRC PEGASOS data
+if ( em != 'CH4' ){
+
     EDGAR_raw <- readData( 'EM_INV', domain_extension = "EDGAR/", file_name = paste0( 'JRC_PEGASOS_', em, '_TS_REF' ),
                            extension = ".xlsx", sheet_selection = 1, skip_rows = 8 )
-# for methane read in the EDGAR 4.2 and Edgar fast track
-    if ( em == 'CH4' ) {
+
+}
+
+# For methane read in the EDGAR 4.2 and Edgar fast track
+if ( em == 'CH4' ) {
+
     EDGAR_raw <- readData( "EM_INV", file_name = '/EDGAR/EDGAR42_CH4' )
     EDGAR_FT_raw <- readData( "EM_INV", file_name = '/EDGAR/v42FT_CH4_2000_2010' ,
-                              extension = ".xlsx", sheet_selection = 1, skip_rows = 9 , headers = T) }
+                              extension = ".xlsx", sheet_selection = 1, skip_rows = 9 , headers = T )
+
+}
+
+# For all ems besides NH3, load the GAINS fugitive oil and gas subsector emissions shares.
+if( em != "NH3" ){
+
+    GAINS_fug_subsec_shares <- readData( "MED_OUT", file_name = paste0( "C.", em, "_GAINS_fug_oil_gas_shares" ) )
+
+}
+
+# Read Master_Country_List.csv
+    MCL <- readData( "MAPPINGS", file_name = "Master_Country_List" )
 
 # ------------------------------------------------------------------------------
 # 2. Pre-processing
 
-# set the output years
+# Set the output years
     all_Xyear <- paste0( 'X', 1970 : 2014 )
 
-# extract year_list in flaring data
+# Extract year_list in flaring data
     flaring_Xyear <- colnames( flaring )[ grep( 'X', colnames( flaring ) ) ]
 
-# extract year_list in edgar data
+# Extract year_list in edgar data
   edgar_year <- colnames( EDGAR_raw )[ c( grep( '19', colnames( EDGAR_raw ) ), grep( '20', colnames( EDGAR_raw ) ) ) ]
-  if ( em != 'CH4' ) edgar_Xyear <- paste0( 'X', edgar_year )
-  if ( em == 'CH4' ) {edgar_Xyear <- edgar_year
-  edgar_year <- as.numeric(sub('X',"",edgar_year))}
 
-# if methane, process EDGAR FT and combine with edgar
+  if ( em != 'CH4' ) edgar_Xyear <- paste0( 'X', edgar_year )
+
+  if ( em == 'CH4' ) {
+        edgar_Xyear <- edgar_year
+        edgar_year <- as.numeric( sub( 'X',"",edgar_year ) )
+    }
+
+# If methane, process EDGAR FT and combine with edgar
 if ( em == 'CH4' ){
-  edgarFT_year <- colnames( EDGAR_FT_raw )[ c( grep( '19', colnames( EDGAR_FT_raw ) ), grep( '20', colnames( EDGAR_FT_raw ) ) ) ]
-  edgarFT_Xyear <- paste0 ( 'X' , edgarFT_year )
-  edgarFT <- EDGAR_FT_raw
-  names(edgarFT)[ which( names( edgarFT ) %in% edgarFT_year ) ] <- edgarFT_Xyear
-  FT_ext_year <- edgarFT_Xyear[ which ( edgarFT_Xyear %!in% edgar_Xyear ) ]
-  EDGAR_raw <- left_join(EDGAR_raw, edgarFT[ c( 'ISO_A3' , 'IPCC' , FT_ext_year ) ])
-  edgar_Xyear <- c(edgar_Xyear, FT_ext_year)
+
+    edgarFT_year <- colnames( EDGAR_FT_raw )[ c( grep( '19', colnames( EDGAR_FT_raw ) ), grep( '20', colnames( EDGAR_FT_raw ) ) ) ]
+    edgarFT_Xyear <- paste0 ( 'X' , edgarFT_year )
+    edgarFT <- EDGAR_FT_raw
+    names(edgarFT)[ which( names( edgarFT ) %in% edgarFT_year ) ] <- edgarFT_Xyear
+    FT_ext_year <- edgarFT_Xyear[ which ( edgarFT_Xyear %!in% edgar_Xyear ) ]
+    EDGAR_raw <- dplyr::left_join( EDGAR_raw, edgarFT[ c( 'ISO_A3' , 'IPCC' , FT_ext_year ) ], by = c( "ISO_A3", "IPCC" ) )
+    edgar_Xyear <- c( edgar_Xyear, FT_ext_year )
+
 }
 
-# extract years that are not in edgar data
+# Extract years that are not in edgar data
     edgar_missing_Xyear <- all_Xyear[ which( all_Xyear %!in% edgar_Xyear ) ]
 
-# gnenerate a dummy layout using flaring data in case there's no desired info in edgar_raw
+# Generate a dummy layout using flaring data in case there's no desired info in edgar_raw
     dummy_layout <- flaring[ , c( 'iso', 'sector', all_Xyear ) ]
     dummy_layout[ , all_Xyear ] <- 0
 
-# cleaning edgar data
+# Cleaning edgar data
     if ( em != 'CH4' ) edgar <- EDGAR_raw[ , c('ISO_A3', 'IPCC', 'IPCC_description', edgar_year ) ]
     if ( em == 'CH4' ) edgar <- EDGAR_raw[ , c('ISO_A3', 'IPCC', 'IPCC_description', edgar_Xyear ) ]
     edgar$ISO_A3 <- tolower( edgar$ISO_A3 )
     colnames( edgar ) <- c( 'iso', 'sector', 'sector_description', edgar_Xyear )
 
-    # extend edgar to flaring years using edgar 2010 data
+    # Extend edgar to flaring years using edgar 2010 data
     edgar[ , edgar_missing_Xyear ] <- edgar[ last(edgar_Xyear) ]
     edgar <- edgar[ edgar$sector == '1B2', ]
     edgar <- edgar[ !is.na( edgar$iso ), ]
     edgar[ is.na( edgar ) ] <- 0
     edgar <- edgar[ , c( 'iso', 'sector', 'sector_description', all_Xyear ) ]
 
-    # split edgar data into three parts
-    # there are three 1B2 sub-sectors in EGDAR: Fugitive emissions from oil and gas;
+    # Split edgar data into three parts
+    # There are three 1B2 sub-sectors in EGDAR: Fugitive emissions from oil and gas;
     #                                           Fugitive emissions from gaseous fuels;
     #                                           Fugitive emissions from liquid fuels
-    # for most of the edgar data ( except NMVOC ), only Fugitive emissions from oil and gas exists.
-    # but eventually, we want the flaring default process emissions to be generated as ( in the next section ):
+    # For most of the edgar data ( except NMVOC ), only Fugitive emissions from oil and gas exists.
+    # But eventually, we want the flaring default process emissions to be generated as ( in the next section ):
     #   1B2_Fugitive-petr-and-gas default emissions = max( ECLIPSE, EDGAR 1B2_ Fugitive emissions from oil and gas ) +
     #                                                 EDGAR 1B2_Fugitive emissions from gaseous fuels +
     #                                                 EDGAR 1B2_ Fugitive emissions from liquid fuels
-    # so we split the edgar data in here first
+    # So we split the edgar data in here first
 
-    # extract edgar Fugitive emissions from oil and gas
+    # Extract edgar Fugitive emissions from oil and gas
     edgar_oil_gas <- edgar[ edgar$sector_description == 'Fugitive emissions from oil and gas', c( 'iso', 'sector', all_Xyear ) ]
     edgar_gas_fuel <- edgar[ edgar$sector_description == 'Fugitive emissions from gaseous fuels', c( 'iso', 'sector', all_Xyear ) ]
     edgar_liquid_fuel <- edgar[ edgar$sector_description == 'Fugitive emissions from liquid fuels', c( 'iso', 'sector', all_Xyear ) ]
 
-    # if no '1B2-Fugitive emissions from oil and gas' in certain species use the dummy_layout
-    if ( dim( edgar_oil_gas )[ 1 ] == 0 ) { edgar_oil_gas <- dummy_layout }
+    # If no '1B2-Fugitive emissions from oil and gas' in certain species use the dummy_layout
+    if ( dim( edgar_oil_gas )[ 1 ] == 0 ){
 
-# extend flaring and edgar_oil_gas to have all countries
+        edgar_oil_gas <- dummy_layout
+    }
+
+# Extend flaring and edgar_oil_gas to have all countries
     flaring_data <- flaring[ , c( 'iso', all_Xyear ) ]
     edgar_data <- edgar_oil_gas[ , c( 'iso', all_Xyear ) ]
     merge_table <- merge( flaring_data, edgar_data, by = 'iso', all = T )
     merge_table[ is.na( merge_table ) ] <- 0
-    # generate falring and edgar comparing matrices
+    # Generate falring and edgar comparing matrices
     flaring_mat <- merge_table[ , paste0( all_Xyear, '.x' ) ]
     edgar_mat <- merge_table[ , paste0( all_Xyear, '.y' ) ]
 
@@ -157,13 +184,38 @@ if ( em == 'CH4' ){
       }
 
 # -----------------------------------------------------------------------------
-# 4. Write output
+
+# 4. Disaggregate EDGAR-ECLIPSE fugitive oil and gas emissions using
+#    GAINS fugitive subsector splits
+
+#*** which isos aren't final isos?
+
+#       Make a list of final CEDS isos (final_data_flag = 1, or srb(kosovo), or gum)
+    # MCL_final_isos <-
+    #
+    # emissions_isos <- emissions %>% dplyr::select( iso ) %>% dplyr::distinct( )
+    #
+    # not_final_CEDS_isos <- subset( emissions_isos, emissions_isos
+
+#*** combine non-final emissions with final isos? or remove them?
+#*** apply shares
+#*** check results - should have same totals as before, check for weird behavior at
+#                    cutoff of production data
+
+
+
+# -----------------------------------------------------------------------------
+
+# 5. Write output
+#   TODO: *** fix output object name
     meta_names <- c( "Data.Type", "Emission", "Sector", "Start.Year", "End.Year", "Source.Comment")
     meta_note <- c( "default process emissions for 1B2c_Venting-flaring-oil-gas", em, "1B2_Fugitive-petr-and-gas",
-        "1970", "2014", "Max value between EDGAR JRC PEGASOS data and extended ECLIPSE flaring emissions is taken as default process emissions for country-year combination for sector 1B2c_Venting-flaring-oil-gas" )
+                    "1970", "2014", paste0( "Max value between EDGAR JRC PEGASOS data and extended ECLIPSE flaring emissions ",
+                    "is taken as default process emissions for country-year combination for sector 1B2c_Venting-flaring-oil-gas" ) )
     addMetaData( meta_note, meta_names )
 
-    writeData( emissions , "DEFAULT_EF_IN", domain_extension = 'non-combustion-emissions/' ,paste0( "C.", em, "_Fugitive-petr-and-gas_default_process_emissions" ) )
+    writeData( emissions , "DEFAULT_EF_IN", domain_extension = 'non-combustion-emissions/',
+               paste0( "C.", em, "_Fugitive-petr-and-gas_default_process_emissions" ) )
 
 # Every script should finish with this line:
     logStop()
