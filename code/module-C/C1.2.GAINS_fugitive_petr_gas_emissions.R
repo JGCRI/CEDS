@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.GAINS_fugitive_petr_gas_emissions.R
 # Author(s): Patrick O'Rourke
-# Date Last Modified: October 18, 2019
+# Date Last Modified: October 22, 2019
 # Program Purpose: To reformat the non-combustion fugitive oil and gas emissions
 #                  from GAINS and create gain fugitive subsector shares of total
 #                  fugitive oil and gas related emissions
@@ -151,6 +151,9 @@
                                    extension = ".xlsx", sheet_selection = "Gas Production – tonnes", skip_rows = 2 )
 
 #   IEA crude oil and NG production data
+#   TODO: Production data in this file has the value 0 for some year + iso combinations where the data should likely be NA.
+#         For example, Norway has 0 production in 1970, but nearly 300kt of production in 1971.
+#         This should be fixed before this script.
     en_stat_sector_fuel <- readData( 'MED_OUT', file_name = 'A.en_stat_sector_fuel' )
 
 #   UN Population data
@@ -1123,8 +1126,37 @@ if( em == "N2O" ){
 # 12. Create a data frame of the shares of total oil and gas fugitive emissions for each of the
 #     3 disaggregate sectors (B2_Fugitive-petr, 1B2b_Fugitive-NG-prod, 1B2b_Fugitive-NG-distr)
 
+#   Given that production data does not exist for all isos in all years, for any iso that has
+#   NA emissions for any of the 3 fugitive oil and gas subsectors, set all emissions to NA in the year.
+#   This will allow the given year to have emission shares from the closest year that has no NAs for the
+#   3 subsectors, or to have shares interpolated between the two closest years that have no NAs for the 3 subsectors.
+    GAINS_fugitive_emissions_spread_sector <- GAINS_fugitive_emissions_final %>%
+        tidyr::gather( key = years, value = Emissions, X_emissions_years ) %>%
+        tidyr::spread( sector, Emissions )
+
+    new_fugitive_sectors <- c( "1B2_Fugitive-petr", "1B2b_Fugitive-NG-distr", "1B2b_Fugitive-NG-prod" )
+
+    GAINS_fugitive_emissions_splits_fixed <- GAINS_fugitive_emissions_spread_sector %>%
+        dplyr::filter_at( .vars = new_fugitive_sectors, any_vars( is.na( . ) ) ) %>%
+        dplyr::mutate_at( .vars = new_fugitive_sectors, funs( identity( NA_real_ ) ) )
+
+    GAINS_fugitive_emissions_for_splits <- GAINS_fugitive_emissions_spread_sector %>%
+        dplyr::filter_at( .vars = new_fugitive_sectors, all_vars( !is.na( . ) ) ) %>%
+        dplyr::bind_rows( GAINS_fugitive_emissions_splits_fixed ) %>%
+        tidyr::gather( key = sector, value = Emissions, new_fugitive_sectors ) %>%
+        tidyr::spread( years, Emissions )
+
+    if( nrow( GAINS_fugitive_emissions_for_splits ) != nrow( GAINS_fugitive_emissions_final ) ){
+
+        stop( "Correcting emissions data prior to creating fugitive subsector splits has produced a data frame with less ",
+              "rows than the original emissions data. This should not happen..." )
+    }
+
+#TODO*** maybe this should also be done for isos that are all 0? check what happens with abw -- or this would just get delt with since the splits
+#       would become NaN (as total fugitive emissions would be 0), right?
+
 #   Reset NAs to 0
-    GAINS_fugitive_emissions_final_add_zeroes <- GAINS_fugitive_emissions_final %>%
+    GAINS_fugitive_emissions_final_add_zeroes <- GAINS_fugitive_emissions_for_splits %>%
         dplyr::mutate_at( X_emissions_years, funs( if_else( is.na( . ),  0, .) ) )
 
     GAINS_fug_emiss_final_add_zero_long <- GAINS_fugitive_emissions_final_add_zeroes %>%
@@ -1254,7 +1286,7 @@ if( em == "N2O" ){
                                                                 GAINS_fug_splits_some_NA_fixed,
                                                                 GAINS_fug_splits_all_NA_fixed )
 
-#       If there was originally at least 1 row that was all NA, but no rows which had at least NA (but not all NA),
+#       If there was originally at least 1 row that was all NA, but no rows which had at 1 least NA (but not all NA),
 #       rbind the 1 fixed split df to the df of no NAs
         } else if( nrow( GAINS_fug_splits_all_NA ) != 0 & nrow( GAINS_fug_splits_some_NA ) == 0 ){
 

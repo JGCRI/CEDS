@@ -4,10 +4,14 @@
 # Date Last Modified: October 22, 2019
 # Program Purpose: Generates default process emissions for 1B2c_Venting-flaring-oil-gas
 #                  using part of EDGAR JRC PEGASOS data
-#*** Input Files: A.UN_pop_master.csv, C.[em]_ECLIPSE_flaring_emissions_extended.csv,
-#*** Output Files: C.[em]_Fugitive-petr-and-gas default process.csv
+# Input Files: C.[em]_ECLIPSE_flaring_emissions_extended.csv, JRC_PEGASOS_[em]_TS_REF.csv (if em isn't CH4)
+#              EDGAR42_CH4.csv (if em is CH4), v42FT_CH4_2000_2010 (if em is CH4),
+#              C.[em]_GAINS_fug_oil_gas_shares.csv, Master_Country_List.csv,
+#              A.UN_pop_master.csv
+# Output Files: C.[em]_Fugitive-petr-and-gas_aggregate_emissions.csv,
+#               C.[em]_Fugitive-petr-and-gas_default_process_emissions.csv
 # Notes:
-# TODO:
+# TODO: Script TODOs found below
 #-------------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
@@ -31,7 +35,7 @@
 # Define emissions species variable
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "CH4"
+    if ( is.na( em ) ) em <- "SO2"
 
     MODULE_C <- "../code/module-C/"
 
@@ -153,7 +157,8 @@ if( em != "NH3" ){
 
        agg_region_of_interest_long <- agg_region_of_interest %>%
            tidyr::gather( key = Years, value = Emissions, years_to_disaggregate ) %>%
-           dplyr::select( -iso )
+           dplyr::select( -iso ) %>%
+           dplyr::mutate( Emissions = round( Emissions, digits = 10 ) )
 
        diff1 <- setdiff( agg_region_of_interest_long, downscaled_check)
        diff2 <- setdiff( downscaled_check, agg_region_of_interest_long)
@@ -319,9 +324,10 @@ if ( em == 'CH4' ){
         dplyr::filter_at( .vars = all_Xyear, any_vars( . != 0 ) )
 
 #   Assign values if any non-final CEDS isos have emissions and it is appropriate to do so
-    if( nrow( not_final_CEDS_isos_nonzero != 0 ) ){
+    if( nrow( not_final_CEDS_isos_nonzero ) != 0 ){
 
-#       TODO: The following isos had emissions all equal to 0 as of 10.18.19, but they could be non-zero in future years:
+#       TODO: The following isos had emissions all equal to 0 as of 10.22.19 for CH4, but they could be non-zero in future years.
+#             Other ems may have other isos which will needed to be delt with as well.
 #         aia (Anguilla), ata (Antarctica), atf (French Southern Territories),
 #         bvt (Bouvet Island ), cck (Cocos (Keeling) Islands), cxr (Christmas Island),
 #         hmd (Heard Island and McDonald Islands), iot (British Indian Ocean Territory),
@@ -329,8 +335,9 @@ if ( em == 'CH4' ){
 #         pcn (Pitcairn), sgs (South Georgia and the South Sandwich Islands), tuv (Tuvalu),
 #         umi (United States Minor Outlying Islands)
 
-#       TODO: These emissions may need to be assigned to isos still, but perhaps should be disaggregated
-#         before this point (before the EDGAR and ECLIPSE fugitive emissions are combined)
+#       TODO: These isos have CH4 emissions which may need to be assigned to isos still, but perhaps should be disaggregated
+#             before this point (before the EDGAR and ECLIPSE fugitive emissions are combined). Other ems may have other isos
+#             which will needed to be delt with as well.
 #         ant - Netherlands Antilles - unclear if some emissions should be
 #               assigned to abw, cuw, and sxm (as abw has some emissions already beginning in 1976)
 #         scg - Serbia and Montenegro - unclear if some emissions should be
@@ -371,8 +378,9 @@ if ( em == 'CH4' ){
 
     if( length( final_isos_not_in_EDGAR_ECLIPSE_data ) != 0 ){
 
-#        If the following isos are missing, add them to the data frame with NA for emissions.
-#           TODO: Some of these isos could likely be created by disaggregating from more aggregate regions.
+#        If the following isos are missing for CH4, add them to the data frame with NA for emissions.
+#           TODO: Some of these isos could likely be created by disaggregating from more aggregate regions. There are different
+#           missing isos for other ems other than CH4 which should also be considered here
 #           See below notes:
 #           "cuw"             Curacao       - unclear if should disaggregate ant, see above note
 #           "lie"             Liechtenstein
@@ -400,7 +408,7 @@ if ( em == 'CH4' ){
 
 
 #       If South Sudan was a missing iso, disaggregate Sudan into Sudan (sdn) and South Sudan (ssd) using UN population data
-        if( "ssd" %in% final_isos_not_in_EDGAR_ECLIPSE_data ){
+        if( "ssd" %in% final_isos_not_in_EDGAR_ECLIPSE_data & "sdn" %!in% final_isos_not_in_EDGAR_ECLIPSE_data ){
 
             printLog( "Disaggregating sdn fugitive emissions to sdd and ssd using UN population data..." )
 
@@ -429,6 +437,47 @@ if ( em == 'CH4' ){
 
 # 6. Disaggregate EDGAR-ECLIPSE fugitive oil and gas emissions to fugitive oil,
 #    fugitive NG production, and fugitive NG distribution using GAINS fugitive subsector splits
+
+#   Create default splits to be used for NH3 - as NH3 is not reported by GAINS.
+#   Fugitive oil share = 1
+#   Fugitive NG production share = 0
+#   Fugitive NG distribution share = 0
+if( em == "NH3" ){
+
+        printLog( "Creating default NH3 fugitive oil and gas subsector emissions shares. ",
+                  "All aggregate fugitive oil and gas emissions will be assigned to fugitive oil emissions for this em...")
+
+#       Define function to add isos to the fugitive emissions data
+        add_splits <- function( iso_in ){
+
+            new_iso_petr_split <- emissions %>%
+                dplyr::slice( 1 ) %>%
+                dplyr::mutate( iso = paste0( iso_in ),
+                               sector = "1B2_Fugitive-petr" ) %>%
+                dplyr::mutate_at( all_Xyear, funs( identity( 1 ) ) )
+
+            new_iso_splits <- new_iso_petr_split %>%
+                dplyr::bind_rows( new_iso_petr_split %>%
+                                      dplyr::mutate( sector = "1B2b_Fugitive-NG-distr" ) %>%
+                                      dplyr::mutate_at( all_Xyear, funs( identity( 0 ) ) ) ) %>%
+                dplyr::bind_rows( new_iso_petr_split %>%
+                                      dplyr::mutate( sector = "1B2b_Fugitive-NG-prod" ) %>%
+                                      dplyr::mutate_at( all_Xyear, funs( identity( 0 ) ) ) )
+
+        }
+
+#       Add each missing iso(s), other than global
+        MCL_final_isos_no_global <- MCL_final_isos %>%
+            dplyr::filter( iso != "global" )
+
+        NH3_default_splits <- lapply( MCL_final_isos_no_global$iso, add_splits ) %>%
+            dplyr::bind_rows(  )
+
+        GAINS_fug_subsec_shares <- NH3_default_splits # Rename so this can flow into the code below
+
+}
+
+#   Disaggregate emissions
     emissions_long <- emissions %>%
         dplyr::select( -sector ) %>%
         tidyr::gather( key = years, value = total_fugitive_emissions, all_Xyear )
@@ -478,16 +527,16 @@ if ( em == 'CH4' ){
 # -----------------------------------------------------------------------------
 
 # 5. Write output
-#   TODO: *** fix output object name
+#   Add a metadata note for the outputs of this script
     meta_names <- c( "Data.Type", "Emission", "Sector", "Start.Year", "End.Year", "Source.Comment")
-    meta_note <- c( "default process emissions for 1B2c_Venting-flaring-oil-gas", em, "1B2_Fugitive-petr-and-gas",
+    meta_note <- c( "default process emissions for 1B2c_Venting-flaring-oil-gas", em, "Fugitive petr. and gas emissions",
                     "1970", "2014", paste0( "Max value between EDGAR JRC PEGASOS data and extended ECLIPSE flaring emissions ",
-                    "is taken as default process emissions for country-year combination for sector 1B2c_Venting-flaring-oil-gas" ) )
+                    "is taken as default process emissions for country-year combination for the sector, then disaggregated to ",
+                    "fugitive oil, fugitive NG production, and fugitive NG distribution using GAINS fugitive subsector shares.") )
     addMetaData( meta_note, meta_names )
 
 #   Output aggregate EDGAR-ECLIPSE fugitive emissions to the diagnostic directory
-    writeData( emissions , "DIAG_OUT", domain_extension = 'non-combustion-emissions/',
-               paste0( "C.", em, "_Fugitive-petr-and-gas_aggregate_emissions" ) )
+    writeData( emissions , "DIAG_OUT", paste0( "C.", em, "_Fugitive-petr-and-gas_aggregate_emissions" ) )
 
 #   Output disaggregate EDGAR-ECLIPSE fugitive emissions to the default non-combustion emissions directory
     writeData( disaggregated_EDGAR_ECLIPSE , "DEFAULT_EF_IN", domain_extension = 'non-combustion-emissions/',
