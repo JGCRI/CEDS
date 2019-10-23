@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.GAINS_fugitive_petr_gas_emissions.R
 # Author(s): Patrick O'Rourke
-# Date Last Modified: October 22, 2019
+# Date Last Modified: October 23, 2019
 # Program Purpose: To reformat the non-combustion fugitive oil and gas emissions
 #                  from GAINS and create gain fugitive subsector shares of total
 #                  fugitive oil and gas related emissions
@@ -1151,9 +1151,6 @@ if( em == "N2O" ){
         stop( "Correcting emissions data prior to creating fugitive subsector splits has produced a data frame with less ",
               "rows than the original emissions data. This should not happen..." )
     }
-
-#TODO*** maybe this should also be done for isos that are all 0? check what happens with abw -- or this would just get delt with since the splits
-#       would become NaN (as total fugitive emissions would be 0), right?
 
 #   Reset NAs to 0
     GAINS_fugitive_emissions_final_add_zeroes <- GAINS_fugitive_emissions_for_splits %>%
