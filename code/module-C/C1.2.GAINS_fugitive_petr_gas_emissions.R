@@ -9,7 +9,7 @@
 #              emf-30_ctry_map.csv, emf-30_fuel_sector_map.csv,
 #              Master_Country_List.csv, E.CO2_CDIAC_inventory.csv,
 #              BP_energy_data.xlsx, A.en_stat_sector_fuel.csv,
-#              A.UN_pop_master.csv, EDGAR42_NOx.csv, EDGAR42_N2O.csv
+#              A.UN_pop_master.csv, EDGAR42_NOx.csv (if em is N2O), EDGAR42_N2O.csv (if em is N2O)
 # Output Files: C.GAINS_NC_Emissions_[em].csv, C.BP_and_IEA_oil_production.csv,
 #               C.BP_and_IEA_natural_gas_production.csv, C.[em]_GAINS_fug_oil_gas_shares.csv
 # TODO: Address remaining doc TODOs
@@ -21,7 +21,7 @@
 # 0. Read in global settings and headers
 #   Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 #   to the "input" directory.
-    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
+    PARAM_DIR <- if( "input" %in% dir( ) ) "code/parameters/" else "../code/parameters/"
 
 #   Universal header file - provides logging, file support, etc.
     headers <- c( 'process_db_functions.R', 'data_functions.R',
@@ -286,7 +286,7 @@
         GAINS_emiss_UnitsFixed <- GAINS_emiss_clean %>%
             dplyr::mutate( Emissions_convert_unit = Emissions * kt_per_Tg ) %>%
             dplyr::select( -Emissions ) %>%
-            dplyr::rename( Emisssions = Emissions_convert_unit)
+            dplyr::rename( Emissions = Emissions_convert_unit)
 
     } else {
 
