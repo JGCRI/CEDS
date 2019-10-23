@@ -378,9 +378,9 @@ if ( em == 'CH4' ){
 
     if( length( final_isos_not_in_EDGAR_ECLIPSE_data ) != 0 ){
 
-#        If the following isos are missing for CH4, add them to the data frame with NA for emissions.
+#        If the following isos are missing, add them to the data frame with NA for emissions.
 #           TODO: Some of these isos could likely be created by disaggregating from more aggregate regions. There are different
-#           missing isos for other ems other than CH4 which should also be considered here
+#           missing isos for different ems, which should also be considered here (this list refers isos missing from the CH4 emission data)
 #           See below notes:
 #           "cuw"             Curacao       - unclear if should disaggregate ant, see above note
 #           "lie"             Liechtenstein

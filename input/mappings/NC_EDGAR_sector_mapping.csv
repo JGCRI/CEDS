@@ -1,7 +1,7 @@
 edgar_sector,edgar_descr,ceds_sector,units,Not-included-in-CEDS-CMIP6
 1A1bc,Other Energy Industries,1A1bc_Other-transformation,kt,
 1B1,Fugitive emissions from solid fuels,1B1_Fugitive-solid-fuels,kt,
-1B2,Fugitive emissions from oil and gas,,,
+1B2,Fugitive emissions from oil and gas,1B2_Fugitive-petr-and-gas,kt,"This is no longer a CEDS sector, as 3 disaggregate sectors now exist (found below this line). However, it is retained within the mapping file as scripts which use this file disaggregate these emissions into the new 3 sectors."
 ,,1B2_Fugitive-petr,kt,
 ,,1B2b_Fugitive-NG-prod,kt,
 ,,1B2b_Fugitive-NG-distr,kt,

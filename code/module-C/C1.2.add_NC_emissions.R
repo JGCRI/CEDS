@@ -51,6 +51,13 @@ if( em == "BC" || em == "OC" ){
     scripts <- c(  )
 }
 
+# Create GAINS fugitive oil and gas subsector emission splits
+if ( !( em %in% c( "CO2", "NH3" ) ) ){
+
+    scripts <- c( scripts, 'C1.2.GAINS_fugitive_petr_gas_emissions.R' )
+
+}
+
 # Add EDGAR data script for all relevant emissions species
 if( em == "SO2" || em == "CO" || em == "NOx" || em == "NMVOC"  || em == "NH3" ){
     scripts <- c( scripts, "C1.2.add_NC_emissions_EDGAR_PEGASOS.R" )
@@ -77,13 +84,7 @@ if( em == "CO2" ){
 }
 
 
-# Add Fugitive defaults
-if ( !( em %in% c( "CO2", "NH3" ) ) ){
-
-    scripts <- c( scripts, 'C1.2.GAINS_fugitive_petr_gas_emissions.R' )
-
-}
-
+# Add Fugitive defaults for non-CO2 emission species
 if ( !(em %in% c( "CO2" ) ) ) {
   scripts <- c( scripts, 'C1.2.ECLIPSE_flaring_emissions_extension.R' )
   scripts <- c( scripts, 'C1.2.Fugitive-petr-and-gas_default_process_emissions.R' )
