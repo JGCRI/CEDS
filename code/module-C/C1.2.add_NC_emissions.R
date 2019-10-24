@@ -52,7 +52,7 @@ if( em == "BC" || em == "OC" ){
 }
 
 # Create GAINS fugitive oil and gas subsector emission splits
-if ( !( em %in% c( "CO2", "NH3" ) ) ){
+if ( em %!in% c( "NH3" ) ){
 
     scripts <- c( scripts, 'C1.2.GAINS_fugitive_petr_gas_emissions.R' )
 

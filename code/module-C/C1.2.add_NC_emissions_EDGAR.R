@@ -1,16 +1,17 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.add_NC_emissions_EDGAR.R
 # Author(s): Jon Seibert, Rachel Hoesly, Patrick O'Rourke
-# Date Last Modified: October 23, 2019
+# Date Last Modified: October 24, 2019
 # Program Purpose: To reformat the non-combustion sections of the EDGAR default emissions
 #                      data and add it to the database for the relevant emissions species.
-#*** Input Files: NC_EDGAR_sector_mapping.csv, BP_energy_data.xlsx, Master_Country_List.csv,
-#              EDGAR42_[em].csv
-#*** Output Files: C.CH4_EDGAR_NC_Emissions_fugitive_solid_fuels.csv,
+# Input Files: NC_EDGAR_sector_mapping.csv, BP_energy_data.xlsx, Master_Country_List.csv,
+#              EDGAR42_[em].csv, A.UN_pop_master.csv, C.[em]_GAINS_fug_oil_gas_shares.csv
+# Output Files: C.CH4_EDGAR_NC_Emissions_fugitive_solid_fuels.csv,
 #               C.EDGAR_NC_Emissions_[em].csv, C.EDGAR_NC_Emissions_[em]_negative.csv
-#*** TODO: search script for ***, doc TODOs
-#      ext_backward = TRUE extended back only one year. (extend forward worked)
-#      Extend forward should extend forward with constant EFs, not linear trend
+#               C.CO2_Fugitive-petr-and-gas_default_EDGAR_process_emissions.csv,
+# TODO: TODOs within the script
+#       ext_backward = TRUE extended back only one year. (extend forward worked)
+#       Extend forward should extend forward with constant EFs, not linear trend
 # Notes:
 
 # -----------------------------------------------------------------------------
@@ -35,7 +36,7 @@
 # Define emissions species variable
   args_from_makefile <- commandArgs( TRUE )
   em <- args_from_makefile[ 1 ]
-  if ( is.na( em ) ) em <- "CO2"
+  if ( is.na( em ) ) em <- "N2O"
 
 # EDGAR data version number
 vn <- "4.2"
@@ -79,8 +80,124 @@ Master_Country_List <- readData( "MAPPINGS", 'Master_Country_List' )
 # Read UN Population Data
 population <- readData( "MED_OUT", file_name = "A.UN_pop_master" )
 
+# GAINS subsector splits
+GAINS_fug_subsec_shares <- readData( "MED_OUT", file_name = paste0( "C.", em, "_GAINS_fug_oil_gas_shares" ) )
+
 # ------------------------------------------------------------------------------
-# 3. Initial Reformatting
+
+# 3. Define functions used within this script
+
+#   Define function to downscale fugitive oil and gas emissions data from one iso to multiple isos (using
+#   UN population data) before applying GAINS fugitive subsector splits to the emissions to create
+#   the new 3 fugitive oil and gas subsectors.
+#   Note: this function may not be needed in the future, when small isos are handled in prior to this script
+#   TODO: combine this function with the function used in C1.2.Fugitive-petr-and-gas_default_process_emissions.R
+    disagg_iso <- function( agg_iso_region, additional_iso_to_create,
+                            emissions_data_in, population_data, years_to_disaggregate ){
+
+        agg_region_all_isos <- c( additional_iso_to_create, agg_iso_region)
+
+#       Process population data
+        population_clean <- population_data %>%
+            dplyr::mutate( year = paste0( "X", year ) ) %>%
+            dplyr::filter( scenario == "Estimates",
+                           year %in% years_to_disaggregate ) %>%
+            dplyr::select( iso, year, pop ) %>%
+            tidyr::spread( year, pop )
+
+#       Calculate aggregate UN region population
+        agg_region_iso_populations <- population_clean %>%
+            dplyr::filter( iso %in% agg_region_all_isos )
+
+        aggregated_population <- agg_region_iso_populations %>%
+            dplyr::select( -iso ) %>%
+            dplyr::summarise_all( funs( sum ( ., na.rm = TRUE ) ) ) %>%
+            tidyr::gather( key = Years, value = agg_reg_population, years_to_disaggregate )
+
+#       Calculate UN population share for each sub-iso
+        agg_region_iso_pop_shares <- agg_region_iso_populations %>%
+            tidyr::gather( key = Years, value = Population, years_to_disaggregate ) %>%
+            dplyr::left_join( aggregated_population, by = "Years" ) %>%
+            dplyr::mutate( iso_share_of_agg_region_pop = Population / agg_reg_population ) %>%
+            dplyr::select( -Population, -agg_reg_population  )
+
+#       Filter out the agg iso and iso to disaggegate, if needed
+        emissions_without_isos_being_replaced <- emissions_data_in %>%
+            dplyr::filter( iso %!in% agg_region_all_isos )
+
+#       Filter for agg region emissions data
+        agg_region_of_interest <- emissions_data_in %>%
+            dplyr::filter( iso == agg_iso_region )
+
+#       Define function to add duplicate row of agg_region data with iso renamed as the
+#       missing iso whose data is being created by disaggregating the agg_region
+        add_isos_for_disagg <- function( iso_in ){
+
+            new_iso <- agg_region_of_interest %>%
+                dplyr::mutate( iso = paste0( iso_in ) )
+
+        }
+
+#       Create disaggregate iso rows
+        new_isos_for_disagg <- lapply( additional_iso_to_create, add_isos_for_disagg ) %>%
+            dplyr::bind_rows(  )
+
+#       Disaggregate the emissions data for the agg region
+        emissions_data_in_all_region_isos <- agg_region_of_interest %>%
+            dplyr::bind_rows( new_isos_for_disagg ) %>%
+            tidyr::gather( key = Years, value = Emissions, years_to_disaggregate ) %>%
+            dplyr::left_join( agg_region_iso_pop_shares, by = c( "iso", "Years" ) ) %>%
+            dplyr::mutate( disagg_emissions = Emissions * iso_share_of_agg_region_pop ) %>%
+            dplyr::select( iso, sector, fuel, units, Years, disagg_emissions )
+
+#       Check that there are no NAs or NaNs for new downscaled emissions
+        if( any( is.na( emissions_data_in_all_region_isos$disagg_emissions ) |
+                is.nan( emissions_data_in_all_region_isos$disagg_emissions ) ) ){
+
+            stop( paste0( "Some downscaled emissions are now NA. Check population and emissions data ",
+                          "in ", script_name, "..." ) )
+
+        }
+
+#       Check that disagg. regions summed = agg. region data for each sector - rounded to 10 decimals
+        downscaled_check <- emissions_data_in_all_region_isos %>%
+            dplyr::select( -iso ) %>%
+            dplyr::group_by( sector, fuel, units, Years ) %>%
+            dplyr::summarise_all( funs( sum ( ., na.rm = TRUE ) ) ) %>%
+            dplyr::arrange( sector, fuel, units, Years ) %>%
+            dplyr::mutate( disagg_emissions = round( disagg_emissions, digits = 10 ) ) %>%
+            dplyr::ungroup( ) %>%
+            dplyr::rename( Emissions = disagg_emissions )
+
+        agg_region_of_interest_long <- agg_region_of_interest %>%
+            tidyr::gather( key = Years, value = Emissions, years_to_disaggregate ) %>%
+            dplyr::select( -iso ) %>%
+            dplyr::mutate( Emissions = round( Emissions, digits = 10 ) )
+
+        diff1 <- setdiff( agg_region_of_interest_long, downscaled_check)
+        diff2 <- setdiff( downscaled_check, agg_region_of_interest_long)
+
+        if( nrow( diff1 ) != 0 | nrow( diff2 ) != 0 ){
+
+            stop( paste0( "Downscaled emissions do not equal aggregate region emissions for all sectors. ",
+                          "See ", script_name, "..." ) )
+
+        }
+
+#       Replace the original agg region data
+        emissions_data_in_all_region_isos_wide <- emissions_data_in_all_region_isos %>%
+            tidyr::spread( Years, disagg_emissions )
+
+        final_disagg_emissions <- emissions_without_isos_being_replaced %>%
+            dplyr::filter( iso != agg_iso_region ) %>%
+            dplyr::bind_rows( emissions_data_in_all_region_isos_wide )
+
+        return( final_disagg_emissions )
+
+    }
+
+# ------------------------------------------------------------------------------
+# 4. Initial Reformatting
 
 # Add iso column and group sector column with it at the end
 edgar$iso <- tolower( edgar[ , "ISO_A3" ] )
@@ -96,7 +213,7 @@ edgar <- edgar[ data_start : len ]
 edgar$fuel <- fuel
 
 # ------------------------------------------------------------------------------
-# 4. Account for EDGAR 4D3 Indirect N2O from agriculture - for N2O only
+# 5. Account for EDGAR 4D3 Indirect N2O from agriculture - for N2O only
 
 if ( em == 'N2O' ){
 
@@ -115,8 +232,8 @@ edgar <- edgar %>%
 edgar$sector <- NC_sector_map$ceds_sector[ match( edgar$edgar_sector, NC_sector_map$edgar_sector ) ]
 
 # Add back "4D3 - Indirect N2O from agriculture" by splitting it among CEDS sectors "3B_Manure-management"
-#       and "3D_Soil-emissions", based on the relative amount of emissions between these two sectors
-#       for each iso
+# and "3D_Soil-emissions", based on the relative amount of emissions between these two sectors
+# for each iso
 
 #   Subset EDGAR data for 3B and 3D
     edgar_3Band3D <- edgar %>%
@@ -222,7 +339,7 @@ edgar$sector <- NC_sector_map$ceds_sector[ match( edgar$edgar_sector, NC_sector_
 
 # ------------------------------------------------------------------------------
 
-# 5. Finish processing EDGAR data
+# 6. Finish processing EDGAR data
 
 # Add units from sector mapping file
 # docTODO: TAKE FROM MASTER SECTOR LIST INSTEAD
@@ -238,7 +355,7 @@ edgar <- dplyr::select( edgar, iso, sector, fuel, units, EDGAR_years_keep )
 edgar <- edgar[ with( edgar, order( iso, sector, fuel ) ), ]
 
 # Get rid of 2008 and 2009. Strange Values
-#     ***** docTODO: This doesn't get rid of any values though?
+#     TODO: This doesn't get rid of any values though?
 edgar <- edgar[ ,c( 'iso','sector','fuel','units', paste0( 'X', EDGAR_start_year : EDGAR42_end_year ) ) ]
 
 # Leave out excluded sectors
@@ -254,7 +371,7 @@ edgar <- edgar[ ,c( 'iso','sector','fuel','units', paste0( 'X', EDGAR_start_year
   edgar <- edgar %>% dplyr::filter( iso %in% Master_Country_List$iso )
 
 # ------------------------------------------------------------------------------
-# 6. Extend Fugitive Solid Fuels for methane
+# 7. Extend Fugitive Solid Fuels for methane
 
 if ( em == 'CH4' ){
 
@@ -291,7 +408,7 @@ if ( em == 'CH4' ){
 
 # ------------------------------------------------------------------------------
 
-#******7. Assign values of non-final CEDS isos to appropriate regions if needed (disaggregate aggregate isos,
+# 8. Assign values of non-final CEDS isos to appropriate regions if needed (disaggregate aggregate isos,
 #    provide all NAs for missing final CEDS isos, and add non-final CEDS isos to aggregate regions...)
 
 #   Subset isos which aren't final CEDS isos and have emissions other than 0 in any year
@@ -309,9 +426,8 @@ if ( em == 'CH4' ){
 #   Assign values if any non-final CEDS isos have emissions and it is appropriate to do so
     if( nrow( not_final_CEDS_isos_nonzero ) != 0 ){
 
-#       TODO: These isos have CO2 emissions which may need to be assigned to isos still, but perhaps should be disaggregated
-#             before this point (before the EDGAR and ECLIPSE fugitive emissions are combined). Other ems may have other isos
-#             which will needed to be delt with as well.
+#       TODO: These isos have CO2 emissions which may need to be assigned to isos still. Other ems may have other isos
+#             which will needed to be delt with as well (this list refers isos missing from the CO2 emission data).
 #         ant - Netherlands Antilles - unclear if some emissions should be
 #               assigned to abw, cuw, and sxm (as abw has some emissions already beginning in 1976 for CH4)
 #         scg - Serbia and Montenegro - unclear if some emissions should be
@@ -369,193 +485,113 @@ if ( em == 'CH4' ){
         edgar <- edgar %>%
             dplyr::bind_rows( new_isos )
 
-#*******     If South Sudan was a missing iso, disaggregate Sudan into Sudan (sdn) and South Sudan (ssd) using UN population data
-      if( "ssd" %in% final_isos_not_in_EDGAR_data & "sdn" %!in% final_isos_not_in_EDGAR_data ){
+#       If South Sudan was a missing iso, disaggregate Sudan into Sudan (sdn) and South Sudan (ssd) using UN population data
+        if( "ssd" %in% final_isos_not_in_EDGAR_data & "sdn" %!in% final_isos_not_in_EDGAR_data ){
 
           printLog( "Disaggregating sdn EDGAR", em, "emissions to sdd and ssd using UN population data..." )
 
-          emissions <- disagg_iso( agg_iso_region = "sdn",  additional_iso_to_create = "ssd",
-                                   emissions_data_in = emissions, population_data = population,
+          edgar <- disagg_iso( agg_iso_region = "sdn",
+                                   additional_iso_to_create = "ssd",
+                                   emissions_data_in = edgar,
+                                   population_data = population,
                                    years_to_disaggregate = EDGAR_years_keep_final )
-
-
-#***** 2. Define functions used within the script
-          agg_iso_region <- "sdn"
-          additional_iso_to_create <- "ssd"
-          emissions_data_in <- edgar
-          population_data <- population
-          years_to_disaggregate <- EDGAR_years_keep_final
-
-
-          #   Define function to downscale fugitive emissions data from one iso to multiple isos (using
-          #   UN population data) before applying GAINS fugitive subsector splits to the emissions
-          #   Note: this function may not be needed in the future, when small isos are handled in prior to this script
-          #   TODO: combine this function with the function used in C1.2.Fugitive-petr-and-gas_default_process_emissions.R
-          disagg_iso <- function( agg_iso_region, additional_iso_to_create,
-                                  emissions_data_in, population_data, years_to_disaggregate ){
-
-              agg_region_all_isos <- c( additional_iso_to_create, agg_iso_region)
-
-              #      Process population data
-              population_clean <- population_data %>%
-                  dplyr::mutate( year = paste0( "X", year ) ) %>%
-                  dplyr::filter( scenario == "Estimates",
-                                 year %in% years_to_disaggregate ) %>%
-                  dplyr::select( iso, year, pop ) %>%
-                  tidyr::spread( year, pop )
-
-              #      Calculate aggregate UN region population
-              agg_region_iso_populations <- population_clean %>%
-                  dplyr::filter( iso %in% agg_region_all_isos )
-
-              aggregated_population <- agg_region_iso_populations %>%
-                  dplyr::select( -iso ) %>%
-                  dplyr::summarise_all( funs( sum ( ., na.rm = TRUE ) ) ) %>%
-                  tidyr::gather( key = Years, value = agg_reg_population, years_to_disaggregate )
-
-              #      Calculate UN population share for each sub-iso
-              agg_region_iso_pop_shares <- agg_region_iso_populations %>%
-                  tidyr::gather( key = Years, value = Population, years_to_disaggregate ) %>%
-                  dplyr::left_join( aggregated_population, by = "Years" ) %>%
-                  dplyr::mutate( iso_share_of_agg_region_pop = Population / agg_reg_population ) %>%
-                  dplyr::select( -Population, -agg_reg_population  )
-
-              #      Filter out the agg iso and iso to disaggegate, if needed
-              emissions_without_isos_being_replaced <- emissions_data_in %>%
-                  dplyr::filter( iso %!in% agg_region_all_isos )
-
-              #      Filter for agg region emissions data
-              agg_region_of_interest <- emissions_data_in %>%
-                  dplyr::filter( iso == agg_iso_region )
-
-              #      Define function to add duplicate row of agg_region data with iso renamed as the
-              #      missing iso whose data is being created by disaggregating the agg_region
-              add_isos_for_disagg <- function( iso_in ){
-
-                  new_iso <- agg_region_of_interest %>%
-                      dplyr::mutate( iso = paste0( iso_in ) )
-
-              }
-
-              #      Create disagg iso rows
-              new_isos_for_disagg <- lapply( additional_iso_to_create, add_isos_for_disagg ) %>%
-                  dplyr::bind_rows(  )
-
-              #      Disaggregate the emissions data for the agg region
-              emissions_data_in_all_region_isos <- agg_region_of_interest %>%
-                  dplyr::bind_rows( new_isos_for_disagg ) %>%
-                  tidyr::gather( key = Years, value = Emissions, years_to_disaggregate ) %>%
-                  dplyr::left_join( agg_region_iso_pop_shares, by = c( "iso", "Years" ) ) %>%
-                  dplyr::mutate( disagg_emissions = Emissions * iso_share_of_agg_region_pop ) %>%
-                  dplyr::select( iso, sector, fuel, units, Years, disagg_emissions )
-
-              #      Check that there are no NAs or NaNs for new downscaled emissions
-              if( any( is.na( emissions_data_in_all_region_isos$disagg_emissions ) |
-                       is.nan( emissions_data_in_all_region_isos$disagg_emissions ) ) ){
-
-                  stop( paste0( "Some downscaled emissions are now NA. Check population and emissions data.") )
-
-              }
-
-              #      Check that disagg regions summed = agg region data for each sector - rounded to 10 decimals
-              downscaled_check <- emissions_data_in_all_region_isos %>%
-                  dplyr::select( -iso ) %>%
-                  dplyr::group_by( sector, fuel, units, Years ) %>%
-                  dplyr::summarise_all( funs( sum ( ., na.rm = TRUE ) ) ) %>%
-                  dplyr::arrange( sector, fuel, units, Years ) %>%
-                  dplyr::mutate( disagg_emissions = round( disagg_emissions, digits = 10 ) ) %>%
-                  dplyr::ungroup( ) %>%
-                  dplyr::rename( Emissions = disagg_emissions )
-
-              agg_region_of_interest_long <- agg_region_of_interest %>%
-                  tidyr::gather( key = Years, value = Emissions, years_to_disaggregate ) %>%
-                  dplyr::select( -iso ) %>%
-                  dplyr::mutate( Emissions = round( Emissions, digits = 10 ) )
-
-              diff1 <- setdiff( agg_region_of_interest_long, downscaled_check)
-              diff2 <- setdiff( downscaled_check, agg_region_of_interest_long)
-
-              if( nrow( diff1 ) != 0 | nrow( diff2 ) != 0 ){
-
-                  stop( paste0( "Downscaled emissions do not equal aggregate region emissions for all sectors. ",
-                                "See C1.2.Fugitive-petr-and-gas_default_process_emissions.R... " ) )
-
-              }
-
-              #      Replace the original agg region data
-              emissions_data_in_all_region_isos_wide <- emissions_data_in_all_region_isos %>%
-                  tidyr::spread( Years, disagg_emissions )
-
-              final_disagg_emissions <- emissions_without_isos_being_replaced %>%
-                  dplyr::filter( iso != agg_iso_region ) %>%
-                  dplyr::bind_rows( emissions_data_in_all_region_isos_wide )
-
-              return( final_disagg_emissions )
-
-          }
-
-
-
-          #**** the above function appears to work - but move it up in the script and check results again
-
-
-
-
-
-
-
-
-
-
-
 
       }
 
   }
 
+#   Check that the emissions data now only has final CEDS isos
+    edgar_final_unique_isos <- edgar %>%
+        dplyr::select( iso ) %>%
+        dplyr::distinct( )
 
-  # Check that the emissions data now only has final CEDS isos
-  if( nrow( emissions ) < nrow( MCL_final_isos %>% dplyr::filter( iso != "global" ) ) ){
+    MCL_final_isos_no_global <- MCL_final_isos %>%
+        dplyr::filter( iso != "global" )
 
-      stop( "Aggregate fugitive emissions data is missing at least one CEDS final isos...")
+    if( nrow( edgar_final_unique_isos ) < nrow( MCL_final_isos_no_global ) ){
 
-  } else if( nrow( emissions ) > nrow( MCL_final_isos %>% dplyr::filter( iso != "global" ) ) ){
+        stop( "Emissions data is missing at least one CEDS final isos. See ", script_name )
 
-      stop( "Aggregate fugitive emissions data contains at least one iso which is not a final CEDS isos..." )
+    } else if( nrow( edgar_final_unique_isos ) > nrow( MCL_final_isos_no_global ) ){
 
+        stop( "Emissons data contains at least one iso which is not a final CEDS isos. See ", script_name )
 
-  }
-
-
-
-
-
-
-
+    }
 
 
+#   Add sectors that are missing for certain isos as all NAs
+    edgar_iso_sector_combos <- edgar %>%
+        expand( iso, sector )
 
-
-
-
-
-
-
-
-
-
-  # ------------------------------------------------------------------------------
-
-
-
-
-  #******8. Disaggregate Fugitive oil and petr. emissions using GAINS subsector shares
-  #   (Fugitive oil, fugitive NG production, fugitive NG distribution)
-
-
+    edgar <- edgar %>%
+        dplyr::full_join( edgar_iso_sector_combos, by = c( "iso", "sector" ) ) %>%
+        dplyr::mutate( fuel = "process", units = "kt" )
 
 # ------------------------------------------------------------------------------
-# 9. Aggregate CEDS sectors, as multiple EDGAR sectors are mapped to 1 CEDS
+
+# 9. If em is CO2, disaggregate Fugitive oil and petr. emissions using GAINS subsector shares
+#    (Fugitive oil, fugitive NG production, fugitive NG distribution). Otherwise, remove fugitive
+#    oil and gas emissions from the data
+#    TODO: This could be functionalized to flexible for use with the similar section of code within
+#           C1.2.Fugitive-petr-and-gas_default_process_emissions.R
+
+if( em == "CO2" ){
+
+#   Subset fugitive oil and gas emissions
+    edgar_fugitive_oil_gas <- edgar %>%
+        dplyr::filter( sector == "1B2_Fugitive-petr-and-gas" )
+
+    edgar_no_fugitive_oil_gas <- edgar %>%
+        dplyr::filter( sector != "1B2_Fugitive-petr-and-gas" )
+
+#   Disaggregate fugitive oil and gas emissions
+    edgar_fugitive_oil_gas_long  <- edgar_fugitive_oil_gas %>%
+        dplyr::select( -sector ) %>%
+        tidyr::gather( key = years, value = total_fugitive_emissions, EDGAR_years_keep_final )
+
+    disaggregated_EDGAR_fug <- GAINS_fug_subsec_shares %>%
+        dplyr::select( iso, sector, fuel, units, EDGAR_years_keep_final ) %>%
+        tidyr::gather( key = years, value = shares, EDGAR_years_keep_final ) %>%
+        dplyr::rename( units_shares = units ) %>%
+        dplyr::left_join( edgar_fugitive_oil_gas_long, by = c( "iso", "fuel", "years" ) ) %>%
+        dplyr::mutate( disaggregate_emissions = shares * total_fugitive_emissions ) %>%
+        dplyr::select( iso, sector, fuel, units, years, disaggregate_emissions ) %>%
+        tidyr::spread( years, disaggregate_emissions )
+
+#   Check results - disaggregated emissions should sum back to the aggregate fugitive emissions for each iso (to 5 decimals)
+    disaggregated_EDGAR_fug_summed <- disaggregated_EDGAR_fug %>%
+        dplyr::mutate( sector = "1B2_Fugitive-petr-and-gas" ) %>%
+        dplyr::group_by( iso, sector, fuel, units ) %>%
+        dplyr::summarise_all( funs( sum( ., na.rm = FALSE ) ) ) %>%
+        dplyr::mutate_at( EDGAR_years_keep_final, funs( round( ., digits = 10 ) ) ) %>%
+        dplyr::ungroup( )
+
+    emissions_for_check <- edgar_fugitive_oil_gas %>%
+        dplyr::arrange( iso ) %>%
+        dplyr::mutate_at( EDGAR_years_keep_final, funs( round( ., digits = 10 ) ) )
+
+    diff1 <- setdiff( emissions_for_check, disaggregated_EDGAR_fug_summed )
+    diff2 <- setdiff( disaggregated_EDGAR_fug_summed , emissions_for_check )
+
+    if( nrow( diff1 ) != 0 | nrow( diff2 ) != 0 ){
+
+        stop( paste0( "Fugitive subsector emissions do not equal aggregate sector emissions for all isos. ",
+                      "See ", script_name ) )
+
+    }
+
+#   Rename the edgar data base without fugitive oil and gas emissions, as these will be output seperately
+    edgar <- edgar_no_fugitive_oil_gas
+
+} else{
+
+    edgar <- edgar %>%
+        dplyr::filter( sector != "1B2_Fugitive-petr-and-gas" )
+
+}
+
+# ------------------------------------------------------------------------------
+# 10. Aggregate CEDS sectors, as multiple EDGAR sectors are mapped to 1 CEDS
 #    sector (such as EDGAR sectors 4B and 4D2 mapping to CEDS 3B_Manure-management )
 #    Note: This is done because addToEmissionsDb expects there to only be 1 value
 #          for each CEDS sector (for each CEDS sec, fuel, and iso combination),
@@ -565,25 +601,37 @@ if ( em == 'CH4' ){
         dplyr::group_by( iso, sector, fuel, units ) %>%
         dplyr::summarize_all( funs( sum(., na.rm = TRUE ) ) )
 
-#****filter out fugitive emisisons if em is not Co2
-
 # ------------------------------------------------------------------------------
 
-# 10. Output
+# 11. Output
 
-if ( em == 'CH4' ){
+#   Output disaggregate EDGAR fugitive slid emissions to the default non-combustion emissions directory
+    if ( em == 'CH4' ){
 
-  writeData( fugitive_solid_extended,  domain = "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
-             fn = paste0( "C.",em, "_EDGAR_NC_Emissions_fugitive_solid_fuels" ) )
+      writeData( fugitive_solid_extended,  domain = "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
+                 fn = paste0( "C.",em, "_EDGAR_NC_Emissions_fugitive_solid_fuels" ) )
+
+    }
+
+#   Output disaggregate EDGAR fugitive emissions to the default non-combustion emissions directory
+    if ( em == "CO2" ){
+
+        writeData( disaggregated_EDGAR_fug , "DEFAULT_EF_IN", domain_extension = 'non-combustion-emissions/',
+                   paste0( "C.", em, "_Fugitive-petr-and-gas_default_EDGAR_process_emissions" ) )
+
+    }
+
+#   Add emissions to the em's NC database
+    addToEmissionsDb( edgar, em = em, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
+    writeData( edgar, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em ) )
+
+#   Output negative EDGAR emissions to diagnostics, if they exist
+if ( nrow( edgar_neg ) > 0 ){
+
+  writeData( edgar_neg, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_", em, "_negative" ) )
 
 }
 
-addToEmissionsDb( edgar, em = em, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
-writeData( edgar, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em ) )
+logStop( )
 
-if ( nrow( edgar_neg ) > 0 )
-  writeData( edgar_neg, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em, "_negative" ) )
-
-
-logStop()
 # END

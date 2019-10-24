@@ -38,7 +38,7 @@ fuel <- "process"
 id_cols <- c( "iso", "sector", "fuel", "units" )
 
 # Temporary assignment for script development
-# em <- "NH3"
+em <- "SO2"
 
 # ------------------------------------------------------------------------------
 # 2. Input
@@ -95,6 +95,14 @@ edgar <- edgar[ with( edgar, order( iso, sector, fuel ) ), ]
 
 # get rid of any values outside of main data range.
 edgar <- edgar[,c('iso','sector','fuel','units', paste0('X',EDGAR_start_year:EDGAR_end_year))]
+
+# Filter out 1B2_Fugitive-petr-and-gas emissions. This is no longer a CEDS sector
+# as there are now 3 fugitive oil and gas emission sectors (fugitive oil, fugitive NG production,
+# fugitive NG distribution). Defaults for these subsectors are created in
+# C1.2.add_NC_emissions_EDGAR.R (for CO2) and C1.2.Fugitive-petr-and-gas_default_process_emissions.R
+# for all other ems)
+edgar <- edgar %>%
+    dplyr::filter( sector != "1B2_Fugitive-petr-and-gas" )
 
 # ------------------------------------------------------------------------------
 # 4. Output

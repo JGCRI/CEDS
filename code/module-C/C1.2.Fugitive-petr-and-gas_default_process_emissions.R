@@ -424,11 +424,11 @@ if ( em == 'CH4' ){
 # Check that the emissions data now only has final CEDS isos
   if( nrow( emissions ) < nrow( MCL_final_isos %>% dplyr::filter( iso != "global" ) ) ){
 
-      stop( "Aggregate fugitive emissions data is missing at least one CEDS final isos...")
+      stop( "Fugitive emissions data is missing at least one CEDS final isos...")
 
   } else if( nrow( emissions ) > nrow( MCL_final_isos %>% dplyr::filter( iso != "global" ) ) ){
 
-      stop( "Aggregate fugitive emissions data contains at least one iso which is not a final CEDS isos..." )
+      stop( "Fugitive emissions data contains at least one iso which is not a final CEDS isos..." )
 
 
   }
