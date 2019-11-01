@@ -82,7 +82,7 @@ rcp_em_flag <- em %in% rcp_em_list
 rcp_shipping_em_flag <- em %in% rcp_shipping_em_list
 # ------------------------------------------------------------------------------
 # 1. Read in and load files for CEDS, EDGAR and GAINS ( RCP will be loaded in section 2 )
-# if the em is not supportted by any of the emissions invertories, a dummy data frame will be created
+# if the em is not supportted by any of the emissions inventories, a dummy data frame will be created
 # ------------------------------------------------------------------------------
 # 1.1 read in CEDS total emissions
 if ( ceds_em_flag == T ) {
@@ -104,7 +104,7 @@ if ( edgar_em_flag == T ) {
                                file_name = paste0( "JRC_PEGASOS_" ,em, "_TS_REF" ),
                                extension = ".xlsx",
                                sheet_selection = edgar_sheet_name,
-                               skip_rows = 8 )
+                               skip = 8 )
   }
   if (em == 'CH4'){
     edgar_emissions <- readData( domain = "EM_INV",
@@ -141,34 +141,34 @@ if ( gains_em_flag == T ) {
 # set wd to RCP folder
 if ( rcp_em_flag == T ) {
   rcp_dir <- './emissions-inventories/RCP/'
-  
+
   # create temporary folder to extract zipped files
   zipfile_path <- paste0(rcp_dir, em, '.zip')
   dir.name <- paste0(rcp_dir, em, '_RCP_temp_folder')
   dir.create(dir.name)
   # unzip files to temp folder
   unzip(zipfile_path, exdir = dir.name)
-  
+
   # list files in the folder
   files <- list.files(paste0(dir.name,'/',em)  ,pattern = '.dat')
   files <- paste0(dir.name,'/',em,'/',files)
-  
+
   rcp_files <- list()
   for (i in seq_along(rcp_years)){
     rcp_files[i] <- files[grep(rcp_years[i], files)]
   }
   rcp_files <- unlist(rcp_files)
-  
+
   RCP_df_list <- lapply(X=rcp_files,FUN=read.table,strip.white = TRUE,header=TRUE,skip = 4,fill=TRUE, stringsAsFactors = FALSE)
-  
+
   for (i in seq_along(rcp_years)){
     RCP_df_list[[i]]$year <- rcp_years[i]
   }
   RCP_emissions <- do.call("rbind", RCP_df_list)
-  
+
   # delete temp folder
   unlink(dir.name,recursive = TRUE)
-  
+
 } else {
   printLog( paste0( em, ' is not supportted by RCP, dummy data created. ' ) )
   rcp_dummy <- data.frame( em = em, inventory = 'RCP', year = plot_years, total_emissions = NA )
@@ -181,7 +181,7 @@ rcp_shipping_emissions <- readData( domain = 'EM_INV',
                                     domain_extension = 'RCP/',
                                     extension = '.xlsx',
                                     sheet_selection = 'CO2Emis_TgC',
-                                    skip_rows = 8 )[ 1:140, 1:12 ]
+                                    skip = 8 )[ 1:140, 1:12 ]
 } else {
   printLog( paste0( em, ' is not supportted by RCP shipping data, dummy data created. ' ) )
 }
@@ -236,14 +236,14 @@ if ( ceds_em_flag ) {
   x_years_to_add <- x_plot_years[ which( x_plot_years %!in% x_ceds_years ) ]
   ceds_global[ , x_years_to_add ] <- NA
   ceds_global <- ceds_global[ , c( 'em', x_plot_years ) ]
-  
+
   ceds_global$inventory <- 'CEDS'
   ceds_global_long <- melt( ceds_global, id.vars = c( 'em', 'inventory' ) )
   ceds_global_long$variable <- as.numeric( substr( ceds_global_long$variable, 2, 5 ) )
   colnames( ceds_global_long ) <- c( 'em', 'inventory', 'year', 'total_emissions' )
-  
+
   ceds_plot <- ceds_global_long
-  
+
   # additional step to extract ceds shipping emissions for later use in section 4.4
   ceds_shipping <- ceds_emissions
   ceds_shipping$em <- em
@@ -343,7 +343,7 @@ if ( rcp_shipping_em_flag == T ) {
   rcp_plot$total_emissions <- rcp_plot$total_emissions + rcp_plot[ , em ]
   rcp_plot <- rcp_plot[ , c( 'em', 'inventory', 'year', 'total_emissions' ) ]
 } else {
-  rcp_plot <- rcp_plot 
+  rcp_plot <- rcp_plot
 }
 
 # -----------------------------------------------------------------------------
@@ -355,11 +355,11 @@ if ( edgar_em_flag == T ) {
   if (em == 'CH4') edgar_emissions <- edgar_emissions[ ,c( 'ISO_A3', 'IPCC', 'units', x_edgar_years ) ]
   names( edgar_emissions ) <- c ('iso','sector','units', x_edgar_years )
   edgar_emissions$iso <- tolower( edgar_emissions$iso )
-  
+
   #remove rows with all NA's
   edgar_emissions <- edgar_emissions[ apply( X = edgar_emissions[ , x_edgar_years ],
                          MARGIN = 1,
-                         function( x ) ( !all( is.na( x ) ) ) ) , ]
+                         function( x ) ( !all.na( x ) ) ) , ]
   edgar_emissions$em <- em
   # drop sectors
   edgar_comparable <- edgar_emissions[ -which( edgar_emissions$sector %in% edgar_remove_sectors ), ]
@@ -372,12 +372,12 @@ if ( edgar_em_flag == T ) {
   x_years_to_add <- x_plot_years[ which( x_plot_years %!in% x_edgar_years ) ]
   edgar_global[ , x_years_to_add ] <- NA
   edgar_global <- edgar_global[ , c( 'em', x_plot_years ) ]
-  
+
   edgar_global$inventory <- 'EDGAR'
   edgar_global_long <- melt( edgar_global, id.vars = c( 'em', 'inventory' ) )
   edgar_global_long$variable <- as.numeric( substr( edgar_global_long$variable, 2, 5 ) )
   colnames( edgar_global_long ) <- c( 'em', 'inventory', 'year', 'total_emissions' )
-  
+
   edgar_plot <- edgar_global_long
 } else {
   edgar_plot <- edgar_dummy
@@ -490,7 +490,8 @@ plot <- ggplot( df, aes(x=year,y=total_emissions,
                                 'RCP' = rcp_shape_symbol,
                                 'GAINS' = gains_shape_symbol))
 
-savePlot('DIAG_OUT', 'ceds-comparisons', paste0('CEDS_RCP_GAINS_EDGAR_', em, '_Global_Comparison.pdf'), width = 7, height = 4)
+savePlot('DIAG_OUT', 'ceds-comparisons', paste0('CEDS_RCP_GAINS_EDGAR_', em, '_Global_Comparison.pdf'),
+         width = 7, height = 4, plot = plot)
 
 # ------------------------------------------------------------------------------
 # 7. Write out and end

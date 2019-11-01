@@ -3,11 +3,10 @@
 # Authors: Rachel Hoesly
 # Date Last Updated: Nov 24, 2015
 # Program Purpose: Initialize default control percentage Db for all emission species
-# Input Files: A.comb_activity
-# Output Files: B.[em]_ControlFrac_db
+# Input Files: A.final_comb_activity_modern.csv
+# Output Files: B.[em]_ControlFrac_db.csv
 # Notes:
 # TODO:
-# ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
@@ -32,10 +31,7 @@
 # 1. Read in files
 # for running directly from R - defines emission species (normally from command line)
 
-# "em" is defined from parent script
-    em_lc <- tolower( em )
-
-    activity_data <- readData( "MED_OUT", "A.comb_activity" )
+    activity_data <- readData( "MED_OUT", "A.final_comb_activity_modern" )
 
 # ------------------------------------------------------------------------------
 # 2. Create default sulfur content, ash retention, control percentage databases

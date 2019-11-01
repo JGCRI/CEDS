@@ -3,9 +3,9 @@
 # Date Last Updated: 14 December 2016
 # Program Purpose: Remove fraction of liquid biofuels from EFs
 # Input Files: A.coal_heat_content.csv, CO2_base_EF.xlsx,
-#              A.comb_activity.CSV, Master_Country_List.csv,
+#              A.final_comb_activity_modern.csv, Master_Country_List.csv,
 #              IEA_product_fuel.csv
-# Output Files:  B.[em]_comb_EF_db.csv, B.[em]_comb_EF_non-bunker
+# Output Files:  B.[em]_comb_EF_db.csv, B.[em]_comb_EF_non-bunker.csv
 # Notes:
 # TODO:
 # ---------------------------------------------------------------------------
@@ -27,7 +27,6 @@
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
     if ( is.na( em ) ) em <- "CO2"
-    em_lc <- tolower( em )
 
 # Stop script if running for unsupported species
     if ( em %!in% c('CO2') ) {
@@ -50,7 +49,7 @@
                                    sheet_selection = "Fraction_Oxidized" )
 
 # Load base activity data from Module A
-    activity_data <- readData( "MED_OUT", "A.comb_activity" )
+    activity_data <- readData( "MED_OUT", "A.final_comb_activity_modern" )
 
 # Load mapping files
     MCL <- readData( "MAPPINGS", "Master_Country_List" )
@@ -86,11 +85,12 @@
 
 
 # Convert gas_fuels EF from kt/TJ to kt/kt
+# Gas_fuels EF from CDIAC is TJ gross (HHV), so use appropriate  conversion factor
     emission_coefficient$Emission_Coefficient[ emission_coefficient$fuel %in%
                                                  "natural_gas" ] <-
       emission_coefficient$Emission_Coefficient[ emission_coefficient$fuel %in%
                                                    "natural_gas" ] *
-      conversionFactor_naturalgas_TJ_per_kt  # kt/TJ * TJ/kt = kt/kt
+      conversionFactor_naturalgas_TJ_per_kt_Gross  # kt/TJ * TJ/kt = kt/kt
     emission_coefficient$units[ emission_coefficient$fuel %in% "natural_gas" ] <-
              "kt CO2/kt"
 

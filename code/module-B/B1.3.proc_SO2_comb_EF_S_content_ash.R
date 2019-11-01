@@ -3,8 +3,8 @@
 # Authors: Leyang Feng
 # Date Last Updated: Nov 9, 2015
 # Program Purpose: Use sulfur content, ash retention database to
-# generate sulfur EF database corresponding to the fuels and sectors in A.comb_activity.csv
-# Input Files: A.comb_activity.csv, B.SO2_S_Content_db.csv,
+# generate sulfur EF database corresponding to the fuels and sectors in A.final_comb_activity_modern.csv
+# Input Files: A.final_comb_activity_modern.csv, B.SO2_S_Content_db.csv,
 #              B.SO2_S_AshRet_db.csv,
 # Output Files: B.[em]_comb_EF_db.csv
 # Notes:
@@ -32,13 +32,10 @@ args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "SO2"
 
-# "em" is defined from parent script
-em_lc <- tolower( em )
-
 S_content <- readData( "MED_OUT", "B.SO2_S_Content_db" )
 ash_ret <- readData( "MED_OUT", "B.SO2_AshRet_db" )
 
-layout <- readData( "MED_OUT", "A.comb_activity" )
+layout <- readData( "MED_OUT", "A.final_comb_activity_modern" )
 # ------------------------------------------------------------------------------
 # 2.Combine S_Content, Ash_Ret to generate sulfur EF database
 

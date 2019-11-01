@@ -74,7 +74,7 @@ if ( em %!in% c( 'N2O' ) ) {
 #    Load US EPA N2O emissions for on-road mobile (for gasoline and diesel vehicles)
      onr_emissions <- readData( "DEFAULT_EF_IN", domain_extension = "N2O/",
                                 "N2O_emissions-mobile_onroad-US_GHG2018", ".csv",
-                                skip_rows = 2)
+                                skip = 2)
 
 #    Load US EPA on-road mobile Fuel Consumption (gasoline, natural gas, diesel)
      onr_consump <- readData( "DEFAULT_EF_IN", domain_extension = "N2O/",
@@ -155,7 +155,7 @@ if ( em %!in% c( 'N2O' ) ) {
             LPG_TJ_PER_KT <- 47.3
 
 #           b.) Natural Gas TJ per kt - Source: common_data.R
-            NATURAL_GAS_TJ_PER_KT <- conversionFactor_naturalgas_TJ_per_kt_net
+            NATURAL_GAS_TJ_PER_KT <- conversionFactor_naturalgas_TJ_per_kt_Net
 
 #           c.) Wood TJ per kt, used for biomass non-residential - Source: common_data.R
             WOOD_TJ_PER_KT <- conversionFactor_biomass_kt_TJ

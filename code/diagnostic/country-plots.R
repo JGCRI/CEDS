@@ -83,7 +83,7 @@ for(emiss in seq_along(emissions)){
 # Data Processing
 
 # 2. Prepare Data for GGplot
-    x_years<-paste('X',1960:2013,sep="")
+    x_years<-paste('X',1960:end_year,sep="")
 
     CountryEmissions.long <- melt(CountryEmissions,id.vars = c('iso','sector','fuel','units'))
     names(CountryEmissions.long) <- c('iso','sector','fuel','units','year','Emissions')
@@ -191,8 +191,8 @@ for(emiss in seq_along(emissions)){
       ggtitle(paste(Full_Name,'_', em ,'Emissions'))+
       labs(x='Year',y= paste(em,'Emissions [kt]') )+
       guides(fill=guide_legend(ncol=2))
-    plot
-    savePlot('DIAG_OUT', 'country-plots/', paste0(em,'_', country_list[iso], '_sectors.scaled.pdf'), width = 11, height = 6)
+    savePlot('DIAG_OUT', 'country-plots/', paste0(em,'_', country_list[iso], '_sectors.scaled.pdf'),
+             width = 11, height = 6, plot = plot)
 
     #Convert to wide format for easier viewing
     data.wide <- cast(df, Summary_Sector ~ year, mean, value="Emissions")
@@ -213,9 +213,9 @@ for(emiss in seq_along(emissions)){
         labs(x='Year',y= paste(em,'Emissions [kt]') )+
         guides(fill=guide_legend(ncol=2))
 
-      plot
-      savePlot('DIAG_OUT', 'country-plots/', paste0(em,'_', country_list[iso], '_sectors.default.pdf'), width = 11, height = 6)
-      
+      savePlot('DIAG_OUT', 'country-plots/', paste0(em,'_', country_list[iso], '_sectors.default.pdf'),
+               width = 11, height = 6, plot = plot)
+
     #Convert to wide format for easier viewing
     data.wide <- cast(df, Summary_Sector ~ year, mean, value="Emissions")
     writeData( data.wide, "DIAG_OUT", paste0('country-plots/',em,'_',country_list[iso],'_emissions_default_by_sector'), meta = FALSE )
@@ -239,8 +239,9 @@ for(emiss in seq_along(emissions)){
       ggtitle(paste(Full_Name,'_', em ,'Emissions'))+
       labs(x='Year',y= paste(em,'Emissions [kt]') )+
      guides(fill=guide_legend(ncol=2))
-    plot
-    savePlot('DIAG_OUT', 'country-plots/', paste0(em,'_', country_list[iso], '_fuel.scaled.pdf'), width = 11, height = 6)
+
+    savePlot('DIAG_OUT', 'country-plots/', paste0(em,'_', country_list[iso], '_fuel.scaled.pdf'),
+             width = 11, height = 6, plot = plot)
 #Convert to wide format for easier viewing
     data.wide <- cast(df, fuel ~ year, mean, value="Emissions")
     writeData( data.wide, "DIAG_OUT", paste0('country-plots/',em ,'_',country_list[iso],'_emissions_scaled_by_fuel'), meta = FALSE )
@@ -258,8 +259,9 @@ for(emiss in seq_along(emissions)){
         scale_y_continuous(labels = comma)+
         ggtitle(paste(Full_Name,'_', em ,'Emissions'))+
         labs(x='Year',y= paste(em,'Emissions [kt]') )
-        plot
-        savePlot('DIAG_OUT', 'country-plots/', paste0(em,'_', country_list[iso], '_fuel.default.pdf'), width = 11, height = 6)
+
+        savePlot('DIAG_OUT', 'country-plots/', paste0(em,'_', country_list[iso], '_fuel.default.pdf'),
+                 width = 11, height = 6, plot = plot)
     }
 
   } # Country Loop

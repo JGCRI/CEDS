@@ -2,10 +2,12 @@
 # ------------------------------------------------------------------------------
 # Program Name: S1.1.write_summary_data.R
 # Authors: Rachel Hoesly, Steve Smith, Linh Vu, Presley Muwan, Leyang Feng,
-#          Caleb Braun
-# Date Last Updated: Aug 8 2017
+#          Caleb Braun, Patrick O'Rourke
+# Date Last Updated: April 25, 2019
 # Program Purpose: Produces summary output
-#
+# Input Files: Master_Country_List.csv
+#              [em]_total_CEDS_emissions.csv
+#              Master_Sector_Level_map.csv
 # Output Files: data in final-emissions folder
 # TODO:
 # ---------------------------------------------------------------------------
@@ -28,7 +30,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO"
+if ( is.na( em ) ) em <- "SO2"
 
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
@@ -201,7 +203,7 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
 
 # Else compare current-run and last-run emissions summary
 } else {
-  printLog( "Compare emissions summary from current run and last run" )
+  printLog( "Comparing emissions summary from current run and last run..." )
 
   # move last-run files to a temp folder [em]_last-run
   dir.create( paste0( "../final-emissions/", em, "_last-run" ), showWarnings = F )
@@ -213,7 +215,11 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
 
   # read current-run and last-run emissions summary
   em_current <- readData( "FIN_OUT", summary_fn, domain_extension = "current-versions/", meta = F )
-  em_last_fn <- list.files( paste0( "../final-emissions/", em, "_last-run/" ), pattern = base_fn ) %>% file_path_sans_ext()
+  em_last_fn <- list.files( paste0( "../final-emissions/", em, "_last-run/" ), pattern = base_fn )
+  if( length( em_last_fn ) != 1 ) {
+     stop( paste("ERROR: Multiple previous last emissions.",
+                 "Check that final-emissions/current-versions directory contains only one version per species") )
+  }
   em_last <- readData( "FIN_OUT", paste0( em, "_last-run/", em_last_fn ), meta = F )
   id_cols <- names( em_current )[ !grepl( "X", names( em_current ) ) ]
   id_cols_last <- names( em_last )[ !grepl( "X", names( em_last ) ) ]
@@ -225,7 +231,9 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
 
   # if current-run and last-run are identical, delete current-run and move last-run to current-versions/
   } else if ( identical( em_current, em_last ) ) {
+    warning("**************************************************************************" )
     warning( paste( base_fn, "did not change from last run." ) )
+    warning("**************************************************************************" )
     unlink( dir( "../final-emissions/current-versions/",
                  pattern = paste0( "_", em, "_" ), full.names = T ) )
     fl <- list.files( paste0( "../final-emissions/", em, "_last-run/" ), pattern = paste0( "_", em, "_" ), full.names = T )
@@ -257,9 +265,29 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
       em_current <- melt( em_current, id = id_cols )
       names( em_current )[ names( em_current ) %in% c( "variable", "value" ) ] <-
         c( "year", "current" )
+
+      em_current_total <- em_current %>%
+        dplyr::mutate( sector = "Total" ) %>%
+        dplyr::group_by( iso, sector, em, units, year ) %>%
+        dplyr::summarize_all( funs( sum( ., na.rm = TRUE ) ) )
+
+      em_current <- em_current %>%
+          dplyr::bind_rows( em_current_total ) %>%
+          dplyr::arrange( iso, year, sector )
+
       em_last <- melt( em_last, id = id_cols )
       names( em_last )[ names( em_last ) %in% c( "variable", "value" ) ] <-
         c( "year", "previous" )
+
+      em_last_total <- em_last %>%
+          dplyr::mutate( sector = "Total" ) %>%
+          dplyr::group_by( iso, sector, em, units, year ) %>%
+          dplyr::summarize_all( funs( sum( ., na.rm = TRUE ) ) )
+
+      em_last <- em_last %>%
+          dplyr::bind_rows( em_last_total ) %>%
+          dplyr::arrange( iso, year, sector )
+
       em_comp <- merge( em_current, em_last ) %>%
         mutate( diff = current - previous,
                 change_percent = diff*100 / current )
@@ -306,7 +334,7 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
 # ---------------------------------------------------------------------------
 
 # source figure and comparison files to print figures
-source('../code/diagnostic/Figures.R')
+# source('../code/diagnostic/Figures.R')
 
 if (em != 'CO2')  source('../code/diagnostic/Compare_to_RCP.R')
 if( em %!in% c( 'CO2', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')

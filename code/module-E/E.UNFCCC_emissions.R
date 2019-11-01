@@ -1,12 +1,11 @@
 # ------------------------------------------------------------------------------
 # Program Name: E.UNFCCC_emissions.R
 # Author(s): Patrick O'Rourke, Rachel Hoesly, Jon Seibert, Presley Muwan
-# Date Last Updated: October 4, 2018
+# Date Last Updated: September 5, 2019
 # Program Purpose: To read in and reformat UNFCCC emissions data.
 # Input Files: All UNFCCC Emissions Data, Master_Country_List.csv
 # Output Files: E.[em]_UNFCCC_inventory.csv
 #               E.[em]_UNFCCC_filename_Sector_mapping.cvs
-#               E.[em]_WARNING_UNFCCC_inventory_mismatch_list.csv
 # Notes: UNFCCC  Emissions are provided from 1990-2012.
 # TODO:
 # ------------------------------------------------------------------------------
@@ -21,12 +20,13 @@
     log_msg <- "Initial reformatting of the UNFCCC emissions inventories" # First message to be printed to the log
     script_name <- "E.UNFCCC_emissions.R"
 
-source( paste0( PARAM_DIR, "header.R" ) )
-initialize( script_name, log_msg, headers )
+    source( paste0( PARAM_DIR, "header.R" ) )
+    initialize( script_name, log_msg, headers )
 
-args_from_makefile <- commandArgs( TRUE )
-em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO2"
+    args_from_makefile <- commandArgs( TRUE )
+    em <- args_from_makefile[ 1 ]
+    if ( is.na( em ) ) em <- "CH4"
+
 # -----------------------------------------------------------------------------------------------------------
 # 0.5 Settings
 
@@ -209,29 +209,25 @@ if ( is.na( em ) ) em <- "CO2"
 # NOTE: MUST USE "header = FALSE" option to avoid errors from format of these particular input files.
 # This option is passed through to read.csv via the ... catch parameter- readData does not have its own
 # header option.
-if ( file.exists( file_path ) ) {
+    if ( file.exists( file_path ) ) {
 
         UNFCCC <- readData( domain, file_name, extension,
                             domain_extension = domain_ext,
                             extract_all = TRUE, header = FALSE )
 
     # Retrieve full list of internal files ( used to determine sectors )
-    file_list <- listZippedFiles( file_path, FALSE )
+        file_list <- listZippedFiles( file_path, FALSE )
 
-    # CO2 files read in as different names (not sure why) - should check later
-    if(em == 'CO2'){ # Presley to check later
-      if( length(grep('CO2/',file_list)) == 0 ){
-        file_list <- paste0('CO2/',file_list)
-    }}
+    # Call check_uniqueID_and_specie() function to perform the 2-way specie & id
+    # check
+        check_uniqueID_and_species_mismatch( UNFCCC, file_list )
 
-    #call check_uniqueID_and_specie() function to perform the 2-way specie & id check
-    check_uniqueID_and_species_mismatch(UNFCCC, file_list)
-
-} else {
+    } else {
         UNFCCC <- list()
     }
 
     MCL <- readData( "MAPPINGS", "Master_Country_List" )
+
 
 # -----------------------------------------------------------------------------------------------------------
 # 2. Formatting Data
@@ -266,7 +262,6 @@ if ( file.exists( file_path ) ) {
 
     	  # Creates Column for Units (Gg for SO2)
     	      df$units <- "kt"
-
     	  # Reorder Columns of Interest
     	      df <- df[ , c( 'country', 'sector', 'units', years ) ]
 
@@ -296,8 +291,9 @@ if ( file.exists( file_path ) ) {
       	UNFCCCdf <- UNFCCCdf[ , c( 'iso', 'sector', 'units', years ) ]
       	UNFCCCdf <- UNFCCCdf[ order( UNFCCCdf$iso, UNFCCCdf$sector ), ]
 
-     # Convert to kt of methane from CO2e
-     	if( em == 'CH4'){
+    # Convert to kt of methane from CO2e
+        if( em == 'CH4'){
+
       	    UNFCCCdf_convert <- UNFCCCdf %>%
       	        filter(units == 'kt') %>%
       	        mutate_if(is.numeric, funs(./21)) %>% #100yr GWP
@@ -313,10 +309,12 @@ if ( file.exists( file_path ) ) {
 # ------------------------------------------------------------------------------
 # 3. Removed "Bad" Data
 
+    # Remove Canada, Russian Fed, Luxembourg, and Poland
+
       	if (em == 'CH4'){
 
       	    # TODO: The df maniupulation after this block fails if only 'rus' is
-      	    #       in the list below since rus is not in the current data.
+      	    #       in the list below since rus is not in the current data. (this may be outdated)
       	    # TODO: Fix to be more robust
 
       	    remove_iso <- c('rus', 'lux')
@@ -351,13 +349,15 @@ if ( file.exists( file_path ) ) {
 
     meta_note <- c( "Default Emissions", "NA",
                     "Russian Federation, Monaco & Liechtenstein", "All", "1990",
-                    "2012", paste0( "The Russian Federation's emissions are too",
-                                    "low to be accurate, and have thus been",
-                                    "removed. Additionally Liechtenstein and",
-                                    "Monaco emissions have been removed",
+                    "2012", paste0( "The Russian Federation's emissions are too ",
+                                    "low to be accurate, and have thus been ",
+                                    "removed. Additionally Liechtenstein and ",
+                                    "Monaco emissions have been removed ",
                                     "temporarily." ) )
 
-    addMetaData( meta_note, meta_names )
+    source_info <- script_name
+
+    addMetaData( meta_note, meta_names, source_info )
 
 # ------------------------------------------------------------------------------
 # 6. Output

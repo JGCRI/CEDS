@@ -224,14 +224,13 @@ for( Sector in 1:length( analysis_sectors ) ){
 		        panel.grid.minor = element_line(colour="gray95"),
 		        panel.grid.major = element_line(colour="gray88"),
 		        panel.border = element_rect(colour = "grey80", fill=NA, size=.8))
-		plot
 
 		File_name <- paste0( em, "_", analysis_sectors[ Sector ], "_", analysis_fuels[ Fuel ], "-Bounding_EFs.pdf" )
 
 		if (File_name == paste0( 'CO_1A3b_Road_light_oil-Bounding_EFs'))
-      savePlot('DIAG_OUT', '/paper-figures/Paper/', 'CO_EF', width = 7, height = 3)
-		  
-		savePlot( 'DIAG_OUT', EF_directory, File_name, width = 6, height = 3 )
+          savePlot('DIAG_OUT', '/paper-figures/Paper/', 'CO_EF', width = 7, height = 3, plot = plot)
+
+		savePlot( 'DIAG_OUT', EF_directory, File_name, width = 6, height = 3, plot = plot )
 
     }
 

@@ -6,9 +6,10 @@
 # Date Last Modified: 23 March 2016
 # Program Purpose: Reads in the initial IEA energy data.
 #				   Splits the composite data into individual countries.
-# 				 Maps the aggregate coal consumption in earlier years to
+# 				   Maps the aggregate coal consumption in earlier years to
 #                      specific coal types.
-# Input Files: A.UN_pop_master.csv, OECD_E_stat.csv, NonOECD_E_stat.csv, Master_Country_List.csv
+# Input Files: A.UN_pop_master.csv, OECD_E_stat.csv, NonOECD_E_stat.csv,
+#              Master_Country_List.csv, E.CO2_CDIAC_inventory
 # Output Files: A.IEA_en_stat_ctry_hist.csv
 # Notes: IEA_years and X_IEA_years are now defined in
 #           common_data.R, and range from 1960-2010.
@@ -120,10 +121,10 @@
     IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
     cdiac_total <- readData( "MED_OUT", "E.CO2_CDIAC_inventory" )
 
-    adj_list <- list.files( path = "energy/energy-data-adjustment", pattern = "*.csv" ) %>% file_path_sans_ext()
+    adj_list <- list.files( path = "energy/energy-data-adjustment", pattern = "*.csv" )
+    adj_list <- tools::file_path_sans_ext( adj_list )
     adj_list <- adj_list[ !grepl( "metadata", adj_list ) ]  # remove metadata
-    adj_list <- lapply ( adj_list, FUN = readData, domain = "ENERGY_IN", domain_extension = "energy-data-adjustment/" )
-
+    adj_list <- lapply( adj_list, FUN = readData, domain = "ENERGY_IN", domain_extension = "energy-data-adjustment/" )
 
     options( warn = w )
 
@@ -191,20 +192,20 @@
           "Other kerosene (kt)"
 
 # Adjust IEA energy stat according to instruction files in energy-data-adjustment folder
-  	printLog( "Adjusting IEA Energy Statistics" )
   	if ( length( adj_list ) > 0 ) {
+      	printLog( "Adjusting IEA Energy Statistics" )
 
   	# Extend adjustment values to all IEA years
-    	  adj_en_ext <- lapply( adj_list, FUN = extendAdjValues )
-    	  adj_en_ext <- do.call( rbind, adj_en_ext )
+    	adj_en_ext <- lapply( adj_list, FUN = extendAdjValues )
+    	adj_en_ext <- do.call( rbind, adj_en_ext )
 
   	# Keep only ID and Xyear columns
-  	    adj_en_ext <- cbind( adj_en_ext[ , IEA_IDcodes ], adj_en_ext[ , grepl( "X", names( adj_en_ext ) ) ] )
+  	    adj_en_ext <- adj_en_ext[ , c( IEA_IDcodes, grep( "X", names( adj_en_ext ), value = T ) ) ]
 
   	# Adjustment files may repeat COUNTRY+FLOW+PRODUCT, so multiply adjustment
     # values by COUNTRY+FLOW+PRODUCT and year (note that method=multiplier)
   	    adj_en_ext <- group_by( adj_en_ext, COUNTRY, FLOW, PRODUCT ) %>%
-  	        summarise_each( "prod" )
+  	        summarise_all( prod )
 
   	# Make adjustment to relevant COUNTRY+FLOW+PRODUCT
   	    IEA_to_adjust <- filter( A.IEAfull, paste0( COUNTRY, FLOW, PRODUCT ) %in%
@@ -339,13 +340,15 @@
         "1971", "1990", paste0( "Natural gas liquids (kt) in final consumption go uncounted ",
                           "before 1990 since shares cannot be calculated from 1990 values" ) )
 
-    addMetaData( meta_note, meta_names )
+    source_info <- "A1.3.IEA_downscale_ctry.R"
+
+    addMetaData( meta_note, meta_names, source_info )
 
     meta_note <- c( "Energy Consumption", "NA", "Former Soviet Union", "Consumption",
         "1971", "1990", paste0( "Natural gas liquids (kt) in final consumption go uncounted ",
                           "before 1990 since shares cannot be calculated from 1990 values" ) )
 
-    addMetaData( meta_note, meta_names )
+    addMetaData( meta_note, meta_names, source_info )
 
 # Take the combination of PRODUCT and FLOW columns, and keep only the rows that
 #   contain the combination of PRODUCT and FLOW in IEA_product_downscaling

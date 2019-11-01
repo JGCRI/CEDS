@@ -29,44 +29,30 @@
     initialize( script_name, log_msg, headers )
 
 # -----------------------------------------------------------------------------------------------------------
-# 0.5 Load Package, Define Functions
-
-    loadPackage( 'zoo' )
+# 0.5 Define Functions
 
 # Define function to replicate a row, x, n times and convert to a matrix
     rep.row <- function( x, n ){ matrix( rep( x, each = n ), nrow = n ) }
 
 # Define function to process individual USGS cement production tab
     procUSGS <- function( df ) {
-
 #   Trim trailing whitespace
         df$Country <- gsub( "\\s+$", "", df$Country )
-
 #   Remove non-characters
         df$Country <- gsub( "[^a-zA-Z ]", "", df$Country )
-
 #   Force colnames to syntactically valid names
         names( df ) <- make.names( names( df ) )
-
 #   Identify any years
         e_years <- grepl( "^X.*e$", names( df ) )
-
 #   Get rid of the e in the year variable
         names( df )[ e_years ] <- gsub( "e", "", names( df )[ e_years ] )
-
 #   Drop any NA countries
         df <- filter( df, !is.na( Country ) )
-
 #   Map isos
         df$iso <- usgs_ctry_map$iso[ match( df$Country, usgs_ctry_map$Country ) ]
-
-#   Identify xyears
-        X_years <- names( df )[ grepl( "X", names( df ) ) ]
-
 #   Coerce value columns to numeric
-        df[ , X_years ] <- lapply( df[ , X_years ],
-                                   function( x )
-                                     return( as.numeric( as.character( x ) ) ) )
+        df <- dplyr::mutate_at( df, vars( matches( 'X\\d{4}' ) ), as.numeric )
+
         return( df )
     }
 
@@ -207,13 +193,11 @@
 
 # CDIAC inventory
     cdiac_read <- readData( 'EM_INV', domain_extension = "CDIAC/",
-                            'CDIAC_national_1751_2011' )
-
+                            'CDIAC_national_1751_2011', missing_value = '.' )
 # Mapping files
     MCL <- readData( "MAPPINGS", "Master_Country_List" )
     cdiac_country_map <- readData( 'EM_INV', domain_extension = "CDIAC/",
                                    'CDIAC_country_map' )
-
 # UN population from Module A
     un_pop <- readData( "MED_OUT", 'A.UN_pop_master' )
 
@@ -222,8 +206,8 @@
 # USGS data
     usgs_data_in <- readData( "ACTIVITY_IN",
                               "USGS_Commodity_Summaries_Cement_Production",
-                              ".xlsx", sheet_selection = usgs_sheets )
-
+                              ".xlsx", sheet_selection = usgs_sheets,
+                              missing_value = c("--", "XX", "W", "(5)") )
 # USGS mapping
     usgs_ctry_map <- readData( "ACTIVITY_IN",
                                "USGS_Commodity_Summaries_Cement_Production",
@@ -238,7 +222,6 @@
 # Process UN population
     un_pop$X_year <- paste0( "X", un_pop$year )
     un_pop$pop <- as.numeric( un_pop$pop )
-
 # Cast to wide by year
     population <-
           cast( un_pop[ which( un_pop$year %in%
@@ -248,28 +231,24 @@
 # Process CDIAC data
     cdiac_fuel_wide <- cdiac_read
     cdiac_fuel_wide$units <- 'kt-C'
-
 # Drop first two rows
     cdiac_fuel_wide <- cdiac_fuel_wide[ -1:-2, ]
     cdiac_fuels <- c( 'Total_CO2', 'solid_fuels', 'liquid_fuels',
                       'gas_fuels', 'cement_production',
                       'gas_flaring', 'per_capital_CO2', 'bunker_fuels' )
-
 # Apply fuel names as column headers
     names( cdiac_fuel_wide )[ 3:10 ] <- cdiac_fuels
-
 # Create an Xyear row
     cdiac_fuel_wide$X_year <- paste0( 'X', cdiac_fuel_wide$Year )
 
 # Make values numeric
-    cdiac_fuel_wide[ , c('Year',cdiac_fuels) ] <-
-          sapply( cdiac_fuel_wide[ , c( 'Year', cdiac_fuels ) ], FUN = as.numeric )
+    cdiac_fuel_wide <- cdiac_fuel_wide %>%
+        dplyr::mutate_at( c( 'Year', cdiac_fuels ), as.numeric )
 
 # Add iso
     cdiac_fuel_wide$iso <- cdiac_country_map[ match( cdiac_fuel_wide$Nation,
                                                      cdiac_country_map$CDIAC ),
                                               'iso' ]
-
 # Aggregate all fuel columns by iso/year/unit
     cdiac_fuel_wide <- aggregate( cdiac_fuel_wide[ cdiac_fuels ],
                                   by = list( iso = cdiac_fuel_wide$iso,
@@ -282,7 +261,6 @@
     cdiac_long <- melt( cdiac_fuel_wide,
                         id = c( 'iso', 'year', 'X_year', 'units' ) )
     names( cdiac_long )[ which( names( cdiac_long ) == 'variable' ) ] <- 'fuel'
-
 # Cast CDIAC to wide
     cdiac_year_wide <- cast( cdiac_long, iso + fuel + units ~ X_year )
     cdiac_year_wide[ is.na( cdiac_year_wide ) ] <- 0
@@ -292,7 +270,6 @@
 
 # grab CDIAC id cols
     id_cdiac <- cdiac_year_wide[ , 1:3 ]
-
 # grab CDIAC non-ID cols
     years_cdiac <- cdiac_year_wide[ , 4:ncol( cdiac_year_wide ) ]
 
@@ -309,10 +286,8 @@
 
 # Bind interpolated values with the original id cols
     cdiac_corrected <- cbind( id_cdiac, years_cdiac )
-
 # Extend 1751 value to 1750
     cdiac_corrected$X1750 <- cdiac_corrected$X1751
-
 # Force fuel to character
     cdiac_corrected$fuel <- as.character( cdiac_corrected$fuel )
     cdiac_start_year <- 1750
@@ -360,7 +335,6 @@
                                     disaggregate_iso = c( 'bih', 'hrv', 'mkd',
                                                           'svn', 'scg' ),
                                     allow_dropped_data = T )
-
 # Serbia, Montenegro, and Kosovo
     cdiac_scg_corrected <-
               disaggregate_country( original_data = cdiac_yug_corrected,
@@ -528,11 +502,11 @@
 # Define countries to add to cdiac data
     non_cdaic_countries <- MCL$iso[ MCL$iso %!in%
                                     unique( cdiac_split_final$iso ) ]
-
 # Only keep countries with 1 for the final_data_flag in the MCL, Kosovo, and Guam
+# TODO: when Kosovo and Guam issue in Master Country List is resolved, the call to their isos below can be removed
     non_cdaic_countries <-
-        non_cdaic_countries[ non_cdaic_countries %in%
-                                 MCL[ which( MCL$final_data_flag == 1 | MCL$iso %in% c( "srb (kosovo)", "gum" ) ), 'iso' ] ]
+          non_cdaic_countries[ non_cdaic_countries %in%
+                               MCL[ which( MCL$final_data_flag == 1 | MCL$iso %in% c( "srb (kosovo)", "gum" ) ), 'iso' ] ]
 
     non_cdaic_countries <- unique( non_cdaic_countries )
 
@@ -541,7 +515,6 @@
 #       within an aggregate CDIAC iso that could be broken out with UN population data
     non_cdaic_countries <- non_cdaic_countries[ non_cdaic_countries %!in%
                                                   'global' ]
-
 # Create a df with all iso/fuel combos to add
     add_zeros <- data.frame( iso = rep( non_cdaic_countries,
                                         each = length( cdiac_fuels ) ),
@@ -553,7 +526,6 @@
 
 # Combine needed rows to CDIAC, so even countries w/o data are represented
     cdiac_disaggregated <- rbind.fill( add_zeros, cdiac_split_final )
-
 # Clean and reformat
     cdiac_disaggregated$units <- 'kt-C'
     cdiac_disaggregated <- arrange_( cdiac_disaggregated,
@@ -616,13 +588,11 @@
 
 # Drop "Total_CO2" fuels
     cdiac_final <- cdiac_final[ which( cdiac_final$fuel %!in% 'Total_CO2' ), ]
-
 # Prepare a sum df
     cdiac_sum <- cdiac_final[ which( cdiac_final$fuel %in%
                                        c( "solid_fuels", "liquid_fuels",
                                           "gas_fuels", "cement_production",
                                           "gas_flaring", "bunker_fuels" ) ), ]
-
 # Sum emissions by iso to obtain total CO2
     total_CO2 <- aggregate( cdiac_final[ X_cdiac_years ],  ### Should this be cdiac_sum?
                             by = list( iso = cdiac_final$iso ),
@@ -639,7 +609,6 @@
     cdiac_liquid_and_gas <-
                  cdiac_final[ which( cdiac_final$fuel %in%
                                      c( 'liquid_fuels', 'gas_fuels' ) ), ]
-
 # Sum liquid/gas by country
     cdiac_liquid_and_gas <-
                  aggregate( cdiac_liquid_and_gas[X_cdiac_years],
@@ -747,7 +716,6 @@
 # Find iso/years without 2014 data, and select the corresponding 2013 data
     shares <- filter( cement, is.na( X2014 ) ) %>%
                           select( iso, X2013 )
-
 # Find what pct of 2013 each country holds
     shares$ratio <- shares$X2013 / sum( shares$X2013 )
 
@@ -770,14 +738,12 @@
 
 # Interpolate NAs
     cement_all[ , Xyears ] <- interpolate_NAs( cement_all[ , Xyears ] )
-
 # Make remaining edge NAs 0
     cement_all[ is.na( cement_all ) ] <- 0
 
 # Calculate EFs over time using USGS cement production
     X_cement_years <- paste0( "X", 1998:2011 )
     X_cement_ext_years <- paste0( "X", 2012:2015 )
-
 # Extract X CDIAC years
     X_cdiac_years_ext <- paste0( 'X', cdiac_start_year:cdiac_end_year_cement )
 
@@ -792,7 +758,6 @@
 
 # EF dataframe
     cement_ef <- cdiac_ext
-
 # Calculate emissions factors as CDIAC emissions over cement activity
     cement_ef[ , X_cement_years ] <- cdiac_ext[ , X_cement_years ] /
                                      cement_prod[ , X_cement_years ]
@@ -828,7 +793,6 @@
 # Map figure region to CDIAC
     cdiac_region_fuel$Figure_Region <- MCL[ match( cdiac_region_fuel$iso, MCL$iso ),
                                             "Figure_Region" ]
-
 # Aggregate to figure region
     cdiac_region_fuel <- aggregate( cdiac_region_fuel[ X_cdiac_years ],
                                     by = list( Figure_Region =

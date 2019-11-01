@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
+Coal Heating Content,NA,USA,All coal-consuming sectors,1949,2017,"EIA Annual Energy Review, coal heating content,  Downloaded July 18 2018, https://www.eia.gov/totalenergy/data/browser/csv.php?tbl=TA4"

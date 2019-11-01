@@ -1,17 +1,18 @@
 #------------------------------------------------------------------------------
 # Program Name: A1.1.UN_pop_WB_HYDE_extension.R
-# Author: Linh Vu, Rachel Hoesly
-# Date Last Updated: 17 February 2016
+# Author: Linh Vu, Rachel Hoesly, Patrick O'Rourke
+# Date Last Updated: June 7, 2019
 # Program Purpose: Produce input population data for CEDS emissions system from
 #                  United Nations data, World Bank (WB) data, and the History
 #                  Database of the Global Environment (HYDE) data.
-#                  Output are 1700-2100 population and urban population
-#                  share.
+#                  Output are 1700-2100 population and urban population share.
 # Input Files: WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.XLS;
 #              WUP2014-F21-Proportion_Urban_Annual.xls;
-#              WB_SP.POP.TOTL.csv; WB_SP.URB.TOTL;
-#              urbanpop_2004Rev_tcm61-36007.xlsx; Master_Country_List
-# Output Files: A.UN_pop_master.csv
+#              WB_SP.POP.TOTL.csv; WB_SP.URB.TOTL.csv;
+#              urbanpop_2004Rev_tcm61-36007.xlsx; Master_Country_List.csv
+#              UN_pop_WB_HYDE_ext_iso_map.xlsx; UN_pop_shares_WB_HYDE_ext_iso_map.xlsx;
+#              WB_pop_UN_HYDE_ext_iso_map.xlsx; HYDE_pop_UN_WB_ext_iso_map.xlsx
+# Output Files: A.UN_pop_master.csv; A.HYDE_pop.csv; A.UN_pop_WB_ext.csv; A.UN_WB_vs_HYDE_1950. csv
 # Notes: 1. UN population data are downloaded from:
 #           -- Total population: http://esa.un.org/unpd/wpp/DVD/
 #           -- Urban population share: http://esa.un.org/unpd/wup/CD-ROM/
@@ -47,8 +48,6 @@
 # TODO: Update extendProxy() function.
 # ------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
@@ -63,17 +62,18 @@
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
+    # This is the first file that is run in the system, check for correct inputs
+    checkSystemInputs( commandArgs( TRUE )[1] )
+
 # ------------------------------------------------------------------------------
 # 1. Read in files and do preliminary setup
-# Download required packages if necessary
-    loadPackage( "FAOSTAT" )
 
 # Read UN population and urban population data
     UN_pop_raw <- readData( "GEN_IN", "WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES",
-                            ".xlsx", sheet_selection = "ALL", skip_rows = 16 )
+                            ".xlsx", sheet_selection = "ALL", skip = 16 )
     UN_urban_share_raw <- readData( "GEN_IN", "WUP2014-F21-Proportion_Urban_Annual",
                                     ".xlsx", sheet_selection = "ANNUAL DATA",
-                                    skip_rows = 16 )
+                                    skip = 16 )
 
 # Read WB population and urban population data, either by pulling from the WDI API
 #   or reading from directory (currently selected)
@@ -86,44 +86,86 @@
 
 # Read HYDE population and urban population
     HYDE_pop_raw <- readData( "GEN_IN", "urbanpop_2004Rev_tcm61-36007", ".xlsx",
-                          sheet_selection = "total numbers", skip_rows = 2 )[ 1:233, 2:109 ] %>%
-      data.frame()
+                              sheet_selection = "total numbers", skip = 2 )[ 1:233, 2:109 ]
     HYDE_urban_share_raw <- readData( "GEN_IN", "urbanpop_2004Rev_tcm61-36007", ".xlsx",
-                                sheet_selection = "% urban", skip_rows = 1 )[ 1:233, 3:110 ] %>%
-      data.frame()
+                                      sheet_selection = "% urban", skip = 1 )[ 1:233, 3:110 ]
 
 # Read master country list
     Master_Country_List <- readData( "MAPPINGS", "Master_Country_List" )
+
+# Read in UN, WB, HYDE iso maps
+    UN_pop_WB_HYDE_ext_iso_map <- readData ( "MAPPINGS", "UN_pop_WB_HYDE_ext_iso_map", ".xlsx",
+                                             sheet_selection = "UN_pop_WB_HYDE_ext_iso_map" )
+
+    UN_pop_shares_WB_HYDE_ext_iso_map <- readData ( "MAPPINGS", "UN_pop_WB_HYDE_ext_iso_map", ".xlsx",
+                                                    sheet_selection = "UN_pop_shares_WB_HYDE_ext",
+                                                    missing_value = "NA" )
+
+    WB_pop_UN_HYDE_ext_iso_map <- readData ( "MAPPINGS", "UN_pop_WB_HYDE_ext_iso_map", ".xlsx",
+                                             sheet_selection = "WB_pop_UN_HYDE_ext_iso_map" )
+
+    HYDE_pop_UN_WB_ext_iso_map <- readData ( "MAPPINGS", "UN_pop_WB_HYDE_ext_iso_map", ".xlsx",
+                                             sheet_selection = "HYDE_pop_UN_WB_ext_iso_map" )
 
 # Define standardized UN scenario names (check against Excel input)
     UN_scenarios_std <- c( "Estimates", "Medium fertility", "High fertility",
                            "Low fertility", "Constant fertility", "Instant-replacement",
                            "Zero-migration", "Constant-mortality", "No change" )
 
+# Define UN population historical end year (last year of UN population "Estimates",
+# and the first year of other 'Variant' values of UN population data).
+    UN_POP_HISTORICAL_END_YEAR <- 2015
+
 # ------------------------------------------------------------------------------
 # 2. Clean up UN and WB population input
-    printLog( "Prepare UN, WB and HYDE population input to standard format" )
+    printLog( "Processing UN, WB and HYDE population input to standard format..." )
 
 # Prepare UN population
     # Read all population scenarios into one df
-    UN_pop_raw <- lapply( seq_along( UN_pop_raw[ -1 ] ), function( i ){
-      out <- translateCountryCode( UN_pop_raw[[ i ]],
-                                   "UN_CODE", "ISO3_WB_CODE", "Country code" )
-      out <- out[ -c( 3, 4, 6 ) ]
-      names( out )[ 1:3 ] <- c( "UN_code", "iso", "country" )
-      out$scenario <- UN_scenarios_std[[ i ]]
-      out <- melt( out, id = c( "UN_code", "iso", "scenario", "country" ),
-                   variable_name = "year", na.rm = T )
-      names( out )[ names( out ) == "value" ] <- "pop"
-      return( out )
+    UN_pop_raw <- lapply( seq_along( UN_pop_raw[ -1 ] ), function( i ) {
+
+        if( i == 1 ) {
+
+            UN_years <-  as.character ( 1950:UN_POP_HISTORICAL_END_YEAR )
+
+        } else {
+
+            UN_years <-  as.character( UN_POP_HISTORICAL_END_YEAR:2100 )
+
+        }
+
+        out <- UN_pop_raw[[ i ]] %>%
+            dplyr::left_join( UN_pop_WB_HYDE_ext_iso_map,
+                              by = c( "Index", "Major area, region, country or area *",
+                                      "Country code" ) ) %>%
+            dplyr::select( UN_CODE, ISO3_WB_CODE, "Major area, region, country or area *",
+                           UN_years ) %>%
+            dplyr::rename( UN_code = UN_CODE, iso = ISO3_WB_CODE, country = "Major area, region, country or area *" ) %>%
+            dplyr::mutate( scenario = UN_scenarios_std[[ i ]] ) %>%
+            tidyr::gather( key = year, value = value, UN_years ) %>%
+            dplyr::select( UN_code, iso, scenario, country, year, value ) %>%
+            dplyr::mutate( year = as.factor( year ) ) %>%
+            dplyr::rename( pop = value )
+
+        return( out )
+
     } )
+
     UN_pop_raw <- do.call( rbind, UN_pop_raw )
     UN_pop_raw$year <- as.numeric( as.character( UN_pop_raw$year ) )
+    UN_pop_raw <- UN_pop_raw %>%
+        dplyr::arrange( year, UN_code )
 
     # Read and format urban population share
-    UN_urban_share_raw <- translateCountryCode( UN_urban_share_raw, "UN_CODE",
-                                              "ISO3_WB_CODE", "Country Code" )
-    UN_urban_share_raw <- UN_urban_share_raw[ -c( 3:5 ) ]
+    UN_years <- as.character( 1950:2050 )
+
+    UN_urban_share_raw <- UN_urban_share_raw %>%
+        dplyr::left_join( UN_pop_shares_WB_HYDE_ext_iso_map,
+                          by = c( "Index", "Major area, region, country or area",
+                                  "Country Code" ) ) %>%
+        dplyr::select( UN_code = UN_CODE, iso = ISO3_WB_CODE, UN_years ) %>%
+        dplyr::arrange( UN_code )
+
     names( UN_urban_share_raw )[ 1:2 ] <- c( "UN_code", "iso" )
     UN_urban_share_raw <- melt( UN_urban_share_raw, id = c( "UN_code", "iso" ),
                              variable_name = "year", na.rm = T )
@@ -131,30 +173,38 @@
     UN_urban_share_raw$urban_share <- UN_urban_share_raw$urban_share / 100  # percent to decimal
     UN_urban_share_raw$year <- as.numeric( as.character( UN_urban_share_raw$year ) )
 
-    # Check that all countries with UN population have UN urban share
-    no_UN_urban <- setdiff( UN_pop_raw$iso, UN_urban_share_raw$iso )  # should be empty
+    # Assert that all countries with UN population have UN urban share
+    stopifnot( length( setdiff( UN_pop_raw$iso, UN_urban_share_raw$iso ) ) == 0 )
 
     # Merge total population and urban share in one df and compute urban population
-    UN_pop <- merge( UN_pop_raw, UN_urban_share_raw, all.x = T ) %>%
-      dplyr::mutate( urban_pop = pop * urban_share )
+    UN_pop <- dplyr::left_join( UN_pop_raw, UN_urban_share_raw,
+                                by = c( "UN_code", "iso", "year" ) ) %>%
+        dplyr::mutate( urban_pop = pop * urban_share )
 
     # Fix missing/outdated ISO codes
-    UN_pop$iso <- tolower( UN_pop$iso )  # lowercase ISO
-    UN_pop$country[ UN_pop$UN_code == "158" ] <- "Taiwan"  # pull Taiwan from "Other non-specified areas"
-    UN_pop$iso[ UN_pop$UN_code == 156 ] <- "chn"  # add ISO for China
-    UN_pop$iso[ UN_pop$iso == "zar" ] <- "cod"  # update ISO of Democratic Republic of Congo
-    UN_pop$iso[ UN_pop$iso == "tmp" ] <- "tls"  # update ISO of Timor-Leste
-    UN_pop$iso[ UN_pop$iso == "rom" ] <- "rou"  # update ISO of Romania
-    UN_pop$iso[ UN_pop$iso == "ado" ] <- "and"  # update ISO of Andorra
-    UN_pop$iso[ UN_pop$iso == "imy" ] <- "imn"  # update ISO of Isle of Man
-    UN_pop <- filter( UN_pop, UN_code < 900 )  # skip aggregated regions
-    UN_pop <- dplyr::arrange( UN_pop, scenario, iso, year )
+    # Taiwan gets pulled from "Other non-specified areas"
+    UN_pop <- UN_pop %>%
+        dplyr::filter( UN_code < 900 ) %>% # skip aggregated regions
+        dplyr::mutate( country = if_else( UN_code == 158, "Taiwan", country ) ) %>%
+        dplyr::mutate( iso = tolower( iso ),
+                       iso = if_else( UN_code == 156, "chn", iso ), # add ISO for China
+                       iso = sub( "zar", "cod", iso ), # update DRC
+                       iso = sub( "tmp", "tls", iso ), # update Timor-Leste
+                       iso = sub( "rom", "rou", iso ), # update Romania
+                       iso = sub( "ado", "and", iso ), # update Andorra
+                       iso = sub( "imy", "imn", iso ) ) %>% # update Isle of Man
+        dplyr::arrange( scenario, iso, year )
 
 # Prepare WB population
-    # Merge WB pop and urban pop into one df and reformat
+    # Merge WB pop and urban pop into one df and reformat, mapped from ISO2 to ISO3
     WB_pop <- merge( WB_pop_raw, WB_urban_pop_raw, all.x = T ) %>%
-      translateCountryCode( "ISO2_WB_CODE", "ISO3_WB_CODE", "ISO2_WB_CODE" ) %>%
-      select( -ISO2_WB_CODE ) %>% unique()  # ISO2 to ISO3
+        dplyr::left_join(WB_pop_UN_HYDE_ext_iso_map,
+                         by = c("Country", "ISO2_WB_CODE") ) %>%
+        dplyr::arrange(ISO2_WB_CODE) %>%
+        dplyr::select(ISO2_WB_CODE, ISO3_WB_CODE, Country, Year, pop, urban_pop) %>%
+        dplyr::select( -ISO2_WB_CODE ) %>%
+        dplyr::distinct( )
+
     names( WB_pop ) <- c( "iso", "country", "year", "pop", "urban_pop" )
     WB_pop$iso <- tolower( WB_pop$iso )
     WB_pop$pop <- WB_pop$pop / 1000  # convert pop units to thous. people
@@ -167,10 +217,16 @@
     names( HYDE_pop_raw )[ names( HYDE_pop_raw ) == "Country" ] <- "COUNTRY"
     HYDE_pop_raw$type <- "pop"
     HYDE_urban_share_raw$type <- "urban_share"
-    HYDE_pop <- bind_rows( HYDE_pop_raw, HYDE_urban_share_raw ) %>% data.frame()
+    HYDE_pop <- bind_rows( HYDE_pop_raw, HYDE_urban_share_raw ) %>% data.frame( )
 
     # Convert UN code to ISO code (note HYDE ISO-CODE column is actually UN code)
-    HYDE_pop <- translateCountryCode( HYDE_pop, "UN_CODE", "ISO3_WB_CODE", "ISO.CODE" )
+    HYDE_ALL_YEARS <- paste0( "X" , c( seq( 1700, 1950, 10 ), 1951:2030 ) )
+
+    HYDE_pop <- HYDE_pop %>%
+        dplyr::left_join( HYDE_pop_UN_WB_ext_iso_map, by = c( "ISO.CODE", "COUNTRY" ) ) %>%
+        dplyr::select( "ISO.CODE", ISO3_WB_CODE, COUNTRY, HYDE_ALL_YEARS, type ) %>%
+        dplyr::arrange( ISO.CODE, type )
+
     names( HYDE_pop )[ 1:3 ] <- c( "UN_code", "iso", "country" )
     HYDE_pop$iso <- tolower( HYDE_pop$iso )
     HYDE_pop$iso[ HYDE_pop$UN_code == 156 ] <- "chn"  # add ISO for China
@@ -190,10 +246,11 @@
     }
 
     # Reshape
-    HYDE_pop <- melt( select( HYDE_pop, -country), id = c( "UN_code", "iso", "type" ) )
-    names( HYDE_pop )[ names( HYDE_pop ) == "variable" ] <- "year"
-    HYDE_pop$year <- xYearToNum( HYDE_pop$year )
-    HYDE_pop <- cast( HYDE_pop, UN_code + iso + year ~ type, value = "value" )
+    HYDE_pop <- HYDE_pop %>%
+        dplyr::select( -country ) %>%
+        tidyr::gather( year, value, -UN_code, -iso, -type ) %>%
+        dplyr::mutate( year = xYearToNum( year ) ) %>%
+        tidyr::spread( type, value )
 
     # Some countries have urban share > 100% -- bring down to 1
     HYDE_pop$urban_share <- HYDE_pop$urban_share / 100  # percent to decimal
@@ -245,19 +302,25 @@
     # sumPop(): looks in df for countries listed in vector_of_iso and returns sum
     # of their population; used for handling dissolved countries. Results are appended
     # to pop_list.
-    sumPop <- function( df, vector_of_iso, UN_code = NA, iso = NA, country = NA ){
+    sumPop <- function( df, vector_of_iso, UN_code = NA, iso = NA, country = NA ) {
       # check that df has population for all member countries, listed in vector_of_iso
-      if ( length( unique( df$iso[ df$iso %in% vector_of_iso ] ) ) == length( vector_of_iso ) ) {
-        out <- filter( df, iso %in% vector_of_iso ) %>%
-          group_by( scenario, year ) %>%
+      member_countries <- unique( df$iso[ df$iso %in% vector_of_iso ] )
+      if ( length( member_countries ) == length( vector_of_iso ) ) {
+        out <- df %>%
+          dplyr::filter( iso %in% vector_of_iso ) %>%
+          dplyr::group_by( scenario, year ) %>%
           dplyr::summarise( pop = sum( pop ), urban_pop = sum( urban_pop ) ) %>%
           completeID( UN_code, iso, country )
+
         pop_list[[ length( pop_list ) + 1 ]] <<- out  # append to pop_list
-        warnings( cat( "Population for", iso,
-                       "(now dissolved) is generated by summing member countries: ",
-                       unique( df$iso[ df$iso %in% vector_of_iso ] ) ) )
+
+        warning( "Population for ", iso,
+                 " (now dissolved) is generated by summing member countries: ",
+                 paste( member_countries, collapse = ' ' ) )
         return( out )
-      } else warning( paste0( "Population for ", iso, " cannot be generated" ) )
+      } else {
+        warning( paste( "Population for", iso, "cannot be generated" ) )
+      }
     }
 
     # extendProxy(): takes df containing two time series (s1, s2 -- described below),
@@ -300,12 +363,15 @@
                            UN_code = NA, iso = NA, country = NA ){
       # Future projection scenarios may not have base pop1 to extend from -- extract
       # last pop1 data year and bind to all scenarios
-      last <- filter( df, scenario == "Estimates" ) %>%
-        filter_( paste0( "!is.na(", pop1, ")" ) ) %>%
-        filter( year == max( year ) ) %>%
-        select( -scenario ) %>%
-        merge( data.frame( scenario = UN_scenarios_std ), all = T )
-      out <- bind_rows( df, last ) %>% unique()
+        last <- filter( df, scenario == "Estimates" ) %>%
+            dplyr::filter_( paste0( "!is.na(", pop1, ")" ) ) %>%
+            dplyr::filter( year == max( year ) ) %>%
+            dplyr::select( -scenario ) %>%
+            merge( data.frame( scenario = UN_scenarios_std ), all = T ) %>%
+            dplyr::mutate( scenario = as.character( scenario ) )
+
+        out <- dplyr::bind_rows( df, last ) %>%
+            distinct( )
 
       # Now extend pop1 using pop2 growth, by scenario
       out <- ddply( out, .(scenario), function(x){
@@ -363,25 +429,28 @@
     needed <- filter( pop_master, is.na( urban_share ) )
 
       # Filter out the two edge years
-    urban_growth <- filter( done, year >= min( years_needed ) - 2 ) %>%
-      select( iso, year, scenario, urban_share ) %>%
-      dplyr::arrange( iso, scenario, year )
+    urban_growth <- done %>%
+        dplyr::filter( year >= min( years_needed ) - 2 ) %>%
+        dplyr::select( iso, year, scenario, urban_share ) %>%
+        dplyr::arrange( iso, scenario, year )
 
       # Compute growth of UN urban_share in two edge years for each country
       # Note growth will be NA if both edge years have 0 urban share, in which
       # case make growth 0 to keep urban share at 0 in future years
-    urban_growth <- group_by( urban_growth, iso, scenario ) %>%
-      dplyr::mutate( growth = urban_share / lag( urban_share ) ) %>%
-      filter( year == min( years_needed ) - 1 )
-    urban_growth$growth[ is.na( urban_growth$growth ) ] <- 0
-    names( urban_growth ) <- c( "iso", "base_year", "scenario",
-                                "base_urban_share", "growth" )
+    urban_growth <- urban_growth %>%
+        dplyr::group_by( iso, scenario ) %>%
+        dplyr::mutate( growth = urban_share / lag( urban_share ) ) %>%
+        dplyr::ungroup() %>%
+        dplyr::filter( year == min( years_needed ) - 1 ) %>%
+        dplyr::mutate( growth = if_else( is.na( growth ), 0, growth ) ) %>%
+        dplyr::rename( base_year = year, base_urban_share = urban_share )
 
       # Extend urban_share to all UN years, using base year share and growth
       # in the two edge years
-    needed <- merge( needed, urban_growth, all.x = T ) %>%
-      dplyr::mutate( urban_share = base_urban_share * growth^( year - base_year ) ) %>%
-      select( -base_year, -base_urban_share, -growth )
+    needed <- needed %>%
+        dplyr::left_join( urban_growth, by = c( 'iso', 'scenario') ) %>%
+        dplyr::mutate( urban_share = base_urban_share * growth^( year - base_year ) ) %>%
+        dplyr::select( -base_year, -base_urban_share, -growth )
 
       # If urban_share > 1, bring down to 1
     needed$urban_share[ needed$urban_share > 1 ] <- 1
@@ -415,16 +484,20 @@
 
 # Add rows for HYDE years (1700-1949) to master df under scenario 'Estimates'
     HYDE_years_to_use <- setdiff( HYDE_years, pop_master_ext$year )
-    HYDE_rows <- select( pop_master_ext, UN_code, iso, country ) %>% unique() %>%
-      merge( data.frame( year = HYDE_years_to_use, scenario = "Estimates" ), all = T )
+    HYDE_rows <- pop_master_ext %>%
+        dplyr::select( UN_code, iso, country ) %>%
+        dplyr::distinct() %>%
+        tidyr::crossing( data.frame( year = HYDE_years_to_use,
+                                     scenario = "Estimates",
+                                     stringsAsFactors = F ) )
     pop_master_HYDE <- bind_rows( pop_master_ext, HYDE_rows ) %>%
       dplyr::arrange( scenario, iso, year )
 
 # Add columns for HYDE population and urban shares to master df
-    pop_master_HYDE <- merge( pop_master_HYDE,
-                              select( HYDE_pop, iso, year, pop_HYDE = pop,
-                                      urban_share_HYDE = urban_share ),
-                              all.x = T )
+    pop_master_HYDE <- pop_master_HYDE %>%
+        dplyr::left_join( dplyr::select( HYDE_pop, iso, year,  pop_HYDE = pop,
+                                         urban_share_HYDE = urban_share ),
+                          by = c( 'iso', 'year' ) )
 
 # Diagnostics: Compare 1950 population and urban share of HYDE and UN/WB
     # Compare 1950 numbers
@@ -557,19 +630,32 @@
 
 
 # 4e. Create final dataset
-    pop_master_final <- select( pop_master_HYDE_d, iso, UN_code, country, scenario,
-                                year, pop, urban_share ) %>%
+    pop_master_final <- pop_master_HYDE_d %>%
+      dplyr::select( iso, UN_code, country, scenario, year, pop, urban_share ) %>%
       dplyr::arrange( iso, scenario, year )
 
-#  # Check that there is no NA pop or urban_share left
-#     any( is.na( pop_master_final$pop ) )          # should be F
-#     any( is.na( pop_master_final$urban_share ) )  # should be F
+    # Assert that there is no NA pop or urban_share left
+    stopifnot( !anyNA( pop_master_final$pop ) )
+    stopifnot( !anyNA( pop_master_final$urban_share ) )
 
     pop_master_final[ is.na( pop_master_final ) ] <- ""
 
+    pop_master_final <- pop_master_final %>%
+        dplyr::arrange(iso, scenario, year)
+
+# 4f. Create data with one time series into future with no duplicate years
+    population_data_historical <- dplyr::filter( pop_master_final, scenario == "Estimates" )
+
+    max_year <- as.numeric( max( population_data_historical$year ) )
+    population_data_cleaned <- subset( pop_master_final, scenario %in% c("Estimates","Medium fertility") )
+    population_data_cleaned <- pop_master_final %>%
+      dplyr::filter( scenario %in% c( "Estimates","Medium fertility" ) ) %>%
+      # Remove duplicate year data where historical estimates and projections overlap
+      dplyr::filter( !( year == max_year & scenario == "Medium fertility" ) )
+
 # ------------------------------------------------------------------------------
 # 5. Write output
-    writeData( pop_master_final, "MED_OUT", "A.UN_pop_master" )
+    writeData( population_data_cleaned, "MED_OUT", "A.UN_pop_master" )
 
 # Write diagnostics
     writeData( HYDE_pop, "DIAG_OUT", "A.HYDE_pop" )

@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.GAINS_fugitive_petr_gas_emissions.R
 # Author(s): Patrick O'Rourke
-# Date Last Modified: October 23, 2019
+# Date Last Modified: November 1, 2019
 # Program Purpose: To reformat the non-combustion fugitive oil and gas emissions
 #                  from GAINS and create gain fugitive subsector shares of total
 #                  fugitive oil and gas related emissions
@@ -13,7 +13,7 @@
 # Output Files: C.GAINS_NC_Emissions_[em].csv, C.BP_and_IEA_oil_production.csv,
 #               C.BP_and_IEA_natural_gas_production.csv, C.[em]_GAINS_fug_oil_gas_shares.csv
 # TODO: Address remaining doc TODOs
-#       This will likely need updating once CEDS uses the new BP or IEA data
+#       This will likely need updating once CEDS uses the new BP or IEA data (Currently configured to BP 2019, IEA 2015)
 # Notes:
 
 # -----------------------------------------------------------------------------
@@ -120,7 +120,7 @@
 #   Define aggregate Former Soviet Union (FSU) iso and subregional FSU isos. Used for disaggregating fossil fuel production data
     fsu <- 'ussr'
     fsu_members <- c( "arm", "aze", "blr", "est", "geo", "kaz", "kgz", "ltu", "lva", "mda", "rus", "tjk", "tkm", "ukr", "uzb" )
-
+    #TODO: BP states the following: "USSR includes Georgia, Ukraine and the Baltic States." Check that the above matches with this definition.
 # ------------------------------------------------------------------------------
 
 # 2. Input
@@ -144,11 +144,11 @@
                                      file_name = 'E.CO2_CDIAC_inventory' )
 
 #   BP oil (in millions of tonnes), NG production (Million tonnes oil equivalent)
-    BP_oil_production <- readData( 'ENERGY_IN', file_name = 'BP_energy_data',
-                                    extension = ".xlsx", sheet_selection = "Oil Production – Tonnes", skip_rows = 2 )
+    BP_oil_production <- readData( 'ENERGY_IN', file_name = 'bp-stats-review-2019-all-data.xlsx',
+                                    extension = ".xlsx", sheet_selection = "Oil Production - Tonnes", skip = 2 )
 
-    BP_gas_production <- readData( 'ENERGY_IN', file_name = 'BP_energy_data',
-                                   extension = ".xlsx", sheet_selection = "Gas Production – tonnes", skip_rows = 2 )
+    BP_gas_production <- readData( 'ENERGY_IN', file_name = 'bp-stats-review-2019-all-data.xlsx',
+                                   extension = ".xlsx", sheet_selection = "Gas Production - Mtoe", skip = 2 )
 
 #   IEA crude oil and NG production data
 #   TODO: Production data in this file has the value 0 for some year + iso combinations where the data should likely be NA.
@@ -530,7 +530,7 @@
         tidyr::spread( years, EF ) %>%
         dplyr::mutate_at( MISSING_GAINS_YEARS_TO_MAKE, funs( identity( NA ) ) ) %>%
         dplyr::select( Region, iso, ceds_sector, EF_units, GAINS_INTERP_YEARS_X ) %>%
-        interpolate_NAs_new( ) %>%
+        interpolate_NAs2( ) %>%
         dplyr::select( Region, iso, ceds_sector, EF_units, GAINS_FINAL_YEARS_WITH_X )
 
 #   Extend earliest EF year backwards to start_year (currently 2000 extended back to 1960, constant extension )
@@ -558,25 +558,31 @@
 # TODO: Align this with the MCL BP_oil name column (so only one mapping file is needed - MCL may need to be fixed)
 
 #   Initial cleaning of BP data (clean, map, convert units)
-    not_BP_countries <- c( "                 European Union #", "                 Non-OECD",
-                           "                 Non-OPEC £", "                 OPEC",
-                           " # Excludes Estonia, Latvia and Lithuania prior to 1985 and Slovenia prior to 1991.",
-                           " ^ Less than 0.05.", " £ Excludes Former Soviet Union.",
-                           "* Includes crude oil, tight oil, oil sands and NGLs (the liquid content of natural gas where this is recovered separately). Excludes liquid fuels from other sources such as biomass and derivatives of",
-                           "coal and natural gas.", "n/a not available.", "of which: OECD", "Other Africa", "Other Asia Pacific",
-                           "Other Europe & Eurasia", "Other Middle East", "Other S. & Cent. America",  "Total Africa",
-                           "Total Asia Pacific", "Total Europe & Eurasia",  "Total Middle East", "Total North America",
-                           "Total S. & Cent. America", "Total World", "w Less than 0.05%." )
+    not_BP_countries <- c( "Total North America", "Other S. & Cent. America", "Total S. & Cent. America", "Other Europe",
+                           "Total Europe", "Other CIS", "Total CIS", "Other Middle East", "Total Middle East", "Other Africa",
+                           "Total Africa", "Other Asia Pacific", "Total Asia Pacific", "Total World", "of which: OECD",
+                           "                 Non-OECD", "                 OPEC", "                 Non-OPEC ",
+                           "                 European Union #", " * Includes crude oil, shale oil, oil sands, condensates (both lease condensate and gas plant condensate) and NGLs (natural gas liquids - ethane, LPG and naptha separated from the production of natural gas). ",
+                           "Excludes liquid fuels from other sources such as biomass and derivatives of coal and natural gas.",
+                           " ^ Less than 0.05.", "w Less than 0.05%.", "n/a not applicable.", "USSR includes Georgia, Ukraine and the Baltic States.",
+                           " # Excludes Estonia, Latvia and Lithuania prior to 1985 and Croatia and Slovenia prior to 1990.",
+                           "Notes: Annual changes and shares of total are calculated using million tonnes figures."  )
 
     BP_oil_data <- BP_oil_production %>%
-        dplyr::select( -"2013__1", -"of total"  ) %>%
-        dplyr::rename( BPName_Oil_production = "Million tonnes" ) %>%
-        dplyr::mutate( BPName_Oil_production = if_else( BPName_Oil_production == "                 Former Soviet Union",
-                                                        "Former Soviet Union", BPName_Oil_production ) )
+        dplyr::select( -"2018__1", -"2007-17", -"2018__2" ) %>%
+        dplyr::rename( BPName_Oil_production = "Million tonnes" )
+
+    if( BP_years <= 2014 ){         # Remove extra years if BP_years is 2014 or less
+        extra_years <- subset( colnames( BP_oil_data) , colnames( BP_oil_data) %!in% emissions_years & colnames( BP_oil_data) != "BPName_Oil_production" )
+        BP_oil_data <- BP_oil_data  %>%
+            dplyr::select( -extra_years )
+
+    }
 
     colnames( BP_oil_data ) <- c( 'BPName_Oil_production', BP_OIL_YEARS_x )
 
     BP_oil <- BP_oil_data %>%
+        dplyr::select( BPName_Oil_production, BP_OIL_YEARS_x, -NA ) %>%
         dplyr::filter_at( .vars = colnames( BP_oil_data ), any_vars( !is.na( . ) ) ) %>%
         dplyr::filter( BPName_Oil_production %!in% not_BP_countries ) %>%
         dplyr::left_join( MCL, by = "BPName_Oil_production" ) %>%
@@ -744,7 +750,7 @@
         tidyr::spread( years, EF ) %>%
         dplyr::mutate_at( MISSING_GAINS_YEARS_TO_MAKE, funs( identity( NA ) ) ) %>%
         dplyr::select( Region, iso, ceds_sector, EF_units, GAINS_INTERP_YEARS_X ) %>%
-        interpolate_NAs_new( ) %>%
+        interpolate_NAs2( ) %>%
         dplyr::select( Region, iso, ceds_sector, EF_units, GAINS_FINAL_YEARS_WITH_X )
 
 #   Extend earliest EF year backwards to start_year (2000 back to 1960)
@@ -778,13 +784,22 @@
 
 #   Initial cleaning of BP data (clean, map, convert units)
     not_BP_countries <- c( not_BP_countries,
-                           "*Excludes gas flared or recycled. Includes natural gas produced for Gas-to-Liquids transformation." )
+                           " * Excludes gas flared or recycled. Includes natural gas produced for Gas-to-Liquids transformation.",
+                           " n/a not available.",
+                           " # Excludes Estonia, Latvia and Lithuania prior to 1985 and Croatia and Slovenia prior to 1990.",
+                           "Note: Annual changes and shares of total are calculated using million tonnes oil equivalent figures." )
+
 
     BP_gas_data <- BP_gas_production %>%
-        dplyr::select( -"2013__1", -"of total"  ) %>%
-        dplyr::rename( BPName_Gas_production = "Million tonnes oil equivalent" ) %>%
-        dplyr::mutate( BPName_Gas_production = if_else( BPName_Gas_production == "                 Former Soviet Union",
-                                                        "Former Soviet Union", BPName_Gas_production ) )
+        dplyr::select( -"2018__1", -"2007-17", -"2018__2" ) %>%
+        dplyr::rename( BPName_Gas_production = "Million tonnes oil equivalent" )
+
+    if( BP_years <= 2014 ){         # Remove extra years if BP_years is 2014 or less
+        extra_years <- subset( colnames( BP_gas_data) , colnames( BP_gas_data) %!in% emissions_years & colnames( BP_gas_data) != "BPName_Gas_production" )
+        BP_gas_data <- BP_gas_data  %>%
+            dplyr::select( -extra_years )
+
+    }
 
     colnames( BP_gas_data ) <- c( 'BPName_Gas_production', BP_GAS_YEARS_x )
 
@@ -798,7 +813,7 @@
         dplyr::left_join( MCL, by = "BPName_Gas_production" ) %>%
         tidyr::gather( key = years, value = gas_production, BP_GAS_YEARS_x ) %>%
         dplyr::mutate( gas_production = as.numeric( gas_production ),
-                       gas_production = gas_production * conversionFactor_TJ_per_Mtoe * ( 1 / conversionFactor_naturalgas_TJ_per_kt_net ) ) %>% # Convert from Mtoe to kt NG
+                       gas_production = gas_production * conversionFactor_TJ_per_Mtoe * ( 1 / conversionFactor_naturalgas_TJ_per_kt_Net ) ) %>% # Convert from Mtoe to kt NG
         tidyr::spread( years, gas_production ) %>%
         dplyr::select( iso, BP_GAS_YEARS_x ) %>%
         dplyr::arrange( iso )
@@ -827,7 +842,7 @@
     pop_wide <- pop %>%
         dplyr::filter( iso %in% c( fsu, fsu_members ) ) %>%
         dplyr::mutate( year = paste0( "X", year ) ) %>%
-        dplyr::filter( year %in% BP_OIL_YEARS_x,
+        dplyr::filter( year %in% BP_GAS_YEARS_x,
                        scenario == "Estimates" ) %>%
         dplyr::select( iso, year, pop ) %>%
         spread( year, pop )
@@ -968,7 +983,7 @@
         tidyr::spread( years, EF ) %>%
         dplyr::mutate_at( MISSING_GAINS_YEARS_TO_MAKE, funs( identity( NA ) ) ) %>%
         dplyr::select( Region, iso, ceds_sector, EF_units, GAINS_INTERP_YEARS_X ) %>%
-        interpolate_NAs_new( ) %>%
+        interpolate_NAs2( ) %>%
         dplyr::select( Region, iso, ceds_sector, EF_units, GAINS_FINAL_YEARS_WITH_X )
 
 #   Extend earliest EF year gas_prod_EF_interp to start_year (2000 back to 1960)
