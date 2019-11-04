@@ -73,8 +73,7 @@ if ( em %!in% c( 'N2O' ) ) {
 
 #    Load US EPA N2O emissions for on-road mobile (for gasoline and diesel vehicles)
      onr_emissions <- readData( "DEFAULT_EF_IN", domain_extension = "N2O/",
-                                "N2O_emissions-mobile_onroad-US_GHG2018", ".csv",
-                                skip = 2)
+                                "N2O_emissions-mobile_onroad-US_GHG2018", ".csv" )
 
 #    Load US EPA on-road mobile Fuel Consumption (gasoline, natural gas, diesel)
      onr_consump <- readData( "DEFAULT_EF_IN", domain_extension = "N2O/",
