@@ -1,11 +1,11 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.add_NC_emissions_EDGAR.R
 # Author(s): Jon Seibert, Rachel Hoesly, Steve Smith, Patrick O'Rourke
-# Date Last Modified: October 24, 2019
+# Date Last Modified: November 7, 2019
 # Program Purpose: To reformat the non-combustion sections of the EDGAR default emissions
 #                      data and add it to the database for the relevant emissions species.
 # Input Files: NC_EDGAR_sector_mapping.csv, Master_Country_List.csv,
-#              BP_energy_data.xlsx, EDGAR42_[em].csv, 
+#              BP_energy_data.xlsx, EDGAR42_[em].csv,
 #              A.UN_pop_master.csv, C.[em]_GAINS_fug_oil_gas_shares.csv
 # Output Files: C.[em]_EDGAR_NC_Emissions_fugitive_solid_fuels.csv, C.EDGAR_NC_Emissions_[em].csv,
 #               C.EDGAR_NC_Emissions_[em]_negative.csv, C.CO2_Fugitive-petr-and-gas_default_EDGAR_process_emissions.csv,
@@ -172,6 +172,8 @@ GAINS_fug_subsec_shares <- readData( "MED_OUT", file_name = paste0( "C.", em, "_
         agg_region_of_interest_long <- agg_region_of_interest %>%
             tidyr::gather( key = Years, value = Emissions, years_to_disaggregate ) %>%
             dplyr::select( -iso ) %>%
+            dplyr::group_by( sector, fuel, units, Years ) %>%
+            dplyr::summarise_all( funs( sum ( ., na.rm = TRUE ) ) ) %>%
             dplyr::mutate( Emissions = round( Emissions, digits = 10 ) )
 
         diff1 <- setdiff( agg_region_of_interest_long, downscaled_check)
@@ -186,10 +188,11 @@ GAINS_fug_subsec_shares <- readData( "MED_OUT", file_name = paste0( "C.", em, "_
 
 #       Replace the original agg region data
         emissions_data_in_all_region_isos_wide <- emissions_data_in_all_region_isos %>%
+            dplyr::group_by( iso, sector, fuel, units, Years ) %>%
+            dplyr::summarise_all( funs( sum ( ., na.rm = TRUE ) ) ) %>%
             tidyr::spread( Years, disagg_emissions )
 
         final_disagg_emissions <- emissions_without_isos_being_replaced %>%
-            dplyr::filter( iso != agg_iso_region ) %>%
             dplyr::bind_rows( emissions_data_in_all_region_isos_wide )
 
         return( final_disagg_emissions )
@@ -391,6 +394,7 @@ if ( em == 'CH4' ){
     dplyr::distinct( ) %>%
     dplyr::left_join( BP_coal_production, by = 'BPName' ) %>%
     tidyr::gather( year, value, -iso, -BPName ) %>%
+    dplyr::mutate( year = gsub( "X", "", year ) ) %>%
     dplyr::mutate( year = as.numeric( year ) ) %>%
     dplyr::filter( !is.na( year ), !is.na( value ) ) %>%
     dplyr::mutate( year = paste0( 'X', year ) ) %>%
