@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.add_NC_emissions_EDGAR.R
 # Author(s): Jon Seibert
-# Date Last Modified: 5 January 2016
+# Date Last Modified: November 7, 2019
 # Program Purpose: To reformat the non-combustion sections of the EDGAR default emissions
 #                      data and add it to the database for the relevant emissions species.
 # Input Files   JRC_PEGASOS_[em]_TS_REF.xlsx, NC_EDGAR_sector_mapping.csv
@@ -37,8 +37,10 @@ domain_ext <- "EDGAR/"
 fuel <- "process"
 id_cols <- c( "iso", "sector", "fuel", "units" )
 
-# Temporary assignment for script development
-em <- "SO2"
+# Define emissions species variable
+args_from_makefile <- commandArgs( TRUE )
+em <- args_from_makefile[ 1 ]
+if ( is.na( em ) ) em <- "CO"
 
 # ------------------------------------------------------------------------------
 # 2. Input
