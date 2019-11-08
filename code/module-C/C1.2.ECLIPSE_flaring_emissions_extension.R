@@ -1,20 +1,21 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.2.ECLIPSE_flaring_emissions_extension.R
-# Author: Leyang Feng
+# Author: Leyang Feng, Patrick O'Rourke
 # Date Last Modified: November 8, 2019
-# Program Purpose: Extends ECLIPSE flaring emissions to period 1960 - last BP year using IEA
+# Program Purpose: Extends ECLIPSE flaring emissions to period 1965 - last BP year using IEA
 #                  and BP crude oil production data
 # Input Files: [em]_eclipse_flr_emissions.csv, A.en_stat_sector_fuel.csv,
 #              [BP_data_file_name].csv, Master_Country_List.csv,
 #              A.UN_pop_master.csv
 # Output Files: C.[em]_ECLIPSE_flaring_emissions_extended.csv,
-# "             C.[em]_ECLIPSE_flaring_to_crude_oil_production_ratios.csv
+# "             C.[em]_ECLIPSE_flaring_to_crude_oil_production_ratios.csv (for ems other than N2O)
 # Notes: In section 3.2 the 1970 data are manually 'extended' using 1971 data,
 #        the data to last BP year are manually 'extended' using 2013 data.
 #
 # TODO: 1. About 70 countries in [em]_eclipse_flr_emissions.csv get picked out in the routine
 #          because IEA/BP oil production data does not include those countries. Update when
-#          a more comprehensive database of historical production is availiable.
+#          a more comprehensive database of historical production is availiable, or when BP/IEA
+#          oil production is disaggregated
 #-------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
