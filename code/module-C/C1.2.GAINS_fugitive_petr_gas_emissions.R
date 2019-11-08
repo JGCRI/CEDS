@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.GAINS_fugitive_petr_gas_emissions.R
 # Author(s): Patrick O'Rourke
-# Date Last Modified: November 1, 2019
+# Date Last Modified: November 8, 2019
 # Program Purpose: To reformat the non-combustion fugitive oil and gas emissions
 #                  from GAINS and create gain fugitive subsector shares of total
 #                  fugitive oil and gas related emissions
@@ -182,7 +182,7 @@
         dplyr::distinct( ) %>%
         dplyr::rename( Sector = emf_sector )
 
-#   Mast list of unique final isos (isos with final_data_flag = 1, srb (kosovo),
+#   Make list of unique final isos (isos with final_data_flag = 1, srb (kosovo),
 #   and gum) and list of final isos with OECD vs Non-OECD flag
     MCL_clean <- MCL %>%
         dplyr::select( iso, final_data_flag,  OECD_flag ) %>%
@@ -1092,7 +1092,7 @@ if( em == "N2O" ){
         dplyr::mutate( Ratio_N2O_per_Nox = N2O_emissions / NOx_emissions )
 
 #   Add any missing final CEDS isos
-    if( any( MCL_clean$iso %!in% EDGAR_national_ratio ) ){
+    if( any( MCL_clean$iso %!in% EDGAR_national_ratio$iso ) ){
 
         missing_isos <- subset( MCL_clean$iso, MCL_clean$iso %!in% EDGAR_national_ratio$iso )
 
