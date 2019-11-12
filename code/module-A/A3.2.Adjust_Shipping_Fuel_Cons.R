@@ -67,7 +67,7 @@
 # 3. Compute IEA shipping fuel. Aggregates fishing, bunker, shipping fuel
 #    by fuel. Result is long-form dataframe of shipping fuel activity by fuel per year.
 
-# Total IEA shipping = fishing + international shipping + domestic aviation
+# Total IEA shipping = fishing + international shipping + domestic navigation
 # For purposes here, treat all coal as hard coal
     iea_data$fuel <- IEA_product_fuel$fuel[ match( iea_data$PRODUCT, IEA_product_fuel$product ) ]
     iea_data$fuel [ which ( iea_data$fuel %in% c( 'hard_coal', 'brown_coal' ) ) ] <- 'hard_coal'
@@ -113,7 +113,8 @@
 #    Where total_IEA_shipping is > shipping_fuel:
 #      diesel_oil : (ignore, as this shouldn't happen) ### Should there be a check for this?
 #      heavy_oil : Account for this in diesel oil (e.g., add less diesel oil)
-#      coal : ignore (no adjustment )
+#      coal : ignore (no adjustment since this doesn't occur)
+#    TODO: Make sure data is consistent for years for 1960 for all fuels (e.g., make sure oil fuel in ships falls going back in time as indicated in Shipping_Fuel_Consumption.xlsx)
 #
 #    Ignore coking coal, biomass, and natural gas
 #
@@ -126,6 +127,9 @@
 #
 #    For years before IEA years, the global international shipping sector will contain
 #    the entire shipping fuel estimate, since there is no IEA data at that point.
+#    TODO: This is no longer the case due to some past change in the way fuels are extended
+#          Therefore, need to change so that only the difference between shipping estimate 
+#          and extended data is put into the global region (for all fuels)
 
 # Combine two dfs
     comp <- merge( Total_IEA_Ship_Fuel, shipping_fuel, all = T )
