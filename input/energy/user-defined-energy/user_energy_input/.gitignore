@@ -5,9 +5,13 @@
 !A.aircraft_fix.csv
 !A.aircraft_fix-instructions.csv
 !A.aircraft_fix-metadata.csv
-!A.DEU_Etemad_Luciani_1800-1890.csv
-!A.DEU_Etemad_Luciani_1800-1890-instructions.csv
-!A.DEU_Etemad_Luciani_1800-1890-metadata.csv
+!A.DEU_Etemad_Luciani_1800-1890_brown_coal.csv
+!A.DEU_Etemad_Luciani_1800-1890_brown_coal-instructions.csv
+!A.DEU_Etemad_Luciani_1800-1890_brown_coal-metadata.csv
+!A.DEU_Etemad_Luciani_1800-1890_coal.csv
+!A.DEU_Etemad_Luciani_1800-1890_coal-instructions.csv
+!A.DEU_Etemad_Luciani_1800-1890_coal-metadata.csv
+!A.DEU_historical_brown_coal-instructions.csv
 !A.DEU_historical_coal-instructions.csv
 !A.GBR_historical_coal_aggsec_sector_map.csv
 !A.GBR_historical_coal_aggsec-instructions.csv

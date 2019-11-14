@@ -1,0 +1,2 @@
+iso,agg_fuel,agg_sector,start_year,end_year,method,priority,keep_total_cols,exclude_int_bunkers
+deu,coal,all,1800,1859,linear,1,agg_fuel,T

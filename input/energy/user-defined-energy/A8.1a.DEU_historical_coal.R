@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 # Program Name: A8.1a.DEU_historical_coal.R
-# Author: Caleb Braun
-# Date: August 27, 2019
+# Author: Caleb Braun and Patrick O'Rourke
+# Date: October 11, 2019
 #
 # Transforms raw DEU historical coal data into a CEDS format .csv file.
 #
@@ -17,8 +17,9 @@
 # data must be translated and converted to wide-form.
 #
 # Input File:  Primarenergie_Elektrische_Energie.csv
-# Output File: A.DEU_historical_coal.csv
+# Output File: A.DEU_historical_coal.csv, A.DEU_historical_brown_coal.csv
 #-------------------------------------------------------------------------------
+# 1.) Set directory, constants, load data, and make mapping
 
 
 # for writeData function
@@ -44,9 +45,13 @@ translate <- c( JAHR = 'year',
                 ERDGAS = 'natural_gas',
                 WASSERKRAFT.UND.KERNENERGIE = 'hyrdo_and_nuclear' )
 
+#-------------------------------------------------------------------------------
+
+# 2.) Process data
+
 names( schilling ) <- translate[ names( schilling ) ]
 
-out_df <- schilling %>%
+hard_and_brown_coal <- schilling %>%
     dplyr::select( year, hard_coal, brown_coal ) %>%
     dplyr::mutate( hard_coal = hard_coal / T_HARD_COAL_PER_T_SKE * 1000 ) %>%
     dplyr::mutate( brown_coal = brown_coal / T_BROWN_COAL_PER_T_SKE * 1000 ) %>%
@@ -54,6 +59,30 @@ out_df <- schilling %>%
     tidyr::gather( 'CEDS_fuel', 'value', hard_coal, brown_coal ) %>%
     tidyr::spread( year, value )
 
-writeData( out_df, 'USER_EN_IN', 'A.DEU_historical_coal' )
+# Create data frames for Brown Coal, Hard Coal, and Total Coal (Brown + Hard, has hard is
+# assumed to contain the coal consumption for CEDS hard coal and coal coke)
+column_names <- colnames( hard_and_brown_coal )
+year_columns <- subset( column_names, !( column_names %in% c( "iso", "CEDS_fuel" ) ) )
+
+total_coal <- hard_and_brown_coal %>%
+    dplyr::mutate( agg_fuel = "coal" ) %>%
+    dplyr::select( -CEDS_fuel ) %>%
+    dplyr::group_by( iso, agg_fuel ) %>%
+    dplyr::summarise_all( sum, na.rm = TRUE ) %>%
+    dplyr::select( iso, agg_fuel, year_columns )
+
+brown_coal <- hard_and_brown_coal %>%
+    dplyr::filter( CEDS_fuel == "brown_coal" )
+
+hard_coal <- hard_and_brown_coal %>%
+    dplyr::filter( CEDS_fuel == "hard_coal" )
+
+#-------------------------------------------------------------------------------
+
+#3.) Write data
+
+writeData( total_coal, 'USER_EN_IN', 'A.DEU_historical_coal' )
+writeData( brown_coal, 'USER_EN_IN', 'A.DEU_historical_brown_coal' )
+# writeData( hard_coal, 'USER_EN_IN', 'A.DEU_historical_hard_coal' )
 
 logStop( )

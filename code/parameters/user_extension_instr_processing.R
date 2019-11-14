@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: user_extension_instr_processing.R
-# Authors: Ben Goldstein, Caleb Braun
-# Date Last Updated: September 5, 2019
+# Authors: Ben Goldstein, Caleb Braun, Patrick O'Rourke
+# Date Last Updated: September 13, 2019
 # Program Purpose: Provides functions for the add_user-defined_data script that
 #                  help process the instructions for handling user-defined
 #                  datasets.
@@ -216,6 +216,7 @@ cleanInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
 
     # Extract the trend instructions, add the file they came from, and map to
     # the standard CEDS format
+
     instruction_list <- lapply( seq_along( instructions ), function( i ) {
 
         # Extract and add source file
@@ -234,6 +235,168 @@ cleanInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
         stopifnot( c( "iso", "agg_fuel" ) %in% names( instruction_df ) )
         instruction_df[ setdiff( CEDS_cols, names( instruction_df ) ) ] <- NA_character_
 
+        # If agg_sector is set to "all" then ensure that exclude_int_bunkers is either
+        # TRUE, FALSE, or is.invalid. If exclude_int_bunkers is invalid or not equal to
+        # TRUE or FALSE, set it to TRUE by default (default to remove int. bunkers from
+        # total consumption data)
+        instruction_df_with_aggsector <- instruction_df
+
+            # If any values for agg_sector are NA, then replace the value with the string
+            # "MISSING" temporarily
+            if( any( is.na( instruction_df_with_aggsector$agg_sector ) ) ){
+
+                instruction_df_with_aggsector <- instruction_df_with_aggsector %>%
+                    dplyr::mutate( agg_sector = if_else( is.na( agg_sector ), "MISSING",
+                                                         agg_sector ) )
+
+            }
+
+            # If the instructions file does not have the column exclude_int_bunkers or if
+            # the column exists but some rows have NA values, provide the string "MISSING"
+            # temporarily
+            if( is.null( instruction_df_with_aggsector$exclude_int_bunkers ) ){
+
+                instruction_df_with_aggsector$exclude_int_bunkers <- "MISSING"
+
+                }
+
+            instruction_df_with_aggsector <- instruction_df_with_aggsector %>%
+                dplyr::mutate( exclude_int_bunkers = as.character( exclude_int_bunkers )) %>%  # convert all exclude_int_bunker values to characters temporarily
+                dplyr::mutate( exclude_int_bunkers = toupper( exclude_int_bunkers) ) # converts text to upper case (i.e. if the user provides "false", it is converted to "FALSE")
+
+            if( any( is.na( instruction_df_with_aggsector$exclude_int_bunkers ) ) ){
+
+                instruction_df_with_aggsector <- instruction_df_with_aggsector %>%
+                    dplyr::mutate( exclude_int_bunkers = if_else( is.na( exclude_int_bunkers ),
+                                                                  "MISSING", exclude_int_bunkers ) )
+
+            }
+
+            # If any rows have agg_sector set to "all" and have exclude_int_bunkers set to
+            # "MISSING" warn the user that the default value of true will be provided for those rows,
+            # meaning that the int. bunkers will be excluded from the total fuel consumption data
+            total_consump_missing_int_bunk_instructions <- instruction_df_with_aggsector %>%
+                dplyr::filter( agg_sector == "all", exclude_int_bunkers == "MISSING" )
+
+            instruction_df_with_aggsector$data_file
+
+            if( nrow( total_consump_missing_int_bunk_instructions ) != 0 ){
+
+                warning( "User instructions for ", instr_dfile,
+                         ".csv indicate that the user is providing CEDS with supplementary ",
+                         "TOTAL consumption data for at least one fuel, as -agg_sector- ",
+                         "was set to -all- at least once. However, no values were provided in the same ",
+                         "row(s) for column -exclude_int_bunkers-...  System is setting the ",
+                         "values of -exclude_int_bunkers- for these rows to the default value of TRUE ",
+                         " -- International bunkers will not be included within the disaggregation of the ",
+                         "user's total fuel consumption data...." )
+
+                instruction_df_with_aggsector <- instruction_df_with_aggsector %>%
+                    dplyr::mutate( exclude_int_bunkers = if_else( agg_sector == "all" &
+                                                                  exclude_int_bunkers == "MISSING",
+                                                                  "TRUE", exclude_int_bunkers ) )
+
+            }
+
+            # If any rows have agg_sector set to "all" and have exclude_int_bunkers set to a value
+            # that isn't equal to "T, "F", "TRUE", or "FALSE, warn the user that the default
+            # value of true will be provided for that row as the value provided is not an available
+            # option, meaning that the int. bunkers will be excluded from the total fuel consumption data
+            total_consump_wrong_int_bunk_instructions <- instruction_df_with_aggsector %>%
+                dplyr::filter( agg_sector == "all",
+                               exclude_int_bunkers %!in% c( "T", "TRUE", "F","FALSE" ) )
+
+
+            if(  nrow( total_consump_wrong_int_bunk_instructions ) != 0 ){
+
+                warning( "User instructions for ", instr_dfile,
+                         ".csv indicate that the user is providing CEDS with supplementary ",
+                         "TOTAL consumption data for at least one fuel, as -agg_sector- ",
+                         "was set to -all- at least once. However, the values ",
+                         "provided for the column -exclude_int_bunkers-in the same rows were ",
+                         "not provided as either TRUE or FALSE... The system is setting the ",
+                         "values of -exclude_int_bunkers- for these rows to the default value of TRUE ",
+                         " -- International bunkers will not be included within the disaggregation of the ",
+                         "user's total fuel consumption data...." )
+
+                instruction_df_with_aggsector <- instruction_df_with_aggsector %>%
+                    dplyr::mutate( exclude_int_bunkers = if_else( agg_sector == "all" &
+                                                                  exclude_int_bunkers %!in% c( "T", "TRUE", "F","FALSE" ),
+                                                                  "TRUE", exclude_int_bunkers ) )
+
+            }
+
+            not_total_consump_missing_int_bunk_instructions <- instruction_df_with_aggsector %>%
+                dplyr::filter( agg_sector != "all", exclude_int_bunkers == "MISSING" )
+
+            if( nrow( not_total_consump_missing_int_bunk_instructions ) != 0 ){
+
+                instruction_df_with_aggsector <- instruction_df_with_aggsector %>%
+                    dplyr::mutate( exclude_int_bunkers = if_else( agg_sector != "all" &
+                                                                  exclude_int_bunkers == "MISSING",
+                                                                  NA_character_, exclude_int_bunkers ) )
+
+            }
+
+        # If agg_sector is not set to "all" then ensure exclude_int_bunkers is set to NA_character_,
+        # as exclude_int_bunkers only corresponds to total fuel consumption data.
+        # 1) Warn the user if they provided a value for exclude_int_bunkers
+        # 2) If agg_sector is not currently set to "all", then set exclude_int_bunkers to NA_character_
+        # 4) Set agg_sector values that are "MISSING" to NA_character_
+        not_total_consump_includes_int_bunk_instructions <- instruction_df_with_aggsector %>%
+            dplyr::filter( agg_sector != "all", !is.na( exclude_int_bunkers ) )
+
+
+        if( nrow( not_total_consump_includes_int_bunk_instructions ) != 0 ){
+
+            warning( "User instructions for ", instr_dfile,
+                     ".csv indicate that the user has attempted to provide a value for ",
+                     "-exclude_int_bunkers- in at least one row where -agg_sector- is not ",
+                     "provided or not set to -all-. The system is ignoring these values ",
+                     "as values for -exclude_int_bunkers- are only needed when agg_sector ",
+                     "is set to -all-, indicating that TOTAL fuel consumption ",
+                     "data has been provided by the user." )
+
+            instruction_df_with_aggsector <- instruction_df_with_aggsector %>%
+                dplyr::mutate( exclude_int_bunkers = if_else( agg_sector != "all" &
+                                                              !is.na( exclude_int_bunkers ),
+                                                              NA_character_, exclude_int_bunkers ) )
+
+        }
+
+        instruction_df_with_aggsector <- instruction_df_with_aggsector %>%
+            dplyr::mutate( agg_sector = if_else( agg_sector == "MISSING", NA_character_, agg_sector ) )
+
+        # Convert exclude_int_bunkers to class "logical"
+        instruction_df_with_aggsector <- instruction_df_with_aggsector %>%
+            dplyr::mutate( exclude_int_bunkers = as.logical( exclude_int_bunkers ) )
+
+        instruction_df <- instruction_df_with_aggsector
+
+        # Stop if any values for exclude_int_bunkers are still not TRUE or FALSE or NA
+        instruction_df_wrong_exclude_intstructions <- instruction_df %>%
+            dplyr::filter( !is.na( exclude_int_bunkers ) &
+                           exclude_int_bunkers %!in% c( TRUE, FALSE, T, F ) )
+
+        if( nrow( instruction_df_wrong_exclude_intstructions ) != 0 ){
+
+            stop( paste0 ( "All values for exclude_int_bunkers should be either NA, T,TRUE, F, or FALSE. ",
+                  "See the function cleanInstructions..." ) )
+
+        }
+
+        # Stop if any rows which do not have "all" for agg_sector contain TRUE or FALSE
+        # for exclude_int_bunkers
+        check_non_total_consumption_data <- instruction_df %>%
+            dplyr::filter( agg_sector != "all", exclude_int_bunkers %in% c( TRUE, FALSE, T, F ) )
+
+        if( nrow( check_non_total_consumption_data ) != 0 ){
+
+            stop( paste0( "There are non-NA Values for exclude_int_bunkers for rows where ",
+                          "agg_sector is not equal to -all-. This shouldn't occur. See the ",
+                          "function cleanInstructions..." ) )
+
+        }
 
         # Stop if missing iso and remove any invalid instructions (missing iso)
         invld_instr <- is.invalid( instruction_df$iso )
@@ -297,11 +460,12 @@ cleanInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
             stop ( paste0( sum( invld_instr ) , " instruction(s) invalid in ",
                              instr_dfile, "-instructions.csv", " , missing agg_fuel" ) )
         instruction_df
-    })
+
+    } )
 
     # Combine instructions into a single data frame
     all_instructions <- rbind.fill( instruction_list )
-
     return( all_instructions )
+
 }
 

@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: user_data_inclusion_functions.R
 # Author: Ben Goldstein, Caleb Braun, Patrick O'Rourke
-# Date Last Updated: August 27, 2019
+# Date Last Updated: September 13, 2019
 # Program Purpose: Contains functions for including pre-processed user-defined
 #                  energy extension data. This file focuses mainly on the
 #                  functionality for the actual integration of user and default
@@ -18,16 +18,21 @@
 # default activity data, returning a list with both the data and diagnostics.
 #
 # Args:
-#    usrdata: a subsetted dataframe of user-specified data
-#    default_data: a dataframe of unchanged activity data extracted from
-#      all_activity
-#    Xyears: the year range of data processing
-#    keep_total_cols: the columns whose aggregate value should not change
-#    filename: Root filename for the data, currently unused
-#    specified_breakdowns: Whether to use user-defined breakdowns, currently
-#      unused
-includeUserData <- function( usrdata, default_data, Xyears, keep_total_cols,
-                             filename, specified_breakdowns, all_activity ) {
+#    usrdata:               a subsetted dataframe of user-specified data
+#    default_data:          a dataframe of unchanged activity data extracted from
+#                           all_activity
+#    Xyears:                the year range of data processing
+#    filename:              Root filename for the data, currently unused
+#    instructions:          the instructions file for the usrdata
+includeUserData <- function( usrdata, default_data, Xyears,
+                             filename, all_activity, instructions ) {
+
+    # Define keep_total_cols - the columns whose aggregate value should not change
+    keep_total_cols <- instructions$keep_total_cols[[1]]
+
+    # Define specified_breakdowns - Whether to use user-defined breakdowns, currently
+    # unused
+    specified_breakdowns <- instructions$specified_breakdowns
 
     CEDS_cols <- getCEDSAggCols()
     usrdata_cols <- intersect( CEDS_cols, names( usrdata ) )
@@ -100,6 +105,12 @@ includeUserData <- function( usrdata, default_data, Xyears, keep_total_cols,
 # Returns:
 #   A list containing the adjusted data (all_activity_data) and information
 #     about the normalization, including any warnings (diagnostics)
+# TODO: Provide users with the ability to normalize with or without international bunkers. For example, if
+#       the user is providing total fuel consumption for hard_coal, for which the data did not include int. bunkers,
+#       and keep_total_cols is set to agg_fuel, then the user could decide if int. bunkers should be including
+#       when normalzing the new activity data for total coal consumption. Currently we assume that if the exclude_int_bunkers
+#       is set to TRUE then int. bunkers are not included in the disaggregation of user defined energy data, or in its
+#       normalization
 normalize <- function( default_data, usrdata_disagg, keep_total_cols,
                        usrdata_cols, Xyears, unnormalized, all_activity_data ) {
     # Initialize diagnostic info
