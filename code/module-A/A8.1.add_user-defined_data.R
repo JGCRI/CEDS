@@ -1,12 +1,11 @@
 #------------------------------------------------------------------------------
 # Program Name:    A8.1.add_user-defined_data.R
 # Authors:         Ben Goldstein, Caleb Braun, Patrick O'Rourke
-# Last Updated:    June 4, 2019
+# Last Updated:    September 19, 2019
 # Program Purpose: To process user-defined datasets for use in the historical
 #                  energy extension. See Section 3 of the CEDS User Guide
 #                  (https://github.com/JGCRI/CEDS-dev/wiki/User-Guide) for
 #                  more details.
-#
 # Input Files:  A.comb_default_activity_extended.csv
 #               U.*.csv, U.*-instructions.csv, U.*-mapping.xslx
 # Output Files: A.comb_user_added.csv, A.user_added_changed_rows.csv
@@ -14,6 +13,7 @@
 #   - parameters/user_data_inclusion_functions.R
 #   - parameters/user_data_processing.R
 #   - parameters/user_extension_instr_processing.R
+# TODO:
 # -----------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
@@ -138,6 +138,7 @@ while ( nrow( instructions ) > 0 ) {
 
     # Identify other instructions in the "batch" that will need to be aggregated
     # as one. Files only need to be batched if their year ranges overlap.
+    # TODO: Is batching impacted by exclude_int_bunkers? (does it batch currently by the sectors included in each instruction?)
     batch_instructions <- extractBatchInstructions( working_instructions,
                                                     instructions, s_year, e_year )
 
@@ -213,12 +214,32 @@ while ( nrow( instructions ) > 0 ) {
 
     data_to_use <- getRowsForAdjustment(all_activity_data, usrdata, Xyears)
 
+    # Remove bunkers from disagg_activity for data corresponding to rows in the instructions
+    # which indicate bunkers shuold be excluded in disaggregation of aggregate data
+
+        # Grab instruction rows which have exclude_int_bunkers set to TRUE
+        instruc_file_exclude_int_bunkers <- working_instructions %>%
+            dplyr::filter( exclude_int_bunkers == TRUE )
+
+        # Remove bunkers for data corresponding to each row in instruc_file_exclude_int_bunkers
+        if( nrow( instruc_file_exclude_int_bunkers ) != 0 ){
+
+            data_to_use_bunkers_fixed <- data_to_use %>%
+                dplyr::rowwise( )
+
+            data_to_use_bunkers_fixed <- filter_out_bunkers( working_instructions, usrdata, data_to_use )
+
+        } else {
+
+            data_to_use_bunkers_fixed <- data_to_use
+
+        }
+
     # The normalizeAndIncludeData is the main point of this script; it will
     # normalize, disaggregate, and then incorporate the user-defined data,
     # returning a list with both the data and diagnostics
-    normalized <- includeUserData(usrdata, data_to_use, Xyears, working_instructions$keep_total_cols[[1]],
-                                  data_file, working_instructions$specified_breakdowns,
-                                  all_activity_data)
+    normalized <- includeUserData( usrdata, data_to_use_bunkers_fixed, Xyears,
+                                   data_file, all_activity_data, working_instructions )
 
     activity$all_activity_data <- normalized$all_data
     diagnostics <- normalized$diagnostics
@@ -232,7 +253,6 @@ while ( nrow( instructions ) > 0 ) {
     # Add working instructions to rows_completed, which will be a diagnostic for
     # reviewing what changes occurred
      rows_completed <- rbind( rows_completed, working_instructions )
-
 
 }
 

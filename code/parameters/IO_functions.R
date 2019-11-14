@@ -3,7 +3,6 @@
 # Author(s): Ben Bond-Lamberty, Page Kyle, Jon Seibert, Tyler Pitkanen, Linh Vu, Presley,
 #            Steve Smith, Patrick O'Rourke
 # Last Updated: September 9, 2020
-
 # This file must be sourced by all CEDS R scripts, generally as the second sourced script.
 # Functions contained:
 #   readData, writeData, sourceData, readMetaData, addMetaData,
@@ -646,7 +645,6 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
                               "There should not have been duplicated metadata at this point. ",
                               "See ", fn, ". This is likely because there are commas, quotation marks, ",
                               "or apostrophes in the metadata file ..." ) )
-
             }
 
             # Save metadata
