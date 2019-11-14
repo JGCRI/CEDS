@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: user_extension_instr_processing.R
 # Authors: Ben Goldstein, Caleb Braun, Patrick O'Rourke
-# Date Last Updated: September 13, 2019
+# Date Last Updated: November 5, 2019
 # Program Purpose: Provides functions for the add_user-defined_data script that
 #                  help process the instructions for handling user-defined
 #                  datasets.
@@ -144,7 +144,7 @@ processInstructions <- function( comb_sectors, MSL, MFL, default_activity ) {
 
 
 # Extract batch instructions
-#
+# TODO: update documentation below, I believe this is inaccurate
 # Given a dataframe of instructions and a dataframe of energy extension values,
 # return the rows from the instructions dataframe that apply to the user data.
 #
@@ -168,9 +168,23 @@ extractBatchInstructions <- function( working_instructions, instructions, sy, ey
         # Define what variables are needed to filter instructions by for batching
     matches <- working_instructions$keep_total_cols[[1]]
 
+        # If keep_total_cols is set to "NA", then batch with other instructions for
+        # the iso which are "NA" for the parameter
+    if( working_instructions$keep_total_cols == "NA" ){
+
+        working_instructions <- working_instructions %>%
+            dplyr::mutate( keep_total_cols = as.character( keep_total_cols ) )
+
+        instructions <- instructions %>%
+            dplyr::mutate( keep_total_cols = as.character( keep_total_cols ) )
+
+        matches <- "keep_total_cols"
+
+    }
+
     instructions <- instructions %>%
-        dplyr::semi_join( working_instructions, by = c(matches, "iso" )) %>%
-        dplyr::filter( start_year <= ey, end_year >= sy)
+        dplyr::semi_join( working_instructions, by = c( matches, "iso" ) ) %>%
+        dplyr::filter( start_year <= ey, end_year >= sy )
 
     return( instructions )
 }
@@ -277,8 +291,6 @@ cleanInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
             # meaning that the int. bunkers will be excluded from the total fuel consumption data
             total_consump_missing_int_bunk_instructions <- instruction_df_with_aggsector %>%
                 dplyr::filter( agg_sector == "all", exclude_int_bunkers == "MISSING" )
-
-            instruction_df_with_aggsector$data_file
 
             if( nrow( total_consump_missing_int_bunk_instructions ) != 0 ){
 
@@ -410,15 +422,25 @@ cleanInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
         instruction_df <- removeNonComb( instruction_df, comb_sectors_only )
 
         # Stop if missing keep_total_cols column in instructions file
-        if ( is.null(instruction_df$keep_total_cols))
+        if ( is.null( instruction_df$keep_total_cols) )
             stop( paste0 ( instr_dfile, "-instructions.csv is missing keep_total_cols",
                           " - stop and add this column as it is required." ) )
 
+        # If keep_total_cols is not of class character, make it so
+        if( !is.character( instruction_df$keep_total_cols ) ){
+
+            instruction_df <- instruction_df %>%
+                dplyr::mutate( keep_total_cols = as.character( keep_total_cols ) )
+
+        }
+
         # Split aggregation levels into a vector
         instruction_df <- instruction_df %>%
-            dplyr::mutate(keep_total_cols = strsplit(keep_total_cols, ",") ,
-                          keep_total_cols = lapply(keep_total_cols, gsub, pattern = " ",
-                                                   replacement = ""))
+            dplyr::mutate( keep_total_cols = if_else( is.na( keep_total_cols ), "NA",
+                                                      keep_total_cols ) ) %>%
+            dplyr::mutate( keep_total_cols = strsplit( keep_total_cols, "," ) ,
+                           keep_total_cols = lapply( keep_total_cols, gsub, pattern = " ",
+                                                    replacement = "" ) )
 
         # Map on higher aggregation levels based on what is provided
         # and test for appropriate normalization columns
@@ -429,25 +451,25 @@ cleanInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
             keep_total_cols <- row$keep_total_cols[[1]]
 
             if ( "CEDS_fuel" %in% keep_total_cols ) {
-                keep_total_cols <- union("agg_fuel", keep_total_cols)
+                keep_total_cols <- union( "agg_fuel", keep_total_cols )
             }
 
             if ( "CEDS_sector" %in% keep_total_cols ) {
-                keep_total_cols <- union("agg_sector", keep_total_cols)
+                keep_total_cols <- union( "agg_sector", keep_total_cols )
             }
 
-            if( !( all(keep_total_cols %in% c(NA, CEDS_cols)))) {
+            if( !( all( keep_total_cols %in% c( "NA", CEDS_cols ) ) ) ) {
                 stop( paste0 ( instr_dfile, "-instructions.csv includes columns in keep_total_cols",
-                                " that are not supported." ))
+                                " that are not supported." ) )
             }
 
             # Need to test for if provide a fuel and sector level which is less detailed
             # than keep_total_cols, as data will not be normalized in this case
-            user_cols <- CEDS_cols[!(is.na(row[, CEDS_cols]))]
+            user_cols <- CEDS_cols[ !( is.na( row[ , CEDS_cols ] ) ) ]
 
-            if ( ! ( all(keep_total_cols %in% c(NA, user_cols)))){
+            if ( ! ( all(keep_total_cols %in% c( "NA", user_cols ) ) ) ){
                 stop( paste0 ( instr_dfile, "-instructions.csv includes more detail in keep_total_cols",
-                               " than is provided by the user data itself." ))
+                               " than is provided by the user data itself." ) )
             }
 
             instruction_df$keep_total_cols[[i]] <- keep_total_cols
@@ -465,6 +487,7 @@ cleanInstructions <- function( instructions, comb_sectors_only, MSL, MFL ) {
 
     # Combine instructions into a single data frame
     all_instructions <- rbind.fill( instruction_list )
+
     return( all_instructions )
 
 }

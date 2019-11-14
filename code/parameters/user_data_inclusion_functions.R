@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: user_data_inclusion_functions.R
 # Author: Ben Goldstein, Caleb Braun, Patrick O'Rourke
-# Date Last Updated: September 13, 2019
+# Date Last Updated: November 6, 2019
 # Program Purpose: Contains functions for including pre-processed user-defined
 #                  energy extension data. This file focuses mainly on the
 #                  functionality for the actual integration of user and default
@@ -46,13 +46,14 @@ includeUserData <- function( usrdata, default_data, Xyears,
 
     # Normalize data when you are maintaining the totals for the higher
     # aggregate group (if all userdata_cols are not within keep_total_cols)
-    if( all( usrdata_cols %in% keep_total_cols) ) {
+    if( all( usrdata_cols %in% keep_total_cols ) |  keep_total_cols == "NA" ) {
+
         normalized <- unnormalized
-        warning_diagnostics <- paste("Normalization did not occur as user did not",
-                                     "specify that they wanted to maintain totals",
-                                     "at a higher aggregate group.")
-    }
-    else {
+        warning_diagnostics <- paste( "Normalization did not occur as user did not",
+                                      "specify that they wanted to maintain totals",
+                                      "at a higher aggregate group." )
+
+    } else {
         normalized <- normalize( default_data, usrdata_disagg, keep_total_cols,
                                  usrdata_cols, Xyears, unnormalized, all_activity )
 

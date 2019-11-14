@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name:    A8.1.add_user-defined_data.R
 # Authors:         Ben Goldstein, Caleb Braun, Patrick O'Rourke
-# Last Updated:    September 19, 2019
+# Last Updated:    November 6, 2019
 # Program Purpose: To process user-defined datasets for use in the historical
 #                  energy extension. See Section 3 of the CEDS User Guide
 #                  (https://github.com/JGCRI/CEDS-dev/wiki/User-Guide) for
@@ -138,14 +138,43 @@ while ( nrow( instructions ) > 0 ) {
 
     # Identify other instructions in the "batch" that will need to be aggregated
     # as one. Files only need to be batched if their year ranges overlap.
-    # TODO: Is batching impacted by exclude_int_bunkers? (does it batch currently by the sectors included in each instruction?)
+    # TODO: Does this batch routine currently exclude_int_bunkers? It probably should batch by this value too.
+    #       Also, we should determine if we should batch by anything in addition to iso and "matches"
+    #       when keep_total_cols is set to NA or blank by the user
+    #       (matches is defined as "keep_total_cols" in this case)
     batch_instructions <- extractBatchInstructions( working_instructions,
                                                     instructions, s_year, e_year )
 
     # Remove the batch instructions from the master instruction dataframe
-    anti_join_cols <- grep("keep_total_cols", names(instructions), invert = TRUE, value = TRUE)
-    instructions <- dplyr::anti_join(instructions, batch_instructions,
-                                       by = anti_join_cols)
+    anti_join_cols <- names( instructions ) # TODO: Line previously was anti-joining by all columns but keep_total_cols (unclear why.) Ensure anti_join should have this column included
+
+    #   Convert keep_total_cols to class "character" as the tidyverse currently does not support "joining" data when a column is
+    #   of type "list"
+        batch_instructions_character <- batch_instructions %>%
+            dplyr::mutate( keep_total_cols = as.character( keep_total_cols) )
+
+        instructions_character <- instructions %>%
+            dplyr::mutate( keep_total_cols = as.character( keep_total_cols ) )
+
+        instructions_character <- dplyr::anti_join( instructions_character, batch_instructions_character,
+                                                    by = anti_join_cols )
+
+    #   Split aggregation levels back into a vector.
+    #   This is done to remove the special characters that emerge when converting keep_total_cols to class "character"
+        batch_instructions <- batch_instructions_character %>%
+            dplyr::mutate( keep_total_cols = gsub( "\"", "", keep_total_cols ) ) %>%
+            dplyr::mutate( keep_total_cols = gsub( "c", "", keep_total_cols ) ) %>%
+            dplyr::mutate( keep_total_cols = gsub( "\\(", "", keep_total_cols ) ) %>%
+            dplyr::mutate( keep_total_cols = gsub( "\\)", "", keep_total_cols ) ) %>%
+            dplyr::mutate( keep_total_cols  = strsplit( keep_total_cols, ", " ) )
+
+        instructions <- instructions_character %>%
+            dplyr::mutate( keep_total_cols = gsub( "\"", "", keep_total_cols ) ) %>%
+            dplyr::mutate( keep_total_cols = gsub( "c", "", keep_total_cols ) ) %>%
+            dplyr::mutate( keep_total_cols = gsub( "\\(", "", keep_total_cols ) ) %>%
+            dplyr::mutate( keep_total_cols = gsub( "\\)", "", keep_total_cols ) ) %>%
+            dplyr::mutate( keep_total_cols  = strsplit( keep_total_cols, ", " ) )
+
 
     # Process the batch of instructions (if there is a batch)
     if ( nrow( batch_instructions ) > 0 ) {
