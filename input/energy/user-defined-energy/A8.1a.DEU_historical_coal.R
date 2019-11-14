@@ -21,7 +21,6 @@
 #-------------------------------------------------------------------------------
 # 1.) Set directory, constants, load data, and make mapping
 
-
 # for writeData function
 setwd( '../../' )
 PARAM_DIR <- '../code/parameters/'
