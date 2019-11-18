@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.2.ECLIPSE_flaring_emissions_extension.R
 # Author: Leyang Feng, Patrick O'Rourke
-# Date Last Modified: November 8, 2019
+# Date Last Modified: November 18, 2019
 # Program Purpose: Extends ECLIPSE flaring emissions to period 1965 - last BP year using IEA
 #                  and BP crude oil production data
 # Input Files: [em]_eclipse_flr_emissions.csv, A.en_stat_sector_fuel.csv,
@@ -39,7 +39,7 @@
 # Define emissions species variable
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "BC"
+    if ( is.na( em ) ) em <- "N2O"
 
     MODULE_C <- "../code/module-C/"
 
@@ -363,8 +363,8 @@ if( em == "N2O" ){
         missing_isos <- subset( MCL_clean$iso, MCL_clean$iso %!in% EDGAR_national_ratio$iso )
 
         missing_isos_df <- missing_isos %>%
-            tibble::enframe( name = NULL ) %>%
-            dplyr::rename( iso = value ) %>%
+            as.data.frame( ) %>%
+            dplyr::rename( iso = "." ) %>%
             dplyr::mutate_at( X_EDGAR_INV_YEARS, funs( identity( NA_real_ ) ) ) %>%
             tidyr::gather( year, Ratio_N2O_per_Nox, X_EDGAR_INV_YEARS ) %>%
             dplyr::mutate( IPCC = "1B2", IPCC_description = "Fugitive emissions from oil and gas" )
