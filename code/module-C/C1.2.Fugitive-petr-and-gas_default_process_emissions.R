@@ -1,14 +1,14 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.2.Fugitive-petr-and-gas_default_process_emissions.R
 # Author: Leyang Feng, Patrick O'Rourke
-# Date Last Modified: October 22, 2019
+# Date Last Modified: November 20, 2019
 # Program Purpose: Generates default process emissions for 1B2c_Venting-flaring-oil-gas
 #                  using part of EDGAR JRC PEGASOS data
-# Input Files: C.[em]_ECLIPSE_flaring_emissions_extended.csv, 
-#              JRC_PEGASOS_[em]_TS_REF.csv (if em isn't CH4), EDGAR42_CH4.csv (if em is CH4), 
+# Input Files: C.[em]_ECLIPSE_flaring_emissions_extended.csv,
+#              JRC_PEGASOS_[em]_TS_REF.csv (if em isn't CH4), EDGAR42_CH4.csv (if em is CH4),
 #              v42FT_CH4_2000_2010 (if em is CH4),
 #              C.[em]_GAINS_fug_oil_gas_shares.csv, Master_Country_List.csv,
-#              A.UN_pop_master.csv
+#              A.UN_pop_master.csv, C.N2O_EDGAR_NOx_N2O_fugitive_oil_NG_ratios.csv
 # Output Files: C.[em]_Fugitive-petr-and-gas_aggregate_emissions.csv,
 #               C.[em]_Fugitive-petr-and-gas_default_process_emissions.csv
 # Notes:
@@ -35,7 +35,10 @@
 # Define emissions species variable
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "CO"
+    if ( is.na( em ) ) em <- "N2O"
+
+    em_use <- em
+    if( em == "N2O" ){ em_use <- "NOx" }
 
     MODULE_C <- "../code/module-C/"
 
@@ -43,7 +46,7 @@
     flaring <- readData( "MED_OUT", file_name = paste0( 'C.', em, '_ECLIPSE_flaring_emissions_extended' ) )
 # For non-methane read in the EDGAR JRC PEGASOS data
 if ( em != 'CH4' ){
-    EDGAR_raw <- readData( 'EM_INV', domain_extension = "EDGAR/", file_name = paste0( 'JRC_PEGASOS_', em, '_TS_REF' ),
+    EDGAR_raw <- readData( 'EM_INV', domain_extension = "EDGAR/", file_name = paste0( 'JRC_PEGASOS_', em_use, '_TS_REF' ),
                            extension = ".xlsx", sheet_selection = 1, skip = 8 )
 }
 # For methane read in the EDGAR 4.2 and Edgar fast track
@@ -52,6 +55,14 @@ if ( em != 'CH4' ){
     EDGAR_FT_raw <- readData( "EM_INV", file_name = '/EDGAR/v42FT_CH4_2000_2010',
                               extension = ".xlsx", sheet_selection = 1, skip = 9 )
     }
+
+# For N2O read in EDGAR 4.2 fugitive oil and gas NOx to N2O ratio data,
+# which will be used to convert JRC_PEGASOS NOx data to N2O
+if( em == "N2O" ){
+
+    EDGAR_N2O_NOx_fug_oil_NG_ratios <- readData( "MED_OUT", file_name = paste0( "C.", em, "_EDGAR_NOx_N2O_fugitive_oil_NG_ratios" ) )
+
+}
 
 # For all ems besides NH3, load the GAINS fugitive oil and gas subsector emissions shares.
 if( em != "NH3" ){
@@ -224,6 +235,31 @@ if ( em == 'CH4' ){
     edgar <- edgar[ !is.na( edgar$iso ), ]
     edgar[ is.na( edgar ) ] <- 0
     edgar <- edgar[ , c( 'iso', 'sector', 'sector_description', all_Xyear ) ]
+
+    # If the em is N2O, then convert NOx EDGAR data to N2O
+    if( em == "N2O" ){
+
+        printLog( "Using EDGAR N2O and NOx data to produce convert EDGAR PEGASOS NOx emissions to N2O emissions, as PEGASOS only provides",
+                  "NOx data for this sector..." )
+
+        EDGAR_N2O_NOx_fug_oil_NG_ratios_long <- EDGAR_N2O_NOx_fug_oil_NG_ratios %>%
+            dplyr::select( iso, all_Xyear ) %>%
+            tidyr::gather( year, Ratio_N2O_per_Nox, all_Xyear )
+
+        edgar <- edgar %>%
+            tidyr::gather( year, NOx_emissions, all_Xyear ) %>%
+            dplyr::left_join( EDGAR_N2O_NOx_fug_oil_NG_ratios_long, by = c( "iso", "year" ) ) %>%
+            dplyr::mutate( N2O_emissions = NOx_emissions * Ratio_N2O_per_Nox ) %>%
+            dplyr::select( -NOx_emissions, -Ratio_N2O_per_Nox ) %>%
+            tidyr::spread( year, N2O_emissions )
+
+        if( any( is.na( edgar[ , all_Xyear ] ) ) ){
+
+            stop( "There should be no NAs after converting EDGAR NOx fugitive oil and gas emissions to N2O...")
+
+        }
+
+    }
 
     # Split edgar data into three parts
     # There are three 1B2 sub-sectors in EGDAR: Fugitive emissions from oil and gas;
@@ -417,7 +453,6 @@ if ( em == 'CH4' ){
 
 
   }
-
 # -----------------------------------------------------------------------------
 
 # 6. Disaggregate EDGAR-ECLIPSE fugitive oil and gas emissions to fugitive oil,
@@ -510,7 +545,7 @@ if( em == "NH3" ){
     }
 
 # -----------------------------------------------------------------------------
-# 5. Write output
+# 7. Write output
 #   Add a metadata note for the outputs of this script
     meta_names <- c( "Data.Type", "Emission", "Region", "Sector", "Start.Year", "End.Year", "Source.Comment")
     meta_note <- c( "Default process emissions for 1B2c_Venting-flaring-oil-gas", em, "All", "Fugitive petr. and gas emissions",

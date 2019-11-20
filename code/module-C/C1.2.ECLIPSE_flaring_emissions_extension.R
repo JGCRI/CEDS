@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.2.ECLIPSE_flaring_emissions_extension.R
 # Author: Leyang Feng, Patrick O'Rourke
-# Date Last Modified: November 18, 2019
+# Date Last Modified: November 20, 2019
 # Program Purpose: Extends ECLIPSE flaring emissions to period 1965 - last BP year using IEA
 #                  and BP crude oil production data
 # Input Files: [em]_eclipse_flr_emissions.csv, A.en_stat_sector_fuel.csv,
@@ -367,7 +367,8 @@ if( em == "N2O" ){
             dplyr::rename( iso = "." ) %>%
             dplyr::mutate_at( X_EDGAR_INV_YEARS, funs( identity( NA_real_ ) ) ) %>%
             tidyr::gather( year, Ratio_N2O_per_Nox, X_EDGAR_INV_YEARS ) %>%
-            dplyr::mutate( IPCC = "1B2", IPCC_description = "Fugitive emissions from oil and gas" )
+            dplyr::mutate( IPCC = "1B2", IPCC_description = "Fugitive emissions from oil and gas" ) %>%
+            dplyr::mutate( iso = as.character( iso ) )
 
         EDGAR_national_ratio <- EDGAR_national_ratio %>%
             dplyr::bind_rows( missing_isos_df )
@@ -390,7 +391,6 @@ if( em == "N2O" ){
         dplyr::select( iso, X_emissions_years ) %>%
         tidyr::gather( year, Ratio_N2O_per_Nox,  X_emissions_years )
 
-
 #   Apply Ratio to emissions
     flaring_extended <- flaring_extended %>%
         tidyr::gather( year, NOx_emissions, BP_Xyears ) %>%
@@ -399,6 +399,12 @@ if( em == "N2O" ){
         dplyr::mutate( em = "N2O" ) %>%
         dplyr::select( -NOx_emissions, -Ratio_N2O_per_Nox ) %>%
         tidyr::spread( year, N2O_emissions )
+
+#   Spread ratios back to wide format
+    EDGAR_N2O_NOx_ratios_wide <- EDGAR_ratios_extended %>%
+        tidyr::spread( year, Ratio_N2O_per_Nox ) %>%
+        dplyr::mutate( units = "EDGAR fugitive oil and gas ratio - N2O / NOx " ) %>%
+        dplyr::select( iso, units, X_emissions_years )
 
  }
 
@@ -409,6 +415,12 @@ if( em == "N2O" ){
 if( em != "N2O" ){
 
     writeData( flaring_ratio , "DIAG_OUT", paste0( "C.", em, "_ECLIPSE_flaring_to_crude_oil_production_ratios" ) )
+
+}
+
+if( em == "N2O" ){
+
+    writeData( EDGAR_N2O_NOx_ratios_wide , "MED_OUT", paste0( "C.", em, "_EDGAR_NOx_N2O_fugitive_oil_NG_ratios" ) )
 
 }
 
