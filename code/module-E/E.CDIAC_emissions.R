@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: E.CDIAC_emissions.R
 # Author(s): Rachel Hoesly, Linh Vu, Patrick O'Rourke
-# Date Last Updated: 19 April 2019
+# Date Last Updated: November 20, 2019
 # Program Purpose: To read in & reformat CDIAC emissions data.
 # Input Files: A.UN_pop_master.csv, CDIAC_national_1751_2011.csv, CDIAC_country_map.csv
 #              Master_Country_List,csv, USGS_Commodity_Summaries_Cement_Production.xlsx
@@ -12,7 +12,16 @@
 #               E.CO2_CDIAC_by_iso_CDIAC_fuel.csv, E.CDIAC_cement_EF.csv,
 #               E.USGS_cement_production.csv
 # Notes: Cement data is extended to last available year for USGS cement data. Other data ends at last CDIAC year, with zeros afterward.
-# TODO:
+# TODO: Some outputs may need to be fixed. For instance, there are numerous outputs
+#       which have 0 emissions for 2012-2015, which is really an artifact of the fact
+#       that we extended CDIAC cement emissions, but not emissions for other sources in CDIAC
+#       (therefore, the extra years should be removed or set to NA for non-cement emissions):
+#           - cdiac_final - all sectors other than cement (this is misleading and could cause issues)
+#           - cdiac_total - emissions are zero from 2012-2015.... these years can be removed
+#           - cdiac_solid_fuel - emisisons are zero from 2012-2015.... these years can be removed
+#           - cdiac_solid_fuel_cumulative - cumulative emissions are present from 2012-2015, but set to 2011 values
+#             since emissions are 0 from 2012-2015, meaning cumulative emissions don't change
+
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
@@ -70,13 +79,13 @@
         no_per_capita_data_years <- paste0( "X", 1750:1949 )
 
         fuels_of_interest <- unique( CDIAC_df_in$fuel)
-        fuels_of_interest_no_percap <- fuels_of_interest[-7]                                    # Remove per_capita_CO2 since this will get fixed
+        fuels_of_interest_no_percap <- subset( fuels_of_interest, fuels_of_interest != "per_capital_CO2" ) # Remove per_capita_CO2 since this will get fixed
         fuels_of_interest_final <- c( fuels_of_interest_no_percap, "CDIAC_derived_population" ) # Add derived CDIAC population
 
 #       Calculate aggregate UN region population
-
         agg_region_iso_populations <- population_data %>%
             dplyr::filter( iso %in% agg_region_all_isos ) %>%
+            dplyr::select( iso, CDIAC_years_use ) %>%
             tidyr::gather( key = Years, value = Population, CDIAC_years_use ) %>%
             dplyr::filter( Years %in% extended_CDIAC_years_with_Xs )
 
@@ -457,8 +466,8 @@
 #    Example: USA CDIAC data contains data for the American Samoa, Guam, Puerto Rico, U.S. Virgin Islands,
 #             and the USA (proper, 50 states)
 
-    extended_CDIAC_years_with_Xs <- paste0( "X", cdiac_start_year:cdiac_end_year )
-    CDIAC_years <- paste0( "X", 1750:2014 )
+    extended_CDIAC_years_with_Xs <- paste0( "X", cdiac_start_year : cdiac_end_year )
+    CDIAC_years <- paste0( "X", 1750 : 2014 )
 
 #   Remove original Puerto Rican data, as it is only available for 1920
     cdiac_Puerto_Rico <- cdiac_LI_corrected %>%
