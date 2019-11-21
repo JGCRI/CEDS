@@ -3,7 +3,7 @@
 # Program Name: S1.1.write_summary_data.R
 # Authors: Rachel Hoesly, Steve Smith, Linh Vu, Presley Muwan, Leyang Feng,
 #          Caleb Braun, Patrick O'Rourke
-# Date Last Updated: April 25, 2019
+# Date Last Updated: November 21, 2019
 # Program Purpose: Produces summary output
 # Input Files: Master_Country_List.csv
 #              [em]_total_CEDS_emissions.csv
@@ -336,7 +336,7 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
 # source figure and comparison files to print figures
 # source('../code/diagnostic/Figures.R')
 
-if (em != 'CO2')  source('../code/diagnostic/Compare_to_RCP.R')
-if( em %!in% c( 'CO2', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')
+if (em %!in% c( 'CO2', 'N2O' ) )  source('../code/diagnostic/Compare_to_RCP.R')
+if( em %!in% c( 'CO2', 'N2O', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')
 
 logStop()
