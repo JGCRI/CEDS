@@ -1061,7 +1061,7 @@ if ( em %!in% c( 'N2O' ) ) {
         rbind( on_road_final_EFs ) %>%
         rbind( elec_EFs_final ) %>%
         rbind( heat_production_efs ) %>%
-        dplyr::filter(! years %!in% emissions_years )
+        dplyr::filter( years %in% emissions_years )
 
     current_years <- sort( unique( comb_ef$years ) )
     most_recent_current_year <- max( current_years )
@@ -1116,7 +1116,7 @@ if ( em %!in% c( 'N2O' ) ) {
       dplyr::rename( iso = "." ) %>%
       dplyr::arrange( iso )
 
-    comb_ef_final <- comb_ef_final[ rep( row.names( comb_ef_final ), unique_isos ), ]
+    comb_ef_final <- data.frame(comb_ef_final)[ rep( row.names( comb_ef_final ), unique_isos ), ]
 
     comb_ef_final <- dplyr::bind_cols( comb_ef_final, MCL_list_final ) %>%
       dplyr::select( iso, sector, fuel, units, X_emissions_years ) %>%
