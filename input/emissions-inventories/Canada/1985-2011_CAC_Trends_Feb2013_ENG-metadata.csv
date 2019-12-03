@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start-Year,End-Year,Source/Comment
+Emissions,All,Canada,All,1985,2011,Old version of Canada emission inventories. Used in CEDS to extend newer time series back to 1985.
