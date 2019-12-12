@@ -1,0 +1,22 @@
+# Ignore all additional files in this directory
+*
+# Except these files
+!.gitignore
+!A.aircraft_fix.csv
+!A.aircraft_fix-instructions.csv
+!A.aircraft_fix-metadata.csv
+!A.DEU_Etemad_Luciani_1800-1890.csv
+!A.DEU_Etemad_Luciani_1800-1890-instructions.csv
+!A.DEU_Etemad_Luciani_1800-1890-metadata.csv
+!A.DEU_historical_coal-instructions.csv
+!A.GBR_historical_coal_aggsec_sector_map.csv
+!A.GBR_historical_coal_aggsec-instructions.csv
+!A.GBR_historical_coal_total-instructions.csv
+!A.US-EIA_energy_data_aggsec_sector_map.csv
+!A.US-EIA_energy_data_aggsec-instructions.csv
+!A.US-EIA_energy_data_aggsec-mapping.xlsx
+!A.US-EIA_energy_data_CEDSsec-instructions.csv
+!A.US-EIA_energy_data_CEDSsec-mapping.xlsx
+!README.txt
+
+

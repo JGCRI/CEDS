@@ -1,0 +1,11 @@
+collected_or_not,income_level,rural_or_urban,scenario,fraction_burnt,uncertainty
+collected,developed,rural,central,0,0.1
+uncollected,developed,rural,central,0.3,0.3
+collected,developed,urban,central,0,0.1
+uncollected,developed,urban,central,0.3,0.1
+collected,developing,rural,central,0.05,0.1
+uncollected,developing,rural,central,0.3,0.1
+collected,developing,urban,central,0.05,0.1
+uncollected,developing,urban,central,0.3,0.1
+uncollected,developing,rural,high,0.35
+uncollected,developing,urban,high,0.35

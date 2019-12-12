@@ -3,10 +3,10 @@
 # Authors: Jon Seibert
 # Last Updated: 22 June 2015
 
-# This file should be sourced by any R script performing temporal reformatting, truncation, 
+# This file should be sourced by any R script performing temporal reformatting, truncation,
 # extension, or interpolation of CEDS data.
 # Functions contained:
-#   isXYear, getEndYear, xYearToNum. getName. getIndex, getForwardExtensionRange,
+#   getEndYear, xYearToNum. getName getIndex, getForwardExtensionRange,
 #   getBackwardExtensionRange, getInterpolationRange, truncateAtYear, extendForward,
 #   extendBackward, interpolate
 
@@ -14,16 +14,6 @@
 
 # ----------------------------------------------------------------------------------
 # Helper functions for addToActivityDb: can be used as standalone
-
-# isXYear: returns a boolean indicating whether the parameter is an xYear.
-isXYear <- function( yr ){
-    if( is.numeric( yr ) ){ return( FALSE ) }
-    first <- substr( yr, 1, 1 )
-    rest <- substr( yr, 2, 5 )
-    if( ( first == "X" || first == "x" ) && !is.na( as.numeric( rest ) ) ){ 
-        return( TRUE ) 
-    } else{ return( FALSE ) }
-}
 
 # getEndYear: Retrieve ending year for a data frame
 getEndYear <- function( df ){ return( tail( names( df ) , 1 ) ) }
@@ -45,97 +35,97 @@ getIndex <- function( df, name ){
 # They accept numerical years, strings of years, and strings of xYears.
 # They return the list in the same format as the inputs are recieved.
 # Note: they are kept as separate functions for ease of use and understanding.
-getForwardExtensionRange <- function( st_yr, end_yr) { 
+getForwardExtensionRange <- function( st_yr, end_yr) {
     xYear <- FALSE
     char <- FALSE
-    if( is.character( st_yr ) ){ 
-        if( isXYear( st_yr ) ){ 
-            st_yr <- xYearToNum( st_yr ) 
+    if( is.character( st_yr ) ){
+        if( isXYear( st_yr ) ){
+            st_yr <- xYearToNum( st_yr )
             xYear <- TRUE
         }
-        else{ 
-            st_yr <- as.numeric( st_yr )  
+        else{
+            st_yr <- as.numeric( st_yr )
             char <- TRUE
         }
     }
-    if( is.character( end_yr ) ){ 
-        if( isXYear( end_yr ) ){ 
-            end_yr <- xYearToNum( end_yr ) 
+    if( is.character( end_yr ) ){
+        if( isXYear( end_yr ) ){
+            end_yr <- xYearToNum( end_yr )
             xYear <- TRUE
         }
-        else{ 
+        else{
             end_yr <- as.numeric( end_yr )
             char <- TRUE
         }
     }
     results <- seq( st_yr + 1,end_yr )
-    
+
     if( char ){ results <- as.character( results ) }
     if( xYear ){ results <- paste0( "X", as.character( results ) ) }
-    
-    return( results ) 
+
+    return( results )
 }
 
 getBackwardExtensionRange <- function( end_yr, st_yr ){
     xYear <- FALSE
     char <- FALSE
-    if( is.character( st_yr ) ){ 
-        if( isXYear( st_yr ) ){ 
-            st_yr <- xYearToNum( st_yr ) 
+    if( is.character( st_yr ) ){
+        if( isXYear( st_yr ) ){
+            st_yr <- xYearToNum( st_yr )
             xYear <- TRUE
         }
-        else{ 
-            st_yr <- as.numeric( st_yr )  
+        else{
+            st_yr <- as.numeric( st_yr )
             char <- TRUE
         }
     }
-    if( is.character( end_yr ) ){ 
-        if( isXYear( end_yr ) ){ 
-            end_yr <- xYearToNum( end_yr ) 
+    if( is.character( end_yr ) ){
+        if( isXYear( end_yr ) ){
+            end_yr <- xYearToNum( end_yr )
             xYear <- TRUE
         }
-        else{ 
+        else{
             end_yr <- as.numeric( end_yr )
             char <- TRUE
         }
     }
 	results <- seq( st_yr,end_yr - 1 )
-    
+
     if( char ){ results <- as.character( results ) }
     if( xYear ){ results <- paste0( "X", as.character( results ) ) }
-    
-    return( results ) 
+
+    return( results )
 }
 
 getInterpolationRange <- function( early_edge, late_edge ){
     xYear <- FALSE
     char <- FALSE
-    if( is.character( early_edge ) ){ 
-        if( isXYear( early_edge ) ){ 
-            early_edge <- xYearToNum( early_edge ) 
+    if( is.character( early_edge ) ){
+        if( isXYear( early_edge ) ){
+            early_edge <- xYearToNum( early_edge )
             xYear <- TRUE
         }
-        else{ 
-            early_edge <- as.numeric( early_edge )  
+        else{
+            early_edge <- as.numeric( early_edge )
             char <- TRUE
         }
     }
-    if( is.character( late_edge ) ){ 
-        if( isXYear( late_edge ) ){ 
-            late_edge <- xYearToNum( late_edge ) 
+    if( is.character( late_edge ) ){
+        if( isXYear( late_edge ) ){
+            late_edge <- xYearToNum( late_edge )
             xYear <- TRUE
         }
-        else{ 
+        else{
             late_edge <- as.numeric( late_edge )
             char <- TRUE
         }
     }
     results <- seq( early_edge + 1, late_edge - 1 )
-    
+
     if( char ){ results <- as.character( results ) }
     if( xYear ){ results <- paste0( "X", as.character( results ) ) }
-    
-    return( results ) 
+
+    return( results )
 }
 
 # truncateAtYear: Truncate data to use common starting year as earliest and common end year as latest.
@@ -179,27 +169,27 @@ extendForward <- function( df, end, range ){
 extendBackward <- function( df, st_year, range ){
     data_start <- findDataStart( df )
     for( j in 1:length( range ) ){
-        df <- cbind( cbind( df[ 1:( data_start + j - 2 ) ], df[ st_year ] ), 
+        df <- cbind( cbind( df[ 1:( data_start + j - 2 ) ], df[ st_year ] ),
             df[ ( data_start + j - 1 ):length( df ) ] )
         names( df )[[ data_start + j - 1 ]] <- range[[ j ]]
     }
     return(df)
 }
 
-# interpolate: Fills in missing years between two given years. 
+# interpolate: Fills in missing years between two given years.
 # Default fill-in values are the average of the values of the two edge years.
 
 # CURRENTLY BROKEN. WILL FIX TOMORROW.
-interpolate <- function( df, early_edge, late_edge, method = "linear" ){ 
+interpolate <- function( df, early_edge, late_edge, method = "linear" ){
     range <- getInterpolationRange( early_edge, late_edge )
     #if( isXYear( early_edge ) ){ range <- paste0( "X", range ) }
-    
+
     early <- getIndex( df, early_edge )
     late <- getIndex( df, late_edge )
-    
-    if( method == "average" ){  
+
+    if( method == "average" ){
         value <- ( ( df[ early ] + df[ late ] ) / 2 )
-        
+
         for( column in range ){
             df <- cbind( cbind( df[ 1:early ], value ), df[ late:length( df ) ] )
             names( df )[ early + 1 ] <- column
@@ -210,7 +200,7 @@ interpolate <- function( df, early_edge, late_edge, method = "linear" ){
     if( method == "linear" ){
         increment <- ( df[ late ] - df[ early ] ) / ( length( range ) + 1 )
         value <- df[ early ] + increment
-    
+
         for( column in range ){
             df <- cbind( cbind( df[ 1:early ], value ), df[ late:length( df ) ] )
             names( df )[ early + 1 ] <- column
@@ -219,6 +209,6 @@ interpolate <- function( df, early_edge, late_edge, method = "linear" ){
             value <- value + increment
         }
     }
-    
+
     return( df )
 }

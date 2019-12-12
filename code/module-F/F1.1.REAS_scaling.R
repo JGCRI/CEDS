@@ -1,18 +1,18 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.REAS_scaling.R
 # Authors' Names: Patrick O'Rourke, Rachel Hoesly
-# Date Last Modified: December 26th, 2015
+# Date Last Modified: March 7, 2019
 # Program Purpose: To create scaling factors & update emissions estimate for
 # the REAS regions from latest emissions working CEDS copy.
-# Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv, 
-#              F.[em]_scaled_emissions.csv, UNFCCC_scaling_mapping.xlsx, 
+# Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
+#              F.[em]_scaled_emissions.csv, UNFCCC_scaling_mapping.xlsx,
 #              E.[em]_REAS_inventory.csv
 # Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
-# Notes: REAS inventory has both level 1 and level 2 sectors. Choose data in 
+# Notes: REAS inventory has both level 1 and level 2 sectors. Choose data in
 #       E.REAS_emissions.R. Ensure that the correct scaling map is chosen
-# TODO: 1.) Include a function to specify which sectors should not be scaled for 
+# TODO: 1.) Include a function to specify which sectors should not be scaled for
 #       certain years for certain countries
-#       2.) Include a function to specify which sectors should not be scaled for 
+#       2.) Include a function to specify which sectors should not be scaled for
 #       certain countries at all
 
 # ------------------------------------------------------------------------------
@@ -59,20 +59,20 @@
     inv_name <- 'REAS'
 # Do not include partial regions (Russia) or Japan (for which we have more complete inventory)
     if ( em == "NH3" ) {
-      	region <- c( "afg", "bgd", "brn", "btn", "chn", "idn", "ind", "kaz", 
-      	             "kgz", "khm", "kor", "lao", "lka", "mdv", "mmr", "mng", 
-      	             "mys", "npl", "pak", "phl", "prk", "sgp", "tha", "tjk", 
-      	             "tkm", "twn", "uzb", "vnm" ) 
-    
+      	region <- c( "afg", "bgd", "brn", "btn", "chn", "idn", "kaz",
+      	             "kgz", "khm", "kor", "lao", "lka", "mdv", "mmr", "mng",
+      	             "mys", "npl", "pak", "phl", "prk", "sgp", "tha", "tjk",
+      	             "tkm", "twn", "uzb", "vnm" )
+
     } else {
-    # Do not include regions for which we have other inventories ("kor"). 
+    # Do not include regions for which we have other inventories ("kor").
     # Include Taiwan to get REAS sector detail, then re-scale with Taiwan inventory data directly
-        region <- c( "afg", "bgd", "brn", "btn", "idn", "ind", "kaz", "kgz", 
-                     "khm", "lao", "lka", "mdv", "mmr", "mng", "mys", "npl", 
-                     "pak", "phl", "prk", "sgp", "tha", "tjk", "tkm", "twn", 
+        region <- c( "afg", "bgd", "brn", "btn", "idn", "kaz", "kgz",
+                     "khm", "lao", "lka", "mdv", "mmr", "mng", "mys", "npl",
+                     "pak", "phl", "prk", "sgp", "tha", "tjk", "tkm", "twn",
                      "uzb", "vnm" )
     }
-    
+
     inv_years<-c( 2000:2008 )
 
 # REAS level 1 inventory is reformatted by the E2.REAS_em_emissions_lvl1.R script

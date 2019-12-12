@@ -41,7 +41,7 @@
     printLog( 'Loading EF parameter data files' )
     files_list <- list.files( path = './default-emissions-data/EF_parameters',
                               pattern = '*.csv' )
-    files_list <- file_path_sans_ext( files_list )
+    files_list <- tools::file_path_sans_ext( files_list )
 
 # select s content and ash ret files
     s_content_file_list <- files_list[ grep( pattern = "s_content",

@@ -1,21 +1,20 @@
 # ---------------------------------------------------------------------------
 # Program Name: B1.1.base_comb_GAINS_EMF-30.R
 # Author: Rachel Hoesly, Linh Vu
-# Date Last Updated: 16 April 2019
+# Date Last Updated: 20 August, 2019
 # Program Purpose: Generate base emission factors from global GAINS EMF-30 data
 #                  SO2, BC, OC, CO2, and CH4 are just used as diagnostics
 # Input Files: GAINS_EMF30_EMISSIONS_extended_Ev5a_CLE_Nov2015.xlsx,
 #              GAINS_EMF30_ACTIVITIES_extended_Ev5a_Nov2015.xlsx,
 #              OECD_Conversion_Factors.csv, NonOECD_Conversion_Factors.csv,
 #              emf-30_ctry_map.csv, emf-30_fuel_sector_map.csv
-# Output Files: B1.2.energy_conversion_factors.csv,
-#               B1.1.Europe_heat_content_IEA.csv,
-#               B.[em]_NC_EF_GAINS_EMF30.csv,
-#               B.[em]_comb_EF_GAINS_EMF30.csv
+# Output Files: B1.2.energy_conversion_factors.csv, B1.1.Europe_heat_content_IEA.csv,
+#               B.[em]_NC_EF_GAINS_EMF30.csv, B.[em]_comb_EF_GAINS_EMF30.csv,
 # Notes: transportation_rail only hase a 2020 values, so interpolated values are
 #           constant extended back from 2020 to 2011
 # TODO:  For SO2, create post 2010 S control trends instead of EFs
-#           (only writes to diagnostic now)
+#           (only writes to diagnostic now).
+#        Heat content should be fuel consumption weighted by GAINS region
 #
 # ---------------------------------------------------------------------------
 
@@ -41,7 +40,6 @@
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
     if ( is.na( em ) ) em <- "SO2"
-    em_lc <- tolower( em )
 
 # Stop script if running for unsupported species
     if ( em %!in% c('SO2','NOx','NMVOC','BC','OC','CH4','CO','CO2') ) {
@@ -93,6 +91,8 @@
 
 # ---------------------------------------------------------------------------
 # 2. Calculate GAINS heat content
+#    TODO: Here heat content should be fuel consumption weighted by GAINS region
+
 #    The IEA data provides conversions (heat content) for a variety of flows and fuels
 #    and for most countries. Take only EU countries and develop a conversion factor
 #    by taking a weighted average of fuels brought together into CEDS fuels.
@@ -132,6 +132,9 @@
 
 # Using the function defined in Section 0.5 and IEA fuels to create a unit
 # conversion multiplier for the CEDS fuel equivalents in the GAINS data.
+# TODO: Here heat content should fuel consumption weighted by GAINS region -
+#       and the below hard coded IEA fuels should be read in from the IEA fuel mapping file
+
     browncoal <- c( "Sub.bituminous.coal", "Lignite" )
     mult_browncoal <- calc_heat_content( conversion, browncoal )
 
@@ -145,15 +148,16 @@
     heavy_oil <- c( "Crude.oil", "Fuel.oil" )
     mult_heavy_oil <- calc_heat_content( conversion, heavy_oil )
 
-# IEA does not have covnersion factors for biomass, so assume value for wood
-    mult_biomass <- 13799.60448 # Value for wood
+# IEA does not have covnersion factors for biomass, so assume value for wood from GAINS fuel wood value in common_data.R
+    KJ_per_MJ <- 1000
+    mult_biomass <- GAINS_conversionFactor_fuelwood_MJ_per_kg * KJ_per_MJ
+
+# Use default natural gas covnersion factor as well
+# GAINS is based on IEA energy statistics and, therefore, units are TJ-net
+    mult_NaturalGas <- conversionFactor_naturalgas_TJ_per_kt_Net * 1000 # NG heat content in kJ/kg
 
 # These have a single column of data and therefore the function is not necessary;
 #   Execute a single sum
-    NaturalGas <- c( "Natural.gas.liquids" )
-    mult_NaturalGas <- sum( conversion[ , NaturalGas ], na.rm = T ) /
-                       length( na.omit( conversion[ , NaturalGas ] ) )
-
     Diesel <- c( "Gas.diesel.oil" )
     mult_Diesel <- sum( conversion[ , Diesel ], na.rm = T ) /
                    length( na.omit( conversion[ , Diesel ] ) )
@@ -173,16 +177,16 @@
     GAINS_heat_content$units <- "kJ/kg"
 
 # Write this heat content to intermediate output
-    writeData( GAINS_heat_content, domain = "MED_OUT", fn = "B1.1.Europe_heat_content_IEA" )
+  writeData( GAINS_heat_content, domain = "MED_OUT", fn = "B1.1.Europe_heat_content_IEA" )
 
 # ---------------------------------------------------------------------------
 # 3. Map activity and emissions to CEDS sectors and fuels.
 
     printLog("Mapping and aggregating to ceds fuels and sectors")
 
-# Xyears and years lists for relevant years
-    X_years <- c( 'X2000', 'X2005', 'X2010', 'X2020' )
+# Xyears and years lists for relevant years in GAINS data
     years <- c( '2000', '2005', '2010', '2020' )
+    X_years <- paste0( "X", years )
 
 # Select years
     emissions <- emissions[ , c( 'Region', 'Sector', years ) ]
@@ -244,6 +248,7 @@
 
 # Drop incomplete cases
     activities_ceds <- activities_ceds[ complete.cases( activities_ceds ), ]
+
 # Drop unnecessary columns and convert to Xyears
     activities_ceds <- activities_ceds[ , c( 'iso', 'sector', 'fuel',
                                              'Unit', years ) ]
@@ -262,43 +267,41 @@
 
 # For each CEDS fuel, convert energy to kg fuel based on the given heat content.
 # fuel mass in kt = fuel energy * 10^-6 / heat content (kJ/kg)
+    convert_to_kg_of_fuel <- function( df_in, heat_content_df, fuel_use ){
 
-### Could turn this into a function
-    activities_ceds[ activities_ceds$fuel %in% "brown_coal", X_years ] <-
-         ( activities_ceds[ activities_ceds$fuel %in% "brown_coal", X_years ] /
-         GAINS_heat_content[ which( GAINS_heat_content$fuel == 'brown_coal' ),
-                             'heat_content' ] ) * 10^-6
+        df_in[ df_in$fuel %in% fuel_use, X_years ] <-
+        ( df_in[ df_in$fuel %in% fuel_use, X_years ] /
+              heat_content_df[ which( heat_content_df$fuel == fuel_use ),
+                                  'heat_content' ] ) * 10^-6
 
-    activities_ceds[activities_ceds$fuel %in% "hard_coal", X_years] <-
-         ( activities_ceds[ activities_ceds$fuel %in% "hard_coal", X_years ] /
-         GAINS_heat_content[ which( GAINS_heat_content$fuel == 'hard_coal' ),
-                             'heat_content' ] ) * 10^-6
+        df_out <- df_in
 
-    activities_ceds[activities_ceds$fuel %in% "biomass", X_years] <-
-         ( activities_ceds[ activities_ceds$fuel %in% "biomass", X_years ] /
-         GAINS_heat_content[ which( GAINS_heat_content$fuel == 'biomass' ),
-                             'heat_content' ] ) * 10^-6
+        return( df_out )
 
-    activities_ceds[activities_ceds$fuel %in% "light_oil", X_years] <-
-         ( activities_ceds[ activities_ceds$fuel %in% "light_oil", X_years ] /
-         GAINS_heat_content[ which( GAINS_heat_content$fuel == 'light_oil' ),
-                             'heat_content' ] ) * 10^-6
+    }
 
-    activities_ceds[activities_ceds$fuel %in% "natural_gas", X_years] <-
-         ( activities_ceds[ activities_ceds$fuel %in% "natural_gas", X_years ] /
-         GAINS_heat_content[ which( GAINS_heat_content$fuel == 'natural_gas' ),
-                             'heat_content' ] ) * 10^-6
+#   biomass convert
+    activities_ceds <- convert_to_kg_of_fuel( activities_ceds, GAINS_heat_content, "biomass" )
 
-    activities_ceds[activities_ceds$fuel %in% "diesel_oil", X_years] <-
-         ( activities_ceds[ activities_ceds$fuel %in% "diesel_oil", X_years ] /
-         GAINS_heat_content[ which( GAINS_heat_content$fuel == 'diesel_oil' ),
-                             'heat_content' ] ) * 10^-6
+#   brown_coal
+    activities_ceds <- convert_to_kg_of_fuel( activities_ceds, GAINS_heat_content, "brown_coal" )
 
-    activities_ceds[activities_ceds$fuel %in% "heavy_oil", X_years] <-
-         ( activities_ceds[ activities_ceds$fuel %in% "heavy_oil", X_years ] /
-         GAINS_heat_content[ which( GAINS_heat_content$fuel == 'heavy_oil' ),
-                             'heat_content' ] ) * 10^-6
+#   hard_coal
+    activities_ceds <- convert_to_kg_of_fuel( activities_ceds, GAINS_heat_content, "hard_coal" )
 
+#   diesel_oil
+    activities_ceds <- convert_to_kg_of_fuel( activities_ceds, GAINS_heat_content, "diesel_oil" )
+
+#   heavy_oil
+    activities_ceds <- convert_to_kg_of_fuel( activities_ceds, GAINS_heat_content, "heavy_oil" )
+
+#   light_oil
+    activities_ceds <- convert_to_kg_of_fuel( activities_ceds, GAINS_heat_content, "light_oil" )
+
+#   natural_gas
+    activities_ceds <- convert_to_kg_of_fuel( activities_ceds, GAINS_heat_content, "natural_gas" )
+
+#   Label units as kg for values which were converted from kj
     activities_ceds[ which( activities_ceds$units == 'kJ' ), 'units' ] <- 'kt'
 
 # Convert mass units to kt
@@ -358,7 +361,7 @@
 # Keep only rows which aren't completely NA for all years
     combined <- combined[ which( apply( MARGIN = 1,
                                         X = combined[ X_emf_years ],
-                                        FUN = function( x ) !all( is.na( x ) ) ) ),
+                                        FUN = function( x ) !all.na( x ) ) ),
                           c( 'iso', 'sector', 'fuel', 'units', X_emf_years ) ]
 
 # Trim unnecessary and duplicate columns
@@ -418,7 +421,7 @@
 
 # Ratio of the emissions factors in the last CEDS year to the EF in the last
 # inventory year (2008)
-    gains_diagnostics$ratio <- gains_diagnostics$X2014 /
+    gains_diagnostics$ratio <- gains_diagnostics[[X_end_year]] /
                                gains_diagnostics$X2008
 
 # Only write output for extreme ratios

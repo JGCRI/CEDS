@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.2.add_NC_emissions.R
 # Author: Jon Seibert
-# Date Last Updated: July 16, 2015
+# Date Last Updated: November 4, 2019
 # Program Purpose: To select and run the correct script(s) to fill out to the non-combustion
 #                  (process) emissions database for the given emissions type.
 # Input Files: None
@@ -17,7 +17,7 @@
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c() # Additional function files required.
+    headers <- c( "data_functions.R" ) # Additional function files required.
     log_msg <- paste0( "Calling species-specific child script to add non-combustion",
               " emissions data to the database" ) # First message to be printed to the log
     script_name <- "C1.2.add_NC_emissions.R"
@@ -29,8 +29,8 @@
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "N2O"
-em_lc <- tolower( em )
+
+if ( is.na( em ) ) em <- "SO2"
 
 MODULE_C <- "../code/module-C/"
 

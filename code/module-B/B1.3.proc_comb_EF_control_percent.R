@@ -3,8 +3,8 @@
 # Authors: Leyang Feng, Rachel Hoesly
 # Date Last Updated: Nov 9, 2015
 # Program Purpose: Use sulfur content, ash retention, control percentage database to
-# generate sulfur EF database corresponding to the fuels and sectors in A.comb_activity.csv
-# Input Files:
+# generate sulfur EF database corresponding to the fuels and sectors in A.final_comb_activity_modern.csv
+# Input Files: B.[em]_ControlFrac_db.csv, B.[em]_comb_EF_db.csv
 # Output Files: B.[em]_comb_EF_db.csv
 # Notes:
 # TODO:
@@ -31,10 +31,6 @@ args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "NOx"
 
-# "em" is defined from parent script
-em_lc <- tolower( em )
-
-
 control_frac <- readData( "MED_OUT", paste0("B.",em,'_ControlFrac_db' ))
 EF_db <- readData("MED_OUT", paste0( "B.", em ,"_", "comb", "_EF_db" ))
 
@@ -49,8 +45,8 @@ EF_db <- EF_db[ with( EF_db, order( iso, sector, fuel ) ), ]
 control_frac[,X_emissions_years] <- lapply(control_frac[,X_emissions_years], as.numeric)
 EF_db[,X_emissions_years] <- lapply(EF_db[,X_emissions_years], as.numeric)
 
-if(any(is.na(EF_db))) stop(paste('NAs in EF data base for',em,'please check.'))
-if(any(is.na(control_frac))) stop(paste('NAs in EF data base for',em,'please check.'))
+if(anyNA( EF_db )) stop(paste('NAs in EF data base for',em,'please check.'))
+if(anyNA( control_frac )) stop(paste('NAs in EF data base for',em,'please check.'))
 
 
 # Set output EF_db

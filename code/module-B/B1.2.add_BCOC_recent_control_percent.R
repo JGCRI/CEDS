@@ -3,8 +3,8 @@
 # Author: Leyang Feng
 # Date Last Updated: 30 March 2016
 # Program Purpose: Adding EF trends for BCOC control percentage for years after 2010
-# Input Files: B.[em]_comb_EF_GAINS_EMF30
-# Output Files: B.[em]_Recent_GAINS_control_percent
+# Input Files: B.[em]_comb_EF_GAINS_EMF30.csv
+# Output Files: B.[em]_Recent_GAINS_control_percent.csv
 # Notes:
 
 # ------------------------------------------------------------------------------
@@ -37,7 +37,7 @@
 # 2. Recent year ( after 2010 ) %control calculation
 
 # define recent years
-    recent_years <- as.character( 2010 : 2014 )
+    recent_years <- as.character( 2010 : end_year )
 
 # extract emissions for recent years
     gains_recent <- gains_ef_db[ , paste0( 'X', recent_years ) ]

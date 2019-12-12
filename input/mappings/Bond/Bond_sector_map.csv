@@ -1,1 +1,44 @@
-Tech,Sector,sector Category       , Power       ,1A1a_Electricity-public Category       , Power       ,1A1a_Electricity-autoproducer Category       , Power       ,1A1a_Heat-production Category       , Industrial  ,1A2a_Ind-Comb-Iron-steel Category       , Industrial  ,1A2b_Ind-Comb-Non-ferrous-metals Category       , Industrial  ,1A2c_Ind-Comb-Chemicals Category       , Industrial  ,1A2d_Ind-Comb-Pulp-paper Category       , Industrial  ,1A2e_Ind-Comb-Food-tobacco Category       , Industrial  ,1A2f_Ind-Comb-Non-metalic-minerals Category       , Industrial  ,1A2g_Ind-Comb-Construction Category       , Industrial  ,1A2g_Ind-Comb-transpequip Category       , Industrial  ,1A2g_Ind-Comb-machinery Category       , Industrial  ,1A2g_Ind-Comb-mining-quarying Category       , Industrial  ,1A2g_Ind-Comb-wood-products Category       , Industrial  ,1A2g_Ind-Comb-textile-leather Category       , Industrial  ,1A2g_Ind-Comb-other International a, Transport   ,1A3ai_International-aviation Aircraft       , Transport   ,1A3aii_Domestic-aviation *LD vehicle    , Vehicle     ,1A3b_Road *Heavy duty veh, Vehicle     ,1A3b_Road Rail           , Transport   ,1A3c_Rail *Intl shipping , Transport   ,1A3di_International-shipping *Ships         , Transport   ,1A3dii_Domestic-navigation Category       , Transport   ,1A3eii_Other-transp Commercial use , Residential ,1A4a_Commercial-institutional Category       , Residential ,1A4b_Residential Category       , Agriculture ,1A4c_Agriculture-forestry-fishing,,1A5_Other-unspecified *Coking        , Industrial  ,1A1bc_Other-transformation *Blast furnace , Industrial  ,1A1bc_Other-transformation Charcoal produc, Residential , Aluminum       , Smelting    ,2C_Metal-production Lead           , Smelting    ,2C_Metal-production Pig iron produc, Smelting    ,2C_Metal-production Primary copper , Smelting    ,2C_Metal-production Zinc           , Smelting    ,2C_Metal-production Coke           , Production  ,1A1bc_Other-transformation Oil production , Production  ,1A1bc_Other-transformation Pulp           , Production  ,2H_Pulp-and-paper-food-beverage-wood Sulfuric acid  , Production  ,2B_Chemical-industry Titanium dioxid, Production  ,2A6_Other-minerals *Dump burning  , Open burning, *Open burning  , Open burning,
+Tech,Sector,sector
+ Category       , Power       ,1A1a_Electricity-public
+ Category       , Power       ,1A1a_Electricity-autoproducer
+ Category       , Power       ,1A1a_Heat-production
+ Category       , Industrial  ,1A2a_Ind-Comb-Iron-steel
+ Category       , Industrial  ,1A2b_Ind-Comb-Non-ferrous-metals
+ Category       , Industrial  ,1A2c_Ind-Comb-Chemicals
+ Category       , Industrial  ,1A2d_Ind-Comb-Pulp-paper
+ Category       , Industrial  ,1A2e_Ind-Comb-Food-tobacco
+ Category       , Industrial  ,1A2f_Ind-Comb-Non-metalic-minerals
+ Category       , Industrial  ,1A2g_Ind-Comb-Construction
+ Category       , Industrial  ,1A2g_Ind-Comb-transpequip
+ Category       , Industrial  ,1A2g_Ind-Comb-machinery
+ Category       , Industrial  ,1A2g_Ind-Comb-mining-quarying
+ Category       , Industrial  ,1A2g_Ind-Comb-wood-products
+ Category       , Industrial  ,1A2g_Ind-Comb-textile-leather
+ Category       , Industrial  ,1A2g_Ind-Comb-other
+ International a, Transport   ,1A3ai_International-aviation
+ Aircraft       , Transport   ,1A3aii_Domestic-aviation
+ *LD vehicle    , Vehicle     ,1A3b_Road
+ *Heavy duty veh, Vehicle     ,1A3b_Road
+ Rail           , Transport   ,1A3c_Rail
+ *Intl shipping , Transport   ,1A3di_International-shipping
+ *Ships         , Transport   ,1A3dii_Domestic-navigation
+ Category       , Transport   ,1A3eii_Other-transp
+ Commercial use , Residential ,1A4a_Commercial-institutional
+ Category       , Residential ,1A4b_Residential
+ Category       , Agriculture ,1A4c_Agriculture-forestry-fishing
+,,1A5_Other-unspecified
+ *Coking        , Industrial  ,1A1bc_Other-transformation
+ *Blast furnace , Industrial  ,1A1bc_Other-transformation
+ Charcoal produc, Residential ,
+ Aluminum       , Smelting    ,2C_Metal-production
+ Lead           , Smelting    ,2C_Metal-production
+ Pig iron produc, Smelting    ,2C_Metal-production
+ Primary copper , Smelting    ,2C_Metal-production
+ Zinc           , Smelting    ,2C_Metal-production
+ Coke           , Production  ,1A1bc_Other-transformation
+ Oil production , Production  ,1A1bc_Other-transformation
+ Pulp           , Production  ,2H_Pulp-and-paper-food-beverage-wood
+ Sulfuric acid  , Production  ,2B_Chemical-industry
+ Titanium dioxid, Production  ,2A6_Other-minerals
+ *Dump burning  , Open burning,
+ *Open burning  , Open burning,

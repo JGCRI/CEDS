@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.US-GHG_scaling.R
 # Authors' Names: Rachel Hoesly
-# Date Last Modified: October 2, 2018
+# Date Last Modified: June 14, 2019
 # Program Purpose: To create scaling factors and update emissions estimate for
 # the USA for methane emissions from the US GHG inventory
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
@@ -46,12 +46,12 @@
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-    inv_name <- 'US_GHG' #for naming diagnostic files
+    inv_name <- 'US_GHG' #for naming diagnostic files and reading data
     region <- c( "usa" )
 
-    if (em == "CH4"){
+    if ( em == "CH4" ){
         sector_fuel_mapping <- 'US-GHG_scaling_mapping'
-    } else if (em == "N2O") {
+    } else if ( em == "N2O" ) {
         sector_fuel_mapping <- 'US-GHG_scaling_mapping_N2O'
     }
 

@@ -11,8 +11,6 @@
 # Output Files: A.en_stat_sector_fuel.csv
 # Notes:
 # To Do:
-#   -- Make sure all input files feature fuel units, and that flow, sectors,
-#   and units match up across the board.
 #   -- Adjust biomass TJ/kt conversion factors for regions that use industrial
 #   biomass fuels other than wood
 # -----------------------------------------------------------------------------
@@ -71,11 +69,13 @@
     TJ_products <- na.omit( IEA_product_fuel[ grep( "TJ",
                                                     IEA_product_fuel[ , 1 ] ), 1:2 ] )
 # Biomass
-# Use Fernandez conversion factors for residential biomass and wood default (16 TJ/kt)
+# Use Fernandez conversion factors for residential biomass and wood default
 # for non-residential biomass
 # TODO: Adjust conversion factors for regions that use industrial biomass fuels other than wood
     TJ_to_kt_biomass <- TJ_products[ TJ_products$fuel == "biomass", ]
 
+    # Residential biomass consumption
+    # These take into account different regional biomass types (wood, ag residue, etc.)
     A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% TJ_to_kt_biomass$product &
                                grepl( "1A4b_Residential", A.IEA_en_stat_ctry_hist$sector ), X_IEA_years ] <-
       A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% TJ_to_kt_biomass$product &
@@ -85,6 +85,7 @@
                                        grepl( "1A4b_Residential", A.IEA_en_stat_ctry_hist$sector ) ],
         biomass_conversion$iso ), X_IEA_years ]
 
+    # Use standard conversion factor for other sectors
     A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% TJ_to_kt_biomass$product &
                                !grepl( "1A4b_Residential", A.IEA_en_stat_ctry_hist$sector ), X_IEA_years ] <-
       A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% TJ_to_kt_biomass$product &
@@ -103,9 +104,9 @@
         dplyr::group_by( iso, FLOW, PRODUCT, sector, fuel ) %>%
         tidyr::gather( key = years, value = energy_consumption, X_IEA_years) %>%
         dplyr::mutate( energy_consumption = if_else( PRODUCT %in% TJ_to_kt_natural_gas_list_no_tjnet,
-                                                     energy_consumption/conversionFactor_naturalgas_TJ_per_kt_gross,
+                                                     energy_consumption/conversionFactor_naturalgas_TJ_per_kt_Gross,
                                             if_else( PRODUCT == "Biogases (TJ-net)",
-                                                     energy_consumption/conversionFactor_naturalgas_TJ_per_kt_net,
+                                                     energy_consumption/conversionFactor_naturalgas_TJ_per_kt_Net,
                                                      energy_consumption ) ) ) %>%
         tidyr::spread( years, energy_consumption ) %>%
         dplyr::select( iso, FLOW, PRODUCT, X_IEA_years, sector, fuel )
@@ -218,7 +219,8 @@
 
 # Check Combustion Sectors vs Process Sectors - If non process fuels for process sectors, seperate and
 #   write to diagnostic file
-    combustion_sectors <- MSL[ which( MSL$activity == 'Energy_Combustion' ), 'sector' ]
+    combustion_sectors <- c(MSL[ which( MSL$activity %in% c('Energy_Combustion')), 'sector' ],
+                            '1A1bc_Other-transformation','1A1bc_Other-feedstocks')
 
     combustion_data_process_sectors <- A.en_stat_sector_fuel[ which( A.en_stat_sector_fuel$sector %!in% combustion_sectors & A.en_stat_sector_fuel$fuel != 'process' ), ]
 

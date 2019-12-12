@@ -30,8 +30,8 @@
 
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "N2O"
-    em_lc <- tolower( em )
+
+    if ( is.na( em ) ) em <- "SO2"
 
     MODULE_B <- "../code/module-B/"
 # ---------------------------------------------------------------------------

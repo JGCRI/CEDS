@@ -260,7 +260,9 @@ plot <- ggplot(df, aes(x=year,y=Emissions, fill=Region)) +
                 ggtitle( paste('Global ',em,' Emissions') )+
                 labs(x='Year',y= paste(em,'Emissions [kt]') )
 
-savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_regions.scaled'), width = 11, height = 6)
+savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_regions.scaled'),
+         width = 11, height = 6, plot = plot)
+
 #Convert to wide format for easier viewing
 data.wide <- cast(df, Region ~ year, mean, value="Emissions")
 writeData( data.wide, "DIAG_OUT", paste0('summary-plots/',em ,'_emissions_scaled_by_region'), meta = FALSE )
@@ -280,7 +282,8 @@ if ( PRINT_DEFAULTS ){
 	  scale_y_continuous(labels = comma)+
 	  ggtitle( paste('Global Default',em,' Emissions ') ) +
 	  labs(x='Year',y= paste(em,'Emissions [kt]') )
-  	savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_regions.default'), width = 11, height = 6)
+  	savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_regions.default'),
+  	         width = 11, height = 6, plot = plot)
 }
 
 ##line graphs by region
@@ -296,7 +299,8 @@ plot <- ggplot(df, aes(x=year,y=Emissions,
   scale_y_continuous(labels = comma)+
   ggtitle( paste('Total Scaled',em,' Emissions') )+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
-savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_regions.scaled.line'), width = 11, height = 6)
+savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_regions.scaled.line'),
+         width = 11, height = 6, plot = plot)
 
 #----
 # Default Emissions
@@ -314,8 +318,9 @@ if ( PRINT_DEFAULTS ){
 	  scale_y_continuous(labels = comma)+
 	  ggtitle( paste('Total Default',em,' Emissions') ) +
 	  labs(x='Year',y= paste(em,'Emissions [kt]') )
-	savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_regions.default.line'), width = 11, height = 6)
-		
+	savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_regions.default.line'),
+         width = 11, height = 6, plot = plot)
+
 }
 
 # ---------------------------------------------------------------------------
@@ -338,7 +343,8 @@ plot <- ggplot(df, aes(x=year,y=Emissions, fill=agg_Sector)) +
   ggtitle(paste('Global ', em ,'Emissions'))+
   labs(x='Year',y= paste(em,'Emissions [kt]') )+
   guides(fill=guide_legend(ncol=1) ) + labs(fill="Sector")
-savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_agg_sectors.scaled'), width = 11, height = 6)
+savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_agg_sectors.scaled'),
+         width = 11, height = 6, plot = plot)
 
 
 #Convert to wide format for easier viewing
@@ -353,7 +359,8 @@ plot <- ggplot(df, aes(x=year,y=Emissions, color=agg_Sector)) +
   ggtitle(paste('Global Scaled', em ,'Emissions'))+
   labs(x='Year',y= paste(em,'Emissions [kt]') )+
   guides(fill=guide_legend(ncol=1))
-savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_agg_sectors_line.scaled'), width = 11, height = 6)
+savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_agg_sectors_line.scaled'),
+         width = 11, height = 6, plot = plot)
 
 #Default
 if ( PRINT_DEFAULTS ){
@@ -371,7 +378,8 @@ if ( PRINT_DEFAULTS ){
     labs(x='Year',y= paste(em,'Emissions [kt]') )+
     guides(fill=guide_legend(ncol=2))
 
-  savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_agg_sectors.default'), width = 11, height = 6)
+  savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_agg_sectors.default'),
+         width = 11, height = 6, plot = plot)
 }
 
 # ---------------------------------------------------------------------------
@@ -389,7 +397,8 @@ plot <- ggplot(df, aes(x=year,y=Emissions, fill=fuel)) +
   scale_y_continuous(labels = comma)+
   ggtitle(paste('Global Scaled', em ,'Emissions'))+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
-savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_fuel.scaled_', version_stamp), width = 11, height = 6)
+savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_fuel.scaled_', version_stamp),
+         width = 11, height = 6, plot = plot)
 
 #Convert to wide format for easier viewing
 data.wide <- cast(df, fuel ~ year, mean, value="Emissions")
@@ -408,7 +417,8 @@ plot <- ggplot(df, aes(x=year,y=Emissions, fill=fuel)) +
   scale_y_continuous(labels = comma)+
   ggtitle(paste('Global Default', em ,'Emissions'))+
   labs(x='Year',y= paste(em,'Emissions [kt]') )
-savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_fuel.default'), width = 11, height = 6)
+savePlot("DIAG_OUT", "summary-plots/", paste0(em, '_fuel.default'),
+         width = 11, height = 6, plot = plot)
 }
 
 # ---------------------------------------------------------------------------

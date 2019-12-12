@@ -30,7 +30,6 @@
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
     if ( is.na( em ) ) em <- "SO2"
-    em_lc <- tolower( em )
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -46,7 +45,7 @@
 # Read in parameter files
     files_list <- list.files( path =  './default-emissions-data/EF_parameters',
                               pattern = '*.csv' )
-    files_list <- file_path_sans_ext( files_list )
+    files_list <- tools::file_path_sans_ext( files_list )
 
 # Select files that contain the phrase "control_percent"
     control_percent_file_list <- files_list[ grep( pattern = "_control_percent",

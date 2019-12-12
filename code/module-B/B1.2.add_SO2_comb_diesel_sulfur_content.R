@@ -5,7 +5,7 @@
 # Program Purpose: Add Sulfur Standards to default sulfur EF.
 # values from 2005 back to 1975. Does not take user input data.
 #
-# Input Files: Diesel_transport_S_trend.xlsx
+# Input Files: Diesel_transport_S_trend.xlsx, Master_Country_List.csv
 #
 # Output Files: B.SO2_diesel_s_content.csv
 # TODO:
@@ -35,9 +35,9 @@
 # 1. Reading data
 
 # Read in S trends in diesel
-    diesel_standards_ppm <- readData( "DEFAULT_EF_IN", "Diesel_transport_S_trend", 
-                                      ".xlsx", sheet_selection = "ppm", 
-                                      column_types = c(rep('text', 3), rep('numeric', 52)))
+    diesel_standards_ppm <- readData( "DEFAULT_EF_IN", "Diesel_transport_S_trend",
+                                      ".xlsx", sheet_selection = "ppm",
+                                      col_types = c(rep('text', 3), rep('numeric', 52)))
 # Mapping file
     MCL <- readData( "MAPPINGS", "Master_Country_List" )
 
@@ -65,9 +65,9 @@
                                                        X_standard_years ) ]
 
 # Drop data with NA isos
-    diesel_standards_ppm <- 
+    diesel_standards_ppm <-
          diesel_standards_ppm[ !is.na( diesel_standards_ppm$iso ), ]
-    
+
 # -------------------------------------------------------------------------------
 # 3. Fill in default and interpolate between data estimates
 #    Begin with default S content standardsw where available and NAs where not.

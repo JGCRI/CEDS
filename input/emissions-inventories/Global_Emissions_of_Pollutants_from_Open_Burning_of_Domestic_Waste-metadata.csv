@@ -1,1 +1,3 @@
-Data-Type,Emission,Region,Sector,Start Year,End Year,Source/CommentEmissions,All,All,Waste incineration,2010,2010,"Year 2010 estimates from Wiedinmyer etal 2014 (Environ. Sci. Technol. 2014, 48, 9523_9530)"
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
+Emissions,All,All,Waste incineration,2010,2010,"Year 2010 estimates from Wiedinmyer etal 2014 (Environ. Sci. Technol. 2014, 48, 9523_9530)"
+Waste Driver,All,ind,Waste incineration,2010,2010,"Year 2010 estimates trended back from Sharma et al. (2019) Environ. Sci. Technol. 2019, 53, 4765_4774 estimate of waste burnt (assuming 30% combusted)"

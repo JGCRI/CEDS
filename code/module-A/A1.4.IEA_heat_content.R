@@ -1,10 +1,10 @@
 # Program Name: A1.4.IEA_heat_content.R
 # Author: Linh Vu, Rachel Hoesly
-# Date Last Updated: 26 Jul 2016
+# Date Last Updated: September 5, 2019
 # Program Purpose: Computes weighted average heat content from IEA Conversion Factors
 #                  by country, year and fuel type. Currently doing this for coal.
 # Input Files: OECD_Conversion_Factors_Full.csv, NonOECD_Conversion_Factors_Full.csv,
-#              IEA_product_fuel.csv, Master_Country_List.csv, A.comb_activity
+#              IEA_product_fuel.csv, Master_Country_List.csv, A.IEA_en_stat_ctry_hist
 # Output Files:  A.coal_heat_content.csv
 # Notes: This script handles iso+fuel+year duplicates by summing. This works
 #        because all duplicates are currently disaggregated countries and
@@ -35,7 +35,7 @@
   conversion_NonOECD <- readData( "ENERGY_IN", "NonOECD_Conversion_Factors_Full" )
   activity_data <- readData( "MED_OUT", "A.IEA_en_stat_ctry_hist" )
 
-  IEA_product_fuel <- readData( "MAPPINGS", "IEA_product_fuel", domain_extension = "energy/" )
+  IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
   MCL <- readData( "MAPPINGS", "Master_Country_List" )
 
 # ---------------------------------------------------------------------------
@@ -102,13 +102,16 @@
 # ---------------------------------------------------------------------------
 # 3. Calculate shares of fuel for each CEDS fuel (for weighted average)
 # Combine into one df, convert to numeric
-  conversion_all <- bind_rows( conversion_OECD, conversion_NonOECD )
-  conversion_all$X2014E <- NULL
-  conversion_all[ paste0('X', BP_years ) ] <- conversion_all$X2014
-  conversion_all[ , X_emissions_years ] <- suppressWarnings( lapply( conversion_all[ , X_emissions_years ], function( x ) { as.numeric( as.character( x ) ) } ) )
+
+  # Keep data for only IEA years
+  id_cols <- names( conversion_OECD )[1:3]
+  conversion_all <- dplyr::bind_rows( conversion_OECD, conversion_NonOECD ) %>%
+    dplyr::select( id_cols, X_IEA_years )
+
+  conversion_all[ , X_IEA_years ] <- suppressWarnings( lapply( conversion_all[ , X_IEA_years ], function( x ) { as.numeric( as.character( x ) ) } ) )
 
 # Conversion years
-  conversion_years <-  select( conversion_all, contains ('X') ) %>%
+  X_IEA_years <-  dplyr::select( conversion_all, contains ('X') ) %>%
     names
 
 # Clean up mapping
@@ -121,14 +124,14 @@
 
 # Constantly extend heat value forward and back
   conversion_extended <- conversion_all
-  conversion_extended[ conversion_years ] <- t( na.locf( t( conversion_extended[ conversion_years ] ) ) )
-  conversion_extended[ conversion_years ] <- t( na.locf( t( conversion_extended[ conversion_years ] ) , fromLast = T ) )
+  conversion_extended[ X_IEA_years ] <- t( na.locf( t( conversion_extended[ X_IEA_years ] ) ) )
+  conversion_extended[ X_IEA_years ] <- t( na.locf( t( conversion_extended[ X_IEA_years ] ) , fromLast = T ) )
 
 # Calculate shares of energy data for countries by fuel type
   coal_data <- filter( activity_data, FLOW == 'DOMSUP' ) %>%
     left_join( IEA_product_fuel[ c( 'product', 'fuel' ) ] , by = c( 'PRODUCT' = 'product' ) ) %>%
-    group_by( iso, PRODUCT, fuel ) %>%
-    summarise_if( is.numeric, sum ) %>%
+    dplyr::group_by( iso, PRODUCT, fuel ) %>%
+    dplyr::summarise_if( is.numeric, sum ) %>%
     filter( fuel %in% fuels ) %>%
     unite( "iso_fuel", c( iso, fuel ), sep = "-" )
 
@@ -167,35 +170,35 @@
 # Map heat content to iso
   conversion_extended_iso <- conversion_extended
   conversion_extended_iso$iso <- MCL[ match( conversion_extended_iso$COUNTRY, MCL$IEAName ), 'iso' ]
-  conversion_extended_iso <- conversion_extended_iso[ c( 'iso', 'fuel', 'PRODUCT', conversion_years ) ]
+  conversion_extended_iso <- conversion_extended_iso[ c( 'iso', 'fuel', 'PRODUCT', X_IEA_years ) ]
   conversion_extended_iso <- conversion_extended_iso %>%
     drop_na( iso, fuel, PRODUCT )
 
 # Combine Conversion and energy shares into same df
   combined_df <- left_join( conversion_extended_iso, coal_shares_corrected, by = c( 'iso', 'fuel', 'PRODUCT' ) )
-  combined_df[ conversion_years ] <- combined_df[ paste0( conversion_years , '.x' ) ] * combined_df[ paste0( conversion_years , '.y' ) ]
+  combined_df[ X_IEA_years ] <- combined_df[ paste0( X_IEA_years , '.x' ) ] * combined_df[ paste0( X_IEA_years , '.y' ) ]
 
-  weighted_average_heat_content <- combined_df[ c( 'iso', 'fuel', conversion_years ) ] %>%
+  weighted_average_heat_content <- combined_df[ c( 'iso', 'fuel', X_IEA_years ) ] %>%
     group_by( iso, fuel ) %>%
-    summarise_each( funs( sum( ., na.rm = T ) ) )
-   
-  hc_coal <- weighted_average_heat_content %>%
-    dplyr::mutate( units = 'kJ/kg' )
-  hc_coal <- replace( hc_coal, hc_coal == 0, NA )
+    summarise_all( funs( sum( ., na.rm = T ) ) )
 
-# Drop duplicates and rows of all NAs
-  hc_coal_all <- unique( hc_coal )
-  hc_coal_all <- hc_coal_all[ rowSums( is.na( hc_coal_all ) ) != length( X_emissions_years ), ]
+  hc_coal <- weighted_average_heat_content %>%
+    dplyr::mutate( units = 'kJ/kg' ) %>%
+    replace( . == 0, NA ) %>%
+    dplyr::distinct() # drop duplicates
+
+# Drop rows of all NAs
+  hc_coal_all <- hc_coal[ rowSums( is.na( hc_coal ) ) != length( X_IEA_years ), ]
 
 # Remaining iso+fuel duplicates seem mostly composite/broken up countries that cover
 # separate years, so okay to combine by summing these rows.
   hc_coal_all <- group_by( hc_coal_all, iso, fuel, units ) %>%
-    summarise_each( funs( mean( ., na.rm = T ) ) ) %>%
-    data.frame( )
+    summarise_all( funs( mean( ., na.rm = T ) ) ) %>%
+    ungroup()
 
 # Interpolate NAs, extend last non-NAs forward/backward
-  hc_coal_all_ext <- hc_coal_all
-  hc_coal_all_ext[ , X_emissions_years ] <- interpolate_NAs( hc_coal_all_ext[ , X_emissions_years ] )
+  hc_coal_all_ext <- data.frame( hc_coal_all )
+  hc_coal_all_ext[ , X_IEA_years ] <- interpolate_NAs( hc_coal_all_ext[ , X_IEA_years ] )
   hc_coal_all_ext <- melt( hc_coal_all_ext, id = c( "iso", "fuel", "units" ) )
   hc_coal_all_ext <- ddply( hc_coal_all_ext, .( iso, fuel, units ), function( df ) {
     df$value <- na.locf( df$value, na.rm = F )
@@ -204,8 +207,14 @@
   } )
   hc_coal_all_ext <- cast( hc_coal_all_ext )
 
+  # Constantly extend heat value forward
+  X_extended_years <- X_BP_years
+  hc_coal_all_ext_forward <- hc_coal_all_ext %>%
+    dplyr::mutate_at( X_extended_years, funs( identity ( !!rlang::sym( X_IEA_end_year ) ) ) )
+
+
 # ---------------------------------------------------------------------------
 # 5. Output
-  writeData( hc_coal_all_ext, "MED_OUT", "A.coal_heat_content" )
+  writeData( hc_coal_all_ext_forward, "MED_OUT", "A.coal_heat_content" )
 
   logStop()

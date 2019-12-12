@@ -1,11 +1,11 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.add_NC_emissions_EDGAR.R
 # Author(s): Jon Seibert
-# Date Last Modified: 5 January 2016
+# Date Last Modified: November 7, 2019
 # Program Purpose: To reformat the non-combustion sections of the EDGAR default emissions
 #                      data and add it to the database for the relevant emissions species.
-# Input Files:
-# Output Files:
+# Input Files   JRC_PEGASOS_[em]_TS_REF.xlsx, NC_EDGAR_sector_mapping.csv
+# Output Files: C.EDGAR_NC_Emissions_[em].csv
 # To Do:
 #      ext_backward = TRUE extended back only one year. (extend forward worked)
 #      Extend forward should extend forward with constant EFs, not linear trend
@@ -37,8 +37,10 @@ domain_ext <- "EDGAR/"
 fuel <- "process"
 id_cols <- c( "iso", "sector", "fuel", "units" )
 
-# Temporary assignment for script development
-em <- "SO2"
+# Define emissions species variable
+args_from_makefile <- commandArgs( TRUE )
+em <- args_from_makefile[ 1 ]
+if ( is.na( em ) ) em <- "CO"
 
 # ------------------------------------------------------------------------------
 # 2. Input
@@ -48,7 +50,7 @@ sheet_name = paste0( 'NEW_v4.3_EM_', em, '_ref' )
 
 edgar <-  readData( domain, domain_extension = domain_ext,
 				    inventory_data_file,  ".xlsx",
-					sheet_selection = sheet_name, skip_rows = 8 )
+					sheet_selection = sheet_name, skip = 8 )
 
 NC_sector_map <- readData( "MAPPINGS", "NC_EDGAR_sector_mapping" )
 
@@ -65,7 +67,7 @@ edgar$iso <- tolower(edgar$iso)
 
 #remove rows with all NA's
 edgar <- edgar[ apply( X=edgar[,paste0("X",inv_years)],
-                                         MARGIN = 1, function(x) (!all(is.na(x))) ) ,]
+                                         MARGIN = 1, function(x) (!all.na( x )) ) ,]
 
 
 # Add fuel column

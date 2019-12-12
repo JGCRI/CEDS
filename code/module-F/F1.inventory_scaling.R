@@ -1,16 +1,17 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.inventory_scaling.R
 # Author: Rachel Hoesly adapted from Jon Seibert
-# Date Last Updated: October 2, 2018
+# Date Last Updated: June 14, 2019
 # Program Purpose: To select and run script(s) to scale default emissions and
 #           emission factors to inventories.
-# Input Files: None
-# Output Files: None
+# Input Files: D.[em]_default_total_EF.sv, D.[em]_default_total_emissions.csv
+# Output Files: F.[em]_scaled_EF.csv, F.[em]_scaled_emissions.csv
 # Functions Defined: source_child
 # Notes:
 # TODO: Add conditionals and script specifications for other emissions types
 #       as they are added to the system.
 # ------------------------------------------------------------------------------------
+
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
@@ -42,8 +43,6 @@
 
 # ------------------------------------------------------------------------------------
 # 1. Define emission species and read in files
-
-    em_lc <- tolower( em )
 
     MODULE_F <- "../code/module-F/"
 

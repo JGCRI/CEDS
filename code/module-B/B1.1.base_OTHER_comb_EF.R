@@ -4,9 +4,10 @@
 # Date Last Updated: 19 Jan 2016
 # Program Purpose: Generate base emission factors from global GAINS EMF-30 data
 #                  for NOx, NMVOC, CH4, CO
-# Input Files: Aviation_base_EF.xlsx, A.comb_activity.csv,
-#              B.[em]_comb_EF_GAINS_EMF30
-# Output Files: B.[em]_comb_EF_db
+# Input Files: Aviation_base_EF.xlsx, A.final_comb_activity_modern.csv,
+#              B.[em]_comb_EF_GAINS_EMF30, Master_Country_List.csv,
+#              Master_Sector_Level_map.xlsx
+# Output Files: B.[em]_comb_EF_db.csv
 # Notes: transportation_rail only hase a 2020 values, so interpolated values are constant
 #           extended back from 2020 to 2011
 # TODO:
@@ -39,7 +40,6 @@
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
     if ( is.na( em ) ) em <- "NMVOC"
-    em_lc <- tolower( em )
 
 # Stop script if running for unsupported species
     if ( em %!in% c( 'NOx', 'NMVOC', 'CH4', 'CO', 'CH4' ) ) {
@@ -50,7 +50,7 @@
 # 1. Load Data
 
 # Load Mod A activity data
-    activity_data <- readData( "MED_OUT", "A.comb_activity" )
+    activity_data <- readData( "MED_OUT", "A.final_comb_activity_modern" )
 
 # Load mapping files
     Master_Country_List <- readData( domain = 'MAPPINGS',
@@ -75,8 +75,8 @@
     check.country.list <- Master_Country_List[ !is.na( Master_Country_List$iso ), ]
 
 # Make sure that Master Country list for Region and OECD flag are complete
-    if ( any( is.na( check.country.list$OECD_flag ) ) |
-         any( is.na( check.country.list$Region ) ) ) {
+    if ( anyNA( check.country.list$OECD_flag ) |
+         anyNA( check.country.list$Region ) ) {
       stop( 'NAs in OECD flag and Region columns in Master Country List.
              Cannot estimate base emission factors.
              Please Check Master Country List.' )
@@ -102,7 +102,7 @@
 
 # Identify which rows of default_extended have NAs
     index <- which( apply( X = default_extended[ , X_emissions_years ],
-                           MARGIN = 1, function( x ) any( is.na( x ) ) ) )
+                           MARGIN = 1, function( x ) anyNA( x ) ) )
 
 # Extract rows with NAs, extend those rows, and then re-bind
     default_extended <- rbind( default_extended[ -index, ],

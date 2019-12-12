@@ -1,16 +1,14 @@
 # ----------------------------------------------------------------------------
-# Program Name: B1.1.2.CO2_biofuels_EF.R   ### We should rename this script B1.1.CO2_biofuels_EF.R
+# Program Name: B1.1.2.CO2_biofuels_EF.R
 # Author's Name: Rachel Hoesly
 # Date Last Modified: 14 December 2016
 # Program Purpose: This file processes CO2 biofuel combustion emissions factors
-# Input Files: A.IEA_en_stat_ctry_hist, B.[em]_comb_EF_db
-# Output Files: B.[em]_comb_EF_db
+# Input Files: A.IEA_en_stat_ctry_hist.csv, B.[em]_comb_EF_db.csv, IEA_product_fuel.csv
+# Output Files: B.[em]_comb_EF_db.csv
 # Notes:
-# To Do:
-
+# TODO: We should rename this script B1.1.CO2_biofuels_EF.R
 # ------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
@@ -29,7 +27,6 @@
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
     if ( is.na( em ) ) em <- "CO2"
-    em_lc <- tolower( em )
 
 # Stop script if running for unsupported species
     if ( em %!in% c( 'CO2' ) ) {
@@ -83,7 +80,7 @@
                    IEA_aggregate[ X_IEA_years ]
 # Clean up the resulting dataframe
     IEA_biofuels_fraction <-
-        IEA_biofuels_fraction[ which( !is.na( IEA_biofuels_fraction$X2013 ) ), ]
+        IEA_biofuels_fraction[ which( !is.na( IEA_biofuels_fraction[ X_IEA_end_year ] ) ), ]
     IEA_biofuels_fraction <-
         replace( IEA_biofuels_fraction, is.na( IEA_biofuels_fraction ), 0 )
     IEA_biofuels_fraction <-

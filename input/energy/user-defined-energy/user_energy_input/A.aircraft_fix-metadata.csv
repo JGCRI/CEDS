@@ -1,0 +1,2 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source/Comment
+Energy Consumption,NA,All,1A3_Aviation,1750,1945,CEDS assumption. Values for global oil consumption for aviation are zero for all years before 1925.

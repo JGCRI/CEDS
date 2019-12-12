@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: E.US-GHG_emissions.R
 # Authors' Names: Rachel Hoesly
-# Date Last Modified: October 2, 2018
+# Date Last Modified: June 14, 2019
 # Program Purpose: To read in & reformat US emissions inventory data
 # Input Files: US_GHG_inventory.csv
 # Output Files: E.[em]_US_GHG_inventory.csv

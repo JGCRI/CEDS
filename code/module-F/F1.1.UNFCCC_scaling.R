@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.UNFCCC_scaling.R
 # Authors' Names: Rachel Hoesly
-# Date Last Modified: October 4, 2018
+# Date Last Modified: June 14, 2019
 # Program Purpose: To create scaling factors and update emissions estimate for
 # the UNFCCC regions from latest emissions working copy
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
@@ -55,13 +55,9 @@
                  "irl", "isl", "ita", "jpn", "ltu", "lva", "mlt", "nld", "nor",
                  "nzl", "prt", "rou", "svk", "svn", "swe", "tur", "ukr" )
     # All other ems besides CH4 do not include can and pol data from the UNFCCC
-    if ( em == 'CH4') region <- c( "aus", "aut", "bel", "bgr", "blr", "can","che",
-                 "cyp", "cze", "deu", "dnk", "esp", "est", "fin", "fra", "gbr",
-                 "grc", "hrv", "hun", "irl", "isl", "ita", "jpn", "ltu", "lva",
-                 "mlt", "nld", "nor", "nzl", "pol" ,"prt", "rou", "svk", "svn",
-                 "swe", "tur", "ukr" )
+    if ( em == 'CH4'){ region <- c( region, "can", "pol" ) }
 
-# include only regions that aren't scaled elsewhere for non-CO2 emissions
+# include only regions that aren't scaled elsewhere for non-CO2 and non-CH4 emissions
 # TODO: blr and ukr should only be used for specific years where is close to expert estimates, or to calibrate parameters off-line
 # TODO: why is grc not in EMEP?
 # Ukraine (ukr) energy reporting is inconsistent, instead have calibrated coal S% by hand. Check other emissions
