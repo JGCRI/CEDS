@@ -59,7 +59,8 @@ combustion_sectors <- c( MSL[ which( MSL$activity %in% c( 'Energy_Combustion' ) 
 ceds_comb_modern <- ceds_comb_modern %>%
     dplyr::filter( sector %in% combustion_sectors )
 
-# 10. Other Output ---------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# 3. Other Output
 
 # Total fossil fuel by aggregate fuel
 total_coal <- A.comb_extended %>%
@@ -87,8 +88,7 @@ other_feedstocks <- A.comb_extended %>%
     dplyr::filter( sector %in% "1A1bc_Other-feedstocks" )
 
 # ----------------------------------------------------------------------------
-
-# Write out the data
+# 4. Write out the data
 writeData( total , "MED_OUT", "A.total_activity_extended" )
 writeData( ceds_comb_modern , "MED_OUT", "A.final_comb_activity_modern" )
 

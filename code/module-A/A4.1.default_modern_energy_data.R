@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A4.1.default_modern_energy_data.R
 # Author(s): Jon Seibert, Linh Vu, Rachel Hoesly
-# Date Last Modified: November 4, 2019
+# Date Last Modified: December 9, 2019
 # Program Purpose: To expand IEA_BP energy data to include entries for all possible
 #                  id combinations.
 # Input Files: A.IEA_BP_energy_ext.csv, Master_Fuel_Sector_List.xlsx,
@@ -37,49 +37,29 @@
 # ------------------------------------------------------------------------------
 # 2. Separate combustion and activity energy data, separate other transformation
 
-# Add international shipping sector with "global" iso for hard_coal, heavy_oil, and diesel_oil
-# This is done as the system expected these rows previously at this point. For now adding back
-# in case there are issues that could arise from it noting being available. Adding as all zeroes.
-# TODO: After this PR - Test the system with this bit removed, if it isn't needed than it should be removed
-#       (test for identical final emissions and activity). LIkely would need to then make these all 0's
-#       in A6.4 too if removed from here
-    energy_data_with_global_int_ship <- energy_data %>%
-        dplyr::bind_rows( energy_data %>%
-                              dplyr::slice( 1 ) %>%
-                              dplyr::mutate( iso = "global", sector = "1A3di_International-shipping", fuel = "diesel_oil" ) %>%
-                              dplyr::mutate_at( .vars = X_emissions_years, funs( identity( 0 ) ) ),
-                          energy_data %>%
-                              dplyr::slice( 1 ) %>%
-                              dplyr::mutate( iso = "global", sector = "1A3di_International-shipping", fuel = "hard_coal" ) %>%
-                              dplyr::mutate_at( .vars = X_emissions_years, funs( identity( 0 ) ) ),
-                          energy_data %>%
-                              dplyr::slice( 1 ) %>%
-                              dplyr::mutate( iso = "global", sector = "1A3di_International-shipping", fuel = "heavy_oil" ) %>%
-                              dplyr::mutate_at( .vars = X_emissions_years, funs( identity( 0 ) ) ) )
-
 # Check to make sure all sectors are in the input data
     check_sectors <- c(MSL[ which( MSL$activity %in% c( 'Energy_Combustion' ) ), 'sector' ],
                        '1A1bc_Other-transformation','1A1bc_Other-feedstocks' )
 
-  if( any( check_sectors %!in% unique( energy_data_with_global_int_ship$sector ) ) ) {
-      missing_sectors <- check_sectors [ check_sectors %!in% unique( energy_data_with_global_int_ship$sector ) ]
+  if( any( check_sectors %!in% unique( energy_data$sector ) ) ) {
+      missing_sectors <- check_sectors [ check_sectors %!in% unique( energy_data$sector ) ]
       stop( paste( 'Energy Data does not have all sectors. The following are missing: ', paste( missing_sectors, collapse=", " ) ) )
   }
 
 # Separate CEDS combustion and other transformation from other tracked
 #    IEA energy trends (ex: domestic supply)
-    IEA_other_energy_trends <- energy_data_with_global_int_ship %>%
+    IEA_other_energy_trends <- energy_data %>%
         dplyr::filter( sector %!in% MSL$sector ) %>%
-        dplyr::mutate_at( grep( 'X\\d{4}', names( energy_data_with_global_int_ship ) ),
+        dplyr::mutate_at( grep( 'X\\d{4}', names( energy_data ) ),
                    funs( if_else( sector == 'refinery-and-natural-gas' & . < 0, 0, . ) ) )
 
-    other_transformation <- energy_data_with_global_int_ship %>%
+    other_transformation <- energy_data %>%
       dplyr::filter( sector %in% c( "1A1bc_Other-feedstocks", "1A1bc_Other-transformation" ) )
 
-    energy_data_with_global_int_ship <- energy_data_with_global_int_ship %>%
+    energy_data <- energy_data %>%
       dplyr::filter( sector %in% MSL$sector )
 
-    energy_data_combustion <- energy_data_with_global_int_ship[ energy_data_with_global_int_ship$fuel != 'process', ]
+    energy_data_combustion <- energy_data[ energy_data$fuel != 'process', ]
 
 # ------------------------------------------------------------------------------
 # 3. Create combustion activity database - Populate missing iso-sector-fuel combinations
