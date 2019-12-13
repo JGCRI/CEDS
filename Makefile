@@ -124,13 +124,12 @@ clean-all: \
 
 clean-user_defined_energy:
 # Deletes all CSVs in the directory except for: 
-# 1) CEDS energy system inputs (A.*.csv, or A.*-metadata.csv, but not processed by Rscript)
-# 2) Relevant mapping and instructions files
-# 3) User files (U.*.csv)
-	find $(USER_EN_IN) -name "*.csv" ! -name "U.*.csv" ! -name "*-instructions.csv" ! -name "A.aircraft_fix*.csv" ! -name "A.DEU_Etemad_Luciani_1800-1890*.csv" ! -name "A.*_sector_map.csv" -delete
+# 1) CEDS user-defined energy inputs, metadata, and instructions (U.*.csv)
+# 2) Relevant mapping and instructions files for user-defined energy input which require pre-processing for use in CEDS (A.*-instructions.csv, A.*_sector_map.csv, A.*-mapping.xlsx)
+	find $(USER_EN_IN) -name "*.csv" ! -name "U.*.csv" ! -name "A.*-instructions.csv" ! -name "A.*_sector_map.csv" -delete
 
-# Deletes all xlsx files that don't end in -mapping.xlsx
-	find $(USER_EN_IN) -name "*.xlsx" ! -name "*-mapping.xlsx" -delete
+# Deletes all xlsx files that don't end in -mapping.xlsx and begin with "A." or "U."
+	find $(USER_EN_IN) -name "*.xlsx" ! -name "A.*-mapping.xlsx" ! -name "U.*-mapping.xlsx" -delete
 
 # Deletes all txt files that aren't the README file
 	find $(USER_EN_IN) -name "*.txt" ! -name "README.txt" -delete

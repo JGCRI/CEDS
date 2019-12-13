@@ -1,22 +1,16 @@
 # Ignore all additional files in this directory
 *
-# Except these files
+# Except for the .gitignore and readme.txt
 !.gitignore
-!A.aircraft_fix.csv
-!A.aircraft_fix-instructions.csv
-!A.aircraft_fix-metadata.csv
-!A.DEU_Etemad_Luciani_1800-1890.csv
-!A.DEU_Etemad_Luciani_1800-1890-instructions.csv
-!A.DEU_Etemad_Luciani_1800-1890-metadata.csv
-!A.DEU_historical_coal-instructions.csv
-!A.GBR_historical_coal_aggsec_sector_map.csv
-!A.GBR_historical_coal_aggsec-instructions.csv
-!A.GBR_historical_coal_total-instructions.csv
-!A.US-EIA_energy_data_aggsec_sector_map.csv
-!A.US-EIA_energy_data_aggsec-instructions.csv
-!A.US-EIA_energy_data_aggsec-mapping.xlsx
-!A.US-EIA_energy_data_CEDSsec-instructions.csv
-!A.US-EIA_energy_data_CEDSsec-mapping.xlsx
 !README.txt
+
+# Except raw input files -- that require no pre-processing for CEDS to use the data
+!U.*.csv
+!U.*-mapping.xlsx
+
+# Except for mapping and instruction files for inputs which required pre-processing for CEDS to use the data
+!A.*-instructions.csv
+!A.*_sector_map.csv
+!A.*-mapping.xlsx
 
 

@@ -1,0 +1,2 @@
+iso,CEDS_fuel,agg_fuel,agg_sector,start_year,end_year,method,priority,keep_total_cols,exclude_int_bunkers
+deu,brown_coal,coal,all,1800,1859,linear,2,"agg_fuel, CEDS_fuel",TRUE
