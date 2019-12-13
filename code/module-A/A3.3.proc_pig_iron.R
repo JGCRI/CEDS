@@ -1,5 +1,6 @@
 # ------------------------------------------------------------------------------
-# Program Name: A3.4.proc_pig_iron.R  ### I think this file could have a more informative name
+# Program Name: A3.3.proc_pig_iron.R
+# TODO: This file could have a more informative name
 # Author: Linh Vu
 # Date Last Updated: 14 April 2016
 # Program Purpose: Process pig iron production
@@ -107,8 +108,8 @@
 # 2. Process data
 # Standardize format, drop rows of NA, short ton to metric ton, etc.
     names( spew ) <- make.names( names( spew ) )
-    spew_pre <- group_by( spew_pre, iso ) %>%
-            summarise_all( sum )
+    spew_pre <- dplyr::group_by( spew_pre, iso ) %>%
+            dplyr::summarise_all( sum )
     spew_pre <- subset( spew_pre, rowSums( spew_pre[, grepl("X", names( spew_pre ) ) ], na.rm = T ) != 0 )  # drop NA rows
     mitchell$units <- NULL
     mitchell$iso[ mitchell$iso == "rus" ] <- "ussr"  # Change rus to ussr
@@ -125,7 +126,7 @@
     spew_long <- melt( spew, id = "iso" ) %>% filter( !is.na( value ), value != 0 )
     names( spew_long ) <- c( "iso", "year", "spew_en" )
     spew_pre_long <- melt( as.data.frame( spew_pre ), id = "iso" ) %>%
-      filter( !is.na( value ), value != 0 )
+      dplyr::filter( !is.na( value ), value != 0 )
     names( spew_pre_long ) <- c( "iso", "year", "spew_pre_en" )
     mitchell_long <- melt( mitchell, id = "iso" ) %>% filter( !is.na( value ), value != 0 )
     names( mitchell_long ) <- c( "iso", "year", "mitchell_en" )
@@ -193,7 +194,7 @@
 
 # Make driver dataset of 1750-1975; remove countries that are all zero from 1750-1970
     Xyears_filter <- paste0( "X", 1750:1970 )
-    driver <- select( all_wide_out, iso, sector, fuel, units, X1750:X1975 )
+    driver <- dplyr::select( all_wide_out, iso, sector, fuel, units, X1750:X1975 )
     driver <- subset( driver, rowSums( driver[ Xyears_filter ] ) > 0 )
 
 # ---------------------------------------------------------------------------
