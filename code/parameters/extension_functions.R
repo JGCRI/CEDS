@@ -70,6 +70,7 @@
  #            iea_start_year: list of start year of IEA data by country, 1960 or 1971
  # Input Files:
  # Output Files: none
+ # TODO: I don't think that this function is used? Do we want to delete it?
 
  H.process_ceds_data <-  function(a.activity = activity,
                                   a.ceds_extension_fuels = ceds_extension_fuels,

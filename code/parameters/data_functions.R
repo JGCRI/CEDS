@@ -1,9 +1,9 @@
-# ----------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # CEDS R header file: data molding functions
 # Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Caleb Braun,
 #          Steven Smith, Patrick O'Rourke
-# Last Updated: 16 October 2019
-
+# Last Updated: December 13, 2019
+#
 # This file should be sourced by any R script doing heavy-duty reformatting of
 # CEDS data. It contains helper functions for general data manipulation and some
 # CEDS-specific data transformations.
@@ -17,7 +17,6 @@
 
 # -----------------------------------------------------------------------------
 
-# -----------------------------------------------------------------------------
 # %!in%"
 # Brief:        Is not an element of" (opposite of %in%).
 # Details:      Determines whether the pattern is NOT found within y.
@@ -528,7 +527,6 @@ interpolate_NAs2 <- function(df) {
     return(df)
 }
 
-
 # -----------------------------------------------------------------------------
 # extend_and_interpolate
 # Brief: Linearly interpolate over NA values and extend first and last
@@ -547,26 +545,26 @@ interpolate_NAs2 <- function(df) {
 # Output Files:     NA
 extend_and_interpolate <- function( df_in, data_columns ){
 
-# Check that df_in is a data frame
- if( !(is.data.frame( df_in ) ) ){
+#   Check that df_in is a data frame
+    if( !(is.data.frame( df_in ) ) ){
 
-    stop( "The function extend_and_interpolate expects df_in to be a data frame..." )
+        stop( "The function extend_and_interpolate expects df_in to be a data frame..." )
 
     }
 
-# Check that data_columns are columns in df_in
-  column_names <- colnames( df_in )
-  data_columns_not_in_column_names <- subset( data_columns,
-                                              !( data_columns %in% column_names ) )
+#   Check that data_columns are columns in df_in
+    column_names <- colnames( df_in )
+    data_columns_not_in_column_names <- subset( data_columns,
+                                                !( data_columns %in% column_names ) )
 
-  if( length( data_columns_not_in_column_names ) != 0 ){
+    if( length( data_columns_not_in_column_names ) != 0 ){
 
-      printLog( data_columns_not_in_column_names )
+        printLog( data_columns_not_in_column_names )
 
-      stop( "The above elements in parameter data_columns are not column names in ",
-            "df_in. Elements of data_columns must be column names of parameter df_in for ",
-            "function extend_and_interpolate..." )
-  }
+        stop( "The above elements in parameter data_columns are not column names in ",
+              "df_in. Elements of data_columns must be column names of parameter df_in for ",
+              "function extend_and_interpolate..." )
+    }
 
 #   Check that there are no columns after data_columns in the data frame
     data_column_positions <- which( colnames( df_in ) %in% data_columns )
@@ -582,6 +580,16 @@ extend_and_interpolate <- function( df_in, data_columns ){
 #   Convert NaNs to NAs
     df_no_NaN <- df_in %>%
         dplyr::mutate_at( data_columns, funs( if_else( is.nan( . ), NA_real_, . ) ) )
+
+#   Check if there are any NAs ( or NaNs technically, since NaNs are now NAs )
+#   If there are no NAs, return the original data frame, as the rest of the function
+#   is not needed
+    if( !any( is.na( df_in[ , data_columns] ) ) ){
+
+        printLog( "data did not need extending or interpolating, returning original data...")
+
+        return( df_in )
+    }
 
 #   Check that all data_columns are numeric
     data_column_classes <- lapply( df_no_NaN[, data_columns ], class )
@@ -1729,4 +1737,3 @@ disaggregate_country <- function(original_data,
 
   return(split_data)
 }
-

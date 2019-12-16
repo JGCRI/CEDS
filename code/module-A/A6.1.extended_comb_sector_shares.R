@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: A6.1.extended_comb_sector_shares.R
 # Author: Rachel Hoesly, Caleb Braun, Patrick O'Rourke
-# Last Updated:    June 4, 2019
+# Last Updated: December 10, 2019
 # Program Purpose: Calculate default combustion fuel shares for extended historical data
 #     Combines default CEDS estimates from IEA with Bond fuel share data to produce
 #     sectoral estimates of fossil fuel use (in the form of fuel shares) for the entire period
@@ -57,19 +57,30 @@ ext_sector_map <- readData( "MAPPINGS", "Bond_sector_ext_map", ".xlsx",
 # then in 1940 agg. sector splits will be fully from BOND data.
 years_until_100percent_BOND_split <- 20
 
+# Define relevant extension fuels
 ceds_extension_fuels <- c( "hard_coal", "brown_coal", "coal_coke", "natural_gas",
                           "heavy_oil", "diesel_oil", "light_oil" )
 coal_fuels <- c( "hard_coal", "brown_coal", "coal_coke" )
 
-all_countries <- unique(activity_all$iso)
+# Define CEDS isos
+all_countries <- unique( activity_all$iso )
 all_countries <- all_countries[all_countries != 'global']
 
-start_years <- c(1960, 1971) # IEA data starts in either 1960 or 1971
-X_start_years <- paste0('X', start_years)
-ext_sectors <- unique(ext_sector_map$ext_sector)
+# Define start years
+start_years <- c( IEA_start_year, 1971 ) # IEA data starts in either 1960 or 1971
+X_start_years <- paste0( 'X', start_years )
+
+# Remove sectors from ext_sector_map which are NA for ext_sector (international shipping)
+# then define extension sectors
+ext_sector_map_fixed <- ext_sector_map %>%
+    dplyr::filter( !is.na( ext_sector ) )
+
+ext_sectors <- unique(ext_sector_map_fixed$ext_sector)
+
+# Define extension years
 extension_end_year <- 1970 # last year of extension, for selecting columns over both iea_years
-X_extension_years <- paste0('X', historical_pre_extension_year:extension_end_year)
-OECD_years <- paste0("X", 1960:1970) # years for which OECD countries should have splits taken
+X_extension_years <- paste0( 'X', historical_pre_extension_year:extension_end_year )
+OECD_years <- paste0( "X", 1960 : 1970 ) # years for which OECD countries should have splits taken
                                      # directly from CEDS default data
 
 # Define Function to Normalize shares
@@ -146,10 +157,13 @@ normalize_shares <- function(df_in, share_type){
     return(df_in_corrected)
 }
 
-# Filter for fuels we are calculating shares for
+# Filter for fuels and sectors we are calculating shares for
 # (or "ceds_extension_fuels" - the fossil fuels we are extending energy data for).
+# Note that international shipping data is not extended within CEDS with the
+# other combustion sectors.
  activity <- activity_all %>%
-     dplyr::filter( fuel != 'biomass')
+     dplyr::filter( fuel != 'biomass' ) %>%
+     dplyr::filter( sector != "1A3di_International-shipping" )
 
 # ---------------------------------------------------------------------------
 # 3. Calculate CEDS default aggregate sector splits
@@ -160,7 +174,7 @@ printLog('Calculating CEDS aggregate sector breakdowns')
 
 # Calculate CEDS aggregate sector splits
 ceds_aggregate_sectors <- activity %>%
-    dplyr::left_join(ext_sector_map, by = "sector") %>%
+    dplyr::left_join(ext_sector_map_fixed, by = "sector") %>%
     dplyr::group_by(iso, fuel, ext_sector) %>%
     dplyr::summarise_if(is.numeric, sum) %>%
     dplyr::ungroup()
@@ -220,7 +234,7 @@ printLog('Merge Bond and CEDS sector extension sector breakdowns')
 
 # TODO: In the future we need to include the default agg_sector assumptions
 #      (ext_sector_percents_start_assumptions) within the combined agg_splits --
-#      we will use the default assumptions when Bond data is missing.
+#      we will use these default assumptions when Bond data is missing.
 
 # Combine Bond and CEDS aggregate splits. Slowly transition from Bond to CEDS
 # sector splits. The loop combines ceds_agg_percent and bond_sector_percentages,
@@ -303,7 +317,10 @@ combined_sector_percentages <- do.call( rbind, combined_sector_percentages_list)
 other_transformation_fuels <- c( "brown_coal", "hard_coal", "natural_gas", "oil" )
 
 combined_sector_percentages_template <- rbind( expand.grid( iso = all_countries,
-                                                 ext_sector = unique( ext_sector_map %>% filter( ext_sector != "Other_transformation" ) %>% select( ext_sector ) ) %>% unlist,
+                                                 ext_sector = unique( ext_sector_map_fixed %>%
+                                                                          dplyr::filter( ext_sector != "Other_transformation" ) %>%
+                                                                          dplyr::select( ext_sector ) ) %>%
+                                                                          unlist,
                                                  fuel = ceds_extension_fuels ),
                                                expand.grid( iso = all_countries,
                                                  ext_sector = "Other_transformation",
@@ -335,7 +352,7 @@ printLog('Calculating CEDS detailed sector splits')
 
 # Calculate CEDS_sector splits from CEDS data.
 ceds_extsector_percentages_corrected <- activity %>%
-    dplyr::left_join(ext_sector_map, by = 'sector') %>%
+    dplyr::left_join(ext_sector_map_fixed, by = 'sector') %>%
     calculate_shares(c('iso', 'fuel', 'ext_sector'), 'sector') %>%
     dplyr::select(iso, fuel, ext_sector, sector, X_emissions_years)
 
@@ -381,7 +398,7 @@ extended_breakdown <- extended_breakdown_coal %>%
 #   Create template with all combinations
 extended_breakdown_complete_template <- combined_sector_percentages_template %>%
     dplyr::mutate( ext_sector = as.character( ext_sector ) ) %>%
-    dplyr::full_join( ext_sector_map, by = "ext_sector" )
+    dplyr::full_join( ext_sector_map_fixed, by = "ext_sector" )
 
 extended_breakdown_complete <- extended_breakdown_complete_template %>%
     dplyr::mutate( iso = as.character( iso ),
@@ -431,7 +448,6 @@ final_percentages_corrected <- final_percentages_corrected %>%
  shares_not_0_or_1 <- final_test %>%
      tidyr::gather( key = years, value = shares, X_extension_years ) %>%
      dplyr::ungroup( ) %>%
-     # dplyr::filter( !(! ( iso %in% isos_start_1971) & years %in% OECD_years) ) %>% #*** start here, without this a bunch get flagged so there's an issue
      dplyr::mutate(shares_rounded = round( shares, digits = 10 ) ) %>%
      dplyr::filter(shares_rounded != 1 & shares_rounded != 0 )
 
@@ -450,6 +466,8 @@ final_percentages_corrected <- final_percentages_corrected %>%
 # ---------------------------------------------------------------------------
 # 9. Write to database
 
+# Write default sector shares
 writeData( final_percentages_corrected, "MED_OUT", "A.full_default_sector_shares" )
+
 
 logStop( )
