@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A8.2.Adjust_Shipping_Fuel_Cons.R
 # Authors Names: Steve Smith, Patrick O'Rourke, Linh Vu
-# Date Last Updated: December 12, 2019
+# Date Last Updated: December 13, 2019
 # Program Purpose: Reads in exogenous time series for global shipping fuel consumption
 #                  ( domestic and international ).
 #
@@ -355,13 +355,7 @@ if( nrow( combined_shipping_ext %>% dplyr::filter( difference != 0, !is.na( diff
     }
 
 #   Check that nothing is negative
-#   TODO: Once the negative activity data issue is resolved for the extension of the fossils
-#         (because of negative values in the CEDS_data output "CDA1_UNSD_Energy_Final_Consumption_by_Ctry.csv" had negative values)
-#         this stop should apply to the entire data frame, not just global international shipping.
-    temp_global_int_ship_for_check <- CEDS_adjusted_int_shipping %>%
-        dplyr::filter( iso == "global", sector == "1A3di_International-shipping" )
-
-    if( any( temp_global_int_ship_for_check[ , X_extended_years ] < 0 ) ){
+    if( any( CEDS_adjusted_int_shipping[ , X_extended_years ] < 0 ) ){
 
         stop( "Adjusted fuel consumption data now includes negative consumption ",
               "for at least one year and fuel combinations. Please check A8.2.Adjust_Shipping_Fuel_Cons.R..." )
@@ -502,13 +496,7 @@ if( nrow( combined_shipping_ext %>% dplyr::filter( difference != 0, !is.na( diff
     }
 
 #   Check that nothing is negative
-#   TODO: Once the negative activity data issue is resolved for the extension of the fossils
-#         (because of negative values in the CEDS_data output "CDA1_UNSD_Energy_Final_Consumption_by_Ctry.csv" had negative values)
-#         this stop should apply to the entire data frame, not just global international shipping.
-    temp_global_int_ship_for_check <- CEDS_final_shipping_activity %>%
-        dplyr::filter( iso == "global", sector == "1A3di_International-shipping" )
-
-    if( any( temp_global_int_ship_for_check[ , X_extended_years ] < 0 ) ){
+    if( any( CEDS_final_shipping_activity[ , X_extended_years ] < 0 ) ){
 
         stop( "Adjusted fuel consumption data now includes negative consumption ",
               "for at least one year and fuel combinations after the Fouquet & Pearson adjustment. ",

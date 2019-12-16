@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------------------
 # Program Name: A6.2.extended_default_activity_coal.R
-# Author: Presley Muwan, Rachel Hoesly
-# Date Last Updated: December 11, 2019
+# Author: Presley Muwan, Rachel Hoesly, Patrick O'Rourke
+# Date Last Updated: December 13, 2019
 # Program Purpose: Create the default activity coal data for CEDS following these three steps:
 #                 * Merge IEA coal data (2014 - 1960/1971) to UNSD coal data (1959/1970 - 1950)
 #                   and extend the merged data from 1950 to 1850 using CDIAC data.
@@ -11,10 +11,8 @@
 #              E.CO2_CDIAC_inventory.csv, A.full_default_sector_shares.csv,
 #              IEA_iso_start_data.csv, IEA_product_fuel.csv
 # Output Files:  A.comb_activity_extended_coal.csv
-# TODO: Check for negative data and look over results after the CED_Data output
-#       "CDA1_UNSD_Energy_Final_Consumption_by_Ctry.csv" is fixed and no longer has negative values
-# TODO: The extension scripts could be functionalized more. Particularly for the fossil fuels,
-#       as large amounts of the processing here are the same for each fossil fuel.
+# TODO: The fossil extension scripts could be functionalized more,
+#       as a large amount of the processing here is the same for each fossil fuel.
 # -----------------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
@@ -34,8 +32,9 @@ initialize( script_name, log_msg, headers )
 # 1. Read in Files
 
 # TODO: "CDA1_UNSD_Energy_Final_Consumption_by_Ctry.csv" may have international shipping activity data
-#        within its total by fuel. If so this amount would need to be removed from the total. We currently assume
-#       that this total does not include international shipping fuel consumption.
+#        within its total by fuel. If so, this amount would need to be removed from the total. We currently assume
+#        that this total does not include international shipping fuel consumption.
+# TODO: Remove meta = F for UNSD when metadata file is added to the system
 UNSD_Energy_Final_Consumption_all <- readData( 'EXT_IN',"CDA1_UNSD_Energy_Final_Consumption_by_Ctry" , meta = F )
 A.comb_activity_all <- readData( 'MED_OUT', "A.default_comb_activity_with_other" , meta = F )
 cdiac_fuel_all <- readData( 'MED_OUT' , 'E.CO2_CDIAC_inventory' )
@@ -52,22 +51,34 @@ aggregate_fuel_name <- 'coal'
 cdiac_fuel_name <- 'solid_fuels'
 default_fuel_share <- data.frame( fuel = ceds_extension_fuels,
                                   breakdown = c( 0, 0, 1 ) )
+unsd_years <- paste0( "X", 1950 : 1976 )
 
 # Process UN data
-# Filter out countries that have lines of data, but the data has all zero values
-UN_countries <- UNSD_Energy_Final_Consumption_all %>%
-    dplyr::filter( fuel %in% ceds_extension_fuels ) %>%
-    dplyr::group_by( iso ) %>%
-    dplyr::summarize_if( is.numeric, sum ) %>%
-    dplyr::mutate( sum_all = rowSums(.[grep( "X", names( . ) ) ], na.rm = TRUE ) ) %>% # sum rows over all columns
-    dplyr::filter( sum_all > 0 ) %>%
-    pull( iso )
+#   Check that there are no negative values
+    if( any( UNSD_Energy_Final_Consumption_all[ , unsd_years ] < 0 & !is.na( UNSD_Energy_Final_Consumption_all[ , unsd_years ] ) ) ){
 
-UNSD_Energy_Final_Consumption <- UNSD_Energy_Final_Consumption_all %>%
-    dplyr::filter( fuel %in% ceds_extension_fuels,
-                   iso %in% UN_countries )
+        stop( "CDA1_UNSD_Energy_Final_Consumption_by_Ctry.csv contains negative activity data. Please check..." )
 
-# Filter input data for fuels and remove international shipping
+    }
+
+#   Filter out countries that have lines of data, but the data has all zero values
+    UN_countries <- UNSD_Energy_Final_Consumption_all %>%
+        dplyr::filter( fuel %in% ceds_extension_fuels ) %>%
+        dplyr::group_by( iso ) %>%
+        dplyr::summarize_if( is.numeric, sum ) %>%
+        dplyr::mutate( sum_all = rowSums(.[grep( "X", names( . ) ) ], na.rm = TRUE ) ) %>% # sum rows over all columns
+        dplyr::filter( sum_all > 0 ) %>%
+        pull( iso )
+
+    UNSD_Energy_Final_Consumption_filtered <- UNSD_Energy_Final_Consumption_all %>%
+        dplyr::filter( fuel %in% ceds_extension_fuels,
+                       iso %in% UN_countries )
+
+#   Interpolate and extend
+    printLog( "Extending and interpolating UNSD energy combustion activity data...")
+    UNSD_Energy_Final_Consumption <- extend_and_interpolate( UNSD_Energy_Final_Consumption_filtered, unsd_years )
+
+# Filter other input data for fuels and remove international shipping
 A.default_comb_activity_with_other <- A.comb_activity_all %>%
     dplyr::filter( fuel %in% ceds_extension_fuels,
                    iso != 'global',
