@@ -1,6 +1,6 @@
 # Program Name: A1.4.IEA_heat_content.R
 # Author: Linh Vu, Rachel Hoesly
-# Date Last Updated: 16, August 2019
+# Date Last Updated: September 5, 2019
 # Program Purpose: Computes weighted average heat content from IEA Conversion Factors
 #                  by country, year and fuel type. Currently doing this for coal.
 # Input Files: OECD_Conversion_Factors_Full.csv, NonOECD_Conversion_Factors_Full.csv,
@@ -35,7 +35,7 @@
   conversion_NonOECD <- readData( "ENERGY_IN", "NonOECD_Conversion_Factors_Full" )
   activity_data <- readData( "MED_OUT", "A.IEA_en_stat_ctry_hist" )
 
-  IEA_product_fuel <- readData( "MAPPINGS", "IEA_product_fuel", domain_extension = "energy/" )
+  IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
   MCL <- readData( "MAPPINGS", "Master_Country_List" )
 
 # ---------------------------------------------------------------------------

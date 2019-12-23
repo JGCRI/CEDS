@@ -1,0 +1,16 @@
+# Ignore all additional files in this directory
+*
+# Except for the .gitignore and readme.txt
+!.gitignore
+!README.txt
+
+# Except raw input files -- that require no pre-processing for CEDS to use the data
+!U.*.csv
+!U.*-mapping.xlsx
+
+# Except for mapping and instruction files for inputs which required pre-processing for CEDS to use the data
+!A.*-instructions.csv
+!A.*_sector_map.csv
+!A.*-mapping.xlsx
+
+

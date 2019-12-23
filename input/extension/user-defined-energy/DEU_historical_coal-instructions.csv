@@ -1,3 +1,0 @@
-iso,CEDS_fuel,agg_fuel,start_year,end_year,preprocessing_script,keep_total_cols
-deu,hard_coal,coal,1860,1945,DEU_historical_coal.R,"agg_fuel, CEDS_fuel"
-deu,brown_coal,coal,1860,1945,,"agg_fuel, CEDS_fuel"

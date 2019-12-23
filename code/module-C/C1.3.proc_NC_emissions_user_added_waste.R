@@ -117,7 +117,7 @@ if ( is.na( em ) ) em <- "NMVOC"
 # Initialize residential mass burned
     all_waste_data$WB_res <- NA
 
-# This uses a simple method to extend waste emisisons over time but instead of the flat 0.6 
+# This uses a simple method to extend waste emisisons over time but instead of the flat 0.6
 # burned fraction uses value input from the file Waste_burning_pct_parameters.csv.
 
 # Residential mass burned in developing countries: whole rural pop, plus
@@ -208,8 +208,8 @@ if ( is.na( em ) ) em <- "NMVOC"
                                                     waste_burning_params$rural_or_urban == "urban" &
                                                     waste_burning_params$scenario == scenario), ]$fraction_burnt )[ developed ]
 
-    all_waste_data$WB_dump <- all_waste_data$WB_res_rural +
-                              all_waste_data$WB_res_urban
+    all_waste_data$WB_dump <- all_waste_data$WB_dump_rural +
+                              all_waste_data$WB_dump_urban
 
     all_waste_data$total_WB <- all_waste_data$WB_dump + all_waste_data$WB_res
     all_waste_data$pct_burned <- all_waste_data$total_WB / all_waste_data$total_waste

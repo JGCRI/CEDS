@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
+Coal Consumption,NA,Germany,All coal-consuming sectors,1860,1974,"Primarenergie Elektrische Energie - Germany Table SKE (Schilling et al. 1977, https://www.unitjuggler.com/convert-energy-from-tSKE-to-kJ.html). It is assumed that total fuel consumption values provided here exclude international bunkers."

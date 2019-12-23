@@ -1,16 +1,17 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.2.Fugitive-petr-and-gas_default_process_emissions.R
 # Author: Leyang Feng
-# Date Last Modified: June 28, 2016
+# Date Last Modified: August 28, 2019
 # Program Purpose: Generates default process emissions for 1B2c_Venting-flaring-oil-gas
 #                  using part of EDGAR JRC PEGASOS data
 # Input Files: C.[em]_ECLIPSE_flaring_emissions_extended.csv,
-# Output Files: C.[em]_Fugitive-petr-and-gas default process.csv
+#              JRC_PEGASOS_[em]_TS_REF.csv, EDGAR42_CH4.csv,
+#              v42FT_CH4_2000_2010.csv
+# Output Files: C.[em]_Fugitive-petr-and-gas_default_process.csv
 # Notes:
 # TODO:
 #-------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
@@ -159,10 +160,11 @@ if ( em == 'CH4' ){
 
 # -----------------------------------------------------------------------------
 # 4. Write output
-    meta_names <- c( "Data.Type", "Emission", "Sector", "Start.Year", "End.Year", "Source.Comment")
-    meta_note <- c( "default process emissions for 1B2c_Venting-flaring-oil-gas", em, "1B2_Fugitive-petr-and-gas",
-        "1970", end_year, "Max value between EDGAR JRC PEGASOS data and extended ECLIPSE flaring emissions is taken as default process emissions for country-year combination for sector 1B2c_Venting-flaring-oil-gas" )
-    addMetaData( meta_note, meta_names )
+    meta_names <- c( "Data.Type", "Emission", "Region", "Sector", "Start.Year", "End.Year", "Source.Comment")
+    meta_note <- c( "Default process emissions for 1B2c_Venting-flaring-oil-gas", em, "All", "1B2_Fugitive-petr-and-gas",
+        "1970", end_year, "Max value between EDGAR JRC PEGASOS data and extended ECLIPSE flaring emissions is taken as default process emissions for country-year combinations for sector 1B2c_Venting-flaring-oil-gas" )
+    source_info <- "C1.2.Fugitive-petr-and-gas_default_process_emissions.R"
+    addMetaData( meta_note, meta_names, source_info )
 
     writeData( emissions , "DEFAULT_EF_IN", domain_extension = 'non-combustion-emissions/' ,paste0( "C.", em, "_Fugitive-petr-and-gas_default_process_emissions" ) )
 

@@ -19,13 +19,13 @@ SC_MAPPINGS = input/mappings/scaling
 ACTIV = input/activity
 INV_DATA = input/emissions-inventories
 MED_OUT = intermediate-output
-ENERGY_IN = input/energy
 DIAG_OUT = diagnostic-output
 FINAL_OUT = final-emissions
 EXT_IN = input/extension
-USER_EN_IN = input/extension/user-defined-energy
+USER_EN_PROCESS	= input/energy/user-defined-energy
+USER_EN_IN = input/energy/user-defined-energy/user_energy_input
 EXT_DATA = input/extension/extension-data
-LOGS = code/logs
+LOGS = logs
 DOCS = documentation
 
 # --------------------------------------------------------------
@@ -109,7 +109,7 @@ endif
 
 # Note that this is an inefficient method of creating data for multiple species
 # If a multi-processor machine is available, CEDS should be instead run in parellel for multiple species
-all: SO2-emissions BC-emissions OC-emissions NOx-emissions CO-emissions NMVOC-emissions CO2-emissions NH3-emissions
+all: SO2-emissions BC-emissions OC-emissions NOx-emissions CO-emissions NMVOC-emissions CO2-emissions NH3-emissions CH4-emissions
 part1: SO2-emissions NOx-emissions NH3-emissions
 part2: BC-emissions OC-emissions CO2-emissions
 part3: CO-emissions NMVOC-emissions CH4-emissions
@@ -119,7 +119,19 @@ part3: CO-emissions NMVOC-emissions CH4-emissions
 # Targets used to remove output files for a fresh run
 clean-all: \
 	clean-intermediate clean-diagnostic clean-final clean-logs clean-io clean-modA clean-modB clean-modC \
-	clean-modD clean-modE clean-modF clean-modH clean-gridding
+	clean-modD clean-modE clean-modF clean-modH clean-gridding clean-user_defined_energy
+
+clean-user_defined_energy:
+# Deletes all CSVs in the directory except for: 
+# 1) CEDS user-defined energy inputs, metadata, and instructions (U.*.csv)
+# 2) Relevant mapping and instructions files for user-defined energy input which require pre-processing for use in CEDS (A.*-instructions.csv, A.*_sector_map.csv, A.*-mapping.xlsx)
+	find $(USER_EN_IN) -name "*.csv" ! -name "U.*.csv" ! -name "A.*-instructions.csv" ! -name "A.*_sector_map.csv" -delete
+
+# Deletes all xlsx files that don't end in -mapping.xlsx and begin with "A." or "U."
+	find $(USER_EN_IN) -name "*.xlsx" ! -name "A.*-mapping.xlsx" ! -name "U.*-mapping.xlsx" -delete
+
+# Deletes all txt files that aren't the README file
+	find $(USER_EN_IN) -name "*.txt" ! -name "README.txt" -delete
 
 clean-intermediate:
 	rm -fv $(MED_OUT)/*.csv
@@ -129,7 +141,11 @@ clean-diagnostic:
 	rm -fv $(DIAG_OUT)/summary-plots/*.csv \
 	rm -fv $(DIAG_OUT)/summary-plots/*.pdf \
 	rm -fv $(DIAG_OUT)/ceds-comparisons/*.pdf \
-	rm -fv $(DIAG_OUT)/ceds-comparisons/*.csv
+	rm -fv $(DIAG_OUT)/ceds-comparisons/*.csv \
+	rm -fv $(DIAG_OUT)/ceds-comparisons/sector-level/*.csv \
+	rm -fv $(DIAG_OUT)/ceds-comparisons/sector-level/*.pdf \
+	rm -fv $(DIAG_OUT)/user-data/*.csv \
+	rm -fv $(DIAG_OUT)/user-data/*.png
 
 clean-final:
 	rm -fv $(FINAL_OUT)/*.csv
@@ -392,16 +408,10 @@ $(MED_OUT)/A.comb_othertrans_activity.csv: \
 # Extends IEA data with BP data
 $(MED_OUT)/A.IEA_BP_energy_ext.csv: \
 	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
-	$(MOD_A)/A3.2.Adjust_Shipping_Fuel_Cons.R \
 	$(MED_OUT)/A.comb_othertrans_activity.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
-	$(ENERGY_DATA)/BP_energy_data.xlsx \
-	$(ENERGY_DATA)/Shipping_Fuel_Consumption.xlsx
+	$(ENERGY_DATA)/BP_energy_data.xlsx
 	Rscript $< $(EM) --nosave --no-restore
-	Rscript $(word 2,$^) $(EM) --nosave --no-restore
-
-$(MED_OUT)/A.intl_shipping_en.csv: \
-	$(MED_OUT)/A.IEA_BP_energy_ext.csv
 
 # aa3-2
 # Write out difference between IEA and CEDS coal
@@ -419,7 +429,7 @@ $(MED_OUT)/A.IEA_CEDS_coal_difference.csv: \
 # aa3-3
 # Process pig iron production
 $(EXT_DATA)/A.Pig_Iron_Production.csv: \
-	$(MOD_A)/A3.4.proc_pig_iron.R \
+	$(MOD_A)/A3.3.proc_pig_iron.R \
 	$(MED_OUT)/A.UN_pop_master.csv \
 	#(ACTIV)/metals/Blast_furnace_iron_production_1850-2014.xlsx \
 	#(ACTIV)/metals/Pig_Iron_Production_US.csv \
@@ -535,7 +545,7 @@ $(MED_OUT)/A.other_biomass_extended.csv: \
 	$(MED_OUT)/A.default_comb_activity_with_other.csv
 	Rscript $< $(EM) --nosave --no-restore
 
-# combine all combustion extension data
+# Combine all combustion extension data
 $(MED_OUT)/A.comb_default_activity_extended.csv: \
 	$(MOD_A)/A6.4.extended_default_comb_activity.R \
 	$(MED_OUT)/A.comb_activity_extended_coal.csv \
@@ -544,12 +554,11 @@ $(MED_OUT)/A.comb_default_activity_extended.csv: \
 	$(MED_OUT)/A.other_biomass_extended.csv \
 	$(MED_OUT)/A.industrial_biomass_extended.csv \
 	$(MED_OUT)/A.residential_biomass_full.csv \
-	#$(MED_OUT)/A.intl_shipping_en.csv \
 	$(MED_OUT)/A.default_comb_activity_with_other.csv \
-	$(ENERGY_IN)/IEA_iso_start_data.csv
+	$(ENERGY_DATA)/IEA_iso_start_data.csv
 	Rscript $< $(EM) --nosave --no-restore
 
-# Non Combustion activity data
+# Non-Combustion activity data
 $(MED_OUT)/A.NC_activity_extended_db.csv: \
 	$(MOD_A)/A7.1.base_activity.R \
 	$(MOD_A)/A7.2.add_activity.R \
@@ -570,21 +579,32 @@ $(MED_OUT)/A.NC_default_activity_extended.csv: \
 	$(MED_OUT)/A.NC_activity_extended_db.csv
 	Rscript $< $(EM) --nosave --no-restore
 
+# User-added combustion activity incorporated
 $(MED_OUT)/A.comb_user_added.csv: \
 	$(MOD_A)/A8.1.add_user-defined_data.R \
 	$(MED_OUT)/A.comb_default_activity_extended.csv
 	Rscript $< $(EM) --nosave --no-restore
 
+# International shipping fix
+$(MED_OUT)/A.comb_int_shipping_adjusted.csv: \
+	$(MOD_A)/A8.2.Adjust_Shipping_Fuel_Cons.R \
+	$(MED_OUT)/A.comb_user_added.csv \
+	$(MED_OUT)/A.IEA_en_stat_ctry_hist.csv \
+	$(EN_MAPPINGS)/IEA_product_fuel.csv \
+	$(ENERGY_DATA)/Shipping_Fuel_Consumption.xlsx
+	Rscript $< $(EM) --nosave --no-restore
+
+# Final activity data
 $(MED_OUT)/A.total_activity_extended.csv: \
-	$(MOD_A)/A8.2.combine_extended_activity.R \
+	$(MOD_A)/A8.3.combine_extended_activity.R \
 	$(MED_OUT)/A.NC_default_activity_extended.csv \
-	$(MED_OUT)/A.comb_user_added.csv
+	$(MED_OUT)/A.comb_int_shipping_adjusted.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.final_comb_activity_modern.csv: \
-	$(MOD_A)/A8.2.combine_extended_activity.R \
+	$(MOD_A)/A8.3.combine_extended_activity.R \
 	$(MED_OUT)/A.NC_default_activity_extended.csv \
-	$(MED_OUT)/A.comb_user_added.csv
+	$(MED_OUT)/A.comb_int_shipping_adjusted.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.total_activity_extended_coal.csv: \

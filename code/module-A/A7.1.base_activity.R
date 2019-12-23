@@ -4,11 +4,11 @@
 # Date Last Modified: 20 April 2018
 # Program Purpose: Extend CEDS activity backward
 # Input Files:  A.NC_activity.csv
-# Output Files:
-# TODO:
+# Output Files: A.NC_activity_extended_db.csv
+# TODO: This script could probably be renamed to something
+#       that signaled it was for NC activity only.
 # ---------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.

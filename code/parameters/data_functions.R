@@ -1,14 +1,14 @@
 # -----------------------------------------------------------------------------
 # CEDS R header file: data molding functions
-# Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Caleb Braun
-# Last Updated: 10 August 2018
+# Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Caleb Braun,
+#          Steven Smith, Patrick O'Rourke
+# Last Updated: December 13, 2019
 #
 # This file should be sourced by any R script doing heavy-duty reformatting of
 # CEDS data. It contains helper functions for general data manipulation and some
 # CEDS-specific data transformations.
 # -----------------------------------------------------------------------------
 
-# -----------------------------------------------------------------------------
 # %!in%"
 # Brief:        Is not an element of" (opposite of %in%).
 # Details:      Determines whether the pattern is NOT found within y.
@@ -156,6 +156,7 @@ is.infinite.df <- function(x) do.call( cbind, lapply( x, is.infinite ) )
 # -----------------------------------------------------------------------------
 # removeNARows
 # Brief: Removes rows from a wide dataframe whose data columns are all na's
+# Author(s): Steven Smith, Patrick O'Rourke
 # Params:
 #    a_dataframe: dataframe to process
 #    year_cols: list of data column names
@@ -170,6 +171,7 @@ return(temp_dataframe)
 # -----------------------------------------------------------------------------
 # NAsToZeros
 # Brief: Changes NAs to zeros in data columns of a dataframe
+# Author(s): Steven Smith, Patrick O'Rourke
 # Params:
 #    a_dataframe: dataframe to process
 #    year_cols: list of data column names
@@ -518,6 +520,169 @@ interpolate_NAs2 <- function(df) {
     return(df)
 }
 
+# -----------------------------------------------------------------------------
+# extend_and_interpolate
+# Brief: Linearly interpolate over NA values and extend first and last
+#        non-NA values backwards and forwards
+# Details: Interpolates and extends to columns that already exist in the data.
+#          The function expects the df to be orded with the non-numeric columns
+#          before the numeric columns ( numeric columns parameter defined below as "data_columns" ).
+#          The function also expects there to be no rows with all NAs
+# Dependencies: interpolate_NAs2, printLog
+# Author(s): Patrick O'Rourke
+# Parameters: df_in             a data frame with numeric columns which need extension and
+#                               (possibly) interpolation
+#             data_columns      columns in df_in which need extension and/or interpolation
+# Return: df_no_NAs    a data frame with numeric values interpolated
+# Input Files:      NA
+# Output Files:     NA
+extend_and_interpolate <- function( df_in, data_columns ){
+
+#   Check that df_in is a data frame
+    if( !(is.data.frame( df_in ) ) ){
+
+        stop( "The function extend_and_interpolate expects df_in to be a data frame..." )
+
+    }
+
+#   Check that data_columns are columns in df_in
+    column_names <- colnames( df_in )
+    data_columns_not_in_column_names <- subset( data_columns,
+                                                !( data_columns %in% column_names ) )
+
+    if( length( data_columns_not_in_column_names ) != 0 ){
+
+        printLog( data_columns_not_in_column_names )
+
+        stop( "The above elements in parameter data_columns are not column names in ",
+              "df_in. Elements of data_columns must be column names of parameter df_in for ",
+              "function extend_and_interpolate..." )
+    }
+
+#   Check that there are no columns after data_columns in the data frame
+    data_column_positions <- which( colnames( df_in ) %in% data_columns )
+    last_data_column_position <- data_column_positions[[ length( data_column_positions ) ]]
+
+    if( last_data_column_position < length( df_in ) ){
+
+        stop( "The function extend_and_interpolate expects there to be no ",
+              "columns in df_in after the data_columns..." )
+
+    }
+
+#   Convert NaNs to NAs
+    df_no_NaN <- df_in %>%
+        dplyr::mutate_at( data_columns, funs( if_else( is.nan( . ), NA_real_, . ) ) )
+
+#   Check if there are any NAs ( or NaNs technically, since NaNs are now NAs )
+#   If there are no NAs, return the original data frame, as the rest of the function
+#   is not needed
+    if( !any( is.na( df_in[ , data_columns] ) ) ){
+
+        printLog( "data did not need extending or interpolating, returning original data...")
+
+        return( df_in )
+    }
+
+#   Check that all data_columns are numeric
+    data_column_classes <- lapply( df_no_NaN[, data_columns ], class )
+
+    if( any( data_column_classes != "numeric" ) ){
+
+        stop( "The function extend_and_interpolate expects all columns within the parameter ",
+              "data_columns to be class --numeric-- ...")
+
+    }
+
+#   Check that there are no rows which are all NA ( or NaN - since NaNs were converted to NAs )
+    df_all_na <- df_no_NaN %>%
+        dplyr::filter_at( .vars = data_columns, all_vars( is.na( .) ) )
+
+if( nrow( df_all_na) != 0 ){
+
+        stop( "The function extend_and_interpolate expects there to be no rows in df_in ",
+              "which are all NA or NaN for the data_columns..." )
+
+    }
+
+#   Create a data frame with rows that are not NA for any columns in data_columns
+    df_no_NAs <- df_no_NaN %>%
+        dplyr::filter_at( .vars = data_columns, all_vars( !is.na( . ) ) )
+
+#   Create a data frame with rows which have some NAs but are not all NA for data_columns
+#   (since no rows should be all NA at this point)
+    df_some_na <- df_no_NaN %>%
+        dplyr::filter_at( .vars = data_columns, any_vars( is.na( . ) ) )
+
+#   Begin loop to extend and interpoalte
+    for( row in 1:nrow( df_some_na ) ){
+
+        row_use <- df_some_na[ row, ]
+
+#       Define first and last non-NA values, as well as length of non-numeric columns
+        length_of_non_numeric_columns <- row_use %>%
+            dplyr::select( -data_columns ) %>%
+            length( )
+
+        NonNAindex <- which( !is.na( row_use[ , data_columns ] ) )
+        NonNAindex_first <- min( NonNAindex ) + length_of_non_numeric_columns
+        NonNAindex_last <- max( NonNAindex ) + length_of_non_numeric_columns
+
+
+#       Extend first non-NA value backwards if needed
+        if( NonNAindex_first > length_of_non_numeric_columns + 1 ){
+
+            NonNAindex_first <-  row_use[ , NonNAindex_first ]
+            NonNAindex_first_value <- NonNAindex_first[[1]]
+            first_numeric_column <- data_columns[[1]]
+
+            first_non_NA_extended_backwards <- row_use %>%
+                dplyr::mutate( !!rlang::sym( first_numeric_column ) := NonNAindex_first_value  )
+
+        } else {
+
+            first_non_NA_extended_backwards <- row_use
+
+        }
+
+#       Extend last non-NA value forward if needed
+        if( NonNAindex_last < length_of_non_numeric_columns + length( data_columns ) ){
+
+            NonNAindex_last <-  row_use[ , NonNAindex_last ]
+            NonNAindex_last_value <- NonNAindex_last[[1]]
+            last_numeric_column <- data_columns[[ length( data_columns ) ]]
+
+            last_non_NA_extended_forwards <- first_non_NA_extended_backwards %>%
+                dplyr::mutate( !!rlang::sym( last_numeric_column ) := NonNAindex_last_value  )
+
+        } else {
+
+            last_non_NA_extended_forwards <- first_non_NA_extended_backwards
+
+        }
+
+#       Interpolate over NAs
+        if( any( is.na( last_non_NA_extended_forwards[, data_columns ] ) ) ){
+
+            df_interpolated <- last_non_NA_extended_forwards
+            df_interpolated[ , data_columns ] <- interpolate_NAs2( df_interpolated[ , data_columns ] )
+
+        } else {
+
+            df_interpolated <- last_non_NA_extended_forwards
+
+        }
+
+#       Bind fixed row to data frame of rows with NAs for data_columns
+        df_no_NAs <- dplyr::bind_rows( df_no_NAs, df_interpolated)
+
+#   End Loop
+    }
+
+#   Return df_no_NAs
+    return( df_no_NAs )
+
+}
 
 # -----------------------------------------------------------------------------
 # verify_calculate_share_params

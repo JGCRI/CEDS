@@ -1,0 +1,4 @@
+iso,agg_fuel,agg_sector,start_year,end_year,priority,preprocessing_script,start_continuity,end_continuity,method,sector_map,keep_total_cols
+usa,coal,Electric Power,1949,2014,,A8.1a.US-EIA_activity.R,,,linear,A.US-EIA_energy_data_aggsec_sector_map.csv,
+usa,coal,Industry,1949,2014,,A8.1a.US-EIA_activity.R,,,linear,A.US-EIA_energy_data_aggsec_sector_map.csv,
+usa,coal,Transportation,1949,2014,,A8.1a.US-EIA_activity.R,,,linear,A.US-EIA_energy_data_aggsec_sector_map.csv,

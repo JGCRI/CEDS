@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A2.3.write_IEA_diff.R
 # Authors Names: Linh Vu, Rachel Hoesly, Patrick O'Rourke
-# Date Last Modified: July 10, 2019
+# Date Last Modified: September 5, 2019
 # Program Purpose:    Write out difference between IEA DOMSUP and CEDS
 #                     consumption for coal, natural gas, oil
 # Input Files: A.IEA_en_stat_ctry_hist.csv, en_biomass_fsu_fix.csv
@@ -33,8 +33,8 @@
 
     MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
     IEA_en_stat_ctry_hist <- readData( "MED_OUT", "A.IEA_en_stat_ctry_hist" )
-    IEA_product_fuel <- readData( "MAPPINGS", "IEA_product_fuel", domain_extension = "energy/" )
-    IEA_flow_sector <- readData( "MAPPINGS", "IEA_flow_sector", domain_extension = "energy/" )
+    IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
+    IEA_flow_sector <- readData( "EN_MAPPINGS", "IEA_flow_sector" )
 
     A.en_biomass_fsu_fix <- readData( "MED_OUT", "A.en_biomass_fsu_fix" )
 

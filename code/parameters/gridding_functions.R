@@ -424,16 +424,20 @@ get_proxy <- function( em, year, sector, proxy_mapping, proxy_files, proxy_type 
 
   if ( proxy_type == 'primary' ) {
     file_name <- proxy_info$proxy_file
+    file_name_re <- paste0( "^", file_name )
+	
     proxy_root <- proxy_dir
-    proxy_file <- grep( file_name, proxy_files$primary, value = T )
+    proxy_file <- grep( file_name_re, proxy_files$primary, value = T )
   }
 
   # If we want a backup proxy, or the primary proxy file can't be found,
   # look for a backup
   if ( proxy_type != 'primary' || length( proxy_file ) == 0 ) {
     file_name <- proxy_info$proxybackup_file
+    file_name_re <- paste0( "^", file_name )
+	
     proxy_root <- proxy_backup_dir
-    proxy_file <- grep( file_name, proxy_files$backup, value = T )
+    proxy_file <- grep( file_name_re, proxy_files$backup, value = T )
   }
 
   # Check that we found one, and exactly one, proxy file

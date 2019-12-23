@@ -3,11 +3,10 @@
 # Authors: Rachel Hoesly
 # Date Last Updated: Nov 24, 2015
 # Program Purpose: Initialize default control percentage Db for all emission species
-# Input Files: A.final_comb_activity_modern
-# Output Files: B.[em]_ControlFrac_db
+# Input Files: A.final_comb_activity_modern.csv
+# Output Files: B.[em]_ControlFrac_db.csv
 # Notes:
 # TODO:
-# ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers

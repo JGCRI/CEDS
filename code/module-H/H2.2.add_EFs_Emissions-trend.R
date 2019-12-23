@@ -2,7 +2,8 @@
 # Program Name: H2.2.add_EFs_Emissions-trend.R
 # Author: Rachel Hoesly
 # Program Purpose: Create base database to extend EFs backward
-#
+# Input Files: A.total_activity_extended.csv, CEDS_historical_extension_methods_EF.csv,
+#              Master_Country_List.csv, A.UN_pop_master.csv
 # Output Files:
 # TODO:
 # ---------------------------------------------------------------------------

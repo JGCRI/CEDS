@@ -1,10 +1,9 @@
 #------------------------------------------------------------------------------
 # Program Name: user_data_processing.R
-# Authors: Ben Goldstein, Caleb Braun
-# Date Last Updated: 12 July 2018
+# Authors: Ben Goldstein, Caleb Braun, Patrick O'Rourke
+# Date Last Updated: September 19, 2019
 # Program Purpose: Define some helper functions for processing user-defined
 #                  datasets for use in the historical energy extension.
-# -----------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
 # readInUserData()
@@ -20,13 +19,13 @@
 #          year range.
 readInUserData <- function( fname, yearsAllowed, ftype = NULL ) {
     # Read in files
-    fpath <- paste0( "user-defined-energy/", fname, ftype )
+    fpath <- paste0( fname, ftype )
     if ( !is.null( ftype ) && ftype == "-mapping" )
         user_df <- tryCatch(
-            readData( fpath, domain = "EXT_IN", extension = ".xlsx" ),
+            readData( fpath, domain = "USER_EN_IN", extension = ".xlsx" ),
             error = function(e) NULL )
     else
-        user_df <- readData( "EXT_IN", fpath, missing_value = "NA" )
+        user_df <- readData( "USER_EN_IN", fpath, missing_value = "NA" )
 
     # Filter out any years not in the CEDS range
     bad_years <- isXYear( names( user_df ) ) &
@@ -193,7 +192,9 @@ procUsrData <- function( usr_data, proc_instr, mappings,
         return( usrdata )
     }
 
-
+#------------------------------------------------------------------------------
+# interpolateData
+#
 # Define the standard interpolation methodology.
 #
 # This function assumes that 0 values are not holes; only missing values or NAs
@@ -247,8 +248,7 @@ interpolateData <- function( df, interp_instr, X_data_years, MSL, MCL, MFL,
     else if ( method == "match_to_trend" ) {
         # Execute trend-matching function
         # TODO: Error checking
-        trend <- readData( interp_instr$match_file_name, domain = "EXT_IN",
-                           domain_extension = "user-defined-energy/" )
+        trend <- readData( interp_instr$match_file_name, domain = "USER_EN_IN" )
         trend <- mapToCEDS( trend, MSL, MFL, iso_map = MCL,
                             CEDS_sector_map = MSL )
         df <- interpolateByTrend( df, trend )
@@ -381,7 +381,7 @@ interpolateData <- function( df, interp_instr, X_data_years, MSL, MCL, MFL,
 
             # Write out the new file.
             writeData( matched_trend,
-                       domain = "EXT_IN", domain_extension = "user-defined-energy/",
+                       domain = "USER_EN_IN",
                        fn = new_instruction$data_file )
             # Add the new instruction back into the main df.
             instructions <- rbind( instructions, new_instruction )
@@ -418,6 +418,9 @@ getRowsForAdjustment <- function( all_activity_data, usrdata, Xyears ) {
     return( data_to_adjust )
 }
 
+#------------------------------------------------------------------------------
+# filterToYearRange
+#
 # Filters a CEDS-mapped dataframe to a range of years
 #
 # We can assume that all columns are in this form as the data has already
@@ -447,6 +450,9 @@ filterToYearRange <- function( df, X_data_years ) {
     return( final_df )
 }
 
+#------------------------------------------------------------------------------
+# replaceNegatives
+#
 # Replace negative values in one dataframe with values from another
 #
 # Take values from another dataframe, which can be more disaggregate, and use
@@ -483,7 +489,9 @@ replaceNegatives <- function( df, replace_vals ) {
     return( df )
 }
 
+#------------------------------------------------------------------------------
 # subsetUserData
+#
 # Purpose: Subsets a user-specified dataset based on user-specified
 #          instructions, checking for validity and removing any irrelevant data.
 # Params:
@@ -610,7 +618,9 @@ validateUserMap <- function( user_map, CEDS_COLS ) {
     return( user_map )
 }
 
-
+#------------------------------------------------------------------------------
+# mapToUserSectors
+#
 # Disaggregate the instructions before starting to process the user data. Then
 # use the new instructions to spread the user data over all its disaggregations.
 # From there we do the breakdown calculation and re-write of user data.
@@ -657,21 +667,23 @@ mapToUserSectors <- function( df, default_activity ) {
         dplyr::bind_rows( df_mapped )
 }
 
-
+#------------------------------------------------------------------------------
+# disaggregate
+#
 # Disaggregate data to the level of another data.frame
 #
 # Disaggregates the input data frame to the levels specified by the
 # `disagg_activity` parameter.
 #
 # Args:
-#   agg_activity: A data.frame containing columns for iso, agg_sector, agg_fuel,
-#     and at least one year in Xyear format
-#   disagg_activity: A data.frame containing the values for proportionally
-#     disaggregating to the CEDS_sector level
-#   agg_id_cols: The id columns from the aggregated data.frame
-#   global_data: Global activity dataset to pull disaggregate proportions from,
-#     used only when proportions cannot be calculated from disagg_activity
-#
+#   agg_activity:       A data.frame containing columns for iso, agg_sector, agg_fuel,
+#                       and at least one year in Xyear format
+#   disagg_activity:    A data.frame containing the values for proportionally
+#                       disaggregating agg_activity to the CEDS_sector level
+#   agg_id_cols:        The id columns from the aggregated data.frame
+#   global_data:        Global activity dataset to pull disaggregate proportions from,
+#                       used only when proportions cannot be calculated from disagg_activity
+#                       instruc_file
 # Returns:
 #   The disaggregated data.frame
 disaggregate <- function( agg_activity, disagg_activity, agg_id_cols, global_data ) {
@@ -730,7 +742,9 @@ disaggregate <- function( agg_activity, disagg_activity, agg_id_cols, global_dat
         dplyr::rename_all( funs( sub( '\\.(x|y)$', '', . ) ) )
 }
 
-
+#------------------------------------------------------------------------------
+# disaggUserSectors
+#
 disaggUserSectors <- function( usr_data, proc_instr, default_activity ) {
 
     if ( length( unique( proc_instr$sector_map ) ) != 1 ) {
@@ -749,12 +763,14 @@ disaggUserSectors <- function( usr_data, proc_instr, default_activity ) {
         dplyr::left_join( usr_sector_map, by = join_col ) %>%
         dplyr::filter( !is.na( CEDS_sector ) )
 
-    agg_cols <- c(agg_cols, join_col)
+    agg_cols <- c( agg_cols, join_col )
 
     disaggregate( usr_data_mapped, all_activity_data, agg_cols, default_activity )
 }
 
-
+#------------------------------------------------------------------------------
+# joinUserMaps
+#
 joinUserMaps <- function( usrdata, maps, default_cols ) {
     # Ensure mapping files are correctly formatted
     sapply( maps, validateUserMap, default_cols )
@@ -779,12 +795,14 @@ joinUserMaps <- function( usrdata, maps, default_cols ) {
     return( usrdata )
 }
 
-
+#------------------------------------------------------------------------------
+# preprocUserData
+#
 preprocUserData <- function( instructions ) {
     if ( !is.null( instructions$preprocessing_script ) ) {
         preproc <- unique( instructions$preprocessing_script )
         preproc <- preproc[ !is.na( preproc ) ]
-        preproc <- paste0( "extension/user-defined-energy/", preproc)
+        preproc <- paste0( "energy/user-defined-energy/", preproc)
         sapply( preproc, source, local = T, chdir = T )
         instructions$preprocessing_script <- NULL
     }
@@ -792,7 +810,9 @@ preprocUserData <- function( instructions ) {
     return( instructions )
 }
 
-
+#------------------------------------------------------------------------------
+# addAggregateCol
+#
 # Join in the higher agg level column, if not already mapped by user
 addAggregateCol <- function( df, type, map, map_agg_col, map_disagg_col ) {
     stopifnot( type %in% c( 'sector', 'fuel' ) )
@@ -824,4 +844,66 @@ addAggregateCol <- function( df, type, map, map_agg_col, map_disagg_col ) {
     stopifnot( nrow( fixed_df ) == nrow( df ) )
 
     return( fixed_df )
+}
+
+#------------------------------------------------------------------------------
+
+# filter_out_bunkers
+#
+# Removes bunkers from a data frame if instruction file indicates to do so
+# default activity data, returning a list with both the data and diagnostics.
+#
+# Args:
+#    instruc_file:                      a set of instructions detailing how user energy data should be included within CEDS
+#    userdata:                          the user defined energy data
+#    disaggregate_default_activity:     the original CEDS activity data which is being used to help disaggregate user energy data
+# Returns:
+#   disaggregate_default_activity:  a data frame with international bunkers removed if necessary
+filter_out_bunkers <- function( instruc_file, userdata, disaggregate_default_activity ){
+
+    final_ids <- names( disaggregate_default_activity )[ !isXYear( names( disaggregate_default_activity ) ) ]
+    join_cols <- intersect( final_ids, names( userdata ) )
+
+    # Filter by instruction's iso, if it isn't NA
+    if( !( is.na( instruc_file$iso ) ) ){
+
+        disagg_activity_bunkers_remove <- disaggregate_default_activity %>% dplyr::filter( iso %in% instruc_file$iso )
+
+    } else {
+
+        disagg_activity_bunkers_remove <- disaggregate_default_activity # This is done so that it can be passed to the next filter
+
+    }
+
+    # Filter by instruction's agg_fuel, if it isn't NA
+    if( !( is.na( instruc_file$agg_fuel ) ) ){
+
+        disagg_activity_bunkers_remove <- disagg_activity_bunkers_remove %>% dplyr::filter( agg_fuel %in% instruc_file$agg_fuel )
+
+    }
+
+    # Filter by instruction's CEDS_fuel, if it isn't NA
+    if( !( is.na( instruc_file$CEDS_fuel ) ) ){
+
+        disagg_activity_bunkers_remove <- disagg_activity_bunkers_remove %>% dplyr::filter( CEDS_fuel %in% instruc_file$CEDS_fuel )
+
+    }
+
+    # Filter for bunkers
+    disagg_activity_bunkers_remove <- disagg_activity_bunkers_remove %>%
+        dplyr::filter( CEDS_sector %in% c( "1A3ai_International-aviation",
+                                           "1A3di_International-shipping",
+                                           "1A3di_Oil_Tanker_Loading" ) )
+
+    # Filter out the bunkers from the aggregate activity (using an anti_join) and inform the user that this has been done
+    printLog( "international bunkers have not be included in the disaggregation of aggregate user energy data for:" )
+    printLog( paste( instruc_file[ , c( join_cols ) ] ) )
+
+
+    disaggregate_default_activity <- disaggregate_default_activity %>%
+        dplyr::anti_join( disagg_activity_bunkers_remove, by = colnames( disaggregate_default_activity ) )
+
+
+    return( disaggregate_default_activity )
+
 }

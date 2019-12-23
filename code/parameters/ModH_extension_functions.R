@@ -120,7 +120,7 @@
 
 
    # convert natural gas from TJ to kt. (It's labeled as kt in the original data, but actually in TJ)
-   # We don't know for sure the net/gross units of the Bond data but assume is same as IEA 
+   # We don't know for sure the net/gross units of the Bond data but assume is same as IEA
    if ( a.extension_fuel_category == 'natural_gas') {
    bond_long['Fuel (kt)'] <- bond_long['Fuel (kt)'] / conversionFactor_naturalgas_TJ_per_kt_Gross
    # Manually correct bond values
@@ -185,7 +185,8 @@
  #            iea_start_year: list of start year of IEA data by country, 1960 or 1971
  # Input Files:
  # Output Files: none
-
+ # TODO: I don't think that this function is used, and after diffing it
+ #       seems like this is duplicated from extension_functions.R. Can we delete this or both?
  H.process_ceds_data <-  function(a.activity = activity,
                                   a.ceds_extension_fuels = ceds_extension_fuels,
                                   a.bond_end = bond_end,

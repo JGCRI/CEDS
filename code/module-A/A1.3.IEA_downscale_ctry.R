@@ -340,13 +340,15 @@
         "1971", "1990", paste0( "Natural gas liquids (kt) in final consumption go uncounted ",
                           "before 1990 since shares cannot be calculated from 1990 values" ) )
 
-    addMetaData( meta_note, meta_names )
+    source_info <- "A1.3.IEA_downscale_ctry.R"
+
+    addMetaData( meta_note, meta_names, source_info )
 
     meta_note <- c( "Energy Consumption", "NA", "Former Soviet Union", "Consumption",
         "1971", "1990", paste0( "Natural gas liquids (kt) in final consumption go uncounted ",
                           "before 1990 since shares cannot be calculated from 1990 values" ) )
 
-    addMetaData( meta_note, meta_names )
+    addMetaData( meta_note, meta_names, source_info )
 
 # Take the combination of PRODUCT and FLOW columns, and keep only the rows that
 #   contain the combination of PRODUCT and FLOW in IEA_product_downscaling

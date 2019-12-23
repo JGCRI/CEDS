@@ -1,12 +1,11 @@
 #------------------------------------------------------------------------------
 # Program Name:    A8.1.add_user-defined_data.R
 # Authors:         Ben Goldstein, Caleb Braun, Patrick O'Rourke
-# Last Updated:    June 4, 2019
+# Last Updated:    November 6, 2019
 # Program Purpose: To process user-defined datasets for use in the historical
 #                  energy extension. See Section 3 of the CEDS User Guide
 #                  (https://github.com/JGCRI/CEDS-dev/wiki/User-Guide) for
 #                  more details.
-#
 # Input Files:  A.comb_default_activity_extended.csv
 #               U.*.csv, U.*-instructions.csv, U.*-mapping.xslx
 # Output Files: A.comb_user_added.csv, A.user_added_changed_rows.csv
@@ -14,10 +13,9 @@
 #   - parameters/user_data_inclusion_functions.R
 #   - parameters/user_data_processing.R
 #   - parameters/user_extension_instr_processing.R
+# TODO:
 # -----------------------------------------------------------------------------
 
-
-# -----------------------------------------------------------------------------
 # 0. Read in global settings and headers
 PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
@@ -140,13 +138,43 @@ while ( nrow( instructions ) > 0 ) {
 
     # Identify other instructions in the "batch" that will need to be aggregated
     # as one. Files only need to be batched if their year ranges overlap.
+    # TODO: Does this batch routine currently exclude_int_bunkers? It probably should batch by this value too.
+    #       Also, we should determine if we should batch by anything in addition to iso and "matches"
+    #       when keep_total_cols is set to NA or blank by the user
+    #       (matches is defined as "keep_total_cols" in this case)
     batch_instructions <- extractBatchInstructions( working_instructions,
                                                     instructions, s_year, e_year )
 
     # Remove the batch instructions from the master instruction dataframe
-    anti_join_cols <- grep("keep_total_cols", names(instructions), invert = TRUE, value = TRUE)
-    instructions <- dplyr::anti_join(instructions, batch_instructions,
-                                       by = anti_join_cols)
+    anti_join_cols <- names( instructions ) # TODO: Line previously was anti-joining by all columns but keep_total_cols (unclear why.) Ensure anti_join should have this column included
+
+    #   Convert keep_total_cols to class "character" as the tidyverse currently does not support "joining" data when a column is
+    #   of type "list"
+        batch_instructions_character <- batch_instructions %>%
+            dplyr::mutate( keep_total_cols = as.character( keep_total_cols) )
+
+        instructions_character <- instructions %>%
+            dplyr::mutate( keep_total_cols = as.character( keep_total_cols ) )
+
+        instructions_character <- dplyr::anti_join( instructions_character, batch_instructions_character,
+                                                    by = anti_join_cols )
+
+    #   Split aggregation levels back into a vector.
+    #   This is done to remove the special characters that emerge when converting keep_total_cols to class "character"
+        batch_instructions <- batch_instructions_character %>%
+            dplyr::mutate( keep_total_cols = gsub( "\"", "", keep_total_cols ) ) %>%
+            dplyr::mutate( keep_total_cols = gsub( "c", "", keep_total_cols ) ) %>%
+            dplyr::mutate( keep_total_cols = gsub( "\\(", "", keep_total_cols ) ) %>%
+            dplyr::mutate( keep_total_cols = gsub( "\\)", "", keep_total_cols ) ) %>%
+            dplyr::mutate( keep_total_cols  = strsplit( keep_total_cols, ", " ) )
+
+        instructions <- instructions_character %>%
+            dplyr::mutate( keep_total_cols = gsub( "\"", "", keep_total_cols ) ) %>%
+            dplyr::mutate( keep_total_cols = gsub( "c", "", keep_total_cols ) ) %>%
+            dplyr::mutate( keep_total_cols = gsub( "\\(", "", keep_total_cols ) ) %>%
+            dplyr::mutate( keep_total_cols = gsub( "\\)", "", keep_total_cols ) ) %>%
+            dplyr::mutate( keep_total_cols  = strsplit( keep_total_cols, ", " ) )
+
 
     # Process the batch of instructions (if there is a batch)
     if ( nrow( batch_instructions ) > 0 ) {
@@ -215,12 +243,32 @@ while ( nrow( instructions ) > 0 ) {
 
     data_to_use <- getRowsForAdjustment(all_activity_data, usrdata, Xyears)
 
+    # Remove bunkers from disagg_activity for data corresponding to rows in the instructions
+    # which indicate bunkers shuold be excluded in disaggregation of aggregate data
+
+        # Grab instruction rows which have exclude_int_bunkers set to TRUE
+        instruc_file_exclude_int_bunkers <- working_instructions %>%
+            dplyr::filter( exclude_int_bunkers == TRUE )
+
+        # Remove bunkers for data corresponding to each row in instruc_file_exclude_int_bunkers
+        if( nrow( instruc_file_exclude_int_bunkers ) != 0 ){
+
+            data_to_use_bunkers_fixed <- data_to_use %>%
+                dplyr::rowwise( )
+
+            data_to_use_bunkers_fixed <- filter_out_bunkers( working_instructions, usrdata, data_to_use )
+
+        } else {
+
+            data_to_use_bunkers_fixed <- data_to_use
+
+        }
+
     # The normalizeAndIncludeData is the main point of this script; it will
     # normalize, disaggregate, and then incorporate the user-defined data,
     # returning a list with both the data and diagnostics
-    normalized <- includeUserData(usrdata, data_to_use, Xyears, working_instructions$keep_total_cols[[1]],
-                                  data_file, working_instructions$specified_breakdowns,
-                                  all_activity_data)
+    normalized <- includeUserData( usrdata, data_to_use_bunkers_fixed, Xyears,
+                                   data_file, all_activity_data, working_instructions )
 
     activity$all_activity_data <- normalized$all_data
     diagnostics <- normalized$diagnostics
@@ -234,7 +282,6 @@ while ( nrow( instructions ) > 0 ) {
     # Add working instructions to rows_completed, which will be a diagnostic for
     # reviewing what changes occurred
      rows_completed <- rbind( rows_completed, working_instructions )
-
 
 }
 

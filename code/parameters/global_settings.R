@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: global settings
 # Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Rachel Hoesly, Huong Nguyen
-# Last Updated: 24 June 2019
+# Last Updated: 23 December 2019
 #
 # Provides global variables and necessary system settings. This file must be
 # sourced by all CEDS R scripts, before any other sourced files.
@@ -86,7 +86,7 @@ VERBOSE <- TRUE
 #follow the instruction in the next comment
 
 # User should uncomment the following line if he/she has a specific cedsUserVersionNumber to use
- options(cedsUserVersionNumber = "v_2019_08_25")
+options(cedsUserVersionNumber = "v_2019_12_23")
 
 getcedsVersionNumber <- function( ) {
 
