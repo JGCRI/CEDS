@@ -673,15 +673,16 @@ extendValues <- function(ext_data,
 # input files:
 #
 # TODO: meta functionality does not work right now. must be false
+# TODO: When there is time, we should fill out the function comments above.
 
 
 extendDefaultEF <- function(exten_df,
                             pre_ext_method_default){
 
-  # process
+  # Process
   exten_df <- expandAll(exten_df, toWide = TRUE)
 
-  #set up data options for extension
+  # Set up data options for extension
 
   #     ext_method format : column names - id variables (iso, sector, fuels) - pre_ext_method - post_ext_method
   #     ext_year format : column names - id variables (iso, sector, fuels) - pre_ext_year - post_ext_year
@@ -701,7 +702,7 @@ extendDefaultEF <- function(exten_df,
   id.X_years <- names[grep( "X", names)]
 
 
-  #extend
+  # Extend
   out <- extendValues(ext_data = exten_df[,c('iso','sector','fuel','units',id.X_years)],
                       pre_ext_default = pre_ext_method_default,
                       post_ext_default = 'constant',
@@ -712,7 +713,7 @@ extendDefaultEF <- function(exten_df,
                       ext_year = e_year)
 
 
-  # get names and reorder for output
+  # Get names and reorder for output
   names <- names( out)
   id.names <- names[-grep( "X", names)]
   id.X_years <- names[grep( "X", names)]
