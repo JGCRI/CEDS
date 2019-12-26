@@ -236,8 +236,8 @@ EDGAR_clean <- function(df_in){
                                                     waste_burning_params$rural_or_urban == "urban" &
                                                     waste_burning_params$scenario == scenario), ]$fraction_burnt )[ developed ]
 
-    all_waste_data$WB_dump <- all_waste_data$WB_res_rural +
-                              all_waste_data$WB_res_urban
+    all_waste_data$WB_dump <- all_waste_data$WB_dump_rural +
+                              all_waste_data$WB_dump_urban
 
     all_waste_data$total_WB <- all_waste_data$WB_dump + all_waste_data$WB_res
     all_waste_data$pct_burned <- all_waste_data$total_WB / all_waste_data$total_waste

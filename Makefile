@@ -109,7 +109,7 @@ endif
 
 # Note that this is an inefficient method of creating data for multiple species
 # If a multi-processor machine is available, CEDS should be instead run in parallel for multiple species
-all: SO2-emissions BC-emissions OC-emissions NOx-emissions CO-emissions NMVOC-emissions CO2-emissions NH3-emissions N2O-emissions
+all: SO2-emissions BC-emissions OC-emissions NOx-emissions CO-emissions NMVOC-emissions CO2-emissions NH3-emissions CH4-emissions N2O-emissions
 part1: SO2-emissions NOx-emissions NH3-emissions
 part2: BC-emissions OC-emissions CO2-emissions
 part3: CO-emissions NMVOC-emissions CH4-emissions  N2O-emissions
