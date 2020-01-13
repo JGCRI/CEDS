@@ -4,13 +4,11 @@ The Community Emissions Data System (CEDS) produces consistent estimates of glob
 ***
 **Public Release:** December 23, 2019. The current code and data in the repository is a full public release of the CEDS system.
 
-This release was focused on fixing existing issues and adding new system capabilities as compared to the system that produced the CMIP6 data. In particular, the ability of users to add historical energy data for any country, allowing the system to more accurately reflect historical energy consumption trends. This is currently implimented for the USA, UK, and Germany.
-
-For details on this release see:
+This release was focused on fixing existing issues and adding new system capabilities as compared to the system that produced the CMIP6 data. In particular, the ability of users to add historical energy data for any country, allowing the system to more accurately reflect historical energy consumption trends. This is currently implemented for the USA, UK, and Germany. For details on this release see:
 
 * The [release notes](https://github.com/JGCRI/CEDS/wiki/Release-Notes) for a summary of changes since the CMIP6 data release.
-* Graphs of emission differences between this version and the CMIP6 data release documented in Hoesly et al (2018a) [*to be added shortly*]. 
-* Emissions by country and sector, archived here.
+* [Graphs of emission differences](./documentation/Version_comparison_figures_v_2019_12_23.pdf) between this version and the CMIP6 data release documented in Hoesly et al (2018a). 
+* Emissions by country and sector, archived [here](https://zenodo.org/record/3606753).
 
 We are working on a major CEDS data update that will extend the time series to 2018, update historical assumptions where necessary, and will include gridded emissions.
 
