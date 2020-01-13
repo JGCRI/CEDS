@@ -4,34 +4,33 @@ The Community Emissions Data System (CEDS) produces consistent estimates of glob
 ***
 **Public Release:** December 23, 2019. The current code and data in the repository is a full public release of the CEDS system.
 
-This release was focused on fixing existing issues and adding new system capabilities as compared to the system that produced the CMIP6 data. In particular, the ability of users to add historical energy data for any country, allowing the system to more accurately reflect historical energy consumption trends. This capability is currently used for the USA, UK, and Germany.
-
-For details on this release see:
+This release was focused on fixing existing issues and adding new system capabilities as compared to the system that produced the CMIP6 data. In particular, the ability of users to add historical energy data for any country, allowing the system to more accurately reflect historical energy consumption trends. This is currently implemented for the USA, UK, and Germany. For details on this release see:
 
 * The [release notes](https://github.com/JGCRI/CEDS/wiki/Release-Notes) for a summary of changes since the CMIP6 data release.
-* Graphs and explanations for emission differences between this version and the CMIP6 data release documented in Hoesly et al (2018a) [*to be added shortly*]. These differences can be interpreted as corrections to the CMIP6-data release that result from the updates included in this release. 
-* Emissions by country and sector.
+* [Graphs of emission differences](./documentation/Version_comparison_figures_v_2019_12_23.pdf) between this version and the CMIP6 data release documented in Hoesly et al (2018a). 
+* Emissions by country and sector, archived [here](https://zenodo.org/record/3606753).
 
-We are working on a major CEDS update which will extend the time series to 2018, update historical assumptions where necessary, and will include gridded emissions.
+We are working on a major CEDS data update that will extend the time series to 2018, update historical assumptions where necessary, and will include gridded emissions.
 
+Users should use the most recent version of this repository, which will include maintenance updates to address documentation or usability issues. New releases that change emissions data will be noted here and in the [release notes](https://github.com/JGCRI/CEDS/wiki/Release-Notes).
 ***
 
-Documentation of CEDS assumptions and system operation, including a user guide, are available at the [CEDS project wiki](https://github.com/JGCRI/CEDS/wiki) and in the journal paper listed below. 
+Documentation of CEDS assumptions and system operation, including a user guide, are available at the [CEDS project wiki](https://github.com/JGCRI/CEDS/wiki) and in the [journal paper](https://www.geosci-model-dev.net/11/369/2018/gmd-11-369-2018.html) noted below. 
 
-Current issues with the data or system are documented in the [CEDS Issues](https://github.com/JGCRI/CEDS/issues) system in this GitHub repository (current issues as of September 2017 are also listed in the "Known Issues" section of the Data and Assumptions wiki. Newer issues are on GitHub.). Users can submit issues using this system. These can include anomalies found in either the aggregate or gridded emissions data. Please use an appropriate tag for any submitted issues. Note that by default only unresolved issues are shown. All issues, including resolved issues, can be viewed by removing the "is:open" filter. *Issues relevant for CMIP6 data releases are tagged with a “CMIP6” label (note that issues will be closed when resolved in subsequent CEDS data releases.)*
+Current issues with the data or system are documented in the [CEDS Issues](https://github.com/JGCRI/CEDS/issues) system in this GitHub repository. Users can submit issues using this system. These can include anomalies found in either the aggregate or gridded emissions data. Please use an appropriate tag for any submitted issues. Note that by default only unresolved issues are shown. All issues, including resolved issues, can be viewed by removing the "is:open" filter. *Issues relevant for CMIP6 data releases are tagged with a “CMIP6” label (note that issues will be closed when resolved in subsequent CEDS data releases.)*
 
 Further information can also be found at the [project web site](http://www.globalchange.umd.edu/ceds/), including a [CMIP6 page](http://www.globalchange.umd.edu/ceds/ceds-cmip6-data/) that provides details for obtaining gridded emission datasets produced by this project for use in CMIP6.
 
 If you plan to use the CEDS data system for a research project you are encouraged to contact [Steve Smith](mailto:ssmith@pnnl.gov) so that we can coordinate with any on-going work on the CEDS system and make sure we are not duplicating effort. CEDS is research software, and we will be happy to help and make sure that you are able to make the best possible use of this system.
 
-CEDS has only been possible through the participation of many collaborators. Our **collaboration policy** is that collaborators who contribute data used in CEDS updates will be included as authors on the journal paper that describes the next CEDS major release. We particularly encourage contributions of updated emission information from countries or sectors not well represented in the datasets currently used in CEDS.
+CEDS has only been possible through the participation of many collaborators. Our **collaboration policy** is that collaborators who contribute data used in CEDS updates will be included as co-authors on the journal paper that describes the next CEDS major release. We particularly encourage contributions of updated emission information from countries or sectors not well represented in the data currently used in CEDS.
 
 # Journal Papers
-[Hoesly et al, Historical (1750–2014) anthropogenic emissions of reactive gases and aerosols from the Community Emissions Data System (CEDS). Geosci. Model Dev. 11, 369-408, 2018a.](https://www.geosci-model-dev.net/11/369/2018/gmd-11-369-2018.html)
+[Hoesly et al, Historical (1750–2014) anthropogenic emissions of reactive gases and aerosols from the Community Emissions Data System (CEDS). ](https://www.geosci-model-dev.net/11/369/2018/gmd-11-369-2018.html) _Geosci. Model Dev._ 11, 369-408, 2018a.
 
-Note that the paper zip file supplement contains annual emissions estimates by country and sector.
+_Note that the paper zip file supplement contains annual emissions estimates by country and sector._
 
-[Hoesly et al Informing energy consumption uncertainty: an analysis of energy data revisions.” Environ. Res. Lett. 13 124023, 2018b](https://iopscience.iop.org/article/10.1088/1748-9326/aaebc3/meta)
+[Hoesly et al Informing energy consumption uncertainty: an analysis of energy data revisions.”](https://iopscience.iop.org/article/10.1088/1748-9326/aaebc3/meta) _Environ. Res. Lett._ 13 124023, 2018b.
 
 # <a name="license-section"></a>License
 Copyright © 2017, Battelle Memorial Institute
