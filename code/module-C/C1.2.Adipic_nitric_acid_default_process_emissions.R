@@ -1,0 +1,331 @@
+# ------------------------------------------------------------------------------
+# Program Name: C1.2.Adipic_nitric_acid_default_process_emissions.R
+# Author(s): Patrick O'Rourke
+# Date Last Modified: January 15, 2020
+#*** Program Purpose: To extend adipic and nitric acid production process emissions, and
+#       remove these emissions from the larger 2B_Chemical-industry default emissions
+#       to avoid double counting
+#*** Input Files:
+#*** Output Files:
+# Notes:
+# TODO: *** --- script ***, script TODOs
+# TODO: *** what if EDGAR isn't extended forward by this point, and just ends in 2014?
+# -----------------------------------------------------------------------------
+# 0. Read in global settings and headers
+# Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
+# to the "input" directory.
+PARAM_DIR <- if( "input" %in% dir( ) ) "code/parameters/" else "../code/parameters/"
+
+# Universal header file - provides logging, file support, etc.
+headers <- c( "common_data.R", "analysis_functions.R", "data_functions.R" ) # Additional function files required.
+log_msg <- paste0( "Extending EPA adipic and nitric acid default process emissions ",
+                   "data using EDGAR chemical industry emissions..." ) # First message to be printed to the log
+script_name <- "C1.2.EPA_adipic_and_nitric_acid.R" # TODO: update
+source( paste0( PARAM_DIR, "header.R" ) )
+initialize( script_name, log_msg, headers )
+
+# ------------------------------------------------------------------------------
+# 1. Settings and script constants
+
+# Define emissions species variable
+args_from_makefile <- commandArgs( TRUE )
+em <- args_from_makefile[ 1 ]
+if ( is.na( em ) ) em <- "N2O"
+
+# TODO: make other ems option (skips everything until the end)
+
+# ------------------------------------------------------------------------------
+# 2. Load inputs and define script constants
+
+# EPA adipic and nitric acid emissions
+EPA_acid_emissions <- readData( "MED_OUT", paste0( "C.", em,  "_EPA_NC_adipic_and_nitric_acid" ) )
+
+# EDGAR 2B chemical industry process emissions - for extending EPA adipic and nitric acid
+# back in time
+EDGAR_2B <- readData( "MED_OUT", paste0( "C.", em, "_EDGAR_chemical_industry_emissions" ) )
+
+# EPA years
+EPA_START_YEAR <- 1990
+X_EPA_START_YEAR <- paste0( "X", EPA_START_YEAR )
+X_EPA_YEARS <- paste0( "X", EPA_START_YEAR : end_year )
+
+# EDGAR years
+X_EDGAR_YEARS <- paste0( "X", EDGAR_start_year : 2008 )
+
+# EPA extended years
+X_EPA_EXTENSION_YEARS <- paste0( "X", EDGAR_start_year : ( EPA_START_YEAR - 1 ) )
+X_EPA_EXTENDED_YEARS <- paste0( "X", EDGAR_start_year : end_year )
+
+# ------------------------------------------------------------------------------
+# 3. Check that EPA and EDGAR data have all CEDS isos
+
+# A. Add "global" iso to EPA and EDGAR data with all values set to 0, if the "global"
+#    iso is missing
+    if( "global" %!in% EPA_acid_emissions$iso ){
+
+        EPA_acid_emissions <- dplyr::bind_rows( EPA_acid_emissions,
+                                                EPA_acid_emissions %>%
+                                                    dplyr::filter( iso == "usa" ) %>%
+                                                    dplyr::mutate( iso = "global" ) %>%
+                                                    dplyr::mutate_at( .vars = X_EPA_YEARS,
+                                                                    funs( identity( 0 ) ) ) ) %>%
+                              dplyr::arrange( iso, sector )
+
+
+    }
+
+    if( "global" %!in% EDGAR_2B$iso ){
+
+        EDGAR_2B <- dplyr::bind_rows( EDGAR_2B,
+                                      EDGAR_2B %>%
+                                        dplyr::filter( iso == "usa" ) %>%
+                                        dplyr::mutate( iso = "global" ) %>%
+                                        dplyr::mutate_at( .vars = X_EDGAR_YEARS,
+                                                          funs( identity( 0 ) ) ) ) %>%
+                    dplyr::arrange( iso, sector )
+
+
+    }
+
+# B. Check EPA data for final CEDS isos
+    printLog( "Checking EPA adipic and nitric acid emissions data for CEDS isos..." )
+
+    EPA_acid_emissions_isos <- EPA_acid_emissions %>%
+        dplyr::select( iso )
+
+    iso_check( data_to_check = EPA_acid_emissions_isos,
+            data_to_check_iso_colname = "iso",
+            provided_data_needs_all_ceds_isos = T,
+            provided_data_contains_unique_isos_only = F )
+
+# C. Check EDGAR data for final CEDS isos
+    printLog( "Checking EPA adipic and nitric acid emissions data for CEDS isos..." )
+
+    EDGAR_2B_isos <- EDGAR_2B %>%
+        dplyr::select( iso )
+
+    iso_check( data_to_check = EDGAR_2B_isos,
+               data_to_check_iso_colname = "iso",
+               provided_data_needs_all_ceds_isos = T,
+               provided_data_contains_unique_isos_only = T )
+
+# ------------------------------------------------------------------------------
+# 4. Extend EPA acid emissions backwards using trend from EDGAR 2B
+
+# A. Check that if all isos with non-zero values in the first EPA year (1990) of EPA data have a
+#   non-zero values in EDGAR 2B for the first EPA year as well (given that the EDGAR
+#   data will be used for extending the EPA data, a non-zero value in needed in the first EPA year [1990]
+#   within the EDGAR data). Also, if there are any rows which have a 0 value for the first
+#   EPA year, inform the user they will be extended back with all 0 values.
+    EPA_not_0_EPA_start_year <- EPA_acid_emissions %>%
+        dplyr::filter( !!rlang::sym( X_EPA_START_YEAR ) != 0 )
+
+    EPA_0_EPA_start_year <- EPA_acid_emissions %>%
+        dplyr::filter( !!rlang::sym( X_EPA_START_YEAR ) == 0 )
+
+    EDGAR_not_0_EPA_start_year <- EDGAR_2B %>%
+        dplyr::filter( !!rlang::sym( X_EPA_START_YEAR ) != 0 )
+
+    EPA_not_0_EPA_start_but_0_in_EDGAR <- EPA_not_0_EPA_start_year %>%
+        dplyr::filter( iso %!in% unique( EDGAR_not_0_EPA_start_year$iso ) )
+
+    if( nrow( EPA_not_0_EPA_start_but_0_in_EDGAR ) != 0 ){
+
+        printLog( "The following isos have non-zero values for adipic and/or nitric acid production emissions in the",
+                  "first year of EPA non-CO2 GHG data (", EPA_START_YEAR, "), but emissions for this year",
+                  "are 0 within the EDGAR 2B chemical production sector. These emissions will be extended",
+                  "using the global chemical sector trend from EDGAR...",
+                  unique( EPA_not_0_EPA_start_but_0_in_EDGAR$iso ) )
+
+    }
+
+    if( nrow( EPA_0_EPA_start_year ) != 0 ){
+
+        printLog( "The following isos have a value of zero for adipic and/or nitric acid production emissions in the",
+                  "first year of EPA non-CO2 GHG data (", EPA_START_YEAR, "). Emissions for years before the",
+                  "first EPA year will be set to 0 kt...", unique( EPA_0_EPA_start_year$iso ) )
+
+    }
+
+#   Filter out rows which:
+#   TODO: Confirm metodology - Isos which have a 0 value in the first EPA year (1990) - these will have constant
+#                 extension backwards (all pre-1990 values will be set to 0)
+#   TODO: Confirm metodology - Isos which are non-0 in EPA start year, but are 0 in EDGAR 2B chemical sector
+#                 for the first EPA year will be extended backwards using global trend (could do
+#                 regional trend in future as well without much extra effort)
+    EPA_acid_emissions_not_0_start_year_EPA_and_EDGAR <- EPA_acid_emissions %>%
+        dplyr::filter( !!rlang::sym( X_EPA_START_YEAR ) != 0,
+                       iso %!in% unique( EPA_not_0_EPA_start_but_0_in_EDGAR$iso ) )
+
+# B. Extend emissions backwards
+#   1) Extend isos which are non-zero for EPA_START_YEAR in both EPA and EDGAR data
+#   TODO: Confirm metodology - that this was the right function to use and range bit
+
+    id_cols <- c( "iso", "fuel" )
+#   Note: Extending the two acid production emissions sectors together didn't work as expected
+#         (which is why they are extended separately)
+#   TODO: test if this is really needed separately
+    EPA_emissions_not_0_start_year_EPA_and_EDGAR_adipic_ext <-
+        extend_data_on_trend_range( driver_trend = EDGAR_not_0_EPA_start_year,
+                                    input_data = ( EPA_acid_emissions_not_0_start_year_EPA_and_EDGAR %>%
+                                                     dplyr::filter( sector == "2B3_Chemicals-Adipic-acid" ) ),
+                                                   start = EDGAR_start_year,
+                                                   end = ( EPA_START_YEAR - 1 ),
+                                                   range = 5,
+                                                   id_match.driver = id_cols,
+                                                   id_match.input = id_cols )
+
+      EPA_emissions_not_0_start_year_EPA_and_EDGAR_nitric_ext <-
+          extend_data_on_trend_range( driver_trend = EDGAR_not_0_EPA_start_year,
+                                      input_data = ( EPA_acid_emissions_not_0_start_year_EPA_and_EDGAR %>%
+                                                        dplyr::filter( sector == "2B2_Chemicals-Nitric-acid" ) ),
+                                                     start = EDGAR_start_year,
+                                                     end = ( EPA_START_YEAR - 1 ),
+                                                     range = 5,
+                                                     id_match.driver = id_cols,
+                                                     id_match.input = id_cols )
+
+      EPA_emissions_not_0_start_year_EPA_and_EDGAR_ext <- dplyr::bind_rows(
+            EPA_emissions_not_0_start_year_EPA_and_EDGAR_adipic_ext,
+            EPA_emissions_not_0_start_year_EPA_and_EDGAR_nitric_ext ) %>%
+          dplyr::arrange( iso, sector )
+
+#   2) Isos which are non-0 in EPA start year, but are 0 in EDGAR 2B chemical sector
+#      for the first EPA year will be extended backwards using global EDGAR chemical production trend
+#      TODO: Confirm metodology - also, we could do regional trend in future as well without much extra effort
+    if( nrow( EPA_not_0_EPA_start_but_0_in_EDGAR ) > 0 ){
+
+#       Aggregate all EDGAR chemical production emissions
+        isos_for_global_extension <- as.data.frame( EPA_not_0_EPA_start_but_0_in_EDGAR$iso ) %>%
+            dplyr::mutate( note = "global_sum" ) %>%
+            dplyr::rename( iso = "EPA_not_0_EPA_start_but_0_in_EDGAR$iso" )
+
+        EDGAR_2B_global_sum <- EDGAR_2B %>%
+            dplyr::select( -iso ) %>%
+            dplyr::group_by( sector, fuel, units ) %>%
+            dplyr::summarize_all( funs( sum( ., na.rm = TRUE ) ) ) %>%
+            dplyr::ungroup( ) %>%
+            dplyr::mutate( note = "global_sum" ) %>%
+            dplyr::full_join( isos_for_global_extension, by = "note" ) %>%
+            dplyr::select( iso, sector, fuel, units, note, X_EDGAR_YEARS )
+
+#       Extend with global trend
+        EPA_not_0_EPA_start_but_0_in_EDGAR_ext <-
+            extend_data_on_trend_range( driver_trend = EDGAR_2B_global_sum,
+                                        input_data = EPA_not_0_EPA_start_but_0_in_EDGAR,
+                                        start = EDGAR_start_year,
+                                        end = ( EPA_START_YEAR - 1 ),
+                                        range = 5,
+                                        id_match.driver = id_cols,
+                                        id_match.input = id_cols )
+
+        # TODO: check in excel
+
+    }
+
+
+#   3) Isos which have a 0 value in the first EPA year (1990) - constant
+#      extension backwards (all pre-1990 values will be set to 0)
+#      TODO: Confirm metodology
+    if( nrow( EPA_0_EPA_start_year ) != 0 ){
+
+        EPA_0_EPA_start_year_ext <- EPA_0_EPA_start_year %>% # remove the 2 when verified
+            dplyr::mutate_at( .vars = X_EPA_EXTENSION_YEARS, funs( identity( +0 ) ) ) %>%
+            dplyr::select( iso, sector, fuel, units, X_EPA_EXTENDED_YEARS )
+
+    }
+
+# B. Combine extended emissions into 1 data frame
+     EPA_acid_emissions_extended <- EPA_emissions_not_0_start_year_EPA_and_EDGAR_ext
+
+     if( nrow( EPA_not_0_EPA_start_but_0_in_EDGAR_ext ) > 0 ){
+
+         EPA_acid_emissions_extended <- dplyr::bind_rows( EPA_acid_emissions_extended,
+                                                          EPA_not_0_EPA_start_but_0_in_EDGAR_ext )
+
+     }
+
+     if( nrow( EPA_0_EPA_start_year_ext ) > 0 ){
+
+         EPA_acid_emissions_extended <- dplyr::bind_rows( EPA_acid_emissions_extended,
+                                                          EPA_0_EPA_start_year_ext )
+
+     }
+
+     # Final extended acid emissions
+     EPA_acid_emissions_extended <- EPA_acid_emissions_extended %>%
+         dplyr::select( iso, sector, fuel, units, X_EPA_EXTENDED_YEARS ) %>%
+         dplyr::arrange( iso, sector )
+
+# D. Check that extended data is still identical for post-extension years (EPA Years)
+     check_EPA_acid_emissions_extended <-  EPA_acid_emissions_extended %>%
+        dplyr::select( iso, sector, fuel, units, X_EPA_YEARS )
+
+      if( !identical( check_EPA_acid_emissions_extended,
+                      EPA_acid_emissions ) ){
+
+          stop( "Extended EPA adipic and nitric acid emissions are not identical to pre-extended data",
+                "for the original years:", paste0( EPA_START_YEAR, "-",  "X", "", end_year ),
+                " . Please check data and ", script_name )
+
+      }
+
+     printLog( "Extension of EPA adipic and nitric acid default process emissions is complete..." )
+
+# ------------------------------------------------------------------------------
+# TODO reword - 5. Subtract acid production emissions from aggregate EDGAR chemical emissions,
+# so that we are not double counting as EDGAR emissions are the default for this aggregate sector in CEDS
+# currently and acids are within that sector
+
+# TODO: reword this
+    printLog( "Subtracting adipic and nitric acid production emissions from EDGAR chemical",
+              "industry emissions as these contain acid production emissions and are the",
+              "default for that CEDS sector..." )
+
+#  Aggregate EPA data for subtraction, for EDGAR years
+   EPA_acid_emissions_extended_agg <- EPA_acid_emissions_extended %>%
+       dplyr::mutate( sector = "2B_Chemicals-NAA" ) %>%
+       dplyr::group_by( iso, sector, fuel, units ) %>%
+       dplyr::summarize_all( funs( sum( ., na.rm = TRUE ) ) ) %>%
+       dplyr::ungroup( ) %>%
+       dplyr::select( iso, fuel, units, X_EDGAR_YEARS ) %>%
+       tidyr::gather( key = years, value = agg_acid_production_emissions, X_EDGAR_YEARS )
+
+# Subtract acid production emissions from CEDS sector 2B_Chemical-industry
+# TODO check results
+   EDGAR_2B_less_acid_prod_emiss <- EDGAR_2B %>%
+       tidyr::gather( key = years, value = chemical_production_emissions, X_EDGAR_YEARS ) %>%
+       dplyr::left_join( EPA_acid_emissions_extended_agg, by = c( "iso", "fuel", "units", "years" ) ) %>%
+       dplyr::mutate( final_2B_emissions = chemical_production_emissions - agg_acid_production_emissions )
+
+
+# ********* start here ***********
+
+
+
+# TODO: if emissions become 0 for aggregate chemical sector, reset them to 0 and printLog message
+# values in EDGAR, as extended EPA acid emissions will need to be subtracted from EDGAR 2B emissions
+# in order to avoid double counting, and EDGAR emissions are used for
+
+# EPA_not_all_0 <- EPA_acid_emissions %>%
+#     dplyr::filter_at( .vars = X_EPA_YEARS, any_vars( . != 0 ) )
+#
+# EDGAR_not_all_0 <- EDGAR_2B %>%
+#     dplyr::filter_at( .vars = X_EDGAR_YEARS, any_vars( . != 0 ) )
+
+# ------------------------------------------------------------------------------
+# TODO: make blank rows for other emissions species
+
+
+# ------------------------------------------------------------------------------
+# . Output data
+# TODO: output data
+
+# Save EPA adipic and nitric acid emissions data
+writeData( df, domain = "MED_OUT",
+           fn = paste0( ) )
+
+logStop( )
+# END
+
+

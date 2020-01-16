@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.add_NC_emissions_EDGAR.R
 # Author(s): Jon Seibert, Rachel Hoesly, Steve Smith, Patrick O'Rourke
-# Date Last Modified: November 7, 2019
+# Date Last Modified: January 6, 2020
 # Program Purpose: To reformat the non-combustion sections of the EDGAR default emissions
 #                      data and add it to the database for the relevant emissions species.
 # Input Files: NC_EDGAR_sector_mapping.csv, Master_Country_List.csv,
@@ -34,9 +34,9 @@
 # Define emissions species variable
   args_from_makefile <- commandArgs( TRUE )
   em <- args_from_makefile[ 1 ]
-  if ( is.na( em ) ) em <- "CH4"
+  if ( is.na( em ) ) em <- "N2O"
 
-  # EDGAR data version number
+# EDGAR data version number
 vn <- "4.2"
 
 # Input domain
@@ -46,19 +46,17 @@ domain_ext <- "EDGAR/"
 fuel <- "process"
 id_cols <- c( "iso", "sector", "fuel", "units" )
 
-# Temporary assignment for script development
-#em <- "CO2"
-
 EDGAR42_end_year = 2008
 EDGAR_years_keep <- paste0( "X", 1970 : EDGAR42_end_year ) # Currently: EDGAR42_end_year set to 2008
 EDGAR_years_keep_final <- paste0( "X", EDGAR_start_year : EDGAR42_end_year ) # Currently: 1971-2008
 
 # Define sectors that should not use EDGAR (also have to modify C2.1.base_NC_EF.R)
-excl_sectors <- c()
-if (em == "CO2") {
-  excl_sectors <- c( excl_sectors, "2A1_Cement-production", "3D_Soil-emissions" )
-}
+excl_sectors <- c( )
+if ( em == "CO2" ) {
 
+  excl_sectors <- c( excl_sectors, "2A1_Cement-production", "3D_Soil-emissions" )
+
+}
 
 # ------------------------------------------------------------------------------
 # 2. Input
@@ -68,7 +66,7 @@ fn <- c( paste0( "EDGAR", gsub( "[.]", "", vn ), "_", em  ), ".csv" )
 
 NC_sector_map <- readData( "MAPPINGS", "NC_EDGAR_sector_mapping" )
 edgar <- readData( domain, fn[[ 1 ]], fn[[ 2 ]], domain_extension = domain_ext )
-Master_Country_List <- readData("MAPPINGS", 'Master_Country_List')
+Master_Country_List <- readData( "MAPPINGS", 'Master_Country_List' )
 
 if ( em == 'CH4' ){
   bp_energy_data <- readData( "ENERGY_IN",BP_data_file_name, ".xlsx")
@@ -609,10 +607,28 @@ if( em == "CO2" ){
         dplyr::summarize_all( funs( sum(., na.rm = TRUE ) ) )
 
 # ------------------------------------------------------------------------------
+# 11. If em is N2O, subset the 2B_Chemical-industry emissions, which will be utilized
+#     later in CEDS while finalizing adipic and nitric acid emissions
+if( em == "N2O" ){
 
-# 11. Output
+    edgar_final_emissions <- edgar %>%
+        dplyr::filter( sector != "2B_Chemical-industry" )
 
-#   Output disaggregate EDGAR fugitive solid emissions to the default non-combustion emissions directory
+    edgar_2B_chemical_industry_emissions <- edgar %>%
+        dplyr::filter( sector == "2B_Chemical-industry" )
+
+
+} else {
+
+    edgar_final_emissions <- edgar
+
+}
+
+# ------------------------------------------------------------------------------
+
+# 12. Output
+
+#   Output disaggregate EDGAR fugitive solid emissions to the default non-combustion emissions directory, if em is CH4
 if ( em == 'CH4' ){
 
   writeData( fugitive_solid_extended,  domain = "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
@@ -620,23 +636,30 @@ if ( em == 'CH4' ){
 
 }
 
-#   Output disaggregate EDGAR fugitive emissions to the default non-combustion emissions directory
-    if ( em == "CO2" ){
+#   Output disaggregate EDGAR fugitive emissions to the default non-combustion emissions directory, if em is CO2
+if ( em == "CO2" ){
 
-        writeData( disaggregated_EDGAR_fug , "DEFAULT_EF_IN", domain_extension = 'non-combustion-emissions/',
-                   paste0( "C.", em, "_Fugitive-petr-and-gas_default_EDGAR_process_emissions" ) )
+    writeData( disaggregated_EDGAR_fug , "DEFAULT_EF_IN", domain_extension = 'non-combustion-emissions/',
+               paste0( "C.", em, "_Fugitive-petr-and-gas_default_EDGAR_process_emissions" ) )
 
-    }
+}
+
+#   Output EDGAR 2B_Chemical-industry emissions, if em is N2O
+if( em == "N2O" ){
+
+    writeData( edgar_2B_chemical_industry_emissions , "MED_OUT",
+               paste0( "C.", em, "_EDGAR_chemical_industry_emissions" ) )
+
+}
 
 #   Add emissions to the em's NC database
-addToEmissionsDb( edgar, em = em, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
-writeData( edgar, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em ) )
+addToEmissionsDb( edgar_final_emissions, em = em, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
+writeData( edgar, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em ) ) # Output includes 2B_Chemical-industry, even for N2O
 
 #   Output negative EDGAR emissions to diagnostics, if they exist
 if ( nrow( edgar_neg ) > 0 ){
   writeData( edgar_neg, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em, "_negative" ) )
 }
-
 
 logStop()
 # END
