@@ -18,8 +18,9 @@ PARAM_DIR <- if( "input" %in% dir( ) ) "code/parameters/" else "../code/paramete
 
 # Universal header file - provides logging, file support, etc.
 headers <- c( "common_data.R", "analysis_functions.R", "data_functions.R" ) # Additional function files required.
-log_msg <- paste0( "Extending EPA adipic and nitric acid default process emissions ",
-                   "data using EDGAR chemical industry emissions..." ) # First message to be printed to the log
+log_msg <- paste0( "Extending EPA adipic and nitric acid default process emissions for N2O",
+                   "using EDGAR chemical industry emissions. Other emissions species",
+                   "will have data created with all 0 values for these sectors..." ) # First message to be printed to the log
 script_name <- "C1.2.EPA_adipic_and_nitric_acid.R" # TODO: update
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -33,6 +34,8 @@ em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "N2O"
 
 # TODO: make other ems option (skips everything until the end)
+
+if( em == "N2O" ){
 
 # ------------------------------------------------------------------------------
 # 2. Load inputs and define script constants
@@ -282,7 +285,7 @@ X_EPA_EXTENDED_YEARS <- paste0( "X", EDGAR_start_year : end_year )
               "industry emissions as these contain acid production emissions and are the",
               "default for that CEDS sector..." )
 
-#  Aggregate EPA data for subtraction, for EDGAR years
+#  A. Aggregate EPA data for subtraction, for EDGAR years
    EPA_acid_emissions_extended_agg <- EPA_acid_emissions_extended %>%
        dplyr::mutate( sector = "2B_Chemicals-NAA" ) %>%
        dplyr::group_by( iso, sector, fuel, units ) %>%
@@ -291,30 +294,46 @@ X_EPA_EXTENDED_YEARS <- paste0( "X", EDGAR_start_year : end_year )
        dplyr::select( iso, fuel, units, X_EDGAR_YEARS ) %>%
        tidyr::gather( key = years, value = agg_acid_production_emissions, X_EDGAR_YEARS )
 
-# Subtract acid production emissions from CEDS sector 2B_Chemical-industry
-# TODO check results
+#  B. Subtract acid production emissions from CEDS sector 2B_Chemical-industry
    EDGAR_2B_less_acid_prod_emiss <- EDGAR_2B %>%
        tidyr::gather( key = years, value = chemical_production_emissions, X_EDGAR_YEARS ) %>%
        dplyr::left_join( EPA_acid_emissions_extended_agg, by = c( "iso", "fuel", "units", "years" ) ) %>%
        dplyr::mutate( final_2B_emissions = chemical_production_emissions - agg_acid_production_emissions )
 
+#  C. If emissions become negative for aggregate chemical sector (2B), reset them to 0 and printLog message
+#  TODO: Confirm this methodology
+    if( any( EDGAR_2B_less_acid_prod_emiss$final_2B_emissions < 0 ) ){
 
-# ********* start here ***********
+        printLog( "Some chemical industry (sector 2B) emissions have become negative after subtracting",
+                  "EPA's adipic and nitric acid emissions. These emissions will be reset to 0..." )
 
+        EDGAR_2B_less_acid_prod_emiss <- EDGAR_2B_less_acid_prod_emiss %>%
+            dplyr::mutate( final_2B_emissions = if_else( final_2B_emissions < 0, 0, final_2B_emissions ) )
 
+    }
 
-# TODO: if emissions become 0 for aggregate chemical sector, reset them to 0 and printLog message
-# values in EDGAR, as extended EPA acid emissions will need to be subtracted from EDGAR 2B emissions
-# in order to avoid double counting, and EDGAR emissions are used for
+   if( any( EDGAR_2B_less_acid_prod_emiss$final_2B_emissions < 0 ) ){
 
-# EPA_not_all_0 <- EPA_acid_emissions %>%
-#     dplyr::filter_at( .vars = X_EPA_YEARS, any_vars( . != 0 ) )
-#
-# EDGAR_not_all_0 <- EDGAR_2B %>%
-#     dplyr::filter_at( .vars = X_EDGAR_YEARS, any_vars( . != 0 ) )
+       stop( "No 2B_chemical-industry emissions should still be negative. See ", script_name )
+
+   }
+
+#  C. Final processing of 2B_chemical-industry emissions
+   EDGAR_2B_final_emissions <- EDGAR_2B_less_acid_prod_emiss %>%
+       dplyr::select( iso, sector, fuel, units, years, final_2B_emissions ) %>%
+       tidyr::spread( years, final_2B_emissions )
+
 
 # ------------------------------------------------------------------------------
-# TODO: make blank rows for other emissions species
+# TODO: Make blank rows for other emissions species
+} else{
+
+
+
+
+
+}
+
 
 
 # ------------------------------------------------------------------------------
