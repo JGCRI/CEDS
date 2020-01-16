@@ -84,8 +84,8 @@ if( em == "N2O" ){
     EDGAR_INV_YEARS <- EDGAR_INV_START_YEAR : EDGAR_INV_END_YEAR # Currently: 1970-2008
     X_EDGAR_INV_YEARS <- paste0( "X", EDGAR_INV_YEARS )          # Currently: X1970-X2008
 
-#   EDGAR 4.2 extended years (years beyond EDGAr years which are in CEDS final emissions). Used for estimating
-#   fugitive N2O emissions from fugitive NOx emissions using EDGAR emissions ratios.
+#   EDGAR 4.2 extended years (years beyond EDGAR years which are in CEDS final emissions).
+#   Used for estimating fugitive N2O emissions from fugitive NOx emissions using EDGAR emissions ratios.
     MISSING_EDGAR_EARLY_YEARS <- subset( emissions_years, emissions_years < EDGAR_INV_START_YEAR ) # Currently: 1960-1969
     X_MISSING_EDGAR_EARLY_YEARS <- paste0( "X", MISSING_EDGAR_EARLY_YEARS )                        # Currently: X1960-X1969
     MISSING_EDGAR_LATE_YEARS <- subset( emissions_years, emissions_years > EDGAR_INV_END_YEAR )    # Currently: 2009-2014

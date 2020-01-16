@@ -1,9 +1,10 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.2.Fugitive-petr-and-gas_default_process_emissions.R
 # Author: Leyang Feng, Patrick O'Rourke
-# Date Last Modified: November 20, 2019
-# Program Purpose: Generates default process emissions for 1B2c_Venting-flaring-oil-gas
-#                  using part of EDGAR JRC PEGASOS data
+# Date Last Modified: January 16, 2020
+# Program Purpose: Generates default process emissions for fugitive oil and
+#                  gas production ( 1B2_Fugitive-petr, 1B2b_Fugitive-NG-distr,
+#                  and 1B2b_Fugitive-NG-prod )
 # Input Files: C.[em]_ECLIPSE_flaring_emissions_extended.csv,
 #              JRC_PEGASOS_[em]_TS_REF.csv (if em isn't CH4), EDGAR42_CH4.csv (if em is CH4),
 #              v42FT_CH4_2000_2010 (if em is CH4),
