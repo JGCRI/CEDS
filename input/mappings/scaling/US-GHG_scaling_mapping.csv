@@ -1,0 +1,79 @@
+inv_sector,scaling_sector,ceds_sector
+Natural Gas Systems,energy_systems,1A1bc_Other-transformation
+Petroleum Systems,energy_systems,1B1_Fugitive-solid-fuels
+Coal Mining,energy_systems,1B2_Fugitive-petr-and-gas
+Abandoned Underground Coal Mines,energy_systems,1B2d_Fugitive-other-energy
+,,
+Mobile Combustion,mobile_combustion,1A3b_Road
+,mobile_combustion,1A3c_Rail
+,mobile_combustion,1A3aii_Domestic-aviation
+,mobile_combustion,1A3dii_Domestic-navigation
+,mobile_combustion,1A3eii_Other-transp
+,,
+International Bunker Fuelsb,bunker_fuels,1A3di_International-shipping
+,bunker_fuels,1A3ai_International-aviation
+,,
+Stationary Combustion,stationsary_combustion,1A1a_Electricity-public
+,stationsary_combustion,1A1a_Electricity-autoproducer
+,stationsary_combustion,1A1a_Heat-production
+,stationsary_combustion,1A2a_Ind-Comb-Iron-steel
+,stationsary_combustion,1A2b_Ind-Comb-Non-ferrous-metals
+,stationsary_combustion,1A2c_Ind-Comb-Chemicals
+,stationsary_combustion,1A2d_Ind-Comb-Pulp-paper
+,stationsary_combustion,1A2e_Ind-Comb-Food-tobacco
+,stationsary_combustion,1A2f_Ind-Comb-Non-metalic-minerals
+,stationsary_combustion,1A2g_Ind-Comb-Construction
+,stationsary_combustion,1A2g_Ind-Comb-transpequip
+,stationsary_combustion,1A2g_Ind-Comb-machinery
+,stationsary_combustion,1A2g_Ind-Comb-mining-quarying
+,stationsary_combustion,1A2g_Ind-Comb-wood-products
+,stationsary_combustion,1A2g_Ind-Comb-textile-leather
+,stationsary_combustion,1A2g_Ind-Comb-other
+,stationsary_combustion,1A4a_Commercial-institutional
+,stationsary_combustion,1A4b_Residential
+,stationsary_combustion,1A4c_Agriculture-forestry-fishing
+,stationsary_combustion,1A5_Other-unspecified
+,,
+Petrochemical Production,chemicals,2B_Chemical-industry
+,chemicals,2D3_Chemical-products-manufacture-processing
+,,
+Ferroalloy Production,metals,2C_Metal-production
+Iron and Steel Production & Metallurgical Coke Production,metals,
+Silicon Carbide Production and Consumption,,
+,,
+,,2D_Degreasing-Cleaning
+,,2D3_Other-product-use
+,,2D_Paint-application
+,,2H_Pulp-and-paper-food-beverage-wood
+,,2L_Other-process-emissions
+,,
+Composting,solid_waste,5A_Solid-waste-disposal
+Landfills,solid_waste,5E_Other-waste-handling
+,,
+Wastewater Treatment,wasterwater,5D_Wastewater-handling
+,,
+Incineration of Waste,waste_incineration,5C_Waste-incineration
+,,
+,,
+,,
+,,
+Rice Cultivation,rice,3D_Rice-Cultivation
+Enteric Fermentation,enteric,3E_Enteric-fermentation
+Manure Management,manure_management,3B_Manure-management
+,,
+Field Burning of Agricultural Residues,,3F_Agricultural-residue-burning-on-fields
+,,
+,,2A1_Cement-production
+,,2A2_Lime-production
+,,2A6_Other-minerals
+,,
+,,3D_Soil-emissions
+,,3I_Agriculture-other
+,,
+,,6A_Other-in-total
+,,6B_Other-not-in-total
+,,7A_Fossil-fuel-fires
+,,11A_Volcanoes
+,,11B_Forest-fires
+,,11C_Other-natural
+,,0_Temp-Aggregated

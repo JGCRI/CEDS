@@ -1,0 +1,12 @@
+inv_sector,scaling_sector,ceds_sector,Notes
+,,,
+ncomb-agriculture-enteric_fermentati,enteric-fermentation,3E_Enteric-fermentation,
+ncomb-agriculture-manure_management,manure-management,3B_Manure-management,
+ncomb-agriculture-rice_cultivation,rice-cultivation,3D_Rice-Cultivation,
+ncomb-industry-urea,soil-emissions,3D_Soil-emissions,
+ncomb-agriculture-fertilizer,soil-emissions,,
+,,,
+ncomb-others-waste,solid_waste,5A_Solid-waste-disposal,
+solid_waste,solid_waste,,
+ncomb-others-waste_water,waste_water,5D_Wastewater-handling,
+ncomb-others-human,waste_water,,

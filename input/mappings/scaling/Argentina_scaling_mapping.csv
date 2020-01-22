@@ -1,0 +1,102 @@
+inv_sector,scaling_sector,ceds_sector,"",""
+Energy,,,,
+Public generation of electricity (1A1a_Electricity-public),1A1a_Electricity-public,1A1a_Electricity-public,,
+Public combined heat and power generation,1A1a_Electricity-public,,,1A1a_Electricity-autoproducer
+Public heating plants (1A1a_Heat-production),1A1a_Heat-production,1A1a_Heat-production,,
+Oil refining,1A1bc_Other-transformation,1A1bc_Other-transformation,,
+Manufacturing of solid fuels and other energy industries,1A1bc_Other-transformation,1A1bc_Other-transformation,,
+Solid fuel manufacturing,,,,
+Other energy industries,,,,
+Coal mine,,,,
+Deposits,,,,
+Manufacturing and construction industries,,,,
+Iron and steel (1A2a_Ind-Comb-Iron-steel),1A2_Industrial-Combustion,1A2a_Ind-Comb-Iron-steel,,
+Non-ferrous metals (1A2b_Ind-Comb-Non-ferrous-metals),1A2_Industrial-Combustion,1A2b_Ind-Comb-Non-ferrous-metals,,
+Chemical products (1A2c_Ind-Comb-Chemicals),1A2_Industrial-Combustion,1A2c_Ind-Comb-Chemicals,,
+"Pulp, paper and printing (1A2d_Ind-Comb-Pulp-paper)",1A2_Industrial-Combustion,1A2d_Ind-Comb-Pulp-paper,,
+"Food, beverage and tabacco processing (1A2e_Ind-Comb-Food-tobacco)",1A2_Industrial-Combustion,1A2e_Ind-Comb-Food-tobacco,,
+Other,1A2_Industrial-Combustion,1A2f_Ind-Comb-Non-metalic-minerals,,
+,1A2_Industrial-Combustion,1A2g_Ind-Comb-Construction,,
+,1A2_Industrial-Combustion,1A2g_Ind-Comb-transpequip,,
+,1A2_Industrial-Combustion,1A2g_Ind-Comb-machinery,,
+,1A2_Industrial-Combustion,1A2g_Ind-Comb-mining-quarying,,
+,1A2_Industrial-Combustion,1A2g_Ind-Comb-wood-products,,
+,1A2_Industrial-Combustion,1A2g_Ind-Comb-textile-leather,,
+,1A2_Industrial-Combustion,1A2g_Ind-Comb-other,,
+Transportation,,,,
+Civil aviation,,,,
+International aviation (1A3ai_International-aviation),,1A3ai_International-aviation,,
+,,,,
+Cabotage (1A3aii_Domestic-aviation),,1A3aii_Domestic-aviation,,
+,,,,
+Land transportation (1A3b_Road),1A3b_Road,1A3b_Road,,
+,,,,
+,,,,
+,,,,
+Rail (1A3c_Rail),1A3c_Rail,1A3c_Rail,,
+Navigation,,,,
+Marine international (1A3di_International-shipping),,1A3di_International-shipping,,
+Domestic navigation (1A3dii_Domestic-navigation [shipping]),,1A3dii_Domestic-navigation,,
+Other type of transportation (1A3eii_Other-transp),1A3eii_Other-transp,1A3eii_Other-transp,,
+,,,,
+Other sectors,,,,
+Commericial/institutional (1A4a_Commercial-institutional),1A4_Residential-Commerical-Other,1A4a_Commercial-institutional,,
+,,,,
+Residential (1A4b_Residential),1A4_Residential-Commerical-Other,1A4b_Residential,,
+,,,,
+Agriculture/forestry/fisheries (1A4c_Agriculture-forestry-fishing),1A4c_Agriculture-forestry-fishing,1A4c_Agriculture-forestry-fishing,,
+Other,1A4_Residential-Commerical-Other,1A5_Other-unspecified,,
+Stationary,,,,
+Mobile,,,,
+Fugitive emissions from fuel production,,,,
+Solid fuels (1B1_Fugitive-solid-fuels),1B1_Fugitive-solid-fuels,1B1_Fugitive-solid-fuels,,
+Coal mines,,,,
+,,,,
+Solid fuel transformation,,,,
+,,,,
+Other,,,,
+Natural gas and oil,1B2_Fugitive-petr-and-gas,1B2_Fugitive-petr-and-gas,,
+Oil/petroleum,,,,
+Oil/petroleum,,,,
+Oil/petroleum,,,,
+Oil/petroleum,,,,
+Production (1B2ai_Fugitive-petr-prod),,,,
+Refining (1B2aiv_Fugitive-petr-refining),,,,
+Distribution of petroleum products (1B2av_Fugitive-petr-distr),,,,
+Other,,,,
+Natural gas,,,,
+Natural gas,,,,
+Natural gas,,,,
+Production/processing,,,,
+Transmission/distribution,,,,
+Flaring and venting (1B2c_Venting-flaring-oil-gas),,,,
+,,,,1B2d_Fugitive-other-energy
+,,,,
+,,,,2A1_Cement-production
+,,,,2A2_Lime-production
+,,,,2A6_Other-minerals
+,,,,2B_Chemical-industry
+,,,,2C_Metal-production
+,,,,2H_Pulp-and-paper-food-beverage-wood
+,,,,2L_Other-process-emissions
+,,,,2H_Pulp-and-paper-food-beverage-wood
+,,,,2L_Other-process-emissions
+,,,,2D_Degreasing-Cleaning
+,,,,2D3_Other-product-use
+,,,,2D_Paint-application
+,,,,2D_Degreasing-Cleaning
+,,,,2D3_Chemical-products-manufacture-processing
+,,,,2D3_Other-product-use
+,,,,5A_Solid-waste-disposal
+,,,,5E_Other-waste-handling
+,,,,5C_Waste-incineration
+,,,,6A_Other-in-total
+,,,,5D_Wastewater-handling
+,,,,5E_Other-waste-handling
+,,,,3B_Manure-management
+,,,,3D_Soil-emissions
+,,,,3I_Agriculture-other
+,,,,3D_Rice-Cultivation
+,,,,3E_Enteric-fermentation
+,,,,3F_Agricultural-residue-burning-on-fields
+,,,,3I_Agriculture-other
