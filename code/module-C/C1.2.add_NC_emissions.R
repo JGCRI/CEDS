@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.2.add_NC_emissions.R
 # Author: Jon Seibert
-# Date Last Updated: November 4, 2019
+# Date Last Updated: January 22, 2020
 # Program Purpose: To select and run the correct script(s) to fill out to the non-combustion
 #                  (process) emissions database for the given emissions type.
 # Input Files: None
@@ -13,7 +13,7 @@
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
+    PARAM_DIR <- if( "input" %in% dir( ) ) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -64,18 +64,31 @@ if( em == "SO2" || em == "CO" || em == "NOx" || em == "NMVOC"  || em == "NH3" ){
 }
 
 # Note if using EDGAR 4.2 then also need to edit correction for end-year in C2.1.base_NC_EF.R
+# TODO: check if the note above is still relevant
 if( em == "CH4" || em == "CO2" || em == "N2O" ){
     scripts <- c( scripts, "C1.2.add_NC_emissions_EDGAR.R" )
 }
 
+# Add EPA adipic and nitric acid emissions data (extended by EDGAR)
+#   Processed EPA data
+    if( em == "N2O" ){
+        scripts <- c( scripts, "C1.2.EPA_adipic_and_nitric_acid.R" )
+    }
+
+#   The below script currently makes emissions with all 0 values for emission species other than N2O.
+#   For N2O, emissions processed in C1.2.EPA_adipic_and_nitric_acid.R are extended here
+    if( em %in% c( "BC", "CH4", "CO", "CO2", "NH3", "NMVOC", "NOx", "OC", "SO2" ) ){
+        scripts <- c( "C1.2.Adipic_nitric_acid_default_process_emissions.R" )
+    }
+
 # Add FAO Agriculture methane data
 if( em == "CH4" ){
-  scripts <- c( scripts, "C1.2.add_CH4_NC_emissions_FAO.R")
+  scripts <- c( scripts, "C1.2.add_CH4_NC_emissions_FAO.R" )
 }
 
 # Add FAO Agriculture N2O data
 if( em == "N2O" ){
-    scripts <- c( scripts, "C1.2.add_N2O_NC_emissions_FAO.R")
+    scripts <- c( scripts, "C1.2.add_N2O_NC_emissions_FAO.R" )
 }
 
 # Add CDIAC for CO2
