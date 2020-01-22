@@ -644,7 +644,8 @@ if ( em == "CO2" ){
 
 }
 
-#   Output EDGAR 2B_Chemical-industry emissions, if em is N2O
+#   Output EDGAR 2B_Chemical-industry emissions, if em is N2O (used to extend EPA adipic
+#   and nitric acid emissions)
 if( em == "N2O" ){
 
     writeData( edgar_2B_chemical_industry_emissions , "MED_OUT",

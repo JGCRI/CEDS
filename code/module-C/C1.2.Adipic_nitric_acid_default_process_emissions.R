@@ -1,15 +1,17 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.Adipic_nitric_acid_default_process_emissions.R
 # Author(s): Patrick O'Rourke
-# Date Last Modified: January 15, 2020
-#*** Program Purpose: To extend adipic and nitric acid production process emissions, and
-#       remove these emissions from the larger 2B_Chemical-industry default emissions
-#       to avoid double counting
-#*** Input Files:
-#*** Output Files:
+# Date Last Modified: January 22, 2020
+# Program Purpose: To extend adipic and nitric acid production process emissions, and
+#                  to remove these emissions from the larger 2B_Chemical-industry default
+#                  emissions to avoid double counting
+# Input Files: Master_Country_List.csv (if em is not N2O),
+#              C.[em]_EPA_NC_adipic_and_nitric_acid.csv (N2O only)
+#              C.[em]_EDGAR_chemical_industry_emissions.csv (N2O only)
+# Output Files: C.[em]_NC_emissions_db.csv (For N2O only currently),
+#               C.[em]_EPA_NC_extended_adipic_nitric_acids_emissions.csv
 # Notes:
 # TODO: *** --- script ***, script TODOs
-# TODO: *** what if EDGAR isn't extended forward by this point, and just ends in 2014?
 # -----------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
@@ -17,11 +19,12 @@
 PARAM_DIR <- if( "input" %in% dir( ) ) "code/parameters/" else "../code/parameters/"
 
 # Universal header file - provides logging, file support, etc.
-headers <- c( "common_data.R", "analysis_functions.R", "data_functions.R" ) # Additional function files required.
+headers <- c( "common_data.R", "analysis_functions.R", "data_functions.R",
+              "process_db_functions.R", "timeframe_functions.R" ) # Additional function files required.
 log_msg <- paste0( "Extending EPA adipic and nitric acid default process emissions for N2O",
                    "using EDGAR chemical industry emissions. Other emissions species",
                    "will have data created with all 0 values for these sectors..." ) # First message to be printed to the log
-script_name <- "C1.2.EPA_adipic_and_nitric_acid.R" # TODO: update
+script_name <- "C1.2.Adipic_nitric_acid_default_process_emissions.R"
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
@@ -33,12 +36,19 @@ args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "N2O"
 
-# TODO: make other ems option (skips everything until the end)
-
-if( em == "N2O" ){
-
 # ------------------------------------------------------------------------------
 # 2. Load inputs and define script constants
+
+# If the emissions species is not N2O, load the master country list in order to
+# create a dataframe of all 0 values for adipic and nitric acid production
+if( em != "N2O"){
+
+    MCL <- readData( "MAPPINGS", "Master_Country_List" )
+
+}
+
+# Begin N2O specific processing
+if( em == "N2O" ){
 
 # EPA adipic and nitric acid emissions
 EPA_acid_emissions <- readData( "MED_OUT", paste0( "C.", em,  "_EPA_NC_adipic_and_nitric_acid" ) )
@@ -276,14 +286,12 @@ X_EPA_EXTENDED_YEARS <- paste0( "X", EDGAR_start_year : end_year )
      printLog( "Extension of EPA adipic and nitric acid default process emissions is complete..." )
 
 # ------------------------------------------------------------------------------
-# TODO reword - 5. Subtract acid production emissions from aggregate EDGAR chemical emissions,
-# so that we are not double counting as EDGAR emissions are the default for this aggregate sector in CEDS
-# currently and acids are within that sector
-
-# TODO: reword this
-    printLog( "Subtracting adipic and nitric acid production emissions from EDGAR chemical",
-              "industry emissions as these contain acid production emissions and are the",
-              "default for that CEDS sector..." )
+# 5. Subtract the extended nitric and adipic acid emissions from
+#    CEDS sector 2B_chemical-industry process emissions, as nitric and adipic acid emissions
+#    are currently nested within this 'aggregate' CEDS sector, and thus must be
+#    be subtracted in order to avoid double counting.
+printLog( "Subtracting adipic and nitric acid production emissions from CEDS 2B_chemical-industry",
+              "emissions in order to avoid double counting..." )
 
 #  A. Aggregate EPA data for subtraction, for EDGAR years
    EPA_acid_emissions_extended_agg <- EPA_acid_emissions_extended %>%
@@ -323,26 +331,51 @@ X_EPA_EXTENDED_YEARS <- paste0( "X", EDGAR_start_year : end_year )
        dplyr::select( iso, sector, fuel, units, years, final_2B_emissions ) %>%
        tidyr::spread( years, final_2B_emissions )
 
+}
 
 # ------------------------------------------------------------------------------
-# TODO: Make blank rows for other emissions species
-} else{
+#  6. Make the acid production sectors for other emissions species - set to all 0 values
+#  currently (other process emissions from adipic and nitric acid production are currently
+#  still nested within CEDS 2B_chemical-industry process emissions.)
+#  TODO: In the future, seperate other process emissions that exist (NOx)
+#  TODO: Confirm NOx is an additional process emission from adipic and nitric acid production
+if( em != "N2O" ){
 
+#   Make list of unique final isos (isos with final_data_flag = 1, srb (kosovo),
+#   and gum) and list of final isos with OECD vs Non-OECD flag
+#   TODO: When the issue in the Master Country List is resolved for these isos this can be simplified
+    MCL_clean <- MCL %>%
+        dplyr::select( iso, final_data_flag,  OECD_flag ) %>%
+        dplyr::distinct( ) %>%
+        dplyr::filter( final_data_flag == 1 | iso %in% c( "srb (kosovo)", "gum" ) ) %>%
+        dplyr::select( iso )
 
-
-
+    EPA_acid_emissions_extended <- dplyr::bind_rows(
+            MCL_clean %>% dplyr::mutate( sector = "2B3_Chemicals-Adipic-acid" ),
+            MCL_clean %>% dplyr::mutate( sector = "2B2_Chemicals-Nitric-acid" ) ) %>%
+        dplyr::arrange( iso, sector ) %>%
+        dplyr::mutate( fuel = "process",
+                       units = "kt" ) %>%
+        dplyr::mutate_at( .vars = X_emissions_years, .funs = funs( identity( 0 ) ) )
 
 }
 
-
-
 # ------------------------------------------------------------------------------
-# . Output data
-# TODO: output data
+# 7. Output data
 
-# Save EPA adipic and nitric acid emissions data
-writeData( df, domain = "MED_OUT",
-           fn = paste0( ) )
+#  Extended acid production emissions
+writeData( EPA_acid_emissions_extended,  domain = "DEFAULT_EF_IN",
+           domain_extension = "non-combustion-emissions/",
+           fn = paste0( "C.",em, "_EPA_NC_extended_adipic_nitric_acids_emissions" ) )
+
+# Chemical industry emissions with acid emissions subtracted
+if( em == "N2O" ){
+
+    addToEmissionsDb( EDGAR_2B_final_emissions, em = em, type = 'NC',
+                      ext_backward = FALSE, ext_forward = FALSE )
+    # TODO: Confirm - should this be extended forward and backward? (EDGAR script too)
+
+}
 
 logStop( )
 # END
