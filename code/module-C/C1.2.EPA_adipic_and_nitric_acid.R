@@ -1,13 +1,13 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.EPA_adipic_and_nitric_acid.R
 # Author(s): Patrick O'Rourke
-# Date Last Modified: January 16, 2020
+# Date Last Modified: January 20, 2020
 # Program Purpose: To reformat EPA adipic and nitric acid production process emissions.
 # Input Files: EPA_nonCO2_GHG-proj-data-annex_Sept2019.csv, EPA_nonCO2_GHG-country_map.csv,
 #              Master_Country_List.csv,
 # Output Files: C.N2O_EPA_NC_adipic_and_nitric_acid.csv
 # Notes:
-# TODO:
+# TODO: Script TODOs (all for the future)
 # -----------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
@@ -81,7 +81,7 @@ EPA_YEARS_USING <- subset( ALL_EPA_NON_CO2_YEARS,
 X_EPA_YEARS_USING <- paste0( "X", EPA_YEARS_USING )
 
 # EPA N2O GWP (AR4)
-# Source: US EPA, "Global Non-CO2 Greenhouse Gas Emission Projections & Mitigation 2015–2050",
+# Source: US EPA, "Global Non-CO2 Greenhouse Gas Emission Projections & Mitigation 2015-2050",
 # September 2019, page 4.
 # https://www.epa.gov/sites/production/files/2019-09/documents/epa_non-co2_greenhouse_gases_rpt-epa430r19010.pdf
 # "Global Non-CO2 Greenhouse Gas Emission Projections & Marginal Abatement Cost Analysis: Methodology Documentation",
@@ -154,23 +154,26 @@ EPA_CEDS_sectors <- EPA_acids_kt %>%
 #    of world Nitric and Adipic N2O emissions
 
 #   Subset isos which aren't final CEDS isos and have emissions other than 0 in any year
+#   TODO: (For the future) when this issue is fixed in the MCL ("gum", "srb (kosovo)" final data flag),
+#         this rule can be removed
 MCL_final_isos <- Master_Country_List %>%
-    dplyr::filter( final_data_flag == 1 | iso %in% c( "gum", "srb (kosovo)" ) ) %>%  # TODO: when this issue ("gum", "srb (kosovo)" ) is fixed in the MCL this rule can be removed
+    dplyr::filter( final_data_flag == 1 | iso %in% c( "gum", "srb (kosovo)" ) ) %>%
     dplyr::select( iso ) %>%
     dplyr::distinct( )
 
 #  If any final CEDS isos are not in the EPEA data add them to the data frame
 #  Currently added with values all equal to zero (assumes EPA data is a complete estimate
 #    of world Nitric and Adipic N2O emissions)
-#    TODO: Disaggregate smaller isos from larger isos if applicable (if they are known to produce nitric
-#          or adipic acid and their emissions are counted within a larger iso currently)
+#    TODO: (For the Future) Disaggregate smaller isos from larger isos if applicable
+#          (if they are known to produce nitric or adipic acid and their emissions are counted
+#          within a larger iso currently)
 final_isos_not_in_EPA_data <- subset( MCL_final_isos$iso, MCL_final_isos$iso %!in% EPA_CEDS_sectors$iso &
                                                           MCL_final_isos$iso != "global" )
 
 if( length( final_isos_not_in_EPA_data ) > 0 ){
 
 #   Define function to add isos to the emissions data for each relevant sector
-#   TODO: A function similar to this is used in a few scripts (such as mod. C Edgar processing)
+#   TODO: (For the future) A function similar to this is used in a few scripts (such as mod. C Edgar processing)
 #         They could probably use a more flexible version of the same function.
     add_isos_to_EPA <- function( iso_in ){
 

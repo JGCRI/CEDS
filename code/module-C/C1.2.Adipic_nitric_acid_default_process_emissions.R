@@ -11,7 +11,7 @@
 # Output Files: C.[em]_NC_emissions_db.csv (For N2O only currently),
 #               C.[em]_EPA_NC_extended_adipic_nitric_acids_emissions.csv
 # Notes:
-# TODO: *** --- script ***, script TODOs
+# TODO:
 # -----------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
@@ -164,8 +164,8 @@ X_EPA_EXTENDED_YEARS <- paste0( "X", EDGAR_start_year : end_year )
 #   TODO: Confirm metodology - Isos which have a 0 value in the first EPA year (1990) - these will have constant
 #                 extension backwards (all pre-1990 values will be set to 0)
 #   TODO: Confirm metodology - Isos which are non-0 in EPA start year, but are 0 in EDGAR 2B chemical sector
-#                 for the first EPA year will be extended backwards using global trend (could do
-#                 regional trend in future as well without much extra effort)
+#                 for the EPA start year will be extended backwards using global trend (could do
+#                 regional trend as well without much extra effort)
     EPA_acid_emissions_not_0_start_year_EPA_and_EDGAR <- EPA_acid_emissions %>%
         dplyr::filter( !!rlang::sym( X_EPA_START_YEAR ) != 0,
                        iso %!in% unique( EPA_not_0_EPA_start_but_0_in_EDGAR$iso ) )
@@ -177,7 +177,6 @@ X_EPA_EXTENDED_YEARS <- paste0( "X", EDGAR_start_year : end_year )
     id_cols <- c( "iso", "fuel" )
 #   Note: Extending the two acid production emissions sectors together didn't work as expected
 #         (which is why they are extended separately)
-#   TODO: test if this is really needed separately
     EPA_emissions_not_0_start_year_EPA_and_EDGAR_adipic_ext <-
         extend_data_on_trend_range( driver_trend = EDGAR_not_0_EPA_start_year,
                                     input_data = ( EPA_acid_emissions_not_0_start_year_EPA_and_EDGAR %>%
@@ -231,8 +230,6 @@ X_EPA_EXTENDED_YEARS <- paste0( "X", EDGAR_start_year : end_year )
                                         range = 5,
                                         id_match.driver = id_cols,
                                         id_match.input = id_cols )
-
-        # TODO: check in excel
 
     }
 
@@ -337,13 +334,13 @@ printLog( "Subtracting adipic and nitric acid production emissions from CEDS 2B_
 #  6. Make the acid production sectors for other emissions species - set to all 0 values
 #  currently (other process emissions from adipic and nitric acid production are currently
 #  still nested within CEDS 2B_chemical-industry process emissions.)
-#  TODO: In the future, seperate other process emissions that exist (NOx)
-#  TODO: Confirm NOx is an additional process emission from adipic and nitric acid production
+#  TODO: (For the future) Seperate other process emissions that exist (NOx)
 if( em != "N2O" ){
 
 #   Make list of unique final isos (isos with final_data_flag = 1, srb (kosovo),
 #   and gum) and list of final isos with OECD vs Non-OECD flag
-#   TODO: When the issue in the Master Country List is resolved for these isos this can be simplified
+#   TODO: (For the future) When the issue in the Master Country List is resolved for these
+#         isos this can be simplified
     MCL_clean <- MCL %>%
         dplyr::select( iso, final_data_flag,  OECD_flag ) %>%
         dplyr::distinct( ) %>%
@@ -373,7 +370,7 @@ if( em == "N2O" ){
 
     addToEmissionsDb( EDGAR_2B_final_emissions, em = em, type = 'NC',
                       ext_backward = FALSE, ext_forward = FALSE )
-    # TODO: Confirm - should this be extended forward and backward? (EDGAR script too)
+    # TODO: Confirm - should this be extended forward and backward? (mod C. EDGAR script too)
 
 }
 
