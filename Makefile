@@ -683,6 +683,8 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv: \
 	$(MOD_C)/C1.2.GAINS_fugitive_petr_gas_emissions.R \
 	$(MOD_C)/C1.2.add_NC_emissions_EDGAR_PEGASOS.R\
 	$(MOD_C)/C1.2.add_NC_emissions_EDGAR.R \
+	$(MOD_C)/C1.2.EPA_adipic_and_nitric_acid.R \
+	$(MOD_C)/C1.2.Adipic_nitric_acid_default_process_emissions.R \
 	$(MOD_C)/C1.2.add_CH4_NC_emissions_FAO.R \
 	$(MOD_C)/C1.2.add_N2O_NC_emissions_FAO.R\
 	$(MOD_C)/C1.2.ECLIPSE_flaring_emissions_extension.R \
