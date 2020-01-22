@@ -55,8 +55,8 @@ detailed_sectors,working_sectors_v1,working_sectors_v2,aggregate_sectors,FSU_ext
 2A6_Other-minerals,2A6_Other-minerals,2A6_Other-minerals,2A_Minerals-production,,Industry
 2A5b_Construction-and-demolition,2A6_Other-minerals,2A6_Other-minerals,2A_Minerals-production,,Industry
 2B1_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,,Industry
-2B2_Chemicals-Nitric-acid,2B_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,,Industry
-2B3_Chemicals-Adipic-acid,2B_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,,Industry
+2B2_Chemicals-Nitric-acid,2B2_Chemicals-Nitric-acid,2B2_Chemicals-Nitric-acid,2B_Chemical-industry,,Industry
+2B3_Chemicals-Adipic-acid,2B3_Chemicals-Adipic-acid,2B3_Chemicals-Adipic-acid,2B_Chemical-industry,,Industry
 2B_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,,Industry
 2C_Iron-steel-alloy-prod,2C_Metal-production,2C_Iron-steel-alloy-prod,2C_Metals-industry,,Industry
 2C3_Aluminum-production,2C_Metal-production,2C3_Aluminum-production,2C_Metals-industry,,Industry
