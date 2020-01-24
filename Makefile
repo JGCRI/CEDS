@@ -888,19 +888,24 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_US_GHG_inventory.csv \
 	$(MED_OUT)/E.$(EM)_AUS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_TWN_inventory.csv \
-	$(SC_MAPPINGS)/Argentina_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/CAN_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/MEIC_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/Edgar_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/EMEP_NFR09_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/EMEP_NFR14_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/jpn_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/UNFCCC_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/US_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/US-EPA_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/US-GHG_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/Australia_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/Taiwan_scaling_mapping.xlsx \
+	$(SC_MAPPINGS)/Argentina_scaling_mapping.csv \
+	$(SC_MAPPINGS)/CAN_scaling_mapping.csv \
+	$(SC_MAPPINGS)/MEIC_scaling_mapping.csv \
+	$(SC_MAPPINGS)/Edgar_scaling_mapping.csv \
+	$(SC_MAPPINGS)/Edgar_scaling_mapping-year.csv \
+	$(SC_MAPPINGS)/EMEP_NFR09_scaling_mapping.csv \
+	$(SC_MAPPINGS)/EMEP_NFR09_scaling_mapping-year.csv \
+	$(SC_MAPPINGS)/EMEP_NFR14_scaling_mapping.csv \
+	$(SC_MAPPINGS)/EMEP_NFR14_scaling_mapping-year.csv \
+	$(SC_MAPPINGS)/jpn_scaling_mapping.csv \
+	$(SC_MAPPINGS)/UNFCCC_scaling_mapping.csv \
+	$(SC_MAPPINGS)/UNFCCC_scaling_mapping-year.csv \
+	$(SC_MAPPINGS)/US_scaling_mapping.csv \
+	$(SC_MAPPINGS)/US-EPA_scaling_mapping.csv \
+	$(SC_MAPPINGS)/US-GHG_scaling_mapping.csv \
+	$(SC_MAPPINGS)/Australia_scaling_mapping.csv \
+	$(SC_MAPPINGS)/Taiwan_scaling_mapping.csv \
+	$(SC_MAPPINGS)/Taiwan_scaling_mapping-method.csv \
 	$(MED_OUT)/D.$(EM)_default_total_EF.csv \
 	$(MED_OUT)/D.$(EM)_default_total_emissions.csv
 	Rscript $< $(EM) --nosave --no-restore
