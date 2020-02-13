@@ -311,12 +311,18 @@ sector,fuel,em,method,start_year,end_year,file_name,domain,domain_extension,conv
 1A5_Other-unspecified,all-comb,OC,EF-trend,1850,1959,B.OC_SPEW_comb_EF,EXT_IN,extension-data/,,
 1B1_Fugitive-solid-fuels,process,all,Emissions-trend,1750,1969,U.1B1_Fugitive-solid-fuels_Biomass_Driver,EXT_IN,extension-data/,,
 1B1_Fugitive-solid-fuels,process,all,Emissions-trend,1750,1969,U.1B1_Fugitive-solid-fuels_CoalCO2_Driver,EXT_IN,extension-data/,,
-1B2_Fugitive-petr-and-gas,process,all,constant,1750,1969,,,,,
+1B2_Fugitive-petr,process,all,constant,1750,1969,,,,,
+1B2b_Fugitive-NG-prod,process,all,constant,1750,1969,,,,,
+1B2b_Fugitive-NG-distr,process,all,constant,1750,1969,,,,,
 1B2d_Fugitive-other-energy,process,all,constant,1750,1969,,,,,
 2A1_Cement-production,process,all,Emissions-trend,1750,1969,E.CO2_CDIAC_Cement,MED_OUT,,,
 2A2_Lime-production,process,all,Emissions-trend,1750,1969,E.CO2_CDIAC_Cement,MED_OUT,,,
 2A6_Other-minerals,process,all,EF-converge,1750,1969,,,,1850,0
 2B_Chemical-industry,process,all,constant,1750,1969,,,,,
+2B2_Chemicals-Nitric-acid,process,all,constant,1941,1969,,,,,
+2B2_Chemicals-Nitric-acid,process,all,EF-converge,1750,1940,,,,1850,0
+2B3_Chemicals-Adipic-acid,process,all,constant,1941,1969,,,,,
+2B3_Chemicals-Adipic-acid,process,all,EF-converge,1750,1940,,,,1906,0
 2C_Metal-production,process,all,Emissions-trend,1750,1969,E.CO2_CDIAC_solid_fuel,MED_OUT,,,
 2C_Metal-production,process,SO2,Emissions-trend,1850,1969,U.SO2_Metal_Smelting,DEFAULT_EF_IN,non-combustion-emissions/,,
 2C_Metal-production,process,SO2,Emissions-trend,1750,1849,U.Pre1850_Smelter_S_Emissions,EXT_IN,extension-data/,,
@@ -352,3 +358,4 @@ sector,fuel,em,method,start_year,end_year,file_name,domain,domain_extension,conv
 6B_Other-not-in-total,process,all,constant,1750,1969,,,,,
 7A_Fossil-fuel-fires,process,all,constant,1900,1970,,,,,
 7A_Fossil-fuel-fires,process,all,EF-converge,1750,1900,,,,1851,0
+7BC_Indirect-N2O-non-agricultural-N,process,N2O,EF-trend,1750,1969,H.N2O_7BC_extension-NH3_and_NOx_sectors_1_2,EXT_IN,extension-data/,,
