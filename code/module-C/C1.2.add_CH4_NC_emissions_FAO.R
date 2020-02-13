@@ -28,6 +28,7 @@
 
   MCL <- readData( "MAPPINGS", "Master_Country_List", meta = F )
   FAO_API <-  readData('EM_INV' ,'FAO_methane_API')
+  un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' )
 
 # -----------------------------------------------------------------------------
 # 2. Retrive and process data from FAOSTAT - uncomment to update, then run script.
@@ -64,7 +65,7 @@ FAO <- FAO_API %>%
        soviet = c(1961, 1992, "USSR","arm","aze","blr","est","geo","kaz",
                   "kgz","ltu","lva","mda","rus","tjk","tkm","ukr","uzb"))
 
-  un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' )
+
   un_pop$X_year <- paste0( 'X', un_pop$year)
   un_pop$pop <- as.numeric(un_pop$pop)
   population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_year:end_year ) , ] ,

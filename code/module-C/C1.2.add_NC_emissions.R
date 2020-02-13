@@ -30,7 +30,7 @@
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "CH4"
 
 MODULE_C <- "../code/module-C/"
 
@@ -42,7 +42,7 @@ scripts <- c()
 
 # Set scripts to add emissions data for SO2
 if( em == "SO2" ){
-# Remove outdated scrips -- revise when move to working sectors v2
+# Remove outdated scripts -- revise when move to working sectors v2
 #   scripts <- c( "C1.2.add_SO2_NC_emissions_all.R" , "C1.2.add_SO2_NC_emissions_FAO.R" )
 }
 
@@ -78,7 +78,7 @@ if( em == "CH4" || em == "CO2" || em == "N2O" ){
 #   The below script currently makes emissions with all 0 values for emission species other than N2O.
 #   For N2O, emissions processed in C1.2.EPA_adipic_and_nitric_acid.R are extended here
     if( em %in% c( "BC", "CH4", "CO", "CO2", "NH3", "NMVOC", "NOx", "OC", "SO2" ) ){
-        scripts <- c( "C1.2.Adipic_nitric_acid_default_process_emissions.R" )
+        scripts <- c( scripts, "C1.2.Adipic_nitric_acid_default_process_emissions.R" )
     }
 
 # Add FAO Agriculture methane data

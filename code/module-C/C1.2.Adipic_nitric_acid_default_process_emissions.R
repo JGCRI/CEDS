@@ -21,7 +21,7 @@ PARAM_DIR <- if( "input" %in% dir( ) ) "code/parameters/" else "../code/paramete
 # Universal header file - provides logging, file support, etc.
 headers <- c( "common_data.R", "analysis_functions.R", "data_functions.R",
               "process_db_functions.R", "timeframe_functions.R" ) # Additional function files required.
-log_msg <- paste0( "Extending EPA adipic and nitric acid default process emissions for N2O",
+log_msg <- paste0( "Extending EPA adipic and nitric acid default process emissions ",
                    "using EDGAR chemical industry emissions. Other emissions species",
                    "will have data created with all 0 values for these sectors..." ) # First message to be printed to the log
 script_name <- "C1.2.Adipic_nitric_acid_default_process_emissions.R"
