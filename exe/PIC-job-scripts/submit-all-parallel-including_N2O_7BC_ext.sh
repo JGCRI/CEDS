@@ -16,18 +16,15 @@ OCid=$(sbatch --parsable --dependency=afterok:$actid make-OC.sh)
 CH4id=$(sbatch --parsable --dependency=afterok:$actid make-CH4.sh)
 CO2id=$(sbatch --parsable --dependency=afterok:$actid make-CO2.sh)
 
-# Summarise all ems, other than N2O
-Summary1id=$(sbatch --parasable --dependency=afterok:$SO2id:$NOxid:$NMVOCid:$NH3id:$COid:$BCid:$OCid:$CH4id:$CO2id ./summary-script.sh)
-
 # Create extension file for N2O 7BC emissions (N from NH3 and NOx sectors 1 and 2)
-7BCextid=$(sbatch --parasable --dependency=afterok:$Summary1id./N2O_7BC_extension-script.sh) 
+7BCextid=$(sbatch --parasable --dependency=afterok:$NH3id:$NOxid ./N2O_7BC_extension-script.sh) 
 
 # Run N2O
 N2Oid=$(sbatch --parsable --dependency=afterok:$7BCextid make-N2O.sh)
 
 # Do the non-parallel stuff only after all species have finished 
 # without erroring
-sbatch --dependency=afterok:$N2Oid ./summary-script.sh 
+sbatch --dependency=afterok:$SO2id:$NOxid:$NMVOCid:$NH3id:$COid:$BCid:$OCid:$CH4id:$CO2id:$N2Oid ./summary-script.sh 
 
 # Show dependencies in squeue output:
 squeue -u $USER -a -o "%.5a %.10l %.6D %.6t %N %.40E"

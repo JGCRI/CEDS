@@ -53,7 +53,7 @@ X_start_year <- paste0( "X", start_year )
 end_year <- BP_last_year
 X_end_year <- paste0( "X", end_year )
 
-# historical extension using CDIAC and RCP
+# Historical extension using CDIAC and RCP
 historical_pre_extension_year <- 1750
 historical_end_extension_year <- 1965
 extended_years <- historical_pre_extension_year : end_year
