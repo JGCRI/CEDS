@@ -1,34 +1,27 @@
 # Program Name: H1.1a.Aggregate_NH3_NOx_for_N2O_7BC_ext.R
 # Author: Patrick O'Rourke
-# TODO: Last updated: February 6, 2020
+# Last updated: February 13, 2020
 # Program Purpose: To aggregate NH3 and NOx final emissions for sectors 1 and 2
 #                  after converting to units of N. This is used for historical extension of
 #                  the "7BC_Indirect-N2O-non-agricultural-N" sector.
 # Input: CEDS_NH3_emissions_by_country_CEDS_sector_[version_stamp].csv,
 #        CEDS_NOx_emissions_by_country_CEDS_sector_[version_stamp].csv
-# TODO: Output Files:
-# TODO: Notes:
-# TODO: Move output of CEDS_Data to CEDS-dev module H
+# Output Files: H.N2O_7BC_extension-NH3_and_NOx_sectors_1_2.csv
+# Notes: If NOx and/or NH3 emissions change within CEDS, this script should be run before
+#        running N2O, in order to more accurately extend N2O emissions for sector 7BC_Indirect-N2O-non-agricultural-N
 # TODO: Check if this is supposed to be an activity driver or EF trend - then find out how to incorporate
 #       fully (required columns, etc.)
 # TODO: Other script TODOs
 
 #--------------------------------------------------------------------------------------------------
 # 0. Get and set working directories, read in global settings and headers
+
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-
-# Define different directory locations
-CURRENT_DIR <- getwd( )
-CEDS_INPUT_DIR <- 'CEDS/input'
-PARAM_DIR <- "../code/parameters/"
-CEDS_DATA_INPUT_DIR <- 'CEDS_Data/input'
+PARAM_DIR <- if( "input" %in% dir( ) ) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-setwd( "../" )
-setwd( CEDS_INPUT_DIR )
-
 headers <- c( "IO_functions.R","data_functions.R", "analysis_functions.R", "timeframe_functions.R" )
 log_msg <- paste0( "Processing NH3 and NOx sectors 1 and 2 final emissions for historical extension ",
                    "of '7BC_Indirect-N2O-non-agricultural-N' N2o emissions..." )
@@ -40,10 +33,10 @@ initialize( script_name, log_msg, headers )
 
 # TODO: Delete the below temporary assignments below this line
 version_stamp <- "v_2019_12_26"
-X_extended_years <- paste0( "X", 1750 : 2018 )
 
 #--------------------------------------------------------------------------------------------------
 # Read in data NH3 and NOx final emissions
+
 #   Read in NH3 final emissions
     CEDS_final_NH3 <- readData( "FIN_OUT", domain_extension = 'current-versions/',
                                 paste0( "CEDS_NH3_emissions_by_country_CEDS_sector_", version_stamp ),
@@ -90,7 +83,8 @@ X_extended_years <- paste0( "X", 1750 : 2018 )
       dplyr::mutate( sector = "Aggregate_sectors_1_and_2" ) %>%
       dplyr::group_by( iso, sector, em, units ) %>%
       dplyr::summarize_all( sum, na.rm = TRUE ) %>%
-      dplyr::ungroup( )
+      dplyr::ungroup( ) %>%
+      dplyr::select( iso, sector, em, units, X_years )
 
 #   Convert to kt of Nitrogen, from kt of NH3 and NOx
     sectors_1_and_2_N <- sectors_1_and_2 %>%
@@ -122,8 +116,6 @@ X_extended_years <- paste0( "X", 1750 : 2018 )
 
 #-------------------------------------------------------------------------------------------------
 # 4. Output Data
-  setwd( "../../" )
-  setwd( CEDS_INPUT_DIR )
 
 # Create metadata note
 
@@ -139,16 +131,11 @@ X_extended_years <- paste0( "X", 1750 : 2018 )
 
   addMetaData( meta_note, meta_names, source_info )
 
-
-# TODO: Save extension data
-  # writeData( IEA_WES_final, 'ENERGY_IN', 'OECD_and_NonOECD_E_Stat' )
-
-  setwd( "../" ) # So that logStop works
+# Save extension data
+  writeData( N_NH3_and_NOx_sect_1_2, 'EXT_IN', domain_extension = 'extension-data/',
+             'H.N2O_7BC_extension-NH3_and_NOx_sectors_1_2' )
 
   logStop( )
-
-  setwd( CURRENT_DIR )
-
 
 
 
