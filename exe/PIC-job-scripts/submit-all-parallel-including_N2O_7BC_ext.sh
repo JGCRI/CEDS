@@ -17,7 +17,7 @@ CH4id=$(sbatch --parsable --dependency=afterok:$actid make-CH4.sh)
 CO2id=$(sbatch --parsable --dependency=afterok:$actid make-CO2.sh)
 
 # Create extension file for N2O 7BC emissions (N from NH3 and NOx sectors 1 and 2)
-7BCextid=$(sbatch --parasable --dependency=afterok:$NH3id:$NOxid ./N2O_7BC_extension-script.sh) 
+7BCextid=$(sbatch --parasable --dependency=afterok:$NH3id:$NOxid N2O_7BC_extension-script.sh) 
 
 # Run N2O
 N2Oid=$(sbatch --parsable --dependency=afterok:$7BCextid make-N2O.sh)

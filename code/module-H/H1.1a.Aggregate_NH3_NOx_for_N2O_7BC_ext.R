@@ -31,9 +31,6 @@ script_name <- "H1.1a.Aggregate_NH3_NOx_for_N2O_7BC_ext.R"
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
-# TODO: Delete the below temporary assignments below this line
-version_stamp <- "v_2019_12_26"
-
 #--------------------------------------------------------------------------------------------------
 # Read in data NH3 and NOx final emissions
 
