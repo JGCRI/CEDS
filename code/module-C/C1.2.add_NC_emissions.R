@@ -77,7 +77,7 @@ if( em == "CH4" || em == "CO2" || em == "N2O" ){
 
 #   The below script currently makes emissions with all 0 values for emission species other than N2O.
 #   For N2O, emissions processed in C1.2.EPA_adipic_and_nitric_acid.R are extended here
-    if( em %in% c( "BC", "CH4", "CO", "CO2", "NH3", "NMVOC", "NOx", "OC", "SO2" ) ){
+    if( em %in% c( "BC", "CH4", "CO", "CO2", "N2O", "NH3", "NMVOC", "NOx", "OC", "SO2" ) ){
         scripts <- c( scripts, "C1.2.Adipic_nitric_acid_default_process_emissions.R" )
     }
 
