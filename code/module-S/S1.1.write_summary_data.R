@@ -3,7 +3,7 @@
 # Program Name: S1.1.write_summary_data.R
 # Authors: Rachel Hoesly, Steve Smith, Linh Vu, Presley Muwan, Leyang Feng,
 #          Caleb Braun, Patrick O'Rourke
-# Date Last Updated: February 13, 2020
+# Date Last Updated: February 21, 2020
 # Program Purpose: Produces summary output
 # Input Files: Master_Country_List.csv
 #              [em]_total_CEDS_emissions.csv
@@ -347,12 +347,14 @@ if( em %!in% c( 'CO2', 'N2O', 'NH3' ) )  source('../code/diagnostic/Compare_to_G
 
 if( em == "N2O" ){
 
-    printLog( "***Note that if the user is interested in N2O emissions and NH3 or NOx",
-              "emissions have changed within sectors 1 and 2 since the last run, then the user should",
-              "run script H1.1a.Aggregate_NH3_NOx_for_N2O_7BC_ext.R and then rerun CEDS for N2O.",
-              "This script aggregates final NH3 and NOx emissions for these sectors and converts",
-              "them to units of N. This data is used for the historical extension of N2O",
-              "7BC_Indirect-N2O-non-agricultural-N emissions.***" )
+    warning( "**************************************************************************" )
+    warning( "Note that if the user is interested in N2O emissions and NH3 or NOx" )
+    warning( "emissions have changed within sectors 1 and 2 since the last run, then the user should" )
+    warning( "run script H1.1a.Aggregate_NH3_NOx_for_N2O_7BC_ext.R and then rerun CEDS for N2O." )
+    warning( "This script aggregates final NH3 and NOx emissions for these sectors and converts" )
+    warning( "them to units of N. This data is used for the historical extension of N2O" )
+    warning( "7BC_Indirect-N2O-non-agricultural-N emissions." )
+    warning( "**************************************************************************" )
 
 }
 
