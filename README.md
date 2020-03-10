@@ -25,6 +25,10 @@ If you plan to use the CEDS data system for a research project you are encourage
 
 CEDS has only been possible through the participation of many collaborators. Our **collaboration policy** is that collaborators who contribute data used in CEDS updates will be included as co-authors on the journal paper that describes the next CEDS major release. We particularly encourage contributions of updated emission information from countries or sectors not well represented in the data currently used in CEDS.
 
+# Data Reference
+
+Hoesly, Rachel; O'Rourke, Patrick; Braun, Caleb; Feng, Leyang; Smith, Steven J.; Pitkanen, Tyler; Seibert, Jonathan J.; Vu, Linh; Presley, Muwan; Bolt, Ryan; Goldstein, Ben; Kholod, Nazar (2019, December 23). Community Emissions Data System (Version Dec-23-2019) [Zenodo. http://doi.org/10.5281/zenodo.3592073](https://zenodo.org/record/3606753).
+
 # Journal Papers
 [Hoesly et al, Historical (1750–2014) anthropogenic emissions of reactive gases and aerosols from the Community Emissions Data System (CEDS). ](https://www.geosci-model-dev.net/11/369/2018/gmd-11-369-2018.html) _Geosci. Model Dev._ 11, 369-408, 2018a.
 
