@@ -1,8 +1,11 @@
 inv_sector,scaling_sector,ceds_sector
-Natural Gas Systems,energy_systems,1A1bc_Other-transformation
-Petroleum Systems,energy_systems,1B1_Fugitive-solid-fuels
-Coal Mining,energy_systems,1B2_Fugitive-petr-and-gas
+Natural Gas Systems,energy_systems,
+,energy_systems,1B2b_Fugitive-NG-prod
+,energy_systems,1B2b_Fugitive-NG-distr
+Petroleum Systems,energy_systems,1B2_Fugitive-petr
+Coal Mining,energy_systems,1B1_Fugitive-solid-fuels
 Abandoned Underground Coal Mines,energy_systems,1B2d_Fugitive-other-energy
+,energy_systems,1A1bc_Other-transformation
 ,,
 Mobile Combustion,mobile_combustion,1A3b_Road
 ,mobile_combustion,1A3c_Rail
@@ -35,6 +38,9 @@ Stationary Combustion,stationsary_combustion,1A1a_Electricity-public
 ,stationsary_combustion,1A5_Other-unspecified
 ,,
 Petrochemical Production,chemicals,2B_Chemical-industry
+,chemicals,2B2_Chemicals-Nitric-acid
+,chemicals,2B3_Chemicals-Adipic-acid
+,,
 ,chemicals,2D3_Chemical-products-manufacture-processing
 ,,
 Ferroalloy Production,metals,2C_Metal-production
@@ -53,7 +59,7 @@ Landfills,solid_waste,5E_Other-waste-handling
 Wastewater Treatment,wasterwater,5D_Wastewater-handling
 ,,
 Incineration of Waste,waste_incineration,5C_Waste-incineration
-,,
+,,7BC_Indirect-N2O-non-agricultural-N
 ,,
 ,,
 ,,

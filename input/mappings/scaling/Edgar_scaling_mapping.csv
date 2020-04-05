@@ -26,7 +26,9 @@ inv_sector,Edgar_Sector_Name,scaling_sector,ceds_sector,Notes
 ,,1A4,1A4c_Agriculture-forestry-fishing,
 1A5,Other Energy Industries,,,"Don’t scale since it’s a ""catch all"" that is unlikely to match"
 1B1,Fugitive emissions from solid fuels,,1B1_Fugitive-solid-fuels,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
-1B2,Production of other minerals,,1B2_Fugitive-petr-and-gas,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+1B2,Fugitive emissions from oil and gas,,1B2_Fugitive-petr,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+,,,1B2b_Fugitive-NG-prod,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+,,,1B2b_Fugitive-NG-distr,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 ,,,1B2d_Fugitive-other-energy,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 1C1,Memo: International aviation,,1A3ai_International-aviation,
 1C2,Memo: International navigation,,1A3di_International-shipping,
@@ -35,6 +37,8 @@ inv_sector,Edgar_Sector_Name,scaling_sector,ceds_sector,Notes
 2A4,Production of other minerals,,2A6_Other-minerals,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 2A7,Production of other minerals,,2A6_Other-minerals,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 2B,Production of chemicals,,2B_Chemical-industry,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+,,,2B2_Chemicals-Nitric-acid,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+,,,2B3_Chemicals-Adipic-acid,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 2C,Manure management,,2C_Metal-production,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 2D,Direct soil emissions,,2H_Pulp-and-paper-food-beverage-wood,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 3A,Solvent and other product use: paint,,2D_Paint-application,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"

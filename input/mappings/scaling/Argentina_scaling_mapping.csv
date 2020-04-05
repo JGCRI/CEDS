@@ -1,4 +1,4 @@
-inv_sector,scaling_sector,ceds_sector,"",""
+inv_sector,scaling_sector,ceds_sector,,
 Energy,,,,
 Public generation of electricity (1A1a_Electricity-public),1A1a_Electricity-public,1A1a_Electricity-public,,
 Public combined heat and power generation,1A1a_Electricity-public,,,1A1a_Electricity-autoproducer
@@ -55,7 +55,9 @@ Coal mines,,,,
 Solid fuel transformation,,,,
 ,,,,
 Other,,,,
-Natural gas and oil,1B2_Fugitive-petr-and-gas,1B2_Fugitive-petr-and-gas,,
+Natural gas and oil,1B2_Fugitive-petr-and-gas,1B2_Fugitive-petr,,
+,1B2_Fugitive-petr-and-gas,1B2b_Fugitive-NG-prod,,
+,1B2_Fugitive-petr-and-gas,1B2b_Fugitive-NG-distr,,
 Oil/petroleum,,,,
 Oil/petroleum,,,,
 Oil/petroleum,,,,
@@ -76,6 +78,8 @@ Flaring and venting (1B2c_Venting-flaring-oil-gas),,,,
 ,,,,2A2_Lime-production
 ,,,,2A6_Other-minerals
 ,,,,2B_Chemical-industry
+,,,,2B2_Chemicals-Nitric-acid
+,,,,2B3_Chemicals-Adipic-acid
 ,,,,2C_Metal-production
 ,,,,2H_Pulp-and-paper-food-beverage-wood
 ,,,,2L_Other-process-emissions
@@ -100,3 +104,4 @@ Flaring and venting (1B2c_Venting-flaring-oil-gas),,,,
 ,,,,3E_Enteric-fermentation
 ,,,,3F_Agricultural-residue-burning-on-fields
 ,,,,3I_Agriculture-other
+,,,,7BC_Indirect-N2O-non-agricultural-N

@@ -1,2 +1,8 @@
 inv_sector,scaling_sector,ceds_sector
 Waste Incineration,Waste-incineration,5C_Waste-incineration
+,,1B2b_Fugitive-NG-prod
+,,1B2b_Fugitive-NG-distr
+,,1B2_Fugitive-petr
+,,2B2_Chemicals-Nitric-acid
+,,2B3_Chemicals-Adipic-acid
+,,7BC_Indirect-N2O-non-agricultural-N
