@@ -1,11 +1,10 @@
 # Program Name: B1.1.base_CO2_comb_EF.R
 # Author: Linh Vu, Rachel Hoesly
-# Date Last Updated: 14 December 2016
-# Program Purpose: Remove fraction of liquid biofuels from EFs
+# Date Last Updated: March 11, 2020
+# Program Purpose: Generate base CO2 combustion EFs
 # Input Files: A.coal_heat_content.csv, CO2_base_EF.xlsx,
-#              A.final_comb_activity_modern.csv, Master_Country_List.csv,
-#              IEA_product_fuel.csv
-# Output Files:  B.[em]_comb_EF_db.csv, B.[em]_comb_EF_non-bunker.csv
+#              A.final_comb_activity_modern.csv, Master_Country_List.csv
+# Output Files:  B.CO2_comb_EF_db.csv, B.CO2_comb_EF_non-bunker.csv
 # Notes:
 # TODO:
 # ---------------------------------------------------------------------------
@@ -18,7 +17,7 @@
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( 'data_functions.R' ) # Additional function files may be required.
-    log_msg <- "Removing liquid biofuels from CO2 combustion EFs"
+    log_msg <- "Producing base CO2 emissions factors..." # First message to be printed to the log
     script_name <- 'B1.1.base_CO2_comb_EF.R'
 
     source( paste0( PARAM_DIR, "header.R" ) )
@@ -30,8 +29,8 @@
 
 # Stop script if running for unsupported species
     if ( em %!in% c('CO2') ) {
-      stop (paste( 'not supported for emission species', em, 'remove from script
-                   list in B1.2.add_comb_EF.R and/or makefile'))
+      stop (paste( 'Not supported for emission species', em, 'remove from script
+                   list in B1.1.base_comb_EF.R and/or makefile...' ))
     }
 
 # ---------------------------------------------------------------------------
@@ -53,8 +52,6 @@
 
 # Load mapping files
     MCL <- readData( "MAPPINGS", "Master_Country_List" )
-    IEA_product_fuel <- readData( "MAPPINGS", "IEA_product_fuel",
-                                  domain_extension = "energy/" )
 
 # Initialize categories of fuels/sectors
     conversion_fuels <- c( 'hard_coal', 'brown_coal' )
@@ -114,15 +111,17 @@
     ef_data$Emission_Coefficient <-  default[ match( ef_data$fuel,
                                                      default$fuel ),
                                               'Emission_Coefficient' ]
+
 # 2. Match by iso and fuel
     iso_default <-
         emission_coefficient[ which( emission_coefficient$iso == 'default' &
-                                     emission_coefficient$iso != 'default' ), ] ### This line is nonsense; sector should be default, not iso
-    ef_data<- replaceValueColMatch( ef_data,
+                                     emission_coefficient$iso != 'default' ), ] ### TODO: This line is nonsense; sector should be default, not iso
+    ef_data <- replaceValueColMatch( ef_data,
                                     iso_default,
                                     x.ColName = 'Emission_Coefficient',
                                     match.x = c( 'iso', 'fuel' ),
                                     addEntries = F )
+
 # 3. Match by sector and fuel
     sector_default <-
         emission_coefficient[ which( emission_coefficient$iso == 'default' &
@@ -133,6 +132,7 @@
                                     x.ColName = 'Emission_Coefficient',
                                     match.x = c( 'sector', 'fuel' ),
                                     addEntries = F )
+
 # 4. Match by iso, sector & fuel
     iso_sector_fuel <-
         emission_coefficient[ which( emission_coefficient$iso != 'default' &
@@ -152,6 +152,7 @@
     ef_data$fraction_oxidized <-  fraction_oxidized[ match( ef_data$fuel,
                                                             default$fuel ),
                                                      'Fraction_Oxidized' ]
+
 # 2. Match by iso and fuel
     iso_default <-
         fraction_oxidized[ which( fraction_oxidized$sector == 'default' &
@@ -163,6 +164,7 @@
                                      y.ColName = 'Fraction_Oxidized',
                                      match.x = c( 'iso', 'fuel' ),
                                      addEntries = F )
+
 # 3. Match by sector and fuel
     sector_default <-
         fraction_oxidized[ which( fraction_oxidized$iso == 'default' &
@@ -196,7 +198,8 @@
         matrix( rep( ef_data$EF[ which( ef_data$fuel %in% no_conversion_fuels ) ],
                      each = length( X_emissions_years ) ),
                ncol = length( X_emissions_years ) , byrow = T )
-# fill in zero for biomass
+
+# Fill in zero for biomass
     ef_data[ which( ef_data$fuel == 'biomass' ),
              c( "Emission_Coefficient",
                 "fraction_oxidized",
@@ -214,7 +217,7 @@
                                                          conversion_fuels ), 'fuel' ] ),
                                   paste( coal_heat_content$iso,
                                          coal_heat_content$fuel ) ),
-                           X_emissions_years ]  ### This could be split up into several lines for clarity.
+                           X_emissions_years ]  ### TODO: This could be split up into several lines for clarity.
 
 # ---------------------------------------------------------------------------
 # 5. Final processing
@@ -228,15 +231,15 @@
     ef_data <- dplyr::arrange( ef_data, iso, sector, fuel )
 
 # Prepare diagnostic output: country-specific EF for non-bunker sectors
-    ef_non_bunker <- filter( ef_data, sector %!in% bunker_sectors ) %>%
-                                                  select( -sector ) %>%
-                                                           unique()
+    ef_non_bunker <- ef_data %>%
+        dplyr::filter( sector %!in% bunker_sectors ) %>%
+        dplyr::select( -sector ) %>%
+        dplyr::distinct( )
 
 # Final sanity check to make sure that no sectors are duplicated
-    if ( any( duplicated( ef_non_bunker[ c( "iso", "fuel", "units" ) ] ) ) )
+    if ( any( duplicated( ef_non_bunker[ c( "iso", "fuel", "units" ) ] ) ) ){
       warning( "There are duplicates in non-bunker sector CO2 EFs." )
-
-
+    }
 
 # ---------------------------------------------------------------------------
 # 6. Output
@@ -245,4 +248,5 @@
                paste0( "B.", em, "_comb_EF_non-bunker" ) )
 
     logStop()
+
 # END

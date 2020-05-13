@@ -1263,10 +1263,6 @@ extend_data_on_trend_range <- function(iea_start_year, driver_trend, input_data,
   return(input_data)
 }#extend_data_on_trend_range() Ends
 
-
-
-
-
 # -----------------------------------------------------------------------------
 # disaggregate_country
 # Brief:        Disaggregate data of specified aggregate country to specified split countries based on trend data
@@ -1275,35 +1271,34 @@ extend_data_on_trend_range <- function(iea_start_year, driver_trend, input_data,
 #               1 : Disaggregates using proportions initially from n earliest years from original split data, with proportion changing
 #               over time according to trend data, proportions renormalized to 1.
 #               2: Disaggregate using proportions from trend data overtime. Note: May result in discontinuities if trend data and original
-# data have different proportions
-# returns data frame of same format without the aggregate country data
+#               data have different proportions
 #
 # Dependencies:	replaceValueCol(), extend_data_on_trend_range
 # Author(s):     Rachel Hoesly
-#
-# original_data - data frame with rows to be split. Contains lines with aggregate country data in disaggregation
-#           years( dis_start_year:dis_end_year) and disaggregate data in non-disaggregation years. May contain data lines of other countries, which is not disturbed
-# id_cols - columns for matching. defaults to using non year X- cols are selected (id_col = T). Used for normalizing ratios to 1.
-#           ex: c(‘iso’,’sector’,’fuel’) - ratios normalized to 1 over all sector-fuel combinations (all iso’s add to 1 for each combination)
-#           ex: c(‘iso’,’fuel’) - ratios normalized to 1 over all fuels (all iso’s add to 1 for each fuel)
-# trend_data - data by which to trend split or ratios
-# trend_match_cols - columns in trend_data to match with original_data
-# combined_iso - character string, the iso name of the country to be split ex: 'ussr’
-# disaggregate_iso - vector of character strings, the names of the countries to replace combined_iso ex: c('aze','rus','ukr',...)
-# dis_end_year - numeric, the latest year of non zero data for the aggregate iso, ex 1991
-# dis_start_year - earliest year of aggregate data, defaults to 1750
-# ratio_range_length = 2
-# ratio_start_year = (dis_end_year+1)
-# method - numeric (1 or 2)
-#           1: Disaggregates using proportions initially from n earliest years from original split data, with proportion changing
-#           over time according to trend data, proportions renormalized to 1.
-#           2: Disaggregate using proportions from trend data overtime. Note: May result in discontinuities if trend data and original
-#           data have different proportions
-# remove_aggregate - T/F boolean. If T, then aggregate county data is removed from the returned data frame. If F, lines of aggregate data remain
-# write_over_values - T/F boolean. If T, then any nonzero values for disaggregate_iso countries in disaggregate years will be overwritten.
-#           If F, then function will error and print message showing non zero values in disaggregate years.
-# Return:   data frame with split values, in same format as all_data_in. Does not contain rows of aggregate country data, only
-#           disaggregate countries
+# Parameters:
+#   original_data -         data frame with rows to be split. Contains lines with aggregate country data in disaggregation
+#                           years( dis_start_year:dis_end_year) and disaggregate data in non-disaggregation years. May contain data lines of other countries, which is not disturbed
+#   id_cols -               columns for matching. defaults to using non year X- cols are selected (id_col = T). Used for normalizing ratios to 1.
+#                           ex: c(‘iso’,’sector’,’fuel’) - ratios normalized to 1 over all sector-fuel combinations (all iso’s add to 1 for each combination)
+#                           ex: c(‘iso’,’fuel’) - ratios normalized to 1 over all fuels (all iso’s add to 1 for each fuel)
+#   trend_data -            data by which to trend split or ratios
+#   trend_match_cols -      columns in trend_data to match with original_data
+#   combined_iso -          character string, the iso name of the country to be split ex: 'ussr’
+#   disaggregate_iso -      vector of character strings, the names of the countries to replace combined_iso ex: c('aze','rus','ukr',...)
+#   dis_end_year -          numeric, the latest year of non zero data for the aggregate iso, ex 1991
+#   dis_start_year -        earliest year of aggregate data, defaults to 1750
+#   ratio_range_length -    defaults to 2
+#   ratio_start_year -      (dis_end_year + 1)
+#   method -                numeric (1 or 2)
+#                           1: Disaggregates using proportions initially from n earliest years from original split data, with proportion changing
+#                              over time according to trend data, proportions renormalized to 1.
+#                           2: Disaggregate using proportions from trend data overtime. Note: May result in discontinuities if trend data and original
+#                              data have different proportions
+#   remove_aggregate -      T/F boolean. If T, then aggregate county data is removed from the returned data frame. If F, lines of aggregate data remain
+#   write_over_values -     T/F boolean. If T, then any nonzero values for disaggregate_iso countries in disaggregate years will be overwritten.
+#                           If F, then function will error and print message showing non zero values in disaggregate years.
+# Return:   A data frame with split values, in same format as all_data_in. Does not contain rows of aggregate country data, only
+#           disaggregate countries.
 # Input Files:   none
 # Output Files:  none
 # Notes: If ratio = T:

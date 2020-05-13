@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A8.2.Adjust_Shipping_Fuel_Cons.R
 # Authors Names: Steve Smith, Patrick O'Rourke, Linh Vu
-# Date Last Updated: December 13, 2019
+# Date Last Updated: March 10, 2020
 # Program Purpose: Reads in exogenous time series for global shipping fuel consumption
 #                  ( domestic and international ).
 #
@@ -46,7 +46,7 @@
     initialize( script_name, log_msg, headers )
 
 # ------------------------------------------------------------------------------
-# 1. Read in files
+# 1. Read in files and define script constants
 #   CEDS comb. activity data after adding user-defined data
     CEDS_comb_activity <- readData('MED_OUT','A.comb_user_added')
 
@@ -61,6 +61,9 @@
 #   Pre-1855 shipping coal extrapolation
     shipping_coal_extrap <- readData( "ENERGY_IN", "Shipping_Fuel_Consumption" , ".xlsx",
                                       sheet_selection = "Pre-1855_Extrap" )
+
+#   IEA fishing FLOW
+    IEA_fishing_FLOW <- "FISHING"
 
 # -----------------------------------------------------------------------------------------
 # 2. Clean exogenous reported shipping data
@@ -118,7 +121,7 @@
         dplyr::rename( product = PRODUCT ) %>%
         dplyr::left_join( IEA_product_fuel, by = "product" ) %>%
         dplyr::filter( !is.na( fuel ),
-                        FLOW == "FISHING") %>%
+                        FLOW == IEA_fishing_FLOW ) %>%
         dplyr::mutate( fuel = if_else( fuel == "brown_coal", "hard_coal", fuel ) ) %>%
         dplyr::filter( fuel %in% c( "hard_coal", "heavy_oil", "diesel_oil" ) ) %>%
         dplyr::select( -product, -cdiac_fuel, -biofuel_flag, -iso ) %>%

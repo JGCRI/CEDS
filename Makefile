@@ -347,8 +347,7 @@ $(MED_OUT)/A.IEA_en_stat_ctry_hist.csv: \
 	$(MOD_A)/A1.3.IEA_downscale_ctry.R \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
 	$(MED_OUT)/A.UN_pop_master.csv \
-	$(ENERGY_DATA)/OECD_E_Stat.csv \
-	$(ENERGY_DATA)/NonOECD_E_Stat.csv
+	$(ENERGY_DATA)/OECD_and_NonOECD_E_Stat.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa1-4
@@ -357,8 +356,7 @@ $(MED_OUT)/A.coal_heat_content.csv: \
 	$(MOD_A)/A1.4.IEA_heat_content.R \
 	$(MAPPINGS)/Master_Country_List.csv \
 	$(EN_MAPPINGS)/IEA_product_fuel.csv \
-	$(ENERGY_DATA)/OECD_Conversion_Factors_Full.csv \
-	$(ENERGY_DATA)/NonOECD_Conversion_Factors_Full.csv
+	$(ENERGY_DATA)/OECD_and_NonOECD_Conversion_Factors_Full.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa2-1
@@ -619,8 +617,7 @@ $(MED_OUT)/A.total_activity_extended_oil.csv: \
 # bb1-1
 #$(MED_OUT)/B.$(EM)_comb_EF_GAINS_EMF30.csv: \
 	$(MOD_B)/B1.1.add_comb_GAINS_EMF-30.R.R \
-	$(ENERGY_DATA)/OECD_Conversion_Factors.csv \
-	$(ENERGY_DATA)/NonOECD_Conversion_Factors.csv \
+	$(ENERGY_DATA)/OECD_and_NonOECD_Conversion_Factors.csv \
 	$(INV_DATA)/GAINS/GAINS_EMF30_EMISSIONS_extended_Ev5a_CLE_Nov2015.csv \
 	$(INV_DATA)/GAINS/GAINS_EMF30_ACTIVITIES_extended_Ev5a_Nov2015.csv \
 	$(MAPPINGS)/GAINS/emf-30_ctry_map.csv \
