@@ -2,11 +2,13 @@
 # Program Name: C1.3.proc_NC_emissions_user_added.R
 # Author(s): Rachel Hoesly
 # Date Last Modified: August 19, 2015
-# Program Purpose: To fill out missing sections in the process emissions database
+# Program Purpose: Add user-specified inventory data to the default process emissions database
 # Input Files: C.[em]_NC_emissions.csv
 # Output Files:  C.[em]_NC_emissions.csv
 # Notes:
-# TODO:
+# TODO: User added emissions are currently extended automatically to adjacent years 
+#       with constant emission factors. If default non-combustion emission data already
+#       exists, would be better to extend using those trends instead.
 #-------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -71,7 +73,8 @@ process_emissions <- function( e_data ){
                    'Combustion data printed to diagnostic-output'))
 
     writeData(combustion_sectors, domain = 'DIAG_OUT',
-              paste0('C.',em,'combustion_data_added_to_process_emissions')) }
+              paste0('C.',em,'combustion_data_added_to_process_emissions')) 
+  }
 
   e_data <- e_data[ which( e_data$sector %in% process_sectors ) , ]
   return(e_data)
@@ -89,7 +92,8 @@ if ( !exists( "emissions" ) ) emissions <- data.frame( iso = character(0),
                                                      fuel = character(0),
                                                      units = character(0),
                                                      X1960 = numeric(0))
-# write out to diagnostic
+                                                     
+# write out to default EF directory as this information is used by another script
  writeData(emissions, 'DEFAULT_EF_IN', domain_extension = 'non-combustion-emissions/',
             paste0('C.',em,'_NC_emissions_user_added'),
             meta= F)
