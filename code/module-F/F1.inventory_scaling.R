@@ -86,7 +86,7 @@
               c( scripts, 'F1.1.EMEP_NFR14_scaling.R' ) }
 
 # UNFCCC
-    if ( em %in% c( 'SO2', 'CO', 'NMVOC', 'NOx', 'CO2', 'CH4' ) ){ scripts <-
+    if ( em %in% c( 'SO2', 'CO', 'NMVOC', 'NOx', 'CH4' ) ){ scripts <-
               c( scripts, 'F1.1.UNFCCC_scaling.R' ) }
 
 # REAS
