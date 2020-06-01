@@ -872,20 +872,30 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(SC_MAPPINGS)/CAN_scaling_mapping.csv \
 	$(SC_MAPPINGS)/MEIC_scaling_mapping.csv \
 	$(SC_MAPPINGS)/Edgar_scaling_mapping.csv \
-	$(SC_MAPPINGS)/Edgar_scaling_mapping-year.csv \
+	$(SC_MAPPINGS)/Edgar_scaling_year.csv \
 	$(SC_MAPPINGS)/EMEP_NFR09_scaling_mapping.csv \
-	$(SC_MAPPINGS)/EMEP_NFR09_scaling_mapping-year.csv \
+	$(SC_MAPPINGS)/EMEP_NFR09_scaling_year.csv \
+	$(SC_MAPPINGS)/EMEP_NFR09_SO2_scaling_mapping.csv \
+	$(SC_MAPPINGS)/EMEP_NFR09_SO2_scaling_year.csv \
+	$(SC_MAPPINGS)/EMEP_NFR09_SO2_scaling_method.csv \
 	$(SC_MAPPINGS)/EMEP_NFR14_scaling_mapping.csv \
-	$(SC_MAPPINGS)/EMEP_NFR14_scaling_mapping-year.csv \
+	$(SC_MAPPINGS)/EMEP_NFR14_scaling_year.csv \
+	$(SC_MAPPINGS)/EMEP_NFR14_SO2_scaling_mapping.csv \
+	$(SC_MAPPINGS)/EMEP_NFR14_SO2_scaling_year.csv \
+	$(SC_MAPPINGS)/EMEP_NFR14_SO2_scaling_method.csv \
 	$(SC_MAPPINGS)/jpn_scaling_mapping.csv \
+	$(SC_MAPPINGS)/REAS_scaling_mapping.csv \
+	$(SC_MAPPINGS)/S_Korea_scaling_mapping.csv \
 	$(SC_MAPPINGS)/UNFCCC_scaling_mapping.csv \
-	$(SC_MAPPINGS)/UNFCCC_scaling_mapping-year.csv \
+	$(SC_MAPPINGS)/UNFCCC_scaling_year.csv \
+	$(SC_MAPPINGS)/UNFCCC_CH4_scaling_mapping.csv \
+	$(SC_MAPPINGS)/UNFCCC_CH4_scaling_year.csv \
 	$(SC_MAPPINGS)/US_scaling_mapping.csv \
 	$(SC_MAPPINGS)/US-EPA_scaling_mapping.csv \
 	$(SC_MAPPINGS)/US-GHG_scaling_mapping.csv \
 	$(SC_MAPPINGS)/Australia_scaling_mapping.csv \
 	$(SC_MAPPINGS)/Taiwan_scaling_mapping.csv \
-	$(SC_MAPPINGS)/Taiwan_scaling_mapping-method.csv \
+	$(SC_MAPPINGS)/Taiwan_scaling_method.csv \
 	$(MED_OUT)/D.$(EM)_default_total_EF.csv \
 	$(MED_OUT)/D.$(EM)_default_total_emissions.csv
 	Rscript $< $(EM) --nosave --no-restore

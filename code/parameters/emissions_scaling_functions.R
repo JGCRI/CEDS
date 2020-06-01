@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
-# Program Name: F.emissions_scaling_functions.R
+# Program Name: emissions_scaling_functions.R
 # Author's Name: Tyler Pitkanen, Rachel Hoesly, Patrick O'Rourke
-# Date Last Modified: January 22, 2020
+# Date Last Modified: April 30, 2020
 # Program Purpose: Header file containing generalized functions designed to
 #   scale CEDS emissions data and emissions factors based on inventory data.
 #   This file is made to be sourced at the beginning of each module F script to
@@ -15,12 +15,9 @@
 # ------------------------------------------------------------------------------
 
 # Special Packages
-
-loadPackage( 'zoo' ) # TODO: we probably don't want to load packages in certain
-                     #       scripts. I think we have a git issue open for this,
-                     #       so when that is being resolved this can be addressed.
 source( '../code/parameters/interpolation_extension_functions.R' )
 source( '../code/parameters/data_functions.R' )
+
 # ------------------------------------------------------------------------------
 # F.initializeMeta
 # Brief: creates default meta data for scaled emissions and ef
@@ -61,7 +58,8 @@ F.initializeMeta <- function(input) {
 # parameters:
 #   inventory:       file name of the inventory used in the script [default: inventory]
 #   inv_data_folder: directory where the inventory data is located
-#   mapping:         file name of the mapping file [default: map]
+#   mapping:         file name root of the mapping file - note that this is everything in the file name
+#                    before "_scaling_mapping"
 #   method:          mapping method used to relate the inventory and ceds data
 #                    [default: mapping_method]
 #   region:          regions to scale with inventory data
@@ -100,8 +98,10 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
   }
 
   # Check if scaling map is in xlsx format
+  inv_mapping_string <- "_scaling_mapping"
+
   scaling_map_directory <- ( "./mappings/scaling/" )
-  scaling_map_dir_and_fn <- paste0( scaling_map_directory, paste0( mapping, ".xlsx" ) )
+  scaling_map_dir_and_fn <- paste0( scaling_map_directory, paste0( mapping, inv_mapping_string, ".xlsx" ) )
   if( file.exists( scaling_map_dir_and_fn ) ){
 
       scaling_map_is_xlsx <- TRUE
@@ -117,11 +117,11 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
 
   if( scaling_map_is_xlsx ) {
 
-      scaling_map <- readData( "SCALE_MAPPINGS", mapping , ".xlsx", sheet_selection = 'map' )
+      scaling_map <- readData( "SCALE_MAPPINGS", paste0( mapping, inv_mapping_string ), ".xlsx", sheet_selection = 'map' )
 
   } else {
 
-      scaling_map <- readData( "SCALE_MAPPINGS", mapping , ".csv" ) # The "map" sheet is a required CSV
+      scaling_map <- readData( "SCALE_MAPPINGS", paste0( mapping, inv_mapping_string ), ".csv" ) # The "map" sheet is a required CSV
 
   }
 
@@ -134,7 +134,7 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
   sectorCheck( scaling_map, colname = "ceds_sector" )
 
   # Determine if scaling instructions exist as csv
-    scaling_ext_method_dir_and_fn <- paste0( scaling_map_directory, paste0( mapping, "-method.csv" ) )
+    scaling_ext_method_dir_and_fn <- paste0( scaling_map_directory, paste0( mapping, "_scaling_method.csv" ) )
 
     if( file.exists( scaling_ext_method_dir_and_fn ) ){
 
@@ -146,7 +146,7 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
 
     }
 
-    scaling_ext_year_dir_and_fn <- paste0( scaling_map_directory, paste0( mapping, "-year.csv" ) )
+    scaling_ext_year_dir_and_fn <- paste0( scaling_map_directory, paste0( mapping, "_scaling_year.csv" ) )
 
     if( file.exists( scaling_ext_year_dir_and_fn ) ){
 
@@ -163,19 +163,19 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
     # Import method and year instructions from XLSX if XLSX file exists
     if( scaling_map_is_xlsx ) {
 
-        ext_method <- readData( "SCALE_MAPPINGS", mapping , ".xlsx", sheet_selection = 'method' )
-        ext_year <- readData( "SCALE_MAPPINGS", mapping , ".xlsx", sheet_selection = "year" )
+        ext_method <- readData( "SCALE_MAPPINGS", paste0( mapping, inv_mapping_string ), ".xlsx", sheet_selection = 'method' )
+        ext_year <- readData( "SCALE_MAPPINGS", paste0( mapping, inv_mapping_string ), ".xlsx", sheet_selection = "year" )
 
     }
 
     # Import method instruction from CSV if CSV exists
     if( scaling_map_is_xlsx == FALSE & scaling_ext_method_csv_exists ){
 
-        ext_method <- readData( "SCALE_MAPPINGS", paste0( mapping, "-method" ) , ".csv", meta = FALSE )
+        ext_method <- readData( "SCALE_MAPPINGS", paste0( mapping, "_scaling_method" ) , ".csv", meta = FALSE )
 
     } else if( scaling_map_is_xlsx == FALSE & scaling_ext_method_csv_exists == FALSE  ){
 
-        printLog( "No 'method' instructions provided for", paste0( mapping, ".csv." ), "Using default scaling methods..." )
+        printLog( "No 'method' instructions provided for", paste0( mapping, inv_mapping_string, ".csv." ), "Using default scaling methods..." )
         ext_method <- "NA"
         ext_method <- as.data.frame( ext_method ) %>%
             dplyr::rename( iso = ext_method ) %>%
@@ -187,11 +187,11 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
     # Import year instruction from CSV if CSV exists
     if( scaling_map_is_xlsx == FALSE & scaling_ext_year_csv_exists ){
 
-        ext_year <- readData( "SCALE_MAPPINGS", paste0( mapping, "-year" ) , ".csv", meta = FALSE )
+        ext_year <- readData( "SCALE_MAPPINGS", paste0( mapping, "_scaling_year" ) , ".csv", meta = FALSE )
 
     } else if( scaling_map_is_xlsx == FALSE & scaling_ext_year_csv_exists == FALSE  ){
 
-        printLog( "No 'year' instructions provided for", paste0( mapping, ".csv." ),
+        printLog( "No 'year' instructions provided for", paste0( mapping, inv_mapping_string, ".csv." ),
                   "Using all years in inventory data as passed to F.readScalingData..." )
         ext_year <- "NA"
         ext_year <- as.data.frame( ext_year ) %>%
