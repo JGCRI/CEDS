@@ -290,7 +290,7 @@ interpolateValues <- function(interp_data,interp_default = 'linear',
 
   if (unit.label == TRUE){
     other <- names(interp_df)[names(interp_df) %!in% c( 'iso','sector','fuel','units', X_years_full )]
-    interp_df$units <- UNITS
+    interp_df$units <- UNITS # TODO: This line fails if interp_data is a tibble
     interp_df <- interp_df[,c( id.names,'units', X_years_full,other)]
   }
 

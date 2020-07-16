@@ -1,6 +1,0 @@
-iso,scaling_sector,other,pre_ext_method,interp_method,post_ext_method,"Inventory data is missing some years, so revert to default by 2000"
-twn,SLV,2000,linear_1,linear,constant,
-twn,waste_water,2000,linear_1,linear,constant,
-twn,waste-incineration,2000,linear_1,linear,constant,
-twn,AGR,2000,linear_1,linear,constant,
-twn,rail,1999,linear_1,linear,constant,

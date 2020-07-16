@@ -9,7 +9,7 @@
 
 #Set up your environment you wish to run in with module commands.
 module purge
-module load R/3.3.3
+module load R/3.5.1
 
 now=$(date)
 echo "Current time : $now"

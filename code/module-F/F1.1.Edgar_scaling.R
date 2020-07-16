@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.Edgar_scaling.R
 # Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly
-# Date Last Modified: June 10, 2019
+# Date Last Modified: July 16, 2020
 # Program Purpose: To create scaling factors and update emissions estimate for
 #                  Edgar
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
@@ -27,7 +27,7 @@
     headers <- c( 'common_data.R', "data_functions.R",
                   "emissions_scaling_functions.R", "analysis_functions.R",
                   "interpolation_extension_functions.R" ) # Additional function files required.
-    log_msg <- "Edgar inventory scaling" # First message to be printed to the log
+    log_msg <- "Edgar inventory scaling..." # First message to be printed to the log
     script_name <- paste0( em, "-F1.1.Edgar_scaling.R" )
 
     source( paste0( PARAM_DIR, "header.R" ) )
@@ -36,22 +36,22 @@
 # ------------------------------------------------------------------------------
 # 1. Define parameters for inventory specific script
 
-  # Stop script if running for unsupported species
-  if ( em %!in% c('CH4', 'N2O') ) {
+# Stop script if running for unsupported species
+  if ( em %!in% c( 'CH4', 'CO', 'CO2', 'N2O', 'NMVOC', 'NOx', 'SO2' ) ) {
       stop( paste( 'Edgar scaling is not supported for emission species ',
-                   em, '. Remove from script list in F1.1.inventory_scaling.R' ) )
+                   em, '. Remove from script list in F1.1.inventory_scaling.R...' ) )
   }
 
 # For each Module E script, define the following parameters:
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-
     inventory_data_file <- paste0( 'EDGAR42_', em )
     inv_data_folder <- "EM_INV"
-    sector_fuel_mapping <- 'Edgar_scaling_mapping'
-    mapping_method <- 'sector'
     inv_name <- 'EDGAR' #for naming diagnostic files
+    sector_fuel_mapping <- "Edgar"
+    mapping_method <- 'sector'
+
 # Identify all isos with EDGAR data
     region <-  c( "can", "spm", "usa", "mex", "abw", "aia", "ant", "atg",
                   "bhs", "blz", "bmu", "brb", "cri", "cub", "cym", "dma",
@@ -115,12 +115,12 @@
 
 # Read in the inventory data, mapping file, the specified emissions species, and
 # the latest versions of the scaled EFs
-
     scaling_data <- F.readScalingData( inventory = inventory_data_file,
                                        inv_data_folder,
                                        mapping = sector_fuel_mapping,
                                        method = mapping_method,
                                        region, inv_name, inv_years )
+
     list2env( scaling_data, envir = .GlobalEnv )
 
 # ------------------------------------------------------------------------------
@@ -148,11 +148,12 @@
     scaled_em <- scaled[[ 2 ]]
 
 # ------------------------------------------------------------------------------
-# 5. Encorporate scaled em and EF and
-# Write Scaled emissions and emission factors
+# 5. Encorporate scaled em and EF
 
+# Write Scaled emissions and emission factors
     F.addScaledToDb( scaled_ef, scaled_em, meta_notes )
 
 # Every script should finish with this line
     logStop()
+
 # END

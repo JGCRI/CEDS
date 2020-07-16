@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: B1.1.base_comb_EF.R
 # Author: Jon Seibert, Rachel Hoesly
-# Date Last Updated: Jan 7, 2016
+# Date Last Updated: July 16, 2020
 # Program Purpose: To select and run the correct script(s) to generate the base combustion
 #                  emissions factors database for the given emissions type.
 # Input Files: None
@@ -65,7 +65,7 @@
             scripts <- c( scripts, "B1.1.base_NH3_comb_EF.R" )
         } else if ( em == "CO2" ) {
             scripts <- c( scripts, "B1.1.base_CO2_comb_EF.R",
-                                   "B1.1.2.CO2_biofuels_EF.R" )
+                                   "B1.1.CO2_biofuels_EF.R" )
         } else if ( em == "N2O" ) {
             scripts <- c( scripts, "B1.1.base_N2O_comb_EF.R")
         } else {

@@ -23,11 +23,9 @@ args_from_makefile <- commandArgs( TRUE )
 VOC_em <- args_from_makefile[ 1 ]
 if ( is.na( VOC_em ) ) VOC_em <- "VOC01"
 
-em <- 'NMVOC'
-
 VOC_names <- readData( domain = 'GRIDDING', domain_extension = "gridding_mappings/", 'VOC_id_name_mapping' )
 
 # Chunk bulk emissions
-chunk_emissions( singleVarChunking_subVOCemissions, em, VOC_names = VOC_names )
+chunk_emissions( singleVarChunking_subVOCemissions, VOC_em, VOC_names = VOC_names )
 
 logStop()

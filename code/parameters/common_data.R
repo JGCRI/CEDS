@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: common_data.R
-# Date Last Updated: November 21, 2019
+# Date Last Updated: July 16, 2020
 # Program Purpose:: Provides common constants and conversion factors
 # Input Files: None
 # Output Files: None
@@ -11,7 +11,7 @@
 # Set of historical years for which the CEDS system has IEA data.
 
 # USER SET DATA - Set this to the last year of the IEA data used
-IEA_end_year  <- 2013  # Latest year of IEA data; used to compare BP and IEA
+IEA_end_year  <- 2017  # Latest year of IEA data; used to compare BP and IEA
 
 IEA_start_year  <- 1960 # First year of IEA data
 X_IEA_end_year  <- paste0( "X", IEA_end_year  ) # First Xyear of IEA data
@@ -20,7 +20,7 @@ X_IEA_years <- paste0( "X", IEA_years) # Set of IEA Xyears being utilized
 
 # USER SET DATA - Set this to the last year of the BP energy data used
 # This determines which years are used from the BP energy data to extend and augment IEA energy data.
-BP_last_year <- 2014
+BP_last_year <- 2018
 
 # USER SET DATA - Set this to point to the name of the BP statisical data, which should be
 # Located in the inputs/energy folder
@@ -69,6 +69,40 @@ X_bond_years <- paste0('X', bond_years)
 cdiac_start_year <- 1750
 cdiac_end_year <- 2011
 cdiac_end_year_cement <- 2015
+
+# Fernandes years
+Fernandes_years <- 1850 : 2000
+X_Fernandes_years <- paste0( "X", Fernandes_years )
+
+# GAINS years
+GAINS_start_year <- '2000'
+GAINS_end_year <- '2020'
+GAINS_years <- c( GAINS_start_year, '2005', '2010', GAINS_end_year)
+X_GAINS_years <- paste0( "X", GAINS_years )
+
+# UNSD years
+UNSD_start_year <- 1950
+UNSD_end_year <- 1976
+UNSD_years <- UNSD_start_year : UNSD_end_year
+X_UNSD_years <- paste0( "X", UNSD_years )
+
+# ---------------------------------
+# Define IEA composite region names used within CEDS. These tend to change
+# between IEA versions, so are defined in common_data.R.
+FSU_IEA_composite_name <- "Former Soviet Union (If no detail)"
+FYUG_IEA_composite_name <- "Former Yugoslavia (If no detail)"
+Other_African_composite_name <- "Other Africa"
+Other_Americas_composite_name <- "Other non-OECD Americas"
+Other_Asia_composite_name <- "Other non-OECD Asia"
+
+# ---------------------------------
+# Define standardized UN population scenario name being used in system
+historical_pop_scenario <- "Estimates"
+# Future scenarios options include:
+#    "Medium fertility", "High fertility", "Low fertility",
+#    "Constant fertility", "Instant-replacement",
+#    "Zero-migration", "Constant-mortality", "No change"
+future_pop_scenario <- "Medium fertility"
 
 # ---------------------------------
 # Define available CEDS releases

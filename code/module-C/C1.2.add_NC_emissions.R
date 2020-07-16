@@ -87,6 +87,7 @@ if( em == "CH4" ){
 }
 
 # Add FAO Agriculture N2O data
+# TODO: could make this a paste0 with em object so that it's just one line with CH4
 if( em == "N2O" ){
     scripts <- c( scripts, "C1.2.add_N2O_NC_emissions_FAO.R" )
 }

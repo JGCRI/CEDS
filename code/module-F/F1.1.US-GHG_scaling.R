@@ -1,11 +1,11 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.US-GHG_scaling.R
 # Authors' Names: Rachel Hoesly
-# Date Last Modified: June 14, 2019
+# Date Last Modified: July 16, 2020
 # Program Purpose: To create scaling factors and update emissions estimate for
-# the USA for methane emissions from the US GHG inventory
+#                  the USA for methane emissions from the US GHG inventory.
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
-#              F.[em]_scaled_emissions.csv, US-GHG_scaling_mapping.xlsx
+#              F.[em]_scaled_emissions.csv, US-GHG_scaling_mapping.csv
 #              E.[em]_US_GHG_inventory.csv
 # Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
 # Notes:
@@ -27,7 +27,7 @@
     headers <- c( 'common_data.R', "data_functions.R",
                   "emissions_scaling_functions.R", "analysis_functions.R",
                   "interpolation_extension_functions.R" ) # Additional function files required.
-    log_msg <- "US-EPA inventory scaling" # First message to be printed to the log
+    log_msg <- "US-EPA inventory scaling..." # First message to be printed to the log
     script_name <- paste0( em, "-F1.1.US-GHG_scaling.R" )
 
     source( paste0( PARAM_DIR, "header.R" ) )
@@ -37,9 +37,9 @@
 # 1. Define parameters for inventory specific script
 
 # Stop script if running for unsupported species
-    if ( !(em %in% c( 'CH4', 'N2O' ) ) ) {
+    if ( em %!in% c( 'CH4', 'N2O' ) ) {
        stop( paste( 'US scaling is not supported for emission species ',
-                    em, '. Remove from script list in F1.1.inventory_scaling.R' ) )
+                    em, '. Remove from script list in F1.1.inventory_scaling.R...' ) )
     }
 
 # For each Module E script, define the following parameters:
@@ -49,14 +49,15 @@
     inv_name <- 'US_GHG' #for naming diagnostic files and reading data
     region <- c( "usa" )
 
+    # TODO: these two maps should be made into 1
     if ( em == "CH4" ){
-        sector_fuel_mapping <- 'US-GHG_scaling_mapping'
+        sector_fuel_mapping <- 'US-GHG'
     } else if ( em == "N2O" ) {
-        sector_fuel_mapping <- 'US-GHG_scaling_mapping_N2O'
+        sector_fuel_mapping <- 'US-GHG_N2O'
     }
 
     mapping_method <- 'sector'
-    inv_years <- 1990:2014
+    inv_years <- 1990 : 2014
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
     inv_data_folder <- 'MED_OUT'
 
@@ -65,14 +66,13 @@
 
 # Read in the inventory data, mapping file, the specified emissions species, and
 # the latest versions of the scaled EFs
-
     scaling_data <- F.readScalingData( inventory = inventory_data_file,
                                        inv_data_folder,
                                        mapping = sector_fuel_mapping,
                                        method = mapping_method,
                                        region, inv_name, inv_years )
-    list2env( scaling_data, envir = .GlobalEnv )
 
+    list2env( scaling_data, envir = .GlobalEnv )
 
 # ------------------------------------------------------------------------------
 # 3. Arrange the CEDS emissions data to match the inventory data
@@ -91,19 +91,21 @@
                                        replacement_method = 'replace',
                                        max_scaling_factor = 100,
                                        replacement_scaling_factor = 100 )
+
     list2env( scaling_factors_list, envir = .GlobalEnv )
 
-# Apply Scaling Factors to Ceds data
+# Apply Scaling Factors to CEDS data
     scaled <- F.applyScale( scaling_factors )
     scaled_ef <- scaled[[ 1 ]]
     scaled_em <- scaled[[ 2 ]]
 
 # ------------------------------------------------------------------------------
-# 5. Encorporate scaled em and EF and
-#    Write Scaled emissions and emission factors
+# 5. Encorporate scaled em and EF
 
+# Write Scaled emissions and emission factors
     F.addScaledToDb( scaled_ef, scaled_em, meta_notes )
 
 # Every script should finish with this line
     logStop()
+
 # END

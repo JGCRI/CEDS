@@ -1,5 +1,0 @@
-iso,scaling_sector,pre_ext_year,post_ext_year,select_scaling_year,start_scaling_year,end_scaling_year,Comment
-mkd,all,NA,NA,NA,1990,2010,Don't scale to 1990-1991 drop so as to be closer to EMEP trend
-fin,all,NA,NA,NA,1982,2020,Don't scale 1981 to avoid reporting inconsistency in inventory
-lux,Road,NA,NA,NA,1990,2020,Avoid imlied Nox EF dip 1986-1989
-svn,all,NA,NA,NA,1990,2020,Don't scale prior to 1990 since we do not have consistent driver data at this level

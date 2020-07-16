@@ -1,11 +1,12 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.Edgar_PEGASOS_scaling.R
 # Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly
-# Date Last Modified: June 10, 2019
+# Date Last Modified: April 30, 2020
 # Program Purpose: To create scaling factors and update emissions estimate for
-#                  Edgar PEGASOS
+#                  Edgar PEGASOS.
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
-#              F.[em]_scaled_emissions.csv, JRC_PEGASOS_[em]_TS_REF.xlsx
+#              F.[em]_scaled_emissions.csv, JRC_PEGASOS_[em]_TS_REF.xlsx,
+#              Edgar_scaling_mapping.csv
 # Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv,
 #               E.[em]_EDGAR_PG_inventory.csv
 # Notes:
@@ -21,15 +22,15 @@
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
     if ( is.na( em ) ) em <- "NOx"
-  
-# Call standard script header function to read in universal header files - 
+
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( 'common_data.R', "data_functions.R",
                   "emissions_scaling_functions.R", "analysis_functions.R",
                   "interpolation_extension_functions.R" ) # Additional function files required.
-    log_msg <- "Edgar inventory scaling" # First message to be printed to the log
+    log_msg <- "Edgar PEGASOS inventory scaling..." # First message to be printed to the log
     script_name <- paste0( em, "-F1.1.Edgar_PEGASOS_scaling.R" )
-    
+
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
@@ -38,20 +39,18 @@
 
 # Stop script if running for unsupported species
   if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO', 'CH4', 'NH3' ) ) {
-      stop( paste( 'Edgar scaling is not supported for emission species ', 
+      stop( paste( 'Edgar scaling is not supported for emission species ',
                     em, '. Remove from script
                     list in F1.1.inventory_scaling.R' ) )
   }
-  
-  
+
 # For each Module E script, define the following parameters:
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-
     inventory_data_file <- paste0( 'JRC_PEGASOS_', em, '_TS_REF' )
     inv_data_folder <- "EM_INV"
-    sector_fuel_mapping <- 'Edgar_scaling_mapping'
+    sector_fuel_mapping <- 'Edgar'
     mapping_method <- 'sector'
 
 # Identify all countries in this inventory. Countries with poor or inconsistent
@@ -82,7 +81,7 @@
                   "ncl", "nzl", "plw", "pyf", "slb", "ton", "vut", "wsm", "sea",
                   "air" )
 
-    inv_years <- c( EDGAR_start_year:EDGAR_end_year )
+    inv_years <- c( EDGAR_start_year : EDGAR_end_year )
 
 # ------------------------------------------------------------------------------
 # 2. Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
@@ -116,10 +115,9 @@
     inv_data_folder <- 'MED_OUT'
 
 # ------------------------------------------------------------------------------
-# 2. Read In Data with scaling functions
+# 3. Read In Data with scaling functions
 #    Read in the inventory data, mapping file, the specified emissions species, and
 #    the latest versions of the scaled EFs
-
     scaling_data <- F.readScalingData( inventory = inventory_data_file,
                                        inv_data_folder,
                                        mapping = sector_fuel_mapping,
@@ -129,7 +127,7 @@
 
 
 # ------------------------------------------------------------------------------
-# 3. Arrange the CEDS emissions data to match the inventory data
+# 4. Arrange the CEDS emissions data to match the inventory data
 
 # Create a boolean switch to determine if diagnostic data should be written
     DEBUG = TRUE
@@ -151,7 +149,7 @@
     }
 
 # ------------------------------------------------------------------------------
-# 4. Calculate Scaling Factors, reaggregate to CEDS sectors
+# 5. Calculate Scaling Factors, reaggregate to CEDS sectors
 
 # Calculate and extend scaling factors
     scaling_factors_list <- F.scaling( ceds_data, inv_data, region,
@@ -160,18 +158,16 @@
                                        replacement_scaling_factor = 100 )
     list2env( scaling_factors_list, envir = .GlobalEnv )
 
-# Apply Scaling Factors to Ceds data
+# Apply Scaling Factors to CEDS data
     scaled <- F.applyScale( scaling_factors )
     scaled_ef <- scaled[[ 1 ]]
     scaled_em <- scaled[[ 2 ]]
 
 # ------------------------------------------------------------------------------
-# 5. Incorporate scaled em and EF and write scaled emissions and emission factors
-
+# 6. Incorporate scaled em and EF
     F.addScaledToDb( scaled_ef, scaled_em, meta_notes )
 
 # Every script should finish with this line
-
     logStop()
 
 # END
