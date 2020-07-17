@@ -6,7 +6,7 @@
 #             data for agriculture.
 # Input Files: Master_Coutnry_list.csv, FAO_methane_API.csv
 # Output Files: C.CH4_NC_emissions_agriculture.csv
-# TODO:
+# To Do:
 # Notes:
 # -----------------------------------------------------------------------------
 # 0. Read in global settings and headers
@@ -28,7 +28,6 @@
 
   MCL <- readData( "MAPPINGS", "Master_Country_List", meta = F )
   FAO_API <-  readData('EM_INV' ,'FAO_methane_API')
-  un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' )
 
 # -----------------------------------------------------------------------------
 # 2. Retrive and process data from FAOSTAT - uncomment to update, then run script.
@@ -65,7 +64,7 @@ FAO <- FAO_API %>%
        soviet = c(1961, 1992, "USSR","arm","aze","blr","est","geo","kaz",
                   "kgz","ltu","lva","mda","rus","tjk","tkm","ukr","uzb"))
 
-
+  un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' )
   un_pop$X_year <- paste0( 'X', un_pop$year)
   un_pop$pop <- as.numeric(un_pop$pop)
   population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_year:end_year ) , ] ,
@@ -121,7 +120,7 @@ FAO <- FAO_API %>%
   FAO_last <- max( as.numeric ( gsub('X','',names ( FAO_out ) ) ), na.rm = T )
   years <- paste0('X',1961:end_year)
   add_years <- years[ years %!in% names( FAO_out ) ]
-  FAO_out[ add_years ] <- FAO_out[ paste0('X', FAO_last ) ] 
+  FAO_out[ add_years ] <- FAO_out[ paste0('X', FAO_last ) ]
 
   FAO_out <- FAO_out %>%
     dplyr::mutate(units = 'kt') %>%

@@ -72,15 +72,15 @@
 
 # EDGAR 4.3 PEGASOS
     if ( em %in% c( 'NOx', 'NMVOC', 'CO', "NH3" ) ){ scripts <-
-        c( scripts, 'F1.1.Edgar_PEGASOS_scaling.R' )}
+              c( scripts, 'F1.1.Edgar_PEGASOS_scaling.R' )}
 
 # EDGAR 4.2
     if ( em %in% c( 'CH4', 'N2O' ) ){ scripts <-
-        c( scripts, 'F1.1.Edgar_scaling.R' ) }
+              c( scripts, 'F1.1.Edgar_scaling.R' ) }
 
 # EMEP NFR09 (older data - use because has more sectors and goes back further)
     if ( em %in% c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2' ) ){ scripts <-
-        c( scripts,'F1.1.EMEP_NFR09_scaling.R' ) }
+              c( scripts,'F1.1.EMEP_NFR09_scaling.R' ) }
 
 # EMEP NFR14
     if ( em %in% c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2' ) ){ scripts <-
@@ -91,53 +91,53 @@
               c( scripts, 'F1.1.UNFCCC_scaling.R' ) }
 
 # REAS
-    if ( em %in% c('SO2','CO','NMVOC','NOx', 'NH3') ){ scripts <-
-        c( scripts, 'F1.1.REAS_scaling.R' ) }
+  if ( em %in% c('SO2','CO','NMVOC','NOx', 'NH3') ){ scripts <-
+    c( scripts, 'F1.1.REAS_scaling.R' ) }
 
 # CAN
     if ( em %in% c('SO2','NOx','NMVOC','CO','PM10','PM25' ) ){ scripts <-
-        c( scripts, 'F1.1.CAN_scaling_olderData.R' ) }
+              c( scripts, 'F1.1.CAN_scaling_olderData.R' ) }
 
 # CAN - Newer data must run latter
     if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ){ scripts <-
-        c( scripts, 'F1.1.CAN_scaling_newerData.R' ) }
+              c( scripts, 'F1.1.CAN_scaling_newerData.R' ) }
 
 # USA
     if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO',
-                    'NH3', 'PM10', 'PM25' ) ){ scripts <-
-                        c( scripts, 'F1.1.US_scaling.R' ) }
+                           'NH3', 'PM10', 'PM25' ) ){ scripts <-
+              c( scripts, 'F1.1.US_scaling.R' ) }
 
 # US EPA
     if ( em %in% c( 'CO2' ) ){ scripts <-
-        c( scripts, 'F1.1.US-EPA_scaling.R' ) }
+              c( scripts, 'F1.1.US-EPA_scaling.R' ) }
 
 # US GHG
     if ( em %in% c( 'CH4', 'N2O' ) ){ scripts <-
-              c( scripts, 'F1.1.US-GHG_scaling.R' ) }
+        c( scripts, 'F1.1.US-GHG_scaling.R' ) }
 
 # China
     if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO' ) ){ scripts <-
-        c( scripts, 'F1.1.China_scaling.R' ) }
+              c( scripts, 'F1.1.China_scaling.R' ) }
 
 # Argentina
     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ){ scripts <-
-        c( scripts, 'F1.1.Argentina_scaling.R' ) }
+              c( scripts, 'F1.1.Argentina_scaling.R' ) }
 
 # Japan
     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3' ) ){ scripts <-
-        c(scripts, 'F1.1.Japan_scaling.R' ) }
+              c(scripts, 'F1.1.Japan_scaling.R' ) }
 
 # South Korea
     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ) { scripts <-
-        c( scripts, 'F1.1.South_korea_scaling.R' ) }
+              c( scripts, 'F1.1.South_korea_scaling.R' ) }
 
 # Taiwan
     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ){ scripts <-
-        c( scripts, 'F1.1.Taiwan_scaling.R' ) }
+              c( scripts, 'F1.1.Taiwan_scaling.R' ) }
 
 # Australia
     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ){ scripts <-
-        c( scripts, 'F1.1.Australia_scaling.R' ) }
+              c( scripts, 'F1.1.Australia_scaling.R' ) }
 
 # ------------------------------------------------------------------------------------
 # 4. Run all scripts for the given emissions type

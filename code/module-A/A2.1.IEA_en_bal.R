@@ -3,7 +3,7 @@
 # Author's Name: Page Kyle, for GCAM; modified for use in CEDS Project by
 #               Steve Smith, Emily Voelker, Tyler Pitkanen, Jon Seibert,
 #               Rachel Hoesly, Linh Vu, Patrick O'Rourke
-# Date Last Modified: July 16, 2020
+# Date Last Modified: April 20, 2020
 # Program Purpose: Aggregates IEA energy statistics to CEDS sectors and fuels
 # Input Files: A.IEA_en_stat_ctry_hist.csv, IEA_flow_sector.csv,
 #              IEA_product_fuel.csv, IEA_process_sectors.csv, IEA_process_coal.csv,

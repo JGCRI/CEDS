@@ -1,10 +1,10 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.2.add_CO2_NC_emissions_CDIAC.R
 # Author: Linh Vu
-# Date Last Modified: 16 April 2019
+# Date Last Modified: 27 Jul 2016
 # Program Purpose: Add CDIAC cement production and flaring emissions for CO2
 # Input Files: E.CO2_CDIAC_inventory.csv, C.[em]_NC_emissions_db.csv
-# Output Files: C.[em]_NC_emissions_db.csv, C.CDIAC_NC_Emissions_[em].csv
+# Output Files: C.[em]_NC_emissions_db.csv
 # Notes:
 # TODO:
 #-------------------------------------------------------------------------------

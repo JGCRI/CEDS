@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A2.3.write_IEA_diff.R
 # Authors Names: Linh Vu, Rachel Hoesly, Patrick O'Rourke
-# Date Last Modified: July 16, 2020
+# Date Last Modified: May 4, 2020
 # Program Purpose: Writes out difference between IEA DOMSUP and CEDS
 #                  consumption for coal, natural gas, oil
 # Input Files: A.IEA_en_stat_ctry_hist.csv, en_biomass_fsu_fix.csv,
@@ -340,22 +340,22 @@
 
 # ------------------------------------------------------------------------------
 # 3. Output
-    writeData( diff_hard_coal, "MED_OUT" , "A.IEA_CEDS_hard_coal_difference" )
-    writeData( diff_brown_coal, "MED_OUT" , "A.IEA_CEDS_brown_coal_difference" )
+    writeData( diff_hard_coal     , "MED_OUT" , "A.IEA_CEDS_hard_coal_difference"           )
+    writeData( diff_brown_coal    , "MED_OUT" , "A.IEA_CEDS_brown_coal_difference"          )
 
-    writeData( subzero_coal, "DIAG_OUT", "A.IEA_CEDS_coal_difference_subzero" )
+    writeData( subzero_coal       , "DIAG_OUT", "A.IEA_CEDS_coal_difference_subzero"        )
 
-    writeData( diff_natural_gas, "MED_OUT" , "A.IEA_CEDS_natural_gas_difference" )
+    writeData( diff_natural_gas   , "MED_OUT" , "A.IEA_CEDS_natural_gas_difference"         )
     writeData( subzero_natural_gas, "DIAG_OUT", "A.IEA_CEDS_natural_gas_difference_subzero" )
 
-    writeData( diff_oil, "MED_OUT" , "A.IEA_CEDS_oil_difference" )
-    writeData( subzero_oil, "DIAG_OUT", "A.IEA_CEDS_oil_difference_subzero" )
+    writeData( diff_oil           , "MED_OUT" , "A.IEA_CEDS_oil_difference"           )
+    writeData( subzero_oil        , "DIAG_OUT", "A.IEA_CEDS_oil_difference_subzero"   )
 
 # Diagnostics
     writeData( diag_ratio, "DIAG_OUT", "A.IEA_CEDS_oil_difference_ratio" )
     diag_nonenergy[ is.na( diag_nonenergy ) ] <- ""
     writeData( diag_nonenergy, "DIAG_OUT", "A.IEA_en_stat_ctry_hist-NonEnergy-Oil&Gas" )
 
-    logStop( )
+    logStop()
 
 # END

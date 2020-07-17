@@ -16,7 +16,6 @@
 #               A.IEA_biomass_adjustment
 # Notes:
 # TODO:
-#
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
@@ -65,7 +64,7 @@ initialize( script_name, log_msg, headers )
 
     kt_to_TJ_US_EU <- mean( kt_to_TJ_US_EU$X2005, na.rm = T )
 
-# Define European biomass data year
+# Define European biomass data yaer
     EUR_bio_year <- 2005
 
 # Define year to converge to Fernandes data
@@ -145,12 +144,11 @@ initialize( script_name, log_msg, headers )
       merge( EIA_biomass, all.x = T ) %>%
       dplyr::filter( year %in% emissions_years )
 
-# Change 0 biomass to NA
+    # Change 0 biomass to NA
     biomass_0$IEA[ biomass_0$IEA == 0 ] <- NA
     biomass_0$Fern[ biomass_0$Fern == 0 ] <- NA
     biomass_0$EIA[ biomass_0$EIA == 0 ] <- NA
     biomass_0$Eur[ biomass_0$Eur == 0 ] <- NA
-
 
 # ------------------------------------------------------------------------------
 # 3. Decide which source to use for each country
@@ -389,7 +387,7 @@ initialize( script_name, log_msg, headers )
                        IEA_lead3 = lead( IEA_lead2 ), Fern_lead3 = lead( Fern_lead2 ) )
     ratio_3yr$IEA_over_Fern_3yr <- rowMeans( ratio_3yr[, c( "IEA_lead", "IEA_lead2",
                                                             "IEA_lead3" ) ], na.rm = T ) /
-        rowMeans( ratio_3yr[, c( "Fern_lead", "Fern_lead2", "Fern_lead3" ) ], na.rm = T )
+      rowMeans( ratio_3yr[, c( "Fern_lead", "Fern_lead2", "Fern_lead3" ) ], na.rm = T )
     ratio_3yr <- dplyr::select( ratio_3yr, iso, year, IEA_over_Fern_3yr )
 
 # For all years before and including year of the most recent break, extend back using
@@ -413,7 +411,7 @@ initialize( script_name, log_msg, headers )
 
     # Make a logical column is_ext == T if IEA_pc has been extrapolated
     biomass_1b_IEA$is_ext <- is.na( biomass_1b_IEA$IEA_pc ) |
-        biomass_1b_IEA$IEA_pc_ext_c != biomass_1b_IEA$IEA_pc
+      biomass_1b_IEA$IEA_pc_ext_c != biomass_1b_IEA$IEA_pc
 
 
 # 4c. To keep extrapolated IEA under control: If extrapolated IEA exceeds a maximum
@@ -426,7 +424,7 @@ initialize( script_name, log_msg, headers )
         dplyr::filter( year %in% YEAR_SEQUENCE ) %>%
         dplyr::group_by( iso ) %>%
         dplyr::summarise( IEA_pc = mean( IEA_pc, na.rm = T ),
-                          Fern_pc = mean( Fern_pc, na.rm = T ) )
+                         Fern_pc = mean( Fern_pc, na.rm = T ) )
     max_3yr$max_3yr <- apply( max_3yr[, 2:3 ], 1, max, na.rm = T)
 
 # Find max IEA and Fernandes for 3 years following (after) a gap (missing or break,
@@ -463,9 +461,9 @@ initialize( script_name, log_msg, headers )
 
 # 4d. Make final IEA dataset
     biomass_IEA_final <- dplyr::select_( biomass_1c_IEA,
-                                         .dots = c( names( biomass_1 ), "IEA_pc_ext_a", "flag_a",
-                                                    "IEA_pc_ext_b", "flag_b", "IEA_pc_ext_c", "flag_c",
-                                                    "is_ext" ) )
+                                        .dots = c( names( biomass_1 ), "IEA_pc_ext_a", "flag_a",
+                                                "IEA_pc_ext_b", "flag_b", "IEA_pc_ext_c", "flag_c",
+                                                "is_ext" ) )
     biomass_IEA_final$IEA_pc_ext_final <- biomass_IEA_final$IEA_pc_ext_c
 
 # Compute back total biomass and clean up
@@ -528,16 +526,16 @@ initialize( script_name, log_msg, headers )
         dplyr::rename( start_yr = last_yr )
 
     biomass_final_ext$start_yr[ is.na( biomass_final_ext$start_yr ) |
-                                biomass_final_ext$start_yr < IEA_start_year ] <- IEA_start_year
+                                  biomass_final_ext$start_yr < IEA_start_year ] <- IEA_start_year
 
     # Extend and adjust ceds_pc
     biomass_final_ext <- dplyr::arrange( biomass_final_ext, iso, year )
     biomass_final_ext$ceds_pc_ext_adj <- biomass_final_ext$ceds_pc_ext
     scaled <- dplyr::filter( biomass_final_ext, year <= start_yr )
     scaled <- ddply( scaled, .(iso), function( df ) {
-        interp_years <- df$year > CONVERGENCE_YEAR & df$year <= df$start_yr
-        max_years <- interp_years & df$iso %in% last_IEA_below_Fern$iso
-        within( df, {
+      interp_years <- df$year > CONVERGENCE_YEAR & df$year <= df$start_yr
+      max_years <- interp_years & df$iso %in% last_IEA_below_Fern$iso
+      within( df, {
 
         # Extend ceds_pc by interpolating start_yr delta
         ceds_pc_ext[ interp_years ] <- Fern_pc[ interp_years ] +
@@ -664,8 +662,8 @@ initialize( script_name, log_msg, headers )
     # Above result should be identical to what is read in from IEA_biomass_double_counting.xlsx
     # If a warning prints, please review/update IEA_biomass_double_counting.xlsx
     if ( !isTRUE( all.equal( IEA_res_unspec_out[ c( 1:4 ) ], IEA_correction[ c( 1:4 ) ] ) ) ){
-         warning( "Input values have changed. Please review diagnostic-output/A.IEA_biomass_adjustment.csv,
-                  update input/energy/IEA_biomass_double_counting.xlsx, then re-run the system." )
+      warning( "Input values have changed. Please review diagnostic-output/A.IEA_biomass_adjustment.csv,
+               update input/energy/IEA_biomass_double_counting.xlsx, then re-run the system." )
     }
 
 # Compute adjustment made to IEA residential biomass. This amount will be
@@ -696,7 +694,7 @@ initialize( script_name, log_msg, headers )
     IEA_adj <- IEA_adj %>%
         dplyr::mutate( adj = ceds_tot_final - IEA )  %>%
         dplyr::filter( paste( iso, year ) %in%
-                       paste( IEA_correction$iso, IEA_correction$year ) )
+                paste( IEA_correction$iso, IEA_correction$year ) )
 
     # Add all years and cast to wide format
     IEA_adj_wide <- merge( data.frame( year = X_IEA_years ),

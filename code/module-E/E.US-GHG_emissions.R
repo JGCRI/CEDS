@@ -18,13 +18,13 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
     if ( is.na( em ) ) em <- "CH4"
-
-# Call standard script header function to read in universal header files -
+  
+# Call standard script header function to read in universal header files - 
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( 'common_data.R',"data_functions.R" ) # Additional function files required.
     log_msg <- "Initial reformatting of US GHG emissions" # First message to be printed to the log
     script_name <- "E.US-GHG_emissions.R"
-
+    
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 

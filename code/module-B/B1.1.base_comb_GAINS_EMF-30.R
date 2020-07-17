@@ -222,7 +222,7 @@
 # ---------------------------------------------------------------------------
 # 3. Map activity and emissions to CEDS sectors and fuels.
 
-    printLog( "Mapping and aggregating to CEDS fuels and sectors..." )
+    printLog("Mapping and aggregating to CEDS fuels and sectors...")
 
 # Select years
     GAINS_emissions <- GAINS_emissions[ , c( 'Region', 'Sector', GAINS_years ) ]

@@ -111,9 +111,6 @@
 
 # Combine needed IEA and BP data, matching by country
     iea_data_bpname <- addCols( iea_data, ctry_mapping, "BPName", "iso" )
-    # TODO: The above mapping code is sensitive to the other of isos within the Master Country List (MCL) file.
-    #       If there is a duplicated iso in the MCL, then the above line will select the first mapping row from the MCL.
-    #       This can cause issues, and should be written in a more robust way.
     bp_drivers   <- list( oil_fuels, gas_fuels, coal_fuels )
     iea_data_agg <- list()
     iea_bp_data  <- list()
