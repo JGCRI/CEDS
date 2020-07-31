@@ -1,27 +1,16 @@
 # ------------------------------------------------------------------------------
 # Program Name: E.CDIAC_emissions.R
-# Author(s): Rachel Hoesly, Linh Vu, Patrick O'Rourke
-# Date Last Updated: November 20, 2019
+# Author(s): Rachel Hoesly, Linh Vu
+# Date Last Updated: 15 Sept 2016
 # Program Purpose: To read in & reformat CDIAC emissions data.
-# Input Files: A.UN_pop_master.csv, CDIAC_national_1751_2011.csv, CDIAC_country_map.csv
-#              Master_Country_List,csv, USGS_Commodity_Summaries_Cement_Production.xlsx
-# Output Files: E.CO2_CDIAC_inventory.csv, E.CO2_CDIAC_Cement.csv, E.CO2_CDIAC_Total_CO2.csv,
-#               E.CO2_CDIAC_liquid_and_gas.csv, E.CO2_CDIAC_solid_fuel.csv,
-#               E.CO2_CDIAC_solid_fuel_cumulative.csv,
-#               E.CO2_CDIAC_by_figure_region_CDIAC_fuel.csv,
-#               E.CO2_CDIAC_by_iso_CDIAC_fuel.csv, E.CDIAC_cement_EF.csv,
-#               E.USGS_cement_production.csv
+# Input Files: A.UN_pop_master.csv,CDIAC_national_1751_2011.csv, CDIAC_country_map.csv
+# Output Files: E.CO2_CDIAC_inventory.csv, E.CO2_CDIAC_Cement.csv,
+#               E.CO2_CDIAC_Total_CO2.csv, E.CO2_CDIAC_liquid_and_gas.csv,
+#               E.CO2_CDIAC_solid_fuel.csv, E.CO2_CDIAC_solid_fuel_cumulative.csv,
+#               E.CO2_CDIAC_by_figure_region_CDIAC_fuel.csv, E.CO2_CDIAC_by_iso_CDIAC_fuel.csv,
+#               E.CDIAC_cement_EF.csv, E.USGS_cement_production.csv
 # Notes: Cement data is extended to last available year for USGS cement data. Other data ends at last CDIAC year, with zeros afterward.
-# TODO: Some outputs may need to be fixed. For instance, there are numerous outputs
-#       which have 0 emissions for 2012-2015, which is really an artifact of the fact
-#       that we extended CDIAC cement emissions, but not emissions for other sources in CDIAC
-#       (therefore, the extra years should be removed or set to NA for non-cement emissions):
-#           - cdiac_final - all sectors other than cement (this is misleading and could cause issues)
-#           - cdiac_total - emissions are zero from 2012-2015.... these years can be removed
-#           - cdiac_solid_fuel - emisisons are zero from 2012-2015.... these years can be removed
-#           - cdiac_solid_fuel_cumulative - cumulative emissions are present from 2012-2015, but set to 2011 values
-#             since emissions are 0 from 2012-2015, meaning cumulative emissions don't change
-
+# TODO:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
@@ -40,161 +29,29 @@
 # -----------------------------------------------------------------------------------------------------------
 # 0.5 Define Functions
 
-# Define function to replicate a row, x, n times and convert to a matrix
+# Replicate a row, x, n times and convert to a matrix
     rep.row <- function( x, n ){ matrix( rep( x, each = n ), nrow = n ) }
 
-# Define function to process individual USGS cement production tab
+# Function to process individual USGS cement production tab
     procUSGS <- function( df ) {
-#   Trim trailing whitespace
+    # trim trailing whitespace
         df$Country <- gsub( "\\s+$", "", df$Country )
-#   Remove non-characters
+    # remove non-characters
         df$Country <- gsub( "[^a-zA-Z ]", "", df$Country )
-#   Force colnames to syntactically valid names
+    # Force colnames to syntactically valid names
         names( df ) <- make.names( names( df ) )
-#   Identify any years
+    # Identify any years
         e_years <- grepl( "^X.*e$", names( df ) )
-#   Get rid of the e in the year variable
+    # Get rid of the e in the year variable
         names( df )[ e_years ] <- gsub( "e", "", names( df )[ e_years ] )
-#   Drop any NA countries
+    # Drop any NA countries
         df <- filter( df, !is.na( Country ) )
-#   Map isos
+    # Map isos
         df$iso <- usgs_ctry_map$iso[ match( df$Country, usgs_ctry_map$Country ) ]
-#   Coerce value columns to numeric
+    # Coerce value columns to numeric
         df <- dplyr::mutate_at( df, vars( matches( 'X\\d{4}' ) ), as.numeric )
 
         return( df )
-    }
-
-
-
-# Define function to disaggregate isos which do not have CDIAC data provided directly in any CDIAC time period,
-#    but have their data contained within an aggregated CDIAC iso. Downscaling to these isos
-#    will be done with UN population data
-
-    disagg_CDIAC_iso_in_aggIso <- function( agg_iso_region, disagg_isos_in_agg_region,
-                                            CDIAC_df_in, population_data, CDIAC_years_use ){
-
-        agg_region_all_isos <- c( disagg_isos_in_agg_region, agg_iso_region)
-
-        no_per_capita_data_years <- paste0( "X", 1750:1949 )
-
-        fuels_of_interest <- unique( CDIAC_df_in$fuel)
-        fuels_of_interest_no_percap <- subset( fuels_of_interest, fuels_of_interest != "per_capital_CO2" ) # Remove per_capita_CO2 since this will get fixed
-        fuels_of_interest_final <- c( fuels_of_interest_no_percap, "CDIAC_derived_population" ) # Add derived CDIAC population
-
-#       Calculate aggregate UN region population
-        agg_region_iso_populations <- population_data %>%
-            dplyr::filter( iso %in% agg_region_all_isos ) %>%
-            dplyr::select( iso, CDIAC_years_use ) %>%
-            tidyr::gather( key = Years, value = Population, CDIAC_years_use ) %>%
-            dplyr::filter( Years %in% extended_CDIAC_years_with_Xs )
-
-        aggregated_population <- agg_region_iso_populations %>%
-            dplyr::select( -iso ) %>%
-            dplyr::group_by( Years ) %>%
-            dplyr::summarise_all( funs( sum (., na.rm = TRUE) ) ) %>%
-            dplyr::ungroup( ) %>%
-            dplyr::rename( Agg_region_population = Population)
-
-#       Calculate UN population share for each sub-iso
-        agg_region_iso_pop_shares <- agg_region_iso_populations %>%
-            dplyr::left_join( aggregated_population, by = "Years" ) %>%
-            dplyr::mutate( iso_share_of_agg_region_pop = Population / Agg_region_population ) %>%
-            dplyr::select( -Population, -Agg_region_population  )
-
-#       Subset the agg region being downscaled in the CDIAC data
-        cdiac_agg_region_of_interest <- CDIAC_df_in %>%
-            dplyr::filter( iso == agg_iso_region ) %>%
-
-#       create variable "CDIAC_derived_population" and remove "per_capital_CO2" fuel type - will need to be fixed after
-#       downscaling - set CDIAC_derived_population to 0 for 1750-1949 (since this is a temporary variable,
-#       and no per capita data in original CDIAC for those years)
-            tidyr::spread( fuel, Emissions ) %>%
-            dplyr::mutate( CDIAC_derived_population = ( 1 / ( per_capital_CO2 * ( 1/ Total_CO2 ) ) ),
-                           CDIAC_derived_population = if_else( Years %in% no_per_capita_data_years,
-                                                               0, CDIAC_derived_population ) ) %>%
-            dplyr::select( -per_capital_CO2 ) %>%
-            tidyr::gather( key = fuel, value = Emissions, fuels_of_interest_final )
-
-#       Duplicate the agg regions Emissions data for each disagg iso
-        cdiac_agg_region_aggIso_AND_disaggIsos <- cdiac_agg_region_of_interest
-
-        for( isos in disagg_isos_in_agg_region  ){
-
-            cdiac_diagg_iso_add <- cdiac_agg_region_aggIso_AND_disaggIsos %>%
-                dplyr::mutate( iso = isos )
-
-            cdiac_agg_region_aggIso_AND_disaggIsos <- dplyr::bind_rows( cdiac_agg_region_aggIso_AND_disaggIsos,
-                                                                        cdiac_diagg_iso_add ) %>%
-                dplyr::distinct( )
-
-        }
-
-#       Multiply population share by agg region emissions for each sub-iso and sector combination
-        cdiac_agg_region_downscaled <- cdiac_agg_region_aggIso_AND_disaggIsos %>%
-            dplyr::left_join( agg_region_iso_pop_shares, by = c( "iso", "Years" ) ) %>%
-            dplyr::mutate( Down_Scaled_Emissions = Emissions * iso_share_of_agg_region_pop ) %>%
-            dplyr::select( -Emissions, -iso_share_of_agg_region_pop ) %>%
-            dplyr::rename( Emissions = Down_Scaled_Emissions )
-
-#       Check that there are no NAs for new downscaled emissions
-        if( any( is.na( cdiac_agg_region_downscaled$Emissions ) ) == TRUE ){
-
-            stop( paste0( "Some downscaled emissions are now NA. Check population and emissions data.") )
-
-        } else{
-
-            printLog( "There are no NAs for emissions after downscaling", agg_iso_region, "to the following isos:",
-                      agg_region_all_isos )
-
-        }
-
-#       check that diagg regions summed = agg region data for each sector - roundedto 9 decimals
-        cdiac_agg_region_downscaled_reaggregated_for_check <- cdiac_agg_region_downscaled %>%
-            dplyr::select( -iso ) %>%
-            dplyr::group_by( fuel, Years ) %>%
-            dplyr::summarise_all( funs( sum (., na.rm = TRUE) ) ) %>%
-            dplyr::arrange( fuel, Years ) %>%
-            dplyr::mutate( Emissions = round( Emissions, digits = 9 ) ) %>%
-            dplyr::ungroup( )
-
-        cdiac_agg_region_of_interest_for_check <- cdiac_agg_region_of_interest %>%
-            dplyr::select( -iso ) %>%
-            dplyr::arrange( fuel, Years ) %>%
-            dplyr::mutate( Emissions = round( Emissions, digits = 9 ) )
-
-        identical_after_downscale <- all.equal(cdiac_agg_region_downscaled_reaggregated_for_check,cdiac_agg_region_of_interest_for_check)
-
-        if( identical_after_downscale != TRUE ){
-
-            stop( paste0( "Downscaled emissions do not equal aggregate region emissions for all fuels. Check population, emissions data, ",
-                          "and disagg_CDIAC_iso_in_aggIso function") )
-
-        } else{
-
-            printLog( "Downscaled CDIAC emissions summed for -", agg_region_all_isos,
-                      "- equals aggregate CDIAC emissions for all fuels for the original agg_region -",
-                      agg_iso_region, "- after downscaling with A.UN_pop_master.csv." )
-
-        }
-
-#       Calculate new per_capital_CO2 variable = Total_CO2 / CDIAC_derived_population,
-#       set values to 0 before 1950 (since no per capita data in original CDIAC for those years)
-        cdiac_agg_region_downscaled_final <- cdiac_agg_region_downscaled %>%
-            tidyr::spread( fuel, Emissions ) %>%
-            dplyr::mutate(  per_capital_CO2 = Total_CO2 / CDIAC_derived_population,
-                            per_capital_CO2 = if_else( Years %in% no_per_capita_data_years,
-                                                       0, per_capital_CO2 ) ) %>%
-            dplyr::select( -CDIAC_derived_population ) %>%
-            tidyr::gather( key = fuel, value = Emissions, fuels_of_interest )
-
-#       Filter out original agg region data from CDIAC emissions and replace with disaggregate data
-        cdiac_split_final_no_agg_region_with_disagg_isos <- CDIAC_df_in %>%
-            dplyr::filter( iso != agg_iso_region ) %>%
-            dplyr::bind_rows( cdiac_agg_region_downscaled_final )
-
-        return( cdiac_split_final_no_agg_region_with_disagg_isos )
-
     }
 
 # -----------------------------------------------------------------------------------------------------------
@@ -306,14 +163,6 @@
 
 # -----------------------------------------------------------------------------
 # 4. Split Countries
-
-#    This section is for isos which have CDIAC data provided for certain
-#    time periods, but in other time periods their data is within an aggregated iso.
-#    Example: Serbia -  CDIAC provides data for Serbia from 2006-2011, while
-#    data for this iso is counted within the CDIAC region "YUGOSLAVIA (MONTENEGRO & SERBIA)"
-#    from 1992-2005, and within the CDIAC region "YUGOSLAVIA (FORMER SOCIALIST FEDERAL REPUBLIC)"
-#    from 1880-1991
-
 #    For each country, use the disaggregate_country function defined in
 #    data_functions.R to split aggregate country fuels. Use population breakdown
 #    to split data.
@@ -344,7 +193,7 @@
                                     disaggregate_iso = c( 'bih', 'hrv', 'mkd',
                                                           'svn', 'scg' ),
                                     allow_dropped_data = T )
-# Serbia, Montenegro, and Kosovo
+# Serbia and Montenegro
     cdiac_scg_corrected <-
               disaggregate_country( original_data = cdiac_yug_corrected,
                                     id_cols = c( 'iso', 'fuel' ),
@@ -457,71 +306,22 @@
                                     disaggregate_iso = c( 'kna', 'atg' ),
                                     allow_dropped_data = T )
 
-# -----------------------------------------------------------------------------------------------------------
-# 5. Split additional isos
-
-#    This section is for isos which do not have CDIAC data provided directly in any CDIAC time period,
-#    but have their data contained within an aggregated CDIAC iso. Downscaling to these isos
-#    will be done with UN population data
-#    Example: USA CDIAC data contains data for the American Samoa, Guam, Puerto Rico, U.S. Virgin Islands,
-#             and the USA (proper, 50 states)
-
-    extended_CDIAC_years_with_Xs <- paste0( "X", cdiac_start_year : cdiac_end_year )
-    CDIAC_years <- paste0( "X", 1750 : 2014 )
-
-#   Remove original Puerto Rican data, as it is only available for 1920
-    cdiac_Puerto_Rico <- cdiac_LI_corrected %>%
-        dplyr::filter( iso == "pri" )
-
-    cdiac_split_final_no_pri <- cdiac_LI_corrected %>%
-        dplyr::filter( iso != "pri" ) %>%
-        tidyr::gather( key = "Years", value = "Emissions", extended_CDIAC_years_with_Xs )
-
-
-# Fix USA data - disaggregate to asm, gum, vir, pri, and usa (https://cdiac.ess-dive.lbl.gov/trends/emis/tre_usa.html)
-    agg_region_disagg_isos <- c( "asm", "gum", "vir", "pri" )
-    agg_region <- "usa"
-
-    cdiac_split_usa_Fixed <- disagg_CDIAC_iso_in_aggIso ( agg_region, agg_region_disagg_isos,
-                                         cdiac_split_final_no_pri, population, CDIAC_years )
-
-# Fix Serbia data - disaggregate to srb and srb (Kosovo)
-    agg_region_disagg_isos <- c( "srb (kosovo)" )
-    agg_region <- "srb"
-
-    cdiac_split_srb_Fixed <- disagg_CDIAC_iso_in_aggIso ( agg_region, agg_region_disagg_isos,
-                                                          cdiac_split_usa_Fixed, population, CDIAC_years )
-
-# Fix Sudan data - disaggregate to sdn and ssd
-    agg_region_disagg_isos <- c( "ssd" )
-    agg_region <- "sdn"
-
-    cdiac_split_sdn_Fixed <- disagg_CDIAC_iso_in_aggIso ( agg_region, agg_region_disagg_isos,
-                                                          cdiac_split_srb_Fixed, population, CDIAC_years )
-
-
-# Cast back into wide format
-    cdiac_split_final <- cdiac_split_sdn_Fixed %>%
-        tidyr::spread( Years, Emissions )
+#
+    cdiac_split_final <- cdiac_LI_corrected
 
 # -----------------------------------------------------------------------------------------------------------
-# 6. Add zero values for nations too small for CDIAC
+# 5. Add zero values for nations too small for CDIAC
 #    Add blank entries for any countries not in CDIAC
 
 # Define countries to add to cdiac data
     non_cdaic_countries <- MCL$iso[ MCL$iso %!in%
                                     unique( cdiac_split_final$iso ) ]
-# Only keep countries with 1 for the final_data_flag in the MCL, Kosovo, and Guam
-# TODO: when Kosovo and Guam issue in Master Country List is resolved, the call to their isos below can be removed
+# Only keep countries with 1 for the final_data_flag in the MCL
     non_cdaic_countries <-
           non_cdaic_countries[ non_cdaic_countries %in%
-                               MCL[ which( MCL$final_data_flag == 1 | MCL$iso %in% c( "srb (kosovo)", "gum" ) ), 'iso' ] ]
-
-    non_cdaic_countries <- unique( non_cdaic_countries )
+                               MCL[ which( MCL$final_data_flag == 1 ), 'iso' ] ]
 
 # Drop "global" country
-# TODO: These provides 0 values for the following isos: esh, tkl. Look into whether or not theses isos are contained
-#       within an aggregate CDIAC iso that could be broken out with UN population data
     non_cdaic_countries <- non_cdaic_countries[ non_cdaic_countries %!in%
                                                   'global' ]
 # Create a df with all iso/fuel combos to add
@@ -542,7 +342,7 @@
                                         X_cdiac_years ) )
 
 # -----------------------------------------------------------------------------------------------------------
-# 7. Corrections
+# 6. Corrections
 #    Manual overwrite of data discontinuities using interpolation overwrites
 
     cdiac_smooth <- cdiac_disaggregated
@@ -590,7 +390,7 @@
                       is.na( cdiac_smooth[ which( cdiac_smooth$iso == 'abw' ), ] ),
                       0 )
 # -------------------------------------------------------------------------------
-# 8. Recalcuate total CO2 after corrections
+# 7. Recalcuate total CO2 after corrections
 #    Sum all emissions per country and add these sums to the df as Total_CO2
 
     cdiac_final <- cdiac_smooth
@@ -612,7 +412,7 @@
     cdiac_final <- rbind.fill( cdiac_final, total_CO2 )
 
 # -----------------------------------------------------------------------------------------------------------
-# 9. Add entry for "liquid and gas fuels"
+# 8. Add entry for "liquid and gas fuels"
 
 # Separate out liquid fuels and gas fuels
     cdiac_liquid_and_gas <-
@@ -640,7 +440,7 @@
     cdiac_final <- cdiac_final[ with( cdiac_final, order( iso, fuel ) ), ]
 
 # -----------------------------------------------------------------------------------------------------------
-# 10. Extend CDIAC cement emissions using USGS cement production data
+# 9. Extend CDIAC cement emissions using USGS cement production data
 #    Routine to make USGS country mapping
 
 # Use the procUSGS function to handle all usgs cement datasheets
@@ -789,7 +589,7 @@
     cdiac_final[ is.na( cdiac_final ) ] <- 0
 
 # -----------------------------------------------------------------------------
-# 11. Summary
+# 10. Summary
 # non combustion
     cdiac_cement <- cdiac_final[ which( cdiac_final$fuel %in%
                                           c( "cement_production" ) ), ]
@@ -858,7 +658,7 @@
     cdiac_final <- cdiac_final[ order( cdiac_final$iso ), ]
 
 # -----------------------------------------------------------------------------------------------------------
-# 12. Output
+# 11. Output
 
 # Intermediate output
     writeData( cdiac_final, domain = "MED_OUT",

@@ -14,7 +14,7 @@ module load R/3.3.3
 now=$(date)
 echo "Current time : $now"
 
-cd /people/<user_name>/CEDS
+cd /qfs/people/<user_name>/CEDS
 Rscript code/module-H/H1.1a.Aggregate_NH3_NOx_for_N2O_7BC_ext.R
 
 now=$(date)
