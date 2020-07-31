@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: data analysis functions
 # Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Patrick O'Rourke
-# Last Updated: January 20, 2020
+# Last Updated: 27 March 2019
 
 # This file should be sourced by any R script running diagnostics on CEDS data.
 # Functions contained:
@@ -327,9 +327,7 @@ countryCheck <- function( data, cols = 1, convention = "ISO" ) {
 #                 iso_check( data_frame, "iso col", provided_data_contains_unique_isos_only = F)
 #                 iso_check( data_frame, "iso", provided_data_needs_all_ceds_isos = F
 #                            provided_data_contains_unique_isos_only = F)
-# TODO: option to not count NAs towards passing the check on whether all CEDS isos are within the provided
-#       data's isos
-# TODO: should we include the global iso optionally?
+
 iso_check <- function(data_to_check, data_to_check_iso_colname,
                       provided_data_needs_all_ceds_isos = T,
                       provided_data_contains_unique_isos_only = T) {
@@ -442,7 +440,7 @@ iso_check <- function(data_to_check, data_to_check_iso_colname,
 
         if ( length ( MCL_countries_not_in_provided_data_list[[1]] ) == 0 ) {
 
-          printLog ( paste0 ( "Check 2 completed and passed - All countries from CEDS Master_Country_List.csv",
+          printLog ( paste0 ( "Check 2 completed and Passed - All countries from CEDS Master_Country_List.csv",
                               " are within the provided data." ) )
 
         } else if ( length ( MCL_countries_not_in_provided_data_list[[1]] ) > 0 ) {

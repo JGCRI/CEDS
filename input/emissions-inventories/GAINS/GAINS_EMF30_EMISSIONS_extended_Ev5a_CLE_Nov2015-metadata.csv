@@ -1,3 +1,1 @@
-Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
-Emissions,All,All,All Antro,2000,2020,"Source: ECLIPSE_V5a ""current legislation"" (CLE) base case (Stohl et al., 2015, Klimont et al., 2016)."
-Emissions,All,All,All Antro,2000,2020,"Comment: Data comes in Gg (kt) for all ems besides CO2, which comes in Tg. "
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/CommentEmissions,All,All,All Antro,2000,2020,"ECLIPSE_V5a ""current legislation"" (CLE) base case (Stohl et al., 2015, Klimont et al., 2016)"
