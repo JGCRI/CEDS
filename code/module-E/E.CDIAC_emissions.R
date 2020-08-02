@@ -496,7 +496,7 @@
 #             and the USA (proper, 50 states)
 
     extended_CDIAC_years_with_Xs <- paste0( "X", cdiac_start_year : cdiac_end_year )
-    CDIAC_years <- paste0( "X", cdiac_start_year : 2014 ) # TODO ***** Why to 2014?
+    CDIAC_CEDS_years <- paste0( "X", cdiac_start_year : end_year )
 
 #   Remove original Puerto Rican data, as it is only available for 1920
     cdiac_Puerto_Rico <- cdiac_LI_corrected %>%
@@ -512,21 +512,21 @@
     agg_region <- "usa"
 
     cdiac_split_usa_Fixed <- disagg_CDIAC_iso_in_aggIso ( agg_region, agg_region_disagg_isos,
-                                         cdiac_split_final_no_pri, population, CDIAC_years )
+                                         cdiac_split_final_no_pri, population, CDIAC_CEDS_years )
 
 # Fix Serbia data - disaggregate to srb and srb (Kosovo)
     agg_region_disagg_isos <- c( "srb (kosovo)" )
     agg_region <- "srb"
 
     cdiac_split_srb_Fixed <- disagg_CDIAC_iso_in_aggIso ( agg_region, agg_region_disagg_isos,
-                                                          cdiac_split_usa_Fixed, population, CDIAC_years )
+                                                          cdiac_split_usa_Fixed, population, CDIAC_CEDS_years )
 
 # Fix Sudan data - disaggregate to sdn and ssd
     agg_region_disagg_isos <- c( "ssd" )
     agg_region <- "sdn"
 
     cdiac_split_sdn_Fixed <- disagg_CDIAC_iso_in_aggIso ( agg_region, agg_region_disagg_isos,
-                                                          cdiac_split_srb_Fixed, population, CDIAC_years )
+                                                          cdiac_split_srb_Fixed, population, CDIAC_CEDS_years )
 
 
 # Cast back into wide format
