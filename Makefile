@@ -841,7 +841,6 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MOD_F)/F1.1.CAN_scaling_newerData.R \
 	$(MOD_F)/F1.1.China_scaling.R \
 	$(MOD_F)/F1.1.Edgar_scaling.R \
-	$(MOD_F)/F1.1.Edgar_PEGASOS_scaling.R \
 	$(MOD_F)/F1.1.EMEP_NFR09_scaling.R \
 	$(MOD_F)/F1.1.EMEP_NFR14_scaling.R \
 	$(MOD_F)/F1.1.Japan_scaling.R \

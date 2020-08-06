@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: emissions_scaling_functions.R
 # Author's Name: Tyler Pitkanen, Rachel Hoesly, Patrick O'Rourke
-# Date Last Modified: April 30, 2020
+# Date Last Modified: July 29, 2020
 # Program Purpose: Header file containing generalized functions designed to
 #   scale CEDS emissions data and emissions factors based on inventory data.
 #   This file is made to be sourced at the beginning of each module F script to
@@ -1384,7 +1384,6 @@ F.applyScale <- function(scaling_factors){
     # A list containing the color associated with each inventory value
         inventory_colors <- c( "Default" = "#cccccc",
                   "Zero emissions" = "#ffffff",
-                  "EDGAR 4.3-PEGASOS" = "#026fff",
                   "EMEP_NFR09" = "#00BE67",
                   "REAS 2.1" = "#d966ff",
                   "EMEP_NFR14" = "#73e600",
@@ -1399,7 +1398,7 @@ F.applyScale <- function(scaling_factors){
                   "Kurokawa et. al, 2013" = "#990606",
                   "South Korea National Institute of Environmental Research, 2016" = "#875c1d",
                   "Australian Department of the Environment, 2016" = "#1c661b",
-                  "EDGAR 4.2" = "#80d4ff" )
+                  "EDGAR 5.0" = "#80d4ff" )
 
         meta_classified$isosector <- paste0( meta_classified$iso, meta_classified$sector )
 

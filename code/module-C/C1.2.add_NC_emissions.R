@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.2.add_NC_emissions.R
 # Author: Jon Seibert
-# Date Last Updated: July 16, 2015
+# Date Last Updated: June 12, 2020
 # Program Purpose: To select and run the correct script(s) to fill out to the non-combustion
 #                  (process) emissions database for the given emissions type.
 # Input Files: None
@@ -11,7 +11,6 @@
 #       as they are added to the system.
 # ------------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
@@ -53,12 +52,7 @@ if( em == "BC" || em == "OC" ){
 }
 
 # Add EDGAR data script for all relevant emissions species
-if( em == "SO2" || em == "CO" || em == "NOx" || em == "NMVOC"  || em == "NH3" ){
-    scripts <- c( scripts, "C1.2.add_NC_emissions_EDGAR_PEGASOS.R" )
-}
-
-# Note if using EDGAR 4.2 then also need to edit correction for end-year in C2.1.base_NC_EF.R
-if( em == "CH4" || em == "CO2" ){
+if( em %in% c( "CH4", "CO2", "CO", "NH3", "NMVOC", "NOx", "SO2" ) ){
     scripts <- c( scripts, "C1.2.add_NC_emissions_EDGAR.R" )
 }
 
