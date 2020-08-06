@@ -536,6 +536,8 @@ interpolate_NAs2 <- function(df) {
 # Return: df_no_NAs    a data frame with numeric values interpolated
 # Input Files:      NA
 # Output Files:     NA
+# TODO: This could likely be improved by using tidyr::fill() for extending ("down"
+#       for forward extension and "up" for backwards extension, when gathered in long format)
 extend_and_interpolate <- function( df_in, data_columns ){
 
 #   Check that df_in is a data frame

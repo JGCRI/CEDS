@@ -20,7 +20,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "NH3"
+    if ( is.na( em ) ) em <- "NOx"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -69,12 +69,8 @@
 #    list the names of all scripts that correspond to that em.
     scripts <- c()
 
-# EDGAR 4.3 PEGASOS
-    if ( em %in% c( 'NOx', 'NMVOC', 'CO', "NH3" ) ){ scripts <-
-              c( scripts, 'F1.1.Edgar_PEGASOS_scaling.R' )}
-
-# EDGAR 4.2
-    if ( em %in% c( 'CH4' ) ){ scripts <-
+# EDGAR
+    if ( em %in% c( 'CH4', 'CO', 'NH3', 'NMVOC', 'NOx' ) ){ scripts <-
               c( scripts, 'F1.1.Edgar_scaling.R' ) }
 
 # EMEP NFR09 (older data - use because has more sectors and goes back further)
