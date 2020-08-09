@@ -12,7 +12,7 @@
 #               E.CO2_CDIAC_by_iso_CDIAC_fuel.csv, E.CDIAC_cement_EF.csv,
 #               E.USGS_cement_production.csv
 # Notes: Cement data is extended to last available year for USGS cement data. Other data ends at last CDIAC year, with zeros afterward.
-# TODO: Some outputs may need to be fixed. For instance, there are numerous outputs
+# TODO: 1) Some outputs may need to be fixed. For instance, there are numerous outputs
 #       which have 0 emissions for 2012-2015, which is really an artifact of the fact
 #       that we extended CDIAC cement emissions, but not emissions for other sources in CDIAC
 #       (therefore, the extra years should be removed or set to NA for non-cement emissions):
@@ -21,7 +21,9 @@
 #           - cdiac_solid_fuel - emisisons are zero from 2012-2015.... these years can be removed
 #           - cdiac_solid_fuel_cumulative - cumulative emissions are present from 2012-2015, but set to 2011 values
 #             since emissions are 0 from 2012-2015, meaning cumulative emissions don't change
-#        Clean up years (use objects)
+#        2) E.CDIAC_cement_EF.csv also is missing data for asm, gum, pri, ssd, and vir, and has inf and NaN values
+#        which could be fixed by using the extend_and_interpolate function (after setting theses values to NA)
+#        3) Clean up years (use objects)
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
