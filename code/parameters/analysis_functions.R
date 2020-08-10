@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: data analysis functions
 # Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Patrick O'Rourke
-# Last Updated: 27 March 2019
+# Last Updated: July 17, 2020
 
 # This file should be sourced by any R script running diagnostics on CEDS data.
 # Functions contained:
@@ -327,151 +327,153 @@ countryCheck <- function( data, cols = 1, convention = "ISO" ) {
 #                 iso_check( data_frame, "iso col", provided_data_contains_unique_isos_only = F)
 #                 iso_check( data_frame, "iso", provided_data_needs_all_ceds_isos = F
 #                            provided_data_contains_unique_isos_only = F)
-
+# TODO: option to not count NAs towards passing the check on whether all CEDS isos are within the provided
+#       data's isos
+# TODO: should we include the global iso optionally?
 iso_check <- function(data_to_check, data_to_check_iso_colname,
                       provided_data_needs_all_ceds_isos = T,
                       provided_data_contains_unique_isos_only = T) {
-  
+
 #   Check if data_to_check was provided as class -data.frame-
   if ( is.data.frame( data_to_check ) == FALSE ) {
-    
+
     stop (  paste0 ("The function iso_check requires the parameter data_to_check to be class -data.frame- ." ) )
-  
+
   } else {
-    
+
 #       Check if data_to_check_iso_colname is a column name in data_to_check
-        if ( ( data_to_check_iso_colname %in% colnames( GCP_region_map) ) == FALSE ) {
-      
+        if ( ( data_to_check_iso_colname %in% colnames( data_to_check ) ) == FALSE ) {
+
             stop (  paste0 ("The function iso_check requires the parameter data_to_check_iso_colname ",
                       "to be a column name of the parameter data_to_check." ) )
-      
+
         } else {
-      
+
 #           Check if data_to_check_iso_colname is class -character- (in quotes)
             if ( is.character ( data_to_check_iso_colname ) == FALSE ) {
-        
+
                 stop (  paste0 ("The function iso_check expects the parameter data_to_check_iso_colname",
                         " to be class -character- ." ) )
-        
+
             } else {
-        
+
 #               Initial data processing - select iso columns
                 MCL <- readData( "MAPPINGS", "Master_Country_List" )
-        
+
                 MCL_countries <- MCL %>%
                   dplyr::filter( final_data_flag == 1  | iso %in% c( "srb (kosovo)", "gum" ) ) %>%
                   dplyr::select( iso ) %>%
                   dplyr::distinct( )
-        
+
                data_to_check_countries <- data_to_check %>%
                   dplyr::select( data_to_check_iso_colname )
-            
+
 #               Check that data_to_check doesn't have duplicated CEDS isos. This is only necessary when
 #               provided_data_contains_unique_isos_only = T, as this states that the user only wants unique isos.
-        
+
                 if ( provided_data_contains_unique_isos_only == T ){
-          
+
                     printLog ( paste0 ( "Checking if the provided data has any duplicated CEDS isos..." ) )
-          
+
 #                   Remove NAs for isos, as NAs are not CEDS isos, and will get caught later when checking if data contains all CEDS isos
                     data_to_check_countries_noNA <- dplyr::filter(data_to_check_countries,
                                                         ! (is.na ( data_to_check_countries[ , data_to_check_iso_colname] ) ) )
-          
+
                     data_to_check_unique_isos_noNA <- list( sort ( unique( data_to_check_countries_noNA[, data_to_check_iso_colname ] ) ) )
-          
+
                     if ( nrow ( data_to_check_countries_noNA) !=  length ( data_to_check_unique_isos_noNA[[1]] ) ){
-            
+
                     duplicated_isos <- data_to_check_countries %>%
                       count( data_to_check_iso_colname ) %>%
                       dplyr::filter( freq > 1)
-                    
+
                     printLog ( "Duplicated CEDS isos:", duplicated_isos[[1]] )
-                    
+
                     stop (  paste0 ("The provided data has duplicated CEDS isos. If this is okay,",
                                     " then set provided_data_contains_unique_isos_only to F .",
                                     " If this is not expected, then double check the provided data",
                                     " for the isos listed above.") )
-                    
+
                     } else {
-            
+
                       printLog ( paste0 ( "The provided data does not have duplicated CEDS isos." ) )
-            
+
                     }
-          
+
               } else if ( provided_data_contains_unique_isos_only == F ) {
-          
+
                 data_to_check_countries <- data_to_check_countries
-          
+
               } else {
-          
+
                   stop (  paste0 ("The function iso_to check expects the parameter provided_data_contains_unique_isos_only",
                           " to be set to T or F ." ) )
-          
+
               }
-        
+
 #               Check that all of the isos from the provided data are within the MCL
                 printLog ( paste0 ( "Checking if all of the provided data's isos are CEDS isos..." ) )
-        
-                data_to_check_countries_not_in_MCL <- dplyr::filter(data_to_check_countries, 
+
+                data_to_check_countries_not_in_MCL <- dplyr::filter(data_to_check_countries,
                                                       ! ( data_to_check_countries[ , data_to_check_iso_colname ] %in% MCL_countries$iso ) )
-                
+
                 data_to_check_countries_not_in_MCL_list <- list( sort ( unique( data_to_check_countries_not_in_MCL[, data_to_check_iso_colname ] ) ) )
-        
+
                 if ( length ( data_to_check_countries_not_in_MCL_list[[1]] ) > 0 ){
-                  
+
                   printLog ( "Non-CEDS isos:", data_to_check_countries_not_in_MCL_list[[1]] )
-                  
+
                   stop (  paste ("The above countries in the provided data are not contained within",
                                  "CEDS Master_Country_List.csv (or MCL, found in the input/mappings directory)." ) )
-                  
+
                 } else {
-                  
+
                   printLog ( paste0 ( "Check 1 completed and passed - All countries from the provided",
                                       " data are CEDS isos defined in Master_Country_List.csv ." ) )
                 }
-        
+
 #       Check that all CEDS isos are within the provided data
         printLog ( paste0 ( "Checking if all CEDS isos are within the provided data's isos..." ) )
-        
+
         MCL_countries_not_in_provided_data <- MCL_countries %>%
           dplyr::filter( ! ( iso %in% data_to_check_countries[, data_to_check_iso_colname ] ) )
-        
+
         MCL_countries_not_in_provided_data_list <- list( sort ( unique( MCL_countries_not_in_provided_data$iso) ) )
-        
+
         if ( length ( MCL_countries_not_in_provided_data_list[[1]] ) == 0 ) {
-          
-          printLog ( paste0 ( "Check 2 completed and Passed - All countries from CEDS Master_Country_List.csv",
+
+          printLog ( paste0 ( "Check 2 completed and passed - All countries from CEDS Master_Country_List.csv",
                               " are within the provided data." ) )
-          
+
         } else if ( length ( MCL_countries_not_in_provided_data_list[[1]] ) > 0 ) {
-          
+
           printLog ( "The following isos are missing:", MCL_countries_not_in_provided_data_list[[1]] )
-          
+
           if ( provided_data_needs_all_ceds_isos == T) {
-            
+
             stop (  paste0 ("The above countries from CEDS Master_Country_List.csv (or MCL, ",
                             "found in the input/mappings directory) are not contained within the provided data." ) )
-            
+
           } else if ( provided_data_needs_all_ceds_isos == F ) {
-            
+
             warning (  paste0 ("The above countries from CEDS Master_Country_List.csv (or MCL, ",
                                "found in the input/mappings directory) are not contained within the provided data." ) )
-            
+
           } else {
-            
+
             stop (  paste0 ("Parameter provided_data_needs_all_ceds_isos in function iso_check must be set to",
                             "T or F ." ) )
-            
+
           }
-          
+
         }
-        
+
       }
-      
+
     }
-    
+
   }
-  
+
 }
 
 # ----------------------------------------------------------------------------------
@@ -555,29 +557,29 @@ EDGARcheck <- function( x, colname = "edgar_sector", check_valid = TRUE, check_a
 # ---------------------------------------------------------------------------------
 
 # mapCEDS_sector_fuel
-# Brief:        map to CEDS sectors and/or fuels
+# Brief:        Map to CEDS sectors and/or fuels
 # Details:      Map any data to CEDS sectors (sectors and fuels are seperate in original
 #               data and thus map sererately in two steps) or to CEDS sectors and fuels
 #               (original data notes a sector and a fuel and must map in one step, such as IEA FLOWS)
 # Dependencies: None
 # Author(s):    Rachel Hoesly
 # Params:
-#       mapping_data: original data (not in CEDS format)
-#       mapping_file: mapping file specific to original data
+#       mapping_data:   original data (not in CEDS format)
+#       mapping_file:   mapping file specific to original data
 #       data_match_col: name(s) of the matching columns in the data file (by.x) ex: c('sector')
-#       map_match_col: name(s) of the matching data label column in the mapping file (by.y) ex: c('data_sector')
-#       map_merge_col: name of the column in the mapping file to merge with original data: ex: ('ceds_sector')
-#       new_col_names: name of the merged column (ceds sector or fuel) in the output c('sector')
-#       level_map_in: aggregation of the scaling map. Should always map to detailed when possible
-#                     possible choices:'working_sectors_v1', 'working_sectors_v2', 'detailed_sectors'
-#       level_out: aggregation of the output file
-#                     possible choices:'working_sectors_v1', 'working_sectors_v2', 'detailed_sectors'
-#       aggregate: boolean T/F, aggregate data by output sectors/fuels?
-#       aggregate_col: col or columns to aggregate data over, usually 'years' or vector of column names of data
-#       oneToOne: does the data map 1:1 with the mapping file. Now, The function only works for data used for emission factors, where
-#                 there is no danger of double counting emissions.
-#       agg.fun = function used to aggergate (default is sum)
-# Examples: used in B1.2.add_GAINS_EMF-30.R
+#       map_match_col:  name(s) of the matching data label column in the mapping file (by.y) ex: c('data_sector')
+#       map_merge_col:  name of the column in the mapping file to merge with original data: ex: ('ceds_sector')
+#       new_col_names:  name of the merged column (ceds sector or fuel) in the output c('sector')
+#       level_map_in:   aggregation of the scaling map. Should always map to detailed when possible
+#                       possible choices:'working_sectors_v1', 'working_sectors_v2', 'detailed_sectors'
+#       level_out:      aggregation of the output file
+#                       possible choices:'working_sectors_v1', 'working_sectors_v2', 'detailed_sectors'
+#       aggregate:      boolean T/F, aggregate data by output sectors/fuels?
+#       aggregate_col:  col or columns to aggregate data over, usually 'years' or vector of column names of data
+#       oneToOne:       does the data map 1:1 with the mapping file. Now, The function only works for data used for emission factors, where
+#                       there is no danger of double counting emissions.
+#       agg.fun:        function used to aggergate (default is sum)
+# Examples: used in B1.1.base_comb_GAINS_EMF-30.R
 #               mapCEDS_sector_fuel(mapping_data = emissions_ceds,
 #                                   mapping_file = fuel_sector_map,
 #                                   data_match_col = 'Sector',
@@ -605,42 +607,43 @@ EDGARcheck <- function( x, colname = "edgar_sector", check_valid = TRUE, check_a
 #                                      agg.fun = mean)
 #
 # Return:       mapped data to ceds sectors and fuels and designated level
-# Input Files:
+# Input Files:  Master_Sector_Level_map.csv
 # Output Files:
 
-mapCEDS_sector_fuel <- function(mapping_data,
-                                mapping_file,
-                                data_match_col,
-                                map_match_col,
-                                map_merge_col,
-                                new_col_names = NA,
-                                level_map_in,
-                                level_out = 'working_sectors_v1',
-                                aggregate = TRUE,
-                                aggregate_col = NA,
-                                oneToOne,
-                                agg.fun=NA){
-  ceds_sector_map <- readData('MAPPINGS','Master_Sector_Level_map')
+mapCEDS_sector_fuel <- function( mapping_data,
+                                 mapping_file,
+                                 data_match_col,
+                                 map_match_col,
+                                 map_merge_col,
+                                 new_col_names = NA,
+                                 level_map_in,
+                                 level_out = 'working_sectors_v1',
+                                 aggregate = TRUE,
+                                 aggregate_col = NA,
+                                 oneToOne,
+                                 agg.fun = NA ){
+
+  ceds_sector_map <- readData( 'MAPPINGS','Master_Sector_Level_map' )
 
   #Check Input options
-  # match columns exist in input files
-  # valid method
-  # valid level
-  # valid data cols provided for aggregate==TRUE
+  # Match columns exist in input files
+  # Valid method
+  # Valid level
+  # Valid data cols provided for aggregate==TRUE
   if (aggregate){
     if (anyNA( aggregate_col )) stop('in mapCEDS_sector_fuel, for aggregate = TRUE, must provide
                                         valid numeric data columns to aggreate over. Check argument "data_col" ')
     }
-  # noted level matches map
-  # extra sectors in map
-  # unmapped sectors
+  # Noted level matches map
+  # Extra sectors in map
+  # Unmapped sectors
   # data_match_col in mapping_data
   if ( all(data_match_col %!in% names(mapping_data))) stop('data_match_col not in in mapping_data')
   # map_match_col
   if ( all(map_match_col %!in% names(mapping_file))) stop('map_match_col not in in mapping_file')
   # map_merge_col
   if ( all(map_merge_col %!in% names(mapping_file))) stop('map_merge_col not in in mapping_file')
-  # levels
+  # Levels
   if ( level_map_in %!in% names(ceds_sector_map)) stop('level_map_in not in ceds_sector_map')
   if ( level_out %!in% names(ceds_sector_map)) stop('level_out not in ceds_sector_map')
 
@@ -652,7 +655,7 @@ mapCEDS_sector_fuel <- function(mapping_data,
                by.x = data_match_col,
                by.y = map_match_col,
                all = TRUE)
-  # remove unmatched rows
+  # Remove unmatched rows
   # here to write out unmapped values
   out <- out[complete.cases(out[,map_merge_col]),]
 
@@ -671,7 +674,7 @@ mapCEDS_sector_fuel <- function(mapping_data,
     names(out)[which(names(out)=='x')] <- aggregate_col
   }
 
-  # rename columns
+  # Rename columns
   if(!anyNA( new_col_names )){
     names(out)[which(names(out) %in% map_merge_col)] <- new_col_names }
 
@@ -681,7 +684,7 @@ mapCEDS_sector_fuel <- function(mapping_data,
                  by.x = new_col_names,
                  by.y = level_map_in,
                  all = TRUE)
-    # remove unmatched rows
+    # Remove unmatched rows
     # here to write out unmapped values
     out <- out[complete.cases(out[,level_out]),]
 

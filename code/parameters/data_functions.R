@@ -2,11 +2,19 @@
 # CEDS R header file: data molding functions
 # Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Caleb Braun,
 #          Steven Smith, Patrick O'Rourke
-# Last Updated: December 13, 2019
+# Last Updated: January 7, 2020
 #
 # This file should be sourced by any R script doing heavy-duty reformatting of
 # CEDS data. It contains helper functions for general data manipulation and some
 # CEDS-specific data transformations.
+#  Functions contained:
+#       %!in%, replaceValueColMatch, is.invalid, all.na, some.na, is.nan, is.finite, is.infinite.df,
+#       removeNARows, NAsToZeros, repeatAndAddVector, addCols, intersectNames, isNumYear, isXYear,
+#       isYear, removeBlanks, indDataStart, buildCEDSTemplate, interpolate_NAs, interpolate_NAs2,
+#       extend_and_interpolate, verify_calculate_share_params, calculate_shares, calculate_correct_shares,
+#       extend_data_on_trend, extend_data_on_trend_range, disaggregate_country
+# Notes:
+
 # -----------------------------------------------------------------------------
 
 # %!in%"
@@ -110,7 +118,6 @@ update_join <- function(x, y, by = NULL, add_entries = FALSE) {
         bind_rows(anti_join(x, y, by = by)) %>%
         full_join(x[by], ., by = by)
 }
-
 
 # -----------------------------------------------------------------------------
 # is.invalid
@@ -523,7 +530,7 @@ interpolate_NAs2 <- function(df) {
 # -----------------------------------------------------------------------------
 # extend_and_interpolate
 # Brief: Linearly interpolate over NA values and extend first and last
-#        non-NA values backwards and forwards
+#        non-NA values backwards and forwards (constant extension)
 # Details: Interpolates and extends to columns that already exist in the data.
 #          The function expects the df to be orded with the non-numeric columns
 #          before the numeric columns ( numeric columns parameter defined below as "data_columns" ).
@@ -600,7 +607,7 @@ extend_and_interpolate <- function( df_in, data_columns ){
     df_all_na <- df_no_NaN %>%
         dplyr::filter_at( .vars = data_columns, all_vars( is.na( .) ) )
 
-if( nrow( df_all_na) != 0 ){
+    if( nrow( df_all_na) != 0 ){
 
         stop( "The function extend_and_interpolate expects there to be no rows in df_in ",
               "which are all NA or NaN for the data_columns..." )
@@ -1021,7 +1028,8 @@ calculate_correct_shares <- function(a.input_data,
 # Return:
 # Input Files:
 # Output Files:
-# TODO: merge, switch to extend_data_on_trend_cdiac
+# TODO: merge, switch to extend_data_on_trend_cdiac and extend_data_on_trend_range (which seems
+#       to be a more flexible version of this)
 
 extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnostics = F,
                                  IEA_mode = F,
@@ -1116,37 +1124,40 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
 # Dependencies:
 # Author(s):   Rachel Hoesly
 #
-# Params:
-# iea_start_year - IEA start year is specified if the function is in IEA mode
-# driver_trend - trend by which to extend input data
-# input_data - data to be extended
-# start - start of extension range (earliest year to be extended)
-# end - end of extension range (latest year to be extended)
-# expand - if input data has "all" or "all-combustion" for fuel, then this
-#          expands the data; defaults to TRUE
-# range - the length of the range of ratio years (calculates the average ratio);
-#         defaults to 5
-# ratio_start_year - earliest year of ratio years, defaults to the the year
-#                    following extension end year
-# id_match.driver - identifiers that match between driver and input (ex. for
-#                   extension with population, iso and temp variable. Must be at
-#                   least 2), defaults to c('iso','sector','fuel')
-# id_match.input - id columns for the original data, if different than id driver
-#                  (ex. cdiac, iso and fuel - but extended with iso and temp
-#                  (population)) - used to match and replace variables in final
-#                  part of function; defaults to value of id_match.driver
-# extend_fwd_by_BP_years - Boolean specifying whether or not forward extension
-#                          should be carried out; defaults to FALSE
-# IEA_mode - Boolean indicating whether or not the function should treat input
-#            and driver data as IEA data
-# iea_start_years_df - Dataframe containing IEA start year from all countries
+# Params: input_data                Data being extended. This is expected as class data.frame ONLY
+#                                   (issues may arise if the class is also a tibble)
+#         iea_start_year            IEA start year is specified if the function is in IEA mode
+#         driver_trend              Trend data by which to extend input data
+#         input_data                Data to be extended
+#         start                     Start of extension range (earliest year to be extended / assigned values during extension)
+#         end                       End of extension range (latest year to be extended)
+#         expand                    If input data has "all" or "all-combustion" for fuel, then this
+#                                   expands the data; defaults to TRUE
+#         range                     The length of the range of ratio years (calculates the average ratio);
+#                                   defaults to 5
+#         ratio_start_year          Earliest year of ratio years, defaults to the the year
+#                                   following extension end year
+#         id_match.driver           Identifiers that match between driver and input (ex. for
+#                                   extension with population, iso and temp variable. Must be at
+#                                   least 2), defaults to c('iso','sector','fuel')
+#         id_match.input            ID columns for the original data, if different then id names in driver_trend
+#                                   (ex. cdiac, iso and fuel - but extended with iso and temp
+#                                   (population)) - used to match and replace variables in final
+#                                   part of function; defaults to value of id_match.driver
+#         extend_fwd_by_BP_years    Boolean specifying whether or not forward extension
+#                                   should be carried out; defaults to FALSE
+#         IEA_mode                  Boolean indicating whether or not the function should treat input
+#                                   and driver data as IEA data
+#         iea_start_years_df        Dataframe containing IEA start year from all countries
 
 # Return:
 # Input Files:
 # Output Files:
 # TODO:
+      # does this default option for id_match.input work still?
       # must have at least 2 id variables
       # switch/merge with extend_data_on_trend
+      # the behavior may not work as expected when extending multiple sectors as once
 
 extend_data_on_trend_range <- function(iea_start_year, driver_trend, input_data,
                                        start, end,
