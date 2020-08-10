@@ -15,7 +15,7 @@ module load R/3.5.1
 now=$(date)
 echo "Current time : $now"
 
-cd /people/<user_name>/CEDS
+cd /qfs/people/<user_name>/CEDS
 make activity
 
 now=$(date)

@@ -671,7 +671,6 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv: \
 	$(MOD_C)/C1.1.base_NC_emissions.R \
 	$(MOD_C)/C1.2.add_NC_emissions.R \
 	$(MOD_C)/C1.2.add_SO2_NC_emissions_all.R \
-	$(MOD_C)/C1.2.add_SO2_NC_emissions_FAO.R \
 	$(MOD_C)/C1.2.add_NC_emissions_EDGAR.R \
 	$(MOD_C)/C1.2.ECLIPSE_flaring_emissions_extension.R \
 	$(MOD_C)/C1.2.Fugitive-petr-and-gas_default_process_emissions.R \
@@ -686,7 +685,6 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv: \
 	$(PARAMS)/process_db_functions.R \
 	$(MAPPINGS)/sector_input_mapping.xlsx \
 	$(ACTIV)/Process_SO2_Emissions_to_2005.xlsx \
-	$(INV_DATA)/FAO_SO2_emissions.csv \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
