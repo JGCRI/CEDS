@@ -13,7 +13,7 @@
 #              IEA_product_fuel.csv
 # Output Files: B.N2O_comb_EF_db.csv
 # Notes:
-#TODO:
+#TODO: Script TODOs
 
 # ---------------------------------------------------------------------------
 
@@ -108,7 +108,7 @@ if ( em %!in% c( 'N2O' ) ) {
      biomass_residential <- readData( "MED_OUT", "A.Fernandes_biomass_conversion" )
 
 #    Conversions other than natural gas and biomass from IEA data
-     OECD_Conversion_Factors <- readData( "ENERGY_IN", "OECD_Conversion_Factors_Full" )
+     IEA_Conversion_Factors <- readData( "ENERGY_IN", "OECD_and_NonOECD_Conversion_Factors_Full.csv" )
 
 #    IEA energy data for creating weights for IEA conversion factors
      IEA_en_stat_ctry_hist <- readData( "MED_OUT", "A.IEA_en_stat_ctry_hist" )
@@ -197,6 +197,7 @@ if ( em %!in% c( 'N2O' ) ) {
 
 #   A. Reformat IEA energy conversion data
 #      Units defined here: IEA-OECD_EnergyStats_Documentation.pdf, page 18
+#   TODO: Use more of the available years and use year objects, instead of year column names directly (so it is easier to change)
     IEA_fuel_map_for_conversions <- IEA_fuel_map %>%
          dplyr::mutate( product = gsub( " \\(.*", "", product ),
                         product = if_else( product == "Liquefied petroleum gases",
@@ -206,7 +207,7 @@ if ( em %!in% c( 'N2O' ) ) {
         dplyr::filter( ! ( is.na ( fuel ) ) ) %>%
         dplyr::rename( PRODUCT = product )
 
-    other_usa_conversions <- OECD_Conversion_Factors %>%
+    other_usa_conversions <- IEA_Conversion_Factors %>%
         dplyr::filter( COUNTRY == "United States",
                        FLOW == "Average net calorific value" ) %>%
         dplyr::select( COUNTRY, FLOW, PRODUCT, X2000 ) %>%
@@ -222,6 +223,7 @@ if ( em %!in% c( 'N2O' ) ) {
 #            based on total consumption of the IEA fuel across all sectors --> Filtering for "DOMSUP"
 #            Gasoline type jet fuel (kt) has a negative value for 2000, but positive values in other years,
 #            so it will be summed over as a negative value
+#   TODO: Use more of the available years and use year objects, instead of year column names directly (so it is easier to change)
     IEA_energy_data <- IEA_en_stat_ctry_hist %>%
         dplyr::filter( iso == "usa", FLOW == "DOMSUP"  ) %>%
         dplyr::select( iso, FLOW, PRODUCT, X2000 ) %>%
@@ -232,7 +234,8 @@ if ( em %!in% c( 'N2O' ) ) {
         dplyr::summarise_all( sum ) %>%
         dplyr::ungroup( ) %>%
         dplyr::filter( fuel %in% c( "brown_coal", "diesel_oil", "hard_coal",
-                                    "heavy_oil", "light_oil" ) )
+                                    "heavy_oil", "light_oil" ) ) %>%
+        dplyr::filter( X2000 > 0 ) # Filter out values below zero
 
     IEA_energy_aggregated_to_CEDS_fuel <- IEA_energy_data %>%
         dplyr::select( -product ) %>%
@@ -256,6 +259,7 @@ if ( em %!in% c( 'N2O' ) ) {
     other_usa_conversions_WeightedByEnergyCon <- other_usa_conversions %>%
         dplyr::rename( product = PRODUCT ) %>%
         dplyr::left_join( IEA_energy_weights, by = c( "product", "fuel" ) ) %>%
+        dplyr::filter( !is.na( X2000_Energy_Con_Weight ) ) %>%  # Remove products which don't have weights, because they had negative values for DOMSUP
         dplyr::mutate( X2000_weighted_conversion_factor = X2000 * X2000_Energy_Con_Weight ) %>%
         dplyr::select( iso, FLOW, fuel, units, X2000_weighted_conversion_factor ) %>%
         dplyr::group_by( iso, FLOW, fuel, units ) %>%
@@ -269,7 +273,7 @@ if ( em %!in% c( 'N2O' ) ) {
 #   D. Assign conversion factors to weighted IEA conversions
 
 #       Coal TJ per kt - assuming 50% brown_coal, and 50% hard_coal
-        #TODO: remove position indexing and replace with value indexing
+        #TODO Replace position index with better method
         conversionFac_hard_coal_TJ_per_kt <- other_usa_conversions_WeightedByEnergyCon %>%
             dplyr::filter( fuel == "hard_coal" )
 
@@ -286,21 +290,21 @@ if ( em %!in% c( 'N2O' ) ) {
         COAL_TJ_PER_KT <- mean(coal_conversion_factor_list)
 
 #       Diesel Oil TJ per kt
-        #TODO: remove position indexing and replace with value indexing
+        #TODO Replace position index with better method
         conversionFac_diesel_oil_TJ_per_kt <- other_usa_conversions_WeightedByEnergyCon %>%
             dplyr::filter( fuel == "diesel_oil" )
 
         DIESEL_OIL_TJ_PER_KT <- conversionFac_diesel_oil_TJ_per_kt[[5]]
 
 #       Heavy oil TJ per kt
-        #TODO: remove position indexing and replace with value indexing
+        #TODO Replace position index with better method
         conversionFac_heavy_oil_TJ_per_kt <- other_usa_conversions_WeightedByEnergyCon %>%
             dplyr::filter( fuel == "heavy_oil" )
 
         HEAVY_OIL_TJ_PER_KT <- conversionFac_heavy_oil_TJ_per_kt[[5]]
 
 #       Light oil TJ per kt
-        #TODO: remove position indexing and replace with value indexing
+        #TODO Replace position index with better method
         conversionFac_light_oil_TJ_per_kt <- other_usa_conversions_WeightedByEnergyCon %>%
             dplyr::filter( fuel == "light_oil" )
 
@@ -576,7 +580,6 @@ if ( em %!in% c( 'N2O' ) ) {
 #           a.) Initial cleaning
             colnames( onr_consump ) <- as.character( unlist( onr_consump[ 1, ] ) )
 
-
             onr_consump_clean <- onr_consump %>%
              dplyr::rename( Vehicle_Type = "Fuel/Vehicle Type ",
                             "2007" = "2007a" ) %>%
@@ -632,7 +635,9 @@ if ( em %!in% c( 'N2O' ) ) {
             dplyr::select( sector, fuel, units, years, EF )
 
 #   B.) Generate EFs for natural_gas vehicles
-
+#   TODO: CNG, LPG, LNG were used to calculate gas default EFS. In the future,
+#         make this more consistent with the IEA product fuel mapping by incorporating
+#         lpg in light_oil also.
 #       I.) Reformat disaggregated natural gas vehicle EFs
         colnames( onr_EF ) <- c( "fuel", USGHG_INVENTORY_YEARS_NO_X )
 
@@ -641,7 +646,7 @@ if ( em %!in% c( 'N2O' ) ) {
             dplyr::mutate( Vehicle_Type = fuel ) %>%
             dplyr::select( Vehicle_Type, fuel, USGHG_INVENTORY_YEARS_NO_X )
 
-        #TODO replace position index with value index
+        #TODO Replace position index with better replacement method
         onr_EF[ 2:8, 1 ] <- onr_EF[ 1, 1 ]
         onr_EF[ 10:16, 1 ] <- onr_EF[ 9, 1 ]
         onr_EF[ 18:23, 1 ] <- onr_EF[ 17, 1 ]
@@ -668,7 +673,7 @@ if ( em %!in% c( 'N2O' ) ) {
             dplyr::mutate( Vehicle_Type = fuel ) %>%
             dplyr::select( Vehicle_Type, fuel, USGHG_INVENTORY_YEARS_NO_X )
 
-        #TODO replace position index with value index
+        #TODO Replace position index with better replacement method
         onr_VMT[ 2:12, 1 ] <- onr_VMT[ 1, 1 ]
         onr_VMT[ 14:23, 1 ] <- onr_VMT[ 13, 1 ]
         onr_VMT[ 25:30, 1 ] <- onr_VMT[ 24, 1 ]
@@ -755,7 +760,7 @@ if ( em %!in% c( 'N2O' ) ) {
       dplyr::select( sector, fuel, units, USGHG_INVENTORY_YEARS_NO_X )
 
 #   B.) Fix fuel and sector variables
-    #TODO replace position index with value index
+    #TODO Replace position index with better replacement method
     off_road_ef[ 2:6, 1] <- off_road_ef[ 1, 1 ]
     off_road_ef[ 8, 1] <- off_road_ef[ 7, 1 ]
     off_road_ef[ 10:11, 1 ] <- off_road_ef[ 9, 1 ]
@@ -1030,7 +1035,6 @@ if ( em %!in% c( 'N2O' ) ) {
 #   O.) Define missing 1A4c_Agriculture-forestry-fishing and 1A5_Other-unspecified EFs -->
 #       Set to the value of 1A2g_Ind-Comb-Construction since all stationary_EFs are the same
 #       (note biomass was already assigned above)
-
     missing_1A4c_1A5other<- rbind(
       stationary_ef %>%
         dplyr::filter( sector == "1A2g_Ind-Comb-Construction" ) %>%
