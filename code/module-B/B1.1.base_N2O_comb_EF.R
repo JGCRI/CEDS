@@ -235,7 +235,7 @@ if ( em %!in% c( 'N2O' ) ) {
         dplyr::ungroup( ) %>%
         dplyr::filter( fuel %in% c( "brown_coal", "diesel_oil", "hard_coal",
                                     "heavy_oil", "light_oil" ) ) %>%
-        dplyr::filter( X2000 > 0 ) # Filter out values below zero
+        dplyr::filter( !( X2000 < 0 ) ) # Filter out values below zero
 
     IEA_energy_aggregated_to_CEDS_fuel <- IEA_energy_data %>%
         dplyr::select( -product ) %>%
