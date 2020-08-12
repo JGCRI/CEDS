@@ -609,6 +609,7 @@ EDGARcheck <- function( x, colname = "edgar_sector", check_valid = TRUE, check_a
 # Return:       mapped data to ceds sectors and fuels and designated level
 # Input Files:  Master_Sector_Level_map.csv
 # Output Files:
+# TODO: some of this processing would benefit from using tidyverse packages
 
 mapCEDS_sector_fuel <- function( mapping_data,
                                  mapping_file,

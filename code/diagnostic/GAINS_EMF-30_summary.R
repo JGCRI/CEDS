@@ -5,10 +5,11 @@
 # Input Files: B.[em]_comb_EF_GAINS_EMF30.csv, Master_Country_List.csv
 # Output Files: [em]_GAINS-EF-summary[CEDS_fuel].csv
 # Notes:
-# TODO: Replace certain functions with applicable tidyverse functions. For instance:
-#       replace melt with tidyr::gather, cast with tidyr::spread, merge with
-#       dplyr::<type_of>_join (such as left_join), and aggregate with
-#       dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ).
+# TODO: 1) Review code, given changes in new GAINS and EDGAR data.
+#       2) Replace certain functions with applicable tidyverse functions. For instance:
+#          replace melt with tidyr::gather, cast with tidyr::spread, merge with
+#          dplyr::<type_of>_join (such as left_join), and aggregate with
+#          dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ).
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
