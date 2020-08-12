@@ -571,7 +571,7 @@
     colnames( BP_oil_data ) <- c( 'BPName_Oil_production', BP_OIL_YEARS_x )
 
     BP_oil <- BP_oil_data %>%
-        dplyr::select( BPName_Oil_production, BP_OIL_YEARS_x, -NA ) %>%
+        dplyr::select( BPName_Oil_production, BP_OIL_YEARS_x ) %>%
         dplyr::filter_at( .vars = colnames( BP_oil_data ), any_vars( !is.na( . ) ) ) %>%
         dplyr::filter( BPName_Oil_production %!in% not_BP_countries ) %>%
         dplyr::left_join( MCL, by = "BPName_Oil_production" ) %>%
