@@ -1,0 +1,5 @@
+"Source","Data.Type","Emission","Region","Sector","Start.Year","End.Year","Source.Comment"
+"GAINS_super_emitter-sec_map.csv","Mapping",,"All","Super emitter sectors",,,"Mapping of GAINS super emitter sectors to GAINS regular sectors"
+"GAINS_super_emitter-reg_map.csv","Mapping",,"All","Super emitter sectors",,,"Mapping of GAINS super emitter regions to GAINS regular regions"
+"Global by region-detail_emf30_activity_noSE.csv","Activity","All","All","All Antro","1990","2050","GAINS update 2020"
+"CDB1.1.GAINS_super_emitters.R","Emissions","All","All","All","1990","2050","GAINS emissions data after accounting for super emitters within CEDS_Data script CDB1.1.GAINS_super_emitters.R"

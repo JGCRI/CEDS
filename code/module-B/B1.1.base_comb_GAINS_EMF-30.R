@@ -1,25 +1,24 @@
 # ---------------------------------------------------------------------------
 # Program Name: B1.1.base_comb_GAINS_EMF-30.R
 # Author: Rachel Hoesly, Linh Vu, Patrick O'Rourke
-# Date Last Updated: June 12, 2020
-# Program Purpose: Generate base emission factors from global GAINS EMF-30 data.
-#                  SO2, BC, OC, CO2 are just used as diagnostics.
-# Input Files: GAINS_EMF30_EMISSIONS_extended_Ev5a_CLE_Nov2015.xlsx,
-#              GAINS_EMF30_ACTIVITIES_extended_Ev5a_Nov2015.xlsx,
+# Date Last Updated: July 15, 2020
+# Program Purpose: Generate base combustion emission factors from global GAINS EMF-30 data.
+#                  CO2 are just used as diagnostics, while SO2, BC, and OC are used for
+#                  recent year control percents.
+# Input Files: Global by region-detail_emf30_[activity/em]_noSE.csv
 #              OECD_and_NonOECD_Conversion_Factors_Full.csv, IEA_product_fuel.csv,
 #              emf-30_ctry_map.csv, emf-30_fuel_sector_map.csv
 # Output Files: B1.2.energy_conversion_factors.csv, B1.1.Europe_heat_content_IEA.csv,
 #               B.[em]_NC_EF_GAINS_EMF30.csv, B.[em]_comb_EF_GAINS_EMF30.csv,
 #               B.[em]_GAINS_EF_ratios.csv
-# Notes: transportation_rail only hase a 2020 values, so interpolated values are
-#           constant extended back from 2020 to 2011
+# Notes: EFS have constant extension backwards and forwards within mutual years
+#        for GAINS and CEDS
 # TODO: (Future:) For SO2, create post 2010 S control trends instead of EFs
 #       (only writes to diagnostic now).
 # TODO: (Future:) Use all conversion years, instead of just 2010
 # TODO: (Future:) Heat content should be fuel consumption weighted by GAINS region and product.
 #                 When this is done, we can then use the IEA_product_fuel.csv map instead of
 #                 hard coding the IEA products in here.
-
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
@@ -33,7 +32,7 @@
                   'interpolation_extension_functions.R', 'common_data.R',
                   'analysis_functions.R' ) # Additional function files may be required.
 
-    log_msg <- "Processing GAINS EMF-30 data" # First message to be printed to the log
+    log_msg <- "Processing GAINS EMF data in order to create default combustion emissions..." # First message to be printed to the log
     script_name <- 'B1.1.base_comb_GAINS_EMF-30.R'
 
     source( paste0( PARAM_DIR, "header.R" ) )
@@ -44,10 +43,12 @@
     if ( is.na( em ) ) em <- "CH4"
 
 # Stop script if running for unsupported species
-    if ( em %!in% c('SO2','NOx','NMVOC','BC','OC','CH4','CO','CO2') ) {
-      stop ( paste( 'GAINS EMF-30 is not supported for emission species', em,
-                    'remove from script list in B1.2.add_comb_EF.R',
-                    'and/or makefile' ) )
+    if ( em %!in% c( "BC", "CH4", "CO", "CO2", "NH3", "NMVOC", "NOx", "OC", "SO2" ) ) {
+
+      stop ( paste( 'GAINS EMF is not supported for emission species', em,
+                    'remove from script list in B1.1.base_comb_EF.R',
+                    'and/or makefile...' ) )
+
     }
 
 # ---------------------------------------------------------------------------
@@ -67,46 +68,55 @@
     }
 
 # Define function used in section 4. For each CEDS fuel, this function converts
-# energy to kg fuel based on the given heat content.
-# fuel mass in kt = fuel energy * 10^-6 / heat content (kJ/kg)
+# energy to kg fuel based on the given heat content, for fuels in kJ.
+# Fuel mass in kt = fuel energy * 10^-6 / heat content (kJ/kg)
     convert_to_kg_of_fuel <- function( df_in, heat_content_df, fuel_use ){
 
-        df_in[ df_in$fuel %in% fuel_use, X_GAINS_years ] <-
-            ( df_in[ df_in$fuel %in% fuel_use, X_GAINS_years ] /
-                  heat_content_df[ which( heat_content_df$fuel == fuel_use ),
-                                   'heat_content' ] ) * 10^-6
+      df_in[ df_in$fuel %in% fuel_use & df_in$units == "kJ", X_GAINS_years ] <-
+        ( df_in[ df_in$fuel %in% fuel_use & df_in$units == "kJ", X_GAINS_years ] /
+            heat_content_df[ which( heat_content_df$fuel == fuel_use ),
+                             'heat_content' ] ) * 10^-6
 
-        df_out <- df_in
+      df_out <- df_in
 
-        return( df_out )
+      return( df_out )
 
     }
 
 # ---------------------------------------------------------------------------
 # 1. Load Data and define other useful script constants
-# Define activities sheet
-    a.sheet <- 'Air pollutants'
-    if ( em %in% c( 'CH4', "CO2" ) ){ a.sheet <- tolower( em ) }
 
-# Define emissions sheet
-    e.sheet <- em
-    if ( em == 'NMVOC' ){ e.sheet <- 'VOC' }
+# Define em string to use for GAINS data
+    em_use <- em
+    if ( em == "NMVOC" ){ em_use <- "VOC" }
+
+# Define other settings for GAINS data
+  domain_use <- "EM_INV"
+  domain_ext_use <- "GAINS/"
+
+  emissions_file_name <- paste0( "Global by region-detail_emf30_", em_use, "_wSE" )
+  if( em == "SO2" ){ emissions_file_name <- gsub( "_wSE", "_v2_wSE", emissions_file_name ) }
+
+  activity_file_Name <-  paste0( "Global by region-detail_emf30_activity_wSE" )
+
+  activity_rows_to_skip <- 7
+  emissions_rows_to_skip <- 9
 
 # Read in GAINS data
-    GAINS_emissions <- readData( domain = 'EM_INV', domain_extension = 'GAINS/',
-                           file_name = 'GAINS_EMF30_EMISSIONS_extended_Ev5a_CLE_Nov2015',
-                           ".xlsx", sheet_selection = e.sheet )
-    GAINS_activities <- readData( domain = 'EM_INV', domain_extension = 'GAINS/',
-                             file_name ='GAINS_EMF30_ACTIVITIES_extended_Ev5a_Nov2015',
-                             ".xlsx", sheet_selection = a.sheet )
+    GAINS_emissions <- readData( domain = domain_use, domain_extension = domain_ext_use,
+                                 file_name = emissions_file_name, skip = emissions_rows_to_skip )
 
-# Read in mapping files
-    GAINS_ctry_map <- readData( domain = 'MAPPINGS', domain_extension = 'GAINS/',
-                          file_name ='emf-30_ctry_map' )
-    GAINS_fuel_sector_map <- readData( domain = 'MAPPINGS', domain_extension = 'GAINS/',
-                                 file_name = 'emf-30_fuel_sector_map' )
+    GAINS_activities <- readData( domain = domain_use, domain_extension = domain_ext_use,
+                                 file_name = activity_file_Name, skip = activity_rows_to_skip )
 
-# Read in heat content conversion factors for OECD and non-OECD countries
+# Read in GAINS mapping files
+    GAINS_ctry_map <- readData( domain = 'MAPPINGS', domain_extension = domain_ext_use,
+                                file_name ='emf-30_ctry_map' )
+
+    GAINS_fuel_sector_map <- readData( domain = 'MAPPINGS', domain_extension = domain_ext_use,
+                                       file_name = 'emf-30_fuel_sector_map' )
+
+# Read in IEA heat content conversion factors for OECD and non-OECD countries
     OECD_and_NonOECD_Conversion <- readData( "ENERGY_IN", "OECD_and_NonOECD_Conversion_Factors_Full" )
 
 # Read in IEA product to CEDS fuel map
@@ -123,15 +133,15 @@
 #    by taking a weighted average of fuels brought together into CEDS fuels.
 #    units of heat_content - kJ/kg
 
-    printLog( 'Calculating Gains Heat Content' )
+    printLog( 'Calculating Gains heat content...' )
 
 # Just European Countries in Gains data.
-    EU <- c( "Czech Republic", "Denmark", "Estonia", "Finland", "France",
-             "Germany", "Greece", "Hungary", "Ireland", "Italy", "Luxembourg",
-             "Netherlands", "Poland", "Portugal", "Slovak Republic", "Slovenia",
-             "Spain", "Sweden", "United Kingdom", "Belgium", "Latvia",
-             "Lithuania", "Austria", "Romania", "Croatia", "Bulgaria",
-             "Malta", "Cyprus" )
+    EU <- c( "Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czech Republic",
+             "Denmark", "Estonia", "Finland", "France", "Germany", "Greece",
+             "Hungary", "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg",
+             "Malta", "Netherlands", "Poland", "Portugal", "Romania", "Slovak Republic",
+             "Slovenia", "Spain", "Sweden", "United Kingdom" )
+
     Flows <- c( "NCV of imports", "Average net calorific value" )
 
 # Initial reformatting of GAINS data
@@ -189,7 +199,7 @@
                                               #                          "Other oil products (kt)"
     mult_heavy_oil <- calc_heat_content( conversion_fixed, heavy_oil )
 
-# IEA does not have covnersion factors for biomass, so assume value for wood from GAINS fuel wood value in common_data.R
+# IEA does not have conversion factors for biomass, so assume value for wood from GAINS fuel wood value in common_data.R
     KJ_per_MJ <- 1000
     mult_biomass <- GAINS_conversionFactor_fuelwood_MJ_per_kg * KJ_per_MJ
 
@@ -222,83 +232,147 @@
 # ---------------------------------------------------------------------------
 # 3. Map activity and emissions to CEDS sectors and fuels.
 
-    printLog("Mapping and aggregating to CEDS fuels and sectors...")
+    printLog( "Mapping and aggregating GAINS data to CEDS fuels and sectors..." )
 
-# Select years
-    GAINS_emissions <- GAINS_emissions[ , c( 'Region', 'Sector', GAINS_years ) ]
-    GAINS_activities <- GAINS_activities[ , c('Region', 'Sector', 'Unit', GAINS_years ) ]
+# Select years and fix column names
+    GAINS_emissions <- GAINS_emissions %>%
+      dplyr::rename( Sector = 'EMF30.kt' ) %>%
+      dplyr::select( Region, Sector, X_GAINS_years ) %>%
+      # GAINS data can have tabs in front of all characters in the ID columns, which would need to be removed
+      dplyr::mutate_at( .vars = c( "Region", "Sector" ), .funs = funs( gsub( "\t", "", . ) ) )
 
-# Convert to fuel and sector
-    emissions_ceds <- merge( GAINS_emissions, GAINS_ctry_map,
-                             by.x = 'Region',
-                             by.y = 'emf_name', all = TRUE )
+    GAINS_activities <- GAINS_activities %>%
+      dplyr::rename( Sector = "EMF30.sector",
+                     Unit = "EMF30.unit" ) %>%
+      dplyr::select( Region, Sector, Unit, X_GAINS_years ) %>%
+      # GAINS activity data has tabs in front of all characters in the ID columns, which must be removed
+      dplyr::mutate_at( .vars = c( "Region", "Sector", "Unit" ), .funs = funs( gsub( "\t", "", . ) ) )
 
-# Map emissions to sector and fuel
-    emissions_ceds <- mapCEDS_sector_fuel( mapping_data = emissions_ceds,
-                                           mapping_file = GAINS_fuel_sector_map,
-                                           data_match_col = 'Sector',
-                                           map_match_col = 'emf_sector',
-                                           map_merge_col = c( 'ceds_sector',
-                                                              'ceds_fuel' ),
-                                           new_col_names = c( 'sector', 'fuel' ),
-                                           level_map_in = 'working_sectors_v1',
-                                           level_out = 'working_sectors_v1',
-                                           aggregate = TRUE,
-                                           aggregate_col = GAINS_years,
-                                           oneToOne = FALSE,
-                                           agg.fun = sum )
+# Map to CEDS isos
+    emissions_ceds <- GAINS_emissions %>%
+      dplyr::left_join( GAINS_ctry_map, by = "Region" )
 
-# Drop incomplete cases of emissions rows
-    emissions_ceds <- emissions_ceds[ complete.cases( emissions_ceds ), ]
-    emissions_ceds$units <- 'kt'
+# Check that GAINS sectors which should be all NA have no values for GAINS emissions data
+  GAINS_fuel_sector_map_no_val_secs <- GAINS_fuel_sector_map %>%
+    dplyr::filter( Notes == "not mapped as has no values" )
 
-# Only CO2 is reported in Tg rather than Gg, so multiply by 10^3 to convert Tg to Gg
-    if( em == 'CO2' ){ emissions_ceds[ , GAINS_years ] <- emissions_ceds[ , GAINS_years ] * 10^3 }
+  GAINS_fuel_sector_map_no_val_secs <- sort( unique( GAINS_fuel_sector_map_no_val_secs$emf_sector ) )
 
-# Trim to only desired columns
-    emissions_ceds <- emissions_ceds[ , c( 'iso', 'sector', 'fuel',
-                                           'units', GAINS_years ) ]
-# Rename to Xyear format
-    names( emissions_ceds ) <- c( 'iso', 'sector', 'fuel', 'units', X_GAINS_years )
+  emissions_ceds_na_val_secs <- emissions_ceds %>%
+    dplyr::filter( Sector %in% GAINS_fuel_sector_map_no_val_secs ) %>%
+    dplyr::filter_at( X_GAINS_years, any_vars( !is.na( . ) ) ) # Filter for rows with at least 1 non-NA value
 
-# Map CEDS countries and regions to activitiesd
+  if( nrow( emissions_ceds_na_val_secs ) > 1 ){
+
+    printLog( paste( GAINS_fuel_sector_map_no_val_secs, sep = ", " ) )
+
+    stop( paste0( "GAINS emissions data has non-NA values for sectors which are specified in ",
+                  "the sector fuel mapping file to have only NA-values. Please fix mapping file ",
+                  "for the above sectors..." ) )
+
+  }
+
+# Map emissions to (and aggregate by) CEDS sector and fuel
+    emissions_ceds <- emissions_ceds %>%
+      # Drop rows which are all NAs before mapping to CEDS isos, sectors, and fuels and then aggregating,
+      # so rows of all zeroes don't appear
+      dplyr::filter_at( X_GAINS_years, any_vars( !is.na( . ) ) ) %>%
+      dplyr::left_join( GAINS_fuel_sector_map, by = c( "Sector" = "emf_sector" ) ) %>%
+      dplyr::rename( sector = ceds_sector, fuel = ceds_fuel ) %>%
+      dplyr::filter( !is.na( iso ), !is.na( sector ), !is.na( fuel ) ) %>%
+      dplyr::select( sector, fuel, Region, country_name, iso, emf_number, X_GAINS_years ) %>%
+      dplyr::group_by( sector, fuel, Region, country_name, iso, emf_number ) %>%
+      # Summarize only if all values aren't NA, if NA return NA. This ensures that if all values are NA
+      # the value 0 isn't returned
+      dplyr::summarise_all( funs( . = if_else( all( is.na( . ) ), NA_real_, sum( ., na.rm = TRUE ) ) ) ) %>%
+      dplyr::ungroup( ) %>%
+      dplyr::rename_at( .vars = vars( contains( "_." ) ),
+                        .funs = funs( sub( "_.", "", . ) ) )
+
+    emissions_ceds <- emissions_ceds %>%
+      dplyr::mutate( units = "kt" ) %>% # GAINS emissions data is already in kt (of the given em)
+      dplyr::select( iso, sector, fuel, units, fuel, X_GAINS_years ) %>% # Trim columns
+      dplyr::distinct( ) # Remove duplicatations that arise when multiple country_names
+                         # map to 1 CEDS iso (e.g. USA & United States Minor Outlying Islands
+                         # both map to CEDS USA iso)
+
+# CO2 data from GAINS is reported in Mt rather than kt, so multiply CO2 by 1000 to convert Mt to kt
+  if( em == 'CO2' ){
+
+      printLog( "Converting GAINS CO2 data from Mt to kt (only CO2 is provided in Mt from GAINS..." )
+
+      emissions_ceds <- emissions_ceds %>%
+        dplyr::mutate_at( .vars = X_GAINS_years, .funs = funs( . * 1000 ) )
+
+  }
+
+# Map CEDS countries and regions to activities
     activities_ceds <- GAINS_activities %>%
-        dplyr::left_join( GAINS_ctry_map, by = c( "Region" = "emf_name" ) )
+      dplyr::left_join( GAINS_ctry_map, by = "Region" )
 
-# Map CEDS sectors and fuels to activity
-    activities_ceds <- mapCEDS_sector_fuel( mapping_data = activities_ceds,
-                                            mapping_file = GAINS_fuel_sector_map,
-                                            data_match_col = 'Sector',
-                                            map_match_col = 'emf_sector',
-                                            map_merge_col = c( 'ceds_sector',
-                                                               'ceds_fuel' ),
-                                            new_col_names = c( 'sector',
-                                                               'fuel' ),
-                                            level_map_in = 'working_sectors_v1',
-                                            level_out = 'working_sectors_v1',
-                                            aggregate = TRUE,
-                                            aggregate_col = GAINS_years,
-                                            oneToOne = FALSE,
-                                            agg.fun = sum )
+# Check that GAINS sectors which should be all NA have no values for GAINS activity data
+    activities_ceds_na_val_secs <- activities_ceds %>%
+      dplyr::filter( Sector %in% GAINS_fuel_sector_map_no_val_secs ) %>%
+      dplyr::filter_at( X_GAINS_years, any_vars( !is.na( . ) ) ) # Filter for rows with at least 1 non-NA value
 
-# Drop incomplete cases
-    activities_ceds <- activities_ceds[ complete.cases( activities_ceds ), ]
+    if( nrow( activities_ceds_na_val_secs ) > 1 ){
 
-# Drop unnecessary columns and convert to Xyears
-    activities_ceds <- activities_ceds[ , c( 'iso', 'sector', 'fuel',
-                                             'Unit', GAINS_years ) ]
-    names( activities_ceds ) <- c( 'iso', 'sector', 'fuel', 'units', X_GAINS_years )
+      printLog( paste( GAINS_fuel_sector_map_no_val_secs, sep = ", " ) )
+
+      stop( paste0( "GAINS activity data has non-NA values for sectors which are specified in ",
+                    "the sector fuel mapping file to have only NA-values. Please fix mapping file ",
+                    "for the above sectors..." ) )
+
+    }
+
+# Map activities to (and aggregate by) CEDS sector and fuel
+    activities_ceds <- activities_ceds %>%
+      # Drop rows which are all NAs before mapping to CEDS sectors and fuels and aggregating,
+      # so rows of all zeroes don't appear
+      dplyr::filter_at( X_GAINS_years, any_vars( !is.na( . ) ) ) %>%
+      dplyr::left_join( GAINS_fuel_sector_map, by = c( "Sector" = "emf_sector" ) ) %>%
+      dplyr::rename( sector = ceds_sector, fuel = ceds_fuel ) %>%
+      dplyr::filter( !is.na( iso ), !is.na( sector ), !is.na( fuel ) ) %>%
+      dplyr::select( sector, fuel, Region, Unit, country_name, iso, emf_number, X_GAINS_years ) %>%
+      dplyr::group_by( sector, fuel, Region, Unit, country_name, iso, emf_number ) %>%
+      # Summarize only if all values aren't NA, if NA return NA. This ensures that if all values are NA
+      # the value 0 isn't returned
+      dplyr::summarise_all( funs( . = if_else( all( is.na( . ) ), NA_real_, sum( ., na.rm = TRUE ) ) ) ) %>%
+      dplyr::ungroup( ) %>%
+      dplyr::rename_at( .vars = vars( contains( "_." ) ),
+                        .funs = funs( sub( "_.", "", . ) ) )
+
+    activities_ceds <- activities_ceds %>%
+      dplyr::rename( units = Unit ) %>%
+      dplyr::select( iso, sector, fuel, units, fuel, X_GAINS_years ) %>% # Trim columns
+      dplyr::distinct( ) # Remove duplicatations that arise when multiple country_names
+                         # map to 1 CEDS iso (e.g. USA & United States Minor Outlying Islands
+                         # both map to CEDS USA iso)
 
 # ---------------------------------------------------------------------------
 # 4. Convert energy units to mass units (Activity)
 
     printLog( "Converting energy units to mass units..." )
 
+# Check if any activity data has units 'bln m3'. This should only occur for GAINS
+# petr. and gas 'losses' sectors, which are treated as process emissionsin CEDS. Currently
+# the GAINS activity data is all NA for petr. and gas 'losses', so add a stop in
+# case that changes (if data is no longer NA for these sectors, it will exist in
+# the data at this point and need converting for CEDS diagnostic of GAINS process emission
+# EFs.
+
+    if( any( activities_ceds$units == "bln m3" ) ){
+
+      stop( script_name, " has not been configured to convert GAINS activity data from ",
+            "-bln m3- to -kJ-." )
+
+    }
+
 # Convert PetaJoules into kiloJoules
-    activities_ceds[ which( activities_ceds$units == 'PJ' ), X_GAINS_years ] <-
-          activities_ceds[ which( activities_ceds$units == 'PJ' ), X_GAINS_years ] *
-          10^12
-    activities_ceds[ which( activities_ceds$units == 'PJ' ), 'units' ] <- 'kJ'
+    activities_ceds <- activities_ceds %>%
+      dplyr::mutate_at( .vars = X_GAINS_years, .funs = funs(
+                        if_else( units == "PJ", . * 10^12, .  ) ) ) %>%
+      dplyr::mutate( units = if_else( units == "PJ", "kJ", units ) )
 
 # For each CEDS fuel, convert energy to kg fuel based on the given heat content.
 # fuel mass in kt = fuel energy * 10^-6 / heat content (kJ/kg)
@@ -337,22 +411,33 @@
 # 5. Interpolate Data through current year
 
 # Aggregate activities and emissions to CEDS sectors and fuels
+# TODO: PR Comment: This only really necessary once the conversion from 'bln m3' to 'PJ'
+#       is made (and when there is activity data for losses)
     activities_ceds <- activities_ceds %>%
-        dplyr::group_by( iso, sector, fuel, units ) %>%
-        dplyr::summarize_all( funs( sum( ., na.rm = TRUE ) ) ) %>%
-        dplyr::ungroup( ) %>%
-        as.data.frame( )
+      dplyr::group_by( iso, sector, fuel, units ) %>%
+    # Summarize only if all values aren't NA, if NA return NA. This ensures that
+    # if all values are NA the value 0 isn't returned
+      dplyr::summarise_all( funs( . = if_else( all( is.na( . ) ), NA_real_, sum( ., na.rm = TRUE ) ) ) ) %>%
+      dplyr::ungroup( ) %>%
+      dplyr::rename_at( .vars = vars( contains( "_." ) ),
+                        .funs = funs( sub( "_.", "", . ) ) )
 
     emissions_ceds <- emissions_ceds %>%
-        dplyr::group_by( iso, sector, fuel, units ) %>%
-        dplyr::summarize_all( funs( sum( ., na.rm = TRUE ) ) ) %>%
-        dplyr::ungroup( ) %>%
-        as.data.frame( )
-
-    printLog( "Interpolating and extending data..." )
+      dplyr::group_by( iso, sector, fuel, units ) %>%
+      # Summarize only if all values aren't NA, if NA return NA. This ensures that if all values are NA
+      # the value 0 isn't returned
+      dplyr::summarise_all( funs( . = if_else( all( is.na( . ) ), NA_real_, sum( ., na.rm = TRUE ) ) ) ) %>%
+      dplyr::ungroup( ) %>%
+      dplyr::rename_at( .vars = vars( contains( "_." ) ),
+                        .funs = funs( sub( "_.", "", . ) ) )
 
 # Interpolate annual values
+    printLog( "Interpolating GAINS emission and activity data..." )
+
+    activities_ceds <- as.data.frame( activities_ceds )
     activities_ceds_interp <- interpolateValues( activities_ceds )
+
+    emissions_ceds <- as.data.frame( emissions_ceds )
     emissions_ceds_interp <- interpolateValues( emissions_ceds )
 
 # Create some Xyear lists
@@ -380,26 +465,33 @@
 # Update units based on emissions and activity units
     combined$units <- paste0( combined$units.e, '/', combined$units.a )
 
+# Check for non-numbers and infinite values and replace with NA
+    combined <- replace( combined, combined == Inf, NA )
+    combined <- replace( combined, is.na( combined ), NA )
+
 # Keep only rows which aren't completely NA for all years
     combined <- removeNARows( combined, X_emf_years ) %>%
         dplyr::select( iso, sector, fuel, units, X_emf_years )
 
-# Trim unnecessary and duplicate columns
-    gainsEMF30_all <- combined[ , c( 'iso', 'sector', 'fuel',
+# Extend emissions forwards and backwards in time (constant extension)
+# Without extension many EFS would be NA (missing activity data,
+#                   or missing emissions data (or both) for a given year ).
+    gainsEMF30_all <- extend_and_interpolate( combined, X_emf_years )
+
+# Retain GAINS years which are in CEDS years
+    gainsEMF30_all <- gainsEMF30_all[ , c( 'iso', 'sector', 'fuel',
                                      'units', X_ceds_years ) ]
 
-# Check for non-numbers and infinite values and replace with NA
-    gainsEMF30_all <- replace( gainsEMF30_all, gainsEMF30_all == Inf, NA )
-    gainsEMF30_all <- replace( gainsEMF30_all, is.na( gainsEMF30_all ), NA )
-
-
 # ---------------------------------------------------------------------------
-# 7. Calculate Emission Factors
+# 7. Correct Emission Factors
 
-# Remove coal_coke if SO2 emissions. EMF note only coal, and coal coke has similar EF's
-# as other coals for other emission species, except SO2.
+# Remove coal_coke if SO2 emissions. EMF contains only coal data, and while coal coke
+# has similar EF's as other coals for other emission species, coal coke EFs differ from other
+# coal types for SO2.
     if ( em == 'SO2' ) {
+
         gainsEMF30_all <- gainsEMF30_all[ -which( gainsEMF30_all$fuel == 'coal_coke' ), ]
+
     }
 
 # Brown coal has lower heat content so ends up having a higher default EF when converting
@@ -410,8 +502,6 @@
 # The ratio ranges from 0.6 for pulverized coal units to 0.8 for Spreader stokers
 # (Source: US EPA, AP-42), so we use 0.7 average value
 
-    Xyears <- names( gainsEMF30_all )[ grepl( "X", names( gainsEMF30_all ) ) ]
-
 # Prepare brown coal raw data
     gains_brown_coal <- dplyr::filter( gainsEMF30_all, fuel == "brown_coal" ) %>%
                         dplyr::arrange( iso, sector )
@@ -421,11 +511,11 @@
                        dplyr::arrange( iso, sector )
 
 # Replace brown coal EF with hard coal EF
-    gains_brown_coal[ , Xyears ] <- gains_hard_coal[ , Xyears ]
+    gains_brown_coal[ , X_ceds_years ] <- gains_hard_coal[ , X_ceds_years ]
 
-# Only execute the change if em is NOx
-    if ( em == "NOx" ){ gains_brown_coal[, Xyears ] <-
-                           0.7 * gains_brown_coal[ , Xyears ] }
+# Only execute the special additional change if em is NOx
+    if ( em == "NOx" ){ gains_brown_coal[, X_ceds_years ] <-
+                           0.7 * gains_brown_coal[ , X_ceds_years ] }
 
 # Replace new brown coal values into main EF dataframe
     gainsEMF30_all <- dplyr::filter( gainsEMF30_all, fuel != "brown_coal" ) %>%
@@ -448,7 +538,7 @@
     gains_diagnostics$ratio <- gains_diagnostics[[X_end_year]] /
                                gains_diagnostics[ , paste0( "X", EDGAR_end_year ) ]
 
-# Only write output for extreme ratios
+# Only write output for extreme ratios (greater than 1.5, less than 0.5)
     gains_diagnostics <- gains_diagnostics[ which( gains_diagnostics$ratio > 1.5 |
                                                    gains_diagnostics$ratio < .5 ), ]
 
@@ -460,8 +550,8 @@
                fn = "B1.2.energy_conversion_factors" )
 
 # Write the process EF data to diagnostic output
-# TODO: (Future:) There are duplicated iso + sector + fuel here for CH4. This problem existed in the master
-#       brnach with IEA_v2015. This output doesn't appear to be used anywhere, so can be addressed later.
+# TODO: (Future:) There are duplicated iso + sector + fuel here for CH4. This problem existed in old CEDS version
+#       using IEA_v2015. This output doesn't appear to be used anywhere, so can be addressed later.
     writeData( process_gainsEMF30, domain = "DIAG_OUT",
                fn = paste0( 'B.', em, '_NC_EF_GAINS_EMF30' ) )
 
@@ -471,9 +561,11 @@
 # Write extreme ratios of EFs in last CEDS year to EF in last inventory year
     writeData( gains_diagnostics, domain = "DIAG_OUT", fn = paste0( "B.", em, "_GAINS_EF_ratios" ) )
 
-# For SO2, BC, OC, CH4, CO2 don't use global GAINS data, but write to diagnostic
-# for other species, write to intermediate-output to be used for base emission factors
-    if ( em %in% c( 'SO2', 'BC', 'OC', 'CO2' ) ) {
+# For CO2 don't use global GAINS data, but write to diagnostic.
+# For other species, write to intermediate-output to be used for base combustion emission factors
+# ( BC, OC, and SO2 use GAINS data for recent control percents, and thus are also output to
+# the intermediate-output directory)
+    if ( em %in% c( 'CO2' ) ) {
 
         writeData( gainsEMF30_comb, domain = "DIAG_OUT",
                    fn = paste0( 'B.', em, '_comb_EF_GAINS_EMF30' ) )
