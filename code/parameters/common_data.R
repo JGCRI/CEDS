@@ -1,8 +1,11 @@
-# -----------------------------------------------------------------------------
-# Program Name: common_data.R
-# Program Purpose: Defines common data objects which are used across the CEDS
-#                  data system
-# Last Updated: March 9, 2020
+# ----------------------------------------------------------------------------------
+# CEDS R header file: common_data.R
+# Date Last Updated: July 16, 2020
+# Program Purpose:: Provides common constants and conversion factors
+# Input Files: None
+# Output Files: None
+# Notes:
+# TODO:
 # -----------------------------------------------------------------------------
 
 # Define historical years variables.
@@ -12,10 +15,10 @@
 # USER SET DATA - Set this to the last year of the IEA data used
 IEA_end_year  <- 2017  # Latest year of IEA data; used to compare BP and IEA
 
-IEA_start_year  <- 1960
-X_IEA_end_year  <- paste0( "X", IEA_end_year  )
-IEA_years <- IEA_start_year:IEA_end_year
-X_IEA_years <- paste0( "X", IEA_years)
+IEA_start_year  <- 1960 # First year of IEA data
+X_IEA_end_year  <- paste0( "X", IEA_end_year  ) # First Xyear of IEA data
+IEA_years <- IEA_start_year:IEA_end_year # Set of IEA years being utilized
+X_IEA_years <- paste0( "X", IEA_years) # Set of IEA Xyears being utilized
 
 # USER SET DATA - Set this to the last year of the BP energy data used
 # This determines which years are used from the BP energy data to extend and augment IEA energy data.
@@ -40,8 +43,10 @@ X_BP_last_year <- paste0( "X", BP_last_year )
 BP_FSU_aggregate <- TRUE
 
 # Edgar year
-EDGAR_start_year <- 1971
-EDGAR_end_year <- 2010
+EDGAR_start_year <- 1970
+EDGAR_end_year <- 2015   # Set to 2015 for EDGAR v5.
+                         # Note that CO2 in v5 has an end year of 2018. Values to 2018 in this version
+                         # are still utilized for CO2, despite this being set to 2015.
 
 # The combined yearset for historical emission years
 emissions_years <- c( IEA_years,BP_years )
@@ -111,9 +116,9 @@ available_CEDS_releases <- c( "v2016_07_26" )
 
 
 #---------------------------------
-# Conversion Factors
+# Define conversion factors
 
-conversionFactor_biomass_kt_TJ <- 13.84  # TJ/kt = MJ/kg Biomass - For kt to TJ (multiply by kt of biomass to get TJ)
+conversionFactor_biomass_kt_TJ <- 13.84  # Units = TJ/kt = MJ/kg Biomass - For kt to TJ (multiply by kt of biomass to get TJ)
 # Default biomass conversion factor. In general, to be used when other data is not available
 # Note that A1.2.Fernandes_biomass.R produces region-sepcific heat contents for residential sector
 # Wood conversion factor from Fernandes et al. spreadsheet.
@@ -126,11 +131,13 @@ GAINS_conversionFactor_fuelwood_MJ_per_kg <- 17.6
 # GAINS_conversionFactor_agricultural_residues_MJ_per_kg <- 14.6
 # GAINS_conversionFactor_charcoal_MJ_per_kg - 25.7
 
-# conversionFactor_refinerygas_TJ_per_kt <- 48.5 #Refinery Gas TJ/kt. (Multiply by kt to get TJ)
+# conversionFactor_refinerygas_TJ_per_kt <- 49.5 #Refinery Gas TJ/kt. (Multiply by kt to get TJ)
 #49.5 TJ/Gg- 2006 IPCC guidelines for National GHG inventories Vol 2 - Energy, Ch 1 - Intro Table 1.2
+#https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/2_Volume2/V2_1_Ch1_Introduction.pdf
 
 conversionFactor_naturalgas_TJ_per_kt_Net <- 48.0 #Natural Gas TJ/kt. (Divide TJ by net heating value (LHV) to get kt)
 #48.0 TJ/Gg- 2006 IPCC guidelines for National GHG inventories Vol 2 - Energy, Ch 1 - Intro Table 1.2
+#https://www.ipcc-nggip.iges.or.jp/public/2006gl/pdf/2_Volume2/V2_1_Ch1_Introduction.pdf
 #Conversion factor for gross heat content since IEA natural gas is provided in TJ-gross
 #Natural Gas Gross/Net ~ 1.1078 - Hydrogen Analysis Resource Center, Lower and Higher Heating Values of Hydrogen and Fuels, source: GREET
 conversionFactor_naturalgas_TJ_per_kt_Gross <- 48.0*1.1078 #Natural Gas TJ-gross/kt

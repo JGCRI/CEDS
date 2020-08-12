@@ -1,32 +1,33 @@
 iso,scaling_sector,pre_ext_year,post_ext_year,select_scaling_year,start_scaling_year,end_scaling_year,Comment
-all,all,NA,NA,NA,1992,2009,
-svk,all,NA,NA,NA,2000,2009,Don't calibrate to flat 1990s flat portion that is not in EMEP expert data
+all,all,NA,NA,NA,1992,2014,
+svk,all,NA,NA,NA,2000,2014,Don't calibrate to flat 1990s flat portion that is not in EMEP expert data
 rou,all,NA,NA,1992,NA,NA,Reduce jumps in emissions
 rou,all,NA,NA,2000,NA,NA,Reduce jumps in emissions
 rou,all,NA,NA,2010,NA,NA,Reduce jumps in emissions
 mkd,all,NA,NA,1992,NA,NA,Reduce jumps in emissions
-arm,all,NA,NA,NA,1992,2009,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
-aze,all,NA,NA,NA,1992,2009,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
-blr,all,NA,NA,NA,1992,2009,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
-est,all,NA,NA,NA,1992,2009,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
-geo,all,NA,NA,NA,1992,2009,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
-kaz,all,NA,NA,NA,1992,2009,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
-kgz,all,NA,NA,NA,1992,2009,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
-ltu,all,NA,NA,NA,1992,2009,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
-lva,all,NA,NA,NA,1992,2009,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
-mda,all,NA,NA,NA,1992,2009,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
-rus,all,NA,NA,NA,1992,2009,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
-tjk,all,NA,NA,NA,1992,2009,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
-tkm,all,NA,NA,NA,1992,2009,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
-ukr,all,NA,NA,NA,1992,2009,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
-uzb,all,NA,NA,NA,1992,2009,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
-scg,all,NA,NA,NA,1992,2009,Do not scale former Yugosloavia countries before 1992 since data are unlikely to match inventory assumptions
-srb,all,NA,NA,NA,1992,2009,Do not scale former Yugosloavia countries before 1992 since data are unlikely to match inventory assumptions
-svk,all,NA,NA,NA,1992,2009,Do not scale former Yugosloavia countries before 1992 since data are unlikely to match inventory assumptions
-svn,all,NA,NA,NA,1992,2009,Do not scale former Yugosloavia countries before 1992 since data are unlikely to match inventory assumptions
-bih,all,NA,NA,NA,1992,2009,Do not scale former Yugosloavia countries before 1992 since data are unlikely to match inventory assumptions
-hrv,all,NA,NA,NA,1992,2009,Do not scale former Yugosloavia countries before 1992 since data are unlikely to match inventory assumptions
-mkd,all,NA,NA,NA,1992,2009,Do not scale former Yugosloavia countries before 1992 since data are unlikely to match inventory assumptions
-mne,all,NA,NA,NA,1992,2009,Do not scale former Yugosloavia countries before 1992 since data are unlikely to match inventory assumptions
-all,1A3c,NA,NA,NA,2000,2009,Only scale rail transportation for a few years to avoid large jumps in EF
-alb,1A3c,NA,NA,NA,2000,2008,Avoid albania jump in EF after 2008 (CHECK: may need to also stop emep scaling)
+arm,all,NA,NA,NA,1992,2014,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
+aze,all,NA,NA,NA,1992,2014,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
+blr,all,NA,NA,NA,1992,2014,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
+est,all,NA,NA,NA,1992,2014,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
+geo,all,NA,NA,NA,1992,2014,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
+kaz,all,NA,NA,NA,1992,2014,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
+kgz,all,NA,NA,NA,1992,2014,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
+ltu,all,NA,NA,NA,1992,2014,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
+lva,all,NA,NA,NA,1992,2014,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
+mda,all,NA,NA,NA,1992,2014,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
+rus,all,NA,NA,NA,1992,2014,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
+tjk,all,NA,NA,NA,1992,2014,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
+tkm,all,NA,NA,NA,1992,2014,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
+ukr,all,NA,NA,NA,1992,2014,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
+uzb,all,NA,NA,NA,1992,2014,Do not scale FSU countries before 1992 since data are unlikely to match inventory assumptions
+scg,all,NA,NA,NA,1992,2014,Do not scale former Yugosloavia countries before 1992 since data are unlikely to match inventory assumptions
+srb,all,NA,NA,NA,1992,2014,Do not scale former Yugosloavia countries before 1992 since data are unlikely to match inventory assumptions
+svk,all,NA,NA,NA,1992,2014,Do not scale former Yugosloavia countries before 1992 since data are unlikely to match inventory assumptions
+svn,all,NA,NA,NA,1992,2014,Do not scale former Yugosloavia countries before 1992 since data are unlikely to match inventory assumptions
+bih,all,NA,NA,NA,1992,2014,Do not scale former Yugosloavia countries before 1992 since data are unlikely to match inventory assumptions
+hrv,all,NA,NA,NA,1992,2014,Do not scale former Yugosloavia countries before 1992 since data are unlikely to match inventory assumptions
+mkd,all,NA,NA,NA,1992,2014,Do not scale former Yugosloavia countries before 1992 since data are unlikely to match inventory assumptions
+mne,all,NA,NA,NA,1992,2014,Do not scale former Yugosloavia countries before 1992 since data are unlikely to match inventory assumptions
+all,1A3c_rail,NA,NA,NA,2000,2009,Only scale rail transportation for a few years to avoid large jumps in EF
+alb,1A3c_rail,NA,NA,NA,2000,2008,Avoid albania jump in EF after 2008 (CHECK: may need to also stop emep scaling)
+ner,all,NA,NA,NA,2002,2012,Avoid discontinuities in inventory emissions

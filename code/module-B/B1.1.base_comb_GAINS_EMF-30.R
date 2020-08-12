@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------
 # Program Name: B1.1.base_comb_GAINS_EMF-30.R
 # Author: Rachel Hoesly, Linh Vu, Patrick O'Rourke
-# Date Last Updated: May 4, 2020
+# Date Last Updated: June 12, 2020
 # Program Purpose: Generate base emission factors from global GAINS EMF-30 data.
 #                  SO2, BC, OC, CO2 are just used as diagnostics.
 # Input Files: GAINS_EMF30_EMISSIONS_extended_Ev5a_CLE_Nov2015.xlsx,
@@ -443,7 +443,8 @@
     gains_diagnostics <- gainsEMF30_all
 
 # Ratio of the emissions factors in the last CEDS year to the EF in the last
-# inventory year (currently 2010, as of 3/11/20)
+# EDGAR inventory year (currently 2015 for all ems other than CO2, which has an
+# end year of 2018 - as of 6/12/20)
     gains_diagnostics$ratio <- gains_diagnostics[[X_end_year]] /
                                gains_diagnostics[ , paste0( "X", EDGAR_end_year ) ]
 

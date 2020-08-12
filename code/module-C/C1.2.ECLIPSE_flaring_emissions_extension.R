@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.2.ECLIPSE_flaring_emissions_extension.R
 # Author: Leyang Feng, Patrick O'Rourke
-# Date Last Modified: November 20, 2019
+# Date Last Modified: August 12, 2020
 # Program Purpose: Extends ECLIPSE flaring emissions to period 1965 - last BP year using IEA
 #                  and BP crude oil production data
 # Input Files: [em]_eclipse_flr_emissions.csv, A.en_stat_sector_fuel.csv,
@@ -18,7 +18,6 @@
 #          oil production is disaggregated
 #-------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
@@ -60,31 +59,51 @@
 # read in the population data
     pop_raw <- readData( "MED_OUT", "A.UN_pop_master" )
 
-# If em = N2O, load EDGAR 4.2 NOx and N2O data, as well as the master
+# If em = N2O, load EDGAR v5 NOx and N2O data
   if( em == "N2O" ){
 
-     EDGAR_NOx_fle  <- paste0( 'EDGAR42_', em_use )
-     EGAR_N2O_file <- paste0( 'EDGAR42_', em )
-     inv_data_folder <- "EM_INV"
+      vn <- "5.0" # EDGAR data version number
+      domain <- "EM_INV" # Input domain
+      domain_ext <- "EDGAR/" # Input domain ext.
 
-     EDGAR_NOx <- readData( inv_data_folder, domain_extension = "EDGAR/", EDGAR_NOx_fle )
-     EDGAR_N2O <- readData( inv_data_folder, domain_extension = "EDGAR/", EGAR_N2O_file )
+      EDGAR_years <- EDGAR_start_year : EDGAR_end_year
+      X_EDGAR_years <- paste0( 'X', EDGAR_start_year : EDGAR_end_year )
+
+      fn <- c( paste0( "v",  gsub( "[.]", "", vn ), "_", em, "_", EDGAR_start_year, "_",
+                       EDGAR_end_year ), ".xls")
+      sheet_to_use <- paste0( "v", vn, "_EM_", em, "_IPCC1996" )
+
+      fn_NOx <- c( paste0( "v",  gsub( "[.]", "", vn ), "_", "NOx", "_", EDGAR_start_year, "_",
+                           EDGAR_end_year ), ".xls")
+      sheet_to_use_NOx <- paste0( "v", vn, "_EM_", "NOx", "_IPCC1996" )
+
+
+      rows_to_skip <- 9
+
+      EDGAR_N2O <- readData( domain, domain_extension = domain_ext,
+                         file_name = fn[ 1 ], extension = fn[ 2 ],
+                         sheet_selection = sheet_to_use, skip = rows_to_skip,
+                         missing_value = c( "", "NULL" ) )
+
+      EDGAR_NOx <- readData( domain, domain_extension = domain_ext,
+                             file_name = fn_NOx[ 1 ], extension = fn_NOx[ 2 ],
+                             sheet_selection = sheet_to_use_NOx, skip = rows_to_skip,
+                             missing_value = c( "", "NULL" ) )
 
   }
 
 # ------------------------------------------------------------------------------
 
 # 2. Define constants used within this script
-
 if( em == "N2O" ){
 
-#   EDGAR 4.2 inventory years
-    EDGAR_INV_START_YEAR <- 1970
-    EDGAR_INV_END_YEAR <- 2008
+#   EDGAR inventory years
+    EDGAR_INV_START_YEAR <- EDGAR_start_year # from common_data.R
+    EDGAR_INV_END_YEAR <- EDGAR_end_year # from common_data.R
     EDGAR_INV_YEARS <- EDGAR_INV_START_YEAR : EDGAR_INV_END_YEAR # Currently: 1970-2008
     X_EDGAR_INV_YEARS <- paste0( "X", EDGAR_INV_YEARS )          # Currently: X1970-X2008
 
-#   EDGAR 4.2 extended years (years beyond EDGAR years which are in CEDS final emissions).
+#   EDGAR extended years (years beyond EDGAR years which are in CEDS final emissions).
 #   Used for estimating fugitive N2O emissions from fugitive NOx emissions using EDGAR emissions ratios.
     MISSING_EDGAR_EARLY_YEARS <- subset( emissions_years, emissions_years < EDGAR_INV_START_YEAR ) # Currently: 1960-1969
     X_MISSING_EDGAR_EARLY_YEARS <- paste0( "X", MISSING_EDGAR_EARLY_YEARS )                        # Currently: X1960-X1969
@@ -211,7 +230,7 @@ if( em == "N2O" ){
     IEA_flrieaiso <- IEA_crude[ IEA_crude$iso %in% flr_iea_iso, ]
     IEA_flrieaiso <- IEA_flrieaiso[ order( IEA_flrieaiso$iso ), ]
 
-# combine BP_flrbpiso and IEA_flrieaiso together as unified layout
+# Combine BP_flrbpiso and IEA_flrieaiso together as unified layout
     # Extend data out to last year by copying last IEA year
     IEA_flrieaiso <- IEA_flrieaiso %>%
       dplyr::mutate_at( X_BP_years, funs( identity( !!rlang::sym( X_IEA_end_year ) ) ) )
@@ -271,7 +290,7 @@ if( em == "N2O" ){
     flaring_extended <- NAsToZeros(flaring_extended, data_columns )
 
 # -----------------------------------------------------------------------------
-# 5. For N2O emissions, convert NOx emissinos using ratio of Edgar 1B2 (Fugitive
+# 5. For N2O emissions, convert NOx emissions using ratio of Edgar 1B2 (Fugitive
 #    emissions from oil and gas) NOx to N2O emissions
 # TODO: This routine could be functionalized more with the similar routine within
 #       C1.2.GAINS_fugitive_petr_gas_emissions.R
@@ -299,6 +318,7 @@ if( em == "N2O" ){
             dplyr::select( ISO_A3, Name, IPCC, IPCC_description, EDGAR_years ) %>%
             dplyr::rename( iso = ISO_A3 ) %>%
             dplyr::mutate( iso = tolower( iso ) ) %>%
+            # As of EDGAR v5, this is the only petr. and gas fugitive for N2O and NOx
             dplyr::filter( IPCC == "1B2", IPCC_description == "Fugitive emissions from oil and gas" )
 
 #       Apply EDGAR region aggregate Serbia and Montengro data to each CEDS relevant iso, so that both isos get their aggregate region ratio
@@ -321,12 +341,17 @@ if( em == "N2O" ){
 }
 
 #   Process Edgar N2O and NOx data
+    names( EDGAR_N2O ) <- c( names( EDGAR_N2O[ 1 : 6 ] ),
+                               paste0( "X", names( EDGAR_N2O[ 7 : length( EDGAR_N2O ) ] ) ) ) # Add X's to year columns for EDGAR v5
+    names( EDGAR_NOx ) <- c( names( EDGAR_NOx[ 1 : 6 ] ),
+                             paste0( "X", names( EDGAR_NOx[ 7 : length( EDGAR_NOx ) ] ) ) ) # Add X's to year columns for EDGAR v5
+
     EDGAR_N2O_clean <- EDGAR_clean_for_ratio( EDGAR_N2O, X_EDGAR_INV_YEARS, MCL_clean, "N2O" )
     EDGAR_NOx_clean <- EDGAR_clean_for_ratio( EDGAR_NOx, X_EDGAR_INV_YEARS, MCL_clean, "NOx" )
 
 #   Combine EDGAR N2O and NOx data into 1 data frame
     EDGAR_N2O_and_NOx <- EDGAR_N2O_clean %>%
-        dplyr::left_join( EDGAR_NOx_clean, by = c( "iso", "Name", "IPCC", "IPCC_description", "year" ) )
+        dplyr::full_join( EDGAR_NOx_clean, by = c( "iso", "Name", "IPCC", "IPCC_description", "year" ) )
 
     if( any( EDGAR_N2O_clean$iso %!in% EDGAR_N2O_and_NOx$iso ) | any( EDGAR_NOx_clean$iso %!in% EDGAR_N2O_and_NOx$iso ) ){
 

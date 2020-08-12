@@ -1,17 +1,16 @@
 #------------------------------------------------------------------------------
 # Program Name: C2.1.base_NC_EF.R
 # Author: Jon Seibert, Steve Smith
-# Date Last Modified: 15 June 2016
+# Date Last Modified: June 12, 2016
 # Program Purpose: To calculate default emissions factors from the process emissions
 #                  and activity databases, and use them to generate the base process
 #                  emissions factors database.
 # Input Files: A.NC_activity.csv, C.[em]_NC_emissions.csv
-# Output Files: C.[em]_NC_EF.csv
+# Output Files: C.[em]_NC_EF.csv, C.CO2_waste_fossil_ratios.csv, C.CO2_waste_EFs.csv
 # Notes:
 # TODO:
 #-------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
@@ -28,7 +27,7 @@
 
 
 # ------------------------------------------------------------------------------
-# 0.5. Define function, load Packages
+# 0.5. Define function
 
 # Define functions
 # extendFF(): Interpolate and extend fossil fuel fraction values
@@ -45,7 +44,7 @@ extendFF <- function( df, ext_years ){
   Xyears <- names( df )[ grepl( "X", names( df ) ) ]
   valid_ext <- c( "constant", "none" )
 
-  # validate inputs
+  # Validate inputs
   if ( any( df$ext_backward %!in% valid_ext ) ) {
     warning( "Invalid ext_backward -- must be constant or none. Default chosen: none. ")
     df$ext_backward[ df$ext_backward %!in% valid_ext ] <- "none"
@@ -55,10 +54,10 @@ extendFF <- function( df, ext_years ){
     df$ext_forward[ df$ext_forward %!in% valid_ext ] <- "none"
   }
 
-  # interpolate between Xyears
+  # Interpolate between Xyears
   df <- interpolateValues( df )
 
-  # get backward and forward extension range
+  # Get backward and forward extension range
   first_yr <- head( names( df )[ grepl( "X", names( df ) ) ], n = 1 ) %>% xYearToNum()
   bwd_range <- c()
   if ( first_yr > min( ext_years ) )
@@ -68,18 +67,18 @@ extendFF <- function( df, ext_years ){
   if ( last_yr < max( ext_years ) )
     fwd_range <- paste0( "X", seq( last_yr + 1, max( ext_years ) ) )
 
-  # add columns for all ext years
+  # Add columns for all ext years
   df[, bwd_range ] <- NA
   df[, fwd_range ] <- NA
   df <- df[, c( id, paste0( "X", ext_years ) ) ]
 
-  # extend backward by method specified in ext_backward
+  # Extend backward by method specified in ext_backward
   first_X_yr <- paste0( "X", first_yr )
   df[ df$ext_backward == "none", bwd_range ] <- 1
   if ( any( df$ext_backward == "constant" ) )
     df[ df$ext_backward == "constant", bwd_range ] <- df[ df$ext_backward == "constant", first_X_yr ]
 
-  # extend forward by method specified in ext_foward
+  # Extend forward by method specified in ext_foward
   last_X_yr <- paste0( "X", last_yr )
   df[ df$ext_forward == "none", fwd_range ] <- 1
   if ( any( df$ext_forward == "constant" ) )
@@ -106,10 +105,15 @@ emissions_replaced <- readData( domain = "DEFAULT_EF_IN" ,
                                 domain_extension = "non-combustion-emissions/",
                                 paste0('C.',em,'_NC_emissions_user_added') )
 
+# Define EDGAR version number
+EDGAR_version_number <- "5.0"
+
 # Define sectors that should not be corrected for EDGAR
-excl_sectors <- c()
-if (em == "CO2") {
+excl_sectors <- c( )
+if ( em == "CO2" ) {
+
   excl_sectors <- c( excl_sectors, "2A1_Cement-production", "3D_Soil-emissions" )
+
 }
 
 # ------------------------------------------------------------------------------
@@ -138,7 +142,7 @@ if( length ( check ) > 0 ) {
  ef_template[X_emissions_years] <- 0
  ef_template$units <- NA
 
-# populate template with emissions data
+# Populate template with emissions data
  emissions_data <- replaceValueColMatch( ef_template, emissions_data_read,
                                      x.ColName = X_emissions_years,
                                      match.x = c('iso','sector','fuel'),
@@ -148,7 +152,7 @@ if( length ( check ) > 0 ) {
                                               match.x = c('iso','sector','fuel'),
                                               addEntries = FALSE)
 
-# sort activity and emissions and check
+# Sort activity and emissions and check
  activity_data <- activity_data[ with ( activity_data, order( iso, sector, fuel ) ), ]
  emissions_data <- emissions_data[ with ( emissions_data, order( iso, sector, fuel ) ), ]
  ef_template <- ef_template[ with ( ef_template, order( iso, sector, fuel ) ), ]
@@ -158,7 +162,7 @@ if( length ( check ) > 0 ) {
           stop( paste('activity and emissions data do not match. Please check',
                       "C2.1base_NC_EF.R") ) }
 
-# calculate EFs
+# Calculate EFs
  new_efs <- ef_template
 
  if( ! identical(activity_data[ , c( 'iso' , 'sector' , 'fuel' ) ],
@@ -169,77 +173,88 @@ if( length ( check ) > 0 ) {
  new_efs$units <- paste0( emissions_data$units, "/", activity_data$units )
  new_efs[ X_emissions_years ] <- as.matrix(emissions_data[ X_emissions_years ]) / as.matrix(activity_data[ X_emissions_years ])
 
- # replace NA, Inf with zero
+ # Replace NA and Inf with zero
  new_efs[ X_emissions_years ] <- replace( new_efs[ X_emissions_years ] , is.na(new_efs[ X_emissions_years ]), 0)
  new_efs[ X_emissions_years ] <- replace( new_efs[ X_emissions_years ] , new_efs[ X_emissions_years ] == 'Inf', 0)
 
 # ------------------------------------------------------------------------------
 # 3. Correct Edgar Emissions Factors
+
  # Leave out excluded sectors
-   new_efs_excl <- filter( new_efs, sector %in% excl_sectors )
-   new_efs <- filter( new_efs, sector %!in% excl_sectors )
+   new_efs_excl <- dplyr::filter( new_efs, sector %in% excl_sectors )
+   new_efs <- dplyr::filter( new_efs, sector %!in% excl_sectors )
 
- # Fix Edgar EFs
- temp_EDGAR_end_year = EDGAR_end_year
+ # Define EDGAR years to fix (years which are in CEDS but not EDGAR)
+   temp_EDGAR_end_year <- EDGAR_end_year
+   if( EDGAR_version_number == "4.2" ){ temp_EDGAR_end_year <- 2008 }  # Re-set EDGAR end-year if are still using EDGAR 4.2
+   X_temp_EDGAR_end_year <- paste0( "X", temp_EDGAR_end_year )
 
- # Re-set EDGAR end-year if are still using EDGAR 4.2
- if( em == "CH4" || em == "CO2" || em == "N2O") temp_EDGAR_end_year = 2008
+   EDGAR_replace_years <- paste0( 'X',( temp_EDGAR_end_year + 1 ) : end_year )
 
- EDGAR_replace_years <- paste0('X',(temp_EDGAR_end_year+1):end_year)
+#  If an EF is 0 for a given EDGAR_replace_years but the temp_EDGAR_end_year is not zero,
+#  then extend the temp_EDGAR_end_year EF forward. This is done instead of
+#  automatically setting EDGAR_replace_years to temp_EDGAR_end_year values as
+#  EDGAR v5 has some CO2 data going out to 2018, which would otherwise be overwritten.
+#  Values are also interpolated, as in some cases within EDGAR v5 CO2 data an
+#  iso + sector combination will have data for some EDGAR_replace_years
+#  but not all EDGAR_replace_years (e.g. within raw EDGAR v5 hrv has missing data
+#  for 2016-2017, but has data in 2018).
+   new_efs_replace_years_set_to_NA <- new_efs %>%
+      dplyr::mutate_at( .vars = EDGAR_replace_years,
+                        .funs = funs( if_else( . == 0 & !!rlang::sym( X_temp_EDGAR_end_year ) != 0,
+                                            NA_real_, . ) ) )
 
- new_efs_corrected <- new_efs[,c('iso','sector','fuel','units',paste0('X',start_year:temp_EDGAR_end_year))]
+   new_efs_corrected <- extend_and_interpolate( new_efs_replace_years_set_to_NA, X_emissions_years )
 
-  #Extend EFs as constant after EDGAR end date
-  new_efs_corrected[,EDGAR_replace_years] <- new_efs[ , paste0( 'X', temp_EDGAR_end_year )  ]
-
-  #Extend EFs as constant before EDGAR start date
-  new_efs_corrected[ , paste0( 'X', start_year:( EDGAR_start_year - 1 ) ) ] <- new_efs[ , paste0( 'X', EDGAR_start_year )  ]
+#  Extend EFs as constant before EDGAR start date
+   new_efs_corrected[ , paste0( 'X', start_year:( EDGAR_start_year - 1 ) ) ] <- new_efs_corrected[ , paste0( 'X', EDGAR_start_year )  ]
 
 # ------------------------------------------------------------------------------
 # 4. Re-Correct Non Edgar Emissions Factors (replaced in C1.3.proc_NC_emissions_user_added.R)
 #    Extend Non Edgar Emission Factors  (replaced in C1.3.proc_NC_emissions_user_added.R)
 
-  # replace EF that we want to remain unchaned
+  # Replace EF that we want to remain unchanged
   new_efs_corrected_user_added <-  new_efs_corrected
   replaced_years <- emissions_replaced
 
   if( nrow(replaced_years)>0 ){
-  # use emissions_replaced for a template to grab EFs before edgar correct
+
+  # Use emissions_replaced for a template to grab EFs before edgar correct
   extend_replaced_emissions <- emissions_replaced
   years_emissions_replaced <- names(emissions_replaced)[grep('X', names(emissions_replaced))]
   extend_replaced_emissions[X_emissions_years[ X_emissions_years %!in% years_emissions_replaced ]] <- NA
   extend_replaced_emissions <- extend_replaced_emissions[, c( 'iso','sector','fuel','units', X_emissions_years ) ]
 
-  # save position for efs we want to extend (must be NA)
+  # Save position for efs we want to extend (must be NA)
   emissions_NAs <- is.na(extend_replaced_emissions)
 
   extend_replaced_efs <- extend_replaced_emissions
   extend_replaced_efs[ X_emissions_years ] <- NA
   extend_replaced_efs <- extend_replaced_efs[, c( 'iso','sector','fuel','units', X_emissions_years ) ]
 
-  # get orignal EF
+  # Get orignal EF
   extend_replaced_efs <- replaceValueColMatch( extend_replaced_efs  , new_efs,
                                               match.x = c('iso','sector','fuel'),
                                               x.ColName = c( 'units', X_emissions_years ),
                                               addEntries = FALSE )
 
-  # write NAs over EFs we want to extend over
+  # Write NAs over EFs we want to extend over
   extend_replaced_efs[ emissions_NAs ] <- NA
   extend_replaced_efs[ extend_replaced_efs == 0 ] <- NA
 
-  # drop rows of all NAs
+  # Drop rows of all NAs
   extend_replaced_efs <- extend_replaced_efs[ !apply(extend_replaced_efs[,X_emissions_years], 1, all.na), ]
 
-  # keep last data row for every unique iso+sector+fuel+units
+  # Keep last data row for every unique iso+sector+fuel+units
   extend_replaced_efs$num_row <- seq( 1, nrow( extend_replaced_efs ) )
   extend_replaced_efs <- group_by( extend_replaced_efs, iso, sector, fuel, units ) %>%
     filter( num_row == max( num_row ) ) %>% data.frame()
   extend_replaced_efs$num_row <- NULL
 
-  # interpolate over NAs
+  # Interpolate over NAs
   extend_replaced_efs[, X_emissions_years ] <- interpolate_NAs( extend_replaced_efs[, X_emissions_years ] )
 
-  # extend last non-NA forward/backward
+  # Extend last non-NA forward/backward
   extend_replaced_efs <- melt( extend_replaced_efs, id = c( "iso", "sector", "fuel", "units" ) )
   extend_replaced_efs <- ddply( extend_replaced_efs, .( iso, sector, fuel, units ), function( df ){
     df$value <- na.locf( df$value, na.rm = F )
@@ -251,7 +266,7 @@ if( length ( check ) > 0 ) {
   writeData(extend_replaced_efs, domain = 'DIAG_OUT', fn = paste0( 'C.',em,'_replacement_process_EFs'),
             meta = F)
 
-  # replace in larger data frame
+  # Replace in larger data frame
   new_efs_corrected_user_added <- replaceValueColMatch(new_efs_corrected_user_added,extend_replaced_efs,
                                                match.x = c('iso','sector','fuel','units'),
                                                x.ColName = X_emissions_years,
@@ -263,8 +278,7 @@ if( length ( check ) > 0 ) {
     dplyr::arrange( iso, sector, fuel, units )
 
 # Logic Check for negative emissions factors
-if (any(new_efs_corrected_user_added < 0) ) stop('There are negative EFs in ', paste0( "C.", em, "_", "NC", "_EF" ))
-
+if (any(new_efs_corrected_user_added < 0) ){ stop('There are negative EFs in ', paste0( "C.", em, "_", "NC", "_EF" ) ) }
 
 # ------------------------------------------------------------------------------
 # 5. For waste CO2, apply fraction of fossil fuel * urban population shares to EF
@@ -301,7 +315,7 @@ if ( em == "CO2") {
   urban <- urban[ c( "iso", X_emissions_years ) ]
   urban[ is.na( urban ) ] <- 1
 
-  # urban and ff_all should have identical format
+  # Urban and ff_all should have identical format
   if ( any( urban$iso != ff_all$iso ) | any( names( urban ) != names( ff_all ) ) )
     stop( "urban and ff_all must have the same format.")
 
@@ -323,7 +337,7 @@ if ( em == "CO2") {
   waste_EF_long$value <- waste_EF_long$value * waste_EF_long$ratio
 
   waste_EF_new <- cast( waste_EF_long, iso+sector+fuel+units~variable )
-  if (nrow( waste_EF_new ) != nrow( waste_EF ) ) stop( "New data do not have correct format." )
+  if (nrow( waste_EF_new ) != nrow( waste_EF ) ){ stop( "New data do not have correct format." ) }
 
   # Clean up
   new_efs_corrected_user_added <- filter( new_efs_corrected_user_added, sector != "5C_Waste-incineration" ) %>%
@@ -333,11 +347,11 @@ if ( em == "CO2") {
   writeData( waste_EF_new, "DIAG_OUT", "C.CO2_waste_EFs" )
 }
 
-
 # --------------------------------------------------------------------------------------------
 # 6. Output
 
 writeData( new_efs_corrected_user_added, domain = "MED_OUT", fn = paste0( "C.", em, "_", "NC", "_EF" ) )
 
-logStop()
+logStop( )
+
 # END

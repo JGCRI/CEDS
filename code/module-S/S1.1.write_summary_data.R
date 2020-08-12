@@ -3,12 +3,12 @@
 # Program Name: S1.1.write_summary_data.R
 # Authors: Rachel Hoesly, Steve Smith, Linh Vu, Presley Muwan, Leyang Feng,
 #          Caleb Braun, Patrick O'Rourke
-# Date Last Updated: April 25, 2019
+# Date Last Updated: February 21, 2020
 # Program Purpose: Produces summary output
 # Input Files: Master_Country_List.csv
 #              [em]_total_CEDS_emissions.csv
 #              Master_Sector_Level_map.csv
-# Output Files: data in final-emissions folder
+# Output Files: Data in final-emissions folder
 # TODO:
 # ---------------------------------------------------------------------------
 
@@ -63,30 +63,30 @@ X_write_years <- paste0('X',write_years)
 final_emissions <- final_emissions_read[,c('iso','sector','fuel','units',X_write_years)]
 final_emissions$em <- em
 
-# remove sectors that are not supplied in CEDS
+# Remove sectors that are not supplied in CEDS
 empty_sectors <- c( "11A_Volcanoes", "11B_Forest-fires", "11C_Other-natural" )
 final_emissions <- final_emissions[ -which( final_emissions$sector %in% empty_sectors ) , ]
 
-# save shipping and aviation emissions
+# Save shipping and aviation emissions
 shp_av_sectors <- c( "1A3di_International-shipping", "1A3aii_Domestic-aviation",
                      "1A3ai_International-aviation" )
 bunker_emissions <- final_emissions[ final_emissions$sector %in% shp_av_sectors, ]
 
-# remove international shipping and aviation emissions
+# Remove international shipping and aviation emissions
 final_emissions <- final_emissions[ final_emissions$sector %!in% shp_av_sectors, ]
 
-# add summary sectors
+# Add summary sectors
 final_emissions$summary_sector <- Master_Sector_Level_map[match(final_emissions$sector,
                                   Master_Sector_Level_map$working_sectors_v1),'aggregate_sectors']
 bunker_emissions$summary_sector <- Master_Sector_Level_map[match(bunker_emissions$sector,
                                   Master_Sector_Level_map$working_sectors_v1),'aggregate_sectors']
 
-#simplify units
+# Simplify units
 # This assumes units are correct. Need to add a more comprehensive unit conversion function (since drivers will come in various units)
 final_emissions$units <- 'kt'
 bunker_emissions$units <- 'kt'
 
-#sum bunker emissions to global values
+# Sum bunker emissions to global values
 Bunker_global <- aggregate( bunker_emissions[ X_write_years ],
                             by=list( em = bunker_emissions$em,
                                      fuel = bunker_emissions$fuel,
@@ -95,7 +95,7 @@ Bunker_global <- aggregate( bunker_emissions[ X_write_years ],
                                      units = bunker_emissions$units ), sum )
 Bunker_global$iso <- "global"
 
-# reorder columns
+# Reorder columns
 final_emissions <- final_emissions[,c("iso", "summary_sector", "sector", "fuel","em","units",X_write_years)]
 bunker_emissions <- bunker_emissions[,c("iso", "summary_sector","sector", "fuel","em","units",X_write_years)]
 
@@ -108,22 +108,22 @@ final_emissions <- rbind( final_emissions, Bunker_global )
 # NOTE: This block should not write any summary outputs. Put any writeData()
 # in function writeSummary() in block 3.
 
-#Total emissions by Country
+# Total emissions by Country
 Em_by_Country<-aggregate(final_emissions[X_write_years],
                          by=list(iso=final_emissions$iso,
                                  em= final_emissions$em,
                                  units=final_emissions$units),sum )
 
-#Sort
+# Sort
 Em_by_Country <- Em_by_Country[ with( Em_by_Country, order( iso ) ), ]
 
-#Total emissions by fuel
+# Total emissions by fuel
 Summary_Emissions <- aggregate(final_emissions[X_write_years],
                                by=list(fuel=final_emissions$fuel,
                                        em= final_emissions$em,
                                        units=final_emissions$units),sum )
 
-#Sort
+# Sort
 Summary_Emissions <- Summary_Emissions[ with( Summary_Emissions, order( fuel ) ), ]
 
 # Total Emissions by Sector and Country
@@ -132,11 +132,12 @@ Em_by_Country_Sector <- aggregate(final_emissions[X_write_years],
                                        sector=final_emissions$summary_sector,
                                        em= final_emissions$em,
                                        units=final_emissions$units),sum )
-#Sort
+# Sort
 Em_by_Country_Sector <- Em_by_Country_Sector[ with( Em_by_Country_Sector, order( iso , sector ) ), ]
 
 # Create files for emissions by country and CEDS sector
 if ( WRITE_CEDS_SECTORS ) {
+
 	# Aggregate emissions by CEDS sector, country, and species total
     Em_by_Country_CEDS_Sector <- final_emissions %>%
         dplyr::group_by( iso, sector, em, units ) %>%
@@ -205,15 +206,15 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
 } else {
   printLog( "Comparing emissions summary from current run and last run..." )
 
-  # move last-run files to a temp folder [em]_last-run
+  # Move last-run files to a temp folder [em]_last-run
   dir.create( paste0( "../final-emissions/", em, "_last-run" ), showWarnings = F )
   fl <- list.files( "../final-emissions/current-versions/", pattern = paste0( "_", em, "_" ), full.names = T )
   moveFileList( fl, paste0( "../final-emissions/", em, "_last-run/" ) )
 
-  # write out current-run
+  # Write out current-run
   writeSummary()
 
-  # read current-run and last-run emissions summary
+  # Read current-run and last-run emissions summary
   em_current <- readData( "FIN_OUT", summary_fn, domain_extension = "current-versions/", meta = F )
   em_last_fn <- list.files( paste0( "../final-emissions/", em, "_last-run/" ), pattern = base_fn )
   if( length( em_last_fn ) != 1 ) {
@@ -224,12 +225,12 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
   id_cols <- names( em_current )[ !grepl( "X", names( em_current ) ) ]
   id_cols_last <- names( em_last )[ !grepl( "X", names( em_last ) ) ]
 
-  # if current-run and last-run have different ID columns, do nothing
+  # If current-run and last-run have different ID columns, do nothing
   if ( any( sort( id_cols ) != sort( id_cols_last ) ) ) {
     warning( paste( "Current and last versions of", base_fn,
                      "have different ID columns. Cannot run comparison." ) )
 
-  # if current-run and last-run are identical, delete current-run and move last-run to current-versions/
+  # If current-run and last-run are identical, delete current-run and move last-run to current-versions/
   } else if ( identical( em_current, em_last ) ) {
     warning("**************************************************************************" )
     warning( paste( base_fn, "did not change from last run." ) )
@@ -239,19 +240,20 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
     fl <- list.files( paste0( "../final-emissions/", em, "_last-run/" ), pattern = paste0( "_", em, "_" ), full.names = T )
     moveFileList( fl, "../final-emissions/current-versions/" )
 
-  # else run comparison diagnostics
+  # Else run comparison diagnostics
   } else {
-    # delete relevant emissions from previous-versions and diagnostics
+
+    # Delete relevant emissions from previous-versions and diagnostics
       unlink( dir( "../final-emissions/previous-versions/",
                    pattern = paste0( "_", em, "_" ), full.names = T ) )
       unlink( dir( "../final-emissions/diagnostics/",
                    pattern = paste0( "_", em, "_" ), full.names = T ) )
 
-    # move content of last-run to previous-versions
+    # Move content of last-run to previous-versions
       fl <- list.files( paste0( "../final-emissions/", em, "_last-run" ), full.names = T )
       moveFileList( fl, "../final-emissions/previous-versions/" )
 
-    # make df of added/dropped data
+    # Make df of added/dropped data
       dropped_rows <- em_last[ do.call( paste0, em_last[ id_cols ] ) %!in%
                                 do.call( paste0, em_current[ id_cols ] ), ]
       added_rows <- em_current[ do.call( paste0, em_current[ id_cols ] ) %!in%
@@ -261,7 +263,7 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
       added_cols <- em_current[, names( em_current ) %in% id_cols |
                                  names( em_current ) %!in% names( em_last ) ]
 
-    # compare current-run and last-run
+    # Compare current-run and last-run
       em_current <- melt( em_current, id = id_cols )
       names( em_current )[ names( em_current ) %in% c( "variable", "value" ) ] <-
         c( "year", "current" )
@@ -293,22 +295,22 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
                 change_percent = diff*100 / current )
       em_comp$change_percent[ em_comp$current == em_comp$previous ] <- 0
 
-    # make df of where current-run and last-run differ by more than THRESHOLD_PERCENT
+    # Make df of where current-run and last-run differ by more than THRESHOLD_PERCENT
       em_comp_out <- filter( em_comp, abs( change_percent ) >= THRESHOLD_PERCENT )
 
-    # make df of absolute difference in wide format
+    # Make df of absolute difference in wide format
       x_var <- id_cols[ "year" %!in% id_cols ] %>%
         lapply( function(x) paste0( x, "+" ) ) %>% paste( collapse = '' )
       x_var <- substr( x_var, 0, nchar( x_var ) - 1 )
       abs_diff <- filter( em_comp, diff != 0 ) %>%
         cast( as.formula( paste( x_var, "year", sep = "~" ) ), value = "diff" )
 
-    # make df of absolute difference as percentage of country total
+    # Make df of absolute difference as percentage of country total
       abs_diff_percent <- filter( em_comp, diff != 0 ) %>%
         mutate( diff_percent = round( diff*100 / current ) ) %>%
         cast( as.formula( paste( x_var, "year", sep = "~" ) ), value = "diff_percent" )
 
-    # write out diagnostics
+    # Write out diagnostics
       if ( nrow( dropped_rows ) > 0 )
         writeData( dropped_rows, "FIN_OUT", paste0( "diagnostics/", summary_fn, "_dropped-rows" ), meta = F )
       if ( nrow( added_rows ) > 0 )
@@ -327,7 +329,7 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
       }
   }
 
-  # delete the temp folder last-run
+  # Delete the temp folder last-run
   unlink( paste0( "../final-emissions/", em, "_last-run" ), recursive = T )
 }
 

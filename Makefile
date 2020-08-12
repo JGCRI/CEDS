@@ -676,9 +676,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv: \
 	$(MOD_C)/C1.1.base_NC_emissions.R \
 	$(MOD_C)/C1.2.add_NC_emissions.R \
 	$(MOD_C)/C1.2.add_SO2_NC_emissions_all.R \
-	$(MOD_C)/C1.2.add_SO2_NC_emissions_FAO.R \
 	$(MOD_C)/C1.2.GAINS_fugitive_petr_gas_emissions.R \
-	$(MOD_C)/C1.2.add_NC_emissions_EDGAR_PEGASOS.R\
 	$(MOD_C)/C1.2.add_NC_emissions_EDGAR.R \
 	$(MOD_C)/C1.2.EPA_adipic_and_nitric_acid.R \
 	$(MOD_C)/C1.2.Adipic_nitric_acid_default_process_emissions.R \
@@ -697,7 +695,6 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv: \
 	$(PARAMS)/process_db_functions.R \
 	$(MAPPINGS)/sector_input_mapping.xlsx \
 	$(ACTIV)/Process_SO2_Emissions_to_2005.xlsx \
-	$(INV_DATA)/FAO_SO2_emissions.csv \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
@@ -858,7 +855,6 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MOD_F)/F1.1.CAN_scaling_newerData.R \
 	$(MOD_F)/F1.1.China_scaling.R \
 	$(MOD_F)/F1.1.Edgar_scaling.R \
-	$(MOD_F)/F1.1.Edgar_PEGASOS_scaling.R \
 	$(MOD_F)/F1.1.EMEP_NFR09_scaling.R \
 	$(MOD_F)/F1.1.EMEP_NFR14_scaling.R \
 	$(MOD_F)/F1.1.Japan_scaling.R \

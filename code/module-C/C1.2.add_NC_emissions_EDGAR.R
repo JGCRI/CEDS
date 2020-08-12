@@ -1,14 +1,15 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.add_NC_emissions_EDGAR.R
 # Author(s): Jon Seibert, Rachel Hoesly, Steve Smith, Patrick O'Rourke
-# Date Last Modified: January 6, 2020
+# Date Last Modified: August 12, 2020
 # Program Purpose: To reformat the non-combustion sections of the EDGAR default emissions
 #                      data and add it to the database for the relevant emissions species.
 # Input Files: NC_EDGAR_sector_mapping.csv, Master_Country_List.csv,
-#              BP_energy_data.xlsx, EDGAR42_[em].csv,
-#              A.UN_pop_master.csv, C.[em]_GAINS_fug_oil_gas_shares.csv
-# Output Files: C.[em]_EDGAR_NC_Emissions_fugitive_solid_fuels.csv, C.EDGAR_NC_Emissions_[em].csv,
-#               C.EDGAR_NC_Emissions_[em]_negative.csv, C.CO2_Fugitive-petr-and-gas_default_EDGAR_process_emissions.csv,
+#             bp-stats-review-2019-all-data.xlsx, Master_Fuel_Sector_List.xlsx
+#             relevant EDGAR emissions data ( EDGAR v5 = v50_[em]_1970_[edgar_end_year].xls )
+# Output Files: C.CH4_EDGAR_NC_Emissions_fugitive_solid_fuels.csv, C.EDGAR_NC_Emissions_[em].csv,
+#               C.EDGAR_NC_Emissions_[em]_negative.csv, C.[em]_NC_emissions_db.csv,
+#               C.EDGAR_NC_Emissions_[em]_not_final_isos.csv
 # TODO:
 #      ext_backward = TRUE extended back only one year. (extend forward worked)
 #      Extend forward should extend forward with constant EFs, not linear trend
@@ -23,7 +24,7 @@
 # Universal header file - provides logging, file support, etc.
     headers <- c( "common_data.R","data_functions.R", "analysis_functions.R",
                   "process_db_functions.R", 'timeframe_functions.R') # Additional function files required.
-    log_msg <- paste0( "Processing EDGAR non-combustion default emissions data." ) # First message to be printed to the log
+    log_msg <- paste0( "Processing EDGAR non-combustion default emissions data..." ) # First message to be printed to the log
     script_name <- "C1.2.add_NC_emissions_EDGAR.R"
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
@@ -37,7 +38,7 @@
   if ( is.na( em ) ) em <- "N2O"
 
 # EDGAR data version number
-vn <- "4.2"
+vn <- "5.0"
 
 # Input domain
 domain <- "EM_INV"
@@ -46,13 +47,23 @@ domain_ext <- "EDGAR/"
 fuel <- "process"
 id_cols <- c( "iso", "sector", "fuel", "units" )
 
-EDGAR42_end_year = 2008
-EDGAR_years_keep <- paste0( "X", 1970 : EDGAR42_end_year ) # Currently: EDGAR42_end_year set to 2008
-EDGAR_years_keep_final <- paste0( "X", EDGAR_start_year : EDGAR42_end_year ) # Currently: 1971-2008
+# Temporary assignment for script development
+#em <- "CO2"
+
+# Define EDGAR years
+if( em == "CO2" & as.numeric( vn ) == 5.0 ){
+
+  EDGAR_end_year <- 2018
+
+}
+
+EDGAR_years <- EDGAR_start_year : EDGAR_end_year
+X_EDGAR_years <- paste0( 'X', EDGAR_start_year : EDGAR_end_year )
 
 # Define sectors that should not use EDGAR (also have to modify C2.1.base_NC_EF.R)
 excl_sectors <- c( )
-if ( em == "CO2" ) {
+
+if( em == "CO2" ) {
 
   excl_sectors <- c( excl_sectors, "2A1_Cement-production", "3D_Soil-emissions" )
 
@@ -61,19 +72,84 @@ if ( em == "CO2" ) {
 # ------------------------------------------------------------------------------
 # 2. Input
 
-# Determine full file name and path
-fn <- c( paste0( "EDGAR", gsub( "[.]", "", vn ), "_", em  ), ".csv" )
+# Determine file settings for different EDGAR versions
 
-NC_sector_map <- readData( "MAPPINGS", "NC_EDGAR_sector_mapping" )
-edgar <- readData( domain, fn[[ 1 ]], fn[[ 2 ]], domain_extension = domain_ext )
+#   Naming pattern for EDGAR v4.2
+    if( as.numeric( vn ) == 4.2 ){
+
+      fn <- c( paste0( "EDGAR", gsub( "[.]", "", vn ), "_", em  ), ".csv" )
+
+#   Naming pattern for EDGAR v4.3
+    } else if( as.numeric( vn ) == 4.3 ){
+
+      fn <- c( paste0( 'JRC_PEGASOS_',em,'_TS_REF' ), ".xlsx" )
+      sheet_name <- paste0( 'NEW_v', vn, '_EM_', em, '_ref' )
+      rows_to_skip <- 8
+
+#   Naming pattern for EDGAR v5
+    } else if( as.numeric( vn ) == 5 ){
+
+      fn <- c( paste0( "v",  gsub( "[.]", "", vn ), "_", em, "_", EDGAR_start_year, "_",
+                       EDGAR_end_year ), ".xls")
+      sheet_to_use <- paste0( "v", vn, "_EM_", em, "_IPCC1996" )
+      rows_to_skip <- 9
+
+#     EDGAR v5 has a special file naming convention for CO2
+      if( em == "CO2" ){
+
+        EDGAR_CO2_real_end_year <- 2018
+
+        fn <- c( paste0( "v",  gsub( "[.]", "", vn ), "_", em, "_", "excl_short-cycle_org_C_",
+                         EDGAR_start_year, "_", EDGAR_CO2_real_end_year ), ".xls")
+
+      }
+
+#   Naming pattern for other EDGAR versions
+  } else {
+
+    stop( script_name, " has not been formatted to process Edgar v", vn, ". Please ",
+          "reformat the script and rerun." )
+
+  }
+
+# Read in EDGAR data
+  if( as.numeric( vn ) == 4.2 ){
+
+    edgar <- readData( domain, fn[[ 1 ]], fn[[ 2 ]], domain_extension = domain_ext )
+
+  } else if( as.numeric( vn ) == 4.3 ){
+
+    edgar <- readData( domain, domain_extension = domain_ext,
+                       file_name = fn[ 1 ], extension = fn[ 2 ],
+                       sheet_selection = sheet_to_use, skip = rows_to_skip )
+
+  } else if( as.numeric( vn ) == 5 ){
+
+    edgar <- readData( domain, domain_extension = domain_ext,
+                       file_name = fn[ 1 ], extension = fn[ 2 ],
+                       sheet_selection = sheet_to_use, skip = rows_to_skip,
+                       missing_value = c( "", "NULL" ) )
+
+  }
+
+# Read in master country list mapping file
 Master_Country_List <- readData( "MAPPINGS", 'Master_Country_List' )
 
+# Read in EDGAR non-combustion sector mapping file
+NC_sector_map <- readData( "MAPPINGS", "NC_EDGAR_sector_mapping" )
+
+# Read in master fuel sector list mapping
+MFSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" , meta = F ) # TODO: PR comment: this can be deleted if we stick with current unit mapping
+
+# If em is CH4, read in BP coal production data
 if ( em == 'CH4' ){
-  bp_energy_data <- readData( "ENERGY_IN",BP_data_file_name, ".xlsx")
+
+  bp_energy_data <- readData( "ENERGY_IN", BP_data_file_name, ".xlsx")
   BP_coal_production_raw <- bp_energy_data[[ getBPSheetNumber( "coal", "production", "tonnes", bp_energy_data ) ]]
   # First coal production data year is 1981
-  X_BP_years <- paste0( 'X', 1981:BP_last_year )
+  X_BP_years <- paste0( 'X', 1981 : BP_last_year )
   BP_coal_production <- cleanBPDataSheet( BP_coal_production_raw, X_BP_years, Master_Country_List )
+
 }
 
 # Read UN Population Data
@@ -208,29 +284,33 @@ data_start <- findDataStart( edgar )
 
 # Remove unnecessary columns
 len <- ncol( edgar )
-edgar <- edgar[ data_start:len ]
+edgar <- edgar[ data_start : len ]
 
 # Add fuel column
 edgar$fuel <- fuel
 
 # ------------------------------------------------------------------------------
 # 5. Account for EDGAR 4D3 Indirect N2O from agriculture - for N2O only
-
+#TODO:*** years - add X's and (But done later for other ems?) and get rid of extra object (looks like i didn't
+# use Xs yet?)
 if ( em == 'N2O' ){
 
 # Subset EDGAR 4D3 Indirect N2O from agriculture, as this will be split to multiple
 # CEDS sectors later
 edgar_4D3_data <- edgar %>%
     dplyr::filter( edgar_sector == "4D3" ) %>%
-    dplyr::select( iso, edgar_sector, fuel, EDGAR_years_keep ) %>%
-    tidyr::gather( key = Year, value = Emissions_4D3, EDGAR_years_keep ) %>%
+    dplyr::select( iso, edgar_sector, fuel, EDGAR_years ) %>%
+    tidyr::gather( key = Year, value = Emissions_4D3, EDGAR_years ) %>%
     dplyr::select( -edgar_sector )
 
 edgar <- edgar %>%
     dplyr::filter( edgar_sector != "4D3" )
 
-# Add ceds_sector column from sector mapping file
-edgar$sector <- NC_sector_map$ceds_sector[ match( edgar$edgar_sector, NC_sector_map$edgar_sector ) ]
+# Add ceds_sector column and units from sector mapping file
+edgar <- edgar %>%
+  dplyr::left_join( NC_sector_map %>% dplyr::select( edgar_sector, ceds_sector ) %>% dplyr::distinct( ),
+                    by = "edgar_sector" ) %>%
+  dplyr::rename( sector = ceds_sector )
 
 # Add back "4D3 - Indirect N2O from agriculture" by splitting it among CEDS sectors "3B_Manure-management"
 # and "3D_Soil-emissions", based on the relative amount of emissions between these two sectors
@@ -239,8 +319,8 @@ edgar$sector <- NC_sector_map$ceds_sector[ match( edgar$edgar_sector, NC_sector_
 #   Subset EDGAR data for 3B and 3D
     edgar_3Band3D <- edgar %>%
         dplyr::filter( sector %in% c( "3B_Manure-management", "3D_Soil-emissions" ) ) %>%
-        dplyr::select( iso, edgar_sector, sector, fuel, EDGAR_years_keep ) %>%
-        tidyr::gather( key = Year, value = Emissions, EDGAR_years_keep )
+        dplyr::select( iso, edgar_sector, sector, fuel, EDGAR_years ) %>%
+        tidyr::gather( key = Year, value = Emissions, EDGAR_years )
 
 #   Aggregate EDGAR data for 3B and 3D
     edgar_3Band3D_summed <- edgar_3Band3D %>%
@@ -318,7 +398,7 @@ edgar$sector <- NC_sector_map$ceds_sector[ match( edgar$edgar_sector, NC_sector_
 #   making calculations over NAs ).
 
     edgar_long <- edgar %>%
-        tidyr::gather( key = Year, value = Emissions, EDGAR_years_keep ) %>%
+        tidyr::gather( key = Year, value = Emissions, EDGAR_years ) %>%
         dplyr::left_join( edgar_3Band3D_new, by = c( "iso", "edgar_sector", "sector",
                                                     "fuel", "Year" ) ) %>%
         dplyr::ungroup( ) %>%
@@ -330,60 +410,136 @@ edgar$sector <- NC_sector_map$ceds_sector[ match( edgar$edgar_sector, NC_sector_
 
     edgar <- edgar_long %>%
         tidyr::spread( Year, Emissions) %>%
-        dplyr::select( EDGAR_years_keep, iso, edgar_sector, fuel, sector )
+        dplyr::select( EDGAR_years, iso, edgar_sector, fuel, sector )
 
 } else{
 
-#   Add ceds_sector column from sector mapping file
-    edgar$sector <- NC_sector_map$ceds_sector[ match( edgar$edgar_sector, NC_sector_map$edgar_sector ) ]
+#   Add ceds_sector column and units from sector mapping file
+    edgar <- edgar %>%
+        dplyr::left_join( NC_sector_map %>% dplyr::select( edgar_sector, ceds_sector ) %>% dplyr::distinct( ),
+                          by = "edgar_sector" ) %>%
+        dplyr::rename( sector = ceds_sector )
+
+
 }
 
 # ------------------------------------------------------------------------------
 
 # 6. Finish processing EDGAR data
 
-# Add units from sector mapping file
+# Define units as kt (as EDGAR data is in Gg, which is the same as kt)
 # TODO: TAKE FROM MASTER SECTOR LIST INSTEAD
+# TODO: PR comment: using the MFSL results in different units, as they are mostly defined as "1000" in that map,
+#                   while currently they are all set to "kt" (commented out below)
+# edgar <- edgar %>%
+#   dplyr::left_join( MFSL %>% dplyr::select( sector, units ) %>% dplyr::distinct( ),
+#                     by = "sector" )
+
 edgar$units <- NC_sector_map$units[ match( edgar$sector, NC_sector_map$ceds_sector ) ]
 
-# Remove rows with NA values- interferes with database functions
-edgar <- na.omit( edgar )
+# Leave out excluded sectors and filter out sectors which did not map to CEDS sectors
+edgar <- edgar %>%
+  dplyr::filter( sector %!in% excl_sectors ) %>%
+  dplyr::filter( !is.na( sector ) )
 
 # Rearrange columns to proper order (iso-sector-fuel-units-data)
-edgar <- dplyr::select( edgar, iso, sector, fuel, units, EDGAR_years_keep )
+len <- ncol( edgar )
 
-# Sort the data
-edgar <- edgar[ with( edgar, order( iso, sector, fuel ) ), ]
+edgar <- edgar %>%
+  dplyr::select( id_cols, edgar_sector, 1 : ( len - 5 ) ) %>%
+  dplyr::arrange( iso, sector, edgar_sector, fuel )
 
-# Get rid of 2008 and 2009. Strange Values
-edgar <- edgar[,c('iso','sector','fuel','units', paste0( 'X',EDGAR_start_year:EDGAR42_end_year ) ) ]
-# TODO: The above line doesn't get rid of any values though?
+# If EDGAR v4.3 or v5 are being used, add X's to the column names
+if( as.numeric( vn ) %in% c( 4.3, 5 ) ){
 
-# Leave out excluded sectors
-  edgar <- filter( edgar, sector %!in% excl_sectors )
+  len <- ncol ( edgar )
+  names( edgar ) <- c( names( edgar[ 1 : 5 ] ), paste0( "X", names( edgar[ 6 : len ] ) ) ) # Add X's to year columns for EDGAR v5
 
-# make negative emissions zero
-  X_edgar_years <- names( edgar )[ grepl( "X", names( edgar )  ) ]
-  neg_rows <- apply( edgar[, X_edgar_years ], 1, function( row ) any( row < 0 ) )
+}
+
+edgar <- edgar[ , c( id_cols, 'edgar_sector', X_EDGAR_years ) ]
+
+# Convert data to to classs numeric, from class character
+edgar <- edgar %>%
+  dplyr::mutate_at( .vars =  X_EDGAR_years,
+                    .funs = funs( as.numeric( . ) ) )
+
+# There are instances where multiple EDGAR sectors map to 1 CEDS sector. Now that these
+# sectors have been mapped they can be aggregated
+data_to_be_summarized <- edgar[ duplicated( edgar[ , id_cols ] ), ] %>%
+  dplyr::select( id_cols ) %>%
+  # Up to this point, the df still contains the edgar_sector column, but it will only retain
+  # the first row (i.e.) first edgar_sector that corresponds to a CEDS_sector. So we need
+  # to rejoin the edgar_data again to obtain all edgar_sectors that correspond to each CEDS sector
+  dplyr::left_join( edgar %>% dplyr::select( id_cols, edgar_sector ), by = c( id_cols ) ) %>%
+  dplyr::mutate( summarise_needed_flag = 1 )
+
+edgar <- edgar %>%
+  dplyr::left_join( data_to_be_summarized, by = c( id_cols, "edgar_sector" ) ) %>%
+  dplyr::mutate( summarise_needed_flag = if_else( is.na( summarise_needed_flag ), 0, summarise_needed_flag ) ) %>%
+  dplyr::select( -edgar_sector ) %>%
+  dplyr::distinct( )
+
+data_to_be_summarized <- edgar %>%
+  dplyr::filter( summarise_needed_flag == 1 ) %>%
+  dplyr::select( -summarise_needed_flag )
+
+aggregated_data <- data_to_be_summarized %>%
+  dplyr::group_by_at( id_cols ) %>%
+  dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>% # Note: This means if an iso has NA for the multiple EDGAR sectors for the same year,
+                                                         #       the NA values will be aggregated to 0 ( example: CH4 fugitive petr and oil for cyp in 1970 )
+  dplyr::ungroup( )
+
+edgar <- edgar %>%
+  dplyr::filter( summarise_needed_flag != 1 ) %>%
+  dplyr::select( -summarise_needed_flag ) %>%
+  dplyr::bind_rows( aggregated_data ) %>%
+  dplyr::arrange( iso, sector, fuel )
+
+# Remove rows with all NA's
+edgar <- edgar[ apply( X = edgar[ , X_EDGAR_years ],
+                       MARGIN = 1, function( x ) ( !all.na( x ) ) ) ,]
+
+# Turn NAs to zeros
+edgar[ is.na( edgar ) ] <- 0
+
+# Make negative emissions zero
+  neg_rows <- apply( edgar[, X_EDGAR_years ], 1, function( row ) any( row < 0 ) )
   edgar_neg <- edgar[ neg_rows, ]
   edgar[ edgar < 0 ] <- 0
 
-# Filter isos in Master Country List
+# Filter for isos in Master Country List
+# Note: this currently leaves in isos which are in the MCL, but not final CEDS isos
+# TODO: In the future, add data for isos which are not in MCL as well as isos which are
+#       not final CEDS isos to a CEDS final iso, if appropriate.
+  edgar_iso_not_in_MCL <- edgar %>%
+    dplyr::filter( iso %!in% Master_Country_List$iso )
+
+  if( nrow( edgar_iso_not_in_MCL ) > 0 ){
+
+    printLog( "The following EDGAR isos were not mapped to a CEDS iso",
+              "in", script_name, ":",
+              sort( unique( edgar_iso_not_in_MCL$iso ) ) )
+
+  }
+
   edgar <- edgar %>%
       dplyr::filter( iso %in% Master_Country_List$iso )
+
 # ------------------------------------------------------------------------------
-# 7. Extend Fugitive Solid Fuels for methane
+# 7. Extend Fugitive Solid Fuels for methane, if EDGAR emissions do not go the last
+#    available BP year
 
-if ( em == 'CH4' ){
+if( em == 'CH4' & ( EDGAR_end_year < BP_last_year ) ){
 
-  # Seperate fugitive solid fuels and other emissions
+# Seperate fugitive solid fuels and other emissions
   fugitive_solid <- edgar %>%
       dplyr::filter( sector == '1B1_Fugitive-solid-fuels' )
 
   edgar <- edgar %>%
       dplyr::filter( sector != '1B1_Fugitive-solid-fuels' )
 
-  # Process BP data for extension
+# Process BP data for extension
   bp <- Master_Country_List %>%
     dplyr::select( iso, BPName ) %>%
     dplyr::filter( !is.na( BPName ), BPName != 'ussr' ) %>%
@@ -400,15 +556,17 @@ if ( em == 'CH4' ){
     tidyr::spread( year, value ) %>%
     dplyr::select( -BPName )
 
+# Extend fugitive solid emissions
   fugitive_solid_extended <- extend_data_on_trend_range( driver_trend = bp,
                                                          input_data = fugitive_solid,
-                                                         start = 2009, end = BP_last_year,
-                                                         ratio_start_year = 2007,
+                                                         start = ( EDGAR_end_year + 1 ), end = BP_last_year,
+                                                         ratio_start_year = ( EDGAR_end_year - 1 ),
                                                          expand = T,
                                                          range = 2,
                                                          id_match.driver = c( 'iso' ) )
 
-  fugitive_solid_extended <- fugitive_solid_extended[ , c( 'iso','sector','fuel','units',paste0( 'X', 1971 : BP_last_year ) ) ]
+  fugitive_solid_extended <- fugitive_solid_extended[ , c( 'iso','sector','fuel','units',
+                                                           paste0( 'X', EDGAR_start_year : BP_last_year ) ) ]
 
 }
 
@@ -426,13 +584,13 @@ if ( em == 'CH4' ){
       dplyr::filter( iso %!in% MCL_final_isos$iso )
 
     not_final_CEDS_isos_nonzero <- not_final_CEDS_isos %>%
-        dplyr::filter_at( .vars = EDGAR_years_keep_final, any_vars( . != 0 ) )
+        dplyr::filter_at( .vars = X_EDGAR_years, any_vars( . != 0 ) )
 
 #   Assign values if any non-final CEDS isos have emissions and it is appropriate to do so
     if( nrow( not_final_CEDS_isos_nonzero ) != 0 ){
 
 #       TODO: These isos have CO2 emissions which may need to be assigned to isos still. Other ems may have other isos
-#             which will needed to be delt with as well (this list refers isos missing from the CO2 emission data).
+#             which will needed to be delt with as well (this list refers isos missing from the CO2 emission data, as of EDGAR v4.2)
 #         ant - Netherlands Antilles - unclear if some emissions should be
 #               assigned to abw, cuw, and sxm (as abw has some emissions already beginning in 1976 for CH4)
 #         scg - Serbia and Montenegro - unclear if some emissions should be
@@ -456,7 +614,7 @@ if ( em == 'CH4' ){
 #        If the following isos are missing, add them to the data frame with NA for emission for each sector
 #           TODO: Some of these isos could likely be created by disaggregating from more aggregate regions. There are different
 #           missing isos for different ems, which should also be considered here (this list refers isos missing from the CO2 emission data)
-#           See below notes:
+#           See below notes: (As of EDGAR v4.2)
 #               "cok"             Cook Islands                      - unclear if should disaggregate nzl
 #               "cuw"             Curacao                           - unclear if should disaggregate ant, see above note
 #               "fsm"             Federated States of Micronesia
@@ -477,7 +635,7 @@ if ( em == 'CH4' ){
 
           new_iso <- edgar %>%
               dplyr::mutate( iso = NA_character_ ) %>%
-              dplyr::mutate_at( EDGAR_years_keep_final, funs( identity( NA_real_ ) ) ) %>%
+              dplyr::mutate_at( X_EDGAR_years, funs( identity( NA_real_ ) ) ) %>%
               dplyr::distinct( ) %>%
               dplyr::mutate( iso = paste0( iso_in ) )
 
@@ -496,10 +654,10 @@ if ( em == 'CH4' ){
           printLog( "Disaggregating sdn EDGAR", em, "emissions to sdd and ssd using UN population data..." )
 
           edgar <- disagg_iso( agg_iso_region = "sdn",
-                                   additional_iso_to_create = "ssd",
-                                   emissions_data_in = edgar,
-                                   population_data = population,
-                                   years_to_disaggregate = EDGAR_years_keep_final )
+                               additional_iso_to_create = "ssd",
+                               emissions_data_in = edgar,
+                               population_data = population,
+                               years_to_disaggregate = X_EDGAR_years )
 
       }
 
@@ -552,11 +710,11 @@ if( em == "CO2" ){
 #   Disaggregate fugitive oil and gas emissions
     edgar_fugitive_oil_gas_long  <- edgar_fugitive_oil_gas %>%
         dplyr::select( -sector ) %>%
-        tidyr::gather( key = years, value = total_fugitive_emissions, EDGAR_years_keep_final )
+        tidyr::gather( key = years, value = total_fugitive_emissions, X_EDGAR_years )
 
     disaggregated_EDGAR_fug <- GAINS_fug_subsec_shares %>%
-        dplyr::select( iso, sector, fuel, units, EDGAR_years_keep_final ) %>%
-        tidyr::gather( key = years, value = shares, EDGAR_years_keep_final ) %>%
+        dplyr::select( iso, sector, fuel, units, X_EDGAR_years ) %>%
+        tidyr::gather( key = years, value = shares, X_EDGAR_years ) %>%
         dplyr::rename( units_shares = units ) %>%
         dplyr::left_join( edgar_fugitive_oil_gas_long, by = c( "iso", "fuel", "years" ) ) %>%
         dplyr::mutate( disaggregate_emissions = shares * total_fugitive_emissions ) %>%
@@ -568,12 +726,12 @@ if( em == "CO2" ){
         dplyr::mutate( sector = "1B2_Fugitive-petr-and-gas" ) %>%
         dplyr::group_by( iso, sector, fuel, units ) %>%
         dplyr::summarise_all( funs( sum( ., na.rm = FALSE ) ) ) %>%
-        dplyr::mutate_at( EDGAR_years_keep_final, funs( round( ., digits = 10 ) ) ) %>%
+        dplyr::mutate_at( X_EDGAR_years, funs( round( ., digits = 10 ) ) ) %>%
         dplyr::ungroup( )
 
     emissions_for_check <- edgar_fugitive_oil_gas %>%
         dplyr::arrange( iso ) %>%
-        dplyr::mutate_at( EDGAR_years_keep_final, funs( round( ., digits = 10 ) ) )
+        dplyr::mutate_at( X_EDGAR_years, funs( round( ., digits = 10 ) ) )
 
     diff1 <- setdiff( emissions_for_check, disaggregated_EDGAR_fug_summed )
     diff2 <- setdiff( disaggregated_EDGAR_fug_summed , emissions_for_check )
@@ -602,6 +760,7 @@ if( em == "CO2" ){
 #          for each CEDS sector (for each CEDS sec, fuel, and iso combination),
 #          thus without doing this addToEmissionsDb would only copy the first value for
 #          a CEDS sector, fuel, and iso combination, when there could be more than 1 value
+# TODO: This part may not be needed any longer, as emissions are aggregated above as well
     edgar <- edgar %>%
         dplyr::group_by( iso, sector, fuel, units ) %>%
         dplyr::summarize_all( funs( sum(., na.rm = TRUE ) ) )
@@ -628,13 +787,17 @@ if( em == "N2O" ){
 
 # 12. Output
 
-#   Output disaggregate EDGAR fugitive solid emissions to the default non-combustion emissions directory, if em is CH4
+# If em is CH4, output extended fugitive solid emissions
 if ( em == 'CH4' ){
 
   writeData( fugitive_solid_extended,  domain = "DEFAULT_EF_IN", domain_extension = "non-combustion-emissions/",
              fn = paste0( "C.",em, "_EDGAR_NC_Emissions_fugitive_solid_fuels" ) )
 
 }
+
+# Add EDGAR NC emissions to CEDS default NC emissions database
+addToEmissionsDb( edgar_final_emissions, em = em, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
+writeData( edgar, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em ) ) # Output includes 2B_Chemical-industry, even for N2O
 
 #   Output disaggregate EDGAR fugitive emissions to the default non-combustion emissions directory, if em is CO2
 if ( em == "CO2" ){
@@ -653,14 +816,23 @@ if( em == "N2O" ){
 
 }
 
-#   Add emissions to the em's NC database
-addToEmissionsDb( edgar_final_emissions, em = em, type = 'NC', ext_backward = FALSE, ext_forward = FALSE )
-writeData( edgar, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em ) ) # Output includes 2B_Chemical-industry, even for N2O
+# Diagnostic outputs:
 
-#   Output negative EDGAR emissions to diagnostics, if they exist
-if ( nrow( edgar_neg ) > 0 ){
-  writeData( edgar_neg, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em, "_negative" ) )
-}
+#   Ouptut EDGAR data which had at least one negative value (that was then set to 0)
+    if ( nrow( edgar_neg ) > 0 ){
 
-logStop()
+      writeData( edgar_neg, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em, "_negative" ) )
+
+    }
+
+#   Output EDGAR data for isos not defined in CEDS MCL
+    if ( nrow( edgar_iso_not_in_MCL ) > 0 ){
+
+      writeData( edgar_iso_not_in_MCL, domain = "DIAG_OUT", fn = paste0( "C.EDGAR_NC_Emissions_",em, "_not_final_isos" ) )
+
+    }
+
+
+logStop( )
+
 # END

@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: data analysis functions
 # Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Patrick O'Rourke
-# Last Updated: 27 March 2019
+# Last Updated: July 17, 2020
 
 # This file should be sourced by any R script running diagnostics on CEDS data.
 # Functions contained:
@@ -327,7 +327,9 @@ countryCheck <- function( data, cols = 1, convention = "ISO" ) {
 #                 iso_check( data_frame, "iso col", provided_data_contains_unique_isos_only = F)
 #                 iso_check( data_frame, "iso", provided_data_needs_all_ceds_isos = F
 #                            provided_data_contains_unique_isos_only = F)
-
+# TODO: option to not count NAs towards passing the check on whether all CEDS isos are within the provided
+#       data's isos
+# TODO: should we include the global iso optionally?
 iso_check <- function(data_to_check, data_to_check_iso_colname,
                       provided_data_needs_all_ceds_isos = T,
                       provided_data_contains_unique_isos_only = T) {
@@ -440,7 +442,7 @@ iso_check <- function(data_to_check, data_to_check_iso_colname,
 
         if ( length ( MCL_countries_not_in_provided_data_list[[1]] ) == 0 ) {
 
-          printLog ( paste0 ( "Check 2 completed and Passed - All countries from CEDS Master_Country_List.csv",
+          printLog ( paste0 ( "Check 2 completed and passed - All countries from CEDS Master_Country_List.csv",
                               " are within the provided data." ) )
 
         } else if ( length ( MCL_countries_not_in_provided_data_list[[1]] ) > 0 ) {
@@ -555,29 +557,29 @@ EDGARcheck <- function( x, colname = "edgar_sector", check_valid = TRUE, check_a
 # ---------------------------------------------------------------------------------
 
 # mapCEDS_sector_fuel
-# Brief:        map to CEDS sectors and/or fuels
+# Brief:        Map to CEDS sectors and/or fuels
 # Details:      Map any data to CEDS sectors (sectors and fuels are seperate in original
 #               data and thus map sererately in two steps) or to CEDS sectors and fuels
 #               (original data notes a sector and a fuel and must map in one step, such as IEA FLOWS)
 # Dependencies: None
 # Author(s):    Rachel Hoesly
 # Params:
-#       mapping_data: original data (not in CEDS format)
-#       mapping_file: mapping file specific to original data
+#       mapping_data:   original data (not in CEDS format)
+#       mapping_file:   mapping file specific to original data
 #       data_match_col: name(s) of the matching columns in the data file (by.x) ex: c('sector')
-#       map_match_col: name(s) of the matching data label column in the mapping file (by.y) ex: c('data_sector')
-#       map_merge_col: name of the column in the mapping file to merge with original data: ex: ('ceds_sector')
-#       new_col_names: name of the merged column (ceds sector or fuel) in the output c('sector')
-#       level_map_in: aggregation of the scaling map. Should always map to detailed when possible
-#                     possible choices:'working_sectors_v1', 'working_sectors_v2', 'detailed_sectors'
-#       level_out: aggregation of the output file
-#                     possible choices:'working_sectors_v1', 'working_sectors_v2', 'detailed_sectors'
-#       aggregate: boolean T/F, aggregate data by output sectors/fuels?
-#       aggregate_col: col or columns to aggregate data over, usually 'years' or vector of column names of data
-#       oneToOne: does the data map 1:1 with the mapping file. Now, The function only works for data used for emission factors, where
-#                 there is no danger of double counting emissions.
-#       agg.fun = function used to aggergate (default is sum)
-# Examples: used in B1.2.add_GAINS_EMF-30.R
+#       map_match_col:  name(s) of the matching data label column in the mapping file (by.y) ex: c('data_sector')
+#       map_merge_col:  name of the column in the mapping file to merge with original data: ex: ('ceds_sector')
+#       new_col_names:  name of the merged column (ceds sector or fuel) in the output c('sector')
+#       level_map_in:   aggregation of the scaling map. Should always map to detailed when possible
+#                       possible choices:'working_sectors_v1', 'working_sectors_v2', 'detailed_sectors'
+#       level_out:      aggregation of the output file
+#                       possible choices:'working_sectors_v1', 'working_sectors_v2', 'detailed_sectors'
+#       aggregate:      boolean T/F, aggregate data by output sectors/fuels?
+#       aggregate_col:  col or columns to aggregate data over, usually 'years' or vector of column names of data
+#       oneToOne:       does the data map 1:1 with the mapping file. Now, The function only works for data used for emission factors, where
+#                       there is no danger of double counting emissions.
+#       agg.fun:        function used to aggergate (default is sum)
+# Examples: used in B1.1.base_comb_GAINS_EMF-30.R
 #               mapCEDS_sector_fuel(mapping_data = emissions_ceds,
 #                                   mapping_file = fuel_sector_map,
 #                                   data_match_col = 'Sector',
@@ -605,42 +607,43 @@ EDGARcheck <- function( x, colname = "edgar_sector", check_valid = TRUE, check_a
 #                                      agg.fun = mean)
 #
 # Return:       mapped data to ceds sectors and fuels and designated level
-# Input Files:
+# Input Files:  Master_Sector_Level_map.csv
 # Output Files:
 
-mapCEDS_sector_fuel <- function(mapping_data,
-                                mapping_file,
-                                data_match_col,
-                                map_match_col,
-                                map_merge_col,
-                                new_col_names = NA,
-                                level_map_in,
-                                level_out = 'working_sectors_v1',
-                                aggregate = TRUE,
-                                aggregate_col = NA,
-                                oneToOne,
-                                agg.fun=NA){
-  ceds_sector_map <- readData('MAPPINGS','Master_Sector_Level_map')
+mapCEDS_sector_fuel <- function( mapping_data,
+                                 mapping_file,
+                                 data_match_col,
+                                 map_match_col,
+                                 map_merge_col,
+                                 new_col_names = NA,
+                                 level_map_in,
+                                 level_out = 'working_sectors_v1',
+                                 aggregate = TRUE,
+                                 aggregate_col = NA,
+                                 oneToOne,
+                                 agg.fun = NA ){
+
+  ceds_sector_map <- readData( 'MAPPINGS','Master_Sector_Level_map' )
 
   #Check Input options
-  # match columns exist in input files
-  # valid method
-  # valid level
-  # valid data cols provided for aggregate==TRUE
+  # Match columns exist in input files
+  # Valid method
+  # Valid level
+  # Valid data cols provided for aggregate==TRUE
   if (aggregate){
     if (anyNA( aggregate_col )) stop('in mapCEDS_sector_fuel, for aggregate = TRUE, must provide
                                         valid numeric data columns to aggreate over. Check argument "data_col" ')
     }
-  # noted level matches map
-  # extra sectors in map
-  # unmapped sectors
+  # Noted level matches map
+  # Extra sectors in map
+  # Unmapped sectors
   # data_match_col in mapping_data
   if ( all(data_match_col %!in% names(mapping_data))) stop('data_match_col not in in mapping_data')
   # map_match_col
   if ( all(map_match_col %!in% names(mapping_file))) stop('map_match_col not in in mapping_file')
   # map_merge_col
   if ( all(map_merge_col %!in% names(mapping_file))) stop('map_merge_col not in in mapping_file')
-  # levels
+  # Levels
   if ( level_map_in %!in% names(ceds_sector_map)) stop('level_map_in not in ceds_sector_map')
   if ( level_out %!in% names(ceds_sector_map)) stop('level_out not in ceds_sector_map')
 
@@ -652,7 +655,7 @@ mapCEDS_sector_fuel <- function(mapping_data,
                by.x = data_match_col,
                by.y = map_match_col,
                all = TRUE)
-  # remove unmatched rows
+  # Remove unmatched rows
   # here to write out unmapped values
   out <- out[complete.cases(out[,map_merge_col]),]
 
@@ -671,7 +674,7 @@ mapCEDS_sector_fuel <- function(mapping_data,
     names(out)[which(names(out)=='x')] <- aggregate_col
   }
 
-  # rename columns
+  # Rename columns
   if(!anyNA( new_col_names )){
     names(out)[which(names(out) %in% map_merge_col)] <- new_col_names }
 
@@ -681,7 +684,7 @@ mapCEDS_sector_fuel <- function(mapping_data,
                  by.x = new_col_names,
                  by.y = level_map_in,
                  all = TRUE)
-    # remove unmatched rows
+    # Remove unmatched rows
     # here to write out unmapped values
     out <- out[complete.cases(out[,level_out]),]
 

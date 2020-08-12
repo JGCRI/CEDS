@@ -1,50 +1,59 @@
 inv_sector,Edgar_Sector_Name,scaling_sector,ceds_sector,Notes
-1A1a,Public electricity and heat production,1A1a,1A1a_Electricity-public,
-,,1A1a,1A1a_Electricity-autoproducer,
-,,1A1a,1A1a_Heat-production,
+1A1a,Public electricity and heat production,1A1a_transf,1A1a_Electricity-public,
+,,1A1a_transf,1A1a_Electricity-autoproducer,
+,,1A1a_transf,1A1a_Heat-production,
 1A1bc,Other Energy Industries,,1A1bc_Other-transformation,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
-1A2,Manufacturing Industries and Construction,1A2,1A2a_Ind-Comb-Iron-steel,
-,,1A2,1A2b_Ind-Comb-Non-ferrous-metals,
-,,1A2,1A2c_Ind-Comb-Chemicals,
-,,1A2,1A2d_Ind-Comb-Pulp-paper,
-,,1A2,1A2e_Ind-Comb-Food-tobacco,
-,,1A2,1A2f_Ind-Comb-Non-metalic-minerals,
-,,1A2,1A2g_Ind-Comb-Construction,
-,,1A2,1A2g_Ind-Comb-transpequip,
-,,1A2,1A2g_Ind-Comb-machinery,
-,,1A2,1A2g_Ind-Comb-mining-quarying,
-,,1A2,1A2g_Ind-Comb-wood-products,
-,,1A2,1A2g_Ind-Comb-textile-leather,
-,,1A2,1A2g_Ind-Comb-other,
-1A3a,Domestic aviation,1A3a,1A3aii_Domestic-aviation,
-1A3b,Road transportation,1A3b,1A3b_Road,
-1A3c,Rail transportation,1A3c,1A3c_Rail,
+,,,1A1bc_Other-feedstocks,Don't scale
+1A2,Manufacturing Industries and Construction,1A2_ind,1A2a_Ind-Comb-Iron-steel,
+,,1A2_ind,1A2b_Ind-Comb-Non-ferrous-metals,
+,,1A2_ind,1A2c_Ind-Comb-Chemicals,
+,,1A2_ind,1A2d_Ind-Comb-Pulp-paper,
+,,1A2_ind,1A2e_Ind-Comb-Food-tobacco,
+,,1A2_ind,1A2f_Ind-Comb-Non-metalic-minerals,
+,,1A2_ind,1A2g_Ind-Comb-Construction,
+,,1A2_ind,1A2g_Ind-Comb-transpequip,
+,,1A2_ind,1A2g_Ind-Comb-machinery,
+,,1A2_ind,1A2g_Ind-Comb-mining-quarying,
+,,1A2_ind,1A2g_Ind-Comb-wood-products,
+,,1A2_ind,1A2g_Ind-Comb-textile-leather,
+,,1A2_ind,1A2g_Ind-Comb-other,
+1A3a,Domestic aviation,1A3a_domAvi,1A3aii_Domestic-aviation,Implicitly assuming IEA energy for this sector is similar to what is used in EDGAR
+1A3b,Road transportation,1A3_transp,1A3b_Road,
+1A3b_noRES,Road transportation no resuspension,1A3_transp,,
+1A3b_RES,Road transportation resuspension,1A3_transp,,
+1A3c,Rail transportation,1A3c_rail,1A3c_Rail,
 1A3d,Inland navigation,,1A3dii_Domestic-navigation,
-1A3e,Other transportation,1A3e,1A3eii_Other-transp,
-1A4,Residential and other sectors,1A4,1A4a_Commercial-institutional,
-,,1A4,1A4b_Residential,
-,,1A4,1A4c_Agriculture-forestry-fishing,
-1A5,Other Energy Industries,,,"Don't scale since it's a ""catch all"" that is unlikely to match"
-1B1,Fugitive emissions from solid fuels,,1B1_Fugitive-solid-fuels,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
-1B2,Fugitive emissions from oil and gas,,1B2_Fugitive-petr,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
-,,,1B2b_Fugitive-NG-prod,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
-,,,1B2b_Fugitive-NG-distr,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
-,,,1B2d_Fugitive-other-energy,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
-1C1,Memo: International aviation,,1A3ai_International-aviation,
-1C2,Memo: International navigation,,1A3di_International-shipping,
-2A1,Production of cement,,2A1_Cement-production,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
-2A2,Production of lime,,2A2_Lime-production,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
-2A4,Production of other minerals,,2A6_Other-minerals,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+1A3e,Other transportation,1A3_transp,1A3eii_Other-transp,
+1A4,Residential and other sectors,1A4_RCO,1A4a_Commercial-institutional,
+,,1A4_RCO,1A4b_Residential,
+,,1A4_RCO,1A4c_Agriculture-forestry-fishing,
+1A5,Other Energy Industries,,1A5_Other-unspecified,"Don't scale since it's a ""catch all"" that is unlikely to match"
+1B1,Fugitive emissions from solid fuels (fossil fuels),,1B1_Fugitive-solid-fuels,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+1B1x,Fugitive emissions from solid fuels (biofuels),,,
+1B2,Fugitive emissions from oil and gas (fossil fuels),,1B2_Fugitive-petr,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+1B2,Fugitive emissions from gaseous fuels (fossil fuels),,1B2b_Fugitive-NG-prod,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+1B2,Fugitive emissions from liquid fuels,,1B2b_Fugitive-NG-distr,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+1B2x,Fugitive emissions from oil and gas (biofuels),,1B2d_Fugitive-other-energy,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+1B2x,Fugitive emissions from gaseous fuels (biofuels),,,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+1C1,Memo: International aviation,,1A3ai_International-aviation,Don't scale
+1C2,Memo: International navigation,,1A3di_International-shipping,Don't scale
+,,,1A3di_Oil_Tanker_Loading,Don't scale
+2A1,Cement production,,2A1_Cement-production,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+2A2,Lime production,,2A2_Lime-production,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+2A3,Limestone and dolomite use,,,
+2A4,Soda ash production and use,,2A6_Other-minerals,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 2A7,Production of other minerals,,2A6_Other-minerals,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 2B,Production of chemicals,,2B_Chemical-industry,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 ,,,2B2_Chemicals-Nitric-acid,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 ,,,2B3_Chemicals-Adipic-acid,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
-2C,Manure management,,2C_Metal-production,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
-2D,Direct soil emissions,,2H_Pulp-and-paper-food-beverage-wood,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+2C,Production of metals,,2C_Metal-production,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+2D,Production of pulp/paper/food/drink,,2H_Pulp-and-paper-food-beverage-wood,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+2G,Non-energy use of lubricants/waxes (CO2),,6B_Other-not-in-total,Don't scale
 3A,Solvent and other product use: paint,,2D_Paint-application,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 3B,Solvent and other product use: degrease,,2D_Degreasing-Cleaning,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 3C,Solvent and other product use: chemicals,,2D3_Chemical-products-manufacture-processing,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 3D,Solvent and other product use: other,,2D3_Other-product-use,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+,,,2L_Other-process-emissions,Don't scale
 4A,Enteric fermentation,,3E_Enteric-fermentation,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 4B,Manure management,,3B_Manure-management,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 4C,Rice cultivation,,3D_Rice-Cultivation,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
@@ -53,11 +62,12 @@ inv_sector,Edgar_Sector_Name,scaling_sector,ceds_sector,Notes
 4D3,Indirect N2O from agriculture,,,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data). Also, ceds_sector is not provided here, as this EDGAR sector is split among CEDS 3B_Manure-management and CEDS 3D_Soil-emissions"
 4D4,Other direct soil emissions,,3D_Soil-emissions,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 ,,,3I_Agriculture-other,
-4E,Savanna burning,other-in-total,6A_Other-in-total,
+4E,Other-in-total,other-in-total,6A_Other-in-total,Not in EDGAR v5
 4F,Agricultural waste burning,,3F_Agricultural-residue-burning-on-fields,Don't include in CMIP6 data product
-5A,Forest fires,,11B_Forest-fires,Don't include in CMIP6 data product
-5C,Grassland fires,,11C_Other-natural,Don't include in CMIP6 data product
-5D,Peat fires and decay of drained peatland,,11C_Other-natural,Don't include in CMIP6 data product
+,,,11A_Volcanoes,Don't scale
+5A,Forest fires,,11B_Forest-fires,"Don't include in CMIP6 data product, Not in EDGAR v5"
+5C,Grassland fires,,11C_Other-natural,"Don't include in CMIP6 data product, Not in EDGAR v5"
+5D,Peat fires and decay of drained peatland,,11C_Other-natural,"Don't include in CMIP6 data product, Not in EDGAR v5"
 6A,Solid waste disposal on land,,5A_Solid-waste-disposal,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 6B,Wastewater handling,,5D_Wastewater-handling,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 6C,Waste incineration,,5C_Waste-incineration,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"

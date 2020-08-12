@@ -30,6 +30,7 @@
 
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
+
     if ( is.na( em ) ) em <- "SO2"
 
     MODULE_B <- "../code/module-B/"
@@ -84,7 +85,7 @@
         scripts <- c( scripts, 'B1.3.proc_comb_EF_control_percent.R' )
     }
 #-------------------------------------------------------------------------------------
-# 1. Call Scripts
+# 2. Call Scripts
 
 # Run all child scripts for the given emissions type. The call to
 # invisible() prevents extraneous output from appearing in the console.
