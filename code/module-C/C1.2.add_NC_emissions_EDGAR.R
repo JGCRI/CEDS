@@ -295,16 +295,18 @@ edgar$fuel <- fuel
 
 # ------------------------------------------------------------------------------
 # 5. Account for EDGAR 4D3 Indirect N2O from agriculture - for N2O only
-#TODO:*** years - add X's and (But done later for other ems?) and get rid of extra object (looks like i didn't
-# use Xs yet?)
+
 if ( em == 'N2O' ){
 
 # Subset EDGAR 4D3 Indirect N2O from agriculture, as this will be split to multiple
 # CEDS sectors later
+
+temp_edgar_years <- paste( EDGAR_years )
+
 edgar_4D3_data <- edgar %>%
     dplyr::filter( edgar_sector == "4D3" ) %>%
-    dplyr::select( iso, edgar_sector, fuel, EDGAR_years ) %>%
-    tidyr::gather( key = Year, value = Emissions_4D3, EDGAR_years ) %>%
+    dplyr::select( iso, edgar_sector, fuel, temp_edgar_years ) %>%
+    tidyr::gather( key = Year, value = Emissions_4D3, temp_edgar_years ) %>%
     dplyr::select( -edgar_sector )
 
 edgar <- edgar %>%
@@ -323,8 +325,8 @@ edgar <- edgar %>%
 #   Subset EDGAR data for 3B and 3D
     edgar_3Band3D <- edgar %>%
         dplyr::filter( sector %in% c( "3B_Manure-management", "3D_Soil-emissions" ) ) %>%
-        dplyr::select( iso, edgar_sector, sector, fuel, EDGAR_years ) %>%
-        tidyr::gather( key = Year, value = Emissions, EDGAR_years )
+        dplyr::select( iso, edgar_sector, sector, fuel, temp_edgar_years ) %>%
+        tidyr::gather( key = Year, value = Emissions, temp_edgar_years )
 
 #   Aggregate EDGAR data for 3B and 3D
     edgar_3Band3D_summed <- edgar_3Band3D %>%
@@ -402,7 +404,7 @@ edgar <- edgar %>%
 #   making calculations over NAs ).
 
     edgar_long <- edgar %>%
-        tidyr::gather( key = Year, value = Emissions, EDGAR_years ) %>%
+        tidyr::gather( key = Year, value = Emissions, temp_edgar_years ) %>%
         dplyr::left_join( edgar_3Band3D_new, by = c( "iso", "edgar_sector", "sector",
                                                     "fuel", "Year" ) ) %>%
         dplyr::ungroup( ) %>%
@@ -414,7 +416,7 @@ edgar <- edgar %>%
 
     edgar <- edgar_long %>%
         tidyr::spread( Year, Emissions) %>%
-        dplyr::select( EDGAR_years, iso, edgar_sector, fuel, sector )
+        dplyr::select( temp_edgar_years, iso, edgar_sector, fuel, sector )
 
 } else{
 
