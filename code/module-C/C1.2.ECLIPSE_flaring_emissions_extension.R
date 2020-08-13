@@ -69,10 +69,12 @@
       EDGAR_years <- EDGAR_start_year : EDGAR_end_year
       X_EDGAR_years <- paste0( 'X', EDGAR_start_year : EDGAR_end_year )
 
+      # N2O
       fn <- c( paste0( "v",  gsub( "[.]", "", vn ), "_", em, "_", EDGAR_start_year, "_",
                        EDGAR_end_year ), ".xls")
       sheet_to_use <- paste0( "v", vn, "_EM_", em, "_IPCC1996" )
 
+      # NOx
       fn_NOx <- c( paste0( "v",  gsub( "[.]", "", vn ), "_", "NOx", "_", EDGAR_start_year, "_",
                            EDGAR_end_year ), ".xls")
       sheet_to_use_NOx <- paste0( "v", vn, "_EM_", "NOx", "_IPCC1996" )
@@ -318,7 +320,7 @@ if( em == "N2O" ){
             dplyr::select( ISO_A3, Name, IPCC, IPCC_description, EDGAR_years ) %>%
             dplyr::rename( iso = ISO_A3 ) %>%
             dplyr::mutate( iso = tolower( iso ) ) %>%
-            # As of EDGAR v5, this is the only petr. and gas fugitive for N2O and NOx
+            # As of EDGAR v5, this is the only petr. and gas fugitive EDGAR sector for N2O and NOx
             dplyr::filter( IPCC == "1B2", IPCC_description == "Fugitive emissions from oil and gas" )
 
 #       Apply EDGAR region aggregate Serbia and Montengro data to each CEDS relevant iso, so that both isos get their aggregate region ratio
