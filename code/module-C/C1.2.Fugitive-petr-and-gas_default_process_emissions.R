@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.2.Fugitive-petr-and-gas_default_process_emissions.R
 # Author: Leyang Feng, Patrick O'Rourke
-# Date Last Modified: August 12, 2020
+# Date Last Modified: August 13, 2020
 # Program Purpose: Generates default process emissions for fugitive oil and
 #                  gas production ( 1B2_Fugitive-petr, 1B2b_Fugitive-NG-distr,
 #                  and 1B2b_Fugitive-NG-prod )
@@ -151,7 +151,7 @@ if( em != "NH3" ){
 #      Process population data
        population_clean <- population_data %>%
            dplyr::mutate( year = paste0( "X", year ) ) %>%
-           dplyr::filter( scenario == "Estimates",
+           dplyr::filter( scenario %in% c( historical_pop_scenario, future_pop_scenario ),
                           year %in% years_to_disaggregate ) %>%
            dplyr::select( iso, year, pop ) %>%
            tidyr::spread( year, pop )

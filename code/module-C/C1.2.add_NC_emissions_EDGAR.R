@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.add_NC_emissions_EDGAR.R
 # Author(s): Jon Seibert, Rachel Hoesly, Steve Smith, Patrick O'Rourke
-# Date Last Modified: August 12, 2020
+# Date Last Modified: August 13, 2020
 # Program Purpose: To reformat the non-combustion sections of the EDGAR default emissions
 #                      data and add it to the database for the relevant emissions species.
 # Input Files: NC_EDGAR_sector_mapping.csv, Master_Country_List.csv,
@@ -156,7 +156,11 @@ if ( em == 'CH4' ){
 population <- readData( "MED_OUT", file_name = "A.UN_pop_master" )
 
 # GAINS subsector splits
-GAINS_fug_subsec_shares <- readData( "MED_OUT", file_name = paste0( "C.", em, "_GAINS_fug_oil_gas_shares" ) )
+if( em == "CO2" ){
+
+  GAINS_fug_subsec_shares <- readData( "MED_OUT", file_name = paste0( "C.", em, "_GAINS_fug_oil_gas_shares" ) )
+
+}
 
 # ------------------------------------------------------------------------------
 # 3. Define functions used within this script
@@ -174,7 +178,7 @@ GAINS_fug_subsec_shares <- readData( "MED_OUT", file_name = paste0( "C.", em, "_
 #       Process population data
         population_clean <- population_data %>%
             dplyr::mutate( year = paste0( "X", year ) ) %>%
-            dplyr::filter( scenario == "Estimates",
+            dplyr::filter( scenario %in% c( historical_pop_scenario, future_pop_scenario ),
                            year %in% years_to_disaggregate ) %>%
             dplyr::select( iso, year, pop ) %>%
             tidyr::spread( year, pop )
