@@ -79,9 +79,9 @@ Fernandes_years <- 1850 : 2000
 X_Fernandes_years <- paste0( "X", Fernandes_years )
 
 # GAINS years
-GAINS_start_year <- '2000'
-GAINS_end_year <- '2020'
-GAINS_years <- c( GAINS_start_year, '2005', '2010', GAINS_end_year)
+GAINS_start_year <- '1990'
+GAINS_end_year <- '2050'
+GAINS_years <- seq( from = GAINS_start_year, to = GAINS_end_year, by = 5 )
 X_GAINS_years <- paste0( "X", GAINS_years )
 
 # UNSD years

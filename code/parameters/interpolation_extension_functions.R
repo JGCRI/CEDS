@@ -109,23 +109,24 @@ expandAll <- function(input,
 
 # ------------------------------------------------------------------------------
 # interpolateValues
-# Brief: Interpolates missing "in between" years by linear or constant extension
+# Brief: Adds years beteween existing years in a data frame, and then
+#        interpolates values by linear or constant extension
 # Dependencies:
 # Author: Rachel Hoesly
-# parameters:
-# return:  interpolated value
-# input files: ext_data - the inventory to be interpolated
-#       ext_default: default interp method, linear or constant (carry forward)
-#       ext_method: input method file that contains interpolation methods for non default
-#           iso - sector (or whichever) variables. if NA uses default methods
-#       meta:TRUE or FALSE. If true, updates value-meta-data
+# parameters: interp_data   input to the function. data to have values missing
+#                           years added to and data interpolated. must be
+#                           type data.frame only (not tibble)
+# return:  df with all missing years and interpolated values
+# input    files: ext_data - the inventory to be interpolated
+#          ext_default: default interp method, linear or constant (carry forward)
+#          ext_method: input method file that contains interpolation methods for non default
+#                      iso - sector (or whichever) variables. if NA uses default methods
+#          meta: TRUE or FALSE. If true, updates value-meta-data
 # TODO: meta functionality does not work right now. must be false
-
+# TODO: This function will fail if objects are not class 'data.frame' only
 interpolateValues <- function(interp_data,interp_default = 'linear',
                               meta = FALSE,
                               interp_method = NA){
-
-
 
   # Define parameters from data
   unit.label <- FALSE

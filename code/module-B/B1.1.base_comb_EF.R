@@ -45,7 +45,7 @@
     scripts <- c()
 
 # For all GAINS emissions species:
-    if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'BC', 'OC', 'CO', 'CH4', 'CO2' ) )
+    if ( em %in% c( "BC", "CH4", "CO", "CO2", "NMVOC", "NOx", "OC", "SO2" ) )
       scripts <- c( scripts, 'B1.1.base_comb_GAINS_EMF-30.R' )
 
 # All emissions species execute this file, which initializes the control pct
@@ -70,8 +70,7 @@
             scripts <- c( scripts, "B1.1.base_N2O_comb_EF.R")
         } else {
         # B1.1.base_OTHER_comb_EF.R processes GAINS EMF-30 efs for base emissions
-        # other than SO2 and BC/OC, if emission species is SO2, BC, or OC, CO2, CH4
-        # it only writes diagnostic output
+        # other than BC/OC, CO2, NH3, and SO2 (only runs for CH4, CO, NMVOC, NOx).
             scripts <- c( scripts, "B1.1.base_OTHER_comb_EF.R")
         }
     } else {

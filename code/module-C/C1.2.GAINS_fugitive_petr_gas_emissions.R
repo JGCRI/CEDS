@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.GAINS_fugitive_petr_gas_emissions.R
 # Author(s): Patrick O'Rourke
-# Date Last Modified: August 12, 2020
+# Date Last Modified: August 13, 2020
 # Program Purpose: To reformat the non-combustion fugitive oil and gas emissions
 #                  from GAINS and create gain fugitive subsector shares of total
 #                  fugitive oil and gas related emissions
@@ -45,7 +45,7 @@
 #   Define emissions species variable
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "N2O"
+    if ( is.na( em ) ) em <- "CH4"
 
 #   Stop script if running for unsupported species
     if ( ! ( em %in% c( 'BC', 'CH4', 'CO', 'CO2', 'N2O', 'NMVOC', 'NOx', 'OC', 'SO2' ) ) ) {
@@ -64,8 +64,8 @@
 #   Define years of interest
 
 #       Years within GAINS emissions data, GAINS 1st year, and GAINS last year for extension and interpolation
-        GAINS_EMISS_YEARS <- c( "2000", "2005", paste0( seq( 2010, 2030, 10 ) ), "2050" ) # Currently: 2000, 2005, 2010, 2020, 2030, 2050
-        GAINS_START_YEAR <- GAINS_EMISS_YEARS[[1]]                                        # Currently: 2000
+        GAINS_EMISS_YEARS <- GAINS_years # Currently: 1990-2050, every 5 years
+        GAINS_START_YEAR <- GAINS_EMISS_YEARS[[1]]                                        # Currently: 1990
         GAINS_START_YEAR_X <- paste0( "X", GAINS_START_YEAR )                             # Currently: X2000
         LAST_GAINS_YEAR_FOR_INTERP <- 2020
 
@@ -123,10 +123,21 @@
 # 2. Input
 
 #   GAINS data and mapping files
-    GAINS_emiss <- readData( domain = 'EM_INV', domain_extension = 'GAINS/',
-                         file_name = 'GAINS_EMF30_EMISSIONS_extended_Ev5a_CLE_Nov2015',
-                        ".xlsx", sheet_selection = e_sheet )
 
+    # Define  settings for GAINS data
+    domain_use <- "EM_INV"
+    domain_ext_use <- "GAINS/"
+
+    emissions_file_name <- paste0( "Global by region-detail_emf30_", e_sheet, "_wSE" )
+    if( em == "SO2" ){ emissions_file_name <- gsub( "_wSE", "_v2_wSE", emissions_file_name ) }
+
+    emissions_rows_to_skip <- 9
+
+    # Read in GAINS data
+    GAINS_emiss <- readData( domain = domain_use, domain_extension = domain_ext_use,
+                                 file_name = emissions_file_name, skip = emissions_rows_to_skip )
+
+    # Read un GAINS maps
     GAINS_country_map <- readData( domain = 'MAPPINGS', domain_extension = 'GAINS/',
                       file_name ='emf-30_ctry_map' )
 
@@ -215,10 +226,9 @@
 
 #   Reformat GAINS region map
     GAINS_country_map_clean <- GAINS_country_map %>%
-        dplyr::select( emf_name, iso ) %>%
+        dplyr::select( Region, iso ) %>%
         dplyr::filter( !( is.na ( iso ) ) ) %>%
-        dplyr::distinct( ) %>%
-        dplyr::rename( Region = emf_name )
+        dplyr::distinct( )
 
 #   Check if all isos listed in GAINS region map are within the MCL, and
 #   that all isos in the MCL are within the GAINS region map
@@ -290,13 +300,16 @@
 
 #   Initial Reformatting
     GAINS_emiss_clean <- GAINS_emiss %>%
-        tidyr::gather( key = years, value = Emissions, GAINS_EMISS_YEARS ) %>%
-        dplyr::filter( years %in% GAINS_EMISS_YEARS_KEEP,
-                       Region != "Global" )
+        tidyr::gather( key = years, value = Emissions, paste0( "X", GAINS_EMISS_YEARS ) ) %>%
+        dplyr::filter( years %in% GAINS_EMISS_YEARS_KEEP_X,
+                       Region != "Global" )  %>%
+        dplyr::rename( Sector = EMF30.kt )
 
 #   Provide units - note that CO2 emissions are provided as Tg rather than GG or kt
 #   (as noted in B1.1.base_comb_GAINS_EMF-30.R) and must be converted.
     if( e_sheet == 'CO2' ){
+
+        printLog( "Converting GAINS CO2 data from Mt to kt (only CO2 is provided in Mt from GAINS..." )
 
         kt_per_Tg <- 1000
 
@@ -390,19 +403,15 @@
 
         }
 
-#   Add X's in front of years
-    GAINS_FugEmiss_fixyears <- GAINS_FugEmiss_isoMapped %>%
-        dplyr::mutate( years = paste0( "X", years ) )
-
 #   Seperate emissions for processing - (1) NG distribution fug. emiss,
 #   (2) NG production ug. emiss, and (3) Oil production fug. emiss
-    GAINS_fug_NG_distribution <- GAINS_FugEmiss_fixyears %>%
+    GAINS_fug_NG_distribution <- GAINS_FugEmiss_isoMapped %>%
         dplyr::filter( ceds_sector == "1B2b_Fugitive-NG-distr" )
 
-    GAINS_fug_NG_prod <- GAINS_FugEmiss_fixyears %>%
+    GAINS_fug_NG_prod <- GAINS_FugEmiss_isoMapped %>%
         dplyr::filter( ceds_sector == "1B2b_Fugitive-NG-prod" )
 
-    GAINS_fug_oil_prod <- GAINS_FugEmiss_fixyears %>%
+    GAINS_fug_oil_prod <- GAINS_FugEmiss_isoMapped %>%
         dplyr::filter( ceds_sector == "1B2_Fugitive-petr" )
 
 # ------------------------------------------------------------------------------

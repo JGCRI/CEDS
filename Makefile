@@ -622,8 +622,16 @@ $(MED_OUT)/A.total_activity_extended_oil.csv: \
 #$(MED_OUT)/B.$(EM)_comb_EF_GAINS_EMF30.csv: \
 	$(MOD_B)/B1.1.add_comb_GAINS_EMF-30.R.R \
 	$(ENERGY_DATA)/OECD_and_NonOECD_Conversion_Factors.csv \
-	$(INV_DATA)/GAINS/GAINS_EMF30_EMISSIONS_extended_Ev5a_CLE_Nov2015.csv \
-	$(INV_DATA)/GAINS/GAINS_EMF30_ACTIVITIES_extended_Ev5a_Nov2015.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_activity_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_BC_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_CH4_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_CO_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_CO2_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_NH3_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_NOx_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_OC_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_SO2_v2_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_VOC_wSE.csv \
 	$(MAPPINGS)/GAINS/emf-30_ctry_map.csv \
 	$(MAPPINGS)/GAINS/emf-30_fuel_sector_map.csv
 #	Rscript $< $(EM) --nosave --no-restore

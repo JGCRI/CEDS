@@ -574,6 +574,7 @@ addDependency <- function( fqn, ... ) {
 #
 # Usage examples: writeData( A.energy_data, "MED_OUT", "A.energy_data" )
 #                 writeData( Xwalk_onetab, "EM_INV", domain_extension = "US_EPA/Processed_data/", fn = "Xwalk_onetab" )
+# TODO: Add the ability to save data without column names (would need to use write.table rather than write.csv)
 writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL,
                        comments = NULL, meta = TRUE, mute = FALSE, domain_extension = "", ... ) {
 
@@ -614,7 +615,8 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
 		w <- getOption( "warn" )
 		options( warn = -1 )	# suppress the warning about columns names and appending
 		# write.table( x, file = myfn, sep = ",", row.names = F, col.names = T, append = T, ... )
-		write.csv( x, file = myfn, row.names = F, append = T, ... )
+		write.csv( x, file = myfn, row.names = F, append = T, ... ) # TODO: This is where write.table could be used
+		                                                            #       to save data without column names
 		options( warn = w )
 
 		}, error = function( err ) {
