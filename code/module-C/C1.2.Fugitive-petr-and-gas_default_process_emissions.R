@@ -35,7 +35,7 @@
 # Define emissions species variable
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "N2O"
+    if ( is.na( em ) ) em <- "CH4"
 
 # Read in the extended flaring data
     flaring <- readData( "MED_OUT", file_name = paste0( 'C.', em, '_ECLIPSE_flaring_emissions_extended' ) )
@@ -666,17 +666,17 @@ if( em == "NH3" ){
 
     }
 
-#   Check results - disaggregated emissions should sum back to the aggregate fugitive emissions for each iso (to 5 decimals)
+#   Check results - disaggregated emissions should sum back to the aggregate fugitive emissions for each iso (to 3 decimals)
     disaggregated_EDGAR_ECLIPSE_summed <- disaggregated_EDGAR_ECLIPSE %>%
         dplyr::mutate( sector = "1B2_Fugitive-petr-and-gas" ) %>%
         dplyr::group_by( iso, sector, fuel, units ) %>%
         dplyr::summarise_all( funs( sum( ., na.rm = FALSE ) ) ) %>%
-        dplyr::mutate_at( all_Xyear, funs( round( ., digits = 5 ) ) ) %>%
+        dplyr::mutate_at( all_Xyear, funs( round( ., digits = 3 ) ) ) %>%
         dplyr::ungroup( )
 
     emissions_for_check <- emissions %>%
         dplyr::arrange( iso ) %>%
-        dplyr::mutate_at( all_Xyear, funs( round( ., digits = 5 ) ) )
+        dplyr::mutate_at( all_Xyear, funs( round( ., digits = 3 ) ) )
 
     diff1 <- setdiff( emissions_for_check, disaggregated_EDGAR_ECLIPSE_summed )
     diff2 <- setdiff( disaggregated_EDGAR_ECLIPSE_summed , emissions_for_check )
