@@ -114,7 +114,7 @@
 # Read all data sheets into a df; clean up
   raw <- lapply( seq_along( input ), processSingleSheet )
   raw <- do.call( rbind,  raw ) %>%
-      dplyr::select_( .dots = c( "country", "units", "fuel", X_Fernandes_years ) )
+      dplyr::select_( .dots = c( "country", "units", "fuel", tidyselect::all_of(X_Fernandes_years) ) )
   raw <- dplyr::filter( raw, country != "USSR-not included" )
   raw$country <- str_trim( raw$country )
   raw[, X_Fernandes_years ] <- sapply( raw[, X_Fernandes_years ],
@@ -124,7 +124,7 @@
 
 # Reshape from wide to long format; drop rows with NA and 0 biomass
   raw <- raw %>%
-      tidyr::gather( key = variable, value = value, X_Fernandes_years )
+      tidyr::gather( key = variable, value = value, all_of(X_Fernandes_years) )
 
   names( raw )[ names( raw ) %in% c( "variable", "value" ) ] <- c( "year", "consumption" )
   raw$year <- as.character( raw$year )

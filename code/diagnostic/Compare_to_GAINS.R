@@ -106,14 +106,14 @@ GAINS_comb_sector_map <- readData( domain = 'GAINS_MAPPINGS',
 # Remove leading white space from GAINS data and rename sector column
 gains_emissions <- gains_emissions %>%
   dplyr::rename( Sector = 'EMF30.kt' ) %>%
-  dplyr::select( Region, Sector, X_GAINS_years ) %>% # ALl GAINS years
+  dplyr::select( Region, Sector, all_of(X_GAINS_years) ) %>% # ALl GAINS years
   # GAINS data can have tabs in front of all characters in the ID columns, which would need to be removed
   dplyr::mutate_at( .vars = c( "Region", "Sector" ), .funs = funs( gsub( "\t", "", . ) ) )
 
 # Subset total and residential data
 gains <- gains_emissions %>%
   dplyr::filter( Sector == "SUM" | grepl( "End_Use_Residential_", gains_emissions$Sector ) ) %>%
-  dplyr::select( Region, Sector, x_gains_years ) %>% # Selects only historical years
+  dplyr::select( Region, Sector, all_of(x_gains_years) ) %>% # Selects only historical years
   dplyr::filter( Region != "Global" )
 
 # Subset residential data
@@ -121,7 +121,7 @@ gains_resid <- gains %>%
     dplyr::filter( grepl( "End_Use_Residential_", Sector ) ) %>%
     dplyr::select( -Sector ) %>%
     dplyr::group_by( Region ) %>%
-    dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>%
+    dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>%
     dplyr::mutate( Sector = "Residential") %>%
     dplyr::arrange( Region ) %>%
     data.frame( )
@@ -131,7 +131,7 @@ gains_tot <- gains %>%
     dplyr::filter( Sector == 'SUM' ) %>%
     dplyr::select( -Sector ) %>%
     dplyr::group_by( Region ) %>%
-    dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+    dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
     dplyr::mutate( Sector = "All" ) %>%
     dplyr::arrange( Region ) %>%
     data.frame()
@@ -146,7 +146,7 @@ gains_nonresid[, x_gains_years ] <-
 
 # Subset GAINS combustion emissions
 gains_comb <- gains_emissions %>%
-    dplyr::select( Region, Sector, x_gains_years ) %>%
+    dplyr::select( Region, Sector, all_of(x_gains_years) ) %>%
     dplyr::filter( Region != "Global" ) %>%
     dplyr::left_join( GAINS_comb_sector_map, by = "Sector" )
 
@@ -173,8 +173,8 @@ gains_comb_final <- gains_comb %>%
     dplyr::select( -Sector, -Note ) %>%
     dplyr::rename( Sector = Type ) %>%
     dplyr::group_by( Region, Sector ) %>%
-    dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
-    dplyr::select( Region, x_gains_years, Sector ) %>%
+    dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
+    dplyr::select( Region, all_of(x_gains_years), Sector ) %>%
     dplyr::mutate( Sector = "Combustion" ) %>%
     dplyr::ungroup( )
 
@@ -187,7 +187,7 @@ if( em == 'CO2' ){ gains[ , x_gains_years] <- gains[ , x_gains_years] * 1000 }
 
 # Gather to long form
 gains_long <- gains %>%
-    tidyr::gather( key = variable, value = value, x_gains_years ) %>%
+    tidyr::gather( key = variable, value = value, all_of(x_gains_years) ) %>%
     dplyr::mutate( variable = as.factor( variable ) )
 
 # Define variable inv (inventory)
@@ -221,9 +221,9 @@ ceds <- dplyr::filter( ceds, !is.na( Region ) )
 # Subset Combustion emissions
 ceds_comb <- ceds %>%
     dplyr::left_join( MFSL, by = "sector" ) %>%
-    dplyr::select( type, Region, x_ceds_years ) %>%
+    dplyr::select( type, Region, all_of(x_ceds_years) ) %>%
     dplyr::group_by( type, Region ) %>%
-    dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+    dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
     dplyr::ungroup( ) %>%
     dplyr::rename( sector = type ) %>%
     dplyr::filter( sector == "comb") %>%
@@ -236,14 +236,14 @@ ceds$sector[ ceds$sector == "1A4b_Residential" ] <- "Residential"
 ceds <- ceds %>%
     dplyr::select( -iso ) %>%
     dplyr::group_by( sector, Region ) %>%
-    dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+    dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
     data.frame( )
 
 # Calculate total CEDS emissions
 ceds_tot <- ceds %>%
     dplyr::mutate( sector = "All" ) %>%
     dplyr::group_by( sector, Region ) %>%
-    dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+    dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
     data.frame( )
 
 # Combine Residential, Non-Residential, Combustion, and Total Emissions
@@ -252,7 +252,7 @@ names( ceds )[ names( ceds ) == "sector" ] <- "Sector"
 
 # Gather to long format
 ceds_long <- ceds %>%
-    tidyr::gather( key = variable, value = value, x_ceds_years ) %>%
+    tidyr::gather( key = variable, value = value, all_of(x_ceds_years) ) %>%
     dplyr::mutate( variable = as.factor( variable ) )
 
 ceds_long$inv <- 'CEDS'
@@ -369,7 +369,7 @@ ceds_long$inv <- 'CEDS'
     global_long_comb_aggregated <- global_long_comb %>%
         dplyr::select( inv, Sector, year, total ) %>%
         dplyr::group_by( inv, Sector, year ) %>%
-        dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+        dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
         dplyr::ungroup( )
 
     global_comb <- global_long_comb_aggregated %>%

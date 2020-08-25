@@ -146,7 +146,7 @@
 # Keep data for only IEA years, convert 0's to NA
   id_cols <- names( conversion_OECD_and_NonOECD )[ 1 : 3 ] # Assumes that COUNTRY, FLOW, PRODUCT are the first 3 columns
   conversion_all <- conversion_OECD_and_NonOECD %>%
-    dplyr::select( id_cols, X_IEA_years ) %>%
+    dplyr::select( all_of(id_cols), all_of(X_IEA_years) ) %>%
     dplyr::mutate_at( .vars = X_IEA_years, .funs = funs( if_else( . == 0, NA_real_, . ) ) )
 
   conversion_all[ , X_IEA_years ] <- suppressWarnings( lapply( conversion_all[ , X_IEA_years ], function( x ) { as.numeric( as.character( x ) ) } ) )
@@ -316,9 +316,9 @@
   combined_df[ X_IEA_years ] <- combined_df[ paste0( X_IEA_years , '.x' ) ] * combined_df[ paste0( X_IEA_years , '.y' ) ]
 
   weighted_average_heat_content <- combined_df %>%
-    dplyr::select( 'iso', 'fuel', X_IEA_years ) %>%
+    dplyr::select( 'iso', 'fuel', all_of(X_IEA_years) ) %>%
     dplyr::group_by( iso, fuel ) %>%
-    dplyr::summarise_all( funs( sum( ., na.rm = T ) ) )
+    dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) )
 
   coal <- weighted_average_heat_content %>%
     dplyr::mutate( units = 'kJ/kg' ) %>%

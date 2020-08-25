@@ -119,7 +119,7 @@ X_EXTENSION_YEARS <- paste0( "X", EXTENSION_YEARS )
 
 # For the "global" iso set all sector and fuel combinations to 0 consumption for the extension years (1750 - 1959)
     ceds_comb_extended <- ceds_comb_extended %>%
-        dplyr::mutate_at( .vars = X_EXTENSION_YEARS, funs( if_else( iso == "global", 0, . ) ) )
+        dplyr::mutate_at( .vars = X_EXTENSION_YEARS, list( ~ifelse( iso == "global", 0, . ) ) )
 
 # ---------------------------------------------------------------------------
 # 5. Add extended residential biomass (Fernandes data)

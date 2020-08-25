@@ -60,7 +60,7 @@
             dplyr::filter( fuel %in% CEDS_fuel_list ) %>%
             dplyr::select( -fuel, -sector, -units ) %>%
             dplyr::group_by( iso ) %>%
-            dplyr::summarise_all( funs( sum(., na.rm = T ) ) )
+            dplyr::summarise_all( list( ~sum(., na.rm = T ) ) )
 
         return ( computeDiff( IEA_subset, CEDS_subset, fuel_name ) )
 
@@ -81,22 +81,22 @@
             dplyr::filter( FLOW %in% IEA_flow_list, PRODUCT %in% IEA_fuel_list ) %>%
             dplyr::select( -PRODUCT, -FLOW ) %>%
             dplyr::group_by( iso ) %>%
-            dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>%
+            dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>%
             data.frame()
 
         # If necessary, subtract consumption from IEA_flow_list_exclude
         if ( !is.na ( IEA_flow_list_exclude ) ) {
             out <- out %>%
-                tidyr::gather( key = variable, value = value, X_IEA_years )
+                tidyr::gather( key = variable, value = value, all_of(X_IEA_years) )
 
             # excluded = IEA_data[FLOW = IEA_flow_list_exclude, PRODUCT = IEA_fuel_list]
             excluded <- IEA_data %>%
                 dplyr::filter( FLOW %in% IEA_flow_list_exclude, PRODUCT %in% IEA_fuel_list ) %>%  # Select only rows of IEA_flow_list_exclude and IEA_fuel_list
                 dplyr::select( -PRODUCT, -FLOW ) %>%  # Drop columns PRODUCT and FLOW
                 dplyr::group_by( iso ) %>%   # Group table by iso (ID column)
-                dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>%
+                dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>%
                 data.frame() %>%   # Convert grouped table to df to avoid later issues
-                tidyr::gather( key = variable, value = value, X_IEA_years )
+                tidyr::gather( key = variable, value = value, all_of(X_IEA_years) )
 
             names( excluded ) <- c( "iso", "variable", "to_subtract" )
 
@@ -133,10 +133,10 @@
 
         # If difference < 0, bring up to 0 and write out diagnostics
         subzero <- diff %>%
-            tidyr::gather( key = years, value = difference, Xyears ) %>%
+            tidyr::gather( key = years, value = difference, tidyselect::all_of(Xyears) ) %>%
             dplyr::mutate( difference = if_else( difference >= 0, NA_real_, difference ) ) %>%
             tidyr::spread( years, difference ) %>%
-            dplyr::filter_at( .vars = Xyears, any_vars( !is.na( . ) ) ) %>%
+            dplyr::filter_at( .vars = tidyselect::all_of(Xyears), any_vars( !is.na( . ) ) ) %>%
             dplyr::select_if( funs( !all.na( . ) ) )
 
         diff[ diff < 0 ] <- 0
@@ -224,14 +224,14 @@
 #   Convert gases to kt
     IEA_en_stat_ctry_hist <- IEA_en_stat_ctry_hist %>%
         dplyr::group_by( iso, FLOW, PRODUCT) %>%
-        tidyr::gather( key = years, value = energy_consumption, X_IEA_years) %>%
+        tidyr::gather( key = years, value = energy_consumption, all_of(X_IEA_years)) %>%
         dplyr::mutate( energy_consumption = if_else( PRODUCT %in% IEA_TJ_gas_no_TJnet,
                                                      energy_consumption/conversionFactor_naturalgas_TJ_per_kt_Gross,
                                             if_else( PRODUCT %in% IEA_TJ_gas_TJnet,
                                                      energy_consumption/conversionFactor_naturalgas_TJ_per_kt_Net,
                                                      energy_consumption ) ) ) %>%
         tidyr::spread( years, energy_consumption ) %>%
-        dplyr::select( iso, FLOW, PRODUCT, X_IEA_years ) %>%
+        dplyr::select( iso, FLOW, PRODUCT, all_of(X_IEA_years) ) %>%
         dplyr::ungroup( )
 
 # Coal
@@ -273,13 +273,13 @@
                                            c( "IMPORTS", "EXPORTS" ), "NONENUSE" )
     IEA_oil <- dplyr::bind_rows( IEA_oil_primary, IEA_oil_secondary ) %>%
         dplyr::group_by( iso ) %>%
-        dplyr::summarise_all( funs( sum(., na.rm = T ) ) )
+        dplyr::summarise_all( list( ~sum(., na.rm = T ) ) )
 
     CEDS_oil <- en_biomass_fsu_fix %>%
         dplyr::filter( fuel %in% CEDS_oil_list ) %>%
         dplyr::select( -fuel, -sector, -units ) %>%
         dplyr::group_by( iso ) %>%
-        dplyr::summarise_all( funs( sum(., na.rm = T ) ) )
+        dplyr::summarise_all( list( ~sum(., na.rm = T ) ) )
 
     out <- computeDiff( IEA_oil, CEDS_oil, "oil" )
     diff_oil <- out[[ "diff" ]]
@@ -336,7 +336,7 @@
     diag_nonenergy <- IEA_nonenergy %>%
         dplyr::filter( fuel %in% CEDS_fuels ) %>%
         dplyr::arrange( iso, FLOW, PRODUCT ) %>%
-        dplyr::select( iso, FLOW, PRODUCT, sector, fuel, units, X_IEA_years )
+        dplyr::select( iso, FLOW, PRODUCT, sector, fuel, units, all_of(X_IEA_years) )
 
 # ------------------------------------------------------------------------------
 # 3. Output

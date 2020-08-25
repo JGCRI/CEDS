@@ -119,17 +119,17 @@ normalize_shares <- function(df_in, share_type){
 #       NAs will be summed over (i.e. a fuel that is NA for all f the given share level
 #       (for a given year) will have the sum of the shares equal to 0).
     shares_summed <- df_in %>%
-        dplyr::select(-shares_summed_col_remove) %>%
+        dplyr::select( -all_of(shares_summed_col_remove) ) %>%
         dplyr::group_by_at(shares_summed_group_by) %>%
         dplyr::summarize_all(sum, na.rm=TRUE) %>%
         tidyr::gather(key = years, value = shares_summed_by_fuel,
-                      X_extension_years) %>%
+                      all_of(X_extension_years) ) %>%
         dplyr::ungroup()
 
 #       Calculate normalized_shares for each fuel = share / sum of shares
     df_in_corrected <- df_in %>%
         dplyr::group_by_at(calc_normalized_gather_group) %>%
-        tidyr::gather(key = years, value = share, X_extension_years) %>%
+        tidyr::gather(key = years, value = share, all_of(X_extension_years) ) %>%
         dplyr::left_join(shares_summed, by = calc_normalized_left_join_group) %>%
         dplyr::ungroup() %>%
         dplyr::group_by_at(calc_normalized_mutate_group) %>%
@@ -141,7 +141,7 @@ normalize_shares <- function(df_in, share_type){
 
     df_in_corrected_fix_NaN_NA <- df_in_corrected %>%
         dplyr::ungroup() %>%
-        dplyr::select(fix_NaN_NA_cols_retain) %>%
+        dplyr::select( all_of(fix_NaN_NA_cols_retain) ) %>%
         dplyr::mutate(normalized_share_fixed = if_else(! ( iso %in% isos_start_1971) & years %in% OECD_years,
                                                        share, normalized_share),
                       normalized_share_fixed_final = if_else(is.na( normalized_share_fixed ) |
@@ -149,7 +149,7 @@ normalize_shares <- function(df_in, share_type){
                                                              0, normalized_share_fixed ) )
 
     df_in_corrected <- df_in_corrected_fix_NaN_NA %>%
-        dplyr::select(df_final_cols_retain) %>%
+        dplyr::select( all_of(df_final_cols_retain) ) %>%
         dplyr::group_by_at(df_final_spread_group) %>%
         tidyr::spread(years, normalized_share_fixed_final) %>%
         dplyr::ungroup()
@@ -204,7 +204,7 @@ ceds_agg_percent <- ceds_agg_percent_all %>%
         dplyr::select(-ext_sector) %>%
         dplyr::group_by(iso, fuel) %>%
         dplyr::summarize_all(sum, na.rm=TRUE) %>%
-        tidyr::gather(key = years, value = bond_agg_shares_summed_by_fuel, X_extension_years) %>%
+        tidyr::gather(key = years, value = bond_agg_shares_summed_by_fuel, all_of(X_extension_years) ) %>%
         dplyr::ungroup()
 
 #   Check if fuel agg_split sums are 0 in any extension year.
@@ -268,8 +268,8 @@ for (start_year in start_years) {
     bond_splits <- bond_sector_percentages %>%
         dplyr::inner_join(combined_percentages, by = c('iso', 'fuel', 'ext_sector')) %>%
         dplyr::select(-ends_with('.y')) %>%
-        dplyr::rename_at(vars(ends_with('.x')), funs(sub('.x$', '', .))) %>%
-        dplyr::select(iso, fuel, ext_sector, xyears)
+        dplyr::rename_at(vars(ends_with('.x')), list( ~sub('.x$', '', .))) %>%
+        dplyr::select(iso, fuel, ext_sector, all_of(xyears))
 
     ceds_split <- ceds_agg_percent %>%
         dplyr::inner_join(combined_percentages, by = c('iso', 'fuel', 'ext_sector')) %>%
@@ -331,7 +331,7 @@ combined_sector_percentages_all <- combined_sector_percentages_template %>%
                    ext_sector = as.character( ext_sector ),
                    fuel = as.character( fuel ) ) %>%
     dplyr::left_join( combined_sector_percentages, by = c( "iso", "ext_sector", "fuel" ) ) %>%
-    dplyr::select( iso, ext_sector, fuel, X_extension_years )
+    dplyr::select( iso, ext_sector, fuel, all_of(X_extension_years) )
 
 if( any( is.na( combined_sector_percentages_all ) ) ){
 
@@ -354,7 +354,7 @@ printLog('Calculating CEDS detailed sector splits')
 ceds_extsector_percentages_corrected <- activity %>%
     dplyr::left_join(ext_sector_map_fixed, by = 'sector') %>%
     calculate_shares(c('iso', 'fuel', 'ext_sector'), 'sector') %>%
-    dplyr::select(iso, fuel, ext_sector, sector, X_emissions_years)
+    dplyr::select(iso, fuel, ext_sector, sector, all_of(X_emissions_years) )
 
 # ---------------------------------------------------------------------------
 # 7. Combine CEDS disaggregate sector splits (Ext sector -> CEDS sector) and
@@ -390,7 +390,7 @@ extended_breakdown <- extended_breakdown_coal %>%
     mutate_at( setdiff( X_extended_years, names( . ) ), funs( +NA ) ) %>%
     dplyr::left_join( iea_start_year, by = "iso" ) %>%
     select(iso, fuel, ext_sector, sector, one_of( X_extended_years ), start_year ) %>%
-    dplyr::mutate_at( nonOECD_NA_years, funs( if_else( start_year == 1971, NA_real_, . ) ) ) %>%
+    dplyr::mutate_at( nonOECD_NA_years, list( ~ifelse( start_year == 1971, NA_real_, . ) ) ) %>%
     dplyr::select( - start_year ) %>%
     interpolate_NAs2( )
 
@@ -404,7 +404,7 @@ extended_breakdown_complete <- extended_breakdown_complete_template %>%
     dplyr::mutate( iso = as.character( iso ),
                    fuel = as.character( fuel ) ) %>%
     dplyr::left_join( extended_breakdown, by = c( "iso", "fuel", "ext_sector", "sector"  ) ) %>%
-    dplyr::select( iso, ext_sector, fuel, sector, X_extension_years )
+    dplyr::select( iso, ext_sector, fuel, sector, all_of(X_extension_years) )
 
 # Normalize disagg shares (so that a given fuel's sector shares sum to 1 within each
 # agg. ext_sector)
@@ -436,17 +436,17 @@ final_percentages_corrected <- normalize_shares(final_percentages, "final_splits
 
 final_percentages_corrected <- final_percentages_corrected %>%
     dplyr::arrange(sector, iso) %>%
-    dplyr::select(iso, sector, fuel, X_extension_years)
+    dplyr::select(iso, sector, fuel, all_of(X_extension_years) )
 
 # Final check to make sure that all breakdowns add to 100% or 0% to 10 decimal places
  final_test <- final_percentages_corrected %>%
      dplyr::ungroup( ) %>%
      dplyr::group_by( iso, fuel ) %>%
      dplyr::select( -sector ) %>%
-     dplyr::summarize_all( funs( sum ) )
+     dplyr::summarize_all( list( ~sum ) )
 
  shares_not_0_or_1 <- final_test %>%
-     tidyr::gather( key = years, value = shares, X_extension_years ) %>%
+     tidyr::gather( key = years, value = shares, all_of(X_extension_years) ) %>%
      dplyr::ungroup( ) %>%
      dplyr::mutate(shares_rounded = round( shares, digits = 10 ) ) %>%
      dplyr::filter(shares_rounded != 1 & shares_rounded != 0 )

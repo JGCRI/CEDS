@@ -114,7 +114,7 @@
     },
     "dplyr": {
       "Package": "dplyr",
-      "Version": "0.7.6",
+      "Version": "0.8.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "86bcce10492ca033b7727d97f15bd377"

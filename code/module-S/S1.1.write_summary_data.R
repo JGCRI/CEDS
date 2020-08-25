@@ -141,16 +141,16 @@ if ( WRITE_CEDS_SECTORS ) {
 	# Aggregate emissions by CEDS sector, country, and species total
     Em_by_Country_CEDS_Sector <- final_emissions %>%
         dplyr::group_by( iso, sector, em, units ) %>%
-        dplyr::summarise_at( vars( X_write_years ), sum ) %>%
+        dplyr::summarise_at( vars( all_of(X_write_years) ), sum ) %>%
         dplyr::arrange( iso, sector )
 
     Em_by_CEDS_Sector <- Em_by_Country_CEDS_Sector %>%
         dplyr::group_by( sector, em, units ) %>%
-        dplyr::summarise_at( vars( X_write_years ), sum )
+        dplyr::summarise_at( vars( all_of(X_write_years) ), sum )
 
     Em_global_total <- Em_by_CEDS_Sector %>%
         dplyr::group_by( em, units ) %>%
-        dplyr::summarise_at( vars( X_write_years ), sum )
+        dplyr::summarise_at( vars( all_of(X_write_years) ), sum )
 
 	# Define the interval years
 	global_sector_years <- paste0( "X", c( seq( 1750, 1950, 50 ),
