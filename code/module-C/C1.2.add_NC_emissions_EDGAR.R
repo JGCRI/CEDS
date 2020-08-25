@@ -232,7 +232,7 @@ data_to_be_summarized <- edgar %>%
 
 aggregated_data <- data_to_be_summarized %>%
   dplyr::group_by_at( id_cols ) %>%
-  dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>% # Note: This means if an iso has NA for the multiple EDGAR sectors for the same year,
+  dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>% # Note: This means if an iso has NA for the multiple EDGAR sectors for the same year,
                                                          #       the NA values will be aggregated to 0 ( example: CH4 fugitive petr and oil for cyp in 1970 )
   dplyr::ungroup( )
 

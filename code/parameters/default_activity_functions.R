@@ -173,7 +173,7 @@ merge_extend_UN_CEDS_data <- function(     a.CEDS_data,
                                                   end = 1949) %>%
         select(-sector) %>%
         mutate(fuel = a.aggregate_fuel) %>%
-        select('iso','fuel', X_extended_years)
+        select('iso','fuel', all_of(X_extended_years) )
 
     }else{
 
@@ -239,7 +239,7 @@ merge_extend_UN_CEDS_data <- function(     a.CEDS_data,
     # some small countries don't have cdiac or have zero values through extension.
     ceds_only_ctry_fuel_data_extended[ is.na( ceds_only_ctry_fuel_data_extended ) ] <- 0
 
-    ceds_only_ctry_fuel_data_extended <- ceds_only_ctry_fuel_data_extended[c("iso", "fuel",  X_extended_years) ]
+    ceds_only_ctry_fuel_data_extended <- ceds_only_ctry_fuel_data_extended[c("iso", "fuel", X_extended_years) ]
 
 
     # Combine Extended Data and Return
@@ -365,7 +365,7 @@ fuel_breakdown <- function(  a.UN_data = UNSD_Energy_Final_Consumption,
         CEDS_UN_disaggregate[disagregate_years] <- CEDS_UN_disaggregate[ paste0(disagregate_years,'.total') ]* CEDS_UN_disaggregate[ paste0(disagregate_years,'.share') ]
 
         CEDS_UN_disaggregate <- CEDS_UN_disaggregate %>%
-            select( iso, fuel, disagregate_years)
+            select( iso, fuel, all_of(disagregate_years) )
 
         return(CEDS_UN_disaggregate)
     }
@@ -406,7 +406,7 @@ fuel_breakdown <- function(  a.UN_data = UNSD_Energy_Final_Consumption,
             ceds_shares_complete <- expand.grid( iso = countries,
                                                  fuel = a.ceds_extension_fuels, stringsAsFactors=F) %>%
                 left_join( ceds_fuel_shares_extended, by = c('iso','fuel')) %>%
-                select(iso, fuel, disagregate_years) %>%
+                select(iso, fuel, all_of(disagregate_years) ) %>%
                 arrange(iso) %>%
               calculate_correct_shares(a.id_columns = 'iso',
                                        a.target_column = 'fuel',
@@ -494,7 +494,7 @@ sector_breakdown <- function(fuel_totals, sector_shares, iea_start_years,
                         sector = unique(sector_shares$sector),
                         stringsAsFactors = F) %>%
             dplyr::left_join(sector_shares, by = c('iso', 'sector', 'fuel')) %>%
-            dplyr::left_join(fuel_totals %>% select(iso, fuel, disagg_years),
+            dplyr::left_join(fuel_totals %>% select(iso, fuel, all_of(disagg_years) ),
                              by = c('iso', 'fuel'),
                              suffix = c('.share', '.total'))
 
@@ -506,7 +506,7 @@ sector_breakdown <- function(fuel_totals, sector_shares, iea_start_years,
         disagg_activity[disagg_years] <- disagg_activity[total_years] *
                                          disagg_activity[share_years]
 
-        dplyr::select(disagg_activity, iso, fuel, sector, disagg_years)
+        dplyr::select(disagg_activity, iso, fuel, sector, all_of(disagg_years) )
     }
 
     disagg_sector_list <- lapply(unique(iea_start_years$start_year), disaggregate_sector)

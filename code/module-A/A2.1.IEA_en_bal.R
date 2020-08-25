@@ -90,8 +90,8 @@
 
   relevant_flow_product_combinations <- A.IEA_en_stat_ctry_hist_full %>%
     dplyr::filter( FLOW %in% energy_transf_and_prod_flows ) %>%
-    dplyr::filter_at( X_IEA_years, any_vars( !is.na( .) ) ) %>% # Filter out rows which are all NA
-    dplyr::filter_at( X_IEA_years, any_vars( . != 0 ) ) %>%  # Filter out rows which are all 0
+    dplyr::filter_at( tidyselect::all_of(X_IEA_years), any_vars( !is.na( .) ) ) %>% # Filter out rows which are all NA
+    dplyr::filter_at( tidyselect::all_of(X_IEA_years), any_vars( . != 0 ) ) %>%  # Filter out rows which are all 0
     dplyr::select( FLOW, PRODUCT ) %>%
     dplyr::distinct( )
 
@@ -183,19 +183,19 @@
     # Residential biomass consumption
     # These take into account different regional biomass types (wood, ag residue, etc.)
     A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% TJ_to_kt_biomass$product &
-                               grepl( "1A4b_Residential", A.IEA_en_stat_ctry_hist$sector ), X_IEA_years ] <-
+                               grepl( "1A4b_Residential", A.IEA_en_stat_ctry_hist$sector ), tidyselect::all_of(X_IEA_years) ] <-
       A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% TJ_to_kt_biomass$product &
-                                 grepl( "1A4b_Residential", A.IEA_en_stat_ctry_hist$sector ), X_IEA_years ] /
+                                 grepl( "1A4b_Residential", A.IEA_en_stat_ctry_hist$sector ), tidyselect::all_of(X_IEA_years) ] /
       biomass_conversion[ match(
         A.IEA_en_stat_ctry_hist$iso[ A.IEA_en_stat_ctry_hist$PRODUCT %in% TJ_to_kt_biomass$product &
                                        grepl( "1A4b_Residential", A.IEA_en_stat_ctry_hist$sector ) ],
-        biomass_conversion$iso ), X_IEA_years ]
+        biomass_conversion$iso ), tidyselect::all_of(X_IEA_years) ]
 
     # Use standard conversion factor for other sectors
     A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% TJ_to_kt_biomass$product &
-                               !grepl( "1A4b_Residential", A.IEA_en_stat_ctry_hist$sector ), X_IEA_years ] <-
+                               !grepl( "1A4b_Residential", A.IEA_en_stat_ctry_hist$sector ), tidyselect::all_of(X_IEA_years) ] <-
       A.IEA_en_stat_ctry_hist[ A.IEA_en_stat_ctry_hist$PRODUCT %in% TJ_to_kt_biomass$product &
-                                 !grepl( "1A4b_Residential", A.IEA_en_stat_ctry_hist$sector ), X_IEA_years ] /
+                                 !grepl( "1A4b_Residential", A.IEA_en_stat_ctry_hist$sector ), tidyselect::all_of(X_IEA_years) ] /
       conversionFactor_biomass_kt_TJ
 
 # Natural Gas
@@ -206,14 +206,14 @@
     TJ_to_kt_natural_gas_list_tjnet <- grep( "TJ-net",  TJ_to_kt_natural_gas, value = TRUE )
 
     A.IEA_en_stat_ctry_hist <- A.IEA_en_stat_ctry_hist %>%
-        tidyr::gather( key = years, value = energy_consumption, X_IEA_years) %>%
+        tidyr::gather( key = years, value = energy_consumption, tidyselect::all_of(X_IEA_years)) %>%
         dplyr::mutate( energy_consumption = if_else( PRODUCT %in% TJ_to_kt_natural_gas_list_no_tjnet,
                                                      energy_consumption / conversionFactor_naturalgas_TJ_per_kt_Gross,
                                             if_else( PRODUCT %in% TJ_to_kt_natural_gas_list_tjnet,
                                                      energy_consumption / conversionFactor_naturalgas_TJ_per_kt_Net,
                                                      energy_consumption ) ) ) %>%
         tidyr::spread( years, energy_consumption ) %>%
-        dplyr::select( iso, FLOW, PRODUCT, X_IEA_years, sector, fuel )
+        dplyr::select( iso, FLOW, PRODUCT, tidyselect::all_of(X_IEA_years), sector, fuel )
 
 # Add units to dataframe
     A.IEA_en_stat_ctry_hist$units <- "kt"
@@ -244,7 +244,7 @@
                                                'balance_correction' ] ) )
 
 # Correct (+/-) Energy Balance
-    A.IEA_en_stat_ctry_hist_units[ X_IEA_years ] <- A.IEA_en_stat_ctry_hist_units[ X_IEA_years ] *
+    A.IEA_en_stat_ctry_hist_units[ tidyselect::all_of(X_IEA_years) ] <- A.IEA_en_stat_ctry_hist_units[ tidyselect::all_of(X_IEA_years) ] *
         A.IEA_en_stat_ctry_hist_units$conversion * A.IEA_en_stat_ctry_hist_units$balance_correction
 
 # Replace NAs with 0 in units
@@ -255,7 +255,7 @@
     A.IEA_en_stat_ctry_hist_units[ A.IEA_en_stat_ctry_hist_units$fuel == 0, 'fuel' ] <- NA
 
 # Drop rows with all zero or negative data (negative energy balance, outputs in energy tranformation)
-   logical <- A.IEA_en_stat_ctry_hist_units[ , X_IEA_years ] <= 0
+   logical <- A.IEA_en_stat_ctry_hist_units[ , tidyselect::all_of(X_IEA_years) ] <= 0
    drop.row <- apply ( logical, MARGIN = 1, FUN = all )
    DroppedData <- A.IEA_en_stat_ctry_hist_units[ drop.row, ]
    A.IEA_en_stat_ctry_hist_units <- A.IEA_en_stat_ctry_hist_units[ !drop.row, ]

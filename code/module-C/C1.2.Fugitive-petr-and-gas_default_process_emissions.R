@@ -207,29 +207,29 @@ if ( em == 'CH4' & vn == "4.2" ){
 
     edgar_oil_gas <- edgar %>%
       dplyr::filter( sector_description %in% edgar_fug_oil_sectors ) %>%
-      dplyr::select( iso, sector, all_Xyear ) %>%
+      dplyr::select( iso, sector, all_of(all_Xyear) ) %>%
       dplyr::mutate( sector = if_else( grepl( "x", sector ), # Remove the "x" from biofuel fugitive sector string
                                        gsub( "x", "", sector ), sector ) ) %>%
       dplyr::group_by( iso, sector ) %>%
-      dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>% # Aggregate across all relevant 1B2 sectors
+      dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>% # Aggregate across all relevant 1B2 sectors
       dplyr::ungroup( )
 
     edgar_gas_fuel <- edgar %>%
       dplyr::filter( sector_description %in% edgar_fug_gas_sectors ) %>%
-      dplyr::select( iso, sector, all_Xyear )  %>%
+      dplyr::select( iso, sector, all_of(all_Xyear) )  %>%
       dplyr::mutate( sector = if_else( grepl( "x", sector ), # Remove the "x" from biofuel fugitive sector string
                                        gsub( "x", "", sector ), sector ) ) %>%
       dplyr::group_by( iso, sector ) %>%
-      dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>% # Aggregate across all relevant 1B2 sectors
+      dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>% # Aggregate across all relevant 1B2 sectors
       dplyr::ungroup( )
 
     edgar_liquid_fuel <- edgar %>%
       dplyr::filter( sector_description %in% edgar_fug_liq_sectors ) %>%
-      dplyr::select( iso, sector, all_Xyear )  %>%
+      dplyr::select( iso, sector, all_of(all_Xyear) )  %>%
       dplyr::mutate( sector = if_else( grepl( "x", sector ), # Remove the "x" from biofuel fugitive sector string
                                        gsub( "x", "", sector ), sector ) ) %>%
       dplyr::group_by( iso, sector ) %>%
-      dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>% # Aggregate across all relevant 1B2 sectors
+      dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>% # Aggregate across all relevant 1B2 sectors
       dplyr::ungroup( )
 
 #   If no '1B2-Fugitive emissions from oil and gas' in certain species use the dummy_layout
@@ -273,13 +273,13 @@ if ( em == 'CH4' & vn == "4.2" ){
         dplyr::mutate( fuel = final_fuel,
                        sector = final_sector,
                        units = final_units ) %>%
-        dplyr::select( iso, sector, fuel, units, all_Xyear )
+        dplyr::select( iso, sector, fuel, units, all_of(all_Xyear) )
 
       emissions <- emissions %>%
         dplyr::mutate( iso = as.character( iso ) ) %>%
         dplyr::bind_rows( edgar_gas_fuel ) %>%
         dplyr::group_by( iso, sector, fuel, units ) %>%
-        dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>%
+        dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>%
         dplyr::ungroup( )
 
     }
@@ -291,13 +291,13 @@ if ( em == 'CH4' & vn == "4.2" ){
         dplyr::mutate( fuel = final_fuel,
                        sector = final_sector,
                        units = final_units ) %>%
-        dplyr::select( iso, sector, fuel, units, all_Xyear )
+        dplyr::select( iso, sector, fuel, units, all_of(all_Xyear) )
 
       emissions <- emissions %>%
         dplyr::mutate( iso = as.character( iso ) ) %>%
         dplyr::bind_rows( edgar_liquid_fuel ) %>%
         dplyr::group_by( iso, sector, fuel, units ) %>%
-        dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>%
+        dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>%
         dplyr::ungroup( )
 
     }

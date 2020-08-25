@@ -120,7 +120,7 @@ user_data <- do.call(rbind.fill, user_data_list)
 # ---------------------------------------------------------------------------
 # 5. Use trends to extend EFs
 
-order <- data_frame(order= numeric(0),
+order <- tibble(order= numeric(0),
                     start= numeric(0))
 for (i in seq_along(user_data_list) ){
   order[i,] <- c(i,user_data_list[[i]]$start_year[1])

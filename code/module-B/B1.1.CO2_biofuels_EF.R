@@ -130,7 +130,7 @@
       dplyr::filter( bio_flag == 1 ) %>%
       dplyr::select( iso, sector, fuel, X_IEA_years ) %>%
       dplyr::group_by( iso, sector, fuel ) %>%
-      dplyr::summarise_all( funs( sum( ., na.rm = TRUE ) ) ) %>%
+      dplyr::summarise_all( list( ~sum( ., na.rm = TRUE ) ) ) %>%
       dplyr::ungroup( ) %>%
       dplyr::arrange( fuel, sector, iso  )
 
@@ -138,7 +138,7 @@
   IEA_aggregate <- IEA_energy_sign_corrected %>%
       dplyr::select( iso, sector, fuel, X_IEA_years ) %>%
       dplyr::group_by( iso, sector, fuel ) %>%
-      dplyr::summarise_all( funs( sum( ., na.rm = TRUE ) ) ) %>%
+      dplyr::summarise_all( list( ~sum( ., na.rm = TRUE ) ) ) %>%
       dplyr::ungroup( ) %>%
       dplyr::arrange( fuel, sector, iso  )
 

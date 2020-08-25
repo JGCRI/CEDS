@@ -261,7 +261,7 @@ max_CO2_ef_by_fuel <- ef_data %>%
     dplyr::mutate( max = pmax( !!!rlang::syms( X_emissions_years ) ) ) %>%
     dplyr::select( -X_emissions_years ) %>%
     dplyr::group_by( fuel ) %>%
-    dplyr::summarise_all( funs( max( ., na.rm = T ) ) ) %>%
+    dplyr::summarise_all( list( ~max( ., na.rm = T ) ) ) %>%
     dplyr::rename( maxCO2EF = max )
 
 # Add values as described above

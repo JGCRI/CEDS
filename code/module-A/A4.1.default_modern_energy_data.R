@@ -51,7 +51,7 @@
     IEA_other_energy_trends <- energy_data %>%
         dplyr::filter( sector %!in% MSL$sector ) %>%
         dplyr::mutate_at( grep( 'X\\d{4}', names( energy_data ) ),
-                   funs( if_else( sector == 'refinery-and-natural-gas' & . < 0, 0, . ) ) )
+                   list( ~ifelse( sector == 'refinery-and-natural-gas' & . < 0, 0, . ) ) )
 
     other_transformation <- energy_data %>%
       dplyr::filter( sector %in% c( "1A1bc_Other-feedstocks", "1A1bc_Other-transformation" ) )
@@ -128,7 +128,7 @@
         # dplyr::mutate(fuel = replace(fuel, fuel == 'petroleum', 'oil')) %>%
         dplyr::arrange( iso, sector, fuel ) %>%
         dplyr::group_by( iso, fuel, sector, units ) %>%
-        dplyr::summarize_all( funs( sum ) )
+        dplyr::summarize_all( list( ~sum ) )
 
     # Add aggregate oil category to MFL so can aggreate correctly below
     new_oil_row <- cbind("oil","oil","","aggreagte oil") %>%
@@ -142,7 +142,7 @@
         dplyr::select( -sector ) %>%
         dplyr::select( -fuel ) %>%
         dplyr::group_by(iso, aggregated_fuel, units ) %>%
-        dplyr::summarize_all( funs( sum ) )
+        dplyr::summarize_all( list( ~sum ) )
 
 # ------------------------------------------------------------------------------
 # 5. Output
