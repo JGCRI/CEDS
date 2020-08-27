@@ -689,7 +689,7 @@ F.scaling <- function( ceds_data, inv_data, region,
 
   }
 
-  writeData(inv_data_original, 'DIAG_OUT', paste0('F.',em,'_',inv_name,'_orginal_inventory_data'), meta = FALSE)
+  #writeData(inv_data_original, 'DIAG_OUT', paste0('F.',em,'_',inv_name,'_orginal_inventory_data'), meta = FALSE)
   writeData(inv_data, 'DIAG_OUT', paste0('F.',em,'_',inv_name,'_scaling_years_inventory_data'),meta = FALSE)
 
   # ------------------------------------
@@ -708,7 +708,6 @@ F.scaling <- function( ceds_data, inv_data, region,
 
   scaling <- merge(inv_long, ceds_long , all.x = TRUE)
   scaling$scaling_factor <- scaling$inv_value/scaling$ceds_value
-
 
   # Make adjustments to the preliminary scaling factor data set:
   # Inf values - divide by zero - ceds value = 0
@@ -741,9 +740,9 @@ F.scaling <- function( ceds_data, inv_data, region,
     max <- max_scaling_factor
     min <- 1/max_scaling_factor
 
-    temp_X_years <- names( scaling )[ grepl( "X", names( scaling ) ) ]
-    index <- rbind( which( scaling[,temp_X_years] >= max , arr.ind=T ) ,
-                    which( scaling[,temp_X_years] <= min , arr.ind=T) )
+    scaling_X_years <- names( scaling )[ grepl( "X", names( scaling ) ) ]
+    index <- rbind( which( scaling[,scaling_X_years] >= max , arr.ind=T ) ,
+                    which( scaling[,scaling_X_years] <= min , arr.ind=T) )
 
     if(nrow(index)>0){
       printLog( "Replacing very large/small scaling factors." )
@@ -782,10 +781,10 @@ F.scaling <- function( ceds_data, inv_data, region,
 
       writeData( problem_scaling_factors , domain = "DIAG_OUT" , paste0('F.',em,'_Problem_Scaling_Factors_',inv_name), meta = FALSE )
 
-      scaling[,temp_X_years] <- replace(scaling[,temp_X_years],
-                                                 scaling[,temp_X_years] > max , max )
-      scaling[,temp_X_years] <- replace(scaling[,temp_X_years],
-                                                 scaling[,temp_X_years] < min , min )
+      scaling[,scaling_X_years] <- replace(scaling[,scaling_X_years],
+                                                 scaling[,scaling_X_years] > max , max )
+      scaling[,scaling_X_years] <- replace(scaling[,scaling_X_years],
+                                                 scaling[,scaling_X_years] < min , min )
     }  }
 
   # ------------------------------------
@@ -843,7 +842,7 @@ F.scaling <- function( ceds_data, inv_data, region,
   scaling_interp <- as.data.frame(matrix(data=NA, nrow = nrow(scaling), ncol = length(X_inv_years_full)))
   scaling_interp <- cbind( scaling[,c('iso', scaling_name)],scaling_interp)
   names(scaling_interp) <- c('iso', scaling_name , X_inv_years_full )
-  scaling_interp[, temp_X_years ] <- scaling[ , temp_X_years]
+  scaling_interp[, scaling_X_years ] <- scaling[ , scaling_X_years]
 
   # identify any non-trailing/leading na's
   interpolation_rows<-c()
@@ -955,21 +954,23 @@ F.scaling <- function( ceds_data, inv_data, region,
   scaling_ext <- cbind(scaling_interp[,c('iso', scaling_name)], scaling_ext)
   #
   for (i in seq_along(scaling_ext$iso)){
-    # Interpolated inventory data
+    # Interpolated inventory data inclusive of interior points
     scaling_ext[i,X_inv_years_full] <- scaling_interp[i,X_inv_years_full]
 
-    if( !all.na( scaling_interp[i, X_inv_years_full] ) ) {
+    if( !all.na( scaling_interp[i, scaling_X_years] ) ) {
 
       # Pre-Extrapolation
       min_inv_year <- emissions_years[ min( which(!is.na(scaling_ext[i,X_emissions_years]))) ]
       if( min_inv_year > ext_year_default[i,'pre_ext_year']){
+         X_inv_years_part <- paste0( 'X', min_inv_year:max(inv_years)  )
+
         # Define Pre-Extrapolation Years
         pre_scaling_ext_years <- c( ext_year_default[i,'pre_ext_year']:(min_inv_year-1) )
         X_pre_scaling_ext_years <- paste0( 'X', pre_scaling_ext_years )
         # Fill Years with scaling factor = 1, NA, or interpolated Scaling factor
         pre_scaling_ext_line <- as.data.frame(matrix(data=NA, nrow = 1,
-                                                     ncol = length(X_pre_scaling_ext_years)+length(X_inv_years_full)   ))
-        names(pre_scaling_ext_line)<- c( X_pre_scaling_ext_years , X_inv_years_full )
+                                                     ncol = length(X_pre_scaling_ext_years)+length(X_inv_years_part)   ))
+        names(pre_scaling_ext_line)<- c( X_pre_scaling_ext_years , X_inv_years_part )
         pre_scaling_ext_line[1,X_inv_years_full] <- scaling_ext[i,X_inv_years_full]
 
         # Linear Extrapolation
@@ -1042,10 +1043,10 @@ F.scaling <- function( ceds_data, inv_data, region,
         } else if( ext_method_default[i,'pre_ext_method'] == 'linear_1'){
           if( ext_method_default[i,'other'] ==  ext_year_default[i,'pre_ext_year'] ){
           pre_scaling_ext_line[1,1]<-1
-          pre_scaling_ext_line[1,] <- interpolate_NAs(pre_scaling_ext_line[1,])
+          pre_scaling_ext_line[1,] <- interpolate_NAs2(pre_scaling_ext_line[1,])
           } else if(ext_method_default[i,'other'] >  ext_year_default[i,'pre_ext_year']){
           pre_scaling_ext_line[1,paste0('X',ext_method_default[i,'other'])] <- 1
-          pre_scaling_ext_line[1,] <- interpolate_NAs(pre_scaling_ext_line[1,])
+          pre_scaling_ext_line[1,] <- interpolate_NAs2(pre_scaling_ext_line[1,])
           pre_scaling_ext_line[1,] <- na.locf(  t(pre_scaling_ext_line[1,]) , fromLast=TRUE ,na.rm=FALSE ,maxgap = Inf)
           }
 
@@ -1194,10 +1195,12 @@ F.scaling <- function( ceds_data, inv_data, region,
   out <- out[complete.cases(out),]
   names(out) <- c('iso',scaling_name, 'year','scaling_factor')
 
-  scaling_ext_byCEDS <- F.scalingToCeds(scalingData=scaling_ext, dataFormat = 'wide')
-  writeData( scaling_ext_byCEDS , domain = "DIAG_OUT", paste0('F.',em,'_Scaling_Factors_ceds_sectors_',inv_name), meta = FALSE )
+ # F.scalingToCeds function doesn't work in this instance. Perhaps works only for long?
+ # Check that this is working when used for long format for writting value metadata
+ # scaling_ext_byCEDS <- F.scalingToCeds(scalingData=scaling_ext, dataFormat = 'wide')
+ # writeData( scaling_ext_byCEDS , domain = "DIAG_OUT", paste0('F.',em,'_Scaling_Factors_ceds_sectors_',inv_name), meta = FALSE )
 
-  writeData( scaling_ext , domain = "DIAG_OUT", paste0('F.',em,'_Scaling_Factors_scaling_sectors_',inv_name), meta = FALSE )
+  writeData( scaling_ext , domain = "DIAG_OUT", paste0('F.',em,'_Scaling_Factors_Scaling_sectors_',inv_name), meta = FALSE )
 
   list.out <- list(out, scaling_ext ,meta_notes)
   names(list.out) <- c( 'scaling_factors', 'scaling_factors_wide' ,'meta_notes')
