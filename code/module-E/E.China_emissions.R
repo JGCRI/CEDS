@@ -37,7 +37,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     inv_data_folder <- "EM_INV"
     subfolder_name <- 'China/'
     inv_name <- 'CHN' #for naming diagnostic files
-    inv_years<-c( 2008, 2010, 2012 )
+    inv_years <- c( 2008, 2010, 2012 )
 
 
 # ------------------------------------------------------------------------------

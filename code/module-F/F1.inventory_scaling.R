@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.inventory_scaling.R
 # Author: Rachel Hoesly adapted from Jon Seibert
-# Date Last Updated: April 30, 2020
+# Date Last Updated: June 15, 2020
 # Program Purpose: To select and run script(s) to scale default emissions and
 #                  emission factors to inventories.
 # Input Files: D.[em]_default_total_EF.sv, D.[em]_default_total_emissions.csv
@@ -111,8 +111,15 @@
         c( scripts, 'F1.1.US-GHG_scaling.R' ) }
 
 # China
+    # OLD MEIC:
+    # GBD settings: if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO','BC','OC' ) ) scripts <-
     if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO' ) ){ scripts <-
         c( scripts, 'F1.1.China_scaling.R' ) }
+
+    # New MEIC:
+    # GBD settings: if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO','BC','OC' ) ) scripts <-
+    if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO' ) ){ scripts <-
+        c( scripts, 'F1.1.China_MEIC_2018_scaling.R' ) }
 
 # Argentina
     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ){ scripts <-
