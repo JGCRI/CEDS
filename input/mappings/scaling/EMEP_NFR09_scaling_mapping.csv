@@ -53,9 +53,9 @@ M_WasteWater,WasteWater,5D_Wastewater-handling
 K_AgriLivestock,AgriLivestock,3B_Manure-management
 ,AgriLivestock,3E_Enteric-fermentation
 ,,
-L_AgriOther,AgriOther,3D_Soil-emissions
-,AgriOther,3I_Agriculture-other
-,AgriOther,3D_Rice-Cultivation
+L_AgriOther,,3D_Soil-emissions
+,,3I_Agriculture-other
+,,3D_Rice-Cultivation
 ,,
 ,,6A_Other-in-total
 ,,

@@ -67,13 +67,16 @@
 
     mapping_method <- 'sector'
 
-# Do not include regions with problematic inventories ("mda", "aze", "srb", "tur")
+# Do not include regions with problematic inventories ("aze", "blr", "mda", "srb", "tur", "ukr" )
 # Do not include "can" since have higher resolution data to use
-    region <- c( "aut", "bel", "bgr", "che", "cyp", "cze", "deu",
-                 "dnk", "esp", "est", "fin", "fra", "gbr", "geo", "hrv", "hun",
-                 "irl", "isl", "ita", "ltu", "lux", "lva", "mkd",
-                 "nld", "nor", "pol", "prt", "rou", "svk", "svn", "swe" )
+    region <- c( "aut", "bel", "bgr", "che", "cyp", "deu",
+                 "dnk", "esp", "est", "fin", "fra", "gbr", "grc", "hrv", "hun",
+                 "irl", "isl", "ita", "ltu", "lux", "lva", "mkd", "mlt",
+                 "nld", "nor", "pol", "prt", "svk", "svn", "swe" )
 
+# Limited number of years or no data for these isos, so are not included:  "
+# arm", "cze", "geo", "kgz", "mne". "rou",
+#       "alb" has unrealistic SO2 industrial emissions reported (looks like process and combustion were combined)
     inv_years <- c( 1980 : 2012 )
 
 # EMEP level 1 inventory is reformatted by the E2.EMEP_em_emissions_lvl1.R script
