@@ -339,7 +339,6 @@ extendValues <- function(ext_data,
   # expand extension data
   ext_data <- expandAll( ext_data )
 
-
   # Define inventory variables
   names <- names( ext_data)
   id.names <- names[-grep( "X", names)]
@@ -680,6 +679,9 @@ extendValues <- function(ext_data,
 extendDefaultEF <- function(exten_df,
                             pre_ext_method_default){
 
+  printLog('Extending DF: ')
+  printLog(paste(head(exten_df, n = 1L) ))
+
   # Process
   exten_df <- expandAll(exten_df, toWide = TRUE)
 
@@ -702,9 +704,16 @@ extendDefaultEF <- function(exten_df,
   names <- names( exten_df)
   id.X_years <- names[grep( "X", names)]
 
+  # If units column is not present add blank units column
+  # Assumes that units value is not used
+  ext_data <- exten_df
+  if ( !( 'units' %in% names ) ){
+    exten_df$units = ""
+  }
+  ext_data <- exten_df[,c('iso','sector','fuel','units',id.X_years)]
 
   # Extend
-  out <- extendValues(ext_data = exten_df[,c('iso','sector','fuel','units',id.X_years)],
+  out <- extendValues(ext_data = ext_data,
                       pre_ext_default = pre_ext_method_default,
                       post_ext_default = 'constant',
                       pre_ext_year = start_year,

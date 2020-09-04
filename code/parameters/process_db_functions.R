@@ -518,27 +518,36 @@ addToDb_overwrite <- function( new_data, em, file_extension, module = 'B',
   original_db <- readData( "MED_OUT", paste0( module,".", em, "_", file_extension ) )
   n.observations <- nrow(original_db)
 
+  # Change ashRet units to consistent values
+  if ( file_extension == 'AshRet_db' ) {
+    new_data$units[ grepl( "%", new_data$units ) ] <- "fraction"
+    original_db$units[ grepl( "%", original_db$units ) ] <- "fraction"
+  }
+
   # Check units
   original_units <- unique(original_db$units)
   new_units <- unique(new_data$units)
-  if( any(original_units %!in% new_units) | any(new_units %!in% original_units) )
-    stop('Units do not match in addToDb_overwrite. Please check units')
-
+  if( any(original_units %!in% new_units) | any(new_units %!in% original_units) ) {
+    stop( paste('Units do not match in addToDb_overwrite. Org Units:',original_units,'.  Added data units:',new_units,'Please check units'))
+  }
   # Check id variables
   names <- names( new_data )
   id.names.new <- names[-grep( "X", names)]
   names <- names( original_db )
   id.names.old <- names[-grep( "X", names)]
 
-  if( !identical(id.names.new,id.names.old)){ stop("In addToDb_overwrite, id variables (iso, sector, fuel)
-                                                   of database and new data to be added to database are not the same.")}
-  if( !identical(unique(original_db$units), unique(original_db$units))){ stop("In addToDb_overwrite, units of database and
-                                                                              new data to be added to database are not the same.")}
+  if( !identical(id.names.new,id.names.old)){ 
+    stop(paste0('In addToDb_overwrite, id variables of database',
+    'and new data','to be added to database are not the same.'))
+  }
+  if( !identical(unique(original_db$units), unique(original_db$units))){ 
+    stop("In addToDb_overwrite, units of database and new data to be added to database are not the same.")
+  }
 
   # check New data for duplicates and remove - priority given to last data
   nrow_duplicated <- nrow(new_data)
-  new_data <- new_data[  !duplicated( new_data[,id.names.new] , fromLast = TRUE)  , ]
-  nrow_unique <- nrow( new_data)
+  new_data_unique <- new_data[  !duplicated( new_data[,id.names.new] , fromLast = TRUE)  , ]
+  nrow_unique <- nrow( new_data_unique)
 
   if( nrow_duplicated != nrow_unique) printLog('New Data has duplicate entries. Last given priority')
 
@@ -549,7 +558,7 @@ addToDb_overwrite <- function( new_data, em, file_extension, module = 'B',
   #---------
 
   # melt old and new dbs
-  df_add<-melt(new_data,id=c("iso","sector","fuel","units"))
+  df_add<-melt(new_data_unique,id=c("iso","sector","fuel","units"))
   names(df_add)[which(names(df_add)=='variable')]<-'year'
   df_add <- df_add[!is.na(df_add$value),] #don't add the NAs from the new df
 

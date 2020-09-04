@@ -1,0 +1,2 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+S Percent,SO2,ind,all,1990,2020,"Trend GAINS heavy oil sulfur content with GAINS global (ECLIPSE_V6b) heavy oil EF trend for industry. Read in last (""zGAINS"") so is not overwritten."

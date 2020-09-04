@@ -700,21 +700,23 @@ readMetaData <- function( meta_domain = NULL, file_name = NULL, file_extension =
     #   found, make a note
     if( file.exists( mymeta_name ) ) {
 
-        new_metadata_exists <- TRUE
-        new_metadata <- read.csv( mymeta_name, na.strings = c( "", "NA" ), check.names = FALSE, stringsAsFactors = F )
-        new_metadata <- data.frame( new_metadata, row.names = NULL,  stringsAsFactors = F )
+        new_metadata_exists <- FALSE
+        tryCatch( {
+            new_metadata <- read.csv( mymeta_name, na.strings = c( "", "NA" ), check.names = FALSE, stringsAsFactors = F )
+            new_metadata <- data.frame( new_metadata, row.names = NULL,  stringsAsFactors = F )
+            new_metadata_exists <- TRUE
+        } #End try block
+        , error = function( err ) {
+            printLog( "Error reading metadata file:", file_name,". Metadata ignored." )
+         })
 
         # Convert columns to characters (if needed)
         not_character <- function( x ){
-
             !is.character( x )
-
         }
 
-        if( any( sapply( new_metadata, not_character ) ) ){
-
+        if( new_metadata_exists && any( sapply( new_metadata, not_character ) ) ){
             new_metadata <- dplyr::mutate_if( new_metadata, not_character, as.character  )
-
         }
 
     } else new_metadata_exists <- FALSE

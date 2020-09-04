@@ -1,0 +1,2 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+SO2 Control,SO2,all,1A2f_Ind-Comb-Non-metalic-minerals,1850,2025,"Derived from Atmospheric emission inventory of hazardous air pollutants from China's cement plants-suppl (Hua etal 2016), weighted by fraction of sector coal used for cement production (which is > 60% before 1990)"
