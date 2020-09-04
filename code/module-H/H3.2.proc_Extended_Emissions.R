@@ -52,12 +52,15 @@ activity <- activity %>%
     filter( sector != '1A1bc_Other-feedstocks') %>%
     arrange(iso, sector, fuel)
 
-
 check_iso <- identical( activity$iso, EFs$iso)
 check_sector <- identical( activity$sector, EFs$sector)
 check_fuel <- identical( activity$fuel, EFs$fuel)
 
-if( !all( c(check_iso, check_sector, check_fuel) )) stop("Activity and EFs databases do not match.")
+if( !all( c(check_iso, check_sector, check_fuel) )) {
+  writeData( activity[1:3], "DIAG_OUT" , paste0(em,'_activity_check_match') )
+  writeData( EFs[1:3], "DIAG_OUT" , paste0(em,'_EFs_check_match') )
+  stop("Activity and EFs databases do not match. Check diagnostic-output folder.")
+}
 
 emissions <- EFs[,c('iso','sector','fuel')]
 emissions$units <- 'kt'

@@ -2,7 +2,7 @@
 # Program Name: C1.2.ECLIPSE_flaring_emissions_extension.R
 # Author: Leyang Feng
 # Date Last Modified: June 28, 2016
-# Program Purpose: Extends ECLIPSE flaring emissions to period 1960 - last BP year using IEA
+# Program Purpose: Extends ECLIPSE flaring emissions to period 1965 - last BP year using IEA
 #                  and BP crude oil production data
 # Input Files: [em]_eclipse_flr_emissions.csv, A.en_stat_sector_fuel.csv,
 #              [BP_data_file_name].csv, Master_Country_List.csv,
