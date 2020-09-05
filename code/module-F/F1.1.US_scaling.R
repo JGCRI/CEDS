@@ -49,7 +49,6 @@
 #   the inventory (as a vector of iso codes)
     inv_name <- 'US' #for naming diagnostic files
     region <- c( "usa" )
-    sector_fuel_mapping <- inv_name
     mapping_method <- 'sector'
     last_inv_year <- min( 2018, BP_last_year )
     inv_years <- c( 1970, 1975, 1980, 1985, 1990 : last_inv_year )
@@ -57,11 +56,19 @@
     inv_data_folder <- 'MED_OUT'
 
     if ( em == 'NH3' ) {
-
         inv_years <- c( 1990 : last_inv_year )
-
     }
 
+    # For species without signifiant emissions in this category leave at default. This allows
+    # NOx from agricultural soils to be retained (which isn't otherwise in US inventory)
+    sector_fuel_mapping <- paste0(inv_name,'_nomisc')
+
+    # These species have signifaint tier1 Miscellaneous emissions 
+    # This will result in a small overestimate of emissions, particularly NMVOC, 
+    # from this category since AWB emissions are included 
+    if ( em %in% c("NMVOC", "PM2.5", "NH3") ) {
+      sector_fuel_mapping <- inv_name
+    }
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions
 

@@ -23,7 +23,7 @@ if ( is.na( em ) ) em <- "NOx"
     headers <- c( 'common_data.R', "data_functions.R", "analysis_functions.R" ) # Additional function files required.
     log_msg <- "Generating Taiwan emission inventory data" # First message to be printed to the log
     script_name <- paste0( em, "-E.Taiwan_emission.R" )
-    
+
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
@@ -46,8 +46,8 @@ if ( is.na( em ) ) em <- "NOx"
     sector_fuel_mapping <- 'TWN_scaling_mapping'
     mapping_method <- 'sector'
     inv_name <- 'TWN' #for naming diagnostic files
-    region <- c( "twn" ) 
-    inv_years<-c( 2003, 2006, 2010 )
+    region <- c( "twn" )
+    inv_years<-c( 2003, 2006, 2010, 2013, 2016 )
 
 
 
@@ -58,76 +58,128 @@ if ( is.na( em ) ) em <- "NOx"
     if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) {
     # write out a dummy file for unsupported species
         inv_data_species <- data.frame( )
-    
-    } else { 
-    # Import Sheets containing 2003, 2006, 2010 data.
+
+    } else {
+    # Import Sheets containing 2003, 2006, 2010, 2013, 2016 data.
         sheet_name <- "2003"
         inv_data_sheet_two <- readData( inv_data_folder, inventory_data_file, ### Why two, three, four, not 1,2,3?
-                                        ".xlsx", skip = 1, 
-                                        sheet_selection = sheet_name, 
+                                        ".xlsx", skip = 1,
+                                        sheet_selection = sheet_name,
                                         domain_extension = subfolder_name )
         sheet_name <- "2006"
-        inv_data_sheet_three <- readData( inv_data_folder, inventory_data_file, 
-                                          ".xlsx", skip = 1, 
-                                          sheet_selection = sheet_name, 
+        inv_data_sheet_three <- readData( inv_data_folder, inventory_data_file,
+                                          ".xlsx", skip = 1,
+                                          sheet_selection = sheet_name,
                                           domain_extension = subfolder_name )
         sheet_name <- "2010"
-        inv_data_sheet_four <- readData( inv_data_folder, inventory_data_file, 
-                                         ".xlsx", skip = 1, 
-                                         sheet_selection = sheet_name, 
+        inv_data_sheet_four <- readData( inv_data_folder, inventory_data_file,
+                                         ".xlsx", skip = 1,
+                                         sheet_selection = sheet_name,
                                          domain_extension = subfolder_name )
+
+        sheet_name <- "2013"
+        inv_data_sheet_five <- readData( inv_data_folder, inventory_data_file,
+                                         ".xlsx", skip = 4,
+                                         sheet_selection = sheet_name,
+                                         domain_extension = subfolder_name )
+
+        sheet_name <- "2016"
+        inv_data_sheet_six <- readData( inv_data_folder, inventory_data_file,
+                                         ".xlsx", skip = 4,
+                                         sheet_selection = sheet_name,
+                                         domain_extension = subfolder_name )
+
+    # Combine rows with different emission types
+        id_cols <- c( "source type", "sector", "sub-sector1", "sub-sector2" )
+        inv_data_sheet_five <- inv_data_sheet_five %>%
+            dplyr::select( -"emission-type" ) %>% # remove id column not using, as it won't be able to aggregate over this, as it won't be included in the group_by()
+            dplyr::group_by_at( id_cols )  %>% # group by columns in the id _col object
+            dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>% # aggregate
+            dplyr::ungroup( ) # ungroup
+
+        inv_data_sheet_six <- inv_data_sheet_six %>%
+            dplyr::select( -"emission-type" ) %>% # remove id column not using, as it won't be able to aggregate over this, as it won't be included in the group_by()
+            dplyr::group_by_at( id_cols )  %>% # group by columns in the id _col object
+            dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>% # aggregate
+            dplyr::ungroup( ) # ungroup
+
+
 
 # ------------------------------------------------------------------------------
 # 3. Convert to standard format
 
     # Trim each dataframe to the desired rows and rename
-        keep_columns <- c( 'sector', 'sub-sector1', 'sub-sector2', 'SOx', 'NOx', 'NMHC', 'CO' )
+        keep_columns <- c( 'sector', 'sub-sector1', 'sub-sector2','SOx', 'NOx', 'NMHC', 'CO' )
         col_names <- c( 'sector', 'subsector_l1', 'subsector_l2', 'SO2', 'NOx', 'NMVOC', 'CO' )
         df2003 <- subset( inv_data_sheet_two, select = keep_columns )
-        colnames( df2003 ) <- col_names 
+        colnames( df2003 ) <- col_names
         df2003 <- df2003[ !is.na( df2003$sector ), ]
         df2006 <- subset( inv_data_sheet_three, select = keep_columns )
         colnames( df2006 ) <- col_names
         df2006 <- df2006[ !is.na( df2006$sector ), ]
         df2010 <- subset( inv_data_sheet_four, select = keep_columns )
-        colnames( df2010 ) <- col_names 
+        colnames( df2010 ) <- col_names
         df2010 <- df2010[ !is.na( df2010$sector ), ]
+        df2013 <- subset( inv_data_sheet_five, select = keep_columns )
+        colnames( df2013 ) <- col_names
+        df2013 <- df2013[ !is.na( df2013$sector ), ]
+        df2016 <- subset( inv_data_sheet_six, select = keep_columns )
+        colnames( df2016 ) <- col_names
+        df2016 <- df2016[ !is.na( df2016$sector ), ]
 
     # construct unified sector names by combining l1 and l2 names
-        df2003$sector <- paste( df2003$sector, df2003$subsector_l1, 
+        df2003$sector <- paste( df2003$sector, df2003$subsector_l1,
                                 df2003$subsector_l2, sep = '_' )
         df2003$sector <- gsub( '_NA', '', df2003$sector )
-        df2003 <- df2003[ , !( colnames( df2003 ) %in% c( 'subsector_l1', 
+        df2003 <- df2003[ , !( colnames( df2003 ) %in% c( 'subsector_l1',
                                                           'subsector_l2' ) ) ]
-        df2006$sector <- paste( df2006$sector, df2006$subsector_l1, 
+
+        df2006$sector <- paste( df2006$sector, df2006$subsector_l1,
                                 df2006$subsector_l2, sep = '_' )
-        
         df2006$sector <- gsub( '_NA', '', df2006$sector )
-        df2006 <- df2006[ , !( colnames( df2006 ) %in% c( 'subsector_l1', 
+        df2006 <- df2006[ , !( colnames( df2006 ) %in% c( 'subsector_l1',
                                                           'subsector_l2' ) ) ]
-        df2010$sector <- paste( df2010$sector, df2010$subsector_l1, 
-                                df2010$subsector_l2, sep = '_' )  
+        df2010$sector <- paste( df2010$sector, df2010$subsector_l1,
+                                df2010$subsector_l2, sep = '_' )
         df2010$sector <- gsub( '_NA', '', df2010$sector )
-        df2010 <- df2010[ , !( colnames( df2010 ) %in% c( 'subsector_l1', 
+        df2010 <- df2010[ , !( colnames( df2010 ) %in% c( 'subsector_l1',
+                                                          'subsector_l2' ) ) ]
+
+
+        df2013$sector <- paste( df2013$sector, df2013$subsector_l1,
+                                df2013$subsector_l2, sep = '_' )
+        df2013$sector <- gsub( '_NA', '', df2013$sector )
+        df2013 <- df2013[ , !( colnames( df2013 ) %in% c( 'subsector_l1',
+                                                          'subsector_l2' ) ) ]
+
+        df2016$sector <- paste( df2016$sector, df2016$subsector_l1,
+                                df2016$subsector_l2, sep = '_' )
+        df2016$sector <- gsub( '_NA', '', df2016$sector )
+        df2016 <- df2016[ , !( colnames( df2016 ) %in% c( 'subsector_l1',
                                                           'subsector_l2' ) ) ]
 
     # Make sure each df contains all sectors, even those with 0 emissions for
-    # that year
+    # that year. 2010 is the outlier which is "by sector" instead of "by source"
         df2003 <- merge( df2003, df2006[ 'sector' ], by = 'sector', all = T )
         df2003 <- merge( df2003, df2010[ 'sector' ], by = 'sector', all = T )
+        df2003 <- merge( df2003, df2016[ 'sector' ], by = 'sector', all = T )
         df2006 <- merge( df2006, df2003[ 'sector' ], by = 'sector', all = T )
         df2010 <- merge( df2010, df2003[ 'sector' ], by = 'sector', all = T )
+        df2013 <- merge( df2013, df2003[ 'sector' ], by = 'sector', all = T )
+        df2016 <- merge( df2016, df2003[ 'sector' ], by = 'sector', all = T )
 
     # Keep only data for the given emissions species
         sector <- df2003$sector
         X2003 <- df2003[ , em ]
         X2006 <- df2006[ , em ]
         X2010 <- df2010[ , em ]
+        X2013 <- df2013[ , em ]
+        X2016 <- df2016[ , em ]
 
-        inv_data_species <- data.frame( sector, X2003, X2006, X2010 ) 
+        inv_data_species <- data.frame( sector, X2003, X2006, X2010, X2013, X2016 )
 
     # Convert from tonnes to kt
-        inv_data_species[ , paste0( 'X', inv_years ) ] <- 
+        inv_data_species[ , paste0( 'X', inv_years ) ] <-
           as.matrix( inv_data_species[ , paste0( 'X', inv_years ) ] ) / 1000
 
     # Clean rows and columns to standard format
@@ -141,11 +193,11 @@ if ( is.na( em ) ) em <- "NOx"
 # ------------------------------------------------------------------------------
 # 4. Output
 # write standard form inventory
-    writeData( inv_data_species , domain = "MED_OUT", 
+    writeData( inv_data_species , domain = "MED_OUT",
                paste0( 'E.', em, '_', inv_name, '_inventory' ) )
-    
+
 # Every script should finish with this line
-    
+
     logStop()
 # END
 
