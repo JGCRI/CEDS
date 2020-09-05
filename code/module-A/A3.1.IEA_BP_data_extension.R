@@ -61,8 +61,8 @@
     # Read in BP energy data
     printLog( c("Reading in BP energy consumption data."))
     bp_oil_full <- bp_energy_data[[ getBPSheetNumber( "oil", "consumption", "tonnes", bp_energy_data ) ]]
-    bp_gas_full <- bp_energy_data[[ getBPSheetNumber( "gas", "consumption", "mtoe", bp_energy_data ) ]]
-    bp_coal_full <- bp_energy_data[[ getBPSheetNumber( "coal", "consumption", "mtoe", bp_energy_data ) ]]
+    bp_gas_full <- bp_energy_data[[ getBPSheetNumber( "gas", "consumption", "EJ", bp_energy_data ) ]]
+    bp_coal_full <- bp_energy_data[[ getBPSheetNumber( "coal", "consumption", "EJ", bp_energy_data ) ]]
 
 # Check input data for proper sector and fuel names
     sectorCheck( iea_data_full )
@@ -331,7 +331,7 @@
 # Read production data
     bp_coal_prod <- bp_energy_data[[ getBPSheetNumber( "coal", "production", "tonnes", bp_energy_data ) ]]
     bp_oil_prod  <- bp_energy_data[[ getBPSheetNumber( "oil", "production", "tonnes", bp_energy_data ) ]]
-    bp_gas_prod  <- bp_energy_data[[ getBPSheetNumber( "gas", "production", "mtoe", bp_energy_data ) ]]
+    bp_gas_prod  <- bp_energy_data[[ getBPSheetNumber( "gas", "production", "EJ", bp_energy_data ) ]]
 
 # Select world total data from the data sheets
     bp_coal_prod_tot <- na.omit( bp_coal_prod[ bp_coal_prod[ ,1] ==
