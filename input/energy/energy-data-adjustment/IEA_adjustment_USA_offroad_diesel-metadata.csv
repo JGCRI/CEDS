@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
+Energy Statistics Adjustment,NA,usa,construction and agriculture,1960,2010,Replaces values with corrected energy statistics taken from EIA (after 1984) and extrapolated with total diesel use previously
