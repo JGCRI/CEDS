@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "3.5.1",
+    "Version": "3.6.3",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -50,11 +50,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "f3ca785924863b0e4c8cb23b6a5c75a1"
-    },
-    "XML": {
-      "Package": "XML",
-      "Version": "3.99-0.3",
-      "Source": "Repository"
     },
     "assertthat": {
       "Package": "assertthat",
@@ -114,7 +109,7 @@
     },
     "dplyr": {
       "Package": "dplyr",
-      "Version": "0.7.6",
+      "Version": "0.8.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "86bcce10492ca033b7727d97f15bd377"

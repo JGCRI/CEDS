@@ -20,18 +20,19 @@ X_IEA_end_year  <- paste0( "X", IEA_end_year  ) # First Xyear of IEA data
 IEA_years <- IEA_start_year:IEA_end_year # Set of IEA years being utilized
 X_IEA_years <- paste0( "X", IEA_years) # Set of IEA Xyears being utilized
 
-# USER SET DATA - Set this to the last year of the BP energy data used
-# This determines which years are used from the BP energy data to extend and augment IEA energy data.
-BP_last_year <- 2018
+# USER SET DATA - Set this to the last year of the BP data used
+# The set of years for the BP data extendForwards further, and is used to augment the IEA.
+BP_last_year <- 2019
 
 # USER SET DATA - Set this to point to the name of the BP statisical data, which should be
 # Located in the inputs/energy folder
-BP_data_file_name <- "bp-stats-review-2019-all-data"
+BP_data_file_name <- "bp-stats-review-2020-all-data"
+# NOTE - Need to also change this file name in the makefile
 
 # The actual last year of data provided in the BP energy data. User need to set an additional value for this object if
 # they are utilizing a BP_data_file_name not listed below:
 if( BP_data_file_name == "BP_energy_data.xlsx" ){ BP_actual_last_year <- 2014}
-if( BP_data_file_name == "bp-stats-review-2019-all-data" ){ BP_actual_last_year <- 2018}
+if( BP_data_file_name == "bp-stats-review-2020-all-data" ){ BP_actual_last_year <- 2019}
 
 BP_first_year <- IEA_end_year + 1 # First year for BP only data
 BP_years <- BP_first_year : BP_last_year # The years for which there is only BP data

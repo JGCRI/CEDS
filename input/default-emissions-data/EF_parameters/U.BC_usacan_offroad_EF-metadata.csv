@@ -1,0 +1,5 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+Emission Factor,BC,usa,1A2g_Ind-Comb-Construction,1990,2018,Emission factors from MOVES 2014b non-road equipment
+Emission Factor,BC,usa,1A4c_Agriculture-forestry-fishing,1990,2018,Emission factors from MOVES 2014b non-road equipment
+Emission Factor,BC,can,1A2g_Ind-Comb-Construction,1990,2018,Emission factors from MOVES 2014b non-road equipment
+Emission Factor,BC,can,1A4c_Agriculture-forestry-fishing,1990,2018,Emission factors from MOVES 2014b non-road equipment

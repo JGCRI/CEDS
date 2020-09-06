@@ -200,7 +200,7 @@ if( em != 'CO2') {
     # Aggregate
     coal_all <- dplyr::bind_rows( coal_total, coal_neuse, coal_combustion ) %>%
       dplyr::group_by( iso, flow, units ) %>%
-      dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>%
+      dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>%
       data.frame()
 
     return( coal_all )
@@ -217,7 +217,7 @@ if( em != 'CO2') {
 
 # Convert coal EF to long format
   coal_ef_ext_long <- coal_ef_ext %>%
-      tidyr::gather( key = year, value = coal_EF, X_extended_years )
+      tidyr::gather( key = year, value = coal_EF, all_of(X_extended_years) )
 
 # Add CEDS fuel column to A.IEA_en_stat_ctry_hist
   A.IEA_en_stat_ctry_hist <- A.IEA_en_stat_ctry_hist %>%
@@ -276,7 +276,7 @@ if( em != 'CO2') {
                                                                                     'hard_coal'))
   extended_coal <- extended_coal[ c( "iso", "fuel", "units", X_extended_years ) ]
   extended_coal <- dplyr::group_by( extended_coal, iso, fuel, units ) %>%
-      dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>% data.frame()
+      dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>% data.frame()
 
 # b. Extend Coal Coke (imports - exports) with extended coal coke (production + imports - exports)
   # extended total coal coke value
@@ -291,7 +291,7 @@ if( em != 'CO2') {
   IEA_coke <- A.IEA_en_stat_ctry_hist %>%
     dplyr::filter( FLOW %in% c("IMPORTS", "EXPORTS"), fuel=="coal_coke" ) %>%
     dplyr::select( -FLOW, -PRODUCT ) %>% group_by( iso, fuel ) %>%
-    dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>%
+    dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>%
     data.frame() %>%
     dplyr::mutate(value = 'iea_coke')
 
@@ -338,7 +338,7 @@ if( em != 'CO2') {
 
 # c. Compute CO2 emissions from total coal consumption and EF
   total_coal_long <- total_coal %>%
-      tidyr::gather( key = year, value = total_value, X_extended_years ) %>%
+      tidyr::gather( key = year, value = total_value, all_of(X_extended_years) ) %>%
       dplyr::select( -units ) %>%
       data.frame( )
 
@@ -367,7 +367,7 @@ if( em != 'CO2') {
   IEA_neuse_coal <- A.IEA_en_stat_ctry_hist %>%
     dplyr::filter( FLOW == IEA_non_energy_use_FLOW, fuel %in% ceds_coal_fuels ) %>%
     dplyr::select( -FLOW, -PRODUCT ) %>% dplyr::group_by( iso, fuel ) %>%
-    dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>%
+    dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>%
     data.frame() %>%
     dplyr::mutate( units = "kt" )
 
@@ -389,7 +389,7 @@ if( em != 'CO2') {
 
 # Transform to long format and add column of total coal
   IEA_neuse_coal_ext_long <- IEA_neuse_coal_ext %>%
-      tidyr::gather( key = year, value = neuse_value, X_extended_years ) %>%
+      tidyr::gather( key = year, value = neuse_value, all_of(X_extended_years) ) %>%
       dplyr::left_join( total_coal_long, by = c( "iso", "fuel", "year" ) ) %>%
       dplyr::arrange( fuel, iso ) %>%
       dplyr::select( iso, fuel, year, units, neuse_value, total_value )
@@ -429,7 +429,7 @@ if( em != 'CO2') {
   CO2_Coal_Combustion <- CO2_total_CEDS_emissions %>%
     dplyr::filter( sector %in% ceds_comb_sectors, fuel %in% ceds_coal_fuels ) %>%
     dplyr::select( -sector ) %>% group_by( iso, fuel, units ) %>%
-    dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>%
+    dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>%
     dplyr::arrange( iso, fuel, units ) %>% data.frame()
 
 # ---------------------------------------------------------------------------
@@ -438,26 +438,26 @@ if( em != 'CO2') {
   CO2_Coal_Total_agg <- CO2_Coal_Total %>%
       dplyr::select( -fuel ) %>%
       dplyr::group_by( iso, units ) %>%
-      dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>%
+      dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>%
       dplyr::arrange( iso ) %>%
       data.frame()
   CO2_Coal_Combustion_agg <- CO2_Coal_Combustion %>%
       dplyr::select( -fuel ) %>%
       dplyr::group_by( iso, units ) %>%
-      dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>%
+      dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>%
       dplyr::arrange( iso ) %>%
       data.frame()
   CO2_Coal_NEuse_agg <- CO2_Coal_NEuse %>%
       dplyr::select( -fuel ) %>%
       dplyr::group_by( iso, units ) %>%
-      dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>%
+      dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>%
       dplyr::arrange( iso ) %>%
       data.frame()
 
   CO2_Coalgases_as_ng_for_total_natural_gas_agg <- CO2_Coalgases_as_ng_for_total_natural_gas %>%
       dplyr::select( -fuel ) %>%
       dplyr::group_by( iso, units ) %>%
-      dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>%
+      dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>%
       dplyr::arrange( iso ) %>%
       data.frame()
 
@@ -482,7 +482,7 @@ if( em != 'CO2') {
 
 # Make negative values zero. Keep diagnostics of negative values
   diag_subzero <- CO2_Conversion %>%
-      tidyr::gather( key = variable, value = value, X_extended_years ) %>%
+      tidyr::gather( key = variable, value = value, all_of(X_extended_years) ) %>%
       dplyr::filter( value < 0 ) %>%
       tidyr::spread( variable, value )
 
@@ -502,9 +502,9 @@ if( em != 'CO2') {
                                                     c('1B1_Fugitive-solid-fuels','2C_Metal-production')),]
 
   CO2_1B1and2c <- CEDS_1B1and2c %>%
-      dplyr::select( iso, X_extended_years ) %>%
+      dplyr::select( iso, all_of(X_extended_years) ) %>%
       dplyr::group_by( iso ) %>%
-      dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+      dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
       dplyr::ungroup( ) %>%
       as.data.frame( )
 
@@ -561,7 +561,7 @@ if( em != 'CO2') {
 
   # Diagnostic of subzero 1B1 and 2C
   diag_subzero_1B1and2c <- dplyr::setdiff( CO2_Conversion_1B1and2c_orig, CO2_Conversion_1B1and2c ) %>% # Retains rows from X that are different in Y
-    tidyr::gather( key = year, value = value, X_extended_years ) %>%
+    tidyr::gather( key = year, value = value, all_of(X_extended_years) ) %>%
     dplyr::filter( value < 0 ) %>%
     tidyr::spread( year, value )
 

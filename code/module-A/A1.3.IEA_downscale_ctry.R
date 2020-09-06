@@ -203,7 +203,7 @@
 # Subset only the relevant years (and convert NAs to 0, if NAs exist)
   	IEA_IDcodes  <- c( "COUNTRY", "FLOW", "PRODUCT" )
   	A.IEAfull <- A.IEAfull %>%
-  	    dplyr::select( IEA_IDcodes, X_IEA_years ) %>%
+  	    dplyr::select( all_of(IEA_IDcodes), all_of(X_IEA_years) ) %>%
   	    dplyr::mutate_at( .vars = X_IEA_years,
   	                      .funs = funs( if_else( is.na( . ), 0, . ) ) )
 
@@ -282,9 +282,9 @@
       	        dplyr::arrange( COUNTRY, FLOW, PRODUCT )
 
       	    IEA_adjusted_replace <- IEA_to_adjust_replace %>%
-      	        dplyr::select( -replace_adjustment_years ) %>%
+      	        dplyr::select( -all_of(replace_adjustment_years) ) %>%
       	        dplyr::left_join( replace_adjustment, by = c( "COUNTRY", "FLOW", "PRODUCT" ) ) %>%
-      	        dplyr::select( all_columns )
+      	        dplyr::select( all_of(all_columns) )
 
       	    IEA_adjusted <- IEA_adjusted %>%
       	        dplyr::bind_rows( IEA_adjusted_replace ) %>%
@@ -435,7 +435,7 @@
     A.USSR_Yug_FLOW_PROD <- A.USSR_Yug_ctry %>%
         dplyr::select( IEAcomp, FLOW, PRODUCT, X1990 ) %>%
         dplyr::group_by( IEAcomp, FLOW, PRODUCT ) %>%
-        dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+        dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
         dplyr::ungroup( ) %>%
         dplyr::arrange( PRODUCT, FLOW, IEAcomp ) %>%
         as.data.frame( )
@@ -546,9 +546,9 @@
                                         fsu_data$IEAcomp %in% FSU_IEA_composite_name ), ]
 
     A.FSU_trasf_shares <- fsu_transf_data %>%
-        dplyr::select( PRODUCT, fsu_X_years ) %>%
+        dplyr::select( PRODUCT, all_of(fsu_X_years) ) %>%
         dplyr::group_by( PRODUCT ) %>%
-        dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+        dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
         dplyr::ungroup( ) %>%
         as.data.frame( )
 
@@ -632,7 +632,7 @@
 
 #           a.) Diaggregate through 1999 with Suriname included
             A.IEA_others_fuel_asia_to_1999 <- A.IEA_others_fuel_asia %>%
-                dplyr::select( IEA_IDcodes, "iso", paste0( "X", start_year : 1999 ) )
+                dplyr::select( all_of(IEA_IDcodes), "iso", paste0( "X", start_year : 1999 ) )
 
             A.IEA_others_fuel_americas_to_1999 <- disaggregate_country( original_data = A.IEA_others_fuel_asia_to_1999,
                                                 trend_data = cdiac_trend_fuel,
@@ -657,7 +657,7 @@
 
 #           c.) Disaggregate 2000-2017 without Suriname, as data for this region exists for 2000 - 2017
             A.IEA_others_fuel_asia_2000_to_end_year <- A.IEA_others_fuel_asia %>%
-                dplyr::select( IEA_IDcodes, "iso", paste0( "X", 2000 : IEA_end_year ) )
+                dplyr::select( all_of(IEA_IDcodes), "iso", paste0( "X", 2000 : IEA_end_year ) )
 
             A.IEA_others_fuel_americas_2000_to_end_year <- disaggregate_country( original_data = A.IEA_others_fuel_asia_2000_to_end_year,
                                                 trend_data = cdiac_trend_fuel,
@@ -710,7 +710,7 @@
 
 #           a.) Diaggregate through 1999 with Suriname included
             A.IEA_others_bunkers_asia_to_1999 <- A.IEA_others_bunkers_asia %>%
-                dplyr::select( IEA_IDcodes, "iso", paste0( "X", start_year : 1999 ) )
+                dplyr::select( all_of(IEA_IDcodes), "iso", paste0( "X", start_year : 1999 ) )
 
             A.IEA_others_bunkers_americas_to_1999 <- disaggregate_country( original_data = A.IEA_others_bunkers_asia_to_1999,
                                                 trend_data = cdiac_trend_bunkers,
@@ -733,7 +733,7 @@
 
 #           c.) Disaggregate 2000-2017 without Suriname, as data for this region exists for 2000 - 2017
             A.IEA_others_bunkers_asia_2000_to_end_year <- A.IEA_others_bunkers_asia %>%
-                dplyr::select( IEA_IDcodes, "iso", paste0( "X", 2000 : IEA_end_year ) )
+                dplyr::select( all_of(IEA_IDcodes), "iso", paste0( "X", 2000 : IEA_end_year ) )
 
             A.IEA_others_bunkers_americas_2000_to_end_year <- disaggregate_country( original_data = A.IEA_others_bunkers_asia_2000_to_end_year,
                                                 trend_data = cdiac_trend_bunkers,
@@ -767,7 +767,7 @@
 #       i.) Subset Suriname data from A.IEAsingle - 2000 through IEA_end_year
         A.Others_suriname_stat_2000_to_end_year <- A.IEAsingle %>%
             dplyr::filter( iso == "sur" ) %>%
-            dplyr::select( IEA_IDcodes, paste0( "X", 2000 : IEA_end_year ), iso )
+            dplyr::select( all_of(IEA_IDcodes), paste0( "X", 2000 : IEA_end_year ), iso )
 
         A.IEAsingle <- A.IEAsingle %>%
             dplyr::filter( iso != "sur" )

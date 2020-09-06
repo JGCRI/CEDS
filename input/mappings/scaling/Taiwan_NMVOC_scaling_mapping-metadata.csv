@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
+Mapping,All,Taiwan,All,NA,NA,"Emission sector mapping for emission scaling. For Taiwan NMVOC map all to process sectors since these dominate emissions at sector level (and don't have non-combustion. Breakout for earlier years. This potentially double counts combustion emissions, but these are small for these years.)"

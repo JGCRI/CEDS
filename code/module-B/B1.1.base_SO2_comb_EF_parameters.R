@@ -71,7 +71,8 @@
                         paste0( "S", "_percent" ) ]
     }
 # Unit for sulfur content persentage
-    default_S_Content$units <- 'kt/kt'
+    default_S_Content$units <- 'fraction'
+
 # Create default ash retention database
     default_AshRet <- activity_data
     default_AshRet[ , X_emissions_years ] <- 0
@@ -87,8 +88,8 @@
         }
     }
 
-# Unit for sulfur content percentage
-    default_AshRet$units <- 'kt/kt'
+# Unit for ash retention percentage
+    default_AshRet$units <- 'fraction'
 
 # ------------------------------------------------------------------------------
 # 4. Output

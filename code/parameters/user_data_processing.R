@@ -102,7 +102,7 @@ procUsrData <- function( usr_data, proc_instr, mappings,
     # Replace any missing years with NA
     mapped_df <- mapped_df %>%
         dplyr::mutate_at( setdiff( X_data_years, names( . ) ), funs( +NA_real_ ) ) %>%
-        dplyr::select( agg_cols, X_data_years )
+        dplyr::select( all_of(agg_cols), all_of(X_data_years) )
 
     # Determine if there are instructions at different aggregation levels
     # specified for the same dataset. Previously, data at different levels of
@@ -475,7 +475,7 @@ replaceNegatives <- function( df, replace_vals ) {
 
     # Make sure replacement values are at the same aggregation level as the df.
     replace_vals <- df %>%
-        dplyr::select( agg_cols ) %>%
+        dplyr::select( all_of(agg_cols) ) %>%
         dplyr::left_join( replace_vals, by = agg_cols ) %>%
         dplyr::select( one_of( names( df ) ) ) %>%
         dplyr::group_by_at( agg_cols ) %>%
@@ -520,7 +520,7 @@ subsetUserData <- function( user_df, instructions ) {
     # aggregate the user data to the same level of detail specified in the
     # instructions
     subset <- user_df %>%
-        dplyr::select( agg_cols, num_range( 'X', yr_range ) ) %>%
+        dplyr::select( all_of(agg_cols), num_range( 'X', yr_range ) ) %>%
         dplyr::filter( iso %in% instructions$iso ) %>%
         dplyr::group_by_at( agg_cols ) %>%
         dplyr::summarise_all( sum, na.rm = T ) %>%
@@ -726,7 +726,7 @@ disaggregate <- function( agg_activity, disagg_activity, agg_id_cols, global_dat
         # Remove y's from columns and select all columns that have percent breakdowns
         df_shares_no_xs <- df_shares %>%
             dplyr::rename_all( funs( sub( '\\.(y)$', '', . ) ) ) %>%
-            select(-value_cols)
+            select(-all_of(value_cols) )
 
         important_years <- grep( 'X\\d{4}', names(df_shares_no_xs), value = TRUE)
 

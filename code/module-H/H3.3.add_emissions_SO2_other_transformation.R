@@ -38,9 +38,9 @@ other_transformation_coal <- readData( 'MED_OUT', 'A.comb_activity_extended_coal
 
 calculated_other_emissions <- data.frame(iso = other_transformation_coal[,c('iso')])
 
-# pre 1900
+# pre 1900 - assume all SO2 in coal with average global sulfur content is emitted (with 10% ash retention)
 calculated_other_emissions[paste0('X',1750:1900)] <- other_transformation_coal[paste0('X',1750:1900)]* .01 * 2 * (1 - .1)
-# 1900 - 1970
+# 1900 - 1970 - Phase in mass balance estimate to inventory estimate by 1970
 calculated_other_emissions[paste0('X',1900:1970)] <- other_transformation_coal[paste0('X',1900:1970)]* .01 * 2 * (1 - .1) *
                                                          matrix( rep( x= (1970 - 1900:1970)/(1970 - 1900), times = nrow(other_transformation_coal) ),
                                                                  nrow = nrow(other_transformation_coal), byrow = T)

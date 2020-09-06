@@ -146,7 +146,7 @@
 
 # Initial reformatting of GAINS data
     OECD_and_NonOECD_Conversion <- OECD_and_NonOECD_Conversion %>%
-        dplyr::select( COUNTRY, FLOW, PRODUCT, CONVERSION_YEAR_TO_USE ) %>%
+        dplyr::select( COUNTRY, FLOW, PRODUCT, all_of(CONVERSION_YEAR_TO_USE) ) %>%
         tidyr::spread( PRODUCT, CONVERSION_YEAR_TO_USE )
 
 # Subset only EU countries and only specific flows
@@ -237,14 +237,14 @@
 # Select years and fix column names
     GAINS_emissions <- GAINS_emissions %>%
       dplyr::rename( Sector = 'EMF30.kt' ) %>%
-      dplyr::select( Region, Sector, X_GAINS_years ) %>%
+      dplyr::select( Region, Sector, all_of(X_GAINS_years) ) %>%
       # GAINS data can have tabs in front of all characters in the ID columns, which would need to be removed
       dplyr::mutate_at( .vars = c( "Region", "Sector" ), .funs = funs( gsub( "\t", "", . ) ) )
 
     GAINS_activities <- GAINS_activities %>%
       dplyr::rename( Sector = "EMF30.sector",
                      Unit = "EMF30.unit" ) %>%
-      dplyr::select( Region, Sector, Unit, X_GAINS_years ) %>%
+      dplyr::select( Region, Sector, Unit, all_of(X_GAINS_years) ) %>%
       # GAINS activity data has tabs in front of all characters in the ID columns, which must be removed
       dplyr::mutate_at( .vars = c( "Region", "Sector", "Unit" ), .funs = funs( gsub( "\t", "", . ) ) )
 
@@ -280,7 +280,7 @@
       dplyr::left_join( GAINS_fuel_sector_map, by = c( "Sector" = "emf_sector" ) ) %>%
       dplyr::rename( sector = ceds_sector, fuel = ceds_fuel ) %>%
       dplyr::filter( !is.na( iso ), !is.na( sector ), !is.na( fuel ) ) %>%
-      dplyr::select( sector, fuel, Region, country_name, iso, emf_number, X_GAINS_years ) %>%
+      dplyr::select( sector, fuel, Region, country_name, iso, emf_number, all_of(X_GAINS_years) ) %>%
       dplyr::group_by( sector, fuel, Region, country_name, iso, emf_number ) %>%
       # Summarize only if all values aren't NA, if NA return NA. This ensures that if all values are NA
       # the value 0 isn't returned
@@ -291,7 +291,7 @@
 
     emissions_ceds <- emissions_ceds %>%
       dplyr::mutate( units = "kt" ) %>% # GAINS emissions data is already in kt (of the given em)
-      dplyr::select( iso, sector, fuel, units, fuel, X_GAINS_years ) %>% # Trim columns
+      dplyr::select( iso, sector, fuel, units, fuel, all_of(X_GAINS_years) ) %>% # Trim columns
       dplyr::distinct( ) # Remove duplicatations that arise when multiple country_names
                          # map to 1 CEDS iso (e.g. USA & United States Minor Outlying Islands
                          # both map to CEDS USA iso)
@@ -333,7 +333,7 @@
       dplyr::left_join( GAINS_fuel_sector_map, by = c( "Sector" = "emf_sector" ) ) %>%
       dplyr::rename( sector = ceds_sector, fuel = ceds_fuel ) %>%
       dplyr::filter( !is.na( iso ), !is.na( sector ), !is.na( fuel ) ) %>%
-      dplyr::select( sector, fuel, Region, Unit, country_name, iso, emf_number, X_GAINS_years ) %>%
+      dplyr::select( sector, fuel, Region, Unit, country_name, iso, emf_number, all_of(X_GAINS_years) ) %>%
       dplyr::group_by( sector, fuel, Region, Unit, country_name, iso, emf_number ) %>%
       # Summarize only if all values aren't NA, if NA return NA. This ensures that if all values are NA
       # the value 0 isn't returned
@@ -344,7 +344,7 @@
 
     activities_ceds <- activities_ceds %>%
       dplyr::rename( units = Unit ) %>%
-      dplyr::select( iso, sector, fuel, units, fuel, X_GAINS_years ) %>% # Trim columns
+      dplyr::select( iso, sector, fuel, units, fuel, all_of(X_GAINS_years) ) %>% # Trim columns
       dplyr::distinct( ) # Remove duplicatations that arise when multiple country_names
                          # map to 1 CEDS iso (e.g. USA & United States Minor Outlying Islands
                          # both map to CEDS USA iso)
@@ -471,7 +471,7 @@
 
 # Keep only rows which aren't completely NA for all years
     combined <- removeNARows( combined, X_emf_years ) %>%
-        dplyr::select( iso, sector, fuel, units, X_emf_years )
+        dplyr::select( iso, sector, fuel, units, all_of(X_emf_years) )
 
 # Extend emissions forwards and backwards in time (constant extension)
 # Without extension many EFS would be NA (missing activity data,

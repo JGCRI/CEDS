@@ -57,7 +57,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
                                "Synthetic Fibers" ) ) %>%
                              select( -waste_product ) %>%
                             group_by( sector, units ) %>%
-                        summarise_each( funs( sum ) )
+                        summarise_each( list( ~sum ) )
 
     # Add iso tag
         waste$iso <- "usa"

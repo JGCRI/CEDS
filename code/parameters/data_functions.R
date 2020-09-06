@@ -630,7 +630,7 @@ extend_and_interpolate <- function( df_in, data_columns ){
 
 #       Define first and last non-NA values, as well as length of non-numeric columns
         length_of_non_numeric_columns <- row_use %>%
-            dplyr::select( -data_columns ) %>%
+            dplyr::select( -all_of(data_columns) ) %>%
             length( )
 
         NonNAindex <- which( !is.na( row_use[ , data_columns ] ) )

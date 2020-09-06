@@ -319,7 +319,6 @@
 
 # Force fuel to character
     cdiac_corrected$fuel <- as.character( cdiac_corrected$fuel )
-    cdiac_start_year
 
 # Obtain 1750
     cdiac_start_year <- cdiac_start_year - 1 # Reset start year to 1750, common_data.R object value
@@ -928,3 +927,4 @@
     logStop()
 
 # END
+

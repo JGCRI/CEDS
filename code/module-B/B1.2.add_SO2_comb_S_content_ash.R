@@ -86,8 +86,8 @@
     ash_ret <- do.call( "rbind.fill", ash_ret_extended )
 
 # Set units
-    s_content$units <- 'kt/kt'
-    ash_ret$units <- 'kt/kt'
+    s_content$units <- 'fraction'
+    ash_ret$units <- 'fraction'
 
 # ---------------------------------------------------------------------------
 # 2. Add to existing parameter Dbs

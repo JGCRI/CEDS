@@ -135,22 +135,32 @@ Em_by_Country_Sector <- aggregate(final_emissions[X_write_years],
 # Sort
 Em_by_Country_Sector <- Em_by_Country_Sector[ with( Em_by_Country_Sector, order( iso , sector ) ), ]
 
+# Total Emissions by Country and Fuel
+Em_by_Country_Fuel <- aggregate(final_emissions[X_write_years],
+                               by=list(iso=final_emissions$iso,
+                                       fuel=final_emissions$fuel,
+                                       em= final_emissions$em,
+                                       units=final_emissions$units),sum )
+# Sort
+Em_by_Country_Fuel <- Em_by_Country_Fuel[ with( Em_by_Country_Fuel, order( iso , fuel ) ), ]
+
+
 # Create files for emissions by country and CEDS sector
 if ( WRITE_CEDS_SECTORS ) {
 
 	# Aggregate emissions by CEDS sector, country, and species total
     Em_by_Country_CEDS_Sector <- final_emissions %>%
         dplyr::group_by( iso, sector, em, units ) %>%
-        dplyr::summarise_at( vars( X_write_years ), sum ) %>%
+        dplyr::summarise_at( vars( all_of(X_write_years) ), sum ) %>%
         dplyr::arrange( iso, sector )
 
     Em_by_CEDS_Sector <- Em_by_Country_CEDS_Sector %>%
         dplyr::group_by( sector, em, units ) %>%
-        dplyr::summarise_at( vars( X_write_years ), sum )
+        dplyr::summarise_at( vars( all_of(X_write_years) ), sum )
 
     Em_global_total <- Em_by_CEDS_Sector %>%
         dplyr::group_by( em, units ) %>%
-        dplyr::summarise_at( vars( X_write_years ), sum )
+        dplyr::summarise_at( vars( all_of(X_write_years) ), sum )
 
 	# Define the interval years
 	global_sector_years <- paste0( "X", c( seq( 1750, 1950, 50 ),
@@ -184,6 +194,7 @@ if ( WRITE_CEDS_SECTORS ) {
   summary_fn2 <- paste( "CEDS", em , "global_emissions_by_fuel", version_stamp, sep = "_" )
   summary_fn3 <- paste( "CEDS", em , "emissions_by_country_CEDS_sector", version_stamp, sep = "_" )
   summary_fn4 <- paste( "CEDS", em , "global_emissions_by_CEDS_sector", version_stamp, sep = "_" )
+  summary_fn5 <- paste( "CEDS", em , "emissions_by_country_fuel", version_stamp, sep = "_" )
   THRESHOLD_PERCENT <- 1
 
 # Define function to write summary files
@@ -192,6 +203,7 @@ if ( WRITE_CEDS_SECTORS ) {
     writeData( Em_by_Country_Sector, "FIN_OUT", summary_fn, domain_extension = "current-versions/", meta = F )
     writeData( Em_by_Country, "FIN_OUT", summary_fn1, domain_extension = "current-versions/", meta = F )
     writeData( Summary_Emissions, "FIN_OUT", summary_fn2, domain_extension = "current-versions/", meta = F )
+    writeData( Em_by_Country_Fuel, "FIN_OUT", summary_fn5, domain_extension = "current-versions/", meta = F )
     if ( WRITE_CEDS_SECTORS ) {
       writeData( Em_by_Country_CEDS_Sector, "FIN_OUT", summary_fn3, domain_extension = "current-versions/", meta = F )
       writeData( Em_by_CEDS_Sector, "FIN_OUT", summary_fn4, domain_extension = "current-versions/", meta = F )
@@ -219,8 +231,9 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
   em_last_fn <- list.files( paste0( "../final-emissions/", em, "_last-run/" ), pattern = base_fn )
   if( length( em_last_fn ) != 1 ) {
      stop( paste("ERROR: Multiple previous last emissions.",
-                 "Check that final-emissions/current-versions directory contains only one version per species") )
-  }
+                 "Check that final-emissions/current-versions directory contains only one version per species",
+                 "\n","Check and then delete directory: ",paste0( "../final-emissions/", em, "_last-run" )) )
+    }
   em_last <- readData( "FIN_OUT", paste0( em, "_last-run/", em_last_fn ), meta = F )
   id_cols <- names( em_current )[ !grepl( "X", names( em_current ) ) ]
   id_cols_last <- names( em_last )[ !grepl( "X", names( em_last ) ) ]

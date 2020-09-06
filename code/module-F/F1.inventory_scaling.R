@@ -79,6 +79,9 @@
         c( scripts,'F1.1.EMEP_NFR09_scaling.R' ) }
 
 # EMEP NFR14
+# Note 1: While EMEP has BC, there is no OC, so retain consistent BC & OC estimates by not
+#         scaling to EMEP for these ems
+# Note 2: While CEDS does not include EMEP BC scaling, CEDS-GBD does include BC EMEP scaling
     if ( em %in% c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2' ) ){ scripts <-
         c( scripts, 'F1.1.EMEP_NFR14_scaling.R' ) }
 
@@ -112,8 +115,15 @@
         c( scripts, 'F1.1.US-GHG_scaling.R' ) }
 
 # China
+    # OLD MEIC:
+    # GBD settings: if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO','BC','OC' ) ) scripts <-
     if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO' ) ){ scripts <-
         c( scripts, 'F1.1.China_scaling.R' ) }
+
+    # New MEIC:
+    # GBD settings: if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO','BC','OC' ) ) scripts <-
+    if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO' ) ){ scripts <-
+        c( scripts, 'F1.1.China_MEIC_2018_scaling.R' ) }
 
 # Argentina
     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ){ scripts <-

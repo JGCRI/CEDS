@@ -1,0 +1,3 @@
+iso,scaling_sector,other,pre_ext_method,interp_method,post_ext_method
+chn,power,2008,linear_1,linear,constant
+chn,transportation,2005,linear_1,linear,constant

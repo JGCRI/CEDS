@@ -64,7 +64,7 @@
 
 # include only regions that aren't scaled elsewhere for non-CO2 and non-CH4 emissions
 # TODO: blr and ukr should only be used for specific years where is close to expert estimates, or to calibrate parameters off-line
-# TODO: why is grc not in EMEP?
+# TODO: If grc ends up being scaled to EMEP (see git issue #253), then potentially remove it's scaling below
 # Ukraine (ukr) energy reporting is inconsistent, instead have calibrated coal S% by hand. Check other emissions
     if ( em %!in% c( "CO2", 'CH4' ) ){ region <- c( "blr" , "grc" , "nzl" ) }
     inv_years <- c( 1990 : 2012 )

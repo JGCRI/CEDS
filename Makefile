@@ -111,8 +111,8 @@ endif
 # If a multi-processor machine is available, CEDS should be instead run in parallel for multiple species
 all: SO2-emissions BC-emissions OC-emissions NOx-emissions CO-emissions NMVOC-emissions CO2-emissions NH3-emissions CH4-emissions N2O-emissions
 part1: SO2-emissions NOx-emissions NH3-emissions
-part2: BC-emissions OC-emissions CO2-emissions
-part3: CO-emissions NMVOC-emissions CH4-emissions  N2O-emissions
+part2: BC-emissions OC-emissions CO2-emissions  N2O-emissions
+part3: CO-emissions NMVOC-emissions CH4-emissions
 
 # --------------------------------------------------------------
 
@@ -412,7 +412,7 @@ $(MED_OUT)/A.IEA_BP_energy_ext.csv: \
 	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
 	$(MED_OUT)/A.comb_othertrans_activity.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
-	$(ENERGY_DATA)/BP_energy_data.xlsx
+	$(ENERGY_DATA)/bp-stats-review-2020-all-data.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa3-2
@@ -722,6 +722,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_CAN_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CHN_2018_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv \
 	$(MED_OUT)/E.$(EM)_Japan_inventory.csv \
@@ -825,6 +826,11 @@ $(MED_OUT)/E.$(EM)_CHN_inventory.csv: \
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
+$(MED_OUT)/E.$(EM)_CHN_2018_inventory.csv: \
+	$(MOD_E)/E.China_emissions_MEIC_2018.R
+	Rscript $< $(EM) --nosave --no-restore
+
+# ee1-2
 $(MED_OUT)/E.$(EM)_Japan_inventory.csv: \
 	$(MOD_E)/E.Japan_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
@@ -862,6 +868,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MOD_F)/F1.1.CAN_scaling_olderData.R \
 	$(MOD_F)/F1.1.CAN_scaling_newerData.R \
 	$(MOD_F)/F1.1.China_scaling.R \
+	$(MOD_F)/F1.1.China_MEIC_2018_scaling.R \
 	$(MOD_F)/F1.1.Edgar_scaling.R \
 	$(MOD_F)/F1.1.EMEP_NFR09_scaling.R \
 	$(MOD_F)/F1.1.EMEP_NFR14_scaling.R \
@@ -879,6 +886,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_CAN_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CHN_2018_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv \
 	$(MED_OUT)/E.$(EM)_Japan_inventory.csv \
@@ -892,6 +900,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(SC_MAPPINGS)/Argentina_scaling_mapping.csv \
 	$(SC_MAPPINGS)/CAN_scaling_mapping.csv \
 	$(SC_MAPPINGS)/MEIC_scaling_mapping.csv \
+	$(SC_MAPPINGS)/MEIC_2018_scaling_mapping.csv \
 	$(SC_MAPPINGS)/Edgar_scaling_mapping.csv \
 	$(SC_MAPPINGS)/Edgar_scaling_year.csv \
 	$(SC_MAPPINGS)/EMEP_NFR09_scaling_mapping.csv \

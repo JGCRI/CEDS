@@ -7,7 +7,8 @@
 # Input Files: F.[em]_scaled_EF-value_metadata.csv
 #
 # Output Files: A figure in the diagnostic-output
-# TODO:
+# TODO: Update to include all inventory updates in strings below (for instance,
+#       MEIC is not listed, EDGAR still says v4.2)
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
@@ -141,7 +142,7 @@
                                                   fill = NA, size = .8 ) ) +
               ggtitle( identifier ) +
               scale_alpha_discrete( range = c( 0.85, 0.4 ) ) +
-              scale_x_continuous( breaks = c( 1970, 1990, 2010 ) ) +
+              scale_x_continuous( breaks = c( 1970, 1990, 2010 ) ) + # TODO: Make this year breaks more flexible
               theme( text = element_text( size = 6 ) )
 
               if (!to_group) p <- p + theme( legend.position = "right",
@@ -183,7 +184,7 @@
                  ggtitle( identifier ) +
                  scale_alpha_discrete( range = c( 0.85, 0.4 ) ) +
                  theme( text = element_text( size = 6 ) ) +
-                 scale_x_continuous(breaks = c(1970, 1990, 2010))
+                 scale_x_continuous(breaks = c(1970, 1990, 2010)) # TODO: Make this year breaks more flexible
 
         } else if ( id_type == "Sector" ) {
         # Extract metadata for this sector
@@ -216,7 +217,7 @@
 
                 sectoral_counts_all <- expand.grid( unique( sectoral_counts$value ),
                                                     unique( sectoral_counts$prepost ),
-                                                    1971:2014 )
+                                                    1971:2014 ) # TODO: Use year objects
                 colnames(sectoral_counts_all) <- c("value", "prepost", "year")
 
                 sectoral_counts <- merge( sectoral_counts_all, sectoral_counts,
@@ -249,7 +250,7 @@
                                                   fill = NA, size = .8 ) ) +
               ggtitle( identifier ) +
               scale_alpha_discrete( range = c( 0.85, 0.4 ) ) +
-              scale_x_continuous(breaks = c(1970, 1990, 2010)) +
+              scale_x_continuous(breaks = c(1970, 1990, 2010)) + # TODO: Make this year breaks more flexible
               theme( text = element_text( size = 6 ) )
 
               if (!to_group) p <- p + ggtitle( paste0( "Emissions per year scaled by each inventory\nfor emissions species ",
@@ -287,7 +288,7 @@
                                                   fill = NA, size = .8 ) ) +
               ggtitle( identifier ) +
               scale_alpha_discrete( range = c( 0.85, 0.4 ) ) +
-              scale_x_continuous(breaks = c(1970, 1990, 2010)) +
+              scale_x_continuous(breaks = c(1970, 1990, 2010)) +  # TODO: Make this year breaks more flexible
               theme( text = element_text( size = 6 ) )
 
         }

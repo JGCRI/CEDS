@@ -1,0 +1,5 @@
+iso,sector,fuel,X1850,X1975,X2005,X2025,units
+all,1A2f_Ind-Comb-Non-metalic-minerals,brown_coal,0.263,0.263,0.684,0.684,fraction
+all,1A2f_Ind-Comb-Non-metalic-minerals,coal_coke,0.263,0.263,0.684,0.684,fraction
+all,1A2f_Ind-Comb-Non-metalic-minerals,hard_coal,0.263,0.263,0.684,0.684,fraction
+all,1A2f_Ind-Comb-Non-metalic-minerals,heavy_oil,0.263,0.263,0.684,0.684,fraction

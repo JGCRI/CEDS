@@ -1,2 +1,3 @@
 Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
 Fertilizer consumption,NA,All,NA,1961,2013,Fertilizer consumption data downloaded on 6/1/2015 from: http://ifadata.fertilizer.org/ucSearch.aspx
+Fertilizer consumption,NA,fin,NA,1961,1972,Discontinuity in total N data removed by making total constnt before 1971 (same as lone ammonium sulphate value for 1961)

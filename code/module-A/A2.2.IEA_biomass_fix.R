@@ -96,7 +96,7 @@ initialize( script_name, log_msg, headers )
 # Subset IEA residential biomass
     IEA_biomass <- IEA_en %>%
         dplyr::filter( sector == "1A4b_Residential", fuel == "biomass" ) %>%
-        tidyr::gather( key = year, value = IEA, X_IEA_years ) %>%
+        tidyr::gather( key = year, value = IEA, all_of(X_IEA_years) ) %>%
         dplyr::mutate( year = xYearToNum( year ) )
 
 # Aggregate Fernandes biomass by country
@@ -631,7 +631,7 @@ initialize( script_name, log_msg, headers )
 
     # Compute res and unspec year-to-year change (ratio and absolute difference)
     IEA_res_unspec <- IEA_res_unspec %>%
-        tidyr::gather( key = variable, value = value, X_IEA_years ) %>%
+        tidyr::gather( key = variable, value = value, all_of(X_IEA_years) ) %>%
         tidyr::spread( sector, value )
 
     names( IEA_res_unspec ) <- c( "iso", "year", "res", "unspec" )
@@ -683,7 +683,7 @@ initialize( script_name, log_msg, headers )
     # IEA for USA is actually EIA, so replace with IEA first
     IEA_usa <- IEA_en %>%
         dplyr::filter( sector == "1A4b_Residential", fuel == "biomass", iso == "usa" ) %>%
-        tidyr::gather( key = variable, value = value, X_IEA_years )
+        tidyr::gather( key = variable, value = value, all_of(X_IEA_years) )
 
     IEA_adj <- IEA_adj %>%
         dplyr::left_join( IEA_usa[, c( "iso", "units", "variable", "value" ) ],
@@ -704,7 +704,7 @@ initialize( script_name, log_msg, headers )
         merge( IEA_adj, all = T ) %>%
         dplyr::select( year, iso, adj ) %>%
         tidyr::spread( year, adj ) %>%
-        dplyr::mutate_at( .vars = X_IEA_years, .funs = funs( if_else( is.na( . ), 0, . ) ) )
+        dplyr::mutate_at( .vars = tidyselect::all_of(X_IEA_years), .funs = funs( if_else( is.na( . ), 0, . ) ) )
 
 # ------------------------------------------------------------------------------
 # 7. Make final biomass dataset
@@ -754,14 +754,14 @@ initialize( script_name, log_msg, headers )
     res_unspec <- IEA_en %>%
         dplyr::filter( sector %in% c( "1A4b_Residential", "1A5_Other-unspecified" ),
                        fuel == "biomass", iso %in% IEA_adj_wide$iso ) %>%
-        tidyr::gather( key = variable, value = value, X_IEA_years ) %>%
+        tidyr::gather( key = variable, value = value, all_of(X_IEA_years) ) %>%
         tidyr::spread( sector, value ) %>%
         dplyr::rename( year = variable )
 
     res_unspec_adj <- IEA_en_adj %>%
         dplyr::filter( sector %in% c( "1A4b_Residential", "1A5_Other-unspecified" ),
                        fuel == "biomass", iso %in% IEA_adj_wide$iso ) %>%
-        tidyr::gather( key = variable, value = value, X_IEA_years ) %>%
+        tidyr::gather( key = variable, value = value, all_of(X_IEA_years) ) %>%
         tidyr::spread( sector, value ) %>%
         dplyr::rename( year = variable,
                        "1A4b_Residential-ADJUSTED" = "1A4b_Residential",

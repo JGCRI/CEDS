@@ -1,1 +1,5 @@
-iso,sector,fuel,units,X1980,X1990,X2000,X2010all,1A3aii_Domestic-aviation,light_oil,fraction,0.011410,0.010612,0.010870,0.010774all,1A3ai_International-aviation,light_oil,fraction,0.016341,0.014587,0.013453,0.012747all,1A3aii_Domestic-aviation,diesel_oil,fraction,0.011410,0.010612,0.010870,0.010774all,1A3ai_International-aviation,diesel_oil,fraction,0.016341,0.014587,0.013453,0.012747
+iso,sector,fuel,units,X1971,X1975,X1990,X1995,X2015
+all,1A3aii_Domestic-aviation,light_oil,fraction,0.0114,0.0114,0.0106,0.0108,0.0108
+all,1A3ai_International-aviation,light_oil,fraction,0.0180,0.0173,0.0146,0.0137,0.0137
+all,1A3aii_Domestic-aviation,diesel_oil,fraction,0.0114,0.0114,0.0106,0.0108,0.0108
+all,1A3ai_International-aviation,diesel_oil,fraction,0.0180,0.0173,0.0146,0.0137,0.0137
