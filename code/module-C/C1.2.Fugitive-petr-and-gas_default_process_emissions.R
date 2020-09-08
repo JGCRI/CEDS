@@ -56,7 +56,7 @@ return_diff <- function( dataframe1, dataframe2 ) {
     flaring <- readData( "MED_OUT", file_name = paste0( 'C.', em, '_ECLIPSE_flaring_emissions_extended' ) )
 
 # Read in EDGAR non-combustion sector mapping file
-    NC_sector_map <- readData( "MAPPINGS", "NC_EDGAR_sector_mapping" )
+    NC_sector_map_EDGAR <- readData( "MAPPINGS", "NC_EDGAR_sector_mapping" )
 
 # Read in EDGAR data
 
@@ -265,7 +265,7 @@ if( em != "NH3" ){
 # 3. Pre-processing
 
 # Define EDGAR fugitive oil and gas sector
-    EDGAR_fug_oil_gas_mapping <- 	NC_sector_map %>%
+    EDGAR_fug_oil_gas_mapping <- 	NC_sector_map_EDGAR %>%
       dplyr::filter( ceds_sector == "1B2_Fugitive-petr-and-gas" )
 
     EDGAR_fug_oil_gas_sec <- sort( unique( EDGAR_fug_oil_gas_mapping$edgar_sector ) )

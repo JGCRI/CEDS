@@ -28,7 +28,9 @@ CEDS,RCP
 1A4c_Agriculture-forestry-fishing,DOM
 1A5_Other-unspecified,DOM
 1B1_Fugitive-solid-fuels,ENE
-1B2_Fugitive-petr-and-gas,ENE
+1B2_Fugitive-petr,ENE
+1B2b_Fugitive-NG-prod,ENE
+1B2b_Fugitive-NG-distr,ENE
 1B2d_Fugitive-other-energy,ENE
 2A1_Cement-production,IND
 2A2_Lime-production,IND

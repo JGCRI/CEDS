@@ -31,7 +31,7 @@ Residential,1A4b_Residential,1A4b_Residential,,,Farmland using fertilizer
 Agriculture-livestock-fishing,Off_Road_Combustion,1A4c_Agriculture-forestry-fishing,,,Manure management
 Agricultural machinery,Off_Road_Combustion,,,,Forest fire and fire
 Construction facilities,Off_Road_Combustion,1A2g_Ind-Comb-Construction,,,Organic chemical manufacturing
-Petroleum product,1B2_Fugitive-petr-and-gas,1B2_Fugitive-petr,,,Animal
+Petroleum product,1B2_Fugitive_petr_and_gas,1B2_Fugitive-petr,,,Animal
 ,,1B2b_Fugitive-NG-prod,,,
 ,,1B2b_Fugitive-NG-distr,,,
 ,,1A5_Other-unspecified,,,

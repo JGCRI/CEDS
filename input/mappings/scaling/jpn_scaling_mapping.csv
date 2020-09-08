@@ -29,10 +29,10 @@ inv_sector,scaling_sector,ceds_sector
 1A2g_Ind-Comb-Construction,Other_Off_Road,1A2g_Ind-Comb-Construction
 1A5_Other-unspecified,1A5_Other-unspecified,1A5_Other-unspecified
 1B1_Fugitive-solid-fuels,1B1_Fugitive-solid-fuels,1B1_Fugitive-solid-fuels
-1B2a_Fugitive-petr,1B2_Fugitive-petr-and-gas,1B2_Fugitive-petr
-1b2c_Venting-flaring-oil-gas,1B2_Fugitive-petr-and-gas,
-1B2b_Fugitive-NG-prod-distr,1B2_Fugitive-petr-and-gas,1B2b_Fugitive-NG-prod
-,1B2_Fugitive-petr-and-gas,1B2b_Fugitive-NG-distr
+1B2a_Fugitive-petr,1B2_Fugitive_petr_and_gas,1B2_Fugitive-petr
+1b2c_Venting-flaring-oil-gas,1B2_Fugitive_petr_and_gas,
+1B2b_Fugitive-NG-prod-distr,1B2_Fugitive_petr_and_gas,1B2b_Fugitive-NG-prod
+,1B2_Fugitive_petr_and_gas,1B2b_Fugitive-NG-distr
 1B2d_Fugitive-other-energy,1B2d_Fugitive-other-energy,1B2d_Fugitive-other-energy
 2A1_Cement-production,2A1_Cement-production,2A1_Cement-production
 2A2_Lime-production,2A2_Lime-production,2A2_Lime-production

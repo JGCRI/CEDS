@@ -49,15 +49,10 @@
     inv_name <- 'US_GHG' #for naming diagnostic files and reading data
     region <- c( "usa" )
 
-    # TODO: these two maps should be made into 1
-    if ( em == "CH4" ){
-        sector_fuel_mapping <- 'US-GHG'
-    } else if ( em == "N2O" ) {
-        sector_fuel_mapping <- 'US-GHG_N2O'
-    }
+    sector_fuel_mapping <- 'US-GHG'
 
     mapping_method <- 'sector'
-    inv_years <- 1990 : 2014
+    inv_years <- 1990 : 2018
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
     inv_data_folder <- 'MED_OUT'
 

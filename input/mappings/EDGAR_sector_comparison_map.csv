@@ -29,11 +29,12 @@
 28,1A5,1A5_other,1A5_Other-unspecified
 29,1B1,1B1_Fugitive-solid-fuels,1B1_Fugitive-solid-fuels
 30,1B1x,1B1_Fugitive-solid-fuels,1B1_Fugitive-solid-fuels
-31,1B2,1B2_Fugitive-petr-and-gas,1B2_Fugitive-petr
-32,1B2,1B2_Fugitive-petr-and-gas,1B2b_Fugitive-NG-prod
-33,1B2,1B2_Fugitive-petr-and-gas,1B2b_Fugitive-NG-distr
-34,1B2x,1B2_Fugitive-petr-and-gas,1B2_Fugitive-petr-and-gas
-35,1B2x,1B2_Fugitive-petr-and-gas,1B2_Fugitive-petr-and-gas
+31,1B2,1B2_Fugitive_petr_and_gas,1B2_Fugitive-petr
+32,1B2,1B2_Fugitive_petr_and_gas,1B2b_Fugitive-NG-prod
+33,1B2,1B2_Fugitive_petr_and_gas,1B2b_Fugitive-NG-distr
+34,1B2x,1B2_Fugitive_petr_and_gas,1B2_Fugitive-petr
+35,1B2x,1B2_Fugitive_petr_and_gas,1B2b_Fugitive-NG-prod
+35,1B2x,1B2_Fugitive_petr_and_gas,1B2b_Fugitive-NG-distr
 36,1C1,,1A3ai_International-aviation
 37,1C2,,1A3di_International-shipping
 38,NA,1B2d_Fugitive-other-energy,1B2d_Fugitive-other-energy

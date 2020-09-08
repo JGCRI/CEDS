@@ -679,9 +679,6 @@ extendValues <- function(ext_data,
 extendDefaultEF <- function(exten_df,
                             pre_ext_method_default){
 
-  printLog('Extending DF: ')
-  printLog(paste(head(exten_df, n = 1L) ))
-
   # Process
   exten_df <- expandAll(exten_df, toWide = TRUE)
 
