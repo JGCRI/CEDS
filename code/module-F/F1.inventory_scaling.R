@@ -96,9 +96,9 @@
     if ( em %in% c('SO2','NOx','NMVOC','CO','PM10','PM25' ) ){ scripts <-
         c( scripts, 'F1.1.CAN_scaling_olderData.R' ) }
 
-# CAN - Newer data must run latter
-    if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ){ scripts <-
-        c( scripts, 'F1.1.CAN_scaling_newerData.R' ) }
+ # CAN - Newer data must run last
+    if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO','NH3' ) ){ scripts <-
+        c( scripts, 'F1.1.CAN_scaling_2018.R' ) }
 
 # USA
     if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO',
