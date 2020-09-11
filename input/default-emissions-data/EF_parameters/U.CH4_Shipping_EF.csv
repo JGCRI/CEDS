@@ -1,0 +1,7 @@
+iso,sector,fuel,units,X2012,X2013,X2014,X2015,X2016,X2017,X2018
+all,1A3dii_Domestic-navigation,diesel_oil,fraction,0.000050,0.000050,0.000050,0.000050,0.000050,0.000050,0.000050
+all,1A3di_International-shipping,diesel_oil,fraction,0.000050,0.000050,0.000050,0.000050,0.000050,0.000050,0.000050
+all,1A3dii_Domestic-navigation,heavy_oil,fraction,0.000050,0.000050,0.000050,0.000050,0.000050,0.000050,0.000050
+all,1A3di_International-shipping,heavy_oil,fraction,0.000050,0.000050,0.000050,0.000050,0.000050,0.000050,0.000050
+all,1A3dii_Domestic-navigation,natural_gas,fraction,0.005310,0.006000,0.007350,0.008480,0.010200,0.011220,0.011960
+all,1A3di_International-shipping,natural_gas,fraction,0.005310,0.006000,0.007350,0.008480,0.010200,0.011220,0.011960
