@@ -109,23 +109,24 @@ expandAll <- function(input,
 
 # ------------------------------------------------------------------------------
 # interpolateValues
-# Brief: Interpolates missing "in between" years by linear or constant extension
+# Brief: Adds years beteween existing years in a data frame, and then
+#        interpolates values by linear or constant extension
 # Dependencies:
 # Author: Rachel Hoesly
-# parameters:
-# return:  interpolated value
-# input files: ext_data - the inventory to be interpolated
-#       ext_default: default interp method, linear or constant (carry forward)
-#       ext_method: input method file that contains interpolation methods for non default
-#           iso - sector (or whichever) variables. if NA uses default methods
-#       meta:TRUE or FALSE. If true, updates value-meta-data
+# parameters: interp_data   input to the function. data to have values missing
+#                           years added to and data interpolated. must be
+#                           type data.frame only (not tibble)
+# return:  df with all missing years and interpolated values
+# input    files: ext_data - the inventory to be interpolated
+#          ext_default: default interp method, linear or constant (carry forward)
+#          ext_method: input method file that contains interpolation methods for non default
+#                      iso - sector (or whichever) variables. if NA uses default methods
+#          meta: TRUE or FALSE. If true, updates value-meta-data
 # TODO: meta functionality does not work right now. must be false
-
+# TODO: This function will fail if objects are not class 'data.frame' only
 interpolateValues <- function(interp_data,interp_default = 'linear',
                               meta = FALSE,
                               interp_method = NA){
-
-
 
   # Define parameters from data
   unit.label <- FALSE
@@ -290,7 +291,7 @@ interpolateValues <- function(interp_data,interp_default = 'linear',
 
   if (unit.label == TRUE){
     other <- names(interp_df)[names(interp_df) %!in% c( 'iso','sector','fuel','units', X_years_full )]
-    interp_df$units <- UNITS
+    interp_df$units <- UNITS # TODO: This line fails if interp_data is a tibble
     interp_df <- interp_df[,c( id.names,'units', X_years_full,other)]
   }
 
@@ -337,7 +338,6 @@ extendValues <- function(ext_data,
   ext_data <- interpolateValues( ext_data )
   # expand extension data
   ext_data <- expandAll( ext_data )
-
 
   # Define inventory variables
   names <- names( ext_data)
@@ -701,9 +701,16 @@ extendDefaultEF <- function(exten_df,
   names <- names( exten_df)
   id.X_years <- names[grep( "X", names)]
 
+  # If units column is not present add blank units column
+  # Assumes that units value is not used
+  ext_data <- exten_df
+  if ( !( 'units' %in% names ) ){
+    exten_df$units = ""
+  }
+  ext_data <- exten_df[,c('iso','sector','fuel','units',id.X_years)]
 
   # Extend
-  out <- extendValues(ext_data = exten_df[,c('iso','sector','fuel','units',id.X_years)],
+  out <- extendValues(ext_data = ext_data,
                       pre_ext_default = pre_ext_method_default,
                       post_ext_default = 'constant',
                       pre_ext_year = start_year,

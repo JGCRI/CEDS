@@ -1,12 +1,15 @@
-# Program Name: gains EMF summary
+# Program Name: GAINS_EMF-30_summary.R
 # Author: Rachel Hoesly
-# Date Last Updated: 16 Dec 2015
-# Program Purpose:
-# Input Files:    files in the EF_parameters folder contailing control_percent and em
-#
-# Output Files:
+# Date Last Updated: May 9, 2020
+# Program Purpose: Generates diagnostics on GAINS EFs
+# Input Files: B.[em]_comb_EF_GAINS_EMF30.csv, Master_Country_List.csv
+# Output Files: [em]_GAINS-EF-summary[CEDS_fuel].csv
 # Notes:
-# TODO:
+# TODO: 1) Review code, given changes in new GAINS and EDGAR data.
+#       2) Replace certain functions with applicable tidyverse functions. For instance:
+#          replace melt with tidyr::gather, cast with tidyr::spread, merge with
+#          dplyr::<type_of>_join (such as left_join), and aggregate with
+#          dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ).
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
@@ -19,8 +22,9 @@
 headers <- c( 'process_db_functions.R','data_functions.R',
               'interpolation_extension_functions.R','common_data.R')
 #                 Additional function files may be required.
-log_msg <- "Adding control percent data to data base" # First message to be printed to the log
-script_name <- "gains EMF summary.R"
+log_msg <- "" # First message to be printed to the log
+# TODO: (Future) update log message
+script_name <- "GAINS_EMF-30_summary.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -31,31 +35,35 @@ if ( is.na( em ) ) em <- "SO2"
 
 # ---------------------------------------------------------------------------
 # 1. Load Data
-if ( em %in% c('SO2','BC','OC','CH4','CO2') ) {
+# TODO: (Future) GAINS 'CO2' add too?
+if ( em %in% c('SO2','BC','OC','CO2') ) {
   EMF30_ef <- readData( "DIAG_OUT" , paste0('B.',em,'_comb_EF_GAINS_EMF30'))
-  }else if(em %in% c('NOx','NMVOC','CO')){
+  }else if(em %in% c('NOx','NMVOC','CO', 'CH4')){
   EMF30_ef <- readData( "MED_OUT" , paste0('B.',em,'_comb_EF_GAINS_EMF30'))
 }
 
-
-MCL <- readData(("MAPPINGS"),'Master_Country_List')
-OECD_E_Stat <- readData( "ENERGY_IN", "OECD_E_Stat", ".csv" )
-
+MCL <- readData( "MAPPINGS",'Master_Country_List')
 
 # ---------------------------------------------------------------------------
 #
-all_ef <- EMF30_ef[,c('iso','sector','fuel','X2000','X2005','X2010')]
-years <- c('X2000','X2005','X2010')
+
+years <- paste0( "X", seq( GAINS_start_year, 2010, 5 ))
+all_ef <- EMF30_ef[,c('iso','sector','fuel', years)]
 all_ef[,years] <- sapply(all_ef[,years],as.numeric)
 
 # Denote OECD and Non OECD
-OECDlist <- unique(OECD_E_Stat$COUNTRY)
+OECD_countries <- MCL %>%
+    dplyr::filter( final_data_flag == 1,
+                   OECD_flag == "OECD" )
+
+OECDlist <- unique(OECD_countries$iso)
+
 all_ef <- merge (all_ef, MCL[,c('IEAName','iso')],
                  all.x = TRUE, all.y = FALSE)
 all_ef <- all_ef[complete.cases(all_ef),]
 
-OECD <- all_ef[which(all_ef$IEAName %in% OECDlist),]
-nonOECD <- all_ef[which(all_ef$IEAName %!in% OECDlist),]
+OECD <- all_ef[which(all_ef$iso %in% OECDlist),]
+nonOECD <- all_ef[which(all_ef$iso %!in% OECDlist),]
 
 fuels <- unique(all_ef$fuel)
 
@@ -121,5 +129,5 @@ for(i in seq_along(fuels)){
 	out[[i]] <- merge(summary_OECD,summary_nonOECD)
 
 	out <- do.call(rbind, out)
-	writeData( out, "DIAG_OUT", paste0('GAINS-EF-summary/',em ,'_summary_',fuels[i]) )
+	writeData( out, "DIAG_OUT", paste0(em ,'_GAINS-EF-summary',fuels[i]) )
 }

@@ -3,3 +3,4 @@
 "160227_SPEW_BCOCemission.xlsx","Emissions","OC","All","All","1850","2010","SPEW database. Bond et al. 2007. ver. 02-27-2016"
 "Master_Country_List.csv","Mapping",NA,"All",NA,NA,NA,"Master iso/name list for CEDS countries cross referenced to various datasets and regional groupings"
 "solid_fuel_correction_values.csv","Energy Consumption","x","EU","All Antro","1750","2005","Anders, to match CDIAC"
+"CDA6.Bond_sector_shares.R","Extension sector fuel consumption shares","All","All","All extension sectors other than International Shipping","1750","1970","BOND historical fuel consumption sector shares by CEDS fuel, CEDS iso, and year. These shares are for domestic consumption only and do not include international shipping."

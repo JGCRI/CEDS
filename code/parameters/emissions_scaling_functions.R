@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
-# Program Name: F.emissions_scaling_functions.R
-# Author's Name: Tyler Pitkanen, Rachel Hoesly
-# Date Last Modified: July 15, 2019
+# Program Name: emissions_scaling_functions.R
+# Author's Name: Tyler Pitkanen, Rachel Hoesly, Patrick O'Rourke
+# Date Last Modified: July 29, 2020
 # Program Purpose: Header file containing generalized functions designed to
 #   scale CEDS emissions data and emissions factors based on inventory data.
 #   This file is made to be sourced at the beginning of each module F script to
@@ -15,10 +15,9 @@
 # ------------------------------------------------------------------------------
 
 # Special Packages
+source( '../code/parameters/interpolation_extension_functions.R' )
+source( '../code/parameters/data_functions.R' )
 
-loadPackage('zoo')
-source('../code/parameters/interpolation_extension_functions.R')
-source('../code/parameters/data_functions.R')
 # ------------------------------------------------------------------------------
 # F.initializeMeta
 # Brief: creates default meta data for scaled emissions and ef
@@ -55,25 +54,30 @@ F.initializeMeta <- function(input) {
 #   and EFs, the mapping file data. Performs checks
 #   for the ceds column of the mapping file as well as the input ceds data.
 # Dependencies: CEDS_header.R, makefile specifications, modules B, C, and E
-# Author: Tyler Pitkanen, Rachel Hoesly
+# Author: Tyler Pitkanen, Rachel Hoesly, Patrick O'Rourke
 # parameters:
-#   inventory: file name of the inventory used in the script [default: inventory]
-#   mapping:   file name of the mapping file [default: map]
-#   method:    mapping method used to relate the inventory and ceds data
-#              [default: mapping_method]
-# return:
-# input files: inventory = inventory_data_file, inv_data_folder,
+#   inventory:       file name of the inventory used in the script [default: inventory]
+#   inv_data_folder: directory where the inventory data is located
+#   mapping:         file name root of the mapping file - note that this is everything in the file name
+#                    before "_scaling_mapping"
+#   method:          mapping method used to relate the inventory and ceds data
+#                    [default: mapping_method]
+#   region:          regions to scale with inventory data
+#   inv_name:        name of inventory for diagnostics
+#   inv_years:       years within the inventory
+# input files:
+#              inventory = inventory_data_file, inv_data_folder,
 #              mapping = sector_fuel_mapping, method = mapping_method,
 #              region, inv_name, inv_years
-
 # output : null
 # return: list of variables to be used in subsequent scaling functions
 
 F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
                                mapping = sector_fuel_mapping,
                                method = mapping_method,
-                               region, inv_name, inv_years) {
-  ###add iso column for single country inventories
+                               region, inv_name, inv_years ) {
+
+  #TODO: add iso column for single country inventories
 
   # Determine scaling method and set params
   if( method == 'sector' ) {
@@ -93,22 +97,111 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
     method_col <- c('sector','fuel')
   }
 
+  # Check if scaling map is in xlsx format
+  inv_mapping_string <- "_scaling_mapping"
+
+  scaling_map_directory <- ( "./mappings/scaling/" )
+  scaling_map_dir_and_fn <- paste0( scaling_map_directory, paste0( mapping, inv_mapping_string, ".xlsx" ) )
+  if( file.exists( scaling_map_dir_and_fn ) ){
+
+      scaling_map_is_xlsx <- TRUE
+
+  }else{
+
+      scaling_map_is_xlsx <- FALSE
+
+  }
+
   # Read in data
-  inv_data_full <- readData( inv_data_folder , inventory)
-  scaling_map <- readData( "SCALE_MAPPINGS", mapping , ".xlsx", sheet_selection = 'map' )
-  scaling_map_names <- names(scaling_map)
-  non_data_columns <- c("", NA, 'NA', paste0('X__', 1:length(scaling_map_names)))
+  inv_data_full <- readData( inv_data_folder , inventory )
+
+  if( scaling_map_is_xlsx ) {
+
+      scaling_map <- readData( "SCALE_MAPPINGS", paste0( mapping, inv_mapping_string ), ".xlsx", sheet_selection = 'map' )
+
+  } else {
+
+      scaling_map <- readData( "SCALE_MAPPINGS", paste0( mapping, inv_mapping_string ), ".csv" ) # The "map" sheet is a required CSV
+
+  }
+
+  scaling_map_names <- names( scaling_map )
+  non_data_columns <- c( "", NA, 'NA', paste0( 'X__', 1 : length( scaling_map_names ) ) )
   scaling_map_names <- scaling_map_names[scaling_map_names %!in% non_data_columns]
-  scaling_map <- scaling_map[,scaling_map_names] %>% unique()
+  scaling_map <- scaling_map[ ,scaling_map_names] %>% unique( )
 
   # Check that ceds sectors are valid
   sectorCheck( scaling_map, colname = "ceds_sector" )
 
-  # import scaling instruction sheets from scaling map
-  ext_method <- readData( "SCALE_MAPPINGS", mapping , ".xlsx", sheet_selection = 'method' )
-  ext_year <- readData( "SCALE_MAPPINGS", mapping , ".xlsx", sheet_selection = "year" )
+  # Determine if scaling instructions exist as csv
+    scaling_ext_method_dir_and_fn <- paste0( scaling_map_directory, paste0( mapping, "_scaling_method.csv" ) )
 
-  # other imports
+    if( file.exists( scaling_ext_method_dir_and_fn ) ){
+
+        scaling_ext_method_csv_exists <- TRUE
+
+    }else{
+
+        scaling_ext_method_csv_exists <- FALSE
+
+    }
+
+    scaling_ext_year_dir_and_fn <- paste0( scaling_map_directory, paste0( mapping, "_scaling_year.csv" ) )
+
+    if( file.exists( scaling_ext_year_dir_and_fn ) ){
+
+        scaling_ext_year_csv_exists <- TRUE
+
+    }else{
+
+        scaling_ext_year_csv_exists <- FALSE
+
+    }
+
+  # Import scaling instruction sheets from scaling map
+
+    # Import method and year instructions from XLSX if XLSX file exists
+    if( scaling_map_is_xlsx ) {
+
+        ext_method <- readData( "SCALE_MAPPINGS", paste0( mapping, inv_mapping_string ), ".xlsx", sheet_selection = 'method' )
+        ext_year <- readData( "SCALE_MAPPINGS", paste0( mapping, inv_mapping_string ), ".xlsx", sheet_selection = "year" )
+
+    }
+
+    # Import method instruction from CSV if CSV exists
+    if( scaling_map_is_xlsx == FALSE & scaling_ext_method_csv_exists ){
+
+        ext_method <- readData( "SCALE_MAPPINGS", paste0( mapping, "_scaling_method" ) , ".csv", meta = FALSE )
+
+    } else if( scaling_map_is_xlsx == FALSE & scaling_ext_method_csv_exists == FALSE  ){
+
+        printLog( "No 'method' instructions provided for", paste0( mapping, inv_mapping_string, ".csv." ), "Using default scaling methods..." )
+        ext_method <- "NA"
+        ext_method <- as.data.frame( ext_method ) %>%
+            dplyr::rename( iso = ext_method ) %>%
+            dplyr::mutate_at( .vars = c( "scaling_sector", "pre_ext_method", "interp_method", "post_ext_method" ),
+                              funs( identity( "NA" ) ) )
+
+    }
+
+    # Import year instruction from CSV if CSV exists
+    if( scaling_map_is_xlsx == FALSE & scaling_ext_year_csv_exists ){
+
+        ext_year <- readData( "SCALE_MAPPINGS", paste0( mapping, "_scaling_year" ) , ".csv", meta = FALSE )
+
+    } else if( scaling_map_is_xlsx == FALSE & scaling_ext_year_csv_exists == FALSE  ){
+
+        printLog( "No 'year' instructions provided for", paste0( mapping, inv_mapping_string, ".csv." ),
+                  "Using all years in inventory data as passed to F.readScalingData..." )
+        ext_year <- "NA"
+        ext_year <- as.data.frame( ext_year ) %>%
+            dplyr::rename( iso = ext_year ) %>%
+            dplyr::mutate_at( .vars = c( "scaling_sector", "pre_ext_year", "post_ext_year" ),
+                              funs( identity( "NA" ) ) )
+
+    }
+
+  # Other imports
   ef_file <- paste0( "F.", em, "_scaled_EF" )
   em_file <- paste0( "F.", em, "_scaled_emissions" )
   input_ef_read <- readData( "MED_OUT", ef_file )
@@ -116,21 +209,22 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
   input_ef <- input_ef_read
   input_em <- input_em_read
 
-  #Inventory Specific Data/Variables
-  X_inv_years<-paste("X",inv_years,sep="")
+  # Inventory Specific Data/Variables
+  X_inv_years <- paste( "X", inv_years, sep = "" )
 
-  std_form_inv<-inv_data_full
+  std_form_inv <- inv_data_full
 
   out <- list(  method, scaling_name ,inv_matchcol_name , ceds_matchcol_name,
-             method_col, inv_data_full, scaling_map, ext_method, ext_year,
-             ef_file, em_file, input_ef_read, input_em_read, input_ef,
-             input_em, X_inv_years, std_form_inv)
-  names(out) <- c( 'method', 'scaling_name' ,'inv_matchcol_name' , 'ceds_matchcol_name',
-                  'method_col', 'inv_data_full', 'scaling_map', 'ext_method', 'ext_year',
-                  'ef_file', 'em_file', 'input_ef_read', 'input_em_read', 'input_ef',
-                  'input_em', 'X_inv_years', 'std_form_inv')
+                method_col, inv_data_full, scaling_map, ext_method, ext_year,
+                ef_file, em_file, input_ef_read, input_em_read, input_ef,
+                input_em, X_inv_years, std_form_inv )
 
-  return (  out )
+  names( out ) <- c( 'method', 'scaling_name' ,'inv_matchcol_name' , 'ceds_matchcol_name',
+                     'method_col', 'inv_data_full', 'scaling_map', 'ext_method', 'ext_year',
+                     'ef_file', 'em_file', 'input_ef_read', 'input_em_read', 'input_ef',
+                     'input_em', 'X_inv_years', 'std_form_inv' )
+
+  return( out )
 }
 
 # ---------------------------------------------------------------------------------
@@ -410,22 +504,22 @@ F.scaling <- function( ceds_data, inv_data, region,
   }
 
   # Check Methods and replace with default if invalid
-  if ( ! all( ext_method$interp_method %in% c(valid_interp_methods,'NA') )) {
+  if ( ! all( ext_method$interp_method %in% c(valid_interp_methods,'NA' ) ) ) {
     index <- which( ext_method$interp_method %in% valid_interp_methods == FALSE )
     warning( paste0(  ext_method$interp_method[index] , ': invalid interpolation method. Using default option: ',
                       "'" ,interp_default),"'" )
     ext_method$interp_method[index] <- interp_default }
 
-  if ( ! all( ext_method$pre_ext_method %in% c(valid_pre_ext_methods,'NA') )) {
+  if ( ! all( ext_method$pre_ext_method %in% c(valid_pre_ext_methods, 'NA' ) ) ) {
     index <- which( ext_method$pre_ext_method %in% valid_pre_ext_methods == FALSE )
     warning( paste0(  ext_method$pre_ext_method[index] , ': invalid pre-extrapolation method. Using default option: ',
-                      "'" ,pre_ext_default),"'" )
+                      "'" ,pre_ext_default ),"'" )
     ext_method$pre_ext_method[index] <- pre_ext_default }
 
-  if ( ! all( ext_method$post_ext_method %in% c(valid_post_ext_methods,'NA') )) {
+  if ( ! all( ext_method$post_ext_method %in% c(valid_post_ext_methods, 'NA' ) ) ) {
     index <- which( ext_method$post_ext_method %in% valid_post_ext_methods == FALSE )
     warning( paste0(  ext_method$post_ext_method[index] , ': invalid pre-extrapolation method. Using default option: ',
-                      "'" ,post_ext_default,"'") )
+                      "'" ,post_ext_default, "'" ) )
     ext_method$post_ext_method[index] <- post_ext_default }
 
   # ------------------------------------
@@ -595,7 +689,7 @@ F.scaling <- function( ceds_data, inv_data, region,
 
   }
 
-  writeData(inv_data_original, 'DIAG_OUT', paste0('F.',em,'_',inv_name,'_orginal_inventory_data'), meta = FALSE)
+  #writeData(inv_data_original, 'DIAG_OUT', paste0('F.',em,'_',inv_name,'_orginal_inventory_data'), meta = FALSE)
   writeData(inv_data, 'DIAG_OUT', paste0('F.',em,'_',inv_name,'_scaling_years_inventory_data'),meta = FALSE)
 
   # ------------------------------------
@@ -614,7 +708,6 @@ F.scaling <- function( ceds_data, inv_data, region,
 
   scaling <- merge(inv_long, ceds_long , all.x = TRUE)
   scaling$scaling_factor <- scaling$inv_value/scaling$ceds_value
-
 
   # Make adjustments to the preliminary scaling factor data set:
   # Inf values - divide by zero - ceds value = 0
@@ -647,9 +740,9 @@ F.scaling <- function( ceds_data, inv_data, region,
     max <- max_scaling_factor
     min <- 1/max_scaling_factor
 
-    temp_X_years <- names( scaling )[ grepl( "X", names( scaling ) ) ]
-    index <- rbind( which( scaling[,temp_X_years] >= max , arr.ind=T ) ,
-                    which( scaling[,temp_X_years] <= min , arr.ind=T) )
+    scaling_X_years <- names( scaling )[ grepl( "X", names( scaling ) ) ]
+    index <- rbind( which( scaling[,scaling_X_years] >= max , arr.ind=T ) ,
+                    which( scaling[,scaling_X_years] <= min , arr.ind=T) )
 
     if(nrow(index)>0){
       printLog( "Replacing very large/small scaling factors." )
@@ -688,10 +781,10 @@ F.scaling <- function( ceds_data, inv_data, region,
 
       writeData( problem_scaling_factors , domain = "DIAG_OUT" , paste0('F.',em,'_Problem_Scaling_Factors_',inv_name), meta = FALSE )
 
-      scaling[,temp_X_years] <- replace(scaling[,temp_X_years],
-                                                 scaling[,temp_X_years] > max , max )
-      scaling[,temp_X_years] <- replace(scaling[,temp_X_years],
-                                                 scaling[,temp_X_years] < min , min )
+      scaling[,scaling_X_years] <- replace(scaling[,scaling_X_years],
+                                                 scaling[,scaling_X_years] > max , max )
+      scaling[,scaling_X_years] <- replace(scaling[,scaling_X_years],
+                                                 scaling[,scaling_X_years] < min , min )
     }  }
 
   # ------------------------------------
@@ -749,7 +842,7 @@ F.scaling <- function( ceds_data, inv_data, region,
   scaling_interp <- as.data.frame(matrix(data=NA, nrow = nrow(scaling), ncol = length(X_inv_years_full)))
   scaling_interp <- cbind( scaling[,c('iso', scaling_name)],scaling_interp)
   names(scaling_interp) <- c('iso', scaling_name , X_inv_years_full )
-  scaling_interp[, temp_X_years ] <- scaling[ , temp_X_years]
+  scaling_interp[, scaling_X_years ] <- scaling[ , scaling_X_years]
 
   # identify any non-trailing/leading na's
   interpolation_rows<-c()
@@ -861,21 +954,23 @@ F.scaling <- function( ceds_data, inv_data, region,
   scaling_ext <- cbind(scaling_interp[,c('iso', scaling_name)], scaling_ext)
   #
   for (i in seq_along(scaling_ext$iso)){
-    # Interpolated inventory data
+    # Interpolated inventory data inclusive of interior points
     scaling_ext[i,X_inv_years_full] <- scaling_interp[i,X_inv_years_full]
 
-    if( !all.na( scaling_interp[i, X_inv_years_full] ) ) {
+    if( !all.na( scaling_interp[i, scaling_X_years] ) ) {
 
       # Pre-Extrapolation
       min_inv_year <- emissions_years[ min( which(!is.na(scaling_ext[i,X_emissions_years]))) ]
       if( min_inv_year > ext_year_default[i,'pre_ext_year']){
+         X_inv_years_part <- paste0( 'X', min_inv_year:max(inv_years)  )
+
         # Define Pre-Extrapolation Years
         pre_scaling_ext_years <- c( ext_year_default[i,'pre_ext_year']:(min_inv_year-1) )
         X_pre_scaling_ext_years <- paste0( 'X', pre_scaling_ext_years )
         # Fill Years with scaling factor = 1, NA, or interpolated Scaling factor
         pre_scaling_ext_line <- as.data.frame(matrix(data=NA, nrow = 1,
-                                                     ncol = length(X_pre_scaling_ext_years)+length(X_inv_years_full)   ))
-        names(pre_scaling_ext_line)<- c( X_pre_scaling_ext_years , X_inv_years_full )
+                                                     ncol = length(X_pre_scaling_ext_years)+length(X_inv_years_part)   ))
+        names(pre_scaling_ext_line)<- c( X_pre_scaling_ext_years , X_inv_years_part )
         pre_scaling_ext_line[1,X_inv_years_full] <- scaling_ext[i,X_inv_years_full]
 
         # Linear Extrapolation
@@ -948,10 +1043,10 @@ F.scaling <- function( ceds_data, inv_data, region,
         } else if( ext_method_default[i,'pre_ext_method'] == 'linear_1'){
           if( ext_method_default[i,'other'] ==  ext_year_default[i,'pre_ext_year'] ){
           pre_scaling_ext_line[1,1]<-1
-          pre_scaling_ext_line[1,] <- interpolate_NAs(pre_scaling_ext_line[1,])
+          pre_scaling_ext_line[1,] <- interpolate_NAs2(pre_scaling_ext_line[1,])
           } else if(ext_method_default[i,'other'] >  ext_year_default[i,'pre_ext_year']){
           pre_scaling_ext_line[1,paste0('X',ext_method_default[i,'other'])] <- 1
-          pre_scaling_ext_line[1,] <- interpolate_NAs(pre_scaling_ext_line[1,])
+          pre_scaling_ext_line[1,] <- interpolate_NAs2(pre_scaling_ext_line[1,])
           pre_scaling_ext_line[1,] <- na.locf(  t(pre_scaling_ext_line[1,]) , fromLast=TRUE ,na.rm=FALSE ,maxgap = Inf)
           }
 
@@ -1100,10 +1195,12 @@ F.scaling <- function( ceds_data, inv_data, region,
   out <- out[complete.cases(out),]
   names(out) <- c('iso',scaling_name, 'year','scaling_factor')
 
-  scaling_ext_byCEDS <- F.scalingToCeds(scalingData=scaling_ext, dataFormat = 'wide')
-  writeData( scaling_ext_byCEDS , domain = "DIAG_OUT", paste0('F.',em,'_Scaling_Factors_ceds_sectors_',inv_name), meta = FALSE )
+ # F.scalingToCeds function doesn't work in this instance. Perhaps works only for long?
+ # Check that this is working when used for long format for writting value metadata
+ # scaling_ext_byCEDS <- F.scalingToCeds(scalingData=scaling_ext, dataFormat = 'wide')
+ # writeData( scaling_ext_byCEDS , domain = "DIAG_OUT", paste0('F.',em,'_Scaling_Factors_ceds_sectors_',inv_name), meta = FALSE )
 
-  writeData( scaling_ext , domain = "DIAG_OUT", paste0('F.',em,'_Scaling_Factors_scaling_sectors_',inv_name), meta = FALSE )
+  writeData( scaling_ext , domain = "DIAG_OUT", paste0('F.',em,'_Scaling_Factors_Scaling_sectors_',inv_name), meta = FALSE )
 
   list.out <- list(out, scaling_ext ,meta_notes)
   names(list.out) <- c( 'scaling_factors', 'scaling_factors_wide' ,'meta_notes')
@@ -1290,7 +1387,6 @@ F.applyScale <- function(scaling_factors){
     # A list containing the color associated with each inventory value
         inventory_colors <- c( "Default" = "#cccccc",
                   "Zero emissions" = "#ffffff",
-                  "EDGAR 4.3-PEGASOS" = "#026fff",
                   "EMEP_NFR09" = "#00BE67",
                   "REAS 2.1" = "#d966ff",
                   "EMEP_NFR14" = "#73e600",
@@ -1305,7 +1401,7 @@ F.applyScale <- function(scaling_factors){
                   "Kurokawa et. al, 2013" = "#990606",
                   "South Korea National Institute of Environmental Research, 2016" = "#875c1d",
                   "Australian Department of the Environment, 2016" = "#1c661b",
-                  "EDGAR 4.2" = "#80d4ff" )
+                  "EDGAR 5.0" = "#80d4ff" )
 
         meta_classified$isosector <- paste0( meta_classified$iso, meta_classified$sector )
 

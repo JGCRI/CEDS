@@ -1,14 +1,15 @@
 #------------------------------------------------------------------------------
 # Program Name: A1.2.Fernandes_biomass.R
 # Author: Linh Vu
-# Date Last Updated: 16 July 2019
+# Date Last Updated: March 12, 2020
 # Program Purpose: This program produces 1850-IEA_end_year time series of residential biomass
 #                  consumption by country and fuel type from Fernandes biofuels data.
 #                  The program also produces fuel-weighted biomass conversion factors
 #                  (TJ/kt) by country and year.
 # Input Files: Fernandes_Biofuels_9.xlsx, Master_Country_List.csv, A.UN_pop_master.csv,
 #              biomass_heat_content.xlsx, Fernandes_proxy_country_mapping.csv
-# Output Files: A.Fernandes_residential_biomass.csv, A.Fernandes_biomass_conversion.csv
+# Output Files: A.Fernandes_residential_biomass.csv, A.Fernandes_biomass_conversion.csv,
+#               A.Fernandes_biomass_conversion_GAINS_FW.csv, A.Fernandes_biomass_pc.csv
 # Notes: 1. Fernandes provide residential biomass consumption by country and fuel type
 #           for 1850-2000.
 #        2. Most corrections to the original data (e.g. fix gaps, fill in missing
@@ -24,11 +25,8 @@
 #           forward in time.
 #        6. Aside from the biomass time series, also calculate residential
 #           fuel-weighted biomass conversion factors (TJ/kt) by country.
-# TODO: 1. Move Fernandes_years to common_data.R?
-#       2. TODO itmesfrom the code review.
+# TODO:
 #
-# ------------------------------------------------------------------------------
-
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
@@ -56,20 +54,20 @@
 
 # Read and process population data to have rural population
   pop_master <- readData( "MED_OUT", "A.UN_pop_master" ) %>%
-    filter( scenario %in% c( "Estimates", "Medium fertility" ) ) %>%
-    select( iso, year, pop, urban_share ) %>%
-    distinct()
+      dplyr::filter( scenario %in% c( historical_pop_scenario, future_pop_scenario ) ) %>%
+      dplyr::select( iso, year, pop, urban_share ) %>%
+      dplyr::distinct()
+
   pop_master$rural_pop <- pop_master$pop * ( 1 - pop_master$urban_share )
 
 # Energy-weight conversion factors by biomass type
   heat_content <- readData( "GEN_IN", "biomass_heat_content", ".xlsx", sheet_selection = "main" ) %>%
-    select( fuel, heating_value, units )
+    dplyr::select( fuel, heating_value, units )
 
 # Proxy country mapping for Fernandes
   proxy_mapping <- readData( "MAPPINGS", "Fernandes_proxy_country_mapping" )
 
 # Define useful values
-# TODO: Move Fernandes_years to common_data.R?
   ktoe_to_TJ <- 41.868  # TJ/ktoe
   TJ_per_MJ <- 1 / 1000000
   kg_per_kt <- 1000000
@@ -78,8 +76,6 @@
   Fernandes_regions <- c( "North America", "Latin America", "Africa",
                           "Western Europe", "Eastern Europe/FSU", "Middle East",
                           "South Asia", "East Asia", "Southeast Asia", "Oceania" )
-  Fernandes_years <- seq( 1850, 2000 )
-  X_Fernandes_years <- paste0( "X", Fernandes_years )
 
 # Biomass per capita threshold, expressed as ratio of current year consumption
 # over next year consumption. If pc biomass for one year is zero or drops under
@@ -98,7 +94,7 @@
     names( df ) <- c( "fuel", X_Fernandes_years, "units" )
 
   # Drop aggregation rows (everything after "TOTALS...") and blank rows
-    df <- df[ 1: (grep( "TOTALS", df$fuel ) - 1 ), ] %>% filter( !is.na( fuel ) )
+    df <- df[ 1: (grep( "TOTALS", df$fuel ) - 1 ), ] %>% dplyr::filter( !is.na( fuel ) )
 
   # Some rows of df$fuel contain country name info (generally row 1 and
   # all rows immediately after "Total" rows). Slice out country names from
@@ -110,7 +106,7 @@
     df$country <- rep( countries, rep_times )
 
   # Drop non-data and aggregated rows
-    df <- filter( df, fuel %!in% countries, fuel != "Total" )
+    df <- dplyr::filter( df, fuel %!in% countries, fuel != "Total" )
 
     return( df )
   }
@@ -118,8 +114,8 @@
 # Read all data sheets into a df; clean up
   raw <- lapply( seq_along( input ), processSingleSheet )
   raw <- do.call( rbind,  raw ) %>%
-    select_( .dots = c( "country", "units", "fuel", X_Fernandes_years ) )
-  raw <- filter( raw, country != "USSR-not included" )
+      dplyr::select_( .dots = c( "country", "units", "fuel", tidyselect::all_of(X_Fernandes_years) ) )
+  raw <- dplyr::filter( raw, country != "USSR-not included" )
   raw$country <- str_trim( raw$country )
   raw[, X_Fernandes_years ] <- sapply( raw[, X_Fernandes_years ],
                                        function( x ){ as.numeric( as.character( x ) ) } )
@@ -127,40 +123,45 @@
   raw$units <- "kt"
 
 # Reshape from wide to long format; drop rows with NA and 0 biomass
-### TODO: moving towards tidyr functions: gather, spread
-  raw <- melt( raw, measure.vars = X_Fernandes_years )
+  raw <- raw %>%
+      tidyr::gather( key = variable, value = value, all_of(X_Fernandes_years) )
+
   names( raw )[ names( raw ) %in% c( "variable", "value" ) ] <- c( "year", "consumption" )
   raw$year <- as.character( raw$year )
   raw$year <- xYearToNum( raw$year )
-  raw <- filter( raw, consumption > 0 )
+  raw <- dplyr::filter( raw, consumption > 0 )
 
 # Keep only domestic/residential biomass. If a country has urban/rural
-# Dom FW split, keep only Dom Total FW to avoid double counting
-  raw <- filter( raw, grepl( "Dom", fuel ),
+# Dom. FW split, keep only Dom Total FW to avoid double counting
+  raw <- dplyr::filter( raw, grepl( "Dom", fuel ),
                  fuel %!in% c( "Dom Urban FW", "Dom Rural FW" ) )
 
 # Add islands/territories to their corresponding IEA countries/regions
+# Note: These names come from the MCL Country_Name column, not IEAName column (See below mapping)
   mapped <- raw
   mapped$country[ mapped$country == "Bosnia" ] <- "Bosnia and Herzegovina"   # IEA: Bosnia and Herzegovina
   mapped$country[ mapped$country == "Monaco" ] <- "France"                   # IEA: France
-  mapped <- group_by( mapped, country, units, fuel, year ) %>%
+  mapped$country[ mapped$country == "Comoro Islands" ] <- "Comoros"          # IEA: Other Africa, before downscaling
+  mapped <- dplyr::group_by( mapped, country, units, fuel, year ) %>%
     dplyr::summarise( consumption = sum( consumption ) )
 
-# Drop all countries without ISO (i.e. those not in Master_Country_List)
-  mapped$iso <- Master_Country_List$iso[ match( mapped$country, Master_Country_List$Country_Name, nomatch = NA ) ]  # add ISO
+# Map Fern. countries to CEDS isos
+  mapped <- mapped %>%
+      dplyr::left_join( Master_Country_List[ , c( "Country_Name", "iso" ) ], by = c( "country" = "Country_Name" ) ) %>%
+      dplyr::distinct( ) # Deletes duplicates which are created from the mapping
 
 # Diagnostics: What Fern countries are not in Master_Country_List?
-# Comoro Islands, St. Helena: not in IEA, ok to leave out;
-# Other Asia, Other L America: composite regions, will not use
-  in_Fern_not_in_MCL <- filter( mapped, is.na( iso ) ) %>%
+#    - St. Helena: not in IEA, ok to leave out;
+#    - Other Asia, Other L America: composite regions, will not use
+  in_Fern_not_in_MCL <- dplyr::filter( mapped, is.na( iso ) ) %>%
     unique() %>%
     dplyr::arrange( country, year, fuel )
 
-# Drop countries with no ISO
-  mapped <- filter( mapped, !is.na( iso ) )
+# Drop countries with no ISO (i.e. those not in Master_Country_List)
+  mapped <- dplyr::filter( mapped, !is.na( iso ) )
 
-# Calculate pc biomass consumption, using rural population when rural
-# population is available and nonzero, and using total population otherwise
+# Calculate per capita (pc) biomass consumption, using rural population when rural
+# population is available and nonzero, and using total population otherwise.
 # What countries do not have rural population for at least 1 year
 # (that is not the result of 0 total population)?
 # aia, bmu, cym, gib, hkg, mac, mco, nru, sgp, sxm, vat
@@ -178,7 +179,7 @@
 # Compute pc consumption
   mapped_pc <- merge( mapped, pop_master, all.x = T ) %>%
     dplyr::mutate( consumption_pc = consumption / pop2 ) %>%
-    select( -pop2, -consumption )
+    dplyr::select( -pop2, -consumption )
 
 # ------------------------------------------------------------------------------
 # 3. Make estimates for split-up countries and countries with no Fernandes
@@ -194,12 +195,12 @@
 #    unavailable. Proxy for member countries is the composite country before the split
 #    (for srb, mne, and srb (Kosovo), use scg's per-capita). See Fernandes_proxy_country_mapping.csv
 #    for complete proxy country mapping.
-# -- Do this estimates by fuel and based on rural per-capita biomass (or per-capita
+# -- Do these estimates by fuel and based on rural per-capita biomass (or per-capita
 #    if rural population unavailable).
 
 # Make a template of all Master_Country_List countries, Fernandes fuels and all years, from beginning
 # of Fernandes to X_IEA_end_year
-  full <- merge( unique( select( Master_Country_List, iso, country = Country_Name, region = Region ) ),
+  full <- merge( unique( dplyr::select( Master_Country_List, iso, country = Country_Name, region = Region ) ),
                  data.frame( year = unique( c( Fernandes_years, IEA_years ) ) ), all = T ) %>%
     merge( data.frame( unique( mapped_pc[ c( "fuel", "units" ) ] ) ), all = T ) %>%
     merge( mapped_pc, all.x = T )  # add Fernandes data to template
@@ -209,16 +210,16 @@
 
 # For countries/years without original Fernandes data (per-capita consumption is 0),
 # use per-capita value of a proxy country
-  proxied <- filter( full, iso %in% proxy_mapping$iso ) %>%
-    merge( select( proxy_mapping, iso, iso_proxy ), all.x = T ) %>%
-    merge( select( full, fuel, year, iso_proxy = iso,
+  proxied <- dplyr::filter( full, iso %in% proxy_mapping$iso ) %>%
+    merge( dplyr::select( proxy_mapping, iso, iso_proxy ), all.x = T ) %>%
+    merge( dplyr::select( full, fuel, year, iso_proxy = iso,
                    consumption_pc_proxy = consumption_pc ), all.x = T )
   proxied$consumption_pc[ proxied$consumption_pc == 0 ] <-
     proxied$consumption_pc_proxy[ proxied$consumption_pc == 0 ]
 
 # Bind back proxied values
-  full_proxied <- bind_rows( filter( full, iso %!in% proxy_mapping$iso ),
-                             select( proxied, -iso_proxy, -consumption_pc_proxy ) ) %>%
+  full_proxied <- dplyr::bind_rows( dplyr::filter( full, iso %!in% proxy_mapping$iso ),
+                                    dplyr::select( proxied, -iso_proxy, -consumption_pc_proxy ) ) %>%
     dplyr::arrange( iso, year )
 
 # ------------------------------------------------------------------------------
@@ -237,16 +238,21 @@
                              PHASE_OUT_YEAR = 0 )
   names( min_biomass ) <- c( CONVERGENCE_YEAR, PHASE_OUT_YEAR )
   min_biomass <- interpolate( min_biomass, CONVERGENCE_YEAR, PHASE_OUT_YEAR )
-  min_biomass <- melt( min_biomass, measure = names( min_biomass ) )
+  min_biomass <- min_biomass %>%
+      tidyr::gather( key = variable, value = value )
   names( min_biomass ) <- c( "year", "consumption_pc_min" )
   min_biomass$year <- as.numeric( as.character( min_biomass$year ) )
-  min_biomass <- bind_rows( min_biomass,
+  min_biomass <- dplyr::bind_rows( min_biomass,
                             data.frame( year = seq( min( mapped_pc$year ), CONVERGENCE_YEAR - 1 ),
                                         consumption_pc_min = MIN_CONSUMPTION_PC_HIST ) )
   min_biomass$fuel <- "Dom Total FW"
 
 # b. If Fernandes falls below minimum value, bring up to minimum value
-  full_min_fixed <- merge( full_proxied, min_biomass, all.x = T )
+  full_min_fixed <- full_proxied %>%
+      dplyr::left_join( min_biomass, by = c( "fuel", "year" ) ) %>%
+      dplyr::select( year, fuel, iso, country, units, region, consumption_pc,
+                     consumption_pc_min ) %>%
+      dplyr::arrange( year, fuel, iso )
   full_min_fixed$consumption_pc_min[ is.na( full_min_fixed$consumption_pc_min ) ] <- 0
   full_min_fixed$consumption_pc[ is.na( full_min_fixed$consumption_pc ) ] <- 0
   full_min_fixed$consumption_pc[ full_min_fixed$consumption_pc < full_min_fixed$consumption_pc_min ] <-
@@ -283,12 +289,13 @@
 # Re-compute total consumption from pc
   full_discont_fixed <- merge( full_discont_fixed, pop_master, all.x = T ) %>%
     dplyr::mutate( consumption = consumption_pc * pop2 ) %>%
-    select( -pop2 )
+    dplyr::select( -pop2 )
 
 # Diagnostics: Fernandes per-capita biomass
-  Fern_pc_wide <- group_by( full_discont_fixed, iso, country, region, units, year ) %>%
-    dplyr::summarise( consumption = sum( consumption ), consumption_pc = sum( consumption_pc ) ) %>%
-    cast( iso + country + region + units ~ year, value = "consumption_pc" )
+  Fern_pc_wide <- dplyr::group_by( full_discont_fixed, iso, country, region, units, year ) %>%
+      dplyr::summarise( consumption = sum( consumption ), consumption_pc = sum( consumption_pc ) ) %>%
+      dplyr::select( -consumption ) %>%
+      tidyr::spread( year, consumption_pc )
 
 # ------------------------------------------------------------------------------
 # 6. Calculate residential fuel-weighted biomass conversion factors by country
@@ -301,7 +308,7 @@
   weighted_average_bio_heating_value <- function( df_in, heating_values_df ){
 
 #   Note: Exclude Dom Charcoal from computation since IEA Charcoal is already in kt
-      biomass_conversion <- filter( df_in, fuel != "Dom Charcoal" ) %>%
+      biomass_conversion <- dplyr::filter( df_in, fuel != "Dom Charcoal" ) %>%
         dplyr::select( -units ) %>%
         merge( heat_content ) %>%
         dplyr::group_by( iso, units, year ) %>%

@@ -1,15 +1,17 @@
 #------------------------------------------------------------------------------
-# Program Name: F1.1.EMEP_scaling.R
-# Authors' Names: Patrick O'Rourke, Rachel Hoesly
+# Program Name: F1.1.EMEP_NFR09_scaling.R
+# Authors' Names: Rachel Hoesly, Patrick O'Rourke
 # Date Last Modified: December 26th, 2015
 # Program Purpose: To create scaling factors & update emissions estimate for
-# the EMEP regions from latest emissions working CEDS copy.
+#                  the EMEP regions from latest emissions working CEDS copy.
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
-#              F.[em]_scaled_emissions.csv, UNFCCC_scaling_mapping.xlsx,
-#              E.[em]_EMEP_inventory.csv
+#              F.[em]_scaled_emissions.csv, E.[em]_EMEP_inventory.csv,
+#              EMEP_NFR09_scaling_mapping.csv, EMEP_NFR09_scaling_year.csv,
+#              EMEP_NFR09_SO2_scaling_mapping.csv, EMEP_NFR09_SO2_scaling_year.csv,
+#              EMEP_NFR09_SO2_scaling_method.csv
 # Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
 # Notes: EMEP inventory has both level 1 and level 2 sectors. Choose data in
-#       E.EMEP_emissions.R. Ensure that the correct scaling map is chosen
+#        E.EMEP_emissions.R. Ensure that the correct scaling map is chosen
 # TODO: 1.) Include a function to specify which sectors should not be scaled for
 #       certain years for certain countries
 #       2.) Include a function to specify which sectors should not be scaled for
@@ -32,7 +34,7 @@
     headers <- c( 'common_data.R', "data_functions.R",
                   "emissions_scaling_functions.R", "analysis_functions.R",
                   "interpolation_extension_functions.R" ) # Additional function files required.
-    log_msg <- "Modifying emissions factors from EMEP Level 1 inventory data" # First message to be printed to the log
+    log_msg <- "Modifying emissions factors from EMEP NFR09 inventory data..." # First message to be printed to the log
     script_name <- paste0( em, "-F1.1.EMEP_NFR09_scaling.R" )
 
     source( paste0( PARAM_DIR, "header.R" ) )
@@ -52,27 +54,33 @@
 # Inventory parameters. Provide the inventory & mapping file names, the
 #   mapping method (by sector, fuel, or both), & the regions covered by
 #   the inventory (as a vector of iso codes)
+    inv_name <- 'EMEP_NFR09'
 
-    sector_fuel_mapping <- 'EMEP_NFR09_scaling_mapping'
+    sector_fuel_mapping <- inv_name
 
 # Use different mapping function if SO2 - scale back to default EFs
     if ( em == 'SO2' ) {
-        sector_fuel_mapping <- 'EMEP_NFR09_scaling_mapping_SO2'
+
+        sector_fuel_mapping <- paste0( sector_fuel_mapping, "_", em )
+
     }
 
     mapping_method <- 'sector'
-    inv_name <- 'EMEP_NFR09'
 
-# Do not include regions with problematic inventories ("mda", "aze", "srb", "tur")
+# Do not include regions with problematic inventories ("aze", "blr", "mda", "srb", "tur", "ukr" )
 # Do not include "can" since have higher resolution data to use
-    region <- c( "aut", "bel", "bgr", "che", "cyp", "cze", "deu",
-                 "dnk", "esp", "est", "fin", "fra", "gbr", "geo", "hrv", "hun",
-                 "irl", "isl", "ita", "ltu", "lux", "lva", "mkd",
-                 "nld", "nor", "pol", "prt", "rou", "svk", "svn", "swe" )
-    inv_years <- c( 1980:2012 )
+    region <- c( "aut", "bel", "bgr", "che", "cyp", "deu",
+                 "dnk", "esp", "est", "fin", "fra", "gbr", "grc", "hrv", "hun",
+                 "irl", "isl", "ita", "ltu", "lux", "lva", "mkd", "mlt",
+                 "nld", "nor", "pol", "prt", "svk", "svn", "swe" )
+
+# Limited number of years or no data for these isos, so are not included:  "
+# arm", "cze", "geo", "kgz", "mne". "rou",
+#       "alb" has unrealistic SO2 industrial emissions reported (looks like process and combustion were combined)
+    inv_years <- c( 1980 : 2012 )
 
 # EMEP level 1 inventory is reformatted by the E2.EMEP_em_emissions_lvl1.R script
-    inventory_data_file <- paste0( "E.", em, "_EMEP_NFR09_inventory" )
+    inventory_data_file <- paste0( "E.", em, "_", inv_name, "_inventory" )
     inv_data_folder <- "MED_OUT"
 
 # ------------------------------------------------------------------------------
@@ -80,12 +88,12 @@
 
 # Read in the inventory data, mapping file, the specified emissions species, and
 # the latest versions of the scaled EFs
-
     scaling_data <- F.readScalingData( inventory = inventory_data_file,
                                        inv_data_folder,
                                        mapping = sector_fuel_mapping,
                                        method = mapping_method,
                                        region, inv_name, inv_years )
+
     list2env( scaling_data , envir = .GlobalEnv )
 
 # ------------------------------------------------------------------------------
@@ -105,6 +113,7 @@
                                        replacement_method = 'replace',
                                        max_scaling_factor = 100,
                                        replacement_scaling_factor = 100 )
+
     list2env( scaling_factors_list, envir = .GlobalEnv )
 
 # Apply Scaling Factors to Ceds data
@@ -113,9 +122,9 @@
     scaled_em <- scaled[[ 2 ]]
 
 # ------------------------------------------------------------------------------
-# 5. Encorporate scaled em and EF and
-# Write Scaled emissions and emission factors
+# 5. Encorporate scaled em and EF
 
+# Write Scaled emissions and emission factors
     F.addScaledToDb( scaled_ef, scaled_em, meta_notes )
 
 # Every script should finish with this line

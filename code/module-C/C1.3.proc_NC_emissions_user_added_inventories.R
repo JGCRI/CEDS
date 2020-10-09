@@ -1,15 +1,16 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.3.proc_NC_emissions_user_added_inventories.R
 # Author(s): Rachel Hoesly
-# Date Last Modified: August 19, 2015
-# Program Purpose: To fill out missing sections in the process emissions database
+# Date Last Modified: July 16, 20205
+# Program Purpose: Add default data to process emissions database using specified lines
+#                  from processed emissions data. These will then be added to default
+#                  NC data along with any othter user added data
 # Input Files: C.[em]_NC_emissions.csv
-# Output Files:  C.[em]_NC_emissions.csv
+# Output Files: C.[em]_NC_emissions.csv
 # Notes:
 # TODO:
 #-------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
@@ -37,9 +38,10 @@ if ( is.na( em ) ) em <- "SO2"
                             'add_inventory_instructions')
 
 # ---------------------------------------------------------------------------
-# 1.
+# 2.
   instructions <- instructions[which( instructions$em == em),]
 
+  # Large loop for instructions specific to current emission species
   if ( nrow(instructions) > 0 ){
 
   # Read in inventory files
@@ -49,14 +51,17 @@ if ( is.na( em ) ) em <- "SO2"
                              domain = "MED_OUT" )
   names(inv_list) <- files_list
 # ---------------------------------------------------------------------------
-# 2. Interpolate, convert list to one df
+# 3. Interpolate, convert list to one df
   process_sectors <- MSL[which(MSL$type == 'NC'),'sector']
 
   replacement_data <- c( )
   combustion_sectors <- c( )
+
+  # Process each file
   for (i in seq_along( names ( inv_list ) ) ) {
     inv_name <- names(inv_list)[ i ]
     inv_data <- inv_list[[ i ]]
+    # List of instructions for this inventory file (can be multiple)
     inv_instructions <- instructions[which(instructions$inv == inv_name) , ]
 
     # Get rid of any blank columns
@@ -77,7 +82,7 @@ if ( is.na( em ) ) em <- "SO2"
 
     names( replace_inv_data )[ which(names( replace_inv_data ) == 'ceds_sector' )  ] <- 'sector'
 
-    #check for combustion sectors
+    # Check for combustion sectors and remove
     combustion_sectors <- rbind.fill(combustion_sectors ,
                                      replace_inv_data[ which( replace_inv_data$sector %!in% process_sectors ) , ] )
 
@@ -85,11 +90,11 @@ if ( is.na( em ) ) em <- "SO2"
 
     # Check that still have valid data
     if ( nrow( replace_inv_data ) > 0 ) {
-      # add fuel - process
+      # Add fuel - process
       replace_inv_data$fuel <- 'process'
       replace_inv_data <- replace_inv_data[ , c('iso','sector','fuel','units', years )]
 
-      # interpolate
+      # Interpolate missing data
       replace_inv_data[ years ] <- interpolateValues( replace_inv_data[ years ]  )
 
       replacement_data <- rbind.fill( replacement_data, replace_inv_data )
@@ -105,11 +110,12 @@ if ( is.na( em ) ) em <- "SO2"
   }
 
 
-# write out to process data folder
+# Write out to process data folder
   writeData(replacement_data, 'DEFAULT_EF_IN', domain_extension = 'non-combustion-emissions/',
             paste0('C.',em,'_NC_inventory_emissions_user_added'))
 
-  } # end logic if no user added inventory instructions
+  } # End logic if no user added inventory instructions
 
   logStop()
+
 # END

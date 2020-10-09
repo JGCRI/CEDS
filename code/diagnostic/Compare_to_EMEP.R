@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: Compare_to_EMEP.R
 # Author(s): Patrick O'Rourke
-# Date Last Updated: 4 April 2016
+# Date Last Updated: July 23, 2020
 # Program Purpose: To generate figures of comparison for the EMEP 'as in models' & CEDS national
 #                  totals.
 # Input Files: EMEP 'as in models' Emissions Inventory, CEDS Final Emissions Inventory, EMEP
@@ -25,7 +25,8 @@
 #                               'make_ceds_total' (used in Section 2), 'reformat_EMEPlvl1' (used in Section 2),
 #                               'make_emeplvl1_total' (used in Section 2), 'make_nt_df' (used in Section 2),
 #                               'graph' which uses ggplot2 (used in Section 3), 'make_difference' (used in Section 4)
-# TODO:
+# TODO: 1) Script TODOs
+#       2) Use tidyverse functions where appropriate
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
@@ -52,10 +53,11 @@ MCL <- readData( "MAPPINGS", "Master_Country_List" )
 loadPackage('tools')
 
 # Load Packages for reformatting data in Section 2
-library(tidyr)
+library( "tidyr" ) # TODO: Check if tidyr really needs to be loaded
 
 # Load Packages for plots in Section 3
-library('ggplot2')
+# TODO: Check if plyr really needs to be loaded again (was a function depreciated,
+#       or is a holdover from before global_settings.R was created)
 library('plyr')
 library('scales')
 
@@ -63,6 +65,7 @@ library('scales')
 LAST_PLOT_YEAR <- 1980
 
 # Define region of  Countries scaled by EMEP scaling script
+# TODO: update this if it's updated in scaling scripts
 region <- c("alb", "aut", "bel", "bgr", "bih", "blr", "che", "cyp", "cze", "dnk",
             "esp", "est", "fin", "fra", "gbr", "geo", "grc", "hrv", "hun", "irl",
             "isl", "ita", "ltu", "lux", "lva", "mda", "mkd", "mlt", "nld", "nor",
@@ -94,17 +97,15 @@ reformat_EMEP <- function(df_in, df_totals){
     names( df_in ) [ 1 ] <- "Country"   # Change CEDS ISO to Country Name
   # Remove unneeded years
     year_names_emep <- colnames(df_in)
-    remove_non_emep_years <- c("Country", "sector",  "X1960", "X1961",  "X1962", "X1963", "X1964",
-                             "X1965", "X1966", "X1967", "X1968", "X1969", "X1970", "X1971", "X1972",
-                             "X1973", "X1974", "X1975", "X1976", "X1977", "X1978", "X1979"  )
+    remove_non_emep_years <- c( "Country", "sector", paste0( "X", 1960 : ( LAST_PLOT_YEAR - 1 ) ) )
     year_names_emep <- year_names_emep[-which( year_names_emep %in% remove_non_emep_years)]
     columns_CEDS_keep <- c('Country', 'sector', year_names_emep)
     df_out <- subset(df_in [, (columns_CEDS_keep)])
     df_out <- df_out[ order(df_out$Country, df_out$sector), ] # Sort by Country & Sector
-    remove <- c("1A3ai_International-aviation", "1A3aii_Domestic-aviation",
-              "1A3dii_Domestic-navigation","1A3di_International-shipping",
-              "6B_Other-not-in-total", "11A_Volcanoes", "11B_Forest-fires",
-              "11C_Other-natural")  #        Remove CEDS sectors not included in National Totals
+    remove <- c( "1A3ai_International-aviation", "1A3aii_Domestic-aviation",
+                 "1A3dii_Domestic-navigation","1A3di_International-shipping",
+                 "6B_Other-not-in-total", "11A_Volcanoes", "11B_Forest-fires",
+                 "11C_Other-natural")  #        Remove CEDS sectors not included in National Totals
     df_out <- df_out[-which( df_out$sector %in% remove), ]
 }
 
@@ -119,13 +120,14 @@ reformat_EMEP <- function(df_in, df_totals){
                           stringsAsFactors=FALSE)   #  Make CEDS National Totals a data frame
     names(df_totals) <- c(year_names_ceds) # Rename Columns of this data fame (years)
     # Rename rows of this data frame (Country Column)
-    df_totals$Country <- c("Albania", "Austria", "Belarus", "Belgium", "Bosnia and Herzegovina",
-                         "Bulgaria", "Croatia", "Cyprus", "Czech Republic", "Denmark", "Estonia",
-                         "Finland", "France", "Georgia", "Greece", "Hungary", "Iceland",
-                         "Ireland", "Italy", "Latvia", "Lithuania","Luxembourg", "Macedonia",
-                         "Malta", "Moldova", "Netherlands", "Norway", "Poland", "Portugal",
-                         "Romania", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden",
-                         "Switzerland", "Turkey", "Ukraine", "United Kingdom")
+    # TODO: Do this with a mapping file
+    df_totals$Country <- c( "Albania", "Austria", "Belarus", "Belgium", "Bosnia and Herzegovina",
+                            "Bulgaria", "Croatia", "Cyprus", "Czech Republic", "Denmark", "Estonia",
+                            "Finland", "France", "Georgia", "Greece", "Hungary", "Iceland",
+                            "Ireland", "Italy", "Latvia", "Lithuania","Luxembourg", "Macedonia",
+                            "Malta", "Moldova", "Netherlands", "Norway", "Poland", "Portugal",
+                            "Romania", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden",
+                            "Switzerland", "Turkey", "Ukraine", "United Kingdom" )
     df_totals$DataSource <- "CEDS"   # Add column "DataSource" with all entries as "CEDS"
     df_totals <- df_totals[,c("Country","DataSource", year_names_ceds)]   # Reorder columns of interest
 }
@@ -156,6 +158,7 @@ reformat_EMEP <- function(df_in, df_totals){
                             stringsAsFactors=FALSE)   # Make EMEP lvl1 National Totals a data frame
     names(df_totals) <- c(year_names_emeplvl1)          # Rename Columns of this data fame (years)
     # Rename rows of this data frame (Country Column)
+    # TODO: Do this with a mapping file
     df_totals$Country <- c("Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czech Republic",
                            "Denmark", "Estonia", "Finland", "France", "Georgia", "Hungary", "Iceland",
                            "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg", "Macedonia", "Malta",
@@ -225,9 +228,10 @@ reformat_EMEP <- function(df_in, df_totals){
     df_difference$Scaled_1990 <- ""   # 1990 Scaled Column
     df_difference <- df_difference[,c("Country", "EMEP_1980", "Diff_1980", "Ratio_1980", "Scaled_1980", "EMEP_1990", "Diff_1990", "Ratio_1990" ,"Scaled_1990")]  #   Reorder Columns of Interest
     # List nations that were scaled to EMEP data --> Germany not in EMEP, Moldova not Scaled
-    emep_scale <- c("aut", "bel", "bgr", "che", "cyp", "cze", "dnk", "esp", "est", "fin", "fra",
-                  "gbr", "geo", "hrv", "hun", "irl", "isl", "ita", "ltu", "lux", "lva", "mkd",
-                  "mlt", "nld", "nor", "pol", "prt", "rou", "srb", "svk", "svn", "swe", "tur")
+    # TODO: Update this if scaling isos get updated
+    emep_scale <- c( "aut", "bel", "bgr", "che", "cyp", "cze", "dnk", "esp", "est", "fin", "fra",
+                     "gbr", "geo", "hrv", "hun", "irl", "isl", "ita", "ltu", "lux", "lva", "mkd",
+                     "mlt", "nld", "nor", "pol", "prt", "rou", "srb", "svk", "svn", "swe", "tur")
     emep_scale <- cbind (emep_scale)  #     cbind the list to make it a column
     emep_scale <- MCL[ match(emep_scale, MCL$iso),'Country_Name'] # Map 'iso' to 'Country_Name'
     emep_scale <- cbind (emep_scale)   # cbind the list to make it a column
@@ -305,7 +309,7 @@ if ( CEDS_Data ==  "Final" ) {
      EMEP_NT <- reformat_EMEP(EMEP, EMEP_NT)
 
 #     Change from wide to long format
-      EMEPlong <- gather(EMEP_NT, Year, Emission, (X1980:X2013))
+      EMEPlong <- tidyr::gather(EMEP_NT, Year, Emission, ( X1980:X2013)) # TODO Use year object
       names( EMEPlong )[ names( EMEPlong ) %in% c( "variable", "value" ) ] <- c( "Year", "Emission")
       EMEPlong <- EMEPlong[ order(EMEPlong$Country, EMEPlong$Year), ] # Sort by Country & Sector
 
@@ -316,7 +320,7 @@ if ( CEDS_Data ==  "Final" ) {
      CEDS_NT <- make_ceds_total(CEDS_new, CEDS_NT)
 
 #    Change from wide to long format
-     CEDSlong <- gather(CEDS_NT, Year, Emission, X1750:X2014)
+     CEDSlong <- tidyr::gather( CEDS_NT, Year, Emission, X_emissions_years )
      names( CEDSlong )[ names( CEDSlong ) %in% c( "variable", "value" ) ] <- c( "Year", "Emission")
      CEDSlong <- CEDSlong[ order(CEDSlong$Country, CEDSlong$Year), ] # Order long format by Country & Year
 
@@ -333,6 +337,7 @@ if ( CEDS_Data ==  "Final" ) {
 # 3. Make Scattplots Comparing CEDS & EMEP for each Emissions Species
 
 # Groups for plots are by constructed by relative size of emissions
+# TODO: make this more automated
   # SO2 Groups:
   if(em == "SO2") group1 <- c("Luxembourg", "Malta", "Iceland", "Cyprus", "Switzerland", "Norway", "Albania")
   if(em == "SO2") group2 <- c( "Latvia", "Austria", "Macedonia", "Croatia", "Ireland",  "Slovenia" )

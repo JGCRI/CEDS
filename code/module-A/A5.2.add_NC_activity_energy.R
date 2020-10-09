@@ -59,6 +59,11 @@
 # Sort results by iso and activity
     results <- results[ with( results, order( iso, activity ) ), ]
 
+# refinery-and-natural-gas data ending in 1970 causes a problem for USA scaling. Crude fix
+# for now until we split this driver into oil and gas.
+    results[which(results$activity=="refinery-and-natural-gas" & results$iso=="usa"),"X1970"] =
+        results[which(results$activity=="refinery-and-natural-gas" & results$iso=="usa"),"X1971"]
+
 # ------------------------------------------------------------------------------
 # 3. Output
 

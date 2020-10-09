@@ -2,11 +2,19 @@
 # CEDS R header file: data molding functions
 # Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Caleb Braun,
 #          Steven Smith, Patrick O'Rourke
-# Last Updated: December 13, 2019
+# Last Updated: January 7, 2020
 #
 # This file should be sourced by any R script doing heavy-duty reformatting of
 # CEDS data. It contains helper functions for general data manipulation and some
 # CEDS-specific data transformations.
+#  Functions contained:
+#       %!in%, replaceValueColMatch, is.invalid, all.na, some.na, is.nan, is.finite, is.infinite.df,
+#       removeNARows, NAsToZeros, repeatAndAddVector, addCols, intersectNames, isNumYear, isXYear,
+#       isYear, removeBlanks, indDataStart, buildCEDSTemplate, interpolate_NAs, interpolate_NAs2,
+#       extend_and_interpolate, verify_calculate_share_params, calculate_shares, calculate_correct_shares,
+#       extend_data_on_trend, extend_data_on_trend_range, disaggregate_country
+# Notes:
+
 # -----------------------------------------------------------------------------
 
 # %!in%"
@@ -110,7 +118,6 @@ update_join <- function(x, y, by = NULL, add_entries = FALSE) {
         bind_rows(anti_join(x, y, by = by)) %>%
         full_join(x[by], ., by = by)
 }
-
 
 # -----------------------------------------------------------------------------
 # is.invalid
@@ -523,7 +530,7 @@ interpolate_NAs2 <- function(df) {
 # -----------------------------------------------------------------------------
 # extend_and_interpolate
 # Brief: Linearly interpolate over NA values and extend first and last
-#        non-NA values backwards and forwards
+#        non-NA values backwards and forwards (constant extension)
 # Details: Interpolates and extends to columns that already exist in the data.
 #          The function expects the df to be orded with the non-numeric columns
 #          before the numeric columns ( numeric columns parameter defined below as "data_columns" ).
@@ -536,6 +543,8 @@ interpolate_NAs2 <- function(df) {
 # Return: df_no_NAs    a data frame with numeric values interpolated
 # Input Files:      NA
 # Output Files:     NA
+# TODO: This could likely be improved by using tidyr::fill() for extending ("down"
+#       for forward extension and "up" for backwards extension, when gathered in long format)
 extend_and_interpolate <- function( df_in, data_columns ){
 
 #   Check that df_in is a data frame
@@ -598,7 +607,7 @@ extend_and_interpolate <- function( df_in, data_columns ){
     df_all_na <- df_no_NaN %>%
         dplyr::filter_at( .vars = data_columns, all_vars( is.na( .) ) )
 
-if( nrow( df_all_na) != 0 ){
+    if( nrow( df_all_na) != 0 ){
 
         stop( "The function extend_and_interpolate expects there to be no rows in df_in ",
               "which are all NA or NaN for the data_columns..." )
@@ -621,7 +630,7 @@ if( nrow( df_all_na) != 0 ){
 
 #       Define first and last non-NA values, as well as length of non-numeric columns
         length_of_non_numeric_columns <- row_use %>%
-            dplyr::select( -data_columns ) %>%
+            dplyr::select( -all_of(data_columns) ) %>%
             length( )
 
         NonNAindex <- which( !is.na( row_use[ , data_columns ] ) )
@@ -1019,7 +1028,8 @@ calculate_correct_shares <- function(a.input_data,
 # Return:
 # Input Files:
 # Output Files:
-# TODO: merge, switch to extend_data_on_trend_cdiac
+# TODO: merge, switch to extend_data_on_trend_cdiac and extend_data_on_trend_range (which seems
+#       to be a more flexible version of this)
 
 extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnostics = F,
                                  IEA_mode = F,
@@ -1114,37 +1124,40 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
 # Dependencies:
 # Author(s):   Rachel Hoesly
 #
-# Params:
-# iea_start_year - IEA start year is specified if the function is in IEA mode
-# driver_trend - trend by which to extend input data
-# input_data - data to be extended
-# start - start of extension range (earliest year to be extended)
-# end - end of extension range (latest year to be extended)
-# expand - if input data has "all" or "all-combustion" for fuel, then this
-#          expands the data; defaults to TRUE
-# range - the length of the range of ratio years (calculates the average ratio);
-#         defaults to 5
-# ratio_start_year - earliest year of ratio years, defaults to the the year
-#                    following extension end year
-# id_match.driver - identifiers that match between driver and input (ex. for
-#                   extension with population, iso and temp variable. Must be at
-#                   least 2), defaults to c('iso','sector','fuel')
-# id_match.input - id columns for the original data, if different than id driver
-#                  (ex. cdiac, iso and fuel - but extended with iso and temp
-#                  (population)) - used to match and replace variables in final
-#                  part of function; defaults to value of id_match.driver
-# extend_fwd_by_BP_years - Boolean specifying whether or not forward extension
-#                          should be carried out; defaults to FALSE
-# IEA_mode - Boolean indicating whether or not the function should treat input
-#            and driver data as IEA data
-# iea_start_years_df - Dataframe containing IEA start year from all countries
+# Params: input_data                Data being extended. This is expected as class data.frame ONLY
+#                                   (issues may arise if the class is also a tibble)
+#         iea_start_year            IEA start year is specified if the function is in IEA mode
+#         driver_trend              Trend data by which to extend input data
+#         input_data                Data to be extended
+#         start                     Start of extension range (earliest year to be extended / assigned values during extension)
+#         end                       End of extension range (latest year to be extended)
+#         expand                    If input data has "all" or "all-combustion" for fuel, then this
+#                                   expands the data; defaults to TRUE
+#         range                     The length of the range of ratio years (calculates the average ratio);
+#                                   defaults to 5
+#         ratio_start_year          Earliest year of ratio years, defaults to the the year
+#                                   following extension end year
+#         id_match.driver           Identifiers that match between driver and input (ex. for
+#                                   extension with population, iso and temp variable. Must be at
+#                                   least 2), defaults to c('iso','sector','fuel')
+#         id_match.input            ID columns for the original data, if different then id names in driver_trend
+#                                   (ex. cdiac, iso and fuel - but extended with iso and temp
+#                                   (population)) - used to match and replace variables in final
+#                                   part of function; defaults to value of id_match.driver
+#         extend_fwd_by_BP_years    Boolean specifying whether or not forward extension
+#                                   should be carried out; defaults to FALSE
+#         IEA_mode                  Boolean indicating whether or not the function should treat input
+#                                   and driver data as IEA data
+#         iea_start_years_df        Dataframe containing IEA start year from all countries
 
 # Return:
 # Input Files:
 # Output Files:
 # TODO:
+      # does this default option for id_match.input work still?
       # must have at least 2 id variables
       # switch/merge with extend_data_on_trend
+      # the behavior may not work as expected when extending multiple sectors as once
 
 extend_data_on_trend_range <- function(iea_start_year, driver_trend, input_data,
                                        start, end,
@@ -1263,10 +1276,6 @@ extend_data_on_trend_range <- function(iea_start_year, driver_trend, input_data,
   return(input_data)
 }#extend_data_on_trend_range() Ends
 
-
-
-
-
 # -----------------------------------------------------------------------------
 # disaggregate_country
 # Brief:        Disaggregate data of specified aggregate country to specified split countries based on trend data
@@ -1275,35 +1284,34 @@ extend_data_on_trend_range <- function(iea_start_year, driver_trend, input_data,
 #               1 : Disaggregates using proportions initially from n earliest years from original split data, with proportion changing
 #               over time according to trend data, proportions renormalized to 1.
 #               2: Disaggregate using proportions from trend data overtime. Note: May result in discontinuities if trend data and original
-# data have different proportions
-# returns data frame of same format without the aggregate country data
+#               data have different proportions
 #
 # Dependencies:	replaceValueCol(), extend_data_on_trend_range
 # Author(s):     Rachel Hoesly
-#
-# original_data - data frame with rows to be split. Contains lines with aggregate country data in disaggregation
-#           years( dis_start_year:dis_end_year) and disaggregate data in non-disaggregation years. May contain data lines of other countries, which is not disturbed
-# id_cols - columns for matching. defaults to using non year X- cols are selected (id_col = T). Used for normalizing ratios to 1.
-#           ex: c(‘iso’,’sector’,’fuel’) - ratios normalized to 1 over all sector-fuel combinations (all iso’s add to 1 for each combination)
-#           ex: c(‘iso’,’fuel’) - ratios normalized to 1 over all fuels (all iso’s add to 1 for each fuel)
-# trend_data - data by which to trend split or ratios
-# trend_match_cols - columns in trend_data to match with original_data
-# combined_iso - character string, the iso name of the country to be split ex: 'ussr’
-# disaggregate_iso - vector of character strings, the names of the countries to replace combined_iso ex: c('aze','rus','ukr',...)
-# dis_end_year - numeric, the latest year of non zero data for the aggregate iso, ex 1991
-# dis_start_year - earliest year of aggregate data, defaults to 1750
-# ratio_range_length = 2
-# ratio_start_year = (dis_end_year+1)
-# method - numeric (1 or 2)
-#           1: Disaggregates using proportions initially from n earliest years from original split data, with proportion changing
-#           over time according to trend data, proportions renormalized to 1.
-#           2: Disaggregate using proportions from trend data overtime. Note: May result in discontinuities if trend data and original
-#           data have different proportions
-# remove_aggregate - T/F boolean. If T, then aggregate county data is removed from the returned data frame. If F, lines of aggregate data remain
-# write_over_values - T/F boolean. If T, then any nonzero values for disaggregate_iso countries in disaggregate years will be overwritten.
-#           If F, then function will error and print message showing non zero values in disaggregate years.
-# Return:   data frame with split values, in same format as all_data_in. Does not contain rows of aggregate country data, only
-#           disaggregate countries
+# Parameters:
+#   original_data -         data frame with rows to be split. Contains lines with aggregate country data in disaggregation
+#                           years( dis_start_year:dis_end_year) and disaggregate data in non-disaggregation years. May contain data lines of other countries, which is not disturbed
+#   id_cols -               columns for matching. defaults to using non year X- cols are selected (id_col = T). Used for normalizing ratios to 1.
+#                           ex: c(‘iso’,’sector’,’fuel’) - ratios normalized to 1 over all sector-fuel combinations (all iso’s add to 1 for each combination)
+#                           ex: c(‘iso’,’fuel’) - ratios normalized to 1 over all fuels (all iso’s add to 1 for each fuel)
+#   trend_data -            data by which to trend split or ratios
+#   trend_match_cols -      columns in trend_data to match with original_data
+#   combined_iso -          character string, the iso name of the country to be split ex: 'ussr’
+#   disaggregate_iso -      vector of character strings, the names of the countries to replace combined_iso ex: c('aze','rus','ukr',...)
+#   dis_end_year -          numeric, the latest year of non zero data for the aggregate iso, ex 1991
+#   dis_start_year -        earliest year of aggregate data, defaults to 1750
+#   ratio_range_length -    defaults to 2
+#   ratio_start_year -      (dis_end_year + 1)
+#   method -                numeric (1 or 2)
+#                           1: Disaggregates using proportions initially from n earliest years from original split data, with proportion changing
+#                              over time according to trend data, proportions renormalized to 1.
+#                           2: Disaggregate using proportions from trend data overtime. Note: May result in discontinuities if trend data and original
+#                              data have different proportions
+#   remove_aggregate -      T/F boolean. If T, then aggregate county data is removed from the returned data frame. If F, lines of aggregate data remain
+#   write_over_values -     T/F boolean. If T, then any nonzero values for disaggregate_iso countries in disaggregate years will be overwritten.
+#                           If F, then function will error and print message showing non zero values in disaggregate years.
+# Return:   A data frame with split values, in same format as all_data_in. Does not contain rows of aggregate country data, only
+#           disaggregate countries.
 # Input Files:   none
 # Output Files:  none
 # Notes: If ratio = T:

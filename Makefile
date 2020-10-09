@@ -122,7 +122,7 @@ clean-all: \
 	clean-modD clean-modE clean-modF clean-modH clean-gridding clean-user_defined_energy
 
 clean-user_defined_energy:
-# Deletes all CSVs in the directory except for: 
+# Deletes all CSVs in the directory except for:
 # 1) CEDS user-defined energy inputs, metadata, and instructions (U.*.csv)
 # 2) Relevant mapping and instructions files for user-defined energy input which require pre-processing for use in CEDS (A.*-instructions.csv, A.*_sector_map.csv, A.*-mapping.xlsx)
 	find $(USER_EN_IN) -name "*.csv" ! -name "U.*.csv" ! -name "A.*-instructions.csv" ! -name "A.*_sector_map.csv" -delete
@@ -347,8 +347,7 @@ $(MED_OUT)/A.IEA_en_stat_ctry_hist.csv: \
 	$(MOD_A)/A1.3.IEA_downscale_ctry.R \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
 	$(MED_OUT)/A.UN_pop_master.csv \
-	$(ENERGY_DATA)/OECD_E_Stat.csv \
-	$(ENERGY_DATA)/NonOECD_E_Stat.csv
+	$(ENERGY_DATA)/OECD_and_NonOECD_E_Stat.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa1-4
@@ -357,8 +356,7 @@ $(MED_OUT)/A.coal_heat_content.csv: \
 	$(MOD_A)/A1.4.IEA_heat_content.R \
 	$(MAPPINGS)/Master_Country_List.csv \
 	$(EN_MAPPINGS)/IEA_product_fuel.csv \
-	$(ENERGY_DATA)/OECD_Conversion_Factors_Full.csv \
-	$(ENERGY_DATA)/NonOECD_Conversion_Factors_Full.csv
+	$(ENERGY_DATA)/OECD_and_NonOECD_Conversion_Factors_Full.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa2-1
@@ -410,7 +408,7 @@ $(MED_OUT)/A.IEA_BP_energy_ext.csv: \
 	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
 	$(MED_OUT)/A.comb_othertrans_activity.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
-	$(ENERGY_DATA)/BP_energy_data.xlsx
+	$(ENERGY_DATA)/bp-stats-review-2020-all-data.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa3-2
@@ -619,10 +617,17 @@ $(MED_OUT)/A.total_activity_extended_oil.csv: \
 # bb1-1
 #$(MED_OUT)/B.$(EM)_comb_EF_GAINS_EMF30.csv: \
 	$(MOD_B)/B1.1.add_comb_GAINS_EMF-30.R.R \
-	$(ENERGY_DATA)/OECD_Conversion_Factors.csv \
-	$(ENERGY_DATA)/NonOECD_Conversion_Factors.csv \
-	$(INV_DATA)/GAINS/GAINS_EMF30_EMISSIONS_extended_Ev5a_CLE_Nov2015.csv \
-	$(INV_DATA)/GAINS/GAINS_EMF30_ACTIVITIES_extended_Ev5a_Nov2015.csv \
+	$(ENERGY_DATA)/OECD_and_NonOECD_Conversion_Factors.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_activity_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_BC_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_CH4_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_CO_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_CO2_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_NH3_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_NOx_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_OC_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_SO2_v2_wSE.csv \
+	$(INV_DATA)/GAINS/Global by region-detail_emf30_VOC_wSE.csv \
 	$(MAPPINGS)/GAINS/emf-30_ctry_map.csv \
 	$(MAPPINGS)/GAINS/emf-30_fuel_sector_map.csv
 #	Rscript $< $(EM) --nosave --no-restore
@@ -674,7 +679,6 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv: \
 	$(MOD_C)/C1.1.base_NC_emissions.R \
 	$(MOD_C)/C1.2.add_NC_emissions.R \
 	$(MOD_C)/C1.2.add_SO2_NC_emissions_all.R \
-	$(MOD_C)/C1.2.add_SO2_NC_emissions_FAO.R \
 	$(MOD_C)/C1.2.add_NC_emissions_EDGAR.R \
 	$(MOD_C)/C1.2.ECLIPSE_flaring_emissions_extension.R \
 	$(MOD_C)/C1.2.Fugitive-petr-and-gas_default_process_emissions.R \
@@ -689,7 +693,6 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv: \
 	$(PARAMS)/process_db_functions.R \
 	$(MAPPINGS)/sector_input_mapping.xlsx \
 	$(ACTIV)/Process_SO2_Emissions_to_2005.xlsx \
-	$(INV_DATA)/FAO_SO2_emissions.csv \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
@@ -706,9 +709,11 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv: \
 	$(MAPPINGS)/Master_Country_List.csv \
 	$(MED_OUT)/A.NC_activity.csv \
 	$(MED_OUT)/E.$(EM)_ARG_inventory.csv \
-	$(MED_OUT)/E.$(EM)_CAN_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CAN_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CAN_2018_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CHN_2018_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv \
 	$(MED_OUT)/E.$(EM)_Japan_inventory.csv \
@@ -791,18 +796,28 @@ $(MED_OUT)/E.$(EM)_ARG_inventory.csv: \
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
-$(MED_OUT)/E.$(EM)_CAN_inventory.csv: \
-	$(MOD_E)/E.CAN_emissions_newerData.R
-	Rscript $< $(EM) --nosave --no-restore
-
-# ee1-2
 $(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv: \
 	$(MOD_E)/E.CAN_emissions_olderData.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
+$(MED_OUT)/E.$(EM)_CAN_inventory.csv: \
+	$(MOD_E)/E.CAN_emissions_newerData.R
+	Rscript $< $(EM) --nosave --no-restore
+
+# ee1-2
+$(MED_OUT)/E.$(EM)_CAN_2018_inventory.csv: \
+	$(MOD_E)/E.CAN_emissions_2018.R
+	Rscript $< $(EM) --nosave --no-restore
+
+# ee1-2
 $(MED_OUT)/E.$(EM)_CHN_inventory.csv: \
 	$(MOD_E)/E.China_emissions.R
+	Rscript $< $(EM) --nosave --no-restore
+
+# ee1-2
+$(MED_OUT)/E.$(EM)_CHN_2018_inventory.csv: \
+	$(MOD_E)/E.China_emissions_MEIC_2018.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
@@ -842,9 +857,10 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MOD_F)/F1.1.Argentina_scaling.R \
 	$(MOD_F)/F1.1.CAN_scaling_olderData.R \
 	$(MOD_F)/F1.1.CAN_scaling_newerData.R \
+	$(MOD_F)/F1.1.CAN_scaling_2018.R \
 	$(MOD_F)/F1.1.China_scaling.R \
+	$(MOD_F)/F1.1.China_MEIC_2018_scaling.R \
 	$(MOD_F)/F1.1.Edgar_scaling.R \
-	$(MOD_F)/F1.1.Edgar_PEGASOS_scaling.R \
 	$(MOD_F)/F1.1.EMEP_NFR09_scaling.R \
 	$(MOD_F)/F1.1.EMEP_NFR14_scaling.R \
 	$(MOD_F)/F1.1.Japan_scaling.R \
@@ -858,9 +874,11 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MOD_F)/F1.1.Taiwan_scaling.R \
 	$(PARAMS)/emissions_scaling_functions.R \
 	$(MED_OUT)/E.$(EM)_ARG_inventory.csv \
-	$(MED_OUT)/E.$(EM)_CAN_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CAN_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CAN_2018_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CHN_2018_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv \
 	$(MED_OUT)/E.$(EM)_Japan_inventory.csv \
@@ -871,19 +889,38 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_US_GHG_inventory.csv \
 	$(MED_OUT)/E.$(EM)_AUS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_TWN_inventory.csv \
-	$(SC_MAPPINGS)/Argentina_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/CAN_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/MEIC_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/Edgar_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/EMEP_NFR09_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/EMEP_NFR14_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/jpn_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/UNFCCC_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/US_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/US-EPA_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/US-GHG_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/Australia_scaling_mapping.xlsx \
-	$(SC_MAPPINGS)/Taiwan_scaling_mapping.xlsx \
+	$(SC_MAPPINGS)/Argentina_scaling_mapping.csv \
+	$(SC_MAPPINGS)/CAN_scaling_mapping.csv \
+	$(SC_MAPPINGS)/CAN_NOx_scaling_mapping.csv \
+	$(SC_MAPPINGS)/CAN_2018_scaling_mapping.csv \
+	$(SC_MAPPINGS)/CAN_2018_NOx_scaling_mapping.csv \
+	$(SC_MAPPINGS)/MEIC_scaling_mapping.csv \
+	$(SC_MAPPINGS)/MEIC_2018_scaling_mapping.csv \
+	$(SC_MAPPINGS)/Edgar_scaling_mapping.csv \
+	$(SC_MAPPINGS)/Edgar_scaling_year.csv \
+	$(SC_MAPPINGS)/EMEP_NFR09_scaling_mapping.csv \
+	$(SC_MAPPINGS)/EMEP_NFR09_scaling_year.csv \
+	$(SC_MAPPINGS)/EMEP_NFR09_SO2_scaling_mapping.csv \
+	$(SC_MAPPINGS)/EMEP_NFR09_SO2_scaling_year.csv \
+	$(SC_MAPPINGS)/EMEP_NFR09_SO2_scaling_method.csv \
+	$(SC_MAPPINGS)/EMEP_NFR14_scaling_mapping.csv \
+	$(SC_MAPPINGS)/EMEP_NFR14_scaling_year.csv \
+	$(SC_MAPPINGS)/EMEP_NFR14_SO2_scaling_mapping.csv \
+	$(SC_MAPPINGS)/EMEP_NFR14_SO2_scaling_year.csv \
+	$(SC_MAPPINGS)/EMEP_NFR14_SO2_scaling_method.csv \
+	$(SC_MAPPINGS)/jpn_scaling_mapping.csv \
+	$(SC_MAPPINGS)/REAS_scaling_mapping.csv \
+	$(SC_MAPPINGS)/S_Korea_scaling_mapping.csv \
+	$(SC_MAPPINGS)/UNFCCC_scaling_mapping.csv \
+	$(SC_MAPPINGS)/UNFCCC_scaling_year.csv \
+	$(SC_MAPPINGS)/UNFCCC_CH4_scaling_mapping.csv \
+	$(SC_MAPPINGS)/UNFCCC_CH4_scaling_year.csv \
+	$(SC_MAPPINGS)/US_scaling_mapping.csv \
+	$(SC_MAPPINGS)/US-EPA_scaling_mapping.csv \
+	$(SC_MAPPINGS)/US-GHG_scaling_mapping.csv \
+	$(SC_MAPPINGS)/Australia_scaling_mapping.csv \
+	$(SC_MAPPINGS)/Taiwan_scaling_mapping.csv \
+	$(SC_MAPPINGS)/Taiwan_scaling_method.csv \
 	$(MED_OUT)/D.$(EM)_default_total_EF.csv \
 	$(MED_OUT)/D.$(EM)_default_total_emissions.csv
 	Rscript $< $(EM) --nosave --no-restore
@@ -953,7 +990,7 @@ $(MED_OUT)/gridded-emissions/CEDS_$(EM)_anthro_%.csv: \
 	$(PARAMS)/nc_generation_functions.R \
 	$(FINAL_OUT)/current-versions/CEDS_$(EM)_emissions_by_country_CEDS_sector_*.csv
 	Rscript $< $(EM) --nosave --no-restore
-	
+
 ifeq ($(EM),NMVOC)
 	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC01 --nosave --no-restore
 	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC02 --nosave --no-restore

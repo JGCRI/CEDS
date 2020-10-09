@@ -123,7 +123,7 @@ normalize <- function( default_data, usrdata_disagg, keep_total_cols,
     default_to_change <- default_data %>%
         semi_join(usrdata, by = keep_total_cols) %>%
         anti_join(usrdata, by = usrdata_cols ) %>%
-        select(CEDS_cols, Xyears)
+        select( all_of(CEDS_cols) , Xyears)
 
     # If all the rows were directly changed then we've specified data for an
     # entire aggregate group and therefore can't normalize
@@ -453,7 +453,7 @@ addContinuityFactors <- function( activity, instructions, all_yrs, interval_len 
         # confirm that the data actually exists.
         rows_to_adjust <- dplyr::left_join( this.row[ , join_cols ], cfs,
                                             by = join_cols ) %>%
-                          dplyr::select( ceds_cols, dplyr::everything() )
+                          dplyr::select( all_of(ceds_cols), dplyr::everything() )
         if ( anyNA( rows_to_adjust ) ) {
             stop( paste( "Error in instruction:\n\t",
                   paste( this.row[ join_cols ], collapse = " " ), "\n",

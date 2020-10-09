@@ -40,7 +40,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     # This can be either before or after the last year for the data system
     # Any differences between the two are to be resolved in the module F script.
     # The job of the module E scripts is simply to supply available emissions data
-    last_year <- 2018
+    last_year <- 2019
 
     inv_years<-c( 1970, 1975, 1980, 1985, 1990:last_year )
 

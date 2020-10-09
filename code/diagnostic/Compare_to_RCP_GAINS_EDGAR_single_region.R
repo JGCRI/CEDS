@@ -9,8 +9,7 @@
 
 # Output Files: Figures in the diagnostic-output
 # Notes:
-# ------------------------------------------------------------------------------
-
+# TODO: 1. Review code, given changes in new GAINS and EDGAR data.
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative

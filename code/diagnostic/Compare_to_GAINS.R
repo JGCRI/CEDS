@@ -1,10 +1,10 @@
 # ------------------------------------------------------------------------------
 # Program Name: Compare_to_GAINS.R
 # Author: Rachel Hoesly, Patrick O'Rourke
-# Date Last Updated: May 23, 2019
-# Program Purpose:
+# Date Last Updated: July 14, 2020
+# Program Purpose: Generate comparisons between GAINS and CEDS
 # Input Files: [em]_total_CEDS_emissions.csv
-#              GAINS_EMF30_EMISSIONS_extended_Ev5a_CLE_Nov2015.xlsx
+#              Global by region-detail_emf30_[em]_wSE.csv
 #              Master_Country_List.csv, emf-30_ctry_map.csv,
 #              Master_Fuel_Sector_List.xlsx,
 #              emf-30_comparison_sector_map-comb_vs_process.csv
@@ -16,17 +16,21 @@
 #               GAINS_[em]_Global_Comparison_Non-Residential.pdf, GAINS_[em]_Global_Comparison_Combustion.pdf,
 #               GAINS_[em]_Regional_Comparison_All.pdf, GAINS_[em]_Regional_Comparison_Residential.pdf,
 #               GAINS_[em]_Regional_Comparison_Non-Residential.pdf, GAINS_[em]_Regional_Comparison_Combustion.pdf
-# TODO:
+# TODO: 1. Replace emf-30_comparison_sector_map-comb_vs_process.csv with
+#          emf-30_fuel_sector_map.csv
+#       2. (Future) Replace functions with tidyverse equivalent where appropriate
+#                   ( cast --> spread, melt --> gather, merge and match --> left_join,
+#                   aggregate --> dplyr::summarize_all, etc. )
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
+    PARAM_DIR <- if( "input" %in% dir( ) ) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R",'common_data.R', 'IO_functions.R') # Additional function files may be required.
+headers <- c( "data_functions.R", 'common_data.R', 'IO_functions.R' ) # Additional function files may be required.
 log_msg <- "Comparing CEDS final emissions to GAINS..." # First message to be printed to the log
 script_name <- "Compare_to_GAINS.R"
 
@@ -35,47 +39,51 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO"
+if ( is.na( em ) ) em <- "NMVOC"
 
 # Stop script if running for unsupported species
-if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'BC', 'OC', 'CH4', 'CO', 'CO2' ) ) {
+if ( em %!in% c( "BC", "CH4", "CO", "CO2", "NH3", "NMVOC", "NOx", "OC", "SO2" ) ) {
 
-  stop ( paste( 'GAINS EMF-30 is not supported for emission species', em ) )
+  stop ( paste( 'GAINS EMF is not supported for emission species', em ) )
 
 }
 
 # ---------------------------------------------------------------------------
-# 0.5 Load Packages
-
-library( 'ggplot2' )
-library( 'plyr' )
-library( 'scales' )
-library( 'gridExtra' )
-
-# ---------------------------------------------------------------------------
 # 0.5. Script Options
 
-gains_start_year <- 2000
-gains_end_year <- 2010
-CEDS_start_year <- 1960
-CEDS_end_year <- end_year
+gains_end_year <- 2015 # GAINS historical end year
 
-gains_years <- seq( from = gains_start_year, to=gains_end_year, by = 5 )
-x_gains_years <- paste0('X',gains_years)
+gains_years <- seq( from = GAINS_start_year, to = gains_end_year, by = 5 )
+x_gains_years <- paste0( 'X', gains_years ) # Historical GAINS years
 
-ceds_start_year <- ( gains_start_year - 5 )
-ceds_years <- ceds_start_year:end_year
-x_ceds_years <- paste0( 'X',ceds_years )
+ceds_start_year <- ( as.numeric( GAINS_start_year ) - 5 )
+ceds_years <- ceds_start_year : end_year
+x_ceds_years <- paste0( 'X', ceds_years )
+
+library( "scales" ) # Load scales, as function 'comma' doesn't work without
+                    # doing so currently
 
 # ---------------------------------------------------------------------------
 # 1. Load files
 
 # GAINS emissions
-e.sheet <- em
-if( em == 'NMVOC' ) e.sheet <- 'VOC'
-gains_emissions <- readData( domain = 'EM_INV', domain_extension = 'GAINS/',
-                             file_name = 'GAINS_EMF30_EMISSIONS_extended_Ev5a_CLE_Nov2015',
-                             ".xlsx", sheet_selection = e.sheet )
+
+#   Define em string to use for GAINS data
+    em_use <- em
+    if ( em == "NMVOC" ){ em_use <- "VOC" }
+
+#   Define other settings for GAINS data
+    domain_use <- "EM_INV"
+    domain_ext_use <- "GAINS/"
+
+    emissions_file_name <- paste0( "Global by region-detail_emf30_", em_use, "_wSE" )
+    if( em == "SO2" ){ emissions_file_name <- gsub( "_wSE", "_v2_wSE", emissions_file_name ) }
+
+    emissions_rows_to_skip <- 9
+
+#   Read in GAINS data
+    gains_emissions <- readData( domain = domain_use, domain_extension = domain_ext_use,
+                                 file_name = emissions_file_name, skip = emissions_rows_to_skip )
 
 # CEDS emissions and master country list
 ceds_emissions <- readData( domain = 'MED_OUT', file_name =  paste0( em,'_total_CEDS_emissions' ) )
@@ -95,29 +103,35 @@ GAINS_comb_sector_map <- readData( domain = 'GAINS_MAPPINGS',
 # ---------------------------------------------------------------------------
 # 2. Process GAINS
 
+# Remove leading white space from GAINS data and rename sector column
+gains_emissions <- gains_emissions %>%
+  dplyr::rename( Sector = 'EMF30.kt' ) %>%
+  dplyr::select( Region, Sector, all_of(X_GAINS_years) ) %>% # ALl GAINS years
+  # GAINS data can have tabs in front of all characters in the ID columns, which would need to be removed
+  dplyr::mutate_at( .vars = c( "Region", "Sector" ), .funs = funs( gsub( "\t", "", . ) ) )
+
 # Subset total and residential data
-gains <- gains_emissions[ which( gains_emissions$Sector == 'Sum' |
-                                  grepl( "End_Use_Residential_", gains_emissions$Sector ) ),
-                          c( "Region" ,"Sector", "2000" ,  "2005" ,  "2010" )]
-names(gains) <- c("Region", "Sector", "X2000", "X2005", "X2010")
-gains <- gains[ gains$Region != "Global", ]
+gains <- gains_emissions %>%
+  dplyr::filter( Sector == "SUM" | grepl( "End_Use_Residential_", gains_emissions$Sector ) ) %>%
+  dplyr::select( Region, Sector, all_of(x_gains_years) ) %>% # Selects only historical years
+  dplyr::filter( Region != "Global" )
 
 # Subset residential data
 gains_resid <- gains %>%
     dplyr::filter( grepl( "End_Use_Residential_", Sector ) ) %>%
     dplyr::select( -Sector ) %>%
     dplyr::group_by( Region ) %>%
-    dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>%
+    dplyr::summarise_all( list( ~sum(., na.rm = T ) ) ) %>%
     dplyr::mutate( Sector = "Residential") %>%
     dplyr::arrange( Region ) %>%
     data.frame( )
 
 # Subset total data
 gains_tot <- gains %>%
-    dplyr::filter( Sector == 'Sum' ) %>%
+    dplyr::filter( Sector == 'SUM' ) %>%
     dplyr::select( -Sector ) %>%
     dplyr::group_by( Region ) %>%
-    dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+    dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
     dplyr::mutate( Sector = "All" ) %>%
     dplyr::arrange( Region ) %>%
     data.frame()
@@ -126,14 +140,13 @@ gains_tot <- gains %>%
 gains_nonresid <- gains_tot %>%
   dplyr::mutate( Sector = "Non-Residential" )
 
-gains_nonresid[, c( "X2000", "X2005", "X2010" ) ] <-
-  gains_tot[, c( "X2000", "X2005", "X2010" ) ] -
-  gains_resid[, c( "X2000", "X2005", "X2010" ) ]
+gains_nonresid[, x_gains_years ] <-
+  gains_tot[ , x_gains_years] -
+  gains_resid[ , x_gains_years ]
 
 # Subset GAINS combustion emissions
 gains_comb <- gains_emissions %>%
-    dplyr::rename( X2000 = "2000", X2005 = "2005", X2010 = "2010" ) %>%
-    dplyr::select( Region, Sector, x_gains_years ) %>%
+    dplyr::select( Region, Sector, all_of(x_gains_years) ) %>%
     dplyr::filter( Region != "Global" ) %>%
     dplyr::left_join( GAINS_comb_sector_map, by = "Sector" )
 
@@ -160,21 +173,21 @@ gains_comb_final <- gains_comb %>%
     dplyr::select( -Sector, -Note ) %>%
     dplyr::rename( Sector = Type ) %>%
     dplyr::group_by( Region, Sector ) %>%
-    dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
-    dplyr::select( Region, x_gains_years, Sector ) %>%
+    dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
+    dplyr::select( Region, all_of(x_gains_years), Sector ) %>%
     dplyr::mutate( Sector = "Combustion" ) %>%
     dplyr::ungroup( )
 
 # Combine Residential, Non-Residential, combustion, and Total data
-gains <- rbind( gains_resid, gains_tot, gains_nonresid, gains_comb_final )
+gains <- dplyr::bind_rows( gains_resid, gains_tot, gains_nonresid, gains_comb_final )
 gains[ gains < 0 ] <- 0
 
-# Only CO2 is reported in Tg rather than Gg, so multiply by 10^3 to convert Tg to Gg
-if( em == 'CO2' ) gains[ ,years] <- gains[ ,years]*10^3
+# Only CO2 is reported in Mt rather than kt, so multiply by 10^3 to convert Mt to kt
+if( em == 'CO2' ){ gains[ , x_gains_years] <- gains[ , x_gains_years] * 1000 }
 
 # Gather to long form
 gains_long <- gains %>%
-    tidyr::gather( key = variable, value = value, x_gains_years ) %>%
+    tidyr::gather( key = variable, value = value, all_of(x_gains_years) ) %>%
     dplyr::mutate( variable = as.factor( variable ) )
 
 # Define variable inv (inventory)
@@ -202,15 +215,15 @@ ceds <- ceds_emissions[ which( ceds_emissions$sector %!in% not_gains_sectors )
                         , c('iso', 'sector', x_ceds_years )]
 
 # Map to GAINS emf regions
-ceds$Region <- ctry_map[ match( ceds$iso, ctry_map$iso ),'emf_name']
-ceds <- filter( ceds, !is.na( Region ) )
+ceds$Region <- ctry_map[ match( ceds$iso, ctry_map$iso ),'Region']
+ceds <- dplyr::filter( ceds, !is.na( Region ) )
 
 # Subset Combustion emissions
 ceds_comb <- ceds %>%
     dplyr::left_join( MFSL, by = "sector" ) %>%
-    dplyr::select( type, Region, x_ceds_years ) %>%
+    dplyr::select( type, Region, all_of(x_ceds_years) ) %>%
     dplyr::group_by( type, Region ) %>%
-    dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+    dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
     dplyr::ungroup( ) %>%
     dplyr::rename( sector = type ) %>%
     dplyr::filter( sector == "comb") %>%
@@ -223,14 +236,14 @@ ceds$sector[ ceds$sector == "1A4b_Residential" ] <- "Residential"
 ceds <- ceds %>%
     dplyr::select( -iso ) %>%
     dplyr::group_by( sector, Region ) %>%
-    dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+    dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
     data.frame( )
 
 # Calculate total CEDS emissions
 ceds_tot <- ceds %>%
     dplyr::mutate( sector = "All" ) %>%
     dplyr::group_by( sector, Region ) %>%
-    dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+    dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
     data.frame( )
 
 # Combine Residential, Non-Residential, Combustion, and Total Emissions
@@ -239,7 +252,7 @@ names( ceds )[ names( ceds ) == "sector" ] <- "Sector"
 
 # Gather to long format
 ceds_long <- ceds %>%
-    tidyr::gather( key = variable, value = value, x_ceds_years ) %>%
+    tidyr::gather( key = variable, value = value, all_of(x_ceds_years) ) %>%
     dplyr::mutate( variable = as.factor( variable ) )
 
 ceds_long$inv <- 'CEDS'
@@ -250,13 +263,13 @@ ceds_long$inv <- 'CEDS'
 # All Sectors
 
 #   Prepare data
-    global_long <- rbind( filter( ceds_long, Sector == "All"),
-                          filter( gains_long, Sector == "All" ) )
+    global_long <- rbind( dplyr::filter( ceds_long, Sector == "All"),
+                          dplyr::filter( gains_long, Sector == "All" ) )
     names(global_long) <- c( "Sector", "Region", "year" ,"total","inv" )
     global_long$year <- gsub( 'X', "", global_long$year )
     global_long$year <- as.numeric( global_long$year )
 
-    global <- cast( global_long, inv+Sector ~ year, value = 'total', fun.aggregate = sum )[c( 'inv', 'Sector', gains_years)]
+    global <- cast( global_long, inv+Sector ~ year, value = 'total', fun.aggregate = sum )[ c( 'inv', 'Sector', gains_years ) ]
 
 #   Write out table
     writeData( global,'DIAG_OUT', paste0( 'GAINS_', em, '_Global_Comparison' ),
@@ -282,8 +295,8 @@ ceds_long$inv <- 'CEDS'
 
 #   Prepare data
 
-    global_long_resid <- rbind( filter( ceds_long, Sector == "Residential" ),
-                         filter( gains_long, Sector == "Residential" ) )
+    global_long_resid <- rbind( dplyr::filter( ceds_long, Sector == "Residential" ),
+                                dplyr::filter( gains_long, Sector == "Residential" ) )
     names( global_long_resid ) <- c( "Sector", "Region", "year" ,"total","inv" )
     global_long_resid$year <- gsub( 'X',"",global_long_resid$year )
     global_long_resid$year <- as.numeric( global_long_resid$year )
@@ -314,8 +327,8 @@ ceds_long$inv <- 'CEDS'
 
 #   Prepare data
 
-    global_long_nonresid <- rbind( filter( ceds_long, Sector == "Non-Residential" ),
-                                filter( gains_long, Sector == "Non-Residential" ) )
+    global_long_nonresid <- rbind( dplyr::filter( ceds_long, Sector == "Non-Residential" ),
+                                   dplyr::filter( gains_long, Sector == "Non-Residential" ) )
     names(global_long_nonresid) <- c( "Sector", "Region", "year" ,"total","inv" )
     global_long_nonresid$year <- gsub( 'X',"",global_long_nonresid$year )
     global_long_nonresid$year <- as.numeric( global_long_nonresid$year )
@@ -356,7 +369,7 @@ ceds_long$inv <- 'CEDS'
     global_long_comb_aggregated <- global_long_comb %>%
         dplyr::select( inv, Sector, year, total ) %>%
         dplyr::group_by( inv, Sector, year ) %>%
-        dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+        dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
         dplyr::ungroup( )
 
     global_comb <- global_long_comb_aggregated %>%
@@ -401,13 +414,12 @@ ceds_long$inv <- 'CEDS'
     writeData( region_wide,'DIAG_OUT', paste0( 'GAINS_', em, '_Regional_Comparison' ),
                domain_extension = 'ceds-comparisons/', meta = F )
 
-
 #   Plot
     regions_list <- region_long[ which( region_long$year == '2000'), c( 'Region','total' ) ]
     regions_list <- regions_list[ order( -regions_list$total ), ]
     regions_list_order <- unique( regions_list$Region )
     regions_df_order <- data.frame( Region = regions_list_order,
-                                    plot = rep(1:6, c(4, 4, 4, 4, 5, 3)) )
+                                    plot = rep( 1 : 6, c( 4, 4, 4, 4, 5, 4 ) ) )
     plot_list <- list( )
     for( i in 1:6 ){
 
@@ -454,10 +466,10 @@ ceds_long$inv <- 'CEDS'
     regions_list <- regions_list[ order( -regions_list$total ), ]
     regions_list_order <- unique( regions_list$Region )
     regions_df_order <- data.frame( Region = regions_list_order,
-                                    plot = rep(1:6, c(4, 4, 4, 4, 5, 3)) )
+                                    plot = rep( 1 : 6, c( 4, 4, 4, 4, 5, 4 ) ) )
 
     plot_list <- list( )
-    for( i in 1:6 ){
+    for( i in 1 : 6 ){
 
       plot_regions <- regions_df_order [ which( regions_df_order$plot == i ),'Region' ]
 
@@ -503,10 +515,10 @@ ceds_long$inv <- 'CEDS'
     regions_list <- regions_list[ order( -regions_list$total ), ]
     regions_list_order <- unique( regions_list$Region )
     regions_df_order <- data.frame( Region = regions_list_order,
-                                    plot = rep(1:6, c(4, 4, 4, 4, 5, 3)) )
+                                    plot = rep( 1 : 6, c( 4, 4, 4, 4, 5, 4 ) ) )
 
     plot_list <- list( )
-    for( i in 1:6 ){
+    for( i in 1 : 6 ){
 
       plot_regions <- regions_df_order [ which( regions_df_order$plot == i ),'Region' ]
 
@@ -517,7 +529,7 @@ ceds_long$inv <- 'CEDS'
       max <- 1.2*( max( plot_df$total ) )
 
       plot <- ggplot( plot_df, aes( x = year, y = total, color = region, shape = inv ) ) +
-        geom_point (data = subset( plot_df, inv == 'GAINS' ), size = 2, aes(x = year, y = total, color = Region ) ) +
+        geom_point ( data = subset( plot_df, inv == 'GAINS' ), size = 2, aes( x = year, y = total, color = Region ) ) +
         geom_line( data = subset( plot_df, inv =='CEDS'),size=1,aes(x=year, y = total, color = Region ) ) +
         scale_x_continuous( breaks = seq( from = ceds_start_year, to = end_year, by = 5 ) )+
         scale_y_continuous( limits = c( 0, max ), labels = comma ) +
@@ -554,12 +566,12 @@ ceds_long$inv <- 'CEDS'
     regions_list <- regions_list[ order( -regions_list$total ), ]
     regions_list_order <- unique( regions_list$Region )
     regions_df_order <- data.frame( Region = regions_list_order,
-                                    plot = c( unlist( lapply (X = 1:4, FUN = rep, times = 4 ) ),
-                                              unlist(lapply(X=5,FUN=rep, times=5)),
-                                              unlist( lapply( X = 6, FUN = rep, times =  3 ) ) ) )
+                                    plot = c( unlist( lapply ( X = 1 : 4, FUN = rep, times = 4 ) ),
+                                              unlist( lapply( X = 5, FUN = rep, times = 5 ) ),
+                                              unlist( lapply( X = 6, FUN = rep, times = 4 ) ) ) )
 
     plot_list <- list( )
-    for( i in 1:6 ){
+    for( i in 1 : 6 ){
 
         plot_regions <- regions_df_order [ which( regions_df_order$plot == i ),'Region' ]
 
@@ -570,12 +582,12 @@ ceds_long$inv <- 'CEDS'
         max <- 1.2*( max( plot_df$total ) )
 
         plot <- ggplot( plot_df, aes( x = year, y = total, color = region, shape = inv ) ) +
-            geom_point (data = subset( plot_df, inv == 'GAINS' ), size = 2, aes(x = year, y = total, color = Region ) ) +
-            geom_line( data = subset( plot_df, inv =='CEDS'),size=1,aes(x=year, y = total, color = Region ) ) +
+            geom_point (data = subset( plot_df, inv == 'GAINS' ), size = 2, aes( x = year, y = total, color = Region ) ) +
+            geom_line( data = subset( plot_df, inv =='CEDS'), size = 1, aes( x = year, y = total, color = Region ) ) +
             scale_x_continuous( breaks = seq( from = ceds_start_year, to = end_year, by = 5 ) )+
             scale_y_continuous( limits = c( 0, max ), labels = comma ) +
             scale_shape_discrete( guide = FALSE )+
-            labs (x = 'Year',y = paste( em, 'Emissions [kt]' ) ) +
+            labs ( x = 'Year',y = paste( em, 'Emissions [kt]' ) ) +
             theme( legend.title = element_blank( ) )
         plot
         plot_list[[i]] <- plot

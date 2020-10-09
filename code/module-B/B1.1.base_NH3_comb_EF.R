@@ -112,6 +112,7 @@
     printLog( 'Sorting' )
     default_efs <-  default_efs[ with( default_efs,
                                        order( iso, sector, fuel ) ), ]
+    default_efs$units <- 'kt/kt'
 
 # ---------------------------------------------------------------------------
 # 6. Output

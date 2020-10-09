@@ -5,7 +5,7 @@
 # Program Purpose: To process and reformat non-combustion (process) activity activity_data
 #                  and combine it with combustion activity activity_data to create a total
 #                  activity database.
-# Input Files: A.final_comb_activity_modern.csv, A.NC_activity_db.csv, Master_Fuel_Sector_List.xlsx,
+# Input Files: A.NC_activity_db.csv, Master_Fuel_Sector_List.xlsx,
 #              Master_Country_List.csv
 # Output Files: A.NC_activity.csv, A.NC_missing_sectors.csv,
 #               A.NC_dropoff_sectors.csv

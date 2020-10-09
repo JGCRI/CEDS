@@ -1,0 +1,5 @@
+iso,scaling_sector,pre_ext_year,post_ext_year,select_scaling_year,start_scaling_year,end_scaling_year,Comment
+mkd,all,NA,NA,NA,2000,2010,Scale from 2000 so as to be closer to EMEP trend
+fin,all,NA,NA,NA,1982,2020,Don't scale 1981 to avoid reporting mistake in inventory
+lux,RoadRail,NA,NA,NA,1990,2020,Avoid imlied Nox EF dip 1986-1989
+blr,RoadRail,2007,2010,NA,2007,2010,don't scale before 2007 where data may not be complete

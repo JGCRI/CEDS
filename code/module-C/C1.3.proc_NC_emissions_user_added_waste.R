@@ -324,25 +324,25 @@ if ( is.na( em ) ) em <- "NMVOC"
         mean_ratio_all_inv_with_value <- Europe_PM25_Compare_with_ratio %>%
             dplyr::filter( X2010_inventory != 0 & !( is.na( X2010_inventory ) ) ) %>%
             dplyr::select( X2010_inv_to_waste_inventory ) %>%
-            dplyr::summarise_all( funs( mean( . ) )  )
+            dplyr::summarise_all( list( ~mean( . ) )  )
 
 #       All inventires with values within 0.1% ( ratio > or = 0.001 )
         mean_ratio_inv_0.1percent <- Europe_PM25_Compare_with_ratio %>%
             dplyr::filter( X2010_inv_to_waste_inventory >= 0.001 ) %>%
             dplyr::select( X2010_inv_to_waste_inventory ) %>%
-            dplyr::summarise_all( funs( mean( . ) )  )
+            dplyr::summarise_all( list( ~mean( . ) )  )
 
 #       All inventires judged "reasonable"
         mean_ratio_reasonable <- Europe_PM25_Compare_with_ratio %>%
             dplyr::filter( Use_for_median == 1 ) %>%
             dplyr::select( X2010_inv_to_waste_inventory ) %>%
-            dplyr::summarise_all( funs( mean( . ) )  )
+            dplyr::summarise_all( list( ~mean( . ) )  )
 
 #       All inventires judged "reasonable" and don't have a ratio to wideinmyer that is >1
         mean_ratio_reasonable_no_greater_than_1 <- Europe_PM25_Compare_with_ratio %>%
             dplyr::filter( Use_for_median == 1 &  ratio_summary != "> 1"   ) %>%
             dplyr::select( X2010_inv_to_waste_inventory ) %>%
-            dplyr::summarise_all( funs( mean( . ) )  )
+            dplyr::summarise_all( list( ~mean( . ) )  )
 
 #       Assign default oecd ratio to use
         oecd_default_ratio <- mean_ratio_reasonable_no_greater_than_1[[1]]
@@ -354,7 +354,7 @@ if ( is.na( em ) ) em <- "NMVOC"
 #   Join the waste inventory data with waste_inventory data
     waste_inventory_match <- waste_inventory %>%
         dplyr::left_join( dplyr::select( Europe_PM25_replaced_NAs, iso, X2010_inv_to_waste_inventory, Use_for_median, Use_for_trend ), by = "iso" ) %>%
-        dplyr::mutate_at( .vars = c( "Use_for_median", "Use_for_trend" ), funs( if_else( is.na( . ), 0, . ) ) )
+        dplyr::mutate_at( .vars = c( "Use_for_median", "Use_for_trend" ), list( ~ifelse( is.na( . ), 0, . ) ) )
 
 #   For European regions that don't appear to have reasonable data, change 2010 value to default average value
 #       Define european isos
@@ -397,7 +397,7 @@ if ( is.na( em ) ) em <- "NMVOC"
     X_waste_inventory_years_no_2010 <- subset( X_waste_inventory_years, X_waste_inventory_years != "X2010" )
 
     waste_inventory_trend <- waste_inventory_trend %>%
-        dplyr::mutate_at( .vars = X_waste_inventory_years_no_2010, funs( if_else( . == 0, NA_real_, . ) )  )
+        dplyr::mutate_at( .vars = X_waste_inventory_years_no_2010, list( ~ifelse( . == 0, NA_real_, . ) )  )
 
 # ------------------------------------------------------------------------------
 # 6. Output

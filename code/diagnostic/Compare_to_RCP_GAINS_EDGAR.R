@@ -7,9 +7,8 @@
 
 # Output Files: Figures in the diagnostic-output
 # Notes:
-# TODO: 1. add CO2 into CEDS em list once avaiable
-# ------------------------------------------------------------------------------
-
+# TODO: 1. Review code, given changes in new GAINS and EDGAR data.
+#       2. add CO2 into CEDS em list once avaiable
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 

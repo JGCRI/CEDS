@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A8.2.Adjust_Shipping_Fuel_Cons.R
 # Authors Names: Steve Smith, Patrick O'Rourke, Linh Vu
-# Date Last Updated: December 13, 2019
+# Date Last Updated: March 10, 2020
 # Program Purpose: Reads in exogenous time series for global shipping fuel consumption
 #                  ( domestic and international ).
 #
@@ -46,7 +46,7 @@
     initialize( script_name, log_msg, headers )
 
 # ------------------------------------------------------------------------------
-# 1. Read in files
+# 1. Read in files and define script constants
 #   CEDS comb. activity data after adding user-defined data
     CEDS_comb_activity <- readData('MED_OUT','A.comb_user_added')
 
@@ -61,6 +61,9 @@
 #   Pre-1855 shipping coal extrapolation
     shipping_coal_extrap <- readData( "ENERGY_IN", "Shipping_Fuel_Consumption" , ".xlsx",
                                       sheet_selection = "Pre-1855_Extrap" )
+
+#   IEA fishing FLOW
+    IEA_fishing_FLOW <- "FISHING"
 
 # -----------------------------------------------------------------------------------------
 # 2. Clean exogenous reported shipping data
@@ -94,7 +97,7 @@
         dplyr::select( -agg_sector, -agg_fuel ) %>%
         dplyr::rename( sector = CEDS_sector, fuel = CEDS_fuel ) %>%
         dplyr::mutate( units = "kt" ) %>%
-        dplyr::select( iso, sector, fuel, units, X_extended_years )
+        dplyr::select( iso, sector, fuel, units, all_of(X_extended_years) )
 
     CEDS_shipping_fuel <- CEDS_clean %>%
         dplyr::select( -iso ) %>%
@@ -103,7 +106,7 @@
                        sector %in% c( "1A3di_International-shipping", "1A3dii_Domestic-navigation" ) ) %>%
         dplyr::mutate( sector = "shipping_fuel" ) %>%
         dplyr::group_by( sector, fuel, units ) %>%
-        dplyr::summarise_all( funs( sum( ., na.rm = TRUE ) ) ) %>%
+        dplyr::summarise_all( list( ~sum( ., na.rm = TRUE ) ) ) %>%
         dplyr::ungroup( ) %>%
         tidyr::gather( year, CEDS_ship_fuel, X_extended_years ) %>%
         dplyr::mutate( year = gsub( "X", "", year ) ) %>%
@@ -118,16 +121,16 @@
         dplyr::rename( product = PRODUCT ) %>%
         dplyr::left_join( IEA_product_fuel, by = "product" ) %>%
         dplyr::filter( !is.na( fuel ),
-                        FLOW == "FISHING") %>%
+                        FLOW == IEA_fishing_FLOW ) %>%
         dplyr::mutate( fuel = if_else( fuel == "brown_coal", "hard_coal", fuel ) ) %>%
         dplyr::filter( fuel %in% c( "hard_coal", "heavy_oil", "diesel_oil" ) ) %>%
         dplyr::select( -product, -cdiac_fuel, -biofuel_flag, -iso ) %>%
         dplyr::group_by( FLOW, fuel ) %>%
-        dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+        dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
         dplyr::ungroup( ) %>%
         dplyr::mutate( sector = "shipping_fuel",
                        units = "kt" ) %>%
-        dplyr::select( sector, fuel, units, X_IEA_years ) %>%
+        dplyr::select( sector, fuel, units, all_of( X_IEA_years ) ) %>%
         tidyr::gather( key = year, value = fishing_fuel_consumption, X_IEA_years ) %>%
         dplyr::mutate( year = gsub( "X", "", year ) ) %>%
         dplyr::mutate( year = as.numeric( year ) )
@@ -286,7 +289,7 @@ if( nrow( combined_shipping_ext %>% dplyr::filter( difference != 0, !is.na( diff
 
         int_shipping_fuel_to_add_with_subtracted_fuel <- int_shipping_fuel_to_add %>%
             dplyr::full_join( int_shipping_to_subtract, by = c( "sector", "year", "fuel", "units" ) ) %>%
-            dplyr::mutate_at( .vars = c( "difference", "diff_to_subtract" ), funs( if_else( is.na( . ), 0, . ) ) ) %>%
+            dplyr::mutate_at( .vars = c( "difference", "diff_to_subtract" ), list( ~ifelse( is.na( . ), 0, . ) ) ) %>%
             dplyr::mutate( consumption_to_add = difference + diff_to_subtract ) %>%
             dplyr::select( -difference, - diff_to_subtract ) %>%
             dplyr::mutate( iso = "global",
@@ -371,7 +374,7 @@ if( nrow( combined_shipping_ext %>% dplyr::filter( difference != 0, !is.na( diff
         dplyr::mutate( iso = "global_sum",
                        sector = "shipping_fuel" ) %>%
         dplyr::group_by( iso, sector, fuel, units ) %>%
-        dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+        dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
         dplyr::ungroup( ) %>%
         tidyr::gather( key = year, value = CEDS_global_sum, X_extended_years ) %>%
         dplyr::mutate( year = gsub( "X", "", year ) ) %>%
@@ -445,10 +448,10 @@ if( nrow( combined_shipping_ext %>% dplyr::filter( difference != 0, !is.na( diff
         dplyr::filter( sector %in% c( "1A3di_International-shipping", "1A3dii_Domestic-navigation" ),
                        fuel %in% c( "brown_coal", "hard_coal", "heavy_oil", "diesel_oil" ) ) %>%
         dplyr::mutate( fuel = if_else( fuel == "brown_coal", "hard_coal", fuel ) ) %>%
-        dplyr::select( iso, sector, fuel, units, X_extended_years ) %>%
+        dplyr::select( iso, sector, fuel, units, all_of(X_extended_years) ) %>%
         dplyr::mutate( iso = "global_sum", sector = "shipping_fuel" ) %>%
         dplyr::group_by( iso, sector, fuel, units ) %>%
-        dplyr::summarise_all( funs( sum( . , na.rm = T ) ) ) %>%
+        dplyr::summarise_all( list( ~sum( . , na.rm = T ) ) ) %>%
         dplyr::ungroup( ) %>%
         tidyr::gather( key = year, value = CEDS_ship_fuel, X_extended_years )
 
@@ -535,7 +538,7 @@ if( nrow( combined_shipping_ext %>% dplyr::filter( difference != 0, !is.na( diff
         dplyr::mutate( fuel = if_else( fuel %in% c( "heavy_oil", "diesel_oil" ), "diesel_and_heavy_oil", fuel ) ) %>%
         dplyr::mutate( fuel = if_else( fuel == "hard_coal", "brown_and_hard_coal", fuel ) ) %>%
         dplyr::group_by( iso, sector, fuel, units, year ) %>%
-        dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+        dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
         dplyr::ungroup( ) %>%
         dplyr::mutate( year = gsub( "X", "", year ),
                        source = "Exogenous_Shipping_Estimate" ) %>%
@@ -551,7 +554,7 @@ if( nrow( combined_shipping_ext %>% dplyr::filter( difference != 0, !is.na( diff
                        year = paste0( "X", year ) ) %>%
         dplyr::mutate( fuel = if_else( fuel %in% c( "heavy_oil", "diesel_oil" ), "diesel_and_heavy_oil", fuel ) ) %>%
         dplyr::group_by( iso, sector, fuel, units, year ) %>%
-        dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+        dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
         dplyr::ungroup( )
 
     CEDS_shipping_data_for_check <- CEDS_final_shipping_activity %>%
@@ -562,7 +565,7 @@ if( nrow( combined_shipping_ext %>% dplyr::filter( difference != 0, !is.na( diff
         dplyr::mutate( iso = "global_sum",
                        sector = "shipping_fuel" ) %>%
         dplyr::group_by( iso, sector, fuel, units ) %>%
-        dplyr::summarise_all( funs( sum( ., na.rm = T ) ) ) %>%
+        dplyr::summarise_all( list( ~sum( ., na.rm = T ) ) ) %>%
         dplyr::ungroup( ) %>%
         tidyr::gather( key = year, value = CEDS_global_sum, X_extended_years )
 

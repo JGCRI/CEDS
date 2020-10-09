@@ -73,7 +73,7 @@
 
         df_clean <- df_in %>%
             dplyr::slice( -( 1:7 ) ) %>%
-            dplyr::mutate_at( GAINS_variable_cols, funs( as.numeric ) ) %>%
+            dplyr::mutate_at( tidyselect::all_of(GAINS_variable_cols), funs( as.numeric ) ) %>%
             tidyr::gather( key = GAINS.sectors, value = s_content, GAINS_variable_cols ) %>%
             dplyr::mutate( s_content_fraction = s_content / 100 ) %>%
             dplyr::select( -s_content )
@@ -122,7 +122,7 @@
         GAINS_activity_fuel_cols <- colnames( gainsenergy_no_sum[ , 4:length( colnames ( gainsenergy_no_sum ) ) ] )
 
         gains_activity_clean <- gainsenergy_no_sum %>%
-            tidyr::gather( key = GAINS.fuel, value = Consumption, GAINS_activity_fuel_cols ) %>%
+            tidyr::gather( key = GAINS.fuel, value = Consumption, all_of(GAINS_activity_fuel_cols) ) %>%
             dplyr::mutate( Consumption = as.numeric( Consumption ) ) %>%
             dplyr::mutate( Consumption = if_else( is.na( Consumption ), 0, Consumption ) ) %>%
 
@@ -322,12 +322,12 @@
     gains_s_content_IND_final_extended <- gains_s_content_IND_final %>%
         dplyr::mutate_at( all_years_before2010, funs( + X2010 ) ) %>%
         dplyr::mutate_at( all_years_after2010, funs( + X2010 ) ) %>%
-        dplyr::select( iso, sector, fuel, units, all_years )
+        dplyr::select( iso, sector, fuel, units, all_of(all_years) )
 
 #   D. Combine EU and India data
     gains_s_content_final <- dplyr::bind_rows(gains_s_content_EU_final,
                                               gains_s_content_IND_final_extended) %>%
-        dplyr::select( iso, sector, fuel, units, all_years )
+        dplyr::select( iso, sector, fuel, units, all_of(all_years) )
 
 # -------------------------------------------------------------------------------
 

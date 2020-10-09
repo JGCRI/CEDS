@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------
-# CEDS R header file: global settings
+# CEDS R header file: global_settings.R
 # Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Rachel Hoesly, Huong Nguyen
-# Last Updated: 23 December 2019
+# Last Updated: February 14, 2020
 #
 # Provides global variables and necessary system settings. This file must be
 # sourced by all CEDS R scripts, before any other sourced files.
@@ -26,7 +26,7 @@ loadPackage <- function( pName, versions = NULL ) {
 libs <- c( dplyr = "0.7.6", ggplot2 = "3.0.0", gridExtra = "2.2.1",
            magrittr = "1.5", plyr = "1.8.4", readxl = "1.0.0",
            reshape = "0.8.6", stringr = "1.1.0", tidyr = "0.8.1",
-           openxlsx = "4.0.0", XML = "3.98-1.5", zoo = "1.7-14" )
+           openxlsx = "4.0.0", zoo = "1.7-14" )
 
 lapply(names(libs), loadPackage, libs)
 
@@ -57,10 +57,8 @@ GRIDDING_VERSION        <- as.character( Sys.Date() )
 
 SUPPORTED_SPECIES       <- c( 'BC', 'CH4', 'CO', 'CO2', 'NH3', 'NMVOC', 'NOx', 'OC', 'SO2', 'NONE' ) # Note that 'NONE' is a supported em,
                                                                                                      # as this allows the user to make activity data.
-PROPRIETARY_FILES       <- c( 'OECD_E_Stat.csv', 'NonOECD_E_Stat.csv',
-                              'OECD_Conversion_Factors_Full.csv', 'NonOECD_Conversion_Factors_Full.csv',
-                              'OECD_Conversion_Factors.csv', 'NonOECD_Conversion_Factors.csv' )
-
+PROPRIETARY_FILES       <- c( 'OECD_and_NonOECD_E_Stat.csv',
+                              'OECD_and_NonOECD_Conversion_Factors_Full.csv' )
 
 # -----------------------------------------------------------------------------
 # Logical Check - Options
@@ -86,7 +84,9 @@ VERBOSE <- TRUE
 #follow the instruction in the next comment
 
 # User should uncomment the following line if he/she has a specific cedsUserVersionNumber to use
-options(cedsUserVersionNumber = "v_2020_1_13")
+  options(cedsUserVersionNumber = "v_2020_9_11") # Comment out to get dynamic version number
+                                                 # (automatically sets the version tag to the
+                                                 # date of the CEDS run)
 
 getcedsVersionNumber <- function( ) {
 

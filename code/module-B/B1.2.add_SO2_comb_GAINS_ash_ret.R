@@ -82,7 +82,7 @@
         GAINS_variable_cols <- colnames( gainsash_ret[ , 4:length( colnames ( gainsash_ret ) ) ] )
 
         gainsash_ret_out <- gainsash_ret %>%
-             tidyr::gather( key = variable, value = value, GAINS_variable_cols ) %>%
+             tidyr::gather( key = variable, value = value, all_of(GAINS_variable_cols) ) %>%
 
 #       Get rid of "SUM" fuels and rename columns
              dplyr::filter( fuel != "SUM" ) %>%
@@ -127,7 +127,7 @@
         GAINS_activity_fuel_cols <- colnames( gainsenergy_no_sum[ , 4:length( colnames ( gainsenergy_no_sum ) ) ] )
 
         gains_activity_clean <- gainsenergy_no_sum %>%
-            tidyr::gather( key = GAINS.fuel, value = Consumption, GAINS_activity_fuel_cols ) %>%
+            tidyr::gather( key = GAINS.fuel, value = Consumption, all_of(GAINS_activity_fuel_cols) ) %>%
             dplyr::mutate( Consumption = as.numeric( Consumption ) ) %>%
             dplyr::mutate( Consumption = if_else( is.na( Consumption ), 0, Consumption ) ) %>%
 
@@ -331,12 +331,12 @@
         gainsash_ret_final_IND_extended <- gainsash_ret_final_IND %>%
             dplyr::mutate_at( all_years_before2010, funs( + X2010 ) ) %>%
             dplyr::mutate_at( all_years_after2010, funs( + X2010 ) ) %>%
-            dplyr::select( iso, sector, fuel, units, all_years )
+            dplyr::select( iso, sector, fuel, units, all_of(all_years) )
 
 
 #   C.) Combine EU and India data
     gainsash_ret_mapped_final <- dplyr::bind_rows(gainsash_ret_final_EU, gainsash_ret_final_IND_extended) %>%
-        dplyr::select( iso, sector, fuel, units, all_years )
+        dplyr::select( iso, sector, fuel, units, all_of(all_years) )
 
 # -------------------------------------------------------------------------------
 # 4. Output

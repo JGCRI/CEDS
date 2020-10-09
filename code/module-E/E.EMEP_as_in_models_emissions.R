@@ -21,18 +21,18 @@
     headers <- c( "data_functions.R", "analysis_functions.R" ) # Any additional function files required
     log_msg <- "Initial reformatting of the EMEP as-in-models Emissions" # First message to be printed to the log
     script_name <- "E.EMEP_as_in_models_emissions.R"
-    
+
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
-    
+
     args_from_makefile <- commandArgs( TRUE )
     em <<- args_from_makefile[1]
     if ( is.na( em ) ) em <- "SO2"
-    
+
 # -----------------------------------------------------------------------------------------------------------
 # 0.5 Settings/Load Files & Convert all txt files to csv
 #     Logging does not support txt files, so convert to csv
-    
+
     MCL <- readData( "MAPPINGS", "Master_Country_List" )
     loadPackage( 'tools' )
 
@@ -45,21 +45,21 @@
 
 # Create a List of EMEP Files
     inv_file_name <- paste0( 'EMEP_SNAP_' , em.read, "_As-in-models", ".txt" )
-  
+
 # Function used to read in list of txt files
-    inv <- read.table( paste0( './emissions-inventories/EMEP/', inv_file_name ), 
-                       skip = 0, header = FALSE, sep = ";",  
+    inv <- read.table( paste0( './emissions-inventories/EMEP/', inv_file_name ),
+                       skip = 0, header = FALSE, sep = ";",
                        na.strings = c( "", " ", "NA" ) ) # Converts all blank spaces to 'NA'
-    names( inv ) <- c( 'ISO2', "year", "sector", "emission_species", 
+    names( inv ) <- c( 'ISO2', "year", "sector", "emission_species",
                        "units", "emissions" )
 
 # Writes each object as same format, but converted to a csv file
-    writeData( inv , 'EM_INV', domain_extension = "EMEP/", 
+    writeData( inv , 'EM_INV', domain_extension = "EMEP/",
                fn = paste0('EMEP_SNAP_', em.read, "_As-in-models"),
                meta = TRUE )
 # -----------------------------------------------------------------------------------------------------------
 # 1. Read in files
-  
+
 # EMEP inventory
     EMEP <- readData( 'EM_INV', domain_extension = "EMEP/",
                       paste0( 'EMEP_SNAP_', em.read, "_As-in-models" ) )
@@ -76,7 +76,7 @@
     EMEP_em <- EMEP_em[ order( EMEP_em$ISO2, EMEP_em$sector ), ]
 
 # Remove Data (Interested in countries, not 'Areas')
-    remove_ISO2 <- c( "AOE", "ARE", "ARO", "ASE", "ASM", "ATL", "ATX", 
+    remove_ISO2 <- c( "AOE", "ARE", "ARO", "ASE", "ASM", "ATL", "ATX",
                       "BAS", "BLS", "CAS", "FFR", "FGD", "KZE", "MED",
                       "NAT", "NOA", "NOS", "RFE", "RUA", "RUO", "RUP",
                       "RUR", "RUX", "TME", "TMO", "UZE", "UZO", "VOL" )
@@ -96,7 +96,7 @@
     EMEP_em <- EMEP_em[ complete.cases( EMEP_em ), ]
 
 # Cast to wide format
-    EMEP_emdf <- cast( EMEP_em, iso + sector + units ~ year, 
+    EMEP_emdf <- cast( EMEP_em, iso + sector + units ~ year,
                        value = "emissions" )
 
 # Relabel units from Gg to kt (same numerical value, different label)
@@ -105,9 +105,9 @@
 # ------------------------------------------------------------------------------
 # 3. Intermediate Output
 
-# Write Data: 
-    writeData( EMEP_emdf, domain = "MED_OUT", 
-               fn = paste0( "E.", em, "_EMEP_as-in-models_inventory" ), 
+# Write Data:
+    writeData( EMEP_emdf, domain = "MED_OUT",
+               fn = paste0( "E.", em, "_EMEP_as-in-models_inventory" ),
                meta = TRUE )
 
 # Every script should finish with this line-

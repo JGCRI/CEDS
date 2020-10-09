@@ -61,8 +61,8 @@
     # Read in BP energy data
     printLog( c("Reading in BP energy consumption data."))
     bp_oil_full <- bp_energy_data[[ getBPSheetNumber( "oil", "consumption", "tonnes", bp_energy_data ) ]]
-    bp_gas_full <- bp_energy_data[[ getBPSheetNumber( "gas", "consumption", "mtoe", bp_energy_data ) ]]
-    bp_coal_full <- bp_energy_data[[ getBPSheetNumber( "coal", "consumption", "mtoe", bp_energy_data ) ]]
+    bp_gas_full <- bp_energy_data[[ getBPSheetNumber( "gas", "consumption", "EJ", bp_energy_data ) ]]
+    bp_coal_full <- bp_energy_data[[ getBPSheetNumber( "coal", "consumption", "EJ", bp_energy_data ) ]]
 
 # Check input data for proper sector and fuel names
     sectorCheck( iea_data_full )
@@ -111,6 +111,9 @@
 
 # Combine needed IEA and BP data, matching by country
     iea_data_bpname <- addCols( iea_data, ctry_mapping, "BPName", "iso" )
+    # TODO: The above mapping code is sensitive to the other of isos within the Master Country List (MCL) file.
+    #       If there is a duplicated iso in the MCL, then the above line will select the first mapping row from the MCL.
+    #       This can cause issues, and should be written in a more robust way.
     bp_drivers   <- list( oil_fuels, gas_fuels, coal_fuels )
     iea_data_agg <- list()
     iea_bp_data  <- list()
@@ -328,7 +331,7 @@
 # Read production data
     bp_coal_prod <- bp_energy_data[[ getBPSheetNumber( "coal", "production", "tonnes", bp_energy_data ) ]]
     bp_oil_prod  <- bp_energy_data[[ getBPSheetNumber( "oil", "production", "tonnes", bp_energy_data ) ]]
-    bp_gas_prod  <- bp_energy_data[[ getBPSheetNumber( "gas", "production", "mtoe", bp_energy_data ) ]]
+    bp_gas_prod  <- bp_energy_data[[ getBPSheetNumber( "gas", "production", "EJ", bp_energy_data ) ]]
 
 # Select world total data from the data sheets
     bp_coal_prod_tot <- na.omit( bp_coal_prod[ bp_coal_prod[ ,1] ==

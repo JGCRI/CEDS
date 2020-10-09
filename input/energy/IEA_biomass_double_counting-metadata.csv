@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
+Energy Consumption,NA,Global,Residential,1960,2013,Residential biomass consumption double counting diagnostic. Utilized to decide which iso + year combinations need to have their adjustment to residential biomass consumption subtracted from IEA's other (ONONSPEC) biomass consumption. Created from A2.2.IEA_biomass_fix.R's  A.IEA_biomass_double_counting.csv diagnostic output file.

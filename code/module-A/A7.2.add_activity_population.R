@@ -51,6 +51,7 @@ population <- cast( un_pop[which ( un_pop$year %in% historical_pre_extension_yea
 
   ratio_year <- unique(drivers[,'ext_end_year'])
   ext_start_year <- unique(drivers[,'ext_start_year'])
+  # TODO - ext_start_year has two unique values. This is likely not operating as intended
   extension_years <- paste0('X',ext_start_year:ratio_year)
 
 
