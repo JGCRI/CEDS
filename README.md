@@ -11,7 +11,7 @@ For details on this release see:
 * See the [release notes](https://github.com/JGCRI/CEDS/wiki/Release-Notes) for a summary of changes and notes on **known issues** with this dataset that are currently being addressed.
 * [Graphs of emission differences](./documentation/Version_comparison_figures_v_2020_09_11_vs_v_2019_12_23.pdf) between this version and the previous December 2019 CEDS data release. 
 * [Graphs of emission differences](./documentation/Version_comparison_figures_v_2020_09_11_vs_v_2016_07_16(CMIP6).pdf) between this version and the CEDS CMIP6 data release documented in Hoesly et al (2018a). 
-* Emissions by country and sector, archived [here](https://zenodo.org/deposit/4025316).
+* Emissions by country and sector, archived [here](https://zenodo.org/record/4025316).
 
 We encourage assessment of and comments on this pre-release data. The best way to comment on the data is through the [CEDS Issues](https://github.com/JGCRI/CEDS/issues) page. A full release is in progress for fall 2020 and will incorporate as many comments as possible.
 
