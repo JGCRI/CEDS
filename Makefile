@@ -719,8 +719,9 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv: \
 	$(MAPPINGS)/Master_Country_List.csv \
 	$(MED_OUT)/A.NC_activity.csv \
 	$(MED_OUT)/E.$(EM)_ARG_inventory.csv \
-	$(MED_OUT)/E.$(EM)_CAN_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CAN_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CAN_2018_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_2018_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \
@@ -811,13 +812,18 @@ $(MED_OUT)/E.$(EM)_ARG_inventory.csv: \
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
+$(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv: \
+	$(MOD_E)/E.CAN_emissions_olderData.R
+	Rscript $< $(EM) --nosave --no-restore
+
+# ee1-2
 $(MED_OUT)/E.$(EM)_CAN_inventory.csv: \
 	$(MOD_E)/E.CAN_emissions_newerData.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
-$(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv: \
-	$(MOD_E)/E.CAN_emissions_olderData.R
+$(MED_OUT)/E.$(EM)_CAN_2018_inventory.csv: \
+	$(MOD_E)/E.CAN_emissions_2018.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
@@ -867,6 +873,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MOD_F)/F1.1.Argentina_scaling.R \
 	$(MOD_F)/F1.1.CAN_scaling_olderData.R \
 	$(MOD_F)/F1.1.CAN_scaling_newerData.R \
+	$(MOD_F)/F1.1.CAN_scaling_2018.R \
 	$(MOD_F)/F1.1.China_scaling.R \
 	$(MOD_F)/F1.1.China_MEIC_2018_scaling.R \
 	$(MOD_F)/F1.1.Edgar_scaling.R \
@@ -883,8 +890,9 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MOD_F)/F1.1.Taiwan_scaling.R \
 	$(PARAMS)/emissions_scaling_functions.R \
 	$(MED_OUT)/E.$(EM)_ARG_inventory.csv \
-	$(MED_OUT)/E.$(EM)_CAN_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CAN_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CAN_2018_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_2018_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \
@@ -899,6 +907,9 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_TWN_inventory.csv \
 	$(SC_MAPPINGS)/Argentina_scaling_mapping.csv \
 	$(SC_MAPPINGS)/CAN_scaling_mapping.csv \
+	$(SC_MAPPINGS)/CAN_NOx_scaling_mapping.csv \
+	$(SC_MAPPINGS)/CAN_2018_scaling_mapping.csv \
+	$(SC_MAPPINGS)/CAN_2018_NOx_scaling_mapping.csv \
 	$(SC_MAPPINGS)/MEIC_scaling_mapping.csv \
 	$(SC_MAPPINGS)/MEIC_2018_scaling_mapping.csv \
 	$(SC_MAPPINGS)/Edgar_scaling_mapping.csv \
