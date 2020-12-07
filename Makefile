@@ -692,7 +692,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv: \
 	$(MOD_C)/C1.2.add_N2O_NC_emissions_FAO.R\
 	$(MOD_C)/C1.2.ECLIPSE_flaring_emissions_extension.R \
 	$(MOD_C)/C1.2.Fugitive-petr-and-gas_default_process_emissions.R \
-	$(MOD_C)/C1.2.add_CO2_NC_emissions_CDIAC.R \
+	$(MOD_C)/C1.2.add_CO2_NC_emissions_Andrew.R \
 	$(MAPPINGS)/NC_EDGAR_sector_mapping.csv \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
@@ -703,6 +703,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv: \
 	$(PARAMS)/process_db_functions.R \
 	$(MAPPINGS)/sector_input_mapping.xlsx \
 	$(ACTIV)/Process_SO2_Emissions_to_2005.xlsx \
+	$(MED_OUT)/E.CO2_Andrew_Cement.csv \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
@@ -798,6 +799,12 @@ $(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv: \
 # ee1-2
 $(MED_OUT)/E.CO2_CDIAC_inventory.csv: \
 	$(MOD_E)/E.CDIAC_emissions.R \
+	$(MED_OUT)/A.UN_pop_master.csv
+	Rscript $< $(EM) --nosave --no-restore
+	
+# ee1-2
+$(MED_OUT)/E.CO2_Andrew_Cement.csv: \
+	$(MOD_E)/E.Andrew_emissions.R \
 	$(MED_OUT)/A.UN_pop_master.csv
 	Rscript $< $(EM) --nosave --no-restore
 

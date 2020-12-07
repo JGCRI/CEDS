@@ -88,9 +88,9 @@ if( em == "N2O" ){
     scripts <- c( scripts, "C1.2.add_N2O_NC_emissions_FAO.R" )
 }
 
-# Add CDIAC for CO2
+# Add Andrew for CO2
 if( em == "CO2" ){
-  scripts <- c( scripts, "C1.2.add_CO2_NC_emissions_CDIAC.R" )
+  scripts <- c( scripts, "C1.2.add_CO2_NC_emissions_Andrew.R" )
 }
 
 

@@ -315,8 +315,8 @@ sector,fuel,em,method,start_year,end_year,file_name,domain,domain_extension,conv
 1B2b_Fugitive-NG-prod,process,all,constant,1750,1969,,,,,
 1B2b_Fugitive-NG-distr,process,all,constant,1750,1969,,,,,
 1B2d_Fugitive-other-energy,process,all,constant,1750,1969,,,,,
-2A1_Cement-production,process,all,Emissions-trend,1750,1969,E.CO2_CDIAC_Cement,MED_OUT,,,
-2A2_Lime-production,process,all,Emissions-trend,1750,1969,E.CO2_CDIAC_Cement,MED_OUT,,,
+2A1_Cement-production,process,all,Emissions-trend,1750,1969,E.CO2_Andrew_Cement,MED_OUT,,,
+2A2_Lime-production,process,all,Emissions-trend,1750,1969,E.CO2_Andrew_Cement,MED_OUT,,,
 2A6_Other-minerals,process,all,EF-converge,1750,1969,,,,1850,0
 2B_Chemical-industry,process,all,constant,1750,1969,,,,,
 2B2_Chemicals-Nitric-acid,process,all,constant,1941,1969,,,,,
