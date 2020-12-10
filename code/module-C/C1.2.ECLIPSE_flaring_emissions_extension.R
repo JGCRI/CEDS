@@ -152,6 +152,11 @@ if( em == "N2O" ){
     mcl_bp <- mcl[ mcl$BPName_Oil_production %in% BP_countries, c( 'iso', 'BPName_Oil_production' ) ]
     mcl_bp <- mcl_bp[ !duplicated( mcl_bp ), ]
 
+    # Convert isos in BPName_Oil_production column to lower case to ensure a robust merge
+    BP_data$BPName_Oil_production <- tolower(BP_data$BPName_Oil_production)
+    mcl_bp$BPName_Oil_production <- tolower(mcl_bp$BPName_Oil_production)
+
+    # TODO - if this merge is done in other places maybe write a helper function that does this
     BP_merge <- merge( BP_data, mcl_bp, by = c( "BPName_Oil_production" ), all.y = T )
     BP_merge[ BP_merge == 'n/a' ] <- 0
     BP_oil <- BP_merge[ , c( 'iso', BP_Xyears ) ]
