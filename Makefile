@@ -468,6 +468,7 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 	$(MOD_A)/A5.2.add_NC_activity_gdp.R \
 	$(MOD_A)/A5.2.add_NC_activity_population.R \
 	$(MOD_A)/A5.2.add_NC_activity_energy.R \
+	$(MOD_A)/A5.2.add_NC_activity_fossil_fuel_production.R \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
 	$(PARAMS)/IO_functions.R \
@@ -477,11 +478,14 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 	$(PARAMS)/process_db_functions.R \
 	$(MAPPINGS)/activity_input_mapping.csv \
 	$(MED_OUT)/A.other_IEA_energy_values.csv \
+	$(MED_OUT)/A.en_stat_sector_fuel.csv \
 	$(MAPPINGS)/NC_EDGAR_sector_mapping.csv \
 	$(MAPPINGS)/2011_NC_SO2_ctry.csv \
+	$(MAPPINGS)/Master_Country_List.csv \
 	$(ACTIV)/Smelter-Feedstock-Sulfur.xlsx \
 	$(ACTIV)/Wood_Pulp_Consumption.xlsx \
-	$(ACTIV)/GDP.xlsx
+	$(ACTIV)/GDP.xlsx \
+	$(ENERGY_DATA)/oil_1800-1990.xls
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
@@ -489,10 +493,11 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 	Rscript $(word 5,$^) $(EM) --nosave --no-restore
 	Rscript $(word 6,$^) $(EM) --nosave --no-restore
 	Rscript $(word 7,$^) $(EM) --nosave --no-restore
+	Rscript $(word 8,$^) $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.pulp_paper_consumption_full.csv: \
 	$(MED_OUT)/A.NC_activity_db.csv
-
+	
 # aa5-2a
 # Make non-combustion activity data
 $(MED_OUT)/A.NC_activity.csv: \
@@ -567,9 +572,11 @@ $(MED_OUT)/A.NC_activity_extended_db.csv: \
 	$(MOD_A)/A7.2.add_activity_CDIAC.R \
 	$(MOD_A)/A7.2.add_activity_population.R \
 	$(MOD_A)/A7.2.add_activity_pulp_paper_consumption.R \
+	$(MOD_A)/A7.2.add_activity_fossil_fuel_production.R \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
 	$(MED_OUT)/A.pulp_paper_consumption_full.csv \
 	$(MED_OUT)/A.NC_activity.csv \
+	$(MED_OUT)/A.crude_oil_production_driver_data.csv \
 	$(EXT_IN)/CEDS_historical_extension_drivers_activity.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore

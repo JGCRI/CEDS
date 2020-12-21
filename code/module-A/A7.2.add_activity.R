@@ -82,7 +82,8 @@ printLog('Running add_activity scripts to extend activity data')
 
   scripts <- c( "A7.2.add_activity_population.R",
                 "A7.2.add_activity_pulp_paper_consumption.R",
-                "A7.2.add_activity_CDIAC.R")
+                "A7.2.add_activity_CDIAC.R",
+                "A7.2.add_activity_fossil_fuel_production.R")
 
 
 # Run all child scripts for the given emissions type. The call to
