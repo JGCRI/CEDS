@@ -1,10 +1,10 @@
 # ------------------------------------------------------------------------------
 # Program Name: A7.2.add_activity_fossil_fuel_production.R
 # Author: Linh Vu
-# Date Last Modified: 28 June 2016
-# Program Purpose: Extend CEDS activity backward with pulp and paper consumption data
+# Date Last Modified: December 21, 2020
+# Program Purpose: Extend CEDS activity backward with fossil fuel data
 # Input Files:  A.NC_activity_extended_db.csv, CEDS_historical_extension_drivers_activity.csv,
-#               A.pulp_paper_consumption_full.csv
+#               A.crude_oil_production_driver_data.csv
 # Output Files: A.NC_activity_extended_db.csv
 # TODO:
 # ---------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R","process_db_functions.R") # Additional function files may be required.
-log_msg <- "Extending CEDS activity_data before 1961 with pulp and paper consumption data" # First message to be printed to the log
+log_msg <- "Extending CEDS activity_data with fossil fuel consumption data" # First message to be printed to the log
 script_name <- "A7.2.add_activity_fossil_fuel_production.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
@@ -54,10 +54,10 @@ op <- oil_production[, c( op_id_cols, paste0("X", historical_pre_extension_year:
   sectors <- drivers[, c('sector','fuel') ]
   sectors <- paste(sectors$sector,sectors$fuel,sep='-')
 
-  # select ceds data to extend
+  # select CEDS data to extend
   ceds_extension <- activity[ which( paste(activity$sector, activity$fuel, sep="-") %in% sectors  ) , ]
 
-  # add pulp and paper
+  # add fossil fuel
   ceds_extension[extension_years] <- op[match(ceds_extension$iso, op$iso)  , extension_years ]
 
   # add to final activity

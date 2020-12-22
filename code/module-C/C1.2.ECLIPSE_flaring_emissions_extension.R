@@ -1,20 +1,17 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.2.ECLIPSE_flaring_emissions_extension.R
 # Author: Leyang Feng, Patrick O'Rourke
-# Date Last Modified: August 12, 2020
-# Program Purpose: Extends ECLIPSE flaring emissions to period 1965 - last BP year using IEA
-#                  and BP crude oil production data
-# Input Files: [em]_eclipse_flr_emissions.csv, A.en_stat_sector_fuel.csv,
-#              [BP_data_file_name].csv, Master_Country_List.csv,
-#              A.UN_pop_master.csv
+# Date Last Modified: December 21, 2020
+# Program Purpose: Extends ECLIPSE flaring emissions using Hyde (last year 1800)
+#                  and IEA crude oil production data
+# Input Files: [em]_eclipse_flr_emissions.csv, A.crude_oil_production_driver_data,
+#              Master_Country_List.csv, A.UN_pop_master.csv
 # Output Files: C.[em]_ECLIPSE_flaring_emissions_extended.csv,
 # "             C.[em]_ECLIPSE_flaring_to_crude_oil_production_ratios.csv (for ems other than N2O)
-# Notes: In section 3.2 the 1970 data are manually 'extended' using 1971 data,
-#        the data to last BP year are manually 'extended' using 2013 data.
 #
 # TODO: 1. About 70 countries in [em]_eclipse_flr_emissions.csv get picked out in the routine
 #          because IEA/BP oil production data does not include those countries. Update when
-#          a more comprehensive database of historical production is availiable, or when BP/IEA
+#          a more comprehensive database of historical production is available, or when BP/IEA
 #          oil production is disaggregated
 #-------------------------------------------------------------------------------
 
@@ -114,13 +111,11 @@ if( em == "N2O" ){
 
 # ------------------------------------------------------------------------------
 # 3. Pre-processing
-# 3.1. pre-processing of BP data
-# 3.1.1 cleaning from raw data
-
+# 3.1. pre-processing of Hyde/IEA data
 
     oil_production_iso <- oil_production$iso
 
-# 3.3. pre-processing of ECLIPSE flaring data
+# 3.2. pre-processing of ECLIPSE flaring data
     flaring <- ECLIPSE_flaring[ c( 'iso', 'X1990', 'X2000', 'X2010' ) ]
     drop_iso_list <- c( )
     for ( row_index in 1 : nrow( flaring ) ) {
@@ -132,7 +127,7 @@ if( em == "N2O" ){
     flaring_iso <- flaring$iso
 
 
-# 3.4. combine countries in IEA/Hyde oil production and ECLIPSE_flaring
+# 3.3. combine countries in IEA/Hyde oil production and ECLIPSE_flaring
 # extract common countries between ECLIPSE flaring and IEA/Hyde crude oil production data
     flr_IH_iso <- intersect( oil_production_iso, flaring_iso )
     flaring_flr_IH_iso <- flaring[ flaring$iso %in% flr_IH_iso, ]
@@ -145,10 +140,10 @@ if( em == "N2O" ){
 
 # ------------------------------------------------------------------------------
 # 4. Extending
-# method: The ECLIPSE flaring only has data for year 1990, 2000, 2010 while the BP/IEA crude oild production has
-#         time series data from 1965 to last BP year. The extending procedure first calculates ratios between
-#         ECLIPSE data and BP/IEA data for avaliable years ( 1990, 2000, 2010 ), then extends the ratios to
-#         all years( 1965 - last BP year ) using linear method and multiply the ratios to BP/IEA data to have
+# method: The ECLIPSE flaring only has data for year 1990, 2000, 2010 while the Hyde/IEA crude oil production has
+#         time series data from 1800 to end_year. The extending procedure first calculates ratios between
+#         ECLIPSE data and Hyde/IEA data for available years ( 1990, 2000, 2010 ), then extends the ratios to
+#         all years( 1800 - end_year ) using linear method and multiply the ratios to Hyde/IEA data to have
 #         full time series data of ECLIPSE flaring.
     flaring_ratio <- data.frame( iso = flaring_eclipse$iso, X1990 = ( flaring_eclipse$X1990 / flaring_IH$X1990 ),
                                     X2000 = ( flaring_eclipse$X2000 / flaring_IH$X2000 ),
