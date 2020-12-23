@@ -33,7 +33,9 @@ oil_production <- readData( "MED_OUT" , 'A.crude_oil_production_driver_data' )
 # ---------------------------------------------------------------------------
 # 2. Select data to extend based on extension drivers
 
-drivers <- extension_drivers_all[which( extension_drivers_all$driver_data_source == 'fossil_fuel_production' ), ]
+# TODO: Code here and below needs to be expaneded to accomidate production data for fuels other than crude oil.
+drivers <- extension_drivers_all[which( extension_drivers_all$driver_data_source == 'fossil_fuel_production' &
+                                        extension_drivers_all$extra_driver_info == 'crude_oil' ), ]
 activity <- activity_all
 
 # ---------------------------------------------------------------------------
@@ -41,7 +43,7 @@ activity <- activity_all
 op_id_cols <- names( oil_production )[ !grepl( "X", names( oil_production ) ) ]
 Hyde_years_extended <- paste0("X", historical_pre_extension_year:(Hyde_start_year-1) )
 oil_production[,Hyde_years_extended] <- 0
-op <- oil_production[, c( op_id_cols, paste0("X", historical_pre_extension_year:end_year ) ) ]
+oil_prod <- oil_production[, c( op_id_cols, paste0("X", historical_pre_extension_year:end_year ) ) ]
 
 
 # ---------------------------------------------------------------------------
@@ -58,7 +60,7 @@ op <- oil_production[, c( op_id_cols, paste0("X", historical_pre_extension_year:
   ceds_extension <- activity[ which( paste(activity$sector, activity$fuel, sep="-") %in% sectors  ) , ]
 
   # add fossil fuel
-  ceds_extension[extension_years] <- op[match(ceds_extension$iso, op$iso)  , extension_years ]
+  ceds_extension[extension_years] <- oil_prod[match(ceds_extension$iso, oil_prod$iso)  , extension_years ]
 
   # add to final activity
   activity <- replaceValueColMatch(activity, ceds_extension,

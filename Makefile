@@ -485,7 +485,7 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 	$(ACTIV)/Smelter-Feedstock-Sulfur.xlsx \
 	$(ACTIV)/Wood_Pulp_Consumption.xlsx \
 	$(ACTIV)/GDP.xlsx \
-	$(ENERGY_DATA)/oil_1800-1990.xls
+	$(ENERGY_DATA)/Hyde_oil_1800-1990.xls
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore

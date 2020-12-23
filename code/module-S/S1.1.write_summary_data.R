@@ -371,4 +371,20 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
 
   }
 
+  source('../code/diagnostic/Compare_to_RCP.R')
+  if( em %!in% c( 'CO2', 'N2O', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')
+
+  # Warn the user about CH4 and N2O extension
+
+  if( em %in% c( 'CH4', 'N2O' ) ){
+
+      warning( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" )
+      warning( "Note that while the system produces extensions of CH4 and N2O emissions back to")
+      warning( "1750, agricutural drivers before 1960 for CH4 and N2O are not yet included in CEDS")
+      warning( "and emissinos for these sectors are extended using population. CEDS emissions are ")
+      warning( "only strictly valid, therefore, after 1960 for these species.")
+      warning( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" )
+
+  }
+
 logStop()

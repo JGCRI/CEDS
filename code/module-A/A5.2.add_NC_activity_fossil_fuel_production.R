@@ -70,7 +70,7 @@ MCL <- readData( domain = 'MAPPINGS', file_name = 'Master_Country_List' )
 en_stat_sector_fuel <- readData( 'MED_OUT', file_name = 'A.en_stat_sector_fuel' )
 
 # Hyde crude oil production data
-oil_1800_1990 <- readData( "ENERGY_IN","oil_1800-1990", ".xls", sheet_selection = "country data" )
+oil_1800_1990 <- readData( "ENERGY_IN","Hyde_oil_1800-1990", ".xls", sheet_selection = "country data" )
 
 # ------------------------------------------------------------------------------
 
@@ -271,7 +271,7 @@ Hyde_IEA_oil <- IEA_oil %>%
     replace(is.na(.), 0)
 
 # Sort and organize
-Hyde_IEA_oil$activity <- "fossil_fuel_production"
+Hyde_IEA_oil$activity <- "crude_oil_production"
 replace <- Hyde_IEA_oil[ , c( 'iso', 'activity', 'units', Hyde_IEA_years_X ) ]
 
 # Calculate average of 1971-1973 from IEA and Hyde to check consistency
