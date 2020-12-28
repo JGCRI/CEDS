@@ -108,10 +108,10 @@ endif
 # specifically to run the system with the new emissions type.
 
 # Note that this is an inefficient method of creating data for multiple species
-# If a multi-processor machine is available, CEDS should be instead run in parellel for multiple species
-all: SO2-emissions BC-emissions OC-emissions NOx-emissions CO-emissions NMVOC-emissions CO2-emissions NH3-emissions CH4-emissions
+# If a multi-processor machine is available, CEDS should be instead run in parallel for multiple species
+all: SO2-emissions BC-emissions OC-emissions NOx-emissions CO-emissions NMVOC-emissions CO2-emissions NH3-emissions CH4-emissions N2O-emissions
 part1: SO2-emissions NOx-emissions NH3-emissions
-part2: BC-emissions OC-emissions CO2-emissions
+part2: BC-emissions OC-emissions CO2-emissions  N2O-emissions
 part3: CO-emissions NMVOC-emissions CH4-emissions
 
 # --------------------------------------------------------------
@@ -122,7 +122,7 @@ clean-all: \
 	clean-modD clean-modE clean-modF clean-modH clean-gridding clean-user_defined_energy
 
 clean-user_defined_energy:
-# Deletes all CSVs in the directory except for:
+# Deletes all CSVs in the directory except for: 
 # 1) CEDS user-defined energy inputs, metadata, and instructions (U.*.csv)
 # 2) Relevant mapping and instructions files for user-defined energy input which require pre-processing for use in CEDS (A.*-instructions.csv, A.*_sector_map.csv, A.*-mapping.xlsx)
 	find $(USER_EN_IN) -name "*.csv" ! -name "U.*.csv" ! -name "A.*-instructions.csv" ! -name "A.*_sector_map.csv" -delete
@@ -181,8 +181,8 @@ clean-modF:
 	rm -fv $(MED_OUT)/F*.csv
 
 clean-modH:
-	rm -fv $(MED_OUT)/H*.csv \
-	rm -fv $(EXT_IN)/extension-data/H*.csv
+	rm -fv $(MED_OUT)/H*.csv
+	find $(EXT_IN) -name "H*.csv" ! -name "H.N2O_7BC_extension-NH3_and_NOx_sectors_1_2*.csv"  -delete
 
 clean-SO2:
 	rm -fv $(MED_OUT)/*SO2*.csv \
@@ -219,6 +219,10 @@ clean-OC:
 clean-BC:
 	rm -fv $(MED_OUT)/*BC*.csv \
 	rm -fv $(EF_DATA)/non-combustion-emissions/C.BC*.csv
+
+clean-N2O:
+	rm -fv $(MED_OUT)/*N2O*.csv \
+	rm -fv $(EF_DATA)/non-combustion-emissions/C.N2O*.csv
 
 clean-gridding:
 	rm -fv $(MED_OUT)/gridded-emissions/*.csv
@@ -642,6 +646,7 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv: \
 	$(MOD_B)/B1.2.add_comb_EF.R \
 	$(MOD_B)/B1.1.base_BCOC_comb_EF.R \
 	$(MOD_B)/B1.1.base_CO2_comb_EF.R \
+	$(MOD_B)/B1.1.base_N2O_comb_EF.R \
 	$(MOD_B)/B1.1.base_OTHER_comb_EF.R \
 	$(MOD_B)/B1.1.base_comb_EF_control_percent.R \
 	$(MOD_B)/B1.1.base_SO2_comb_EF_parameters.R \
@@ -679,10 +684,15 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv: \
 	$(MOD_C)/C1.1.base_NC_emissions.R \
 	$(MOD_C)/C1.2.add_NC_emissions.R \
 	$(MOD_C)/C1.2.add_SO2_NC_emissions_all.R \
+	$(MOD_C)/C1.2.GAINS_fugitive_petr_gas_emissions.R \
 	$(MOD_C)/C1.2.add_NC_emissions_EDGAR.R \
+	$(MOD_C)/C1.2.EPA_adipic_and_nitric_acid.R \
+	$(MOD_C)/C1.2.Adipic_nitric_acid_default_process_emissions.R \
+	$(MOD_C)/C1.2.add_CH4_NC_emissions_FAO.R \
+	$(MOD_C)/C1.2.add_N2O_NC_emissions_FAO.R\
 	$(MOD_C)/C1.2.ECLIPSE_flaring_emissions_extension.R \
 	$(MOD_C)/C1.2.Fugitive-petr-and-gas_default_process_emissions.R \
-	$(MOD_C)/C1.2.add_CO2_NC_emissions_CDIAC.R \
+	$(MOD_C)/C1.2.add_CO2_NC_emissions_Andrew.R \
 	$(MAPPINGS)/NC_EDGAR_sector_mapping.csv \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
@@ -693,6 +703,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv: \
 	$(PARAMS)/process_db_functions.R \
 	$(MAPPINGS)/sector_input_mapping.xlsx \
 	$(ACTIV)/Process_SO2_Emissions_to_2005.xlsx \
+	$(MED_OUT)/E.CO2_Andrew_Cement.csv \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
@@ -719,6 +730,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_Japan_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
+	$(MED_OUT)/E.$(EM)_UNFCCC_inventory_update.csv \
 	$(MED_OUT)/E.$(EM)_US_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US-EPA_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US_GHG_inventory.csv \
@@ -770,6 +782,11 @@ $(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv: \
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
+$(MED_OUT)/E.$(EM)_UNFCCC_inventory_update.csv: \
+	$(MOD_E)/E.UNFCCC_emissions_update.R
+	Rscript $< $(EM) --nosave --no-restore
+
+# ee1-2
 $(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv: \
 	$(MOD_E)/E.EMEP_emissions.R
 	Rscript $< $(EM) NFR09 --nosave --no-restore
@@ -782,6 +799,12 @@ $(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv: \
 # ee1-2
 $(MED_OUT)/E.CO2_CDIAC_inventory.csv: \
 	$(MOD_E)/E.CDIAC_emissions.R \
+	$(MED_OUT)/A.UN_pop_master.csv
+	Rscript $< $(EM) --nosave --no-restore
+	
+# ee1-2
+$(MED_OUT)/E.CO2_Andrew_Cement.csv: \
+	$(MOD_E)/E.Andrew_emissions.R \
 	$(MED_OUT)/A.UN_pop_master.csv
 	Rscript $< $(EM) --nosave --no-restore
 
@@ -990,7 +1013,7 @@ $(MED_OUT)/gridded-emissions/CEDS_$(EM)_anthro_%.csv: \
 	$(PARAMS)/nc_generation_functions.R \
 	$(FINAL_OUT)/current-versions/CEDS_$(EM)_emissions_by_country_CEDS_sector_*.csv
 	Rscript $< $(EM) --nosave --no-restore
-
+	
 ifeq ($(EM),NMVOC)
 	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC01 --nosave --no-restore
 	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC02 --nosave --no-restore

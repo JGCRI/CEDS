@@ -31,7 +31,9 @@ CEDS_working_sector,VOC_ratio_sectors
 1A4c_Agriculture-forestry-fishing,RCOO
 1A5_Other-unspecified,INDC
 1B1_Fugitive-solid-fuels,ETRN
-1B2_Fugitive-petr-and-gas,FLR
+1B2_Fugitive-petr,FLR
+1B2b_Fugitive-NG-prod,FLR
+1B2b_Fugitive-NG-distr,FLR
 1B2d_Fugitive-other-energy,ETRN
 2A1_Cement-production,INPU
 2A2_Lime-production,INPU

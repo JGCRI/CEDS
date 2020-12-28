@@ -22,12 +22,17 @@ X_IEA_years <- paste0( "X", IEA_years) # Set of IEA Xyears being utilized
 
 # USER SET DATA - Set this to the last year of the BP data used
 # The set of years for the BP data extendForwards further, and is used to augment the IEA.
-BP_last_year <- 2019 # Last years for BP data
+BP_last_year <- 2019
 
 # USER SET DATA - Set this to point to the name of the BP statisical data, which should be
 # Located in the inputs/energy folder
 BP_data_file_name <- "bp-stats-review-2020-all-data"
 # NOTE - Need to also change this file name in the makefile
+
+# The actual last year of data provided in the BP energy data. User need to set an additional value for this object if
+# they are utilizing a BP_data_file_name not listed below:
+if( BP_data_file_name == "BP_energy_data.xlsx" ){ BP_actual_last_year <- 2014}
+if( BP_data_file_name == "bp-stats-review-2020-all-data" ){ BP_actual_last_year <- 2019}
 
 BP_first_year <- IEA_end_year + 1 # First year for BP only data
 BP_years <- BP_first_year : BP_last_year # The years for which there is only BP data
@@ -69,6 +74,10 @@ X_bond_years <- paste0('X', bond_years)
 cdiac_start_year <- 1750
 cdiac_end_year <- 2011
 cdiac_end_year_cement <- 2015
+
+# Andrew cement years
+Andrew_start_year <- 1900
+Andrew_end_year <- 2018
 
 # Fernandes years
 Fernandes_years <- 1850 : 2000
@@ -122,7 +131,7 @@ conversionFactor_biomass_kt_TJ <- 13.84  # Units = TJ/kt = MJ/kg Biomass - For k
 # Wood Fuels Handbook - FAO (Krajnc 2015)
 
 # GAINS defaults (MJ-net/kg):
- GAINS_conversionFactor_fuelwood_MJ_per_kg <- 17.6
+GAINS_conversionFactor_fuelwood_MJ_per_kg <- 17.6
 # GAINS_conversionFactor_dung_MJ_per_kg <- 13.1
 # GAINS_conversionFactor_agricultural_residues_MJ_per_kg <- 14.6
 # GAINS_conversionFactor_charcoal_MJ_per_kg - 25.7
@@ -142,3 +151,8 @@ GJ_per_tonneOilEquivalent <- 42.0 # GJ
 tBtu_to_TJ <- 0.94782 * 10^3 # Trillion Btu -> GJ. Unit definition of BTU
 
 conversionFactor_C_CO2 <- 3.664  # multiply C to get CO2
+
+# TJ per Million tonnes of oil equivalent (Mtoe) --> TJ/Mtoe
+# Source: IEA Energy Statistics of OECD Countries: Beyond 2020 Documentation (2014 edition), pg. 61
+# Note: Multiply Mtoe by conversion factor below to get TJ
+conversionFactor_TJ_per_Mtoe <- 4.1868 * (10^4)

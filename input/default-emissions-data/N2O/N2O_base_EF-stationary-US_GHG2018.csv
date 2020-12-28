@@ -1,0 +1,24 @@
+Table A-89:  CH4 and N2O Emission Factors by Fuel Type and Sector (g/GJ)a,,
+Fuel/End-Use Sector,CH4,N2O
+Coal,,
+Residential,300,1.5
+Commercial,10,1.5
+Industrial,10,1.5
+U.S. Territories,1,1.5
+Petroleum,,
+Residential,10,0.6
+Commercial,10,0.6
+Industrial,3,0.6
+U.S. Territories,5,0.6
+Natural Gas,,
+Residential,5,0.1
+Commercial,5,0.1
+Industrial,1,0.1
+U.S. Territories,1,0.1
+Wood,,
+Residential,300,4
+Commercial,300,4
+Industrial,30,4
+U.S. Territories,NA,NA
+NA (Not Applicable),,
+a GJ (Gigajoule) = 109 joules. One joule = 9.486×10-4 Btu.,,

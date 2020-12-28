@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------------
 # Program Name: B1.1.CO2_biofuels_EF.R
-# Author's Name: Patrick O'Rourke, Rachel Hoesly
+# Author's Name: Rachel Hoesly, Patrick O'Rourke
 # Date Last Modified: April 25, 2020
 # Program Purpose: This file processes CO2 biofuel combustion emissions factors
 #                  and removes the fraction of liquid and gas biofuels from EFs

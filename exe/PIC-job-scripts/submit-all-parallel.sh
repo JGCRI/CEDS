@@ -15,10 +15,11 @@ BCid=$(sbatch --parsable --dependency=afterok:$actid make-BC.sh)
 OCid=$(sbatch --parsable --dependency=afterok:$actid make-OC.sh)
 CH4id=$(sbatch --parsable --dependency=afterok:$actid make-CH4.sh)
 CO2id=$(sbatch --parsable --dependency=afterok:$actid make-CO2.sh)
+N2Oid=$(sbatch --parsable --dependency=afterok:$actid make-N2O.sh)
 
 # Do the non-parallel stuff only after all species have finished 
 # without erroring
-sbatch --dependency=afterok:$SO2id:$NOxid:$NMVOCid:$NH3id:$COid:$BCid:$OCid:$CH4id:$CO2id ./summary-script.sh 
+sbatch --dependency=afterok:$SO2id:$NOxid:$NMVOCid:$NH3id:$COid:$BCid:$OCid:$CH4id:$CO2id:$N2Oid ./summary-script.sh 
 
 # show dependencies in squeue output:
 squeue -u $USER -a -o "%.5a %.10l %.6D %.6t %N %.40E"

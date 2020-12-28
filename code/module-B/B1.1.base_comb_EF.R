@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: B1.1.base_comb_EF.R
 # Author: Jon Seibert, Rachel Hoesly
-# Date Last Updated: June 29, 2020
+# Date Last Updated: July 16, 2020
 # Program Purpose: To select and run the correct script(s) to generate the base combustion
 #                  emissions factors database for the given emissions type.
 # Input Files: None
@@ -28,7 +28,7 @@
 
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "OC"
+    if ( is.na( em ) ) em <- "N2O"
 
 # ------------------------------------------------------------------------------------
 # 1. Initialize parameters and functions
@@ -54,7 +54,7 @@
 
 # Set scripts to generate species-specific base emission factors
     if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'BC', 'OC',
-                    'CO', 'CH4', 'CO2', 'NH3', 'CO2' ) ) {
+                    'CO', 'CH4', 'CO2', 'NH3', 'CO2', "N2O" ) ) {
         if( em == "SO2" ) {
             scripts <- c( scripts, "B1.1.base_SO2_comb_EF_parameters.R" )
         } else if ( em == "BC" ) {
@@ -66,6 +66,8 @@
         } else if ( em == "CO2" ) {
             scripts <- c( scripts, "B1.1.base_CO2_comb_EF.R",
                                    "B1.1.CO2_biofuels_EF.R" )
+        } else if ( em == "N2O" ) {
+            scripts <- c( scripts, "B1.1.base_N2O_comb_EF.R")
         } else {
         # B1.1.base_OTHER_comb_EF.R processes GAINS EMF-30 efs for base emissions
         # other than BC/OC, CO2, NH3, and SO2 (only runs for CH4, CO, NMVOC, NOx).

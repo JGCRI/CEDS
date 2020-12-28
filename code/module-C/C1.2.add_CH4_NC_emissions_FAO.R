@@ -44,7 +44,11 @@
 # -----------------------------------------------------------------------------
 # 3. Process FAO methane data
 
+# Remove countries with limited or inconsistent data, use default instead
+fao_data_remove <- c(22) # arb has only one datapoint, so stay with EDGAR default
+
 FAO <- FAO_API %>%
+       filter( FAOST_CODE %!in% fao_data_remove) %>%
        left_join(MCL[c('iso','FAO_Country_Code')], by = c('FAOST_CODE' = 'FAO_Country_Code')) %>%
        select(-FAOST_CODE) %>%
        melt(id.vars = c('iso','Year')) %>%
@@ -121,7 +125,7 @@ FAO <- FAO_API %>%
   FAO_last <- max( as.numeric ( gsub('X','',names ( FAO_out ) ) ), na.rm = T )
   years <- paste0('X',1961:end_year)
   add_years <- years[ years %!in% names( FAO_out ) ]
-  FAO_out[ add_years ] <- FAO_out[ paste0('X', FAO_last ) ] 
+  FAO_out[ add_years ] <- FAO_out[ paste0('X', FAO_last ) ]
 
   FAO_out <- FAO_out %>%
     dplyr::mutate(units = 'kt') %>%

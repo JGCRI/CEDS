@@ -212,12 +212,16 @@ sector,fuel,driver_data_source,extra_driver_info,ext_start_year,ext_end_year,Not
 1A5_Other-unspecified,natural_gas,,,,,*Extended with H.1.add_total_natural_gas. Does not use extention activity driver file to select activities to extend
 1A1bc_Other-transformation,process,population,,1750,1965,
 1B1_Fugitive-solid-fuels,process,population,,1750,1965,
-1B2_Fugitive-petr-and-gas,process,CDIAC,liquid_and_gas_fuels,1750,1970,
+1B2_Fugitive-petr,process,CDIAC,liquid_fuels,1750,1970,
+1B2b_Fugitive-NG-prod,process,CDIAC,gas_fuels,1750,1970,
+1B2b_Fugitive-NG-distr,process,CDIAC,gas_fuels,1750,1970,
 1B2d_Fugitive-other-energy,process,CDIAC,liquid_and_gas_fuels,1750,1970,
 2A1_Cement-production,process,population,,1750,1965,
 2A2_Lime-production,process,population,,1750,1965,
 2A6_Other-minerals,process,population,,1750,1965,
 2B_Chemical-industry,process,CDIAC,liquid_fuels,1750,1965,
+2B2_Chemicals-Nitric-acid,process,CDIAC,liquid_and_gas_fuels,1750,1965,
+2B3_Chemicals-Adipic-acid,process,CDIAC,liquid_and_gas_fuels,1750,1965,
 2C_Metal-production,process,population,,1750,1965,
 2D_Degreasing-Cleaning,process,CDIAC,liquid_fuels,1750,1970,
 2D_Paint-application,process,CDIAC,liquid_fuels,1750,1970,
@@ -238,6 +242,7 @@ sector,fuel,driver_data_source,extra_driver_info,ext_start_year,ext_end_year,Not
 6A_Other-in-total,process,population,,1750,1965,
 6B_Other-not-in-total,process,population,,1750,1965,
 7A_Fossil-fuel-fires,process,CDIAC,solid_fuels_cumulative,1750,1965,
+7BC_Indirect-N2O-non-agricultural-N,process,population,,1750,1970,
 11A_Volcanoes,,population,,1750,1965,not used in CEDS
 11B_Forest-fires,,population,,1750,1965,not used in CEDS
 11C_Other-natural,,population,,1750,1965,not used in CEDS
