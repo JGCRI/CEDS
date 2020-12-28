@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
+Mapping country names to isos from Andrew data,CO2,All,Cement production,1900,2018,"Three countries (Saint Helena, Tuvalu, and Bonaire, Saint Eustatius and Saba) were not in the CEDS list but have no data so were ignored"

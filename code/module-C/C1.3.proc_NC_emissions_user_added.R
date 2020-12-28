@@ -6,7 +6,7 @@
 # Input Files: C.[em]_NC_emissions.csv
 # Output Files:  C.[em]_NC_emissions.csv
 # Notes:
-# TODO: User added emissions are currently extended automatically to adjacent years 
+# TODO: User added emissions are currently extended automatically to adjacent years
 #       with constant emission factors. If default non-combustion emission data already
 #       exists, would be better to extend using those trends instead.
 #-------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-headers <- c( "data_functions.R", "process_db_functions.R",
+headers <- c( "data_functions.R", "process_db_functions.R", "analysis_functions.R",
               'interpolation_extension_functions.R' ) # Additional function files required.
 log_msg <- "Integration of process emissions data" # First message to be printed to the log
 script_name <- "C1.3.proc_NC_emissions_user_added.R"
@@ -54,9 +54,11 @@ emissions_list <- lapply ( X = files, FUN = readData,
 
 # ---------------------------------------------------------------------------
 # 2. Interpolate, select process-fuel, convert list to one df
-process_sectors <- MSL[which(MSL$type == 'NC'),'sector']
 
 process_emissions <- function( e_data ){
+  process_sectors <- MSL[which(MSL$type == 'NC'),'sector']
+  combustion_sectors <- MSL[which(MSL$type == 'comb'),'sector']
+
   combustion_sectors <- c()
   # sort the years
   names <- names( e_data )
@@ -67,13 +69,20 @@ process_emissions <- function( e_data ){
 
   e_data <- interpolateValues(e_data)
 
-  combustion_sectors <- e_data[ which( e_data$sector %!in% process_sectors ) , ]
-  if (nrow(combustion_sectors) > 0 ) {
+  other_sector_data <- e_data[ which( e_data$sector %!in% process_sectors ) , ]
+  other_sectors <- na.omit( unique(other_sector_data$sector) )
+  if (length(other_sectors) > 0 ) {
+
+    if ( other_sectors %in% combustion_sectors ) {
     printLog(paste('Combustion sectors added inventory data to process emissions.',
                    'Combustion data printed to diagnostic-output'))
 
-    writeData(combustion_sectors, domain = 'DIAG_OUT',
-              paste0('C.',em,'combustion_data_added_to_process_emissions')) 
+    writeData( other_sectors, domain = 'DIAG_OUT',
+               paste0('C.',em,'combustion_data_added_to_process_emissions'))
+    } else {
+      printLog( paste( 'ERROR: Invalid sector in list ',other_sectors,' in input files for ', em ) )
+      stop("ERROR in NC emissions data \n")
+    }
   }
 
   e_data <- e_data[ which( e_data$sector %in% process_sectors ) , ]
@@ -92,7 +101,7 @@ if ( !exists( "emissions" ) ) emissions <- data.frame( iso = character(0),
                                                      fuel = character(0),
                                                      units = character(0),
                                                      X1960 = numeric(0))
-                                                     
+
 # write out to default EF directory as this information is used by another script
  writeData(emissions, 'DEFAULT_EF_IN', domain_extension = 'non-combustion-emissions/',
             paste0('C.',em,'_NC_emissions_user_added'),

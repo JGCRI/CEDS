@@ -17,12 +17,16 @@ B_IndustrialComb,Industry,1A1bc_Other-transformation
 ,Industry,1A2g_Ind-Comb-textile-leather
 ,Industry,1A2g_Ind-Comb-other
 E_Fugitive,Fugitive,1B1_Fugitive-solid-fuels
-,Fugitive,1B2_Fugitive-petr-and-gas
+,Fugitive,1B2_Fugitive-petr
+,Fugitive,1B2b_Fugitive-NG-prod
+,Fugitive,1B2b_Fugitive-NG-distr
 ,Fugitive,1B2d_Fugitive-other-energy
 D_IndProcess,IndProcess,2A1_Cement-production
 ,IndProcess,2A2_Lime-production
 ,IndProcess,2A6_Other-minerals
 ,IndProcess,2B_Chemical-industry
+,IndProcess,2B2_Chemicals-Nitric-acid
+,IndProcess,2B3_Chemicals-Adipic-acid
 ,IndProcess,2C_Metal-production
 ,IndProcess,2H_Pulp-and-paper-food-beverage-wood
 ,IndProcess,2L_Other-process-emissions
@@ -58,7 +62,7 @@ L_AgriOther,,3D_Soil-emissions
 ,,3D_Rice-Cultivation
 ,,
 ,,6A_Other-in-total
-,,
+,,7BC_Indirect-N2O-non-agricultural-N
 R_Other,,
 ,,
 S_Natural,,

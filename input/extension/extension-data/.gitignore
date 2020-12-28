@@ -5,3 +5,8 @@ A.*.csv
 B.*.csv
 C.*.csv
 H.*.csv
+
+# Don't ignore the 7BC extension data, as CEDS doens't always recalculate this, 
+# unless NOx and/or NH3 emissions for sectors 1 and 2 have changed.
+!H.N2O_7BC_extension-NH3_and_NOx_sectors_1_2.csv
+!H.N2O_7BC_extension-NH3_and_NOx_sectors_1_2-metadata.csv

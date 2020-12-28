@@ -30,11 +30,11 @@ inv_sector,Edgar_Sector_Name,scaling_sector,ceds_sector,Notes
 1A5,Other Energy Industries,,1A5_Other-unspecified,"Don't scale since it's a ""catch all"" that is unlikely to match"
 1B1,Fugitive emissions from solid fuels (fossil fuels),,1B1_Fugitive-solid-fuels,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 1B1x,Fugitive emissions from solid fuels (biofuels),,,
-1B2,Fugitive emissions from oil and gas (fossil fuels),,1B2_Fugitive-petr-and-gas,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
-1B2,Fugitive emissions from gaseous fuels (fossil fuels),,1B2d_Fugitive-other-energy,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
-1B2,Fugitive emissions from liquid fuels,,,
-1B2x,Fugitive emissions from oil and gas (biofuels),,,
-1B2x,Fugitive emissions from gaseous fuels (biofuels),,,
+1B2,Fugitive emissions from oil and gas (fossil fuels),,1B2_Fugitive-petr,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+1B2,Fugitive emissions from gaseous fuels (fossil fuels),,1B2b_Fugitive-NG-prod,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+1B2,Fugitive emissions from liquid fuels,,1B2b_Fugitive-NG-distr,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+1B2x,Fugitive emissions from oil and gas (biofuels),,1B2d_Fugitive-other-energy,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+1B2x,Fugitive emissions from gaseous fuels (biofuels),,,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 1C1,Memo: International aviation,,1A3ai_International-aviation,Don't scale
 1C2,Memo: International navigation,,1A3di_International-shipping,Don't scale
 ,,,1A3di_Oil_Tanker_Loading,Don't scale
@@ -44,6 +44,8 @@ inv_sector,Edgar_Sector_Name,scaling_sector,ceds_sector,Notes
 2A4,Soda ash production and use,,2A6_Other-minerals,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 2A7,Production of other minerals,,2A6_Other-minerals,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 2B,Production of chemicals,,2B_Chemical-industry,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+,,,2B2_Chemicals-Nitric-acid,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+,,,2B3_Chemicals-Adipic-acid,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 2C,Production of metals,,2C_Metal-production,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 2D,Production of pulp/paper/food/drink,,2H_Pulp-and-paper-food-beverage-wood,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 2G,Non-energy use of lubricants/waxes (CO2),,6B_Other-not-in-total,Don't scale
@@ -57,19 +59,19 @@ inv_sector,Edgar_Sector_Name,scaling_sector,ceds_sector,Notes
 4C,Rice cultivation,,3D_Rice-Cultivation,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 4D1,Direct soil emissions,,3D_Soil-emissions,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 4D2,Manure in pasture/range/paddock,,3B_Manure-management,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+4D3,Indirect N2O from agriculture,,,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data). Also, ceds_sector is not provided here, as this EDGAR sector is split among CEDS 3B_Manure-management and CEDS 3D_Soil-emissions"
 4D4,Other direct soil emissions,,3D_Soil-emissions,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 ,,,3I_Agriculture-other,
-4E,,other-in-total,6A_Other-in-total,Not in EDGAR v5
+4E,Other-in-total,other-in-total,6A_Other-in-total,Not in EDGAR v5
 4F,Agricultural waste burning,,3F_Agricultural-residue-burning-on-fields,Don't include in CMIP6 data product
 ,,,11A_Volcanoes,Don't scale
-5A,,,11B_Forest-fires,"Don't include in CMIP6 data product, Not in EDGAR v5"
-5C,,,11C_Other-natural,"Don't include in CMIP6 data product, Not in EDGAR v5"
-5D,,,11C_Other-natural,"Don't include in CMIP6 data product, Not in EDGAR v5"
+5A,Forest fires,,11B_Forest-fires,"Don't include in CMIP6 data product, Not in EDGAR v5"
+5C,Grassland fires,,11C_Other-natural,"Don't include in CMIP6 data product, Not in EDGAR v5"
+5D,Peat fires and decay of drained peatland,,11C_Other-natural,"Don't include in CMIP6 data product, Not in EDGAR v5"
 6A,Solid waste disposal on land,,5A_Solid-waste-disposal,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 6B,Wastewater handling,,5D_Wastewater-handling,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 6C,Waste incineration,,5C_Waste-incineration,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 6D,Other waste handling,,5E_Other-waste-handling,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
 7A,Fossil fuel fires,7A,7A_Fossil-fuel-fires,
-4D3,Indirect N2O from agriculture,,,
-7B,Indirect N2O from non-agricultural NOx,,,
-7C,Indirect N2O from non-agricultural NH3,,,
+7B,Indirect N2O from non-agricultural NOx,,7BC_Indirect-N2O-non-agricultural-N,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"
+7C,Indirect N2O from non-agricultural NH3,,7BC_Indirect-N2O-non-agricultural-N,"Don't scale since is set as default emissions (and in some cases, overwritten with other inventory data)"

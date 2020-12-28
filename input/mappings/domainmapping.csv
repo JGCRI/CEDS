@@ -19,6 +19,7 @@ DEFAULT_EF_IN,../input/default-emissions-data
 DEFAULT_EF_PARAM,../input/default-emissions-data/EF_parameters
 EM_INV,../input/emissions-inventories
 UNFCCC_IN,../input/emissions-inventories/UNFCCC
+UNFCCC__NEW_IN,../input/emissions-inventories/UNFCCC_update
 DIAG_IN,../code/diagnostic
 PARAM,../code/parameters
 LOGS,../logs

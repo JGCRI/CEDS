@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
+Emissions Inventory,Non-CO2 GHGs,Global,All Antro,1990,2050,"US EPA - Global Non-CO2 Greenhouse Gas Emission Projections & Mitigation Potential: 2015-2050 https://www.epa.gov/global-mitigation-non-co2-greenhouse-gases/global-non-co2-greenhouse-gas-emission-projections. This data is taken from the Non-CO2 Report Data Anex (zip), proj-data-annex_Sept2019.xlsx file, rawdata sheet."
