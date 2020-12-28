@@ -6,14 +6,15 @@
 #                   of this program will be read in by C1.3.proc_NC_emissions_user_added.R
 #                   and overwrite existing Edgar emissions
 # Input Files: Global_Emissions_of_Pollutants_from_Open_Burning_of_Domestic_Waste.xlsx,
-#              Master_Country_List.csv, PM25_Inventory.xlsx
+#              Master_Country_List.csv, PM25_Inventory.xlsx,
+#              EDGAR42_N2O.csv, EDGAR42_NOx.csv
 # Output Files: C.[em]_NC_default_waste_emissions.csv, C.[em]_NC_waste_emissions_rescaled.csv,
 #               C.[em]_NC_waste_emissions_inventory_trend_user_added.csv
 # Notes:
 # TODO: Small iso issue fix
 #       Make flexible to work with years other than 2010?
-# ------------------------------------------------------------------------------
-
+#       Refine N2O per Nox ratio (See section 5, currently uses global average
+#           ratio from EDGAR 4.2, for 2008)
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
@@ -31,7 +32,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NMVOC"
+if ( is.na( em ) ) em <- "CH4"
 
 # ------------------------------------------------------------------------------
 # 0.5 Initialize constants and prepare equations for to replicate Wiedinmyer proceedure
@@ -55,6 +56,26 @@ if ( is.na( em ) ) em <- "NMVOC"
 # Collected waste burned in open dumps:
 #    Wb_dump = (Mass of annual per-capita waste) * (Urban pop.) * (% waste collected) *
 #              (fraction of waste to burn that is combusted)
+
+# Function for EDGAR 4.2 cleansing
+EDGAR_clean <- function(df_in){
+
+    df_clean <- df_in %>%
+        dplyr::select( ISO_A3, Name, IPCC, IPCC_description, X2008 ) %>%
+        dplyr::filter( IPCC == "6C" & IPCC_description == "Waste incineration" ) %>%
+        dplyr::mutate( ISO_A3 = tolower( ISO_A3 ),
+                       IPCC_description = if_else (IPCC_description == "Waste incineration",
+                                                   "5C_Waste-incineration",
+                                                   IPCC_description) ) %>%
+        dplyr::select(-Name, -IPCC) %>%
+        dplyr::rename(iso = ISO_A3, sector = IPCC_description) %>%
+        dplyr::select(-iso) %>%
+        dplyr::group_by(sector) %>%
+        dplyr::summarise_all(sum) %>%
+        dplyr::ungroup()
+
+    return(df_clean)
+}
 
 
 # ------------------------------------------------------------------------------
@@ -96,6 +117,13 @@ if ( is.na( em ) ) em <- "NMVOC"
                                      "Frac_not_collected" )
 # Inventory years
   X_waste_inventory_years <- paste0( 'X', 1980 : 2010 )
+
+# EDGAR 4.2 N2O and NOx
+    EDGAR42_N2O <- readData(domain = "EM_INV", domain_extension = "EDGAR/",
+                            file_name = "EDGAR42_N2O" )
+
+    EDGAR42_NOx <- readData(domain = "EM_INV", domain_extension = "EDGAR/",
+                            file_name = "EDGAR42_NOx" )
 
 # ------------------------------------------------------------------------------
 # 2. Calculate the amount of waste burned
@@ -276,20 +304,69 @@ if ( is.na( em ) ) em <- "NMVOC"
     waste_input$OC <- waste_input$OC * OC_conv
     waste_input$NOx <- waste_input$NOx * NOx_conv
 
+# Calculate N2O emissions based on EDGAR 4.2 ratio of NOx to N2O emissions for 2008
+# Note: EDGAR 4.2 is being used, thus 2008 data is being used to create the ratio,
+#         as 2010 data is not available within EDGAR 4.2.
+
+#   Clean EDGAR N2O and NOx data (select 2008 and 5C_Waste-incineration data)
+    EDGAR42_N2O_global_sum <- EDGAR_clean(EDGAR42_N2O) %>%
+            dplyr::rename(X2008_N2O = X2008)
+
+    EDGAR42_NOx_global_sum <- EDGAR_clean(EDGAR42_NOx) %>%
+            dplyr::rename(X2008_NOx = X2008)
+
+#   Calculate ratio of N2O emissions per NOx emissions (N2O/NOx)
+    EDGAR_N2O_NOx_ratio <- EDGAR42_N2O_global_sum %>%
+        dplyr::left_join(EDGAR42_NOx_global_sum, by = "sector" ) %>%
+        dplyr::group_by(sector) %>%
+        dplyr::mutate(N2O_per_NOx = X2008_N2O/X2008_NOx) %>%
+        dplyr::select(sector, N2O_per_NOx) %>%
+        dplyr::ungroup()
+
+    EDGAR_N2O_NOx_ratio_5C_Waste_incineration <- EDGAR_N2O_NOx_ratio[[1,2]]
+
+
+#   Apply EDGAR N2O_per_NOx waste ratio to waste data to generate N2O emissions estimate
+    waste_input_add_N2O <- waste_input %>%
+        dplyr::mutate(N2O_per_NOx = EDGAR_N2O_NOx_ratio_5C_Waste_incineration) %>%
+        dplyr::group_by(iso, SO2, CO, NMVOC, BC, OC, NH3, CH4, CO2) %>%
+        dplyr::mutate(N2O = NOx*N2O_per_NOx) %>%
+        dplyr::ungroup() %>%
+        dplyr::select(-N2O_per_NOx)
+
 # Convert to standard CEDS input format
-    waste_input <- melt( waste_input, id = "iso" )
-    names( waste_input )[ names( waste_input ) %in% c( "variable", "value" ) ] <- c( "emission", "X2010" )
-    waste_input$sector <- "5C_Waste-incineration"
-    waste_input$fuel <- "process"
-    waste_input$units <- "kt"
+  em_species <- c(em_names, "N2O")
+
+  waste_input <- waste_input_add_N2O %>%
+      dplyr::group_by(iso) %>%
+      tidyr::gather(key = variable, value = value, em_species) %>%
+      dplyr::ungroup()
+
+  names( waste_input )[ names( waste_input ) %in% c( "variable", "value" ) ] <- c( "emission", "X2010" )
+  waste_input$sector <- "5C_Waste-incineration"
+  waste_input$fuel <- "process"
+  waste_input$units <- "kt"
 
 # Filter out emission being processed
-    waste_inventory <- filter( waste_input, emission == em ) %>% select( iso, sector, fuel, units, X2010 )
+    waste_inventory <- dplyr::filter( waste_input, emission == em ) %>%
+        dplyr::select( iso, sector, fuel, units, X2010 )
 
 # ------------------------------------------------------------------------------
 # 5. Compare selected inventory PM2.5 values to default calcuation and either match with
 #    inventory or replace with a European regional average if the inventory value is several
 #    orders of magnitude lower that default calcuation
+
+#   Create N2O EF using EDGAR waste incineration N2O/NOx ratio
+    emissions_factor_N2O <- emissions_factors %>%
+        dplyr::filter( compound == "Nox" ) %>%
+        dplyr::mutate( compound = "N2O",
+                       EF = EF * EDGAR_N2O_NOx_ratio_5C_Waste_incineration,
+                       uncertainty = NA_character_,
+                       ref = paste0( "CEDS system generated EF. Created from ",
+                                     "NOx EF using EDGAR global N2O per NOx ratio for waste incineration." ) )
+
+    emissions_factors <- emissions_factors %>%
+        dplyr::bind_rows( emissions_factor_N2O )
 
 #   Calculate the ratio between the selected em and PM2.5 from emissions_factors data frame
     em_filter_for <- em
@@ -385,7 +462,8 @@ if ( is.na( em ) ) em <- "NMVOC"
     waste_inventory_trend <- waste_inventory_match %>%
         dplyr::filter( ( Use_for_median == 1 | iso %in% europe_isos ) & Use_for_trend == 1 ) %>%
         dplyr::mutate( X2010 = X2010 * X2010_inv_to_waste_inventory ) %>%
-        dplyr::select( iso, sector, fuel, units, X2010 )
+        dplyr::select( iso, sector, fuel, units, X2010 ) %>%
+        as.data.frame( )
 
     waste_inventory_trend <- extend_data_on_trend_range( input_data = waste_inventory_trend,
                                                          driver_trend = Europe_PM25_Compare[c('iso', X_waste_inventory_years )],

@@ -2,7 +2,7 @@
 # CEDS R header file: data molding functions
 # Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Caleb Braun,
 #          Steven Smith, Patrick O'Rourke
-# Last Updated: January 7, 2020
+# Last Updated: December 4, 2020
 #
 # This file should be sourced by any R script doing heavy-duty reformatting of
 # CEDS data. It contains helper functions for general data manipulation and some
@@ -12,7 +12,7 @@
 #       removeNARows, NAsToZeros, repeatAndAddVector, addCols, intersectNames, isNumYear, isXYear,
 #       isYear, removeBlanks, indDataStart, buildCEDSTemplate, interpolate_NAs, interpolate_NAs2,
 #       extend_and_interpolate, verify_calculate_share_params, calculate_shares, calculate_correct_shares,
-#       extend_data_on_trend, extend_data_on_trend_range, disaggregate_country
+#       extend_data_on_trend, extend_data_on_trend_range, disaggregate_country, disagg_iso_with_population
 # Notes:
 
 # -----------------------------------------------------------------------------
@@ -1736,4 +1736,168 @@ disaggregate_country <- function(original_data,
   split_data <- split_data[ ,c(id_cols , X_all_years) ] }
 
   return(split_data)
+}
+
+# -----------------------------------------------------------------------------
+# disagg_iso_with_population
+# Brief: Disaggregates isos which do not have data provided directly in any time
+#        period, but have their data contained within an aggregated iso.
+#        Downscaling to these isos will be done with UN population data.
+# Details:
+# Dependencies: None
+# Author(s): Hamza Ahsan
+# Params:   agg_iso_region              Aggregate iso
+#           disagg_isos_in_agg_region   Disaggragate iso into constituent isos
+#           df_in                       Emissions data set
+#           population_data             UN population data
+#           years_use                   Data set range of years
+# Return:   Emissions data set with disaggregated isos and their respective emissions
+#           based on population
+
+disagg_iso_with_population <- function( agg_iso_region, disagg_isos_in_agg_region,
+                                        df_in, population_data, years_use ){
+
+    agg_region_all_isos <- c( disagg_isos_in_agg_region, agg_iso_region)
+
+    if (any(unique(df_in$fuel) == "per_capital_CO2")){
+        no_per_capita_data_years <- paste0( "X", cdiac_start_year : 1949 )
+    }
+
+    fuels_of_interest <- unique( df_in$fuel)
+
+    if (any(unique(df_in$fuel) == "per_capital_CO2")){
+        fuels_of_interest_no_percap <- subset( fuels_of_interest, fuels_of_interest != "per_capital_CO2" ) # Remove per_capita_CO2 since this will get fixed
+        fuels_of_interest_final <- c( fuels_of_interest_no_percap, "CDIAC_derived_population" ) # Add derived CDIAC population
+    }
+
+    # Calculate aggregate UN region population
+    agg_region_iso_populations <- population_data %>%
+        dplyr::filter( iso %in% agg_region_all_isos ) %>%
+        dplyr::select( iso, years_use ) %>%
+        tidyr::gather( key = Years, value = Population, years_use ) %>%
+        dplyr::filter( Years %in% extended_years_with_Xs )
+
+    aggregated_population <- agg_region_iso_populations %>%
+        dplyr::select( -iso ) %>%
+        dplyr::group_by( Years ) %>%
+        dplyr::summarise_all( funs( sum (., na.rm = TRUE) ) ) %>%
+        dplyr::ungroup( ) %>%
+        dplyr::rename( Agg_region_population = Population)
+
+    # Calculate UN population share for each sub-iso
+    agg_region_iso_pop_shares <- agg_region_iso_populations %>%
+        dplyr::left_join( aggregated_population, by = "Years" ) %>%
+        dplyr::mutate( iso_share_of_agg_region_pop = Population / Agg_region_population ) %>%
+        dplyr::select( -Population, -Agg_region_population  )
+
+    if (any(unique(df_in$fuel) == "per_capital_CO2")){
+    # Subset the agg region being downscaled in the data set
+    agg_region_of_interest <- df_in %>%
+        dplyr::filter( iso == agg_iso_region ) %>%
+
+        # Create variable "CDIAC_derived_population" and remove "per_capital_CO2" fuel type - will need to be fixed after
+        # downscaling - set CDIAC_derived_population to 0 for 1750-1949 (since this is a temporary variable,
+        # and no per capita data in original CDIAC for those years)
+
+            tidyr::spread( fuel, Emissions ) %>%
+            dplyr::mutate( CDIAC_derived_population = ( 1 / ( per_capital_CO2 * ( 1/ Total_CO2 ) ) ),
+                           CDIAC_derived_population = if_else( Years %in% no_per_capita_data_years,
+                                                               0, CDIAC_derived_population ) ) %>%
+            dplyr::select( -per_capital_CO2 ) %>%
+            tidyr::gather( key = fuel, value = Emissions, fuels_of_interest_final )
+    } else {
+        # Subset the agg region being downscaled in the data set
+        agg_region_of_interest <- df_in %>%
+            dplyr::filter( iso == agg_iso_region )
+    }
+
+    # Duplicate the agg regions Emissions data for each disagg iso
+    agg_region_aggIso_AND_disaggIsos <- agg_region_of_interest
+
+    for( isos in disagg_isos_in_agg_region  ){
+
+        diagg_iso_add <- agg_region_aggIso_AND_disaggIsos %>%
+            dplyr::mutate( iso = isos )
+
+        agg_region_aggIso_AND_disaggIsos <- dplyr::bind_rows( agg_region_aggIso_AND_disaggIsos,
+                                                              diagg_iso_add ) %>%
+            dplyr::distinct( )
+
+    }
+
+    # Multiply population share by agg region emissions for each sub-iso and sector combination
+    agg_region_downscaled <- agg_region_aggIso_AND_disaggIsos %>%
+        dplyr::left_join( agg_region_iso_pop_shares, by = c( "iso", "Years" ) ) %>%
+        dplyr::mutate( Down_Scaled_Emissions = Emissions * iso_share_of_agg_region_pop ) %>%
+        dplyr::select( -Emissions, -iso_share_of_agg_region_pop ) %>%
+        dplyr::rename( Emissions = Down_Scaled_Emissions )
+
+    # Check that there are no NAs for new downscaled emissions
+    if( any( is.na( agg_region_downscaled$Emissions ) ) == TRUE ){
+
+        stop( paste0( "Some downscaled emissions are now NA. Check population and emissions data.") )
+
+    } else{
+
+        printLog( "There are no NAs for emissions after downscaling", agg_iso_region, "to the following isos:",
+                  agg_region_all_isos )
+
+    }
+
+    # Check that diagg regions summed = agg region data for each sector - rounded to 9 decimals
+    agg_region_downscaled_reaggregated_for_check <- agg_region_downscaled %>%
+        dplyr::select( -iso ) %>%
+        dplyr::group_by( fuel, Years ) %>%
+        dplyr::summarise_all( funs( sum (., na.rm = TRUE) ) ) %>%
+        dplyr::arrange( fuel, Years ) %>%
+        dplyr::mutate( Emissions = round( Emissions, digits = 9 ) ) %>%
+        dplyr::ungroup( )
+
+    agg_region_of_interest_for_check <- agg_region_of_interest %>%
+        dplyr::select( -iso ) %>%
+        dplyr::arrange( fuel, Years ) %>%
+        dplyr::mutate( Emissions = round( Emissions, digits = 9 ) )
+
+    identical_after_downscale <- all.equal(agg_region_downscaled_reaggregated_for_check,agg_region_of_interest_for_check)
+
+    if( identical_after_downscale != TRUE ){
+
+        stop( paste0( "Downscaled emissions do not equal aggregate region emissions for all fuels. Check population, emissions data, ",
+                      "and disagg_iso_with_population function") )
+
+    } else{
+
+        printLog( "Downscaled emissions summed for -", agg_region_all_isos,
+                  "- equals aggregate emissions for all fuels for the original agg_region -",
+                  agg_iso_region, "- after downscaling with A.UN_pop_master.csv." )
+
+    }
+
+    if (any(unique(df_in$fuel) == "per_capital_CO2")){
+        # Calculate new per_capital_CO2 variable = Total_CO2 / CDIAC_derived_population,
+        # set values to 0 before 1950 (since no per capita data in original CDIAC for those years)
+        agg_region_downscaled_final <- agg_region_downscaled %>%
+            tidyr::spread( fuel, Emissions ) %>%
+            dplyr::mutate(  per_capital_CO2 = Total_CO2 / CDIAC_derived_population,
+                            per_capital_CO2 = if_else( Years %in% no_per_capita_data_years,
+                                                       0, per_capital_CO2 ) ) %>%
+            dplyr::select( -CDIAC_derived_population ) %>%
+            tidyr::gather( key = fuel, value = Emissions, fuels_of_interest )
+
+        # Filter out original agg region data from emissions and replace with disaggregate data
+    split_final_no_agg_region_with_disagg_isos <- df_in %>%
+        dplyr::filter( iso != agg_iso_region ) %>%
+        dplyr::bind_rows( agg_region_downscaled_final )
+
+    return( split_final_no_agg_region_with_disagg_isos )
+
+    } else {
+        # Filter out original agg region data from emissions and replace with disaggregate data
+        split_final_no_agg_region_with_disagg_isos <- df_in %>%
+            dplyr::filter( iso != agg_iso_region ) %>%
+            dplyr::bind_rows( agg_region_downscaled )
+
+        return( split_final_no_agg_region_with_disagg_isos )
+    }
+
 }

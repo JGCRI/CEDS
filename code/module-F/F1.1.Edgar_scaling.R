@@ -1,9 +1,9 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.Edgar_scaling.R
 # Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly, Patrick O'Rourke
-# Date Last Modified: June 16, 2020
-# Program Purpose: To create scaling factors and update emissions estimate based
-#                  on Edgar emissions
+# Date Last Modified: August 12, 2020
+# Program Purpose: To create scaling factors and update emissions estimate for
+#                  Edgar emissions
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
 #              F.[em]_scaled_emissions.csv, relevant EDGAR emissions
 #              data( EDGAR v5 = v50_[em]_1970_[edgar_end_year].xls ),
@@ -39,7 +39,7 @@
 # 1. Define parameters for inventory specific script
 
 # Stop script if running for unsupported species
-  if ( em %!in% c( 'CH4', 'CO', 'CO2', 'NH3', 'NMVOC', 'NOx', 'SO2' ) ) {
+  if ( em %!in% c( 'CH4', 'CO', 'CO2', 'N2O', 'NH3', 'NMVOC', 'NOx', 'SO2' ) ) {
 
       stop( paste( 'Edgar scaling is not supported for emission species ',
                    em, '. Remove from script list in F1.1.inventory_scaling.R...' ) )
@@ -173,7 +173,7 @@
     inv_data_sheet <-
         inv_data_sheet[ apply( X = inv_data_sheet[ , paste0( "X", inv_years ) ],
                                MARGIN = 1, function( x )
-                                             ( !all.na( x ) ) ) ,]
+                                             ( !all( is.na( x ) ) ) ) ,]
 
 # Make negative emissions zero
     inv_data_sheet_neg_fixed <- inv_data_sheet %>%

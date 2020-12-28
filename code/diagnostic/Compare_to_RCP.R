@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: Compare_to_RCP.R
 # Author: Rachel Hoesly, Linh Vu, Leyang Feng, Huong Nguyen
-# Date Last Updated: 03 November, 2016
+# Date Last Updated: 4 March, 2019
 # Program Purpose: Produces comparison - diagnostic files and plots between CEDS and
 #                  RCP. Comparison by global totals, regions, sectors
 #                  Like with like comparison does not include
@@ -36,6 +36,9 @@ initialize( script_name, log_msg, headers )
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "CH4"
+
+# Run for all ems besides N2O
+if (em != "N2O"){
 
 # Load Packages
 
@@ -473,6 +476,10 @@ region_sector_both <- region_sector_both [ with( region_sector_both , order( reg
 #writeout
 writeData( region_sector_both,'DIAG_OUT', paste0('RCP_',em,'_region_sector_Comparison'),domain_extension = 'ceds-comparisons/',meta=F)
 
+} else {
+    print("Selected emissions species is not configured to compare to RCP.")
+
+}
 
 # ---------------------------------------------------------------------------
 # 10. End

@@ -18,13 +18,13 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
     if ( is.na( em ) ) em <- "CH4"
-  
-# Call standard script header function to read in universal header files - 
+
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( 'common_data.R',"data_functions.R" ) # Additional function files required.
     log_msg <- "Initial reformatting of US GHG emissions" # First message to be printed to the log
     script_name <- "E.US-GHG_emissions.R"
-    
+
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
@@ -34,7 +34,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     inventory_data_file <- 'USA/US_GHG_inventory'
     inv_data_folder <- "EM_INV"
     inv_name <- 'US_GHG' #for naming diagnostic files
-    inv_years<-c( 1990:2014 )
+    inv_years<-c( 1990:2018 )
 
 # ------------------------------------------------------------------------------
 # 2. Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)

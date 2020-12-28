@@ -43,19 +43,20 @@ detailed_sectors,working_sectors_v1,working_sectors_v2,aggregate_sectors,FSU_ext
 1A5_Other-unspecified,1A5_Other-unspecified,1A5_Other-unspecified,1A4_Stationary_RCO,Other,RCO
 1B1a_Fugitive-coal-mining,1B1_Fugitive-solid-fuels,1B1_Fugitive-solid-fuels,1B_Fugitive,,Energy Transf/Ext
 1B1_Fugitive-coal-otherSolid,1B1_Fugitive-solid-fuels,1B1_Fugitive-solid-fuels,1B_Fugitive,,Energy Transf/Ext
-1B2ai_Fugitive-petr-prod,1B2_Fugitive-petr-and-gas,1B2ai_Fugitive-petr-prod,1B_Fugitive,,Energy Transf/Ext
-1B2aiv_Fugitive-petr-refining,1B2_Fugitive-petr-and-gas,1B2aiv_Fugitive-petr-refining,1B_Fugitive,,Energy Transf/Ext
-1B2av_Fugitive-petr-distr,1B2_Fugitive-petr-and-gas,1B2av_Fugitive-petr-distr,1B_Fugitive,,Energy Transf/Ext
-1B2b_Fugitive-NG-prod-distr,1B2_Fugitive-petr-and-gas,1B2b_Fugitive-NG-prod-distr,1B_Fugitive,,Energy Transf/Ext
-1B2c_Venting-flaring-oil-gas,1B2_Fugitive-petr-and-gas,1B2c_Venting-flaring-oil-gas,1B_Fugitive,,Energy Transf/Ext
+1B2ai_Fugitive-petr-prod,1B2_Fugitive-petr,1B2ai_Fugitive-petr-prod,1B_Fugitive,,Energy Transf/Ext
+1B2aiv_Fugitive-petr-refining,1B2_Fugitive-petr,1B2aiv_Fugitive-petr-refining,1B_Fugitive,,Energy Transf/Ext
+1B2av_Fugitive-petr-distr,1B2_Fugitive-petr,1B2av_Fugitive-petr-distr,1B_Fugitive,,Energy Transf/Ext
+1B2b_Fugitive-NG-prod,1B2b_Fugitive-NG-prod,1B2b_Fugitive-NG-prod,1B_Fugitive,,Energy Transf/Ext
+1B2b_Fugitive-NG-distr,1B2b_Fugitive-NG-distr,1B2b_Fugitive-NG-distr,1B_Fugitive,,Energy Transf/Ext
+1B2c_Venting-flaring-oil-gas,1B2_Fugitive-petr,1B2c_Venting-flaring-oil-gas,1B_Fugitive,,Energy Transf/Ext
 1B2d_Fugitive-other-energy,1B2d_Fugitive-other-energy,1B2d_Fugitive-other-energy,1B_Fugitive,,Energy Transf/Ext
 2A1_Cement-production,2A1_Cement-production,2A1_Cement-production,2A_Minerals-production,,Industry
 2A2_Lime-production,2A2_Lime-production,2A2_Lime-production,2A_Minerals-production,,Industry
 2A6_Other-minerals,2A6_Other-minerals,2A6_Other-minerals,2A_Minerals-production,,Industry
 2A5b_Construction-and-demolition,2A6_Other-minerals,2A6_Other-minerals,2A_Minerals-production,,Industry
 2B1_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,,Industry
-2B2_Chemicals-Nitric-acid,2B_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,,Industry
-2B3_Chemicals-Adipic-acid,2B_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,,Industry
+2B2_Chemicals-Nitric-acid,2B2_Chemicals-Nitric-acid,2B2_Chemicals-Nitric-acid,2B_Chemical-industry,,Industry
+2B3_Chemicals-Adipic-acid,2B3_Chemicals-Adipic-acid,2B3_Chemicals-Adipic-acid,2B_Chemical-industry,,Industry
 2B_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,,Industry
 2C_Iron-steel-alloy-prod,2C_Metal-production,2C_Iron-steel-alloy-prod,2C_Metals-industry,,Industry
 2C3_Aluminum-production,2C_Metal-production,2C3_Aluminum-production,2C_Metals-industry,,Industry
@@ -109,6 +110,8 @@ detailed_sectors,working_sectors_v1,working_sectors_v2,aggregate_sectors,FSU_ext
 6A_Other-in-total,6A_Other-in-total,6A_Other-in-total,6_Other-in-total,,Industry
 6B_Other-not-in-total,6B_Other-not-in-total,6B_Other-not-in-total,,,Industry
 7A_Fossil-fuel-fires,7A_Fossil-fuel-fires,7A_Fossil-fuel-fires,7_Fossil-fuel-fires,,Energy Transf/Ext
+7B_Indirect-N2O-non-agricultural-NOx,7BC_Indirect-N2O-non-agricultural-N,7BC_Indirect-N2O-non-agricultural-N,2L_Other-process-emissions,,Industry
+7C_Indirect-N2O-non-agricultural-NH3,7BC_Indirect-N2O-non-agricultural-N,7BC_Indirect-N2O-non-agricultural-N,2L_Other-process-emissions,,Industry
 11A_Volcanoes,11A_Volcanoes,11A_Volcanoes,,,
 11B_Forest-fires,11B_Forest-fires,11B_Forest-fires,,,
 11C_Other-natural,11C_Other-natural,11C_Other-natural,,,

@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------
 # CEDS R header file: global_settings.R
 # Authors: Ben Bond-Lamberty, Jon Seibert, Tyler Pitkanen, Rachel Hoesly, Huong Nguyen
-# Last Updated: February 14, 2020
+# Last Updated: July 16, 2020
 #
 # Provides global variables and necessary system settings. This file must be
 # sourced by all CEDS R scripts, before any other sourced files.
@@ -55,8 +55,8 @@ MODULE_PROC_ROOT		<- PARAM_DIR
 GRID_SUBREGIONS         <- FALSE
 GRIDDING_VERSION        <- as.character( Sys.Date() )
 
-SUPPORTED_SPECIES       <- c( 'BC', 'CH4', 'CO', 'CO2', 'NH3', 'NMVOC', 'NOx', 'OC', 'SO2', 'NONE' ) # Note that 'NONE' is a supported em,
-                                                                                                     # as this allows the user to make activity data.
+SUPPORTED_SPECIES       <- c( 'BC', 'CH4', 'CO', 'CO2', 'N2O', 'NH3', 'NMVOC', 'NOx', 'OC', 'SO2', 'NONE' ) # Note that 'NONE' is a supported em,
+                                                                                                            # as this allows the user to make activity data.
 PROPRIETARY_FILES       <- c( 'OECD_and_NonOECD_E_Stat.csv',
                               'OECD_and_NonOECD_Conversion_Factors_Full.csv' )
 
@@ -84,7 +84,7 @@ VERBOSE <- TRUE
 #follow the instruction in the next comment
 
 # User should uncomment the following line if he/she has a specific cedsUserVersionNumber to use
-  options(cedsUserVersionNumber = "v_2020_9_11") # Comment out to get dynamic version number
+#  options(cedsUserVersionNumber = "v_2020_9_11") # Comment out to get dynamic version number
                                                  # (automatically sets the version tag to the
                                                  # date of the CEDS run)
 

@@ -39,7 +39,7 @@
     inv_years <- c( 2010 : 2017 )
 
 # Run if em is not CH4 - MEIC update does not have CH4
-if( em != "CH4" ){
+if( em %!in% c("CH4", "N2O") ){
 
 # ------------------------------------------------------------------------------
 # 2. Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
@@ -80,7 +80,7 @@ if( em != "CH4" ){
 } else {
 
     Note <- c( "No MEIC update data available." )
-    inv_data_species <- dplyr::data_frame( Note )
+    inv_data_species <- dplyr::tibble( Note )
 
 }
 

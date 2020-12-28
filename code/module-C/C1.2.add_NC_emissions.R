@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.2.add_NC_emissions.R
 # Author: Jon Seibert
-# Date Last Updated: June 12, 2020
+# Date Last Updated: August 11, 2020
 # Program Purpose: To select and run the correct script(s) to fill out to the non-combustion
 #                  (process) emissions database for the given emissions type.
 # Input Files: None
@@ -14,11 +14,11 @@
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
+    PARAM_DIR <- if( "input" %in% dir( ) ) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c() # Additional function files required.
+    headers <- c( "data_functions.R" ) # Additional function files required.
     log_msg <- paste0( "Calling species-specific child script to add non-combustion",
               " emissions data to the database" ) # First message to be printed to the log
     script_name <- "C1.2.add_NC_emissions.R"
@@ -30,7 +30,8 @@
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+
+if ( is.na( em ) ) em <- "CH4"
 
 MODULE_C <- "../code/module-C/"
 
@@ -42,7 +43,7 @@ scripts <- c()
 
 # Set scripts to add emissions data for SO2
 if( em == "SO2" ){
-# Remove outdated scrips -- revise when move to working sectors v2
+# Remove outdated scripts -- revise when move to working sectors v2
 #   scripts <- c( "C1.2.add_SO2_NC_emissions_all.R" , "C1.2.add_SO2_NC_emissions_FAO.R" )
 }
 
@@ -51,26 +52,53 @@ if( em == "BC" || em == "OC" ){
     scripts <- c(  )
 }
 
-# Add EDGAR data script for all relevant emissions species
-if( em %in% c( "CH4", "CO2", "CO", "NH3", "NMVOC", "NOx", "SO2" ) ){
+# Create GAINS fugitive oil and gas subsector emission splits
+if ( em %!in% c( "NH3" ) ){
+
+    scripts <- c( scripts, 'C1.2.GAINS_fugitive_petr_gas_emissions.R' )
+
+}
+
+# Note if using EDGAR 4.2 then also need to edit correction for end-year in C2.1.base_NC_EF.R
+# TODO: check if the note above is still relevant
+if( em %in% c( "CH4", "CO2", "CO", "N2O", "NH3", "NMVOC", "NOx", "SO2" ) ){
     scripts <- c( scripts, "C1.2.add_NC_emissions_EDGAR.R" )
 }
 
+# Add EPA adipic and nitric acid emissions data (extended by EDGAR)
+#   Processed EPA data
+    if( em == "N2O" ){
+        scripts <- c( scripts, "C1.2.EPA_adipic_and_nitric_acid.R" )
+    }
+
+#   The below script currently makes emissions with all 0 values for emission species other than N2O.
+#   For N2O, emissions processed in C1.2.EPA_adipic_and_nitric_acid.R are extended here
+    if( em %in% c( "BC", "CH4", "CO", "CO2", "N2O", "NH3", "NMVOC", "NOx", "OC", "SO2" ) ){
+        scripts <- c( scripts, "C1.2.Adipic_nitric_acid_default_process_emissions.R" )
+    }
+
 # Add FAO Agriculture methane data
 if( em == "CH4" ){
-  scripts <- c( scripts, "C1.2.add_CH4_NC_emissions_FAO.R")
+  scripts <- c( scripts, "C1.2.add_CH4_NC_emissions_FAO.R" )
 }
 
-# Add CDIAC for CO2
+# Add FAO Agriculture N2O data
+# TODO: could make this a paste0 with em object so that it's just one line with CH4
+if( em == "N2O" ){
+    scripts <- c( scripts, "C1.2.add_N2O_NC_emissions_FAO.R" )
+}
+
+# Add Andrew for CO2
 if( em == "CO2" ){
-  scripts <- c( scripts, "C1.2.add_CO2_NC_emissions_CDIAC.R" )
+  scripts <- c( scripts, "C1.2.add_CO2_NC_emissions_Andrew.R" )
 }
 
-if ( em != "CO2" ) {
+
+# Add Fugitive defaults for non-CO2 emission species
+if ( !(em %in% c( "CO2" ) ) ) {
   scripts <- c( scripts, 'C1.2.ECLIPSE_flaring_emissions_extension.R' )
   scripts <- c( scripts, 'C1.2.Fugitive-petr-and-gas_default_process_emissions.R' )
 }
-
 
 # Run all child scripts for the given emissions type. The call to
 # invisible() prevents extraneous output from appearing in the console.

@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.US-GHG_scaling.R
 # Authors' Names: Rachel Hoesly
-# Date Last Modified: May 4, 2020
+# Date Last Modified: July 16, 2020
 # Program Purpose: To create scaling factors and update emissions estimate for
 #                  the USA for methane emissions from the US GHG inventory.
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
@@ -37,7 +37,7 @@
 # 1. Define parameters for inventory specific script
 
 # Stop script if running for unsupported species
-    if ( em %!in% c( 'CH4' ) ) {
+    if ( em %!in% c( 'CH4', 'N2O' ) ) {
        stop( paste( 'US scaling is not supported for emission species ',
                     em, '. Remove from script list in F1.1.inventory_scaling.R...' ) )
     }
@@ -48,9 +48,11 @@
 #   the inventory (as a vector of iso codes)
     inv_name <- 'US_GHG' #for naming diagnostic files and reading data
     region <- c( "usa" )
+
     sector_fuel_mapping <- 'US-GHG'
+
     mapping_method <- 'sector'
-    inv_years <- 1990 : 2014
+    inv_years <- 1990 : 2018
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
     inv_data_folder <- 'MED_OUT'
 

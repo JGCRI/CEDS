@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.UNFCCC_scaling.R
 # Authors' Names: Rachel Hoesly
-# Date Last Modified: April 30, 2020
+# Date Last Modified: July 16, 2020
 # Program Purpose: To create scaling factors and update emissions estimate for
 #                  the UNFCCC regions from latest emissions working copy.
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
@@ -46,6 +46,11 @@
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
+    # TODO: These 2 maps should be made into 1 map
+    sector_fuel_mapping <- 'UNFCCC_scaling_mapping'
+    if ( em == 'CH4')  sector_fuel_mapping <- 'UNFCCC_scaling_mapping_CH4'
+    mapping_method <- 'sector'
+
     inv_name <- 'UNFCCC'
     sector_fuel_mapping <- inv_name
     if ( em == 'CH4'){ sector_fuel_mapping <- paste0( inv_name, "_", em ) }
@@ -54,7 +59,6 @@
                  "dnk", "esp", "est", "fin", "fra", "gbr", "grc", "hrv", "hun",
                  "irl", "isl", "ita", "jpn", "ltu", "lva", "mlt", "nld", "nor",
                  "nzl", "prt", "rou", "svk", "svn", "swe", "tur", "ukr" )
-
     # All other ems besides CH4 do not include can and pol data from the UNFCCC
     if ( em == 'CH4'){ region <- c( region, "can", "pol" ) }
 

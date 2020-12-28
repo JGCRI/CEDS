@@ -508,6 +508,13 @@ addToDb_overwrite <- function( new_data, em, file_extension, module = 'B',
                                addEntries = FALSE ){
   printLog ("Adding new data to database")
 
+  # Check that sectors are valid
+  sectorsValid <- sectorCheck(new_data, check_all = FALSE)
+  if ( !sectorsValid ) {
+        printLog( paste( 'ERROR: Invalid sector in input files for ', em ) )
+        stop()
+  }
+
   #   Read in necessary files and data: common_data.r required
   #   to avoid variable overwrite carryover
   source( paste( PARAM_DIR, "common_data.R", sep = "" ) )

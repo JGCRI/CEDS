@@ -30,4 +30,4 @@ mkd,all,NA,NA,NA,1992,2014,Do not scale former Yugosloavia countries before 1992
 mne,all,NA,NA,NA,1992,2014,Do not scale former Yugosloavia countries before 1992 since data are unlikely to match inventory assumptions
 all,1A3c_rail,NA,NA,NA,2000,2009,Only scale rail transportation for a few years to avoid large jumps in EF
 alb,1A3c_rail,NA,NA,NA,2000,2008,Avoid albania jump in EF after 2008 (CHECK: may need to also stop emep scaling)
-ner,all,NA,NA,NA,2002,2012,avoid discontinuities in inventory emissions
+ner,all,NA,NA,NA,2002,2012,Avoid discontinuities in inventory emissions
