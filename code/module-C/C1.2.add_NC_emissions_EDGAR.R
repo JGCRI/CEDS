@@ -776,6 +776,8 @@ if( em == "CO2" ){
 #     later in CEDS while finalizing adipic and nitric acid emissions
 if( em == "N2O" ){
 
+    # Remove these from EDGAR for now
+    # Will be added back in later minus specific adiptic and nitric acid sector emissions
     edgar_final_emissions <- edgar %>%
         dplyr::filter( sector != "2B_Chemical-industry" )
 

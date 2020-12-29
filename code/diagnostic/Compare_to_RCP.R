@@ -35,7 +35,10 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CH4"
+if ( is.na( em ) ) em <- "N2O"
+
+# Run for all ems (RCP for N2O and CO2 is blank, but we want graphs for CEDS values anyway)
+if (em != "N2Ox"){
 
 # Run for all ems besides N2O
 if (em != "N2O"){
@@ -54,7 +57,8 @@ library('gridExtra')
 rcp_start_year <- 1850
 rcp_end_year <- 2000
 CEDS_start_year <- 1850
-if ( em == 'CH4') CEDS_start_year <- 1970
+# If not doing for publication, look at all years.
+#if ( em == 'CH4') CEDS_start_year <- 1970
 CEDS_end_year <- end_year
 
 rcp_years <- seq(from=rcp_start_year,to=rcp_end_year,by=10)
@@ -109,7 +113,7 @@ ceds_remove_sectors <- c("1A3ai_International-aviation",
 # if current em does not have ship emissions
 # for the RCP shipping emissions data Historicalshipemissions_IPCC_FINAL_Jan09_updated_1850.xlsx
 # it doesn't contain data for NH3
-has_ship <- em != "NH3"
+if( em %in% c( 'NH3', 'N2O', 'CO2' ) ) has_ship <- FALSE
 
 if ( has_ship ) {
   ceds_remove_sectors_global <- c("1A3ai_International-aviation",
@@ -126,21 +130,25 @@ if ( has_ship ) {
 
 }
 
+RCP_em <- em
+
+# Process RCP CH4 emissions then zero out so can draw graphs
+if (em == "N2O") RCP_em <- "CH4"
 
 # ---------------------------------------------------------------------------
 # 2. Load and process RCP files
 rcp_dir <- './emissions-inventories/RCP/'
 
 # create temporary folder to extract zipped files
-zipfile_path <- paste0(rcp_dir, em, '.zip')
-dir.name <- paste0(rcp_dir, em, '_RCP_temp_folder')
+zipfile_path <- paste0(rcp_dir, RCP_em, '.zip')
+dir.name <- paste0(rcp_dir, RCP_em, '_RCP_temp_folder')
 dir.create(dir.name)
 # unzip files to temp folder
 unzip(zipfile_path, exdir = dir.name)
 
 # list files in the folder
-files <- list.files(paste0(dir.name,'/',em)  ,pattern = '.dat')
-files <- paste0(dir.name,'/',em,'/',files)
+files <- list.files(paste0(dir.name,'/',RCP_em)  ,pattern = '.dat')
+files <- paste0(dir.name,'/',RCP_em,'/',files)
 
 rcp_files <- list()
 for (i in seq_along(rcp_years)){
@@ -203,6 +211,13 @@ rcp_ship_emissions [ , rcp_shipping_em_list ] <- rcp_ship_emissions [ , rcp_ship
 rcp_ship_emissions$units <- "kt"
 rcp_ship_emissions$SO2 <- rcp_ship_emissions$SO2 * 2  #Convert from S to SO2 for SO2
 rcp_ship_emissions$NOx <- rcp_ship_emissions$NOx * 3.285  # Convert from N to NO2 for NOx
+
+if ( em %in% c( 'CO2', 'N2O' ) ) {
+  # Rill RCP dataset with zeros
+  RCP <- RCP %>%
+    dplyr::mutate_if( is.numeric, function(x) ifelse(is.numeric(x), 0, x ) )
+  rcp_ship_emissions$em <- rcp_ship_emissions$NOx * 0.0
+}
 
 # ---------------------------------------------------------------------------
 # 4. Process CEDS Emissions Data
@@ -480,6 +495,14 @@ writeData( region_sector_both,'DIAG_OUT', paste0('RCP_',em,'_region_sector_Compa
     print("Selected emissions species is not configured to compare to RCP.")
 
 }
+
+# Write out total by country with region tag for diagnostics
+#add region to ceds data
+country_ceds <- aggregate(ceds_comparable[x_years],
+                                by = list(iso = ceds_comparable$iso ),FUN=sum )
+country_ceds$Region <- complete_region_map[match(country_ceds$iso,tolower(complete_region_map$Code)),'Region']
+country_ceds[which(is.na(country_ceds$Region)),'Region']<- 'Not Mapped'
+writeData( country_ceds,'DIAG_OUT', paste0(em,'_CEDS_comparable_country_total'),domain_extension = 'ceds-comparisons/',meta=F)
 
 # ---------------------------------------------------------------------------
 # 10. End
