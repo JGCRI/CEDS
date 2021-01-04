@@ -354,37 +354,32 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
   if (em %!in% c( 'CO2', 'N2O' ) )  source('../code/diagnostic/Compare_to_RCP.R')
   if( em %!in% c( 'CO2', 'N2O', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')
 
+  source('../code/diagnostic/Compare_to_RCP.R')
+  if( em %!in% c( 'CO2', 'N2O', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')
+
 # Warn the user that if they are interested in N2O emissions and NH3 or NOx emissions
 # have changed since the last run for sectors 1 and 2, then H1.1a.Aggregate_NH3_NOx_for_N2O_7BC_ext.R needs
 # to be run in order to update the historical extension data for N2O 7BC emissions.
 
   if( em == "N2O" ){
-
       warning( "**************************************************************************" )
-      warning( "Note that if the user is interested in N2O emissions and NH3 or NOx" )
+      warning( "Note that N2O emissions before 1970 depend on NH3 and NOx values. If NH3 and NOx" )
       warning( "emissions have changed within sectors 1 and 2 since the last run, then the user should" )
       warning( "run script H1.1a.Aggregate_NH3_NOx_for_N2O_7BC_ext.R and then rerun CEDS for N2O." )
       warning( "This script aggregates final NH3 and NOx emissions for these sectors and converts" )
       warning( "them to units of N. This data is used for the historical extension of N2O" )
       warning( "7BC_Indirect-N2O-non-agricultural-N emissions." )
       warning( "**************************************************************************" )
-
   }
 
-  source('../code/diagnostic/Compare_to_RCP.R')
-  if( em %!in% c( 'CO2', 'N2O', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')
-
   # Warn the user about CH4 and N2O extension
-
   if( em %in% c( 'CH4', 'N2O' ) ){
-
       warning( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" )
       warning( "Note that while the system produces extensions of CH4 and N2O emissions back to")
-      warning( "1750, agricutural drivers before 1960 for CH4 and N2O are not yet included in CEDS")
-      warning( "and emissinos for these sectors are extended using population. CEDS emissions are ")
-      warning( "only strictly valid, therefore, after 1960 for these species.")
+      warning( "1750, regional agricutural drivers before 1960 for CH4 and N2O are not yet included ")
+      warning( "in CEDS and emissinos for these sectors are generally extended using population. CEDS  ")
+      warning( "emissions are only strictly valid, therefore, after 1960 for these species.")
       warning( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" )
-
   }
 
 logStop()

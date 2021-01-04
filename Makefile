@@ -485,7 +485,7 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 	$(ACTIV)/Smelter-Feedstock-Sulfur.xlsx \
 	$(ACTIV)/Wood_Pulp_Consumption.xlsx \
 	$(ACTIV)/GDP.xlsx \
-	$(ENERGY_DATA)/Hyde_oil_1800-1990.xls
+	$(ENERGY_DATA)/Hyde_oil_1800-1975.xls
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
@@ -494,6 +494,7 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 	Rscript $(word 6,$^) $(EM) --nosave --no-restore
 	Rscript $(word 7,$^) $(EM) --nosave --no-restore
 	Rscript $(word 8,$^) $(EM) --nosave --no-restore
+	Rscript $(word 9,$^) $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.pulp_paper_consumption_full.csv: \
 	$(MED_OUT)/A.NC_activity_db.csv
@@ -576,7 +577,7 @@ $(MED_OUT)/A.NC_activity_extended_db.csv: \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
 	$(MED_OUT)/A.pulp_paper_consumption_full.csv \
 	$(MED_OUT)/A.NC_activity.csv \
-	$(MED_OUT)/A.crude_oil_production_driver_data.csv \
+	$(MED_OUT)/A.crude_oil_production_data.csv \
 	$(EXT_IN)/CEDS_historical_extension_drivers_activity.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore

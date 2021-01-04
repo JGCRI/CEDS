@@ -4,7 +4,7 @@
 # Date Last Modified: December 21, 2020
 # Program Purpose: Extends ECLIPSE flaring emissions using Hyde (last year 1800)
 #                  and IEA crude oil production data
-# Input Files: [em]_eclipse_flr_emissions.csv, A.crude_oil_production_driver_data,
+# Input Files: [em]_eclipse_flr_emissions.csv, A.crude_oil_production_data,
 #              Master_Country_List.csv, A.UN_pop_master.csv
 # Output Files: C.[em]_ECLIPSE_flaring_emissions_extended.csv,
 # "             C.[em]_ECLIPSE_flaring_to_crude_oil_production_ratios.csv (for ems other than N2O)
@@ -46,7 +46,7 @@
     ECLIPSE_flaring <- readData( "EM_INV", domain_extension = "ECLIPSE-flaring/", file_name = paste0( em_use, '_eclipse_flr_emissions' ) )
 
 # read in crude oil production driver data (based off of IEA and Hyde oil production data)
-    oil_production <- readData( 'MED_OUT', file_name = 'A.crude_oil_production_driver_data' )
+    oil_production <- readData( 'MED_OUT', file_name = 'A.crude_oil_production_data' )
 
 # read in master country list
     mcl <- readData( 'MAPPINGS', 'Master_Country_List' )

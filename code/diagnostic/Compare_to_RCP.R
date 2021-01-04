@@ -113,6 +113,7 @@ ceds_remove_sectors <- c("1A3ai_International-aviation",
 # if current em does not have ship emissions
 # for the RCP shipping emissions data Historicalshipemissions_IPCC_FINAL_Jan09_updated_1850.xlsx
 # it doesn't contain data for NH3
+has_ship <- TRUE
 if( em %in% c( 'NH3', 'N2O', 'CO2' ) ) has_ship <- FALSE
 
 if ( has_ship ) {
@@ -133,7 +134,7 @@ if ( has_ship ) {
 RCP_em <- em
 
 # Process RCP CH4 emissions then zero out so can draw graphs
-if (em == "N2O") RCP_em <- "CH4"
+if ( em %in% c( 'N2O', 'CO2' ) ) RCP_em <- "CH4"
 
 # ---------------------------------------------------------------------------
 # 2. Load and process RCP files

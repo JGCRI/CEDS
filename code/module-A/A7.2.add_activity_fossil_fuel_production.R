@@ -4,7 +4,7 @@
 # Date Last Modified: December 21, 2020
 # Program Purpose: Extend CEDS activity backward with fossil fuel data
 # Input Files:  A.NC_activity_extended_db.csv, CEDS_historical_extension_drivers_activity.csv,
-#               A.crude_oil_production_driver_data.csv
+#               A.crude_oil_production_data.csv
 # Output Files: A.NC_activity_extended_db.csv
 # TODO:
 # ---------------------------------------------------------------------------
@@ -28,7 +28,7 @@ initialize( script_name, log_msg, headers )
 
 activity_all <- readData( 'MED_OUT', 'A.NC_activity_extended_db' )
 extension_drivers_all <- readData("EXT_IN", 'CEDS_historical_extension_drivers_activity')
-oil_production <- readData( "MED_OUT" , 'A.crude_oil_production_driver_data' )
+oil_production <- readData( "MED_OUT" , 'A.crude_oil_production_data' )
 
 # ---------------------------------------------------------------------------
 # 2. Select data to extend based on extension drivers
@@ -50,6 +50,13 @@ oil_prod <- oil_production[, c( op_id_cols, paste0("X", historical_pre_extension
 # 4. Extend Data
   ratio_year <- unique(drivers[,'ext_end_year'])
   ext_start_year <- unique(drivers[,'ext_start_year'])
+
+  # if this driver is not used, exit
+  if ( ( length( ext_start_year ) == 0 ) ) {
+      printLog( "Exiting - no fossil fuel drivers needed" )
+  } else {
+  # Rest of routine
+
   extension_years <- paste0('X',ext_start_year:ratio_year)
 
   # select extension data for current method
@@ -75,5 +82,8 @@ oil_prod <- oil_production[, c( op_id_cols, paste0("X", historical_pre_extension
 if( !(nrow(activity_all) == nrow(activity) & ncol(activity_all) == ncol(activity) ) ){
   stop( "New and old activity do not match") } else{
     writeData( activity, "MED_OUT" , 'A.NC_activity_extended_db' ) }
+
+ # End of big loop - if no fossil production data needed
+ }
 
 logStop()

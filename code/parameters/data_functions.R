@@ -1083,6 +1083,7 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
 
   ceds_extension_ratios[ ratio_years ] <- ceds_extension_ratios[ paste0(ratio_years,'.x')]/ceds_extension_ratios[ paste0(ratio_years,'.y')]
   ceds_extension_ratios <- replace(ceds_extension_ratios, ceds_extension_ratios == 'NaN', 0)
+  ceds_extension_ratios <- replace(ceds_extension_ratios, ceds_extension_ratios == 'Inf', 0)
   ceds_extension_ratios <- replace(ceds_extension_ratios, is.na(ceds_extension_ratios), 0)
 
   ceds_extension_ratios$ratio <-  rowMeans(ceds_extension_ratios[ ratio_years ])

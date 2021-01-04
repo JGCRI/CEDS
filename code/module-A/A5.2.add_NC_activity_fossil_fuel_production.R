@@ -5,7 +5,7 @@
 # Program Purpose: Gather historical oil production data from IEA and Hyde crude
 #                  oil production data sets
 # Input Files: Master_Country_List.csv, oil_1800-1990.xls, A.en_stat_sector_fuel.csv,
-# Output Files: A.crude_oil_production_driver_data, A.IEA_Hyde_average_1971-1973
+# Output Files: A.crude_oil_production_data, A.IEA_Hyde_average_1971-1973
 # TODO:
 
 # -----------------------------------------------------------------------------
@@ -26,7 +26,7 @@ script_name <- "A5.2.add_NC_activity_fossil_fuel_production.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 
-initialize( script_name, log_msg, headers )
+initialize( script_name, log_msg, headers )ex
 
 # ------------------------------------------------------------------------------
 
@@ -70,7 +70,10 @@ MCL <- readData( domain = 'MAPPINGS', file_name = 'Master_Country_List' )
 en_stat_sector_fuel <- readData( 'MED_OUT', file_name = 'A.en_stat_sector_fuel' )
 
 # Hyde crude oil production data
-oil_1800_1990 <- readData( "ENERGY_IN","Hyde_oil_1800-1990", ".xls", sheet_selection = "country data" )
+oil_1800_1990 <- readData( "ENERGY_IN","Hyde_oil_1800-1975", ".xls", sheet_selection = "country data" )
+
+# CDIAC oil and liquid CO2 emissions data
+CDIAC_oil_liquid <- readData( 'MED_OUT', file_name = 'E.CO2_CDIAC_liquid_and_gas' )
 
 # ------------------------------------------------------------------------------
 
@@ -272,7 +275,30 @@ Hyde_IEA_oil <- IEA_oil %>%
 
 # Sort and organize
 Hyde_IEA_oil$activity <- "crude_oil_production"
-replace <- Hyde_IEA_oil[ , c( 'iso', 'activity', 'units', Hyde_IEA_years_X ) ]
+Hyde_IEA_oil_final <- Hyde_IEA_oil[ , c( 'iso', 'activity', 'units', Hyde_IEA_years_X ) ]
+
+# Generate hybrid extension data set for fugitive petroleum emissions based on
+# oil production and CDIAC oil and liquid CO2
+
+# Extract isos with oil production for the years 1970-1975
+oil_prod_non_zero <- Hyde_IEA_oil_final %>%
+    dplyr::select(c(iso, X1970:X1975)) %>%
+    dplyr::mutate(sum = rowSums(.[2:7])) %>%
+    dplyr::filter(sum != 0)
+
+# Remove corresponding isos from CDIAC oil and liquid
+CDIAC_match <- CDIAC_oil_liquid %>%
+    dplyr::filter(!(iso %in% oil_prod_non_zero$iso)) %>%
+    dplyr::select(-c(fuel))
+
+# Combine oil production with CDIAC oil and liquid
+oil_prod_CDIAC <- Hyde_IEA_oil_final %>%
+    dplyr::filter(iso %in% oil_prod_non_zero$iso) %>%
+    dplyr::bind_rows(CDIAC_match) %>%
+    tidyr::fill(activity) %>%
+    dplyr::select(iso, activity, units, all_of(X_extended_years)) %>%
+    dplyr::arrange(iso) %>%
+    replace(is.na(.), 0)
 
 # Calculate average of 1971-1973 from IEA and Hyde to check consistency
 IEA_1971_1973 <- IEA_oil %>%
@@ -293,16 +319,26 @@ IEA_Hyde_avg <- dplyr::left_join(IEA_1971_1973,Hyde_1971_1973, by = "iso")
 # By default, it will be extended forward to the common end year, but not backwards.
 # Only do this if the activityCheck header function determines that the activities in
 # the reformatted activity_data are all present in the Master List.
-if( activityCheck( replace, check_all = FALSE ) ) {
-    addToActivityDb( replace )
+if( activityCheck( Hyde_IEA_oil_final, check_all = FALSE ) ) {
+    addToActivityDb( Hyde_IEA_oil_final )
 }
 
 # ------------------------------------------------------------------------------
 
 # 5. Output
 
-# Oil Production Driver Data
-writeData( replace, domain = "MED_OUT", fn = paste0( "A.crude_oil_production_driver_data"  ) )
+# Oil Production Data
+writeData( Hyde_IEA_oil_final, domain = "MED_OUT", fn = paste0( "A.crude_oil_production_data"  ) )
+
+# Oil Production Extension Data
+writeData( oil_prod_CDIAC, domain = "MED_OUT", fn = paste0( "A.crude_oil_production_extension_data"  ) )
+meta_names <- c( "Data.Type", "Emission", "Region", "Sector", "Start.Year",
+                 "End.Year", "Source.Comment" )
+meta_note <- c( "Extension Driver", "All", "All", "1B2_Fugitive-petr",
+                1800, "1969", paste( "For petroleum producing countries extend by crude oil production.",
+                                     "For all other countries use CDIAC oil + gas CO2 emissions" ) )
+source_info <- script_name
+addMetaData( meta_note, meta_names, source_info )
 
 # IEA to Hyde ratios of the average oil production from 1971 to 1973
 writeData( IEA_Hyde_avg, domain = "MED_OUT", fn = paste0( "A.IEA_Hyde_average_1971-1973" ) )
