@@ -26,7 +26,7 @@ script_name <- "A5.2.add_NC_activity_fossil_fuel_production.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 
-initialize( script_name, log_msg, headers )ex
+initialize( script_name, log_msg, headers )
 
 # ------------------------------------------------------------------------------
 
