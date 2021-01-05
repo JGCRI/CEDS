@@ -40,9 +40,6 @@ if ( is.na( em ) ) em <- "N2O"
 # Run for all ems (RCP for N2O and CO2 is blank, but we want graphs for CEDS values anyway)
 if (em != "N2Ox"){
 
-# Run for all ems besides N2O
-if (em != "N2O"){
-
 # Load Packages
 
 library('ggplot2')
