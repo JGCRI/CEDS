@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: A5.2.add_NC_activity_fossil_fuel_production.R
 # Author(s): Hamza Ahsan
-# Date Last Modified: December 18, 2020
+# Date Last Modified: January 11, 2021
 # Program Purpose: Gather historical oil production data from IEA and Hyde crude
 #                  oil production data sets
 # Input Files: Master_Country_List.csv, oil_1800-1990.xls, A.en_stat_sector_fuel.csv,
@@ -28,6 +28,59 @@ source( paste0( PARAM_DIR, "header.R" ) )
 
 initialize( script_name, log_msg, headers )
 
+# disaggregate_country_trend
+# Brief:    Generates a trend using a ratio of the average of the last three years (i.e., 1971-1973)
+#           of activity (i.e., oil production) of the disaggregate isos. This is an alternative
+#           trend to population for the disaggregate_country function and allows for a constant
+#           split from trend_start_year to trend_end_year.
+# Details:
+# Dependencies: None
+# Author(s):
+# Params:   data_set -          data set to build trend from (i.e., IEA oil production data)
+#           disagg_iso_list -   list of disaggregate isos for particular iso being split
+#           trend_start_year -  start year for trend
+#           trend_end_year -    end year for trend
+#           first_yr -          first non-zero data point (i.e., 1971)
+#           second_yr -         second non-zero data point (i.e., 1972)
+#           third_yr -          third non-zero data point (i.e., 1973)
+# Return:   constant trend for disaggregate isos from start year to end year
+# Input Files:  None
+# Output Files: None
+
+disaggregate_country_trend <- function(data_set, disagg_iso_list, trend_start_year, trend_end_year,
+                                       first_yr, second_yr, third_yr){
+
+    # Reformat data_set (i.e., IEA) and calculate percent of total activity
+    # (i.e., oil production) for each disaggregated iso
+    disagg_iso <- data_set %>%
+        dplyr::filter(iso %in% disagg_iso_list)
+    disagg_iso$total <- disagg_iso[[first_yr]] + disagg_iso[[second_yr]] + disagg_iso[[third_yr]]
+    disagg_iso <- disagg_iso %>%
+        dplyr::mutate(avg_per = total/sum(total))
+
+    # Define trend data for disaggregate isos
+    disagg_trend <- dplyr::data_frame(iso = disagg_iso$iso)
+    disagg_trend[,paste0('X', trend_start_year:trend_end_year)] <- 1
+    final_trend <- disagg_trend %>%
+        gather(variable, value, -iso) %>%
+        group_by(iso) %>%
+        mutate(value = value * disagg_iso$avg_per) %>%
+        spread(variable, value) %>%
+        ungroup()
+
+    # Add isos to trend that appear in disagg_iso_list but not in data_set to match
+    # the list of isos the disaggregate_country function splits by
+    if (length(disagg_iso_list) > length(disagg_trend$iso)){
+        final_trend <- final_trend %>%
+          add_row(iso=c(disagg_iso_list[which(!(disagg_iso_list %in% disagg_trend$iso))]))
+    }
+    final_trend <- final_trend %>%
+        replace(is.na(.), 0) %>%
+        as.data.frame()
+
+    return(final_trend)
+}
+
 # ------------------------------------------------------------------------------
 
 # 1. Define settings and script constants
@@ -37,23 +90,19 @@ IEA_EXT_TO_BP_END_YEAR <- paste0( "X", ( IEA_end_year + 1 ): BP_actual_last_year
 IEA_YEARS_x <- paste0( "X", IEA_start_year : BP_actual_last_year )
 extended_IEA_back <- paste0('X', 1800: (IEA_start_year-1))
 
-# Hyde oil production years historical extension (overlap IEA data for 1971-1973)
-# to allow for scaling up Hyde Bahrain and for diagnostic output of ratios for all isos
-Hyde_years_X <- paste0('X', 1800:1973)
+# Define years to scale up Hyde oil production for Bahrain
+bhr_scale_years <- paste0('X', 1800:1970)
 
 # Combined Hyde and IEA years
 Hyde_IEA_years_X <- paste0('X', 1800:end_year)
 
 # Define aggregate Former Soviet Union (FSU) iso and subregional FSU isos. Used for disaggregating fossil fuel production data
-fsu <- 'ussr'
 fsu_members <- c( "arm", "aze", "blr", "est", "geo", "kaz", "kgz", "ltu", "lva", "mda", "rus", "tjk", "tkm", "ukr", "uzb" )
 
 # Define aggregate Czechoslovakia iso and subregional isos.
-czechosl <- "csk"
 czechosl_members <- c( 'cze', 'svk' )
 
 # Define aggregate Yugoslavia iso and subregional isos.
-yugosl <- "yug"
 yugosl_members <- c( 'bih', 'hrv', 'mkd', 'svn', 'scg', 'srb', 'mne' )
 
 # ------------------------------------------------------------------------------
@@ -146,101 +195,68 @@ Hyde_oil_wide <- cast( Hyde_oil_long, iso + units ~ X_year, value = "oil_product
 # for last 3 years (1971-1973).FSU member countries are not listed in raw Hyde data, but total production
 # is reported for FSU. Here the code splits the ussr( fsu ) and distributes to fsu member countries.
 
-# Extract FSU countries from Hyde oil data
-Hyde_fsu <- Hyde_oil_wide %>%
-    dplyr::filter( iso %in% fsu )
+fsu_trend <- disaggregate_country_trend(IEA_oil, fsu_members,'1750','2019',
+                                        'X1971', 'X1972', 'X1973')
 
-# Reformat IEA data and calculate percent of total ussr oil production for each
-# disaggregated iso
-IEA_fsu_members <- IEA_oil %>%
-    dplyr::filter( iso %in% c( fsu, fsu_members ) ) %>%
-    mutate(total = X1971 + X1972 + X1973) %>%
-    mutate(avg_per = total/sum(total))
-
-# Extend IEA data back to 1800 (start of Hyde data)
-IEA_fsu_members[,extended_IEA_back] <- 0
-
-# Merge Hyde with IEA and disaggregate ussr data from 1800 to 1970
-Hyde_IEA_fsu_split <- dplyr::bind_rows( Hyde_fsu, IEA_fsu_members ) %>%
-    dplyr::filter(iso != fsu)
-
-Hyde_1800_1970 <- Hyde_fsu %>%
-    dplyr::select(c("X1800":"X1970"))
-
-# Calculate fraction of total ussr oil production for disaggregate isos
-for (i in 1:(1970-1800+1)) {
-    Hyde_IEA_fsu_split[,(i+2)] <- Hyde_IEA_fsu_split$avg_per * Hyde_1800_1970[,i]
-}
-
-# Remove last two rows that were used to calculate percent of total ussr oil production
-Hyde_IEA_fsu_split <- Hyde_IEA_fsu_split %>%
-    dplyr::select( -c(total, avg_per) )
+# FSU
+Hyde_oil_wide_fsu_split <-
+    disaggregate_country( original_data = Hyde_oil_wide,
+                          trend_data = fsu_trend,
+                          trend_match_cols = 'iso',
+                          combined_iso = 'ussr',
+                          dis_start_year = 1800,
+                          dis_end_year = 1970,
+                          disaggregate_iso = c( 'aze', 'arm', 'blr',
+                                                'est', 'geo', 'kaz',
+                                                'kgz', 'lva', 'ltu',
+                                                'mda', 'tjk', 'tkm',
+                                                'ukr', 'uzb', 'rus' ),
+                          write_over_values = T )
 
 # Disaggregate Hyde's Czechoslovakia data (1914-1970) using IEA trend for last 3 years (1971-1973).
 # Czechoslovakia member countries are not listed in raw Hyde data, but total production
 # is reported. Here the code splits Czechoslovakia and distributes to member countries.
 
-# Extract Czechoslovakia countries from Hyde oil data
-Hyde_csk <- Hyde_oil_wide %>%
-    dplyr::filter( iso %in% czechosl )
+csk_trend <- disaggregate_country_trend(IEA_oil, czechosl_members, '1750', '2019',
+                                        'X1971', 'X1972', 'X1973')
 
-# Reformat IEA data and calculate percent of total csk oil production for each disaggregated iso
-IEA_csk_members <- IEA_oil %>%
-    dplyr::filter( iso %in% c( czechosl, czechosl_members ) ) %>%
-    mutate(total = X1971 + X1972 + X1973) %>%
-    mutate(avg_per = total/sum(total))
-
-# Extend IEA data back to 1800 (start of Hyde data)
-IEA_csk_members[,extended_IEA_back] <- 0
-
-# Merge Hyde with IEA and disaggregate csk data from 1800 to 1970
-Hyde_IEA_csk_split <- dplyr::bind_rows( Hyde_csk, IEA_csk_members ) %>%
-    dplyr::filter(iso != czechosl)
-
-Hyde_1800_1970 <- Hyde_csk %>%
-    dplyr::select(c("X1800":"X1970"))
-
-# Calculate fraction of total csk oil production for disaggregate isos
-for (i in 1:(1970-1800+1)) {
-    Hyde_IEA_csk_split[,(i+2)] <- Hyde_IEA_csk_split$avg_per * Hyde_1800_1970[,i]
-}
-
-# Remove last two rows that were used to calculate percent of total csk oil production
-Hyde_IEA_csk_split <- Hyde_IEA_csk_split %>%
-    dplyr::select( -c(total, avg_per) )
+# Czechoslovakia
+Hyde_oil_wide_csk_split <-
+    disaggregate_country( original_data = Hyde_oil_wide_fsu_split,
+                          trend_data = csk_trend,
+                          trend_match_cols = 'iso',
+                          combined_iso = 'csk',
+                          dis_start_year = 1800,
+                          dis_end_year = 1970,
+                          disaggregate_iso = c( 'cze', 'svk' ),
+                          write_over_values = T )
 
 # Disaggregate Hyde's Yugoslavia data (1933-1970) using IEA trend for last 3 years (1971-1973).
 # Yugoslavia member countries are not listed in raw Hyde data, but total production
 # is reported. Here the code splits Yugoslavia and distributes to member countries.
 
-# Extract Yugoslavia countries from Hyde oil data
-Hyde_yug <- Hyde_oil_wide %>%
-    dplyr::filter( iso %in% yugosl )
+yug_trend <- disaggregate_country_trend(IEA_oil, yugosl_members, '1750', '2019',
+                                        'X1971', 'X1972', 'X1973')
 
-# Reformat IEA data and calculate percent of total csk oil production for each disaggregated iso
-IEA_yug_members <- IEA_oil %>%
-    dplyr::filter( iso %in% c( yugosl, yugosl_members ) ) %>%
-    dplyr::mutate(total = X1971 + X1972 + X1973) %>%
-    dplyr::mutate(avg_per = total/sum(total))
+# Yugoslavia
+Hyde_oil_wide_yug_split <-
+    disaggregate_country( original_data = Hyde_oil_wide_csk_split,
+                          trend_data = yug_trend,
+                          trend_match_cols = 'iso',
+                          combined_iso = 'yug',
+                          dis_start_year = 1800,
+                          dis_end_year = 1970,
+                          disaggregate_iso = c( 'bih', 'hrv', 'mkd',
+                                                'svn', 'scg', 'srb',
+                                                'mne'),
+                          write_over_values = T )
 
-# Extend IEA data back to 1800 (start of Hyde data)
-IEA_yug_members[,extended_IEA_back] <- 0
-
-# Merge Hyde with IEA and disaggregate csk data from 1800 to 1970
-Hyde_IEA_yug_split <- dplyr::bind_rows( Hyde_yug, IEA_yug_members ) %>%
-    dplyr::filter(iso != yugosl)
-
-Hyde_1800_1970 <- Hyde_yug %>%
-    dplyr::select(c("X1800":"X1970"))
-
-# Calculate fraction of total yug oil production for disaggregate isos
-for (i in 1:(1970-1800+1)) {
-    Hyde_IEA_yug_split[,(i+2)] <- Hyde_IEA_yug_split$avg_per * Hyde_1800_1970[,i]
-}
-
-# Remove last two rows that were used to calculate percent of total yug oil production
-Hyde_IEA_yug_split <- Hyde_IEA_yug_split %>%
-    dplyr::select( -c(total, avg_per) )
+# Merge Hyde and IEA with disaggregated data. Remove overlapping years.
+Hyde_IEA_split <- left_join(select(IEA_oil, -c(X1960:X1970)), select(Hyde_oil_wide_fsu_split, -c(X1971:X1975)), by = c("iso", "units")) %>%
+    left_join(., select(Hyde_oil_wide_csk_split, -c(X1971:X1975)), by = c("iso", "units")) %>%
+    left_join(., select(Hyde_oil_wide_yug_split, -c(X1971:X1975)), by = c("iso", "units")) %>%
+    select(iso, units, all_of(Hyde_IEA_years_X)) %>%
+    replace(is.na(.), 0)
 
 # Scale up Bahrain Hyde data by ratio of average IEA data from 1971-1973 to
 # corresponding average of Hyde data
@@ -254,34 +270,21 @@ Hyde_bhr_1971_1973 <- Hyde_oil_wide %>%
     dplyr::select( c(X1971:X1973) ) %>%
     dplyr::mutate(avg = mean(c(X1971, X1972, X1973)))
 
-Hyde_oil_wide[which(Hyde_oil_wide$iso == "bhr"), Hyde_years_X] <- Hyde_oil_wide[which(Hyde_oil_wide$iso == "bhr"), Hyde_years_X] * IEA_bhr_1971_1973$avg/Hyde_bhr_1971_1973$avg
+Hyde_IEA_split[which(Hyde_IEA_split$iso == "bhr"), bhr_scale_years] <- Hyde_IEA_split[which(Hyde_IEA_split$iso == "bhr"), bhr_scale_years] * IEA_bhr_1971_1973$avg/Hyde_bhr_1971_1973$avg
 
 # Replace IEA Israel data from 1971 to 1975 with Hyde data
 Israel_blip_years <- paste0('X', 1971:1975)
-IEA_oil[which(IEA_oil$iso == "isr"), Israel_blip_years] <- Hyde_oil_wide[which(Hyde_oil_wide$iso == "isr"), Israel_blip_years]
+Hyde_IEA_split[which(Hyde_IEA_split$iso == "isr"), Israel_blip_years] <- Hyde_oil_wide[which(Hyde_oil_wide$iso == "isr"), Israel_blip_years]
 
-# Drop overlapping years from Hyde (1971-1975)
-Hyde_oil_final <- Hyde_oil_wide %>%
-    dplyr::select(-c(X1971:X1975)) %>%
-    dplyr::filter(!(iso %in% c(fsu, czechosl, yugosl)))
-
-# Combine Hyde with original IEA raw data and disaggregated ussr, yug, csk
-Hyde_IEA_oil <- IEA_oil %>%
-    dplyr::select(-c(X1960:X1970)) %>%
-    dplyr::filter(!(iso %in% c(fsu_members, yugosl_members, czechosl_members))) %>%
-    dplyr::full_join(Hyde_oil_final, by = c("iso", "units")) %>%
-    dplyr::bind_rows(Hyde_IEA_fsu_split, Hyde_IEA_csk_split, Hyde_IEA_yug_split) %>%
-    replace(is.na(.), 0)
-
-# Sort and organize
-Hyde_IEA_oil$activity <- "crude_oil_production"
-Hyde_IEA_oil_final <- Hyde_IEA_oil[ , c( 'iso', 'activity', 'units', Hyde_IEA_years_X ) ]
+# sort and organize
+Hyde_IEA_split$activity <- "crude_oil_production"
+Hyde_IEA_oil <- Hyde_IEA_split[, c('iso', 'activity', 'units', Hyde_IEA_years_X)]
 
 # Generate hybrid extension data set for fugitive petroleum emissions based on
 # oil production and CDIAC oil and liquid CO2
 
 # Extract isos with oil production for the years 1970-1975
-oil_prod_non_zero <- Hyde_IEA_oil_final %>%
+oil_prod_non_zero <- Hyde_IEA_oil %>%
     dplyr::select(c(iso, X1970:X1975)) %>%
     dplyr::mutate(sum = rowSums(.[2:7])) %>%
     dplyr::filter(sum != 0)
@@ -292,7 +295,7 @@ CDIAC_match <- CDIAC_oil_liquid %>%
     dplyr::select(-c(fuel))
 
 # Combine oil production with CDIAC oil and liquid
-oil_prod_CDIAC <- Hyde_IEA_oil_final %>%
+oil_prod_CDIAC <- Hyde_IEA_oil %>%
     dplyr::filter(iso %in% oil_prod_non_zero$iso) %>%
     dplyr::bind_rows(CDIAC_match) %>%
     tidyr::fill(activity) %>%
@@ -319,8 +322,8 @@ IEA_Hyde_avg <- dplyr::left_join(IEA_1971_1973,Hyde_1971_1973, by = "iso")
 # By default, it will be extended forward to the common end year, but not backwards.
 # Only do this if the activityCheck header function determines that the activities in
 # the reformatted activity_data are all present in the Master List.
-if( activityCheck( Hyde_IEA_oil_final, check_all = FALSE ) ) {
-    addToActivityDb( Hyde_IEA_oil_final )
+if( activityCheck( Hyde_IEA_oil, check_all = FALSE ) ) {
+    addToActivityDb( Hyde_IEA_oil )
 }
 
 # ------------------------------------------------------------------------------
@@ -328,7 +331,7 @@ if( activityCheck( Hyde_IEA_oil_final, check_all = FALSE ) ) {
 # 5. Output
 
 # Oil Production Data
-writeData( Hyde_IEA_oil_final, domain = "MED_OUT", fn = paste0( "A.crude_oil_production_data"  ) )
+writeData( Hyde_IEA_oil, domain = "MED_OUT", fn = paste0( "A.crude_oil_production_data"  ) )
 
 # Oil Production Extension Data
 writeData( oil_prod_CDIAC, domain = "MED_OUT", fn = paste0( "A.crude_oil_production_extension_data"  ) )
