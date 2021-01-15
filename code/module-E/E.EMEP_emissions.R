@@ -70,8 +70,9 @@
         names( inv ) <- c( 'ISO2', "year", "sector", "emission_species",
                            "units", "emissions" )
 
+
     # Writes each object as same format, but converted to a csv file
-        writeData( inv , 'EM_INV', domain_extension = "EMEP/",
+        writeData( inv, 'EM_INV', domain_extension = "EMEP/",
                    fn = paste0( 'EMEP_', Em_Format, '_', level, '_', em.read ),
                    meta = FALSE ) # Don't write metadata, as it is provided as an input
 
