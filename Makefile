@@ -873,7 +873,7 @@ $(MED_OUT)/E.$(EM)_US_GHG_inventory.csv : \
 
 # ee1-2
 $(MED_OUT)/E.$(EM)_AUS_inventory.csv: \
-	$(MOD_E)/E.Australia_emissions.R
+	$(MOD_E)/E.Australia_emissions_2018Update.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
@@ -950,6 +950,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(SC_MAPPINGS)/US-EPA_scaling_mapping.csv \
 	$(SC_MAPPINGS)/US-GHG_scaling_mapping.csv \
 	$(SC_MAPPINGS)/Australia_scaling_mapping.csv \
+	$(SC_MAPPINGS)/Australia_NOx_scaling_mapping.csv \
 	$(SC_MAPPINGS)/Taiwan_scaling_mapping.csv \
 	$(SC_MAPPINGS)/Taiwan_scaling_method.csv \
 	$(MED_OUT)/D.$(EM)_default_total_EF.csv \

@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.inventory_scaling.R
 # Author: Rachel Hoesly adapted from Jon Seibert
-# Date Last Updated: August 12, 2020
+# Date Last Updated: September 17, 2020
 # Program Purpose: To select and run script(s) to scale default emissions and
 #                  emission factors to inventories.
 # Input Files: D.[em]_default_total_EF.sv, D.[em]_default_total_emissions.csv
@@ -142,7 +142,7 @@
         c( scripts, 'F1.1.Taiwan_scaling.R' ) }
 
 # Australia
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ){ scripts <-
+    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3' ) ){ scripts <-
         c( scripts, 'F1.1.Australia_scaling.R' ) }
 
 # ------------------------------------------------------------------------------------
