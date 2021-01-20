@@ -543,8 +543,8 @@ interpolate_NAs2 <- function(df) {
 # Return: df_no_NAs    a data frame with numeric values interpolated
 # Input Files:      NA
 # Output Files:     NA
-# TODO: This could likely be improved by using tidyr::fill() for extending ("down"
-#       for forward extension and "up" for backwards extension, when gathered in long format)
+# TODO:
+
 extend_and_interpolate <- function( df_in, data_columns ){
 
 #   Check that df_in is a data frame
@@ -646,7 +646,9 @@ extend_and_interpolate <- function( df_in, data_columns ){
             first_numeric_column <- data_columns[[1]]
 
             first_non_NA_extended_backwards <- row_use %>%
-                dplyr::mutate( !!rlang::sym( first_numeric_column ) := NonNAindex_first_value  )
+                gather(year, val, data_columns) %>%
+                fill(val, .direction = "up") %>%
+                spread(year, val)
 
         } else {
 
@@ -662,7 +664,9 @@ extend_and_interpolate <- function( df_in, data_columns ){
             last_numeric_column <- data_columns[[ length( data_columns ) ]]
 
             last_non_NA_extended_forwards <- first_non_NA_extended_backwards %>%
-                dplyr::mutate( !!rlang::sym( last_numeric_column ) := NonNAindex_last_value  )
+                gather(year, val, data_columns) %>%
+                fill(val) %>%
+                spread(year, val)
 
         } else {
 
