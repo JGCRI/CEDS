@@ -34,7 +34,7 @@ initialize( script_name, log_msg, headers )
 # 1. Define parameters for inventory specific script----
 
 # Stop script if running for unsupported species
-if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) {
+if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO', 'BC', 'OC' ) ) {
     stop( paste( 'Taiwan scaling is not supported for emission species',
                  em, 'remove from script list in F1.1.inventory_scaling.R...' ) )
 }
@@ -49,11 +49,16 @@ mapping_method <- 'sector'
 inv_name <- 'TWN' #for naming diagnostic files
 region <- c( "twn" )
 
-# Don't use 2010 data by sector since sector categories not not compatable with other years.
+# Don't use 2010 data by sector since sector categories not not compatible with other years.
 inv_years <- c( 2003, 2006, 2013, 2016 )
 inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
 
+
 # 2. Read In Data with scaling functions ----
+
+if ( em %in% c("BC", "OC") ) {
+    sector_fuel_mapping <- paste0(sector_fuel_mapping,'_BCOC')
+}
 
 # Read in the inventory data, mapping file, the specified emissions species, and
 # the latest versions of the scaled EFs

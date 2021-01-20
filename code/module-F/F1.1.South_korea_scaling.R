@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.South_korea_scaling.R
-# Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly, Steve Smith, Ryan Bolt
+# Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly, Steve Smith, Ryan Bolt, Andrea Mott
 # Date Last Modified: May 4, 2020
 # Program Purpose: To create scaling factors and update emissions estimate for
 #                  the South Korea from latest emissions working copy by using
@@ -22,7 +22,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "NOx"
+    if ( is.na( em ) ) em <- "BC"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -38,7 +38,7 @@
 # 1. Define parameters for inventory specific script
 
 # Stop script if running for unsupported species
-    if ( em %!in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ) {
+    if ( em %!in% c( 'SO2', 'NOx', 'CO', 'NMVOC','BC','OC' ) ) {
       stop( paste( 'KOR scaling is not supported for emission species ',
                     em, '. Remove from script list in F1.1.inventory_scaling.R...' ) )
     }
@@ -53,8 +53,67 @@
     region <- c( "kor" )
     inv_years <- c( 1999 : 2012 )
 
-    inventory_data_file <- paste0( 'Korea/E.', em, '_', inv_name, '_inventory' )
+    em.read <- em
+    if (em %in% c('BC','OC')) em.read = "PM10"
+
+    inventory_data_file <- paste0( 'Korea/E.', em.read, '_', inv_name, '_inventory' )
     inv_data_folder <- 'EM_INV'
+
+# ------------------------------------------------------------------------------
+# 1.5 Calculate BC/OC emissions by PM10
+    #Korea's mod E script isn't used since inv files were so large.
+    # TODO: move conversion of PM10 to PM2.5 outside of BC/OC function and place here instead?
+    if (em %in% c ('BC','OC') ) {
+
+      inv_data_sheet <- readData( inv_data_folder, inventory_data_file , ".csv" )
+      inv_data_sheet <- inv_data_sheet %>%
+          select(-fuel) %>%
+          group_by(iso, sector) %>%
+          summarise_each(funs(sum)) %>%
+          ungroup()
+
+      # The Korean inv data from PM2.5 is off by 1e6
+      inv_iso_sector <- inv_data_sheet[,1:2]
+      inv_data_sheet <- inv_data_sheet %>%
+          select(-iso,-sector)
+      inv_data_sheet <- inv_data_sheet * 1000000
+      inv_data_sheet <- cbind(inv_iso_sector,inv_data_sheet)
+
+    # Define parameters for BC and OC specific script
+      ceds_sector <- "1A3b_Road"
+      inv_iso <- "kor"
+      mapping_file <- readData("SCALE_MAPPINGS", "S_Korea_scaling_mapping.csv")
+      mapping_file <- mapping_file %>%
+        filter(str_detect(scaling_sector,"1A3b_Road"))
+    # Remove RV since no values in data frame
+      mapping_file <- subset(mapping_file, inv_sector!="RV")
+
+      inv_sector_name <- mapping_file$inv_sector
+
+      X_inv_years <- paste0("X",inv_years)
+      PM <- "PM10"
+
+    # Calculate BC and OC emissions
+
+      inv_data_sheet <- F.Estimate_BC_OC_emissions(em,PM,inv_iso,ceds_sector,inv_sector_name,X_inv_years)
+      inv_data_file <- inv_data_sheet
+
+    # Print out new inv_data_file
+      writeData( inv_data_file, domain = "MED_OUT",
+                 paste0( 'E.', em, '_', inv_name, '_inventory' ) )
+
+    # Change whereabout for input file for F.readScaling script
+      inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
+      inv_data_folder <- 'MED_OUT'
+
+    }
+
+
+  # Scaling for specific species
+    if ( em %in% c("BC", "OC") ) {
+      sector_fuel_mapping <- paste0(sector_fuel_mapping,'_BCOC')
+    }
+
 
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions

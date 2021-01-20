@@ -56,6 +56,11 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     mapping_method <- 'sector'
     inv_years<-c( 2008, 2010, 2012 )
 
+# Scaling for specific species
+
+    if ( em %in% c("BC", "OC") ) {
+        sector_fuel_mapping <- paste0(sector_fuel_mapping,'_BCOC')
+    }
 
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions

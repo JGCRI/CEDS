@@ -82,7 +82,9 @@
 # Note 1: While EMEP has BC, there is no OC, so retain consistent BC & OC estimates by not
 #         scaling to EMEP for these ems
 # Note 2: While CEDS does not include EMEP BC scaling, CEDS-GBD does include BC EMEP scaling
-    if ( em %in% c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2' ) ){ scripts <-
+# Note 3: Below, added BC and OC using PM2.5 data and BC/PM2.5 and OC/PM2.5 default ratios
+
+    if ( em %in% c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2','BC','OC' ) ){ scripts <-
         c( scripts, 'F1.1.EMEP_NFR14_scaling.R' ) }
 
 # UNFCCC
@@ -98,12 +100,12 @@
         c( scripts, 'F1.1.CAN_scaling_olderData.R' ) }
 
  # CAN - Newer data must run last
-    if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO','NH3' ) ){ scripts <-
+    if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO','NH3','BC','OC' ) ){ scripts <-
         c( scripts, 'F1.1.CAN_scaling_2018.R' ) }
 
 # USA
-    if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO',
-                    'NH3', 'PM10', 'PM25' ) ){ scripts <-
+    # removed scaling of BC and OC due to discrepancy in US PM2.5 data
+    if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO','NH3' ) ){ scripts <-
         c( scripts, 'F1.1.US_scaling.R' ) }
 
 # US EPA
@@ -122,7 +124,7 @@
 
     # New MEIC:
     # GBD settings: if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO','BC','OC' ) ) scripts <-
-    if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO' ) ){ scripts <-
+    if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO','BC','OC' ) ){ scripts <-
         c( scripts, 'F1.1.China_MEIC_2018_scaling.R' ) }
 
 # Argentina
@@ -130,15 +132,15 @@
         c( scripts, 'F1.1.Argentina_scaling.R' ) }
 
 # Japan
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3' ) ){ scripts <-
+    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3','BC','OC' ) ){ scripts <-
         c(scripts, 'F1.1.Japan_scaling.R' ) }
 
 # South Korea
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ) { scripts <-
+    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC','BC','OC' ) ) { scripts <-
         c( scripts, 'F1.1.South_korea_scaling.R' ) }
 
 # Taiwan
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ){ scripts <-
+    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'BC', 'OC' ) ){ scripts <-
         c( scripts, 'F1.1.Taiwan_scaling.R' ) }
 
 # Australia

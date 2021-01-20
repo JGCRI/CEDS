@@ -22,7 +22,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "NOx"
+    if ( is.na( em ) ) em <- "BC"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -60,6 +60,11 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
         sector_fuel_mapping <- paste0(sector_fuel_mapping,"_",em)
     }
 
+    # Scaling for specific species
+
+    if ( em %in% c("BC", "OC") ) {
+        sector_fuel_mapping <- paste0(sector_fuel_mapping,'_BCOC')
+    }
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions
 #    Read in the inventory data, mapping file, the specified emissions species,

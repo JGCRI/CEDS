@@ -36,6 +36,11 @@
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
+# Scaling for specific species
+    if ( em %in% c("BC", "OC") ) {
+      sector_fuel_mapping <- paste0(sector_fuel_mapping,'_BCOC')
+    }
+
 # ------------------------------------------------------------------------------
 # 1. Define parameters for inventory specific script
 

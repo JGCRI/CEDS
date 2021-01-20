@@ -1,5 +1,5 @@
 inv_sector,scaling_sector,ceds_sector,,,,,
-Electricity-public,Electricity-and-Heat,1A1a_Electricity-public,,,Electricity-public,,"Note: The modE script uses this file to determine which inventory sectors correspond to the Road scaling sector (""1A3b_Road"")."
+Electricity-public,Electricity-and-Heat,1A1a_Electricity-public,,,Electricity-public,,Note: this file is used in F1.1 South Korea scaling script for BC/OC
 Electricity-private,1A2_Ind-Combustion,1A1a_Electricity-autoproducer,,,District heating,,
 District heating,Electricity-and-Heat,1A1a_Heat-production,,,Petroleum refining,,
 Petroleum refining,1A1bc_Other-transformation,1A1bc_Other-transformation,,,Electricity-private,,

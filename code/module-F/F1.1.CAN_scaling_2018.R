@@ -26,7 +26,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "SO2"
+    if ( is.na( em ) ) em <- "BC"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -43,7 +43,7 @@
 # 1. Define parameters for inventory specific script
 
 # Stop script if running for unsupported species
-    if ( em %!in% c('SO2', 'NOx','NMVOC','CO','NH3') ) {
+    if ( em %!in% c('SO2', 'NOx','NMVOC','CO','NH3','BC','OC') ) {
         stop( paste( 'CAN scaling is not supported for emission species ',
                      em, '. Remove from script list in F1.1.inventory_scaling.R' ) )
     }
@@ -65,12 +65,14 @@
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
     inv_data_folder <- 'MED_OUT'
 
-# Scaling for NOx
+# Scaling for specific species
 
     if ( em %in% c("NOx") ) {
         sector_fuel_mapping <- paste0(sector_fuel_mapping,'_NOx')
     }
-
+    if ( em %in% c("BC", "OC") ) {
+      sector_fuel_mapping <- paste0(sector_fuel_mapping,'_BCOC')
+    }
 
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions
