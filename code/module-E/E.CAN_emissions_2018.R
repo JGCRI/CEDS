@@ -97,8 +97,8 @@
     # Set NAs to 0
     inv_data_sheet[is.na(inv_data_sheet)] <- 0
 
-    # Run if em is not CO2 or CH4 - CAN does not have these
-    if( em %!in% c("CO2", "CH4") ){
+    # Run if em is not CO2, CH4, or N20 - CAN does not have these
+    if( em %!in% c("CO2", "CH4", "N2O") ){
 
     # em_list <- c( "SO2","NOx","CO","NH3","NMVOC","BC","OC")
     # for( n in em_list){
