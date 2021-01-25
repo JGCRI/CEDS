@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: E.US_emissions.R
 # Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly, Andrea Mott
-# Date Last Modified: Oct 1, 2020
+# Date Last Modified: January 24, 2021
 # Program Purpose: To read in & reformat US emissions inventory data
 # Input Files: national_tier1_caps.xlsx
 # Output Files: E.[em]_US_inventory.csv
@@ -17,7 +17,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "CO2"
+    if ( is.na( em ) ) em <- "SO2"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -160,6 +160,22 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
          inv_data_sheet <- F.Estimate_BC_OC_emissions(em, PM, inv_iso,ceds_sector,inv_sector_name,X_inv_years)
      }
+
+# ------------------------------------------------------------------------------
+
+# Set mod E output NMVOC to zero before 2004 for the misc sector
+
+    if (em == "NMVOC") {
+        inv_data_sheet_misc <- inv_data_sheet %>%
+            filter(sector == "MISCELLANEOUS") %>%
+            replace(3:20,0)
+
+    #rejoin misc sector and remove old misc sector
+    merged_dfs <- rbind(inv_data_sheet,inv_data_sheet_misc)
+    df_to_remove <- subset(merged_dfs, sector == "MISCELLANEOUS" & X1970 != 0)
+    inv_data_sheet <- anti_join(merged_dfs,df_to_remove)
+
+    }
 
 # ------------------------------------------------------------------------------
 # 3. Write standard form inventory
