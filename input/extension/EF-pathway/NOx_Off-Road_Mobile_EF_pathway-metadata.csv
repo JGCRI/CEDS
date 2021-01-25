@@ -1,2 +1,2 @@
-﻿Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
 Emissions Factor,NOx,global,Off-Road Mobile Diesel,1970,2019,"Min Emission Factor Pathways From analysis of US, UK, and Europe inventory assumptions. Assumed 25% decrease from 1990 to 1980 as per EEA guidebook."
