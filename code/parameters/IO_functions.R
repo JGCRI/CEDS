@@ -597,7 +597,7 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
 	}
 
 	# If x is a matrix, warn and convert to dataframe
-	if ( class(x) == "matrix" ) {
+	if ( class(x)[1] == "matrix" ) {
 	    x <- as.data.frame( x )
 	    warning( paste0( "Structure passed to WriteData was a matrix. ",
 	                     "Converting to data frame.. " ) )

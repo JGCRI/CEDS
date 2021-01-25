@@ -351,9 +351,6 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
 # Source figure and comparison files to print figures
 # source('../code/diagnostic/Figures.R')
 
-  if (em %!in% c( 'CO2', 'N2O' ) )  source('../code/diagnostic/Compare_to_RCP.R')
-  if( em %!in% c( 'CO2', 'N2O', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')
-
   source('../code/diagnostic/Compare_to_RCP.R')
   if( em %!in% c( 'CO2', 'N2O', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')
 

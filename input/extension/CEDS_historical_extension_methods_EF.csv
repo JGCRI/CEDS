@@ -268,13 +268,13 @@ sector,fuel,em,method,start_year,end_year,file_name,domain,domain_extension,conv
 1A3c_Rail,coal_coke,CO,EF-converge,1750,1969,,,,1900,0.13789948
 1A3c_Rail,coal_coke,NMVOC,EF-converge,1750,1969,,,,1900,0.005014527
 1A3c_Rail,coal_coke,NOx,EF-converge,1750,1969,,,,1900,0.004563219
-1A3c_Rail,hard_coal,all,default,1750,2014,,,,,
+1A3c_Rail,hard_coal,all,default,1750,2019,,,,,
 1A3c_Rail,hard_coal,CO,EF-converge,1750,1969,,,,1900,0.13789948
 1A3c_Rail,hard_coal,NMVOC,EF-converge,1750,1969,,,,1900,0.005014527
 1A3c_Rail,hard_coal,NOx,EF-converge,1750,1969,,,,1900,0.004563219
 1A3c_Rail,hard_coal,SO2,EF-trend,1750,1969,U.1A1_1A3c_Rail-SO2-EF,EXT_IN,extension-data/,,
-1A3di_International-shipping,all-comb,all,default,1750,2014,,,,,
-1A3dii_Domestic-navigation,all-comb,all,default,1750,2014,,,,,
+1A3di_International-shipping,all-comb,all,default,1750,2019,,,,,
+1A3dii_Domestic-navigation,all-comb,all,default,1750,2019,,,,,
 1A3eii_Other-transp,all-comb,BC,constant,1750,1849,,,,,
 1A3eii_Other-transp,all-comb,BC,EF-trend,1850,1959,B.BC_SPEW_comb_EF,EXT_IN,extension-data/,,
 1A3eii_Other-transp,all-comb,OC,constant,1750,1849,,,,,
@@ -300,6 +300,7 @@ sector,fuel,em,method,start_year,end_year,file_name,domain,domain_extension,conv
 1A4b_Residential,hard_coal,NMVOC,EF-converge,1750,1969,,,,1900,0.0021
 1A4b_Residential,hard_coal,NOx,EF-converge,1750,1969,,,,1900,0.0009
 1A4a_Commercial-institutional,hard_coal,SO2,EF-trend,1750,1969,U.1A4_Residential-SO2-EF,EXT_IN,extension-data/,,
+1A4a_Commercial-institutional,diesel_oil,all,default_iso,1750,2019,"usa,can",,,,
 1A4b_Residential,hard_coal,SO2,EF-trend,1750,1969,U.1A4_Residential-SO2-EF,EXT_IN,extension-data/,,
 1A4c_Agriculture-forestry-fishing,all-comb,BC,constant,1750,1849,,,,,
 1A4c_Agriculture-forestry-fishing,all-comb,BC,EF-trend,1850,1959,B.BC_SPEW_comb_EF,EXT_IN,extension-data/,,

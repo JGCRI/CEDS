@@ -69,6 +69,19 @@ if( em == "CO2" ) {
 
 }
 
+if (em == "BC" || em == "OC") {
+    excl_sectors <- c( excl_sectors, "2A1_Cement-production", 
+                                     "2A2_Lime-production", 
+                                     "1B1_Fugitive-solid-fuels", 
+                                     "1A1bc_Other-transformation", 
+                                     "1B2_Fugitive-petr-and-gas", 
+                                     "2C_Metal-production", 
+                                     "2B_Chemical-industry", 
+                                     "2H_Pulp-and-paper-food-beverage-wood", 
+                                     "5C_Waste-incineration", 
+                                     "2A6_Other-minerals")
+}
+
 # ------------------------------------------------------------------------------
 # 2. Input
 
