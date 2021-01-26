@@ -53,7 +53,7 @@
     EF_file_list <- EF_file_list[ grep( pattern = paste0( '\\.', em ), EF_file_list ) ]
 
 # Order files alphabetically (case insensitive)
-    EF_file_list <- EF_file_list[order(tolower(EF_file_list))]
+    EF_file_list <- EF_file_list[str_order(EF_file_list, locale = "en")]
 
 # Read in all files
     EF_list <- lapply ( X = EF_file_list, FUN = readData,

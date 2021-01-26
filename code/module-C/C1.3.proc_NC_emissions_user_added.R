@@ -49,7 +49,7 @@ if (length(grep(pattern = "metadata", files )) > 0)
 files <- files[grep(pattern = paste0( '\\.', em, '_' ), files )]
 
 # Order files alphabetically (case insensitive)
-files <- files[order(tolower(files))]
+files <- files[str_order(files, locale = "en")]
 
 emissions_list <- lapply ( X = files, FUN = readData,
                     domain = "DEFAULT_EF_IN" ,
