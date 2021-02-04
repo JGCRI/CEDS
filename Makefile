@@ -122,7 +122,7 @@ clean-all: \
 	clean-modD clean-modE clean-modF clean-modH clean-gridding clean-user_defined_energy
 
 clean-user_defined_energy:
-# Deletes all CSVs in the directory except for: 
+# Deletes all CSVs in the directory except for:
 # 1) CEDS user-defined energy inputs, metadata, and instructions (U.*.csv)
 # 2) Relevant mapping and instructions files for user-defined energy input which require pre-processing for use in CEDS (A.*-instructions.csv, A.*_sector_map.csv, A.*-mapping.xlsx)
 	find $(USER_EN_IN) -name "*.csv" ! -name "U.*.csv" ! -name "A.*-instructions.csv" ! -name "A.*_sector_map.csv" -delete
@@ -498,7 +498,7 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 
 $(MED_OUT)/A.pulp_paper_consumption_full.csv: \
 	$(MED_OUT)/A.NC_activity_db.csv
-	
+
 # aa5-2a
 # Make non-combustion activity data
 $(MED_OUT)/A.NC_activity.csv: \
@@ -736,6 +736,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv \
 	$(MED_OUT)/E.$(EM)_Japan_inventory.csv \
+	$(MED_OUT)/E.$(EM)_KOR2017_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory_update.csv \
@@ -809,7 +810,7 @@ $(MED_OUT)/E.CO2_CDIAC_inventory.csv: \
 	$(MOD_E)/E.CDIAC_emissions.R \
 	$(MED_OUT)/A.UN_pop_master.csv
 	Rscript $< $(EM) --nosave --no-restore
-	
+
 # ee1-2
 $(MED_OUT)/E.CO2_Andrew_Cement.csv: \
 	$(MOD_E)/E.Andrew_emissions.R \
@@ -857,6 +858,11 @@ $(MED_OUT)/E.$(EM)_Japan_inventory.csv: \
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
+$(MED_OUT)/E.$(EM)_KOR2017_inventory.csv: \
+	$(MOD_E)/E.SKorea_emissions_2017.R
+	Rscript $< $(EM) --nosave --no-restore
+
+# ee1-2
 $(MED_OUT)/E.$(EM)_US_inventory.csv: \
 	$(MOD_E)/E.US_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
@@ -896,7 +902,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MOD_F)/F1.1.EMEP_NFR14_scaling.R \
 	$(MOD_F)/F1.1.Japan_scaling.R \
 	$(MOD_F)/F1.1.REAS_scaling.R \
-	$(MOD_F)/F1.1.South_korea_scaling.R \
+	$(MOD_F)/F1.1.South_korea_scaling_2017.R \
 	$(MOD_F)/F1.1.UNFCCC_scaling.R \
 	$(MOD_F)/F1.1.US_scaling.R \
 	$(MOD_F)/F1.1.US-EPA_scaling.R \
@@ -913,6 +919,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv \
 	$(MED_OUT)/E.$(EM)_Japan_inventory.csv \
+	$(MED_OUT)/E.$(EM)_KOR2017_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US_inventory.csv \
@@ -1022,7 +1029,7 @@ $(MED_OUT)/gridded-emissions/CEDS_$(EM)_anthro_%.csv: \
 	$(PARAMS)/nc_generation_functions.R \
 	$(FINAL_OUT)/current-versions/CEDS_$(EM)_emissions_by_country_CEDS_sector_*.csv
 	Rscript $< $(EM) --nosave --no-restore
-	
+
 ifeq ($(EM),NMVOC)
 	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC01 --nosave --no-restore
 	Rscript $(MOD_G)/G1.2.grid_subVOC_emissions.R VOC02 --nosave --no-restore
