@@ -1,11 +1,14 @@
 # ------------------------------------------------------------------------------
 # Program Name: A5.2.add_NC_activity_fossil_fuel_production.R
 # Author(s): Hamza Ahsan
-# Date Last Modified: January 11, 2021
+# Date Last Modified: February 2, 2021
 # Program Purpose: Gather historical oil production data from IEA and Hyde crude
-#                  oil production data sets
+#                  oil production data sets. CDIAC liquid and gas CO2 data is used
+#                  to substitute isos with no oil production before 1970.
 # Input Files: Master_Country_List.csv, oil_1800-1990.xls, A.en_stat_sector_fuel.csv,
-# Output Files: A.crude_oil_production_data, A.IEA_Hyde_average_1971-1973
+#              E.CO2_CDIAC_liquid_and_gas.csv
+# Output Files: A.crude_oil_production_data, A.crude_oil_production_extension_data,
+#               A.IEA_Hyde_average_1971-1973
 # TODO:
 
 # -----------------------------------------------------------------------------
@@ -122,7 +125,7 @@ en_stat_sector_fuel <- readData( 'MED_OUT', file_name = 'A.en_stat_sector_fuel' 
 oil_1800_1990 <- readData( "ENERGY_IN","Hyde_oil_1800-1975", ".xls", sheet_selection = "country data" )
 
 # CDIAC oil and liquid CO2 emissions data
-CDIAC_oil_liquid <- readData( 'MED_OUT', file_name = 'E.CO2_CDIAC_liquid_and_gas' )
+CDIAC_liquid_gas <- readData( 'MED_OUT', file_name = 'E.CO2_CDIAC_liquid_and_gas' )
 
 # ------------------------------------------------------------------------------
 
@@ -281,24 +284,27 @@ Hyde_IEA_split$activity <- "crude_oil_production"
 Hyde_IEA_oil <- Hyde_IEA_split[, c('iso', 'activity', 'units', Hyde_IEA_years_X)]
 
 # Generate hybrid extension data set for fugitive petroleum emissions based on
-# oil production and CDIAC oil and liquid CO2
+# oil production and CDIAC liquid and gas CO2 data
 
-# Extract isos with oil production for the years 1970-1975
+# Extract isos with oil production for the years 1970-1975 and with oil production
+# before 1970
 oil_prod_non_zero <- Hyde_IEA_oil %>%
-    dplyr::select(c(iso, X1970:X1975)) %>%
-    dplyr::mutate(sum = rowSums(.[2:7])) %>%
-    dplyr::filter(sum != 0)
+    dplyr::select(c(iso, X1800:X1975)) %>%
+    dplyr::mutate(sum1 = rowSums(.[172:177])) %>%
+    dplyr::filter(sum1 != 0) %>%
+    dplyr::mutate(sum2 = rowSums(.[2:171])) %>%
+    dplyr::filter(sum2 != 0)
 
-# Remove corresponding isos from CDIAC oil and liquid
-CDIAC_match <- CDIAC_oil_liquid %>%
+# Remove corresponding isos from CDIAC liquid and gas
+CDIAC_match <- CDIAC_liquid_gas %>%
     dplyr::filter(!(iso %in% oil_prod_non_zero$iso)) %>%
-    dplyr::select(-c(fuel))
+    dplyr::select(-c(fuel)) %>%
+    dplyr::mutate(activity = "CDIAC_liquid_gas")
 
-# Combine oil production with CDIAC oil and liquid
+# Combine oil production with CDIAC liquid and gas
 oil_prod_CDIAC <- Hyde_IEA_oil %>%
     dplyr::filter(iso %in% oil_prod_non_zero$iso) %>%
     dplyr::bind_rows(CDIAC_match) %>%
-    tidyr::fill(activity) %>%
     dplyr::select(iso, activity, units, all_of(X_extended_years)) %>%
     dplyr::arrange(iso) %>%
     replace(is.na(.), 0)
@@ -339,7 +345,8 @@ meta_names <- c( "Data.Type", "Emission", "Region", "Sector", "Start.Year",
                  "End.Year", "Source.Comment" )
 meta_note <- c( "Extension Driver", "All", "All", "1B2_Fugitive-petr",
                 1800, "1969", paste( "For petroleum producing countries extend by crude oil production.",
-                                     "For all other countries use CDIAC oil + gas CO2 emissions" ) )
+                                     "For all other countries use CDIAC liquid + gas CO2 emissions",
+                                     "Also for countries with no oil production before 1970 use CDIAC liquid + gas CO2 emissions") )
 source_info <- script_name
 addMetaData( meta_note, meta_names, source_info )
 
