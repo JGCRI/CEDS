@@ -1,21 +1,21 @@
 inv_sector,scaling_sector,ceds_sector,MEIC_Source
-1A1a_Electricity-public,Electricity_Heat,1A1a_Electricity-public,power
-1A1a_Electricity-autoproducer,Industrial_Combustion,1A1a_Electricity-autoproducer,power
-1A1a_Heat-production,Electricity_Heat,1A1a_Heat-production,heating
-1A1bc_Other-transformation,1A1bc_Other-transformation,1A1bc_Other-transformation,
-1A2a_Ind-Comb-Iron-steel,Industrial_Combustion,1A2a_Ind-Comb-Iron-steel,industrial boiler
-1A2b_Ind-Comb-Non-ferrous-metals,Industrial_Combustion,1A2b_Ind-Comb-Non-ferrous-metals,
-1A2c_Ind-Comb-Chemicals,Industrial_Combustion,1A2c_Ind-Comb-Chemicals,
-1A2d_Ind-Comb-Pulp-paper,Industrial_Combustion,1A2d_Ind-Comb-Pulp-paper,
-1A2e_Ind-Comb-Food-tobacco,Industrial_Combustion,1A2e_Ind-Comb-Food-tobacco,
-1A2f_Ind-Comb-Non-metalic-minerals,Industrial_Combustion,1A2f_Ind-Comb-Non-metalic-minerals,
-1A2g_Ind-Comb-Construction,Industrial_Combustion,1A2g_Ind-Comb-Construction,
-1A2g_Ind-Comb-transpequip,Industrial_Combustion,1A2g_Ind-Comb-transpequip,
-1A2g_Ind-Comb-machinery,Industrial_Combustion,1A2g_Ind-Comb-machinery,
-1A2g_Ind-Comb-mining-quarying,Industrial_Combustion,1A2g_Ind-Comb-mining-quarying,
-1A2g_Ind-Comb-wood-products,Industrial_Combustion,1A2g_Ind-Comb-wood-products,
-1A2g_Ind-Comb-textile-leather,Industrial_Combustion,1A2g_Ind-Comb-textile-leather,
-1A2g_Ind-Comb-other,Industrial_Combustion,1A2g_Ind-Comb-other,
+1A1a_Electricity-public,Electricity_Heat_Ind_Comb,1A1a_Electricity-public,power
+1A1a_Electricity-autoproducer,Electricity_Heat_Ind_Comb,1A1a_Electricity-autoproducer,power
+1A1a_Heat-production,Electricity_Heat_Ind_Comb,1A1a_Heat-production,heating
+1A1bc_Other-transformation,Electricity_Heat_Ind_Comb,1A1bc_Other-transformation,
+1A2a_Ind-Comb-Iron-steel,Electricity_Heat_Ind_Comb,1A2a_Ind-Comb-Iron-steel,industrial boiler
+1A2b_Ind-Comb-Non-ferrous-metals,Electricity_Heat_Ind_Comb,1A2b_Ind-Comb-Non-ferrous-metals,
+1A2c_Ind-Comb-Chemicals,Electricity_Heat_Ind_Comb,1A2c_Ind-Comb-Chemicals,
+1A2d_Ind-Comb-Pulp-paper,Electricity_Heat_Ind_Comb,1A2d_Ind-Comb-Pulp-paper,
+1A2e_Ind-Comb-Food-tobacco,Electricity_Heat_Ind_Comb,1A2e_Ind-Comb-Food-tobacco,
+1A2f_Ind-Comb-Non-metalic-minerals,Electricity_Heat_Ind_Comb,1A2f_Ind-Comb-Non-metalic-minerals,
+1A2g_Ind-Comb-Construction,Electricity_Heat_Ind_Comb,1A2g_Ind-Comb-Construction,
+1A2g_Ind-Comb-transpequip,Electricity_Heat_Ind_Comb,1A2g_Ind-Comb-transpequip,
+1A2g_Ind-Comb-machinery,Electricity_Heat_Ind_Comb,1A2g_Ind-Comb-machinery,
+1A2g_Ind-Comb-mining-quarying,Electricity_Heat_Ind_Comb,1A2g_Ind-Comb-mining-quarying,
+1A2g_Ind-Comb-wood-products,Electricity_Heat_Ind_Comb,1A2g_Ind-Comb-wood-products,
+1A2g_Ind-Comb-textile-leather,Electricity_Heat_Ind_Comb,1A2g_Ind-Comb-textile-leather,
+1A2g_Ind-Comb-other,Electricity_Heat_Ind_Comb,1A2g_Ind-Comb-other,
 1A3ai_International-aviation,,1A3ai_International-aviation,
 1A3aii_Domestic-aviation,,1A3aii_Domestic-aviation,
 1A3b_Road,1A3b_Road,1A3b_Road,onroad
@@ -39,10 +39,10 @@ inv_sector,scaling_sector,ceds_sector,MEIC_Source
 2C_Iron-steel-alloy-prod,2C_Metal-production,2C_Metal-production,iron and steel
 2C3_Aluminum-production,2C_Metal-production,,aluminum
 2C4_Non-Ferrous-other-metals,2C_Metal-production,,other non-ferrous
-2D_Degreasing-Cleaning,2D_Degreasing-Cleaning,2D_Degreasing-Cleaning,"domestic solvent use, dry clean, priting gasoline cleaning"
-2D3_Chemical-product-use,2D3_Chemical-product-use,2D3_Chemical-products-manufacture-processing,"printing ink, passenger vehicle treated, pesticle use, glue use"
-2D_Paint-application,2D_Paint-application,2D_Paint-application,paint application
-2D3_Other-product-use,Other_Product,2D3_Other-product-use,
+2D_Degreasing-Cleaning,Solvents,2D_Degreasing-Cleaning,"domestic solvent use, dry clean, priting gasoline cleaning"
+2D3_Chemical-product-use,Solvents,2D3_Chemical-products-manufacture-processing,"printing ink, passenger vehicle treated, pesticle use, glue use"
+2D_Paint-application,Solvents,2D_Paint-application,paint application
+2D3_Other-product-use,Solvents,2D3_Other-product-use,
 2H_Pulp-and-paper-food-beverage-wood,2H_Pulp-and-paper-food-beverage-wood,2H_Pulp-and-paper-food-beverage-wood,"pulp, food, beverage, wood"
 2L_Other-process-emissions,2H3_Other-industrial-processes,2L_Other-process-emissions,
 3B_Manure-management,3B_Manure-management,3B_Manure-management,manure management

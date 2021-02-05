@@ -370,13 +370,19 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
   }
 
   # Warn the user about CH4 and N2O extension
+  # Chemical industry emissions, for example, are 20% of EDGAR NOx emissions in 1970, but no sector 
+  # specific data is included in CEDS for extending these emissions.
   if( em %in% c( 'CH4', 'N2O' ) ){
       warning( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" )
-      warning( "Note that while the system produces extensions of CH4 and N2O emissions back to")
-      warning( "1750, regional agricutural drivers before 1960 for CH4 and N2O are not yet included ")
-      warning( "in CEDS and emissinos for these sectors are generally extended using population. CEDS  ")
-      warning( "emissions are only strictly valid, therefore, after 1960 for these species.")
+      warning( "Note that while the system produces estimates of CH4 and N2O emissions back to")
+      warning( "1750, sector and regional data for key drivers for CH4 and N2O are not yet included")
+      warning( "and emissions for these sectors are only approximately extended back in time.")
+      warning( "CEDS emissions are only strictly valid, therefore, after 1970 for these species.")
       warning( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" )
   }
 
+2: Note that while the system produces extensions of CH4 and N2O emissions back to 
+3: 1750, regional agricultural drivers before 1960 for CH4 and N2O are not yet included  
+4: in CEDS and emissions for these sectors are only approximately extended back in time.    
+5: CEDS emissions are only strictly valid, therefore, after 1960 for these species. 
 logStop()
