@@ -20,7 +20,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "NOx"
+    if ( is.na( em ) ) em <- "CH4"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -88,7 +88,7 @@
         c( scripts, 'F1.1.EMEP_NFR14_scaling.R' ) }
 
 # UNFCCC
-    if ( em %in% c( 'SO2', 'CO', 'NMVOC', 'NOx', 'CO2', 'CH4' ) ){ scripts <-
+    if ( em %in% c( 'SO2', 'CO', 'NMVOC', 'NOx', 'CO2', 'CH4', 'N2O' ) ){ scripts <-
         c( scripts, 'F1.1.UNFCCC_scaling.R' ) }
 
 # REAS
@@ -108,8 +108,8 @@
     if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO','NH3' ) ){ scripts <-
         c( scripts, 'F1.1.US_scaling.R' ) }
 
-# US EPA
-    if ( em %in% c( 'CO2' ) ){ scripts <-
+# US EPA (remove - use updated UNFCCC to scale non-combustion emissions instead)
+    if ( em %in% c( 'CO2xx' ) ){ scripts <-
         c( scripts, 'F1.1.US-EPA_scaling.R' ) }
 
 # US GHG

@@ -382,3 +382,4 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
   }
 
 logStop()
+

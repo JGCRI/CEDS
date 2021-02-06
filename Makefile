@@ -739,7 +739,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_KOR2017_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
-	$(MED_OUT)/E.$(EM)_UNFCCC_inventory_update.csv \
+	$(MED_OUT)/E.$(EM)_UNFCCC_update_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US-EPA_inventory.csv \
 	$(MED_OUT)/E.$(EM)_US_GHG_inventory.csv \
@@ -791,7 +791,7 @@ $(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv: \
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
-$(MED_OUT)/E.$(EM)_UNFCCC_inventory_update.csv: \
+$(MED_OUT)/E.$(EM)_UNFCCC_update_inventory.csv: \
 	$(MOD_E)/E.UNFCCC_emissions_update.R
 	Rscript $< $(EM) --nosave --no-restore
 
@@ -951,8 +951,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(SC_MAPPINGS)/S_Korea_scaling_mapping.csv \
 	$(SC_MAPPINGS)/UNFCCC_scaling_mapping.csv \
 	$(SC_MAPPINGS)/UNFCCC_scaling_year.csv \
-	$(SC_MAPPINGS)/UNFCCC_CH4_scaling_mapping.csv \
-	$(SC_MAPPINGS)/UNFCCC_CH4_scaling_year.csv \
+	$(SC_MAPPINGS)/UNFCCC_GHG_scaling_mapping.csv \
 	$(SC_MAPPINGS)/US_scaling_mapping.csv \
 	$(SC_MAPPINGS)/US-EPA_scaling_mapping.csv \
 	$(SC_MAPPINGS)/US-GHG_scaling_mapping.csv \
