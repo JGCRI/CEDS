@@ -49,7 +49,7 @@ if( em == "SO2" ){
 
 # Set scripts to add emissions data for BC or OC (currently no data to add)
 if( em == "BC" || em == "OC" ){
-    scripts <- c(  )
+    scripts <- c( scripts, "C1.2.add_NC_emissions_EDGAR.R" )
 }
 
 # Create GAINS fugitive oil and gas subsector emission splits

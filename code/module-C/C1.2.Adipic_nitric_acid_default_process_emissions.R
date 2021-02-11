@@ -63,7 +63,7 @@ X_EPA_START_YEAR <- paste0( "X", EPA_START_YEAR )
 X_EPA_YEARS <- paste0( "X", EPA_START_YEAR : end_year )
 
 # EDGAR years
-X_EDGAR_YEARS <- paste0( "X", EDGAR_start_year : 2008 )
+X_EDGAR_YEARS <- paste0( "X", EDGAR_start_year : EDGAR_end_year )
 
 # EPA extended years
 X_EPA_EXTENSION_YEARS <- paste0( "X", EDGAR_start_year : ( EPA_START_YEAR - 1 ) )

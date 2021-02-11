@@ -26,7 +26,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "SO2"
+    if ( is.na( em ) ) em <- "BC"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -43,7 +43,7 @@
 # 1. Define parameters for inventory specific script
 
 # Stop script if running for unsupported species
-    if ( em %!in% c('SO2', 'NOx','NMVOC','CO','NH3') ) {
+    if ( em %!in% c('SO2', 'NOx','NMVOC','CO','NH3','BC','OC') ) {
         stop( paste( 'CAN scaling is not supported for emission species ',
                      em, '. Remove from script list in F1.1.inventory_scaling.R' ) )
     }
@@ -65,15 +65,27 @@
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
     inv_data_folder <- 'MED_OUT'
 
-# Scaling for NOx
+# Scaling for specific species
 
     if ( em %in% c("NOx") ) {
         sector_fuel_mapping <- paste0(sector_fuel_mapping,'_NOx')
     }
-
+    if ( em %in% c("BC", "OC") ) {
+      sector_fuel_mapping <- paste0(sector_fuel_mapping,'_BCOC')
+    }
 
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions
+
+# Remove commertial sector diesel emissions before scaling assuming most of this combustion is in the
+# inventory's mobile sector
+# Because we have not changed the EFs (and these also are re-set back to default values) these will
+# return in the final emissions data
+default_emissions <- readData( "MED_OUT", paste0( "F.", em, "_scaled_emissions" ) )
+
+default_emissions[which(default_emissions$iso == "can" &
+                        default_emissions$sector == "1A4a_Commercial-institutional" &
+                        default_emissions$fuel == "diesel_oil"), X_emissions_years] <- 0
 
   # Read in the inventory data, mapping file, the specified emissions species, and
   # the latest versions of the scaled EFs

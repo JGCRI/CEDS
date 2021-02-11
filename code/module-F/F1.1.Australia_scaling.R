@@ -1,14 +1,13 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.Australia_scaling.R
-# Authors' Names: Leyang Feng
-# Date Last Modified: April 30, 2020
+# Authors' Names: Leyang Feng, Erin McDuffie
+# Date Last Modified: September 17, 2020
 # Program Purpose: To create scaling factors and update emissions estimate for
-#                  Australia from latest emissions working copy by using Australia
-#                  NEI data.
+# Australia from latest emissions working copy by using Australia NEI data.
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
-#              F.[em]_scaled_emissions.csv, Australia_scaling_mapping.csv,
+#              F.[em]_scaled_emissions.csv, Australia_scaling_mapping.xlsx,
 # Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
-# Notes: This data only contains data from 2000, 2006, 2012.
+# Notes:
 # TODO:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
@@ -25,7 +24,7 @@
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( 'common_data.R', "data_functions.R",
                   "emissions_scaling_functions.R", "analysis_functions.R" ) # Additional function files required.
-    log_msg <- "Australia inventory scaling..." # First message to be printed to the log
+    log_msg <- "Australia inventory scaling" # First message to be printed to the log
     script_name <- paste0( em, "-F1.1.Australia_scaling.R" )
 
     source( paste0( PARAM_DIR, "header.R" ) )
@@ -35,9 +34,9 @@
 # 1. Define parameters for inventory specific script
 
 # Stop script if running for unsupported species
-    if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) {
+    if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO','NH3' ) ) {
         stop( paste( 'Australia scaling is not supported for emission species',
-                     em, '. Remove from script list in F1.1.inventory_scaling.R...' ) )
+                     em, 'remove from script list in F1.1.inventory_scaling.R' ) )
     }
 
 # Inventory parameters. Provide the inventory and mapping file names, the
@@ -46,15 +45,22 @@
     inv_data_folder <- 'MED_OUT'
     sector_fuel_mapping <- 'Australia'
     mapping_method <- 'sector'
-    inv_name <- 'AUS' #for naming diagnostic files
+    inv_name <- 'AUS_2018' #for naming diagnostic files
     region <- c( "aus" )
-    inv_years <- c( 2000, 2006, 2012 )
+    inv_years<-c( 2001:2019 )
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
+
+ # Scaling for NOx
+
+    if ( em %in% c("NOx") ) {
+        sector_fuel_mapping <- paste0(sector_fuel_mapping,'_NOx')
+    }
 
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions
 #    Read in the inventory data, mapping file, the specified emissions species,
 #    and the latest versions of the scaled EFs
+
     scaling_data <- F.readScalingData( inventory = inventory_data_file,
                                        inv_data_folder,
                                        mapping = sector_fuel_mapping,
@@ -76,8 +82,8 @@
 # 4. Calculate Scaling Factors, reaggregate to CEDS sectors
 
 # Calculate and extend scaling factors
-    scaling_factors_list <- F.scaling( ceds_data, inv_data, region, 
-                                       replacement_method = 'replace', 
+    scaling_factors_list <- F.scaling( ceds_data, inv_data, region,
+                                       replacement_method = 'replace',
                                        max_scaling_factor = 100,
                                        replacement_scaling_factor = 100 )
     list2env( scaling_factors_list, envir = .GlobalEnv )
@@ -88,12 +94,11 @@
     scaled_em <- scaled[[ 2 ]]
 
 # ------------------------------------------------------------------------------
-# 5. Encorporate scaled em and EF
+# 5. Encorporate scaled em and EF and
+#    Write Scaled emissions and emission factors
 
-#   Write Scaled emissions and emission factors
     F.addScaledToDb( scaled_ef, scaled_em, meta_notes )
 
 # Every script should finish with this line
     logStop()
-
 # END

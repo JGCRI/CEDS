@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
+Scaling Mapping,All,chn,All,2010,2017,BCOC scaling mapping is identical to the MEIC_scaling_mapping.csv. Copied so BCOC can have different scaling method.

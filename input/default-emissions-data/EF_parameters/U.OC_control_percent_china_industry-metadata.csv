@@ -1,0 +1,17 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+BC Control,OC,China,1A1a_Electricity-autoproducer,2015,2017,Update industry BC trend to better match MEIC
+BC Control,OC,China,1A2a_Ind-Comb-Iron-steel,2015,2017,Update industry BC trend to better match MEIC
+BC Control,OC,China,1A2b_Ind-Comb-Non-ferrous-metals,2015,2017,Update industry BC trend to better match MEIC
+BC Control,OC,China,1A2c_Ind-Comb-Chemicals,2015,2017,Update industry BC trend to better match MEIC
+BC Control,OC,China,1A2d_Ind-Comb-Pulp-paper,2015,2017,Update industry BC trend to better match MEIC
+BC Control,OC,China,1A2e_Ind-Comb-Food-tobacco,2015,2017,Update industry BC trend to better match MEIC
+BC Control,OC,China,1A2f_Ind-Comb-Non-metalic-minerals,2015,2017,Update industry BC trend to better match MEIC
+BC Control,OC,China,1A2g_Ind-Comb-Construction,2015,2017,Update industry BC trend to better match MEIC
+BC Control,OC,China,1A2g_Ind-Comb-machinery,2015,2017,Update industry BC trend to better match MEIC
+BC Control,OC,China,1A2g_Ind-Comb-mining-quarying,2015,2017,Update industry BC trend to better match MEIC
+BC Control,OC,China,1A2g_Ind-Comb-other,2015,2017,Update industry BC trend to better match MEIC
+BC Control,OC,China,1A2g_Ind-Comb-textile-leather,2015,2017,Update industry BC trend to better match MEIC
+BC Control,OC,China,1A2g_Ind-Comb-transpequip,2015,2017,Update industry BC trend to better match MEIC
+BC Control,OC,China,1A2g_Ind-Comb-wood-products,2015,2017,Update industry BC trend to better match MEIC
+BC Control,OC,China,1A4c_Agriculture-forestry-fishing,2015,2017,Update industry BC trend to better match MEIC
+BC Control,OC,China,1A5_Other-unspecified,2015,2017,Update industry BC trend to better match MEIC

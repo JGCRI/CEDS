@@ -28,7 +28,7 @@
 # Describes which emission species is being analyzed
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "SO2"
+    if ( is.na( em ) ) em <- "BC"
 
 # ------------------------------------------------------------------------------
 # 0.5 Settings/Load Files & Convert all txt files to csv
@@ -233,6 +233,21 @@
     reas_data_wide <-
       reas_data_wide[ !( reas_data_wide$iso == 'kaz' &
                          reas_data_wide$sector == 'ncomb-industry-aluminum_alumina' ), ]
+    # ------------------------------------------------------------------------------
+    # 1.5 Calculate BC/OC emissions by PM2.5
+    # REAS is currently not scaled to BC and OC in module F. This is kept here for future reference.
+    if (em %in% c ('BC','OC') ) {
+
+      # Transportation sectors from mapping file
+      mapping_file <- readData("SCALE_MAPPINGS", "REAS_scaling_mapping.csv")
+      mapping_file <- mapping_file %>%
+        filter(str_detect(scaling_sector,"road"))
+      inv_sector_name <- mapping_file$inv_sector
+
+      reas_data_wide <- reas_data_wide %>%
+        filter(sector %in% inv_sector_name)
+
+    }
 
 # ------------------------------------------------------------------------------
 # 2. Output

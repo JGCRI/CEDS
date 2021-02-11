@@ -1,4 +1,4 @@
-"Data.Type","Emission","Region","Sector","Start.Year","End.Year","Source.Comment"
-"Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Metadata input file missing for data file Fertilizer_Consumption"
-"Emissions Trend","NOx","global","3D_Soil-emissions",NA,NA,"Estimates from Davidson (2009), The contribution of manure and fertilizer nitrogen to atmospheric nitrous oxide since 1860"
-"Unknown","Unknown","Unknown","Unknown","Unknown","Unknown","Metadata input file missing for data file Master_Country_List"
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+Fertizer Consumption,NA,NA,3D_Soil-emissions,1961,1975,Fertizer data from UN
+Emissions Trend,NOx,global,3D_Soil-emissions,NA,NA,"Global average emission intensity estimates from Davidson (2009), The contribution of manure and fertilizer nitrogen to atmospheric nitrous oxide since 1860,  for countries without fertlizer data"
+Fertizer Consumption,NA,Finland,3D_Soil-emissions,1961,1975,Fertizer consumption extrapolated from UN N2O estimates to avoid spurious discontinuities

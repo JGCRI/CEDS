@@ -47,7 +47,9 @@
 # Note 1: While EMEP has BC, there is no OC, so retain consistent BC & OC estimates by not
 #         scaling to EMEP for these ems
 # Note 2: While CEDS does not include EMEP BC scaling, CEDS-GBD does include BC EMEP scaling
-    if ( em %!in% c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2' ) ) {
+# Note 3: Below, added BC and OC using PM2.5 data and BC/PM2.5 and OC/PM2.5 default ratios
+    #TODO: compare the default ratio method to CEDS-GBD
+    if ( em %!in% c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2','BC','OC' ) ) {
       stop( paste( 'EMEP scaling is not supported for emission species ',
                     em, '. Remove from script list in F1.1.inventory_scaling.R' ) )
     }
@@ -84,6 +86,12 @@
 # EMEP level 1 inventory is reformatted by the E2.EMEP_em_emissions_lvl1.R script
     inventory_data_file <- paste0( "E.", em, "_", inv_name, "_inventory" )
     inv_data_folder <- "MED_OUT"
+
+
+# Scaling for specific species
+    if ( em %in% c("BC", "OC") ) {
+      sector_fuel_mapping <- paste0(sector_fuel_mapping,'_BCOC')
+    }
 
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions

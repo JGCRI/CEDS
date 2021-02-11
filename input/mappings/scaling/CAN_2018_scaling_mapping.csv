@@ -77,7 +77,7 @@ Paints and Solvents_Surface Coatings,solvents,2D_Paint-application,
 ,solvents,2D3_Other-product-use,
 Transportation and Mobile Equipment_Air Transportation,,,
 ,,,
-Transportation and Mobile Equipment_Heavy-duty Diesel Vehicles,Road,1A3b_Road,
+Transportation and Mobile Equipment_Heavy-duty Diesel Vehicles,Road,1A3b_Road,"The modE script uses this file to determine which inventory sectors correspond to the Road scaling sector (""1A3b_Road"")."
 Transportation and Mobile Equipment_Heavy-duty Gasoline Vehicles,Road,,
 Transportation and Mobile Equipment_Heavy-duty LPG/NG Vehicles,Road,,
 Transportation and Mobile Equipment_Light-duty Diesel Trucks,Road,,

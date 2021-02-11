@@ -1,0 +1,3 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
+Energy Statistics Adjustment,NA,usa,road,1960,2017,Reduce reported road gasoline consumption by amount below.
+Energy Statistics Adjustment,NA,usa,other RCO,1960,2017,Additional off-road gasoline consumption originally reported in road. Estimated from EPA GHG data from 1990-2017

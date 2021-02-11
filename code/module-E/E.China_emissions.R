@@ -7,7 +7,7 @@
 # Units are initially in Mg or Metric Tonnes
 # Input Files: CEDS_MEIC_Emissions_2rdLevel_20160226.xlsx
 # Output Files: E.[em]_CHN_inventory.csv
-# Notes: 
+# Notes:
 # TODO: Re-write read-in so that order of years is taken from input data instead of assumed.
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
@@ -19,15 +19,15 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "NOx"
-  
-# Call standard script header function to read in universal header files - 
+    if ( is.na( em ) ) em <- "BC"
+
+# Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( 'common_data.R', "data_functions.R", 
+    headers <- c( 'common_data.R', "data_functions.R",
                   "emissions_scaling_functions.R", "analysis_functions.R" ) # Additional function files required.
     log_msg <- "Initial reformatting of China emissions" # First message to be printed to the log
     script_name <- "E.China_emissions.R"
-    
+
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
@@ -49,14 +49,14 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
                                       ".xlsx", sheet_selection = sheet_name,
                                       domain_extension = subfolder_name )
     sheet_name <- "2010"
-    inv_data_sheet_ten <- readData( inv_data_folder, inventory_data_file, 
-                                    ".xlsx", sheet_selection = sheet_name, 
+    inv_data_sheet_ten <- readData( inv_data_folder, inventory_data_file,
+                                    ".xlsx", sheet_selection = sheet_name,
                                     domain_extension = subfolder_name )
     sheet_name <- "2012"
-    inv_data_sheet_twelve <- readData( inv_data_folder, inventory_data_file, 
-                                       ".xlsx", sheet_selection = sheet_name, 
+    inv_data_sheet_twelve <- readData( inv_data_folder, inventory_data_file,
+                                       ".xlsx", sheet_selection = sheet_name,
                                        domain_extension = subfolder_name )
-  
+
 # Process given emission if inventory data exists
 # Here assuming data for specific emission species either do not exist or exist
 # for all 3 years: 2008, 2010, 2012
@@ -66,33 +66,40 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
         X2008 <- inv_data_sheet_eight[ , em ]
         X2010 <- inv_data_sheet_ten[ , em ]
         X2012 <- inv_data_sheet_twelve[ , em ]
-        
+
         inv_data_species <- data.frame( sector, X2008, X2010, X2012 )
-      
+
     # Clean rows and columns to standard format
         inv_data_species$iso <- 'chn'
-        inv_data_species <- inv_data_species[ , c( 'iso', 'sector', 
+        inv_data_species <- inv_data_species[ , c( 'iso', 'sector',
                                                    paste0( 'X', inv_years ) ) ]
-      
-      
+
+
     # Make numeric
-        inv_data_species[ , paste0( 'X', inv_years ) ] <- 
+        inv_data_species[ , paste0( 'X', inv_years ) ] <-
                sapply( inv_data_species[ , paste0( 'X', inv_years ) ],
                        as.numeric )
     # Convert from tonnes to kt
-        inv_data_species[ , paste0( 'X', inv_years ) ] <- 
+        inv_data_species[ , paste0( 'X', inv_years ) ] <-
           as.matrix( inv_data_species[ , paste0( 'X', inv_years ) ] ) / 1000
-    
+
     } else {
     # Write out blank df if no inventory data exists for given emission
         inv_data_species <- data.frame()
     }
 
+# ------------------------------------------------------------------------------
+#  2.5 Find BC and OC emissions
+
+    # filter BC and OC to just transportation sector for now:
+    if (em %in% c('BC','OC')) {
+      inv_data_species <- inv_data_species %>% filter(sector == "1A3b_Road")
+    }
 
 # ------------------------------------------------------------------------------
 # 3. Write out standard form inventory
-    writeData( inv_data_species, domain = "MED_OUT", 
+    writeData( inv_data_species, domain = "MED_OUT",
                paste0( 'E.', em, '_', inv_name, '_inventory' ) )
-    
+
     logStop()
 # END

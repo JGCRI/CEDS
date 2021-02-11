@@ -1,0 +1,2 @@
+Source,Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+All,Emissions,all,all,all,1750,2020,This file identifies inventory data (in standard CEDS format) that should be added to the default emissions dataset. Data is extended forward and backward w/ trends from inventory default (generally EDGAR).

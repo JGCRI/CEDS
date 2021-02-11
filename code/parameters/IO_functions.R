@@ -596,6 +596,13 @@ writeData <- function( x, domain = "MED_OUT", fn = GCAM_SOURCE_FN, fn_sfx = NULL
 		OUTPUTS[[ GCAM_SOURCE_FN[ GCAM_SOURCE_RD ] ]] <<- c( outs, full_fn )
 	}
 
+	# If x is a matrix, warn and convert to dataframe
+	if ( class(x)[1] == "matrix" ) {
+	    x <- as.data.frame( x )
+	    warning( paste0( "Structure passed to WriteData was a matrix. ",
+	                     "Converting to data frame.. " ) )
+	}
+
     # Ensure all data entries are strings, not lists, to avoid strange errors in write.csv
     x <- data.frame( lapply( x, as.character ), stringsAsFactors = FALSE )
 
