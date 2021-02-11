@@ -46,7 +46,7 @@ for (i in seq_along(comb_fuels)){
 }
 
 # Check methods
-valid_methods <- c( 'constant', "Emissions-trend" , "EF-trend" , 'EF-converge', 'default', NA)
+valid_methods <- c( 'constant', "Emissions-trend" , "EF-trend" , 'EF-converge', 'default', 'default_iso', NA)
 
 if( any( extension_drivers_EF$method %!in% valid_methods) ) stop(
           'Invalid methods in CEDS_historical_extension_methods_EF. Please Check' )

@@ -20,7 +20,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "NOx"
+    if ( is.na( em ) ) em <- "CH4"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -37,7 +37,7 @@
 # 1. Define parameters read in files
 
 # Stop script if running for unsupported species
-    if ( em %!in% c( 'SO2', 'CO', 'NMVOC', 'NOx', 'CO2', 'CH4' ) ) {
+    if ( em %!in% c( 'SO2', 'CO', 'NMVOC', 'NOx', 'CO2', 'CH4', 'N2O') ) {
         stop( paste( 'UNFCCC script is not supported for emission species ', em,
                      '. Remove from script list in F1.inventory_scaling.R...' ) )
     }
@@ -47,27 +47,36 @@
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
     # TODO: These 2 maps should be made into 1 map
-    sector_fuel_mapping <- 'UNFCCC_scaling_mapping'
-    if ( em == 'CH4')  sector_fuel_mapping <- 'UNFCCC_scaling_mapping_CH4'
-    mapping_method <- 'sector'
 
     inv_name <- 'UNFCCC'
     sector_fuel_mapping <- inv_name
-    if ( em == 'CH4'){ sector_fuel_mapping <- paste0( inv_name, "_", em ) }
+
+    inv_years <- c( 1990 : 2012 )
+
+    if ( em %in% c('CH4','N2O', 'CO2') ) {
+        sector_fuel_mapping <- 'UNFCCC_GHG'
+        inv_name <- 'UNFCCC_update'
+        inv_years <- c( 1990 : 2018 )
+    }
+    # For CO2 scale only CEDS process sectors
+    if ( em == c( 'CO2') ) sector_fuel_mapping <- 'UNFCCC_CO2'
+
     mapping_method <- 'sector'
-    region <- c( "aus", "aut", "bel", "bgr", "blr", "che", "cyp", "cze", "deu",
+
+    mapping_method <- 'sector'
+    region <- c( "aus", "aut", "bel", "bgr", "blr", "can", "che", "cyp", "cze", "deu",
                  "dnk", "esp", "est", "fin", "fra", "gbr", "grc", "hrv", "hun",
                  "irl", "isl", "ita", "jpn", "ltu", "lva", "mlt", "nld", "nor",
-                 "nzl", "prt", "rou", "svk", "svn", "swe", "tur", "ukr" )
-    # All other ems besides CH4 do not include can and pol data from the UNFCCC
-    if ( em == 'CH4'){ region <- c( region, "can", "pol" ) }
+                 "nzl", "pol", "prt", "rou", "svk", "svn", "swe", "tur", "ukr", "usa" )
+
+     # Include russia only for CO2 and N2O
+     if ( em %in% c( "CO2", 'N2O' ) ) region <- c( region, "rus" )
 
 # include only regions that aren't scaled elsewhere for non-CO2 and non-CH4 emissions
 # TODO: blr and ukr should only be used for specific years where is close to expert estimates, or to calibrate parameters off-line
 # TODO: If grc ends up being scaled to EMEP (see git issue #253), then potentially remove it's scaling below
 # Ukraine (ukr) energy reporting is inconsistent, instead have calibrated coal S% by hand. Check other emissions
-    if ( em %!in% c( "CO2", 'CH4' ) ){ region <- c( "blr" , "grc" , "nzl" ) }
-    inv_years <- c( 1990 : 2012 )
+    if ( em %!in% c( "CO2", 'CH4', 'N2O' ) ){ region <- c( "blr" , "grc" , "nzl" ) }
 
 # UNFCCC inventory is processed in E.UNFCCC_[em]_emissions.R script
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )

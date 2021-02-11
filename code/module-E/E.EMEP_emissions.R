@@ -16,7 +16,7 @@
 
 # Call standard script header function to read in universal header files -
 # provides logging, file support, and system functions - and start the script log.
-    headers <- c( "data_functions.R", "analysis_functions.R",
+    headers <- c( 'common_data.R',"emissions_scaling_functions.R","data_functions.R", "analysis_functions.R",
                   'interpolation_extension_functions.R' ) # Any additional function files required
     log_msg <- "Initial reformatting of the EMEP Emissions" # First message to be printed to the log
     script_name <- "E.EMEP_emissions.R"
@@ -33,13 +33,15 @@
 # Describes which emission species is being analyzed
     args_from_makefile <- commandArgs( TRUE )
     em <<- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "CO"
+    if ( is.na( em ) ) em <- "BC"
 
 #   TODO: When level 2 NFR14 data is used, this will need to include an if else statement - as level 2 NFR14
 #         data for SO2 is now labelled as SO2, not SOx. It will also need to be moved lower, so that
 #         script objects 'level' and 'Em_Format' have been defined for the if else statement.
     em.read <- em
     if( em == "SO2" ) em.read <- "SOx" # TODO: The EMEP NFR14 level 2 file might be named SO2, not SOx
+    if (em %in% c ('BC','OC')) em.read <- "PM25"
+
 
 # -----------------------------------------------------------------------------------------------------------
 # 0.75 Select EMEP level
@@ -70,8 +72,9 @@
         names( inv ) <- c( 'ISO2', "year", "sector", "emission_species",
                            "units", "emissions" )
 
+
     # Writes each object as same format, but converted to a csv file
-        writeData( inv , 'EM_INV', domain_extension = "EMEP/",
+        writeData( inv, 'EM_INV', domain_extension = "EMEP/",
                    fn = paste0( 'EMEP_', Em_Format, '_', level, '_', em.read ),
                    meta = FALSE ) # Don't write metadata, as it is provided as an input
 
@@ -102,13 +105,20 @@
         	if ( Em_Format == 'NFR14' && level == "LEVEL1" ) {
 
           	  EMEP_em <- dplyr::mutate( EMEP_em, sector = as.character( sector ) )
-          	  EMEP_em <- dplyr::mutate( EMEP_em,
-          	                     sector = sapply( strsplit( EMEP_em$sector,
+          	  if (em == 'OC') {
+          	    print("skip")
+          	  } else if (em == 'BC'){
+          	    print("skip")
+          	  } else {
+          	    EMEP_em <- dplyr::mutate( EMEP_em,
+          	                      sector = sapply( strsplit( EMEP_em$sector,
           				                                          split = ' ',
           				                                          fixed = TRUE ),
           	                                      function( x ) ( x [ 2 ] ) ) )
+        	    }
+          	    }
 
-        	}
+
 
     	# Order By ISO2 & sector
     	    EMEP_em <- dplyr::mutate( EMEP_em, ISO2 = as.character( ISO2 ) )
@@ -151,6 +161,33 @@
     	# Relabel units from Gg to kt (same numerical value, different label)
     	    EMEP_emdf$units <- 'kt'
 
+
+    	    # ------------------------------------------------------------------------------
+    	    # Find BC and OC emissions
+
+    	    # Define parameters for BC and OC specific script
+
+    	    ceds_sector <- "1A3b_Road"
+    	    inv_iso <- EMEP_em$iso
+    	    inv_sector_name <- c("F_RoadTransport")
+    	    inv_years <- c(1980:2018)
+    	    X_inv_years <- paste0("X",inv_years)
+    	    PM <- "PM25"
+
+    	    # clean PM25 inv sheet for BC and OC script
+    	    inv_data_sheet <- EMEP_emdf %>%
+    	      select(-units)
+
+    	    # Calculate BC and OC emissions
+
+    	    if (em %in% c("BC","OC") ) {
+
+    	      em_emissions <- F.Estimate_BC_OC_emissions(em, PM, inv_iso,ceds_sector,inv_sector_name,X_inv_years)
+    	      EMEP_emdf <- em_emissions
+    	    }
+
+    	      # ------------------------------------------------------------------
+
       # Subset Russian Data
       	  EMEP_emRUS <- subset( EMEP_emdf, iso == "rus" )
       	  remove_ISO <- c( 'rus' )
@@ -164,6 +201,7 @@
         EMEP_emRUS <- c( 'iso', 'sector', 'year' )
 
     }
+
 
 # ------------------------------------------------------------------------------
 # 3. Output

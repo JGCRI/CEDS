@@ -1,0 +1,2 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+Emissions,N2O,idn,3D_Soil-emissions,1960,2019,"Replace discontiniuty in FAO emissions with EDGAR data, which is smooth"

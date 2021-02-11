@@ -16,11 +16,14 @@
 # Get emission species first so can name log appropriately
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[1]
-if ( is.na( em ) ) em <- "NOx"
+if ( is.na( em ) ) em <- "CO2"
+
+em.read <- em
+if (em %in% c ('BC','OC')) em.read <- "PM2.5"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( 'common_data.R', "data_functions.R", "analysis_functions.R" ) # Additional function files required.
+    headers <- c( 'common_data.R', "data_functions.R", "analysis_functions.R","emissions_scaling_functions.R" ) # Additional function files required.
     log_msg <- "Generating Taiwan emission inventory data" # First message to be printed to the log
     script_name <- paste0( em, "-E.Taiwan_emission.R" )
 
@@ -55,12 +58,13 @@ if ( is.na( em ) ) em <- "NOx"
 # 2. Read in the inventory
 
 
-    if ( em %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO' ) ) {
+    if ( em.read %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO','PM2.5' ) ) {
     # write out a dummy file for unsupported species
         inv_data_species <- data.frame( )
 
     } else {
     # Import Sheets containing 2003, 2006, 2010, 2013, 2016 data.
+
         sheet_name <- "2003"
         inv_data_sheet_two <- readData( inv_data_folder, inventory_data_file, ### Why two, three, four, not 1,2,3?
                                         ".xlsx", skip = 1,
@@ -109,8 +113,8 @@ if ( is.na( em ) ) em <- "NOx"
 # 3. Convert to standard format
 
     # Trim each dataframe to the desired rows and rename
-        keep_columns <- c( 'sector', 'sub-sector1', 'sub-sector2','SOx', 'NOx', 'NMHC', 'CO' )
-        col_names <- c( 'sector', 'subsector_l1', 'subsector_l2', 'SO2', 'NOx', 'NMVOC', 'CO' )
+        keep_columns <- c( 'sector', 'sub-sector1', 'sub-sector2','SOx', 'NOx', 'NMHC', 'CO','PM2.5' )
+        col_names <- c( 'sector', 'subsector_l1', 'subsector_l2', 'SO2', 'NOx', 'NMVOC', 'CO','PM2.5' )
         df2003 <- subset( inv_data_sheet_two, select = keep_columns )
         colnames( df2003 ) <- col_names
         df2003 <- df2003[ !is.na( df2003$sector ), ]
@@ -170,11 +174,11 @@ if ( is.na( em ) ) em <- "NOx"
 
     # Keep only data for the given emissions species
         sector <- df2003$sector
-        X2003 <- df2003[ , em ]
-        X2006 <- df2006[ , em ]
-        X2010 <- df2010[ , em ]
-        X2013 <- df2013[ , em ]
-        X2016 <- df2016[ , em ]
+        X2003 <- df2003[ , em.read ]
+        X2006 <- df2006[ , em.read ]
+        X2010 <- df2010[ , em.read ]
+        X2013 <- df2013[ , em.read ]
+        X2016 <- df2016[ , em.read ]
 
         inv_data_species <- data.frame( sector, X2003, X2006, X2010, X2013, X2016 )
 
@@ -189,6 +193,36 @@ if ( is.na( em ) ) em <- "NOx"
                                                    paste0( 'X', inv_years ) ) ]
 
     }
+
+    # ------------------------------------------------------------------------------
+    # Find BC and OC emissions
+
+    if (em %in% c ('BC','OC') ) {
+
+    # Define parameters for BC and OC specific script
+
+    ceds_sector <- "1A3b_Road"
+    inv_iso <- "twn"
+    PM <- "PM25"
+
+    # Read in scaling mapping file and filter transportation sectors
+    mapping_file <- readData("SCALE_MAPPINGS", "Taiwan_scaling_mapping.csv")
+    mapping_file <- mapping_file %>%
+        filter(str_detect(scaling_sector,"on-road transportation"))
+    inv_sector_name <- mapping_file$inv_sector
+
+    # Match formatting from PM2.5 inventory to BC/OC script
+    X_inv_years <- paste0("X",inv_years)
+    inv_data_sheet <- inv_data_species %>% select(-unit)
+    inv_data_sheet[is.na(inv_data_sheet)] = 0
+
+
+    # Calculate BC and OC emissions
+
+        inv_data_sheet <- F.Estimate_BC_OC_emissions(em,PM,inv_iso,ceds_sector,inv_sector_name,X_inv_years)
+        inv_data_species <- inv_data_sheet
+    }
+
 
 # ------------------------------------------------------------------------------
 # 4. Output

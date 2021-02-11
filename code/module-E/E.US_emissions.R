@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: E.US_emissions.R
-# Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly
-# Date Last Modified: Oct 29, 2015
+# Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly, Andrea Mott
+# Date Last Modified: January 24, 2021
 # Program Purpose: To read in & reformat US emissions inventory data
 # Input Files: national_tier1_caps.xlsx
 # Output Files: E.[em]_US_inventory.csv
@@ -17,7 +17,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "NOx"
+    if ( is.na( em ) ) em <- "SO2"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -47,14 +47,17 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # ------------------------------------------------------------------------------
 # 2. Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
 
+
 # Import Sheet
     sheet_name <- em
     if ( em == 'NOx' ) sheet_name <- 'NOX'
     if ( em == 'NMVOC' ) sheet_name <- 'VOC'
     if ( em == 'PM25' ) sheet_name <- 'PM25Primary'
     if ( em == 'PM10' ) sheet_name <- 'PM10Primary'
+    if (em %in% c ('BC','OC')) {sheet_name <- 'PM25Primary'}
 
     inv_data_sheet <- readData( inv_data_folder, inventory_data_file , ".xlsx" )
+
 
 # Process given emission if inventory data exists
     if ( sheet_name %in% names( inv_data_sheet ) ) {
@@ -63,7 +66,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
     # Clean rows and columns to standard format; different emissions species
     # require different columns and year ranges
-        if ( em == 'NH3' ) {
+        if ( em %in% c('NH3','BC','OC')) {
             inv_years <- c( 1990:last_year )
             number_of_years <- last_year - 1988
             inv_data_sheet <- inv_data_sheet[ -1:-3, 1:number_of_years ]
@@ -102,8 +105,8 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
         wildfire_emissions <-
                inv_data_sheet[ which( inv_data_sheet$sector == 'Wildfires' ),
                                X_inv_years ]
-        
-        # TODO: Since wildfire emisisons are not broken out for first few years, insert NA 
+
+        # TODO: Since wildfire emissions are not broken out for first few years, insert NA
         # instead for misc category in cases where wildfire emissions that are > 20%
         # of Miscellaneous total. (only the case for NOx at present)
         wildfire_emissions[ is.na( wildfire_emissions ) ] <- 0
@@ -135,6 +138,43 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     } else {
     # Write out blank df if no inventory data exists for given emission
         inv_data_sheet <- data.frame()
+    }
+
+
+# ------------------------------------------------------------------------------
+# Find BC and OC emissions
+# NOte: removed BC and OC scaling in mod F due to jump in US inv PM2.5 data in early 2000s.
+    # kept this for future BC,OC scaling.
+
+    # Define parameters for BC and OC specific script
+
+    ceds_sector <- "1A3b_Road"
+    inv_iso <- "usa"
+    inv_sector_name <- "HIGHWAY VEHICLES"
+ #   X_inv_years <- X_inv_years
+    PM <- "PM25"
+
+# Calculate BC and OC emissions
+
+ if (em %in% c ('BC','OC') ) {
+
+         inv_data_sheet <- F.Estimate_BC_OC_emissions(em, PM, inv_iso,ceds_sector,inv_sector_name,X_inv_years)
+     }
+
+# ------------------------------------------------------------------------------
+
+# Set mod E output NMVOC to zero before 2004 for the misc sector
+
+    if (em == "NMVOC") {
+        inv_data_sheet_misc <- inv_data_sheet %>%
+            filter(sector == "MISCELLANEOUS") %>%
+            replace(3:20,0)
+
+    #rejoin misc sector and remove old misc sector
+    merged_dfs <- rbind(inv_data_sheet,inv_data_sheet_misc)
+    df_to_remove <- subset(merged_dfs, sector == "MISCELLANEOUS" & X1970 != 0)
+    inv_data_sheet <- anti_join(merged_dfs,df_to_remove)
+
     }
 
 # ------------------------------------------------------------------------------

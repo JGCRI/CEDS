@@ -24,7 +24,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NOx"
+if ( is.na( em ) ) em <- "BC"
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -62,7 +62,7 @@ if( length( fl ) > 0 ){
 # Extend EF pathway backward/forward
 # TODO: add interpolation
     pathway_full_long <- melt( pathway_full, id = id_cols ) %>%
-      dplyr::arrange( iso, sector, fuel )
+      dplyr::arrange( iso, sector, fuel, pathway_type )
     pathway_full_long <- group_by( pathway_full_long, iso, sector, fuel ) %>%
       dplyr::mutate( value = na.locf( value, fromLast = T, na.rm = F ),
               value = na.locf( value, na.rm = F ) )
@@ -79,22 +79,25 @@ if( length( fl ) > 0 ){
     pathway_full <- rbind( pathway_full, rows_to_add ) %>%
       filter( iso != "all" ) %>%
       dplyr::arrange( iso, sector, fuel )
+    pathway_full_long <- melt( pathway_full, id = id_cols )
+
   }
 
 # Recast into more convenient format
-    pathway_full_long <- melt( pathway_full, id = id_cols )
-    names( pathway_full_long )[ names( pathway_full_long ) %in% c( "variable", "value" ) ] <- c( "year", "pathway_val" )
+    names( pathway_full_long )[ names( pathway_full_long ) %in% c( "value", "variable" ) ] <- c( "year", "pathway_val" )
     pathway_id_cols <- select( pathway_full_long, -pathway_type, -pathway_val ) %>% unique()
 
     pathway_min <- filter( pathway_full_long, pathway_type == "minimum" )
     names( pathway_min )[ names( pathway_min ) == "pathway_val" ] <- "min_ef"
     pathway_max <- filter( pathway_full_long, pathway_type == "maximum")
     names( pathway_max )[ names( pathway_max ) == "pathway_val" ] <- "max_ef"
+    pathway_min <- select(pathway_min,-c("pathway_type"))
+    pathway_max <- select(pathway_max,-c("pathway_type"))
 
-    pathway_full_long <- merge( pathway_id_cols, pathway_min, all = T ) %>%
-      merge( pathway_max, all = T )
-    pathway_full_long$min_ef[ is.na( pathway_full_long$min_ef ) ] <- -Inf
+    pathway_full_long <- right_join(pathway_id_cols,pathway_max, all = T)
+    pathway_full_long <- full_join(pathway_full_long,pathway_min, all = T)
     pathway_full_long$max_ef[ is.na( pathway_full_long$max_ef ) ] <- Inf
+    pathway_full_long$min_ef[ is.na( pathway_full_long$min_ef ) ] <- -Inf
     pathway_full_long <- select( pathway_full_long, iso, sector, fuel, year, min_ef, max_ef )
 
 # ---------------------------------------------------------------------------
@@ -114,6 +117,7 @@ if( length( fl ) > 0 ){
     ef_subset_long <- merge( ef_subset_long, pathway_full_long, all.x = T )
 
 # Apply EF pathway
+
     ef_subset_long$ef[ ef_subset_long$ef < ef_subset_long$min_ef ] <-
       ef_subset_long$min_ef[ ef_subset_long$ef < ef_subset_long$min_ef ]
     ef_subset_long$ef[ ef_subset_long$ef > ef_subset_long$max_ef ] <-

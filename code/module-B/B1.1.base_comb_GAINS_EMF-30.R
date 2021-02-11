@@ -186,6 +186,10 @@
 
     mult_hardcoal <- calc_heat_content( conversion_fixed, hardcoal )
 
+    coalcoke <- c( "Coke oven coke", "Coking coal" )
+
+    mult_coalcoke <- calc_heat_content( conversion_fixed, coalcoke )
+
     lightoil <- c( "Motor gasoline excl. biofuels", "Aviation gasoline", "Gasoline type jet fuel",
                    "Kerosene type jet fuel excl. biofuels", "Other kerosene" ) # TODO: (Future:) Missing: "Refinery feedstocks (kt)", "Additives/blending components (kt)",
                                                                                #                          "Other hydrocarbons (kt)", "Ethane (kt)",
@@ -217,11 +221,12 @@
 # Combine all calculated heat contents into a single dataframe
 # This data is output to the diagnostic-output directory
     GAINS_heat_content <- data.frame( fuel = c( 'brown_coal', 'hard_coal',     # TODO (Future) This could be taken from IEA_prod_fuel
-                                                'biomass', 'light_oil',
-                                                'natural_gas', 'diesel_oil',
-                                                'heavy_oil' ),
+                                                'coal_coke', 'biomass',
+                                                'light_oil', 'natural_gas',
+                                                'diesel_oil', 'heavy_oil' ),
                                      heat_content = c( mult_browncoal,
                                                        mult_hardcoal,
+                                                       mult_coalcoke,
                                                        mult_biomass,
                                                        mult_lightoil,
                                                        mult_NaturalGas,
@@ -386,6 +391,9 @@
 #   hard_coal convert
     activities_ceds <- convert_to_kg_of_fuel( activities_ceds, GAINS_heat_content, "hard_coal" )
 
+#   coal_coke convert
+    activities_ceds <- convert_to_kg_of_fuel( activities_ceds, GAINS_heat_content, "coal_coke" )
+
 #   diesel_oil convert
     activities_ceds <- convert_to_kg_of_fuel( activities_ceds, GAINS_heat_content, "diesel_oil" )
 
@@ -438,6 +446,14 @@
     activities_ceds_interp <- interpolateValues( activities_ceds )
 
     emissions_ceds <- as.data.frame( emissions_ceds )
+
+    # Replace zeros with Inf so that the interpolateValues function in Step 6 can
+    # interpolate between GAINS years, as opposed to CEDS years. The interpolateValues
+    # function below will replace the values between the GAINS years with Inf/NaN,
+    # essentially flagging them so that they are interpolated correctly later.
+    # For instance, the values between 2006 and 2014 will be replaced with Inf/NaN,
+    # and will then be interpolated using GAINS data from 2005 and 2015.
+    emissions_ceds <- replace( emissions_ceds, emissions_ceds == 0, Inf )
     emissions_ceds_interp <- interpolateValues( emissions_ceds )
 
 # Create some Xyear lists
@@ -473,10 +489,13 @@
     combined <- removeNARows( combined, X_emf_years ) %>%
         dplyr::select( iso, sector, fuel, units, all_of(X_emf_years) )
 
+# Interpolate internal NAs
+    combined_interp <- interpolateValues( combined )
+
 # Extend emissions forwards and backwards in time (constant extension)
 # Without extension many EFS would be NA (missing activity data,
 #                   or missing emissions data (or both) for a given year ).
-    gainsEMF30_all <- extend_and_interpolate( combined, X_emf_years )
+    gainsEMF30_all <- extend_and_interpolate( combined_interp, X_emf_years )
 
 # Retain GAINS years which are in CEDS years
     gainsEMF30_all <- gainsEMF30_all[ , c( 'iso', 'sector', 'fuel',
@@ -526,6 +545,15 @@
     process_gainsEMF30 <- gainsEMF30_all[ which( gainsEMF30_all$fuel ==
                                                    'process' ), ]
     gainsEMF30_comb <- gainsEMF30_all[ gainsEMF30_all$fuel %!in% 'process', ]
+
+# For any given iso-sector combination, replace low values (< 0.001 * std. dev) with
+# median value of that year. The low value threshold was determined by trial and error
+# and captured the unrealistically low EFs for Asia-stan countries.
+    gainsEMF30_comb <- gainsEMF30_comb %>%
+        group_by(iso, sector) %>%
+        mutate_at(vars(starts_with("X")), funs(if_else(length(.)>1 & .<0.001*sd(.),NA_real_ ,.))) %>%
+        mutate_at(vars(starts_with("X")), funs(if_else(is.na(.),median(., na.rm = TRUE),.))) %>%
+        ungroup()
 
 # ---------------------------------------------------------------------------
 # 8. Diagnostics
