@@ -63,7 +63,7 @@ End_Use_Industry_HLF,1A2c_Ind-Comb-Chemicals,heavy_oil,
 End_Use_Industry_HLF,1A2d_Ind-Comb-Pulp-paper,heavy_oil,
 End_Use_Industry_HLF,1A2e_Ind-Comb-Food-tobacco,heavy_oil,
 End_Use_Industry_HLF,1A2f_Ind-Comb-Non-metalic-minerals,heavy_oil,
-End_Use_Industry_HLF,1A2g_Ind-Comb-Construction,heavy_oil,
+End_Use_Transport_AGR_HLF,1A2g_Ind-Comb-Construction,heavy_oil,Off-road emission factor for heavy oil in this sector
 End_Use_Industry_HLF,1A2g_Ind-Comb-machinery,heavy_oil,
 End_Use_Industry_HLF,1A2g_Ind-Comb-mining-quarying,heavy_oil,
 End_Use_Industry_HLF,1A2g_Ind-Comb-other,heavy_oil,
@@ -76,7 +76,7 @@ End_Use_Industry_LLF,1A2c_Ind-Comb-Chemicals,diesel_oil,
 End_Use_Industry_LLF,1A2d_Ind-Comb-Pulp-paper,diesel_oil,
 End_Use_Industry_LLF,1A2e_Ind-Comb-Food-tobacco,diesel_oil,
 End_Use_Industry_LLF,1A2f_Ind-Comb-Non-metalic-minerals,diesel_oil,
-End_Use_Industry_LLF,1A2g_Ind-Comb-Construction,diesel_oil,
+End_Use_Transport_AGR_HLF,1A2g_Ind-Comb-Construction,diesel_oil,Off-road emission factor for diesel oil in this sector
 End_Use_Industry_LLF,1A2g_Ind-Comb-machinery,diesel_oil,
 End_Use_Industry_LLF,1A2g_Ind-Comb-mining-quarying,diesel_oil,
 End_Use_Industry_LLF,1A2g_Ind-Comb-other,diesel_oil,
@@ -89,7 +89,7 @@ End_Use_Industry_LLF,1A2c_Ind-Comb-Chemicals,light_oil,Assume gasoline Efs are t
 End_Use_Industry_LLF,1A2d_Ind-Comb-Pulp-paper,light_oil,Assume gasoline Efs are the same as diesel
 End_Use_Industry_LLF,1A2e_Ind-Comb-Food-tobacco,light_oil,Assume gasoline Efs are the same as diesel
 End_Use_Industry_LLF,1A2f_Ind-Comb-Non-metalic-minerals,light_oil,Assume gasoline Efs are the same as diesel
-End_Use_Industry_LLF,1A2g_Ind-Comb-Construction,light_oil,Assume gasoline Efs are the same as diesel
+End_Use_Transport_HDT_LLF,1A2g_Ind-Comb-Construction,light_oil,Mobile emission factor for this sector
 End_Use_Industry_LLF,1A2g_Ind-Comb-machinery,light_oil,Assume gasoline Efs are the same as diesel
 End_Use_Industry_LLF,1A2g_Ind-Comb-mining-quarying,light_oil,Assume gasoline Efs are the same as diesel
 End_Use_Industry_LLF,1A2g_Ind-Comb-other,light_oil,Assume gasoline Efs are the same as diesel
@@ -133,6 +133,7 @@ End_Use_Residential_NatGas,1A4b_Residential,natural_gas,
 End_Use_Services_Bio_Trad_Heat,1A4a_Commercial-institutional,biomass,
 End_Use_Services_Coal_Heat,1A4a_Commercial-institutional,hard_coal,
 End_Use_Services_Coal_Heat,1A4a_Commercial-institutional,coal_coke,
+End_Use_Transport_AGR_HLF,1A4a_Commercial-institutional,diesel_oil,Off-road emission factor for most diesel oil in this sector
 End_Use_Services_Coal_Heat,1A4a_Commercial-institutional,brown_coal,
 End_Use_Transport_Coal,1A3c_Rail,hard_coal,
 End_Use_Transport_Coal,1A3c_Rail,coal_coke,

@@ -142,6 +142,7 @@
     IEA_product_fuel <- readData( "EN_MAPPINGS", "IEA_product_fuel" )
     cdiac_total <- readData( "MED_OUT", "E.CO2_CDIAC_inventory" )
 
+    # TTODO: Add error checking (at present, does not stop on some read errors such as column mis-match)
     adj_list <- list.files( path = "energy/energy-data-adjustment", pattern = "*.csv" )
     adj_list <- tools::file_path_sans_ext( adj_list )
     adj_list <- adj_list[ !grepl( "metadata", adj_list ) ]  # remove metadata
@@ -207,6 +208,7 @@
   	    dplyr::mutate_at( .vars = X_IEA_years,
   	                      .funs = funs( if_else( is.na( . ), 0, . ) ) )
 
+#TODOO add check if country and sector match something in IEA data
 # Adjust IEA energy stat according to instruction files in energy-data-adjustment folder
   	if ( length( adj_list ) > 0 ) {
       	printLog( "Adjusting IEA Energy Statistics..." )

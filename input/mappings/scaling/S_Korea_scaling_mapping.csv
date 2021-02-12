@@ -1,73 +1,91 @@
-inv_sector,scaling_sector,ceds_sector,,,
-Electricity-public,Electricity-and-Heat,1A1a_Electricity-public,,,Electricity-public
-Electricity-private,1A2_Ind-Combustion,1A1a_Electricity-autoproducer,,,District heating
-District heating,Electricity-and-Heat,1A1a_Heat-production,,,Petroleum refining
-Petroleum refining,1A1bc_Other-transformation,1A1bc_Other-transformation,,,Electricity-private
-,1A2_Ind-Combustion,1A2a_Ind-Comb-Iron-steel,,,Combustion
-,1A2_Ind-Combustion,1A2b_Ind-Comb-Non-ferrous-metals,,,Process furnace
-,1A2_Ind-Combustion,1A2c_Ind-Comb-Chemicals,,,Other
-,1A2_Ind-Combustion,1A2d_Ind-Comb-Pulp-paper,,,Petroleum product
-,1A2_Ind-Combustion,1A2e_Ind-Comb-Food-tobacco,,,Iron and steel
-,1A2_Ind-Combustion,1A2f_Ind-Comb-Non-metalic-minerals,,,Inorganic chemical manufacturing
-,1A2_Ind-Combustion,1A2g_Ind-Comb-transpequip,,,Wood products
-,1A2_Ind-Combustion,1A2g_Ind-Comb-machinery,,,Food and beverage processing
-,1A2_Ind-Combustion,1A2g_Ind-Comb-mining-quarying,,,Consumption of ammonia
-Combustion,1A2_Ind-Combustion,1A2g_Ind-Comb-wood-products,,,Other manufacturing
-Other,1A2_Ind-Combustion,1A2g_Ind-Comb-textile-leather,,,Provision of gasoline
-Process furnace,1A2_Ind-Combustion,1A2g_Ind-Comb-other,,,Painting facilities
-Aviation,,1A3aii_Domestic-aviation,,,Bus
-Truck,1A3b_Road,1A3b_Road,,,Truck
-RV,1A3b_Road,,,,Special purpose vehicle
-Passenger car,1A3b_Road,,,,RV
-Special purpose vehicle,1A3b_Road,,,,Motorcycle
-Taxi,1A3b_Road,,,,Rail
-Van,1A3b_Road,,,,Rail
-Bus,1A3b_Road,,,,Ship
-Motorcycle,1A3b_Road,,,,Aviation
-Rail,1A3c_Rail,1A3c_Rail,,,Agricultural machinery
-Ship,,1A3dii_Domestic-navigation,,,Waste incineration
-Commercial and public,1A4a_Commercial-institutional,1A4a_Commercial-institutional,,,Other waste processing
-Residential,1A4b_Residential,1A4b_Residential,,,Farmland using fertilizer
-Agriculture-livestock-fishing,Off_Road_Combustion,1A4c_Agriculture-forestry-fishing,,,Manure management
-Agricultural machinery,Off_Road_Combustion,,,,Forest fire and fire
-Construction facilities,Off_Road_Combustion,1A2g_Ind-Comb-Construction,,,Organic chemical manufacturing
-Petroleum product,1B2_Fugitive_petr_and_gas,1B2_Fugitive-petr,,,Animal
-,,1B2b_Fugitive-NG-prod,,,
-,,1B2b_Fugitive-NG-distr,,,
-,,1A5_Other-unspecified,,,
-,,1B1_Fugitive-solid-fuels,,,
-,,,,,
-,,2A1_Cement-production,,,
-,,2A2_Lime-production,,,
-,,2A6_Other-minerals,,,
-,,,,,
-Organic chemical manufacturing,2B_Chemical-industry,2B_Chemical-industry,,,
-,2B_Chemical-industry,2B2_Chemicals-Nitric-acid,,,
-,2B_Chemical-industry,2B3_Chemicals-Adipic-acid,,,
-Inorganic chemical manufacturing,2B_Chemical-industry,,,,
-Consumption of ammonia,2B_Chemical-industry,,,,
-Other manufacturing,2L_Other-process-emissions,2L_Other-process-emissions,,,
-Iron and steel,2C_Metal-production,2C_Metal-production,,,
-,,,,,
-Provision of gasoline,2D3_Other-product-use,2D3_Other-product-use,,,
-Painting facilities,2D_Paint-application,2D_Paint-application,,,
-Cleaning facilities,2D_Degreasing-Cleaning,2D_Degreasing-Cleaning,,,
-Washing facilities,2D_Degreasing-Cleaning,,,,
-Other use of organic solvent,2D3_Chemical-product-use,2D3_Chemical-products-manufacture-processing,,,
-Consumption of ammonia,2D3_Other-product-use,2D3_Other-product-use,,,
-,,,,,
-Food and beverage processing,2H_Pulp-and-paper-food-beverage-wood,2H_Pulp-and-paper-food-beverage-wood,,,
-Wood products,2H_Pulp-and-paper-food-beverage-wood,,,,
-,,,,,
-Manure management,3B_Manure-management,3B_Manure-management,,,
-Farmland using fertilizer,3D_Soil-emissions,3D_Soil-emissions,,,
-,,,,,
-,,3D_Rice-Cultivation,,,
-,,3E_Enteric-fermentation,,,
-,,,,,
-Waste incineration,5C_Waste-incineration,5C_Waste-incineration,,,
-Other waste processing,5E_Other-waste-handling,5E_Other-waste-handling,,,
-,,,,,
-,,5D_Wastewater-handling,,,
-,,5A_Solid-waste-disposal,,,
-,,7BC_Indirect-N2O-non-agricultural-N,,,
+inv_sector,scaling_sector,ceds_sector,,,,,
+Electricity-public,Electricity-and-Heat,1A1a_Electricity-public,,,Electricity-public,,"Note: The modE script uses this file to determine which inventory sectors correspond to the Road scaling sector (""1A3b_Road"")."
+Electricity-private,industry,1A1a_Electricity-autoproducer,,,District heating,,
+District heating,Electricity-and-Heat,1A1a_Heat-production,,,Petroleum refining,,
+Petroleum refining,industry,1A1bc_Other-transformation,,,Electricity-private,,
+,industry,1A2a_Ind-Comb-Iron-steel,,,Combustion,,
+,industry,1A2b_Ind-Comb-Non-ferrous-metals,,,Process furnace,,
+,industry,1A2c_Ind-Comb-Chemicals,,,Other,,
+,industry,1A2d_Ind-Comb-Pulp-paper,,,Petroleum product,,
+,industry,1A2e_Ind-Comb-Food-tobacco,,,Iron and steel,,
+,industry,1A2f_Ind-Comb-Non-metalic-minerals,,,Inorganic chemical manufacturing,,
+,industry,1A2g_Ind-Comb-transpequip,,,Wood products,,
+,industry,1A2g_Ind-Comb-machinery,,,Food and beverage processing,,
+,industry,1A2g_Ind-Comb-mining-quarying,,,Consumption of ammonia,,
+Combustion,industry,1A2g_Ind-Comb-wood-products,,,Other manufacturing,,
+Other,industry,1A2g_Ind-Comb-textile-leather,,,Provision of gasoline,,
+Process furnace,industry,1A2g_Ind-Comb-other,,,Painting facilities,,
+Aviation,,1A3aii_Domestic-aviation,,,Bus,,
+Truck,1A3b_Road,1A3b_Road,,,Truck,,
+RV,1A3b_Road,,,,Special purpose vehicle,,
+Passenger car,1A3b_Road,,,,RV,,
+Special purpose vehicle,1A3b_Road,,,,Motorcycle,,
+Taxi,1A3b_Road,,,,Rail,,
+Van,1A3b_Road,,,,Rail,,
+Bus,1A3b_Road,,,,Ship,,
+Motorcycle,1A3b_Road,,,,Aviation,,
+Rail,1A3c_Rail,1A3c_Rail,,,Agricultural machinery,,
+Ship,,1A3dii_Domestic-navigation,,,Waste incineration,,
+Commercial and public,Residential-Commercial,1A4a_Commercial-institutional,,,Other waste processing,,
+Residential,Residential-Commercial,1A4b_Residential,,,Farmland using fertilizer,,
+Agriculture-livestock-fishing,Off_Road_Combustion,1A4c_Agriculture-forestry-fishing,,,Manure management,,
+Agricultural machinery,Off_Road_Combustion,,,,Forest fire and fire,,
+Construction facilities,Off_Road_Combustion,1A2g_Ind-Comb-Construction,,,Organic chemical manufacturing,,
+Petroleum product,industry,1B2_Fugitive-petr,,,Animal,,
+,,1B2b_Fugitive-NG-prod,,,,,
+,,1B2b_Fugitive-NG-distr,,,,,
+,,1A5_Other-unspecified,,,,,
+,,1B1_Fugitive-solid-fuels,,,,,
+,,,,,,,
+,industry,2A1_Cement-production,,,,,
+,industry,2A2_Lime-production,,,,,
+,industry,2A6_Other-minerals,,,,,
+,,,,,,,
+Organic chemical manufacturing,industry,2B_Chemical-industry,,,,,
+,industry,2B2_Chemicals-Nitric-acid,,,,,
+,industry,2B3_Chemicals-Adipic-acid,,,,,
+Inorganic chemical manufacturing,industry,,,,,,
+Consumption of ammonia,industry,,,,,,
+Other manufacturing,industry,2L_Other-process-emissions,,,,,
+Iron and steel,industry,2C_Metal-production,,,,,
+,,,,,,,
+Provision of gasoline,1A3b_Road,2D3_Other-product-use,,,,,
+Painting facilities,solvents,2D_Paint-application,,,,,
+Cleaning facilities,solvents,2D_Degreasing-Cleaning,,,,,
+Washing facilities,solvents,,,,,,
+Other use of organic solvent,solvents,2D3_Chemical-products-manufacture-processing,,,,,
+Consumption of ammonia,solvents,2D3_Other-product-use,,,,,
+,,,,,,,
+Food and beverage processing,industry,2H_Pulp-and-paper-food-beverage-wood,,,,,
+Wood products,industry,,,,,,
+,,,,,,,
+Manure management,Manure-management and soil,3B_Manure-management,,,,,
+Farmland using fertilizer,Manure-management and soil,3D_Soil-emissions,,,,,
+,,,,,,,
+,,3D_Rice-Cultivation,,,,,
+,,3E_Enteric-fermentation,,,,,
+,,,,,,,
+Waste incineration,waste,5C_Waste-incineration,,,,,
+Other waste processing,waste,5E_Other-waste-handling,,,,,
+,,,,,,,
+,waste,5D_Wastewater-handling,,,,,
+,waste,5A_Solid-waste-disposal,,,,,
+,,7BC_Indirect-N2O-non-agricultural-N,,,,,
+,,,,,,,
+,,,,,,,
+Agricultural activity,,,,,Agricultural activity   (scattering dust),,
+Animal,Manure-management and soil,,,,Animal  (other),,
+charcoal burner,Residential-Commercial,,,,charcoal burner (biomass),,
+Construction work,,,,,Construction work (scattering dust),,
+Dirt roads,,,,,Dirt roads (scattering dust),,
+Forest fire and fire,,,,,Forest fire and fire  (other),,
+furnace,Residential-Commercial,,,,Furnace (biomass),,
+Grilled meat and fish,Residential-Commercial,,,,Grilled meat and fish (biomass),,
+Ground,,,,,Ground (scattering dust),,
+Incineration of agricultural residues,,,,,Incineration of agricultural residues,,
+Livestock activities,,,,,Livestock activities (scattering dust),,
+Open-air incineration,,,,,Open-air incineration  (biomass),,
+Road re-scattering dust,,,,,Road re-scattering dust (scattering dust),,
+Unloading and loading,,,,,Unloading and loading (scattering dust),,
+Waste treatment,,,,,Waste treatment (scattering dust),,
+Wood stove and boiler,Residential-Commercial,,,,Wood stove and boiler (biomass),,

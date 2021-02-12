@@ -446,6 +446,13 @@ if ( em == 'CH4' & vn == "4.2" ){
 
     emissions <- emissions[ , c( 'iso', 'sector', 'fuel', 'units', all_Xyear ) ]
 
+    # Write out edgar mask as a diagnostic
+    edgar_mask_diagnostic <-  cbind( merge_table$iso, edgar_mask )
+    colnames( edgar_mask_diagnostic ) <- c( 'iso', all_Xyear )
+    edgar_mask_diagnostic <- edgar_mask_diagnostic[ , c( 'iso', all_Xyear ) ]
+    # Convert to dataframe so will write out correctly
+    edgar_mask_diagnostic <- as.data.frame(edgar_mask_diagnostic)
+
 # 3.1 optional routine if '1B2-Fugitive emissions from gaseous fuels' does exits
     if ( dim( edgar_gas_fuel )[ 1 ] != 0 ) {
 
@@ -724,6 +731,10 @@ if( em == "NH3" ){
 
 #   Output aggregate EDGAR-ECLIPSE fugitive emissions to the diagnostic directory
     writeData( emissions , "DIAG_OUT", paste0( "C.", em, "_Fugitive-petr-and-gas_aggregate_emissions" ) )
+
+#   Output aggregate EDGAR-ECLIPSE fugitive emissions to the diagnostic directory
+    writeData( edgar_mask_diagnostic , "DIAG_OUT", paste0( "C.", em, "_edgar_fugitive_emissions_mask" ) )
+
 
 # Every script should finish with this line:
     logStop()

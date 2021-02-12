@@ -21,6 +21,7 @@ CH4_IO_documentation.csv
 
 #Proprietary Data
 input/energy/OECD_and_NonOECD_E_Stat.csv
+input/energy/OECD_and_NonOECD_Conversion_Factors.csv
 input/energy/OECD_and_NonOECD_Conversion_Factors_Full.csv
 
 .Rproj.user

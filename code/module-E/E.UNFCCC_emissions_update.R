@@ -27,20 +27,20 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NH3"
+if ( is.na( em ) ) em <- "N2O"
 
 # -----------------------------------------------------------------------------------------------------------
 
 # 0.5 Settings
 
-if( ! ( em %in% c( "CH4", "N2O" ) ) ){
+if( ! ( em %in% c( "CH4", "N2O", "CO2" ) ) ){
 
-    printLog ( paste0 ( "Selected em is not CH4 or N2O. E.UNFCCC_emissions_update.R is not needed and will",
+    printLog ( paste0 ( "Selected em is not CH4, N2O, CO2. E.UNFCCC_emissions_update.R is not needed and will",
                         " not be run. Dummy file will be generated for this em..." ) )
 
 } else{
 
-    UNFCCC_years <- paste0( 1990:2016 )
+    UNFCCC_years <- paste0( 1990:2018 )
     UNFCCC_years_with_Xs <- paste0( "X", UNFCCC_years )
 
 # -----------------------------------------------------------------------------------------------------------
@@ -59,11 +59,12 @@ if( ! ( em %in% c( "CH4", "N2O" ) ) ){
 # 2. Formatting Data
 
 # Fix column names, add units column, remove rows not needed
-colnames(UNFCCC) = UNFCCC[ 3, ]
+colnames(UNFCCC) = UNFCCC[ 4, ]
 
+# TODO: Remove hard coded last inventory year below
 UNFCCC_clean <- UNFCCC %>%
     dplyr::slice( -( 1:4 ) ) %>%
-    dplyr::rename( UNFCCC = " ", "2016" = "Last Inventory Year (2016)", sector = Year ) %>%
+    dplyr::rename( UNFCCC = " ", "2018" = "Last Inventory Year (2018)", sector = Year ) %>%
     dplyr::mutate( units = "kt" ) %>%
 
 
@@ -73,13 +74,13 @@ UNFCCC_clean <- UNFCCC %>%
                    Emissions_new = gsub(",", "", Emissions),
                    Emissions_new = as.numeric( Emissions_new ) ) %>%
     dplyr::select( -Emissions ) %>%
+    dplyr::filter( ! (is.na ( sector ) ) ) %>%
     tidyr::spread( years, Emissions_new ) %>%
     dplyr::select( UNFCCC, sector, units, UNFCCC_years_with_Xs ) %>%
 
 # Map to CEDS isos
     dplyr::left_join( MCL, by = "UNFCCC" ) %>%
     dplyr::select( iso, UNFCCC, sector, units, UNFCCC_years_with_Xs ) %>%
-    dplyr::filter( ! (is.na ( iso ) ) ) %>%
 
 # Fix sector names - remove words after sectors, then remove "." if it is the final character in a sector
 #                   (sectors 1, 2, 3...), fix sectors that were originally only words (int. aviation and bunkers...)
@@ -102,14 +103,7 @@ UNFCCC_clean <- UNFCCC %>%
 
     if (em == 'CH4'){
 
-# TODO: The df maniupulation after this block fails if only 'rus' is
-#       in the list below since rus is not in the current data.
-#       ****This may be fixed now, as the MCL was fixed to include Russia
-#       in the UNFCCC column (value should have been "Russian Federation",
-#       but was included as "Russia")
-
-        remove_iso <- c('rus', 'lux')
-
+        remove_iso <- NULL
 
     } else if (em == 'N2O'){
 
@@ -117,10 +111,7 @@ UNFCCC_clean <- UNFCCC %>%
 
     } else {
 
-# Remove Canada, Russian Fed, Luxembourg, and Poland for other emission
-# species
-
-        remove_iso <- c( 'can', 'rus', 'pol', 'lux' )
+      remove_iso <- NULL
 
     }
 
@@ -153,27 +144,14 @@ UNFCCC_clean <- UNFCCC %>%
 
 # 5. Meta Data
 
-    meta_names <- c( "Data.Type", "Emission", "Region", "Sector",
-                     "Start.Year", "End.Year", "Source.Comment" )
 
-    meta_note <- c( "Default Emissions", "NA",
-                    "Russian Federation, Luxembourg, Canada, Poland, Monaco", "All", "1990",
-                    "2016", paste0( "The Russian Federation's emissions are too ",
-                                    "low to be accurate and have thus been removed for all ems besides N2O. ",
-                                    "Luxembourg's emissions have also been removed for all ems besides N2O. ",
-                                    "Data for Canada and Poland has also been removed for all ",
-                                    "ems besides CH4 and N2O. Additionally Monaco's emissions ",
-                                    "have been temporarily removed as no iso is defined for ",
-                                    "Monaco in the MCL." ) )
-
-    addMetaData( meta_note, meta_names )
 
 # ------------------------------------------------------------------------------
 
 # 6. Output
 
     writeData( UNFCCC_final, domain = "MED_OUT",
-               fn = paste0( "E.", em, "_UNFCCC_inventory_update" ), meta = TRUE )
+               fn = paste0( "E.", em, "_UNFCCC_update_inventory" ), meta = TRUE )
 
 # Every script should finish with this line
     logStop()

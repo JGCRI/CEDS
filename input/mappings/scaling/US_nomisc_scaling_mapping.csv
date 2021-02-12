@@ -46,7 +46,7 @@ Wildfires,,,,,
 ,,1A3aii_Domestic-aviation,,,
 ,other-end-use-sectors,1A4a_Commercial-institutional,,,
 ,other-end-use-sectors,1A4b_Residential,,,
-,other-end-use-sectors,1A5_Other-unspecified,,,
+,,1A5_Other-unspecified,,Not scaled - now Efs from MOVES are put in directly,"This results in slight under-scaling of emissions (particularly for biomass), likely in the industrial sector. Better solution is to leave scaling in (perhaps move to industry) and remove light oil emissions (placeholder for misc off-road emissions) from this sector before scaling, then put those back afterward."
 ,,,,,
 ,,3B_Manure-management,,,"Note: NEI trends ""Miscellaneous"" category includes wildfires and ag res burning. Data has been adjusted in inventory file so that this will only be used for NH3."
 ,,3D_Soil-emissions,,,

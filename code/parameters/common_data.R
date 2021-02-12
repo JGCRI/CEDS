@@ -95,6 +95,9 @@ UNSD_end_year <- 1976
 UNSD_years <- UNSD_start_year : UNSD_end_year
 X_UNSD_years <- paste0( "X", UNSD_years )
 
+# Hyde years
+Hyde_start_year <- 1800
+
 # ---------------------------------
 # Define IEA composite region names used within CEDS. These tend to change
 # between IEA versions, so are defined in common_data.R.

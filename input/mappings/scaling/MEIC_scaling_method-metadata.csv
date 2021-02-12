@@ -1,0 +1,3 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
+Scaling_method,All,China,1A3b_Road,NA,NA,Revert to defaults by 2000 before standards were in effect
+Scaling_method,All,China,1A3c_Rail,NA,NA,Revert to defaults by 2000 before standards were in effect

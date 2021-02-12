@@ -18,7 +18,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "NOx"
+    if ( is.na( em ) ) em <- "BC"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -73,6 +73,14 @@ if( em %!in% c("CH4", "N2O") ){
 
 # Convert from Tg to kt
     inv_data_species[ , years ] <- as.matrix( inv_data_species[ , years ] ) * 1000
+
+# ------------------------------------------------------------------------------
+#  2.5 Find BC and OC emissions
+
+    # filter BC and OC to just transportation sector for now:
+    if (em %in% c('BC','OC')) {
+        inv_data_species <- inv_data_species %>% filter(sector == "Transportation")
+    }
 
 # ------------------------------------------------------------------------------
 # 3. If em is CH4 - create a blank data frame (MEIC update does not have CH4 data)
