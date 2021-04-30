@@ -145,7 +145,12 @@ clean-diagnostic:
 	rm -fv $(DIAG_OUT)/ceds-comparisons/sector-level/*.csv \
 	rm -fv $(DIAG_OUT)/ceds-comparisons/sector-level/*.pdf \
 	rm -fv $(DIAG_OUT)/user-data/*.csv \
-	rm -fv $(DIAG_OUT)/user-data/*.png
+	rm -fv $(DIAG_OUT)/user-data/*.png \
+	rm -fv $(DIAG_OUT)/gridding-diagnostic-plots/cell_group_by_sector/*.pdf \
+	rm -fv $(DIAG_OUT)/gridding-diagnostic-plots/cell_group_totals/*.jpeg \
+	rm -fv $(DIAG_OUT)/gridding-diagnostic-plots/seasonal-line-plots/*.pdf \
+	rm -fv $(DIAG_OUT)/gridding-diagnostic-plots/single_cell_by_sector/*.pdf \
+	rm -fv $(DIAG_OUT)/gridding-diagnostic-plots/single_cell_totals/*.jpeg
 
 clean-final:
 	rm -fv $(FINAL_OUT)/*.csv
