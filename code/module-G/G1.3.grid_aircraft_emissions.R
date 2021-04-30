@@ -67,9 +67,9 @@ stopifnot( length( target_filename ) == 1 )
 emissions <- readData( "FIN_OUT", domain_extension = "current-versions/", target_filename )
 
 # Read in mapping files
-ceds_gridding_mapping <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'CEDS_sector_to_gridding_sector_mapping' )
-proxy_mapping         <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'proxy_mapping' )
-seasonality_mapping   <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'seasonality_mapping' )
+ceds_gridding_mapping <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'CEDS_sector_to_gridding_sector_mapping', meta = FALSE )
+proxy_mapping         <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'proxy_mapping', meta = FALSE )
+seasonality_mapping   <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'seasonality_mapping', meta = FALSE )
 
 
 # ------------------------------------------------------------------------------

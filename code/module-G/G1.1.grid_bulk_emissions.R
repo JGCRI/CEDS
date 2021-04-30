@@ -68,7 +68,7 @@ if ( GRID_SUBREGIONS ) {
 target_filename <- list.files( final_emissions_dir, pattern )
 target_filename <- tools::file_path_sans_ext( target_filename )
 stopifnot( length( target_filename ) == 1 )
-emissions <- readData( "FIN_OUT", domain_extension = "current-versions/", target_filename, meta = FALSE )
+emissions <- readData( "FIN_OUT", domain_extension = "current-versions/", target_filename )
 
 # If defined, remove emissions from one iso from gridding
 if ( grid_remove_iso != "" ) {
@@ -85,7 +85,7 @@ proxy_mapping              <- readData( 'GRIDDING', domain_extension = 'gridding
 seasonality_mapping        <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'seasonality_mapping', meta = FALSE )
 proxy_substitution_mapping <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'proxy_subsititution_mapping', meta = FALSE )
 sector_name_mapping        <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'CEDS_gridding_sectors', meta = FALSE )
-sector_name_mapping        <- unique( sector_name_mapping[ , c( 'CEDS_fin_sector', 'CEDS_fin_sector_short' ) ], meta = FALSE )
+sector_name_mapping        <- unique( sector_name_mapping[ , c( 'CEDS_fin_sector', 'CEDS_fin_sector_short' ) ] )
 
 
 # ------------------------------------------------------------------------------
