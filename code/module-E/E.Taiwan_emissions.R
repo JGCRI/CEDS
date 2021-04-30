@@ -16,7 +16,7 @@
 # Get emission species first so can name log appropriately
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[1]
-if ( is.na( em ) ) em <- "CO2"
+if ( is.na( em ) ) em <- "NOx"
 
 em.read <- em
 if (em %in% c ('BC','OC')) em.read <- "PM2.5"
@@ -192,6 +192,33 @@ if (em %in% c ('BC','OC')) em.read <- "PM2.5"
         inv_data_species <- inv_data_species[ , c( 'iso', 'sector', 'unit',
                                                    paste0( 'X', inv_years ) ) ]
 
+        # Write out inventory country totals
+        # We don't care about PM2.5 inventory total.
+        # Remove sectors not scaled in CEDS (most of these are dust related)
+        # Note: country total for 2009 is 0 (removed due to discontinuities)
+        if (em != "PM2.5"){
+        country_total <- inv_data_species %>%
+            filter( !sector %in% c("Aviation",
+                                   "Shipping",
+                                   "Non-road transportation_Aviation",
+                                   "Non-road transportation_Shipping",
+                                   "Open burning_Orchards",
+                                   "Open burning_Paddy fields",
+                                   "Open burning_Sugarcane fields",
+                                   "Wildfire" ))
+
+            writeData( country_total, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
+                       paste0('inventory_',em,'_', inv_name))
+
+        country_total <- country_total %>%
+            select(-c(sector,unit))%>%
+            replace(is.na(.), 0) %>%
+            group_by(iso) %>%
+            summarize_each(funs(sum))
+
+        writeData( country_total, domain = "MED_OUT",
+                   paste0('E.',em,'_', inv_name, '_inventory_country_total'))
+        }
     }
 
     # ------------------------------------------------------------------------------

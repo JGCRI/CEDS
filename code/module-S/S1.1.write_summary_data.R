@@ -3,7 +3,7 @@
 # Program Name: S1.1.write_summary_data.R
 # Authors: Rachel Hoesly, Steve Smith, Linh Vu, Presley Muwan, Leyang Feng,
 #          Caleb Braun, Patrick O'Rourke
-# Date Last Updated: February 21, 2020
+# Date Last Updated: April 26, 2021
 # Program Purpose: Produces summary output
 # Input Files: Master_Country_List.csv
 #              [em]_total_CEDS_emissions.csv
@@ -353,6 +353,7 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
 
   source('../code/diagnostic/Compare_to_RCP.R')
   if( em %!in% c( 'CO2', 'N2O', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')
+  if( em %in% c( 'CO', 'NOx', 'SO2', 'NMVOC', 'NH3' ) )  source('../code/diagnostic/Compare_inventory_to_CEDS_GAINS_EDGAR.R')
 
 # Warn the user that if they are interested in N2O emissions and NH3 or NOx emissions
 # have changed since the last run for sectors 1 and 2, then H1.1a.Aggregate_NH3_NOx_for_N2O_7BC_ext.R needs
