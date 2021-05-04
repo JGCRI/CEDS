@@ -206,6 +206,36 @@ duplicateCEDSSectorCheck <- function( scaling_map, check_valid = TRUE, check_all
     return( valid )
 }
 
+# ----------------------------------------------------------------------------------
+# OldtoNewCEDSSectors
+# Brief:         Replaces old CEDS sectors with new CEDS sectors.
+# Dependencies:  IO_functions.R
+# Author(s):     Andrea Mott
+# Params:        scaling_map (uses both ceds_sector and inv_sector)
+# Return:        scaling_map
+# Input Files:   none
+# Output Files:  none
+
+OldtoNewCEDSSectors <- function(old_map) {
+
+    # input old to new CEDS sectors mapping file
+    old_to_new_sectors <- readData("MAPPINGS", "old_to_new_sectors.csv")
+
+    # replace old CEDS sectors with new sectors
+    join_sectors <- right_join(old_to_new_sectors, old_map, by = c("ceds_sector"))
+    join_sectors$new_sector <- as.character(join_sectors$new_sector)
+    replace_sectors <- join_sectors %>%
+        mutate(ceds_sector = if_else(!is.na(new_sector), new_sector, ceds_sector)) %>%
+        select(-new_sector) %>%
+        select(inv_sector,scaling_sector,ceds_sector)
+
+    # remove duplicated inv_sector and replace with NA
+    replace_sectors$inv_sector[duplicated(replace_sectors$inv_sector)] <- NA
+
+    return( replace_sectors )
+
+}
+
 # ---------------------------------------------------------------------------------
 # fuelCheck
 # Brief:         Checks whether all the fuels in the given dataset are in the
