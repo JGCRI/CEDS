@@ -41,8 +41,8 @@ inv_sector,scaling_sector,ceds_sector
 ,2B_Chemical-industry,2B2_Chemicals-Nitric-acid
 ,2B_Chemical-industry,2B3_Chemicals-Adipic-acid
 2C_Iron-steel-alloy-prod,2C_Metal-production,2C_Metal-production
-2C3_Aluminum-production,2C_Metal-production,2C_Metal-production
-2C4_Non-Ferrous-other-metals,2C_Metal-production,2C_Metal-production
+2C3_Aluminum-production,2C_Metal-production,
+2C4_Non-Ferrous-other-metals,2C_Metal-production,
 2D_Degreasing-Cleaning,2D_Degreasing-Cleaning,2D_Degreasing-Cleaning
 2D_Paint-application,2D_Paint-application,2D_Paint-application
 2D3_Chemical-product-use,2D3_Chemical-product-use,2D3_Chemical-products-manufacture-processing
@@ -55,7 +55,7 @@ inv_sector,scaling_sector,ceds_sector
 3D_Rice-Cultivation,3D_Rice-Cultivation,3D_Rice-Cultivation
 3E_Enteric-fermentation,3E_Enteric-fermentation,3E_Enteric-fermentation
 3F_Agricultural-residue-burning-on-fields,3F_Agricultural-residue-burning-on-fields,3F_Agricultural-residue-burning-on-fields
-3I_Agriculture-other,3I_Agriculture-other,3I_Agriculture-other
+3I_Agriculture-other,3I_Agriculture-other,
 5A_Solid-waste-disposal,5A_Solid-waste-disposal,5A_Solid-waste-disposal
 5E_Other-waste-handling,5E_Other-waste-handling,5E_Other-waste-handling
 5C_Waste-incineration,5C_Waste-incineration,5C_Waste-incineration

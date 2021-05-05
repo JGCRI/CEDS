@@ -101,5 +101,22 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     writeData( inv_data_species, domain = "MED_OUT",
                paste0( 'E.', em, '_', inv_name, '_inventory' ) )
 
+    # Create inventory total
+    # no sectors removed in module F. Write out sector and iso data.
+    writeData( inv_data_species, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
+               paste0('inventory_',em,'_', inv_name))
+
+
+    inv_data_species <- na.omit(inv_data_species)
+    if (em %!in% c("BC","OC","CH4","N2O")){
+      country_total <- inv_data_species %>%
+        select(-sector)%>%
+        group_by(iso) %>%
+        summarize_each(funs(sum))
+
+      writeData( country_total, domain = "MED_OUT",
+                 paste0('E.',em,'_', inv_name, '_inventory_country_total'))
+    }
+
     logStop()
 # END

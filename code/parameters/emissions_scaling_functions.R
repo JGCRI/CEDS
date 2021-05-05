@@ -133,6 +133,9 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
   # Check that ceds sectors are valid
   sectorCheck( scaling_map, colname = "ceds_sector" )
 
+  # Check that there's no duplicate ceds sectors in the mapping file
+  duplicateCEDSSectorCheck( scaling_map )
+
   # Determine if scaling instructions exist as csv
     scaling_ext_method_dir_and_fn <- paste0( scaling_map_directory, paste0( mapping, "_scaling_method.csv" ) )
 

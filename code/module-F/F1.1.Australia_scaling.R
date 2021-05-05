@@ -50,11 +50,11 @@
     inv_years<-c( 2001:2019 )
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
 
- # Scaling for NOx
-
-    if ( em %in% c("NOx") ) {
-        sector_fuel_mapping <- paste0(sector_fuel_mapping,'_NOx')
-    }
+ # # Scaling for NOx
+ #
+ #    if ( em %in% c("NOx") ) {
+ #        sector_fuel_mapping <- paste0(sector_fuel_mapping,'_NOx')
+ #    }
 
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions

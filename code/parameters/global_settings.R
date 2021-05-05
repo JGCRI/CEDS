@@ -84,7 +84,7 @@ VERBOSE <- TRUE
 #follow the instruction in the next comment
 
 # User should uncomment the following line if he/she has a specific cedsUserVersionNumber to use
-options(cedsUserVersionNumber = "v_2021_2_05") # Comment out to get dynamic version number
+  options(cedsUserVersionNumber = "v_2021_4_21") # Comment out to get dynamic version number
                                                  # (automatically sets the version tag to the
                                                  # date of the CEDS run)
 

@@ -4,7 +4,7 @@
 # Date Last Modified: January 24, 2021
 # Program Purpose: To read in & reformat US emissions inventory data
 # Input Files: national_tier1_caps.xlsx
-# Output Files: E.[em]_US_inventory.csv
+# Output Files: E.[em]_US_inventory.csv, E.[em]_US_inventory_country_total.csv
 # Notes:
 # TODO:
 # ------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "SO2"
+    if ( is.na( em ) ) em <- "CH4"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -100,6 +100,10 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
                                                                     inv_years ) ],
                                           as.numeric ) )
 
+    # Remove "Source Category" sector to prevent confusion
+        inv_data_sheet <- inv_data_sheet %>%
+            filter(!sector == "Source Category")
+
     # Remove wildfire emissions; identify the row with sector "Wildfires" and
     # subtract from "Miscellaneous"
         wildfire_emissions <-
@@ -135,6 +139,36 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
                 }
             }
         }
+
+        # Write out inventory country totals
+        # remove sectors included in country level CEDS.
+        # Note: the following sectors are included in the output file but not scaling file:
+        #           "Miscellaneous without wildfires", "Stationary fuel combustion"
+        #           "Industrial and other processes","Transportation", "Miscellaneous"?
+
+        if (em %!in% c("BC","OC")){
+            country_total <- inv_data_sheet %>%
+                filter( !sector %in% c("Wildfires","Total","Total without wildfires",
+                                       "Miscellaneous without wildfires", "Stationary fuel combustion",
+                                       "Industrial and other processes","Transportation", "Miscellaneous","Source Category","MISCELLANEOUS") )
+
+            writeData( country_total, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
+                       paste0('inventory_',em,'_', inv_name))
+            # if (em == "NMVOC") {
+            #     country_total <- country_total %>%
+            #         filter( !sector %in% c("MISCELLANEOUS"))
+            # }
+
+            country_total <- country_total %>%
+                select(-sector)%>%
+                replace(is.na(.), 0) %>%
+                group_by(iso) %>%
+                summarize_each(funs(sum))
+
+            writeData( country_total, domain = "MED_OUT",
+                       paste0('E.',em,'_', inv_name, '_inventory_country_total'))
+        }
+
     } else {
     # Write out blank df if no inventory data exists for given emission
         inv_data_sheet <- data.frame()
@@ -181,6 +215,8 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # 3. Write standard form inventory
     writeData( inv_data_sheet, domain = "MED_OUT",
                paste0( 'E.', em, '_', inv_name, '_inventory' ) )
+
+
 
 # Every script should finish with this line
     logStop()

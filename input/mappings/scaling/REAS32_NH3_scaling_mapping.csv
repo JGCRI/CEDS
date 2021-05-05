@@ -1,0 +1,64 @@
+inv_sector,scaling_sector,ceds_sector
+CMB,Combustion_NH3,1A1a_Electricity-public
+,Combustion_NH3,1A1a_Electricity-autoproducer
+,Combustion_NH3,1A1a_Heat-production
+,Combustion_NH3,1A1bc_Other-transformation
+,Combustion_NH3,1A2a_Ind-Comb-Iron-steel
+,Combustion_NH3,1A2b_Ind-Comb-Non-ferrous-metals
+,Combustion_NH3,1A2c_Ind-Comb-Chemicals
+,Combustion_NH3,1A2d_Ind-Comb-Pulp-paper
+,Combustion_NH3,1A2e_Ind-Comb-Food-tobacco
+,Combustion_NH3,1A2f_Ind-Comb-Non-metalic-minerals
+,Combustion_NH3,1A2g_Ind-Comb-transpequip
+,Combustion_NH3,1A2g_Ind-Comb-machinery
+,Combustion_NH3,1A2g_Ind-Comb-mining-quarying
+,Combustion_NH3,1A2g_Ind-Comb-wood-products
+,Combustion_NH3,1A2g_Ind-Comb-textile-leather
+,Combustion_NH3,1A2g_Ind-Comb-other
+,,1A3ai_International-aviation
+,,1A3aii_Domestic-aviation
+ROAD,Combustion_NH3,1A3b_Road
+,Combustion_NH3,1A3c_Rail
+,,1A3di_International-shipping
+,,1A3dii_Domestic-navigation
+,Combustion_NH3,1A3eii_Other-transp
+,Combustion_NH3,1A4a_Commercial-institutional
+,Combustion_NH3,1A4b_Residential
+,Combustion_NH3,1A4c_Agriculture-forestry-fishing
+,,
+,Combustion_NH3,1A2g_Ind-Comb-Construction
+,Combustion_NH3,1A5_Other-unspecified
+,,1B1_Fugitive-solid-fuels
+,,1B2_Fugitive-petr
+,,
+,,1B2b_Fugitive-NG-prod
+,,1B2b_Fugitive-NG-distr
+,,1B2d_Fugitive-other-energy
+INDPRC ,Ind_Proc_NH3,2A1_Cement-production
+INDPRC ,Ind_Proc_NH3,2A2_Lime-production
+INDPRC ,Ind_Proc_NH3,2A6_Other-minerals
+INDPRC ,Ind_Proc_NH3,2B_Chemical-industry
+INDPRC ,Ind_Proc_NH3,2B2_Chemicals-Nitric-acid
+INDPRC ,Ind_Proc_NH3,2B3_Chemicals-Adipic-acid
+INDPRC ,Ind_Proc_NH3,2C_Metal-production
+,,
+,,
+INDPRC ,Ind_Proc_NH3,2D_Degreasing-Cleaning
+INDPRC ,Ind_Proc_NH3,2D_Paint-application
+INDPRC ,Ind_Proc_NH3,2D3_Chemical-products-manufacture-processing
+INDPRC ,Ind_Proc_NH3,2D3_Other-product-use
+INDPRC ,Ind_Proc_NH3,2H_Pulp-and-paper-food-beverage-wood
+INDPRC ,Ind_Proc_NH3,2L_Other-process-emissions
+MM,Manure_and_Fertilzer,3B_Manure-management
+FER,Manure_and_Fertilzer,3D_Soil-emissions
+,Manure_and_Fertilzer,3I_Agriculture-other
+,Manure_and_Fertilzer,3D_Rice-Cultivation
+,Manure_and_Fertilzer,3E_Enteric-fermentation
+,,3F_Agricultural-residue-burning-on-fields
+,,
+HUMAN,Waste,5A_Solid-waste-disposal
+LTRN,Waste,5E_Other-waste-handling
+,,5C_Waste-incineration
+,,6A_Other-in-total
+,Waste,5D_Wastewater-handling
+,,7BC_Indirect-N2O-non-agricultural-N

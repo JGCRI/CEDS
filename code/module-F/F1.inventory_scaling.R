@@ -95,6 +95,10 @@
     if ( em %in% c('SO2','CO','NMVOC','NOx', 'NH3') ){ scripts <-
         c( scripts, 'F1.1.REAS_scaling.R' ) }
 
+# REAS 3.2
+    if ( em %in% c('SO2','CO','NMVOC','NOx', 'NH3') ){ scripts <-
+        c( scripts, 'F1.1.REAS32_scaling.R' ) }
+
 # CAN
     if ( em %in% c('SO2','NOx','NMVOC','CO','PM10','PM25' ) ){ scripts <-
         c( scripts, 'F1.1.CAN_scaling_olderData.R' ) }
