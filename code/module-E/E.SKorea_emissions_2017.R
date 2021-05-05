@@ -1,10 +1,10 @@
 # ------------------------------------------------------------------------------
 # Program Name: E.SKorea_emissions_2017.R
 # Author(s): Leyang Feng, Andrea Mott
-# Date Last Updated: January 22, 2021
+# Date Last Updated: March 26, 2021
 # Program Purpose: To read in and reformat South Korea emissions data.
 # Input Files: Air_pollutants_South_Korea_1999_2017_translation.xlsx
-# Output Files: E.[EM]_SKorea_inventory.csv
+# Output Files: E.[EM]_KOR2017_inventory.csv, E.[EM]_KOR2017_inventory_country_total.csv
 # Notes: inventory methodology changed in year 2009, making many values 0.
         # Changed all values for 2009 to 0 in line 96 for continuity.
 # TODO:
@@ -17,7 +17,7 @@
 # Get emission species first so can name log appropriately
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[1]
-if ( is.na( em ) ) em <- "BC"
+if ( is.na( em ) ) em <- "NOx"
 
 em.read <- em
 if (em %in% c ('BC','OC')) em.read <- "PM10"
@@ -136,8 +136,26 @@ if (em %in% c ('BC','OC')) em.read <- "PM10"
         inv_data_species <- inv_data_species[ , c( 'iso', 'sector', 'unit',
                                                    paste0( 'X', inv_years ) ) ]
 
-    # change in methodology for 2009, make all values 0
+    # Write out inventory country totals
+            # PM10 inventory total not relevant.
+            # Remove sectors not in CEDS country-level.
+            # Note: country total for 2009 is 0 (removed due to discontinuities)
+           if (em != "PM10")
+               {country_total <- inv_data_species %>%
+                filter( !sector %in% c("Aviation",
+                                       "Forest fire and fire") )
 
+                   writeData( country_total, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
+                              paste0('inventory_',em,'_', inv_name))
+
+               country_total <- country_total %>%
+                select(-c(sector,unit))%>%
+                group_by(iso) %>%
+                summarize_each(funs(sum))
+
+            writeData( country_total, domain = "MED_OUT",
+                       paste0('E.',em,'_', inv_name, '_inventory_country_total'))
+           }
     }
 
 # ------------------------------------------------------------------------------
@@ -154,7 +172,7 @@ if (em %in% c ('BC','OC')) em.read <- "PM10"
     # Read in scaling mapping file and filter transportation sectors
     mapping_file <- readData("SCALE_MAPPINGS", "S_Korea_scaling_mapping.csv")
     mapping_file <- mapping_file %>%
-        filter(str_detect(scaling_sector,"1A3b_Road"))
+        filter(str_detect(road_flag,"Road"))
     inv_sector_name <- mapping_file$inv_sector
 
     # Match formatting from PM2.5 inventory to BC/OC script

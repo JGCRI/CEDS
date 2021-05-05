@@ -27,7 +27,7 @@ headers <- c( 'data_functions.R', 'gridding_functions.R', 'nc_generation_functio
 log_msg <- "Gridding anthropogenic emissions (excluding AIR) "
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( "G1.1.grid_bulk_emissions.R", log_msg, headers )
-
+if ( grid_remove_iso != "" ) printLog( paste("Gridding will exclude",grid_remove_iso) )
 
 # ------------------------------------------------------------------------------
 # 0.5 Initialize gridding setups
@@ -70,14 +70,21 @@ target_filename <- tools::file_path_sans_ext( target_filename )
 stopifnot( length( target_filename ) == 1 )
 emissions <- readData( "FIN_OUT", domain_extension = "current-versions/", target_filename )
 
+# If defined, remove emissions from one iso from gridding
+if ( grid_remove_iso != "" ) {
+  emissions <- dplyr::mutate_at( emissions, vars( all_of(X_extended_years) ),
+                                 list( ~ifelse( iso == grid_remove_iso, 0, . )))
+}
+
 # Read in mapping files
 # the location index indicates the location of each region mask in the 'world' matrix
-location_index             <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'country_location_index_05' )
-ceds_gridding_mapping      <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'CEDS_sector_to_gridding_sector_mapping' )
-proxy_mapping              <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'proxy_mapping' )
-seasonality_mapping        <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'seasonality_mapping' )
-proxy_substitution_mapping <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'proxy_subsititution_mapping' )
-sector_name_mapping        <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'CEDS_gridding_sectors' )
+# TODO: fix metadata readin so that works again for these
+location_index             <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'country_location_index_05', meta = FALSE )
+ceds_gridding_mapping      <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'CEDS_sector_to_gridding_sector_mapping', meta = FALSE )
+proxy_mapping              <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'proxy_mapping', meta = FALSE )
+seasonality_mapping        <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'seasonality_mapping', meta = FALSE )
+proxy_substitution_mapping <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'proxy_subsititution_mapping', meta = FALSE )
+sector_name_mapping        <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'CEDS_gridding_sectors', meta = FALSE )
 sector_name_mapping        <- unique( sector_name_mapping[ , c( 'CEDS_fin_sector', 'CEDS_fin_sector_short' ) ] )
 
 

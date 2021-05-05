@@ -1,11 +1,12 @@
 # ------------------------------------------------------------------------------
 # Program Name: E.EMEP_emissions.R
-# Author(s): Patrick O'Rourke
-# Date Last Updated: August 6, 2020
+# Author(s): Patrick O'Rourke, Andrea Mott
+# Date Last Updated: March 26, 2021
 # Program Purpose: To read in & reformat EMEP emissions data.
 # Input Files: All EMEP emissions data, Master_Country_List.csv
 # Output Files: All Initial EMEP txt files resaved as csv files (in input folder),
 #               E.em_EMEP_inventory.csv, E.em_EMEP_Russia.csv
+#               E.em_EMEP_NFRX_inventory_country_total.csv, E.em_EMEP_NFRX_Russia_inventory_country_total.csv
 # Notes: 1. EMEP Emissions are provided from 1980-2017
 # TODO:  1. Update to use tidyverse functions (replace cast, match, etc.)
 # ------------------------------------------------------------------------------
@@ -220,6 +221,25 @@
                fn = paste0( filename, "_Russia" ),
                meta = TRUE )
 
+# Write out inventory country totals. Do not include emissions not in inventory data.
+    # TODO: there's probably a shorter way to do this.
+    if (em %!in% c('BC','OC','CH4','CO2','N2O')){
+    # remove sectors not scaled in mod F.
+      country_total <- EMEP_emdf %>%
+        filter( !sector %in% c("P_IntShipping","H_Aviation","O_AviCruise","L_AgriOther","M_Other","N_Natural","z_Memo") )
+
+      writeData( country_total, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
+                 paste0('inventory_',em,'_EMEP'))
+
+      country_total <- country_total %>%
+        select(-c(sector,units))%>%
+        group_by(iso) %>%
+        summarize_each(funs(sum))
+
+      writeData( country_total, domain = "MED_OUT",
+                 paste0('E.',em,'_EMEP_', Em_Format, '_inventory_country_total'))
+
+    }
 # Every script should finish with this line-
     logStop()
 
