@@ -1,6 +1,16 @@
 # CEDS
 The Community Emissions Data System (CEDS) produces consistent estimates of global air emissions species over the industrial era (1750 - present). The system is written in R and uses open-source data (with the exception of the IEA energy statistics which must be purchased from IEA). CEDS is publicly available through an [Open Source License](#license-section).
 
+**April 2021 Release:** April 21, 2021 (v\_2021\_04\_21)
+
+This release updates emissions for four isos: Australia, Canada, South Korea, and Taiwan as shown [in Figure S9 here](./documentation/Version_comparison_figures_v_2021_04_21_vs_v_2021_02_05.pdf). Global trends are similar to the v\_2021\_02\_05 release. Global gridded emission data have also been produced with updated spatial distributions for most sectors.
+
+* See the [release notes](https://github.com/JGCRI/CEDS/wiki/Release-Notes) for a summary of changes.
+* [Graphs of emission differences](./documentation/Version_comparison_figures_v_2021_04_21_vs_v_2016_07_16(CMIP6).pdf) between this version and the CEDS CMIP6 data release documented in Hoesly et al (2018a). 
+* [Graphs of emission differences](./documentation/Version_comparison_figures_v_2021_04_21_vs_v_2019_12_23.pdf) between this version and the previous December 2019 CEDS data release. 
+* Emissions by country and sector, archived [here](10.5281/zenodo.4737769).
+* Gridded emissions in the same format as the CMIP6 data release areavailable at [PNNL DataHub](https://data.pnnl.gov/dataset/CEDS-4-21-21).
+
 
 **Feb 2021 Release:** February 05, 2021 (v\_2021\_02\_05)
 
