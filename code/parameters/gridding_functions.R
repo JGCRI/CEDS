@@ -425,7 +425,7 @@ get_proxy <- function( em, year, sector, proxy_mapping, proxy_files, proxy_type 
   if ( proxy_type == 'primary' ) {
     file_name <- proxy_info$proxy_file
     file_name_re <- paste0( "^", file_name )
-	
+
     proxy_root <- proxy_dir
     proxy_file <- grep( file_name_re, proxy_files$primary, value = T )
   }
@@ -435,7 +435,7 @@ get_proxy <- function( em, year, sector, proxy_mapping, proxy_files, proxy_type 
   if ( proxy_type != 'primary' || length( proxy_file ) == 0 ) {
     file_name <- proxy_info$proxybackup_file
     file_name_re <- paste0( "^", file_name )
-	
+
     proxy_root <- proxy_backup_dir
     proxy_file <- grep( file_name_re, proxy_files$backup, value = T )
   }
@@ -772,7 +772,7 @@ extendProxyMapping <- function( a_proxy_mapping ) {
   a_proxy_mapping_temp <- a_proxy_mapping %>%
     tidyr::spread( year, proxybackup_file ) %>%
     dplyr::mutate_at( extra_years_needed_string, funs( identity (  !!rlang::sym( last_proxy_data_year_string ) ) ) ) %>%
-    tidyr::gather( key = year, value = proxybackup_file, final_years_string ) %>%
+    tidyr::gather( key = year, value = proxybackup_file, all_of(final_years_string) ) %>%
     dplyr::arrange( em, sector, year, proxy_file ) %>%
     dplyr::select( em, sector,  year, proxy_file, proxybackup_file ) %>%
     dplyr::filter( !is.na( proxybackup_file ) )
@@ -804,7 +804,7 @@ extendSeasonalityMapping <- function( a_seasonality_mapping ) {
   a_seasonality_mapping <- a_seasonality_mapping %>%
     tidyr::spread( year, seasonality_file ) %>%
     dplyr::mutate_at( extra_years_needed_string, funs( identity (  !!rlang::sym( last_seasonality_data_year_string ) ) ) ) %>%
-    tidyr::gather( key = year, value = seasonality_file, final_years_string ) %>%
+    tidyr::gather( key = year, value = seasonality_file, all_of(final_years_string) ) %>%
     dplyr::arrange( em, sector, year, seasonality_file ) %>%
     dplyr::select( em, sector,  year, seasonality_file ) %>%
     dplyr::filter( !is.na( seasonality_file ) )

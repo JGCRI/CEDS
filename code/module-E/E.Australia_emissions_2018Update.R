@@ -4,7 +4,7 @@
 # Date Last Updated: September 17, 2020
 # Program Purpose: To read in and reformat Australia NPI data.
 # Input Files: [em]_Australia_UNFCCC_and_NPI.xlsx
-# Output Files: E.[EM]_Australia_inventory.csv
+# Output Files: E.[EM]_Australia_inventory.csv, E.[EM]_Australia_inventory_country_total.csv
 # Notes: Only process Australia NPI data for year 2000, 2006, 2012
 # TODO:
 # ------------------------------------------------------------------------------
@@ -16,7 +16,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "SO2"
+    if ( is.na( em ) ) em <- "BC"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -102,6 +102,27 @@
 # write standard form inventory
     writeData( inv_data_clean, domain = "MED_OUT",
                paste0( 'E.', em, '_', inv_name, '_inventory' ) )
+
+# write country totals
+
+    country_total <- inv_data_clean %>%
+        filter(!sector %in% c("Biogenics [*]",
+                              "Burning(fuel red., regen., agric.)/ Wildfires [*]",
+                              "Services to Air Transport [*]",
+                              "Aeroplanes [*]" ))
+
+     writeData( country_total, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
+               paste0('inventory_',em,'_', inv_name))
+
+    if (length(country_total) > 0){
+        country_total <- country_total %>%
+            select(-sector)%>%
+            group_by(iso) %>%
+            summarize_each(funs(sum))
+
+        writeData( country_total, domain = "MED_OUT",
+                   paste0('E.',em,'_', inv_name, '_inventory_country_total'))
+        }
 # Every script should finish with this line
     logStop()
 # END

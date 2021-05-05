@@ -68,16 +68,15 @@ emissions <- readData( "FIN_OUT", domain_extension = "current-versions/", target
 
 # Read in mapping files
 # the location index indicates the location of each region mask in the 'world' matrix
-location_index             <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'country_location_index_05' )
-ceds_gridding_mapping      <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'CEDS_sector_to_gridding_sector_mapping' )
-proxy_mapping              <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'proxy_mapping' )
-seasonality_mapping        <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'seasonality_mapping' )
-proxy_substitution_mapping <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'proxy_subsititution_mapping' )
-sector_name_mapping        <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'CEDS_gridding_sectors' )
+location_index             <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'country_location_index_05', meta = F )
+ceds_gridding_mapping      <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'CEDS_sector_to_gridding_sector_mapping', meta = F )
+proxy_mapping              <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'proxy_mapping', meta = F )
+seasonality_mapping        <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'seasonality_mapping', meta = F )
+proxy_substitution_mapping <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'proxy_subsititution_mapping', meta = F )
+sector_name_mapping        <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'CEDS_gridding_sectors', meta = F )
 sector_name_mapping        <- unique( sector_name_mapping[ , c( 'CEDS_fin_sector', 'CEDS_fin_sector_short' ) ] )
-VOC_ratios                 <- readData( 'GRIDDING', domain_extension = "gridding_mappings/", 'VOC_ratio_AllSectors' )
-VOC_names                  <- readData( 'GRIDDING', domain_extension = "gridding_mappings/", 'VOC_id_name_mapping' )
-
+VOC_ratios                 <- readData( 'GRIDDING', domain_extension = "gridding_mappings/", 'VOC_ratio_AllSectors', meta = F )
+VOC_names                  <- readData( 'GRIDDING', domain_extension = "gridding_mappings/", 'VOC_id_name_mapping', meta = F )
 
 # ------------------------------------------------------------------------------
 # 2. Pre-processing
@@ -105,7 +104,7 @@ VOC_ratios <- dplyr::select( VOC_ratios, iso, sector, !!VOC_em )
 gridding_emissions <- gridding_emissions %>%
     dplyr::inner_join( VOC_ratios, by = c( 'iso', 'sector' ) ) %>%
     dplyr::mutate_at( vars( num_range( 'X', year_list ) ), `*`, .[[VOC_em]]) %>%
-    dplyr::select( -VOC_em )
+    dplyr::select( -all_of(VOC_em) )
 
 proxy_files <- list( primary = list.files( proxy_dir ), backup = list.files( proxy_backup_dir ) )
 

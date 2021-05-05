@@ -112,6 +112,25 @@ if ( is.na( em ) ) em <- "NOx"
 # write standard form inventory
     writeData( inv_data, domain = "MED_OUT", 
                paste0( 'E.', em, '_', inv_name, '_inventory' ) )
+
+    # Write out inventory country totals
+    # remove sectors not scaled in module F or included in CEDS at a country level
+    if (em %!in% c("BC","OC")) {
+        country_total <- inv_data %>%
+        filter( !sector %in% c("Water Passenger Transport [482]",
+                               "Services to Air Transport [*]",
+                               "Aeroplanes [*]",
+                               "Commercial Shipping/Boating and Recreational Boating [*]",
+                               "Water Freight Transport [481]",
+                               "Biogenics [*]",
+                               "Burning(fuel red., regen., agric.)/ Wildfires [*]") ) %>%
+        select(-c(sector,unit))%>%
+        group_by(iso) %>%
+        summarize_each(funs(sum))
+
+    writeData( country_total, domain = "MED_OUT",
+               paste0('E.',em,'_', inv_name, '_inventory_country_total'))
+    }
 # Every script should finish with this line
     logStop()
 # END

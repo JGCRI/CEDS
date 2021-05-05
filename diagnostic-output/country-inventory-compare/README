@@ -1,0 +1,7 @@
+README
+This folder is where country-inventory-compare inputs and results are stored for the Compare_inventory_to_CEDS_GAINS_EDGAR diagnostic output script.
+This is the inventory totals by sectors and the CEDS inventory species by sector. 
+
+The only documents in this folder that are versioned are this README document
+and .gitignore file, which tells git to ignore changes to all other files in
+this folder.

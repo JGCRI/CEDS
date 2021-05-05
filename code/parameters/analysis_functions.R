@@ -167,6 +167,45 @@ sectorCheck <- function( x, colname = "sector", check_valid = TRUE, check_all = 
     return( valid )
 }
 
+# ----------------------------------------------------------------------------------
+# duplicateCEDSSectorCheck
+# Brief:         Checks that there are no duplicate ceds_sectors in the mapping file.
+# Dependencies:  IO_functions.R
+# Author(s):     Andrea Mott
+# Params:
+#   x:        data frame to check, containing sector column [required]
+#   colname:     name of the column containing sector designations [default: "sector"]
+#   check_valid: boolean to control whether the function checks that all present sectors
+#                are valid [default: TRUE]
+#   check_all:   boolean to control whether the function checks if all sectors are
+#                present [default: TRUE]
+# Return:        boolean indicating pass or failure on all checks run, collectively.
+# Input Files:   none
+# Output Files:  none
+
+duplicateCEDSSectorCheck <- function( scaling_map, check_valid = TRUE, check_all = TRUE ){
+
+    valid <- TRUE
+
+    df <- na.omit(data.frame(vec = scaling_map$ceds_sector))
+    df_length <-length(df$vec)
+    unique_sectors <- unique(df)
+    unique_sectors_length <- length(unique_sectors$vec)
+
+    # duplicated sectors
+    df_dup <- df$vec[duplicated(df$vec)]
+
+    # Check for missing sectors and error if there are.
+    if (check_valid){
+        if (df_length != unique_sectors_length){
+            stop("Duplicated CEDS sectors:",paste0(df_dup),". Check mapping file for ", inv_name)
+            } else {
+                printLog( "...OK. No duplicate CEDS sectors.", ts=F )
+            }
+    }
+    return( valid )
+}
+
 # ---------------------------------------------------------------------------------
 # fuelCheck
 # Brief:         Checks whether all the fuels in the given dataset are in the

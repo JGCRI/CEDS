@@ -28,6 +28,7 @@ CEDS,RCP
 1A4c_Agriculture-forestry-fishing,DOM
 1A5_Other-unspecified,DOM
 1B1_Fugitive-solid-fuels,ENE
+1B2_Fugitive-petr-and-gas,ENE
 1B2_Fugitive-petr,ENE
 1B2b_Fugitive-NG-prod,ENE
 1B2b_Fugitive-NG-distr,ENE
@@ -36,6 +37,8 @@ CEDS,RCP
 2A2_Lime-production,IND
 2A6_Other-minerals,IND
 2B_Chemical-industry,IND
+2B2_Chemicals-Nitric-acid,IND
+2B3_Chemicals-Adipic-acid,IND
 2C_Metal-production,IND
 2D_Degreasing-Cleaning,SLV
 2D3_Other-product-use,SLV
@@ -56,6 +59,7 @@ CEDS,RCP
 5D_Wastewater-handling,WST
 6B_Other-not-in-total,
 7A_Fossil-fuel-fires,
+7BC_Indirect-N2O-non-agricultural-N,IND
 11A_Volcanoes,
 11B_Forest-fires,
 11C_Other-natural,

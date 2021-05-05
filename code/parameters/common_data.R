@@ -122,6 +122,13 @@ future_pop_scenario <- "Medium fertility"
 # 1) "v2016_07_26"    ---   CEDS Release 1 (CMIP release)
 available_CEDS_releases <- c( "v2016_07_26" )
 
+# ---------------------------------
+# Country to remove from grid
+# If defined, emissions for this iso are removed from the spatial grid
+grid_remove_iso <- ""
+
+# Add user defined optional suffix to gridding outputs
+user_defined_suffix <- ""
 
 #---------------------------------
 # Define conversion factors

@@ -30,14 +30,10 @@ D_IndProcess,IndProcess,2A1_Cement-production
 ,IndProcess,2C_Metal-production
 ,IndProcess,2H_Pulp-and-paper-food-beverage-wood
 ,IndProcess,2L_Other-process-emissions
-,IndProcess,2H_Pulp-and-paper-food-beverage-wood
-,IndProcess,2L_Other-process-emissions
 F_Solvents,Solvents,2D_Degreasing-Cleaning
 ,Solvents,2D3_Other-product-use
 ,Solvents,2D_Paint-application
-,Solvents,2D_Degreasing-Cleaning
 ,Solvents,2D3_Chemical-products-manufacture-processing
-,Solvents,2D3_Other-product-use
 G_RoadRail,RoadRail,1A3b_Road
 ,RoadRail,1A3c_Rail
 G_Shipping,,1A3dii_Domestic-navigation
