@@ -8,7 +8,7 @@ This release updates emissions for four isos: Australia, Canada, South Korea, an
 * See the [release notes](https://github.com/JGCRI/CEDS/wiki/Release-Notes) for a summary of changes.
 * [Graphs of emission differences](./documentation/Version_comparison_figures_v_2021_04_21_vs_v_2016_07_16(CMIP6).pdf) between this version and the CEDS CMIP6 data release documented in Hoesly et al (2018a). 
 * [Graphs of emission differences](./documentation/Version_comparison_figures_v_2021_04_21_vs_v_2019_12_23.pdf) between this version and the previous December 2019 CEDS data release. 
-* Emissions by country and sector, archived [here](http://doi.org/10.5281/zenodo.4737769).
+* Emissions by country and sector, archived [here](http://doi.org/10.5281/zenodo.4741285).
 * Gridded emissions in the same format as the CMIP6 data release areavailable at [PNNL DataHub](https://data.pnnl.gov/dataset/CEDS-4-21-21).
 
 
