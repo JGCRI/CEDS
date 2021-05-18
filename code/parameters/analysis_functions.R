@@ -211,18 +211,20 @@ duplicateCEDSSectorCheck <- function( scaling_map, check_valid = TRUE, check_all
 # Brief:         Replaces old CEDS sectors with new CEDS sectors.
 # Dependencies:  IO_functions.R
 # Author(s):     Andrea Mott
-# Params:        scaling_map (uses both ceds_sector and inv_sector)
-# Return:        scaling_map
+# Params:        `old_map` is the original mapping file
+# Return:        the modified mapping file
 # Input Files:   none
 # Output Files:  none
+# TODO: make this code more adaptable by reading in the column names as parameters.
 
 OldtoNewCEDSSectors <- function(old_map) {
 
     # input old to new CEDS sectors mapping file
     old_to_new_sectors <- readData("MAPPINGS", "old_to_new_sectors.csv")
 
+    # TODO: add condition to verify old_to_new_sectors contains sectors to replace?
     # replace old CEDS sectors with new sectors
-    join_sectors <- right_join(old_to_new_sectors, old_map, by = c("ceds_sector"))
+    join_sectors <- right_join(old_to_new_sectors, old_map, by = "ceds_sector")
     join_sectors$new_sector <- as.character(join_sectors$new_sector)
     replace_sectors <- join_sectors %>%
         mutate(ceds_sector = if_else(!is.na(new_sector), new_sector, ceds_sector)) %>%
@@ -233,7 +235,6 @@ OldtoNewCEDSSectors <- function(old_map) {
     replace_sectors$inv_sector[duplicated(replace_sectors$inv_sector)] <- NA
 
     return( replace_sectors )
-
 }
 
 # ---------------------------------------------------------------------------------
