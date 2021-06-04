@@ -211,30 +211,39 @@ duplicateCEDSSectorCheck <- function( scaling_map, check_valid = TRUE, check_all
 # Brief:         Replaces old CEDS sectors with new CEDS sectors.
 # Dependencies:  IO_functions.R
 # Author(s):     Andrea Mott
-# Params:        `old_map` is the original mapping file
+# Params:        `map` is the original mapping file
 # Return:        the modified mapping file
 # Input Files:   none
 # Output Files:  none
-# TODO: make this code more adaptable by reading in the column names as parameters.
+# Notes: The only thing this function assumes is a two-column old_to_new mapping file: search_col, new_sectors.
+# When we refer to names(old_to_new)[1] this is the "ceds_sector" for a scaling mapping file.
+# And names(old_to_new)[2] is typically the "new_sector"
+# search_col gives the names of the column in map to search on
 
-OldtoNewCEDSSectors <- function(old_map) {
+OldtoNewCEDSSectors <- function(map, search_col) {
 
-    # input old to new CEDS sectors mapping file
-    old_to_new_sectors <- readData("MAPPINGS", "old_to_new_sectors.csv")
+    # Input old to new CEDS sectors mapping file
+    old_to_new <- readData("MAPPINGS", "old_to_new_sectors.csv")
 
-    # TODO: add condition to verify old_to_new_sectors contains sectors to replace?
-    # replace old CEDS sectors with new sectors
-    join_sectors <- right_join(old_to_new_sectors, old_map, by = "ceds_sector")
-    join_sectors$new_sector <- as.character(join_sectors$new_sector)
-    replace_sectors <- join_sectors %>%
-        mutate(ceds_sector = if_else(!is.na(new_sector), new_sector, ceds_sector)) %>%
-        select(-new_sector) %>%
-        select(inv_sector,scaling_sector,ceds_sector)
+    # Apply checks before running
+    stopifnot(ncol(old_to_new) == 2)
+    stopifnot(search_col %in% names(map))
 
-    # remove duplicated inv_sector and replace with NA
-    replace_sectors$inv_sector[duplicated(replace_sectors$inv_sector)] <- NA
+    # Replace sectors
+    names(old_to_new)[1] <- search_col # overwrite old_to_new search col name with whatever user specifies
+    search_name <- names(old_to_new)[1]
+    replace_name <- names(old_to_new)[2]
+    map <- left_join(map, old_to_new, by = search_name)
+    replace_vals <- map[[replace_name]]
+    map[[search_name]][!is.na(replace_vals)] <- map[[replace_name]][!is.na(replace_vals)]
 
-    return( replace_sectors )
+    # If inventory sector exists, then assume a scaling mapping file.
+    # Remove duplicated inv_sector and replace with NA
+    if ("inv_sector" %in% colnames(map)) {
+        map$inv_sector[duplicated(map$inv_sector)] <- NA
+    }
+
+    return(map)
 }
 
 # ---------------------------------------------------------------------------------
