@@ -220,7 +220,7 @@ duplicateCEDSSectorCheck <- function( scaling_map, check_valid = TRUE, check_all
 # And names(old_to_new)[2] is typically the "new_sector"
 # search_col gives the names of the column in map to search on
 
-OldtoNewCEDSSectors <- function(map, search_col) {
+OldtoNewCEDSSectors <- function(map, search_col, inv_sector = NULL) {
 
     # Input old to new CEDS sectors mapping file
     old_to_new <- readData("MAPPINGS", "old_to_new_sectors.csv")
@@ -236,10 +236,11 @@ OldtoNewCEDSSectors <- function(map, search_col) {
     map <- left_join(map, old_to_new, by = search_name)
     replace_vals <- map[[replace_name]]
     map[[search_name]][!is.na(replace_vals)] <- map[[replace_name]][!is.na(replace_vals)]
+    map <- dplyr::select(map,-replace_name)
 
     # If inventory sector exists, then assume a scaling mapping file.
     # Remove duplicated inv_sector and replace with NA
-    if ("inv_sector" %in% colnames(map)) {
+    if (inv_sector %in% colnames(map)) {
         map$inv_sector[duplicated(map$inv_sector)] <- NA
     }
 

@@ -137,7 +137,7 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
   duplicateCEDSSectorCheck( scaling_map )
 
   # Replace old CEDS sectors in mapping file with new CEDS sectors
-  scaling_map <- OldtoNewCEDSSectors(old_map = scaling_map)
+  scaling_map <- OldtoNewCEDSSectors(map = scaling_map, "ceds_sector", "inv_sector")
 
   # Determine if scaling instructions exist as csv
     scaling_ext_method_dir_and_fn <- paste0( scaling_map_directory, paste0( mapping, "_scaling_method.csv" ) )
