@@ -474,6 +474,7 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 	$(MOD_A)/A5.2.add_NC_activity_population.R \
 	$(MOD_A)/A5.2.add_NC_activity_energy.R \
 	$(MOD_A)/A5.2.add_NC_activity_fossil_fuel_production.R \
+	$(MOD_A)/A5.2.add_NC_activity_aluminum_production.R \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
 	$(PARAMS)/IO_functions.R \
@@ -500,6 +501,7 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 	Rscript $(word 7,$^) $(EM) --nosave --no-restore
 	Rscript $(word 8,$^) $(EM) --nosave --no-restore
 	Rscript $(word 9,$^) $(EM) --nosave --no-restore
+	Rscript $(word 10,$^) $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.pulp_paper_consumption_full.csv: \
 	$(MED_OUT)/A.NC_activity_db.csv
@@ -763,9 +765,11 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv: \
 # cc2-1
 $(MED_OUT)/C.$(EM)_NC_EF.csv: \
 	$(MOD_C)/C2.1.base_NC_EF.R \
+	$(MOD_C)/C1.2.add_NC_default_EF.R \
 	$(MED_OUT)/A.NC_activity.csv \
 	$(MED_OUT)/C.$(EM)_NC_emissions.csv
 	Rscript $< $(EM) --nosave --no-restore
+	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 
 # dd1-1
 # Calculates  NC and combustion emissions from activity data and
