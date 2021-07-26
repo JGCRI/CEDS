@@ -226,14 +226,28 @@
 
     all_wide_out <- all_wide_out[order(all_wide_out$iso),]
 
-# Make driver dataset of 1750-1975; remove countries that are all zero from 1750-1970
-    Xyears_filter <- paste0( "X", 1750:1970 )
-    driver <- dplyr::select( all_wide_out, iso, sector, fuel, units, X1750:X1975 )
-    driver <- subset( driver, rowSums( driver[ Xyears_filter ] ) > 0 )
-
 # ---------------------------------------------------------------------------
 # 3. Output
     writeData( all_wide_out, "EXT_IN", "A.Pig_Iron_Production", domain_extension = "extension-data/" )
     writeData( all_wide_out, "DIAG_OUT", "A.Pig_Iron_Production_full", meta = F )
+
+
+# ------------------------------------------------------------------------------
+# 4. Turn data into driver data
+
+    # Add reformatted activity_data to the activity database, extending or truncating it as necessary.
+    # By default, it will be extended forward to the common end year, but not backwards.
+    # # Only do this if the activityCheck header function determines that the activities in
+    # # the reformatted activity_data are all present in the Master List.
+    # if ( activityCheck( all_wide_out, check_all = FALSE ) ) {
+    #   addToActivityDb( all_wide_out )
+    # }
+    #
+    # # Make into driver format
+    # all_wide_out <- dplyr::rename( all_wide_out, activity = sector)
+    # all_wide_out <- dplyr::select(all_wide_out, -fuel)
+    # all_wide_out$activity <- "pig_iron"
+    # test <- addToActivityDb(all_wide_out)
+
 
 logStop()
