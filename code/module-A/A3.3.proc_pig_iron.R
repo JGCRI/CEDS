@@ -19,9 +19,10 @@
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( "common_data.R", "data_functions.R" ) # Additional function files may be required.
+    headers <- c( "common_data.R", "data_functions.R","interpolation_extension_functions.R",
+                  "analysis_functions.R","process_db_functions.R" ) # Additional function files may be required.
     log_msg <- "Process pig iron production"
-    script_name <- "A3.4.proc_pig_iron.R"
+    script_name <- "A3.3.proc_pig_iron.R"
 
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
@@ -30,9 +31,27 @@
 # 1. Read input
 
 # 'Data' tab only runs to 1890, so read 1850-1890 from tab 'SPEW_Pig_iron_production'
-    spew <- readData( "ACTIVITY_IN", "Blast_furnace_iron_production_1850-2014", ".xlsx",
-                      sheet_selection = "Data", domain_extension = "metals/",
-                      skip = 2 )[ 1:60, 3:128 ]
+    # spew data that is no longer being updated is in a separate spreadsheet for ease of updating
+    spew_1 <- readData( "ACTIVITY_IN", "Blast_furnace_iron_production_1850-1980", ".xlsx",
+                        sheet_selection = "Data", domain_extension = "metals/",
+                        skip = 2 )[ 1:60, 3:94 ]
+    # next dataset was released in sets ranging from 1980-2014.
+    spew_2 <- readData( "ACTIVITY_IN", "Blast_furnace_iron_production_1980-2014", ".xlsx",
+                        sheet_selection = "Data", domain_extension = "metals/",
+                        skip = 2 )[ 1:60, 3:36 ]
+    spew_2 <- spew_2[-c(30:34)]  # remove years that are repeated in newest dataset (spew_3)
+    spew_1_plus_2 = cbind(spew_1, spew_2)
+
+    # newest dataset produced by worldsteel ranges 2010-2017.
+    spew_3 <- readData( "ACTIVITY_IN", "worldsteel_Pig_Iron_Production_2010-2019", ".xlsx",
+                        domain_extension = "metals/", skip = 2)[ 3:46, 1:12 ]
+
+    spew_3 <- spew_3 %>% select(-Countries)
+
+    spew <-  full_join(spew_1_plus_2, spew_3, by = c("iso"))
+    # arrange alphabetically
+    spew <- spew[order(spew$iso),]
+
     spew_pre <- readData( "ACTIVITY_IN", "Blast_furnace_iron_production_1850-2014", ".xlsx",
                     sheet_selection = "SPEW_Pig_iron_production", domain_extension = "metals/",
                     to_numeric = F )[ 2:10 ]
@@ -44,7 +63,10 @@
 # Define values
     SHORT_TO_METRIC <- .9072  # short ton to metric ton (for US)
 
+
+
 # Define functions
+    #TODO: make it clear what these functions actually do?
 # TODO: Update to use function in code/parameter once that's available ### <-Is this a thing? If so, use. If not, either create or comment this function better.
     disaggregate_countries <- function( original_data, aggregate_country, disaggregate_countries, aggregate_end_year,
                                        data_start_year = 1850, id_cols = c( 'iso', 'fuel' ), population ) {
@@ -187,10 +209,22 @@
                                             disaggregate_countries = iso_yug_in_data,
                                             aggregate_end_year = 1991, data_start_year = 1750,
                                             id_cols = c( 'iso', 'sector', 'fuel', 'units' ), population )
+    all_wide_out <- all_wide_yug
 
-# Remove countries that are all zeroes from full dataset
-    Xyears <- names( all_wide )[ grepl( "X", names( all_wide ) ) ]
-    all_wide_out <- subset( all_wide_yug, rowSums( all_wide_yug[ Xyears ] ) > 0 )
+
+
+    # Extend data forward
+    end_year <- 2019
+    start_year <- 1950
+    disaggregate_years <- paste0( 'X', start_year:end_year )
+    all_wide_out <- extend_and_interpolate(all_wide_out,disaggregate_years)
+    all_wide_out[ is.na( all_wide_out ) ] <- 0
+
+    # Remove countries that are all zeroes from full dataset
+    Xyears <- names( all_wide_out )[ grepl( "X", names( all_wide_out ) ) ]
+    all_wide_out <- subset( all_wide_out, rowSums( all_wide_out[ Xyears ] ) > 0 )
+
+    all_wide_out <- all_wide_out[order(all_wide_out$iso),]
 
 # Make driver dataset of 1750-1975; remove countries that are all zero from 1750-1970
     Xyears_filter <- paste0( "X", 1750:1970 )
@@ -199,7 +233,7 @@
 
 # ---------------------------------------------------------------------------
 # 3. Output
-    writeData( driver, "EXT_IN", "A.Pig_Iron_Production", domain_extension = "extension-data/" )
+    writeData( all_wide_out, "EXT_IN", "A.Pig_Iron_Production", domain_extension = "extension-data/" )
     writeData( all_wide_out, "DIAG_OUT", "A.Pig_Iron_Production_full", meta = F )
 
 logStop()
