@@ -55,6 +55,12 @@ gridding_initialize( grid_resolution = 0.5,
 # read in the emission data
   emissions <- readData( "MED_OUT", paste0( em, '_total_CEDS_emissions'  ) )
 
+# If defined, remove emissions from one iso from gridding
+if ( grid_remove_iso != "" ) {
+  emissions <- dplyr::mutate_at( emissions, vars( all_of(X_extended_years) ),
+                                 list( ~ifelse( iso == grid_remove_iso, 0, . )))
+}
+
 # read in some mapping files
 # read in the region location index, which indicates the location of each region mask in the 'world' matrix
   location_index <- readData( "GRIDDING", domain_extension = "gridding_mappings/", file_name =  "country_location_index_05", meta = FALSE )
