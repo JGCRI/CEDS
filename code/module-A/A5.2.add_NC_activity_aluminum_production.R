@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
 # Program Name: A5.2.add_NC_activity_aluminum_production.R
-# Author: Jon Seibert
+# Author: Jon Seibert, Andrea Mott
 # Date Last Modified: May 18, 2021
 # Program Purpose: To process and reformat non-combustion (process) aluminum production activity_data,
 #                  and add it to the activity database.
@@ -9,7 +9,6 @@
 # Output Files: A.NC_activty_db.csv
 # Notes:
 # TODO:
-#-------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers

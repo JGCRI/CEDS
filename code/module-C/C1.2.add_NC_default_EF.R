@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------------------
 # Program Name: C1.2.add_NC_default_EF.R
-# Author: Rachel Hoesly
+# Author: Rachel Hoesly, Andrea Mott
 # Date Last Updated: 4 June 2021
 # Program Purpose: Adds default_EF data in the EF_parameters folder to the
 #                  ControlFrac_db
