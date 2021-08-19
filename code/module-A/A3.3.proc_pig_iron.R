@@ -29,10 +29,12 @@
 
 # ---------------------------------------------------------------------------
 # 1. Read input
-
-# 'Data' tab only runs to 1890, so read 1850-1890 from tab 'SPEW_Pig_iron_production'
+    # 'Data' tab only runs to 1890, so read 1850-1890 from tab 'SPEW_Pig_iron_production'
+    spew_pre <- readData( "ACTIVITY_IN", "Blast_furnace_iron_production_1850-2014", ".xlsx",
+                          sheet_selection = "SPEW_Pig_iron_production", domain_extension = "metals/",
+                          to_numeric = F )[ 2:10 ]
     # spew data that is no longer being updated is in a separate spreadsheet for ease of updating
-    spew_1 <- readData( "ACTIVITY_IN", "Blast_furnace_iron_production_1850-1980", ".xlsx",
+    spew_1 <- readData( "ACTIVITY_IN", "Blast_furnace_iron_production_1890-1980", ".xlsx",
                         sheet_selection = "Data", domain_extension = "metals/",
                         skip = 2 )[ 1:60, 3:94 ]
     # next dataset was released in sets ranging from 1980-2014.
@@ -52,9 +54,7 @@
     # arrange alphabetically
     spew <- spew[order(spew$iso),]
 
-    spew_pre <- readData( "ACTIVITY_IN", "Blast_furnace_iron_production_1850-2014", ".xlsx",
-                    sheet_selection = "SPEW_Pig_iron_production", domain_extension = "metals/",
-                    to_numeric = F )[ 2:10 ]
+
     us <- readData( "ACTIVITY_IN", "Pig_Iron_Production_US", domain_extension = "metals/" )
     mitchell <- readData( "ACTIVITY_IN", "Pig_Iron_Production_Mitchell", domain_extension = "metals/" )
 
