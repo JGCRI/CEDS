@@ -7,7 +7,8 @@
 # Input Files: files in the EF_parameters folder containing default_EF and em
 # Output Files: C.[em]_NC_User_Added_EF.csv
 # Notes:
-# TODO:
+# TODO: This file filters out "sintering" after generating a default EFs.
+    # Perhaps filter out if not included in MSL.
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
@@ -72,14 +73,22 @@
 # ---------------------------------------------------------------------------
 # 2. Add to existing parameter Dbs
 
-# If there are any emissions, create a dataframe. also write out
-# a diagnostic file recording the user-defined emissions. Otherwise, print a
-# message that no emissions were added
+# If there are any EFs, create a dataframe. Also write out
+# a diagnostic file recording the user-defined EFs Otherwise, print a
+# message that no EFs were added.
+    # Also, remove sintering EFs since we added sintering to the EFs,
+    # but it's not a sector defined in MSL.
     if ( length( EF_list ) > 0 ) {
         printLog( paste( 'Adding new data to existing emission factor',
                          'data base for', em ) )
         writeData( EF, 'DIAG_OUT',
                    paste0( 'C.', em, '_NC_User_Added_EF' ) )
+
+        # remove sintering
+        # TODO: maybe change this to an if statement: if sector is not in master sector list,
+        #       then, filter out.
+            EF <- EF %>%
+                filter(sector != "2C1_Iron-steel-alloy-prod_sintering")
         # writeData( EF, 'MED_OUT',
         #            paste0('C.', em, '_NC_default_EF'))
         # There is no existing db to overwrite?
