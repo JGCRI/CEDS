@@ -434,13 +434,19 @@ $(MED_OUT)/A.IEA_CEDS_coal_difference.csv: \
 #	Rscript $< $(EM) --nosave --no-restore
 
 # aa3-3
-# Process pig iron production
-$(EXT_DATA)/A.Pig_Iron_Production.csv: \
-	$(MOD_A)/A3.3.proc_pig_iron.R \
-	$(MED_OUT)/A.UN_pop_master.csv \
+# Process pig iron production  # AM: maybe comment this out? Doesn't need it since it's being called for creating A.NC.activity
+ #$(EXT_DATA)/A.Pig_Iron_Production.csv: \
+#	$(MOD_A)/A3.3.proc_pig_iron.R \
+#	$(MED_OUT)/A.UN_pop_master.csv
 	#(ACTIV)/metals/Blast_furnace_iron_production_1850-2014.xlsx \
 	#(ACTIV)/metals/Pig_Iron_Production_US.csv \
 	#(ACTIV)/metals/Pig_Iron_Production_Mitchell.csv
+#	Rscript $< $(EM) --nosave --no-restore
+
+# aa3-4
+# Process sintering production #TODO: is this a good place for this in the makefile?
+$(MED_OUT)/A.Sintering_production.csv: \
+	$(MOD_A)/A3.5.proc_sintering.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa4-1
@@ -475,6 +481,7 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 	$(MOD_A)/A5.2.add_NC_activity_energy.R \
 	$(MOD_A)/A5.2.add_NC_activity_fossil_fuel_production.R \
 	$(MOD_A)/A5.2.add_NC_activity_aluminum_production.R \
+	$(MOD_A)/A3.3.proc_pig_iron.R \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
 	$(PARAMS)/IO_functions.R \
@@ -488,6 +495,7 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 	$(MAPPINGS)/NC_EDGAR_sector_mapping.csv \
 	$(MAPPINGS)/2011_NC_SO2_ctry.csv \
 	$(MAPPINGS)/Master_Country_List.csv \
+	$(MED_OUT)/A.UN_pop_master.csv \
 	$(ACTIV)/Smelter-Feedstock-Sulfur.xlsx \
 	$(ACTIV)/Wood_Pulp_Consumption.xlsx \
 	$(ACTIV)/GDP.xlsx \
@@ -502,6 +510,7 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 	Rscript $(word 8,$^) $(EM) --nosave --no-restore
 	Rscript $(word 9,$^) $(EM) --nosave --no-restore
 	Rscript $(word 10,$^) $(EM) --nosave --no-restore
+	Rscript $(word 11,$^) $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.pulp_paper_consumption_full.csv: \
 	$(MED_OUT)/A.NC_activity_db.csv
@@ -771,6 +780,15 @@ $(MED_OUT)/C.$(EM)_NC_EF.csv: \
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 
+# cc2-2 #TODO: is this a good place for this?
+$(MED_OUT)/C.$(EM)_sintering_emissions.csv: \
+	$(MOD_C)/C3.1.calc_sintering_emissions.R \
+	$(MED_OUT)/C.$(EM)_NC_EF.csv \
+	$(MED_OUT)/A.Sintering_production.csv
+	Rscript $< $(EM) --nosave --no-restore
+
+
+
 # dd1-1
 # Calculates  NC and combustion emissions from activity data and
 # emissions factors then combines to total EF and total emissions
@@ -780,6 +798,7 @@ $(MED_OUT)/D.$(EM)_default_total_emissions.csv: \
 	$(MED_OUT)/A.final_comb_activity_modern.csv \
 	$(MED_OUT)/A.NC_activity.csv \
 	$(MED_OUT)/B.$(EM)_comb_EF_db.csv \
+	$(MED_OUT)/C.$(EM)_sintering_emissions.csv \
 	$(MED_OUT)/C.$(EM)_NC_EF.csv
 	Rscript $< $(EM) --nosave --no-restore
 
