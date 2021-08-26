@@ -19,9 +19,10 @@
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
-    headers <- c( "common_data.R", "data_functions.R" ) # Additional function files may be required.
+    headers <- c( "common_data.R", "data_functions.R", "analysis_functions.R",
+                  "process_db_functions.R", "timeframe_functions.R" ) # Additional function files may be required.
     log_msg <- "Process pig iron production"
-    script_name <- "A3.4.proc_pig_iron.R"
+    script_name <- "A3.3.proc_pig_iron.R"
 
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
@@ -198,8 +199,37 @@
     driver <- subset( driver, rowSums( driver[ Xyears_filter ] ) > 0 )
 
 # ---------------------------------------------------------------------------
-# 3. Output
+# 3. Previous Output
     writeData( driver, "EXT_IN", "A.Pig_Iron_Production", domain_extension = "extension-data/" )
     writeData( all_wide_out, "DIAG_OUT", "A.Pig_Iron_Production_full", meta = F )
+
+# ------------------------------------------------------------------------------
+# 3. Turn data into driver data
+
+    act_input <- readData( "MAPPINGS", "activity_input_mapping")
+    MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx",
+                     sheet_selection = "Sectors" )
+
+    # Make into driver format
+    activity_data <- dplyr::rename( all_wide_out, activity = sector)
+    activity_data <- dplyr::select(activity_data, -fuel)
+    activity_data$activity <- "pig_iron"
+
+    # add to activity database
+      # TODO: add checks prior to this. usually would use activityCheck() function.
+             # Not sure if it should apply here since the activity check applies to MSL...
+    addToActivityDb(activity_data)
+
+
+# Add reformatted activity_data to the activity database, extending or truncating it as necessary.
+# By default, it will be extended forward to the common end year, but not backwards.
+# Only do this if the activityCheck header function determines that the activities in
+# the reformatted activity_data are all present in the Master List.
+    # so right now, "pig_iron" is not in the MSL.
+    # if ( activityCheck( all_wide_out, check_all = FALSE ) ) {
+    #     addToActivityDb( all_wide_out )
+    # }
+
+
 
 logStop()
