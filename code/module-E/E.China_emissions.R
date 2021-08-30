@@ -108,7 +108,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
 
     inv_data_species <- na.omit(inv_data_species)
-    if (em %!in% c("BC","OC","CH4","N2O")){
+    if (em %!in% c("BC","OC","CH4","N2O","CO2")){
       country_total <- inv_data_species %>%
         select(-sector)%>%
         group_by(iso) %>%
