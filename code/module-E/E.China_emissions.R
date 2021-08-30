@@ -85,7 +85,10 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
     } else {
     # Write out blank df if no inventory data exists for given emission
-        inv_data_species <- data.frame()
+        #inv_data_species <- data.frame()
+        col_names <- c('iso','sector',paste0( 'X', inv_years ))
+        inv_data_species <- data.frame(matrix(ncol = length( col_names ), nrow = 0))
+        colnames(inv_data_species) <- col_names
     }
 
 # ------------------------------------------------------------------------------
