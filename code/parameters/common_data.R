@@ -45,9 +45,8 @@ BP_FSU_aggregate <- TRUE
 
 # Edgar year
 EDGAR_start_year <- 1970
-EDGAR_end_year <- 2015   # Set to 2015 for EDGAR v5.
-                         # Note that CO2 in v5 has an end year of 2018. Values to 2018 in this version
-                         # are still utilized for CO2, despite this being set to 2015.
+EDGAR_end_year <- 2015       # Set to 2015 for EDGAR v5.
+EDGAR_end_year_CO2 <- 2018   # Note that CO2 in v5 has an end year of 2018.
 
 # The combined yearset for historical emission years
 emissions_years <- c( IEA_years,BP_years )
