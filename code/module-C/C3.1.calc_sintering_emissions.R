@@ -2,8 +2,7 @@
 # Program Name: C3.1.calc_sintering_emissions.R
 # Author: Andrea Mott
 # Date Last Updated: 17 August 2021
-# Program Purpose: Process sintering emissions based on pig iron production data
-#                   for the iron-steel sector.
+# Program Purpose: Process sintering emissions based on sintering production data.
 # Input Files:  A.Sintering_production.csv
 # Output Files: C.(em)_sintering_emissions.csv
 # TODO:
