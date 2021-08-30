@@ -37,27 +37,32 @@ kt_sinter_long <- kt_sinter %>%
     select(-c(sector, units)) %>%
     gather(key = "year", value = "kt_sinter", -iso)
 
-EF <- readData('DIAG_OUT', paste0( 'C.', em, '_NC_User_Added_EF'))
+# This script is intended only for those emission with user added EFs,
+#       such as CO, NOx, and SO2 for sintering.
+# TODO: maybe make this "if file.exists()"?
+if (em %in% c("CO", "NOx","SO2")){
+    EF <- readData('DIAG_OUT', paste0( 'C.', em, '_NC_User_Added_EF'))
 
-EF_long <- EF %>%
-    filter( sector == "2C1_Iron-steel-alloy-prod_sintering") %>%
-    select(-c(sector,fuel,units)) %>%
-    gather(key = "year", value = "EF", -iso)
+    EF_long <- EF %>%
+        filter( sector == "2C1_Iron-steel-alloy-prod_sintering") %>%
+        select(-c(sector,fuel,units)) %>%
+        gather(key = "year", value = "EF", -iso)
 
-# Calculate sintering emissions
-sint_em <- kt_sinter_long %>%
-    left_join(EF_long, by = c("iso","year")) %>%
-    mutate(em = kt_sinter * EF) %>%
-    select(iso,year,em) %>%
-    na.omit() %>%
-    spread(key = "year","em") %>%
-    mutate(sector = "sintering") %>%
-    mutate(units = "kt*kt/kt") %>%
-    mutate(fuel = "process") %>%
-    select(iso, sector, fuel, units, everything())
+    # Calculate sintering emissions
+    sint_em <- kt_sinter_long %>%
+        left_join(EF_long, by = c("iso","year")) %>%
+        mutate(em = kt_sinter * EF) %>%
+        select(iso,year,em) %>%
+        na.omit() %>%
+        spread(key = "year","em") %>%
+        mutate(sector = "sintering") %>%
+        mutate(units = "kt*kt/kt") %>%
+        mutate(fuel = "process") %>%
+        select(iso, sector, fuel, units, everything())
 
-# Write out sintering emissions
-writeData( sint_em, "MED_OUT", paste0( "C.", em, "_sintering_emissions"))
+    # Write out sintering emissions
+    writeData( sint_em, "MED_OUT", paste0( "C.", em, "_sintering_emissions"))
+} else {print("does not have any user defined input")}
 
 logStop()
 
