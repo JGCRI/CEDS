@@ -32,7 +32,7 @@
 # Define Em Species
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- 'CO'
+    if ( is.na( em ) ) em <- 'SO2'
 
 # ------------------------------------------------------------------------------
 # 1. Read in files
@@ -123,25 +123,27 @@ comb_emissions <- calculateEmissions( comb_energy_data, comb_ef_data )
 nc_emissions <- calculateEmissions( nc_energy_data, nc_ef_data )
 
 # Add additional emissions not directly related to activity data.
-    # Add sintering to nc_emissions
+    # Add sintering to nc_emissions. Note: sintering data only exists for SO2, NOx, and CO.
         # Read in sintering data
+        if(em %in% c("SO2","NOx","CO")){
+
             sintering_emissions <- readData("MED_OUT",paste0( "C.", em, "_sintering_emissions"))
 
-        # combine sintering with nc_emissions
-        pig_iron_emissions <- nc_emissions %>%
-          filter(sector == "2C1_Iron-steel-alloy-prod")
-        iron_steel_sector <- rbind(pig_iron_emissions, sintering_emissions)
-        iron_steel_emissions <- iron_steel_sector %>%
-          group_by(iso, units, fuel) %>%
-          summarize_if(is.numeric, sum, na.rm  = TRUE) %>%
-          mutate(sector = "2C1_Iron-steel-alloy-prod") %>%
-          select(iso, sector, units, fuel, everything())
-        nc_emissions <- filter(nc_emissions, sector != "2C1_Iron-steel-alloy-prod")
+            # combine sintering with nc_emissions
+            pig_iron_emissions <- nc_emissions %>%
+              filter(sector == "2C1_Iron-steel-alloy-prod")
+            iron_steel_sector <- rbind(pig_iron_emissions, sintering_emissions)
+            iron_steel_emissions <- iron_steel_sector %>%
+              group_by(iso, units, fuel) %>%
+              summarize_if(is.numeric, sum, na.rm  = TRUE) %>%
+              mutate(sector = "2C1_Iron-steel-alloy-prod") %>%
+              select(iso, sector, units, fuel, everything())
+            nc_emissions <- filter(nc_emissions, sector != "2C1_Iron-steel-alloy-prod")
 
-        # combine nc emissions again
-        nc_emissions <- rbind(data.frame(nc_emissions), data.frame(iron_steel_emissions))
-        nc_emissions <- nc_emissions[order(nc_emissions$iso),]
-
+            # combine nc emissions again
+            nc_emissions <- rbind(data.frame(nc_emissions), data.frame(iron_steel_emissions))
+            nc_emissions <- nc_emissions[order(nc_emissions$iso),]
+        }
 # Combine total emissions and total ef
 total_emissions <- rbind(comb_emissions, nc_emissions)
 total_efs <- rbind(comb_ef_data, nc_ef_data)
