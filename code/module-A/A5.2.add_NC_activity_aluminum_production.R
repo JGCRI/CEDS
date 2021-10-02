@@ -71,6 +71,16 @@
     # Sort results by iso and activity
         results <- results[ with( results, order( iso, activity ) ), ]
 
+    # remove row with NA
+        results <- na.omit(results)
+
+    # Change units from ktS to kt SO2 by multiplying by 2
+        change_units <- gather(results, key = "year", value = "value", -c("iso","activity","units"))
+        change_units$value <- as.numeric(change_units$value)
+        change_units <- change_units %>%
+            mutate(value = value * 2)
+        results <- spread(change_units, key = "year", value = "value")
+
 # ------------------------------------------------------------------------------
 # 3. Output
 
