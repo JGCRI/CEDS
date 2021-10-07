@@ -1,2 +1,2 @@
 Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
-emission factor,SO2,all,aluminum,2000,2000,From Smelter_Emissions_Estimate.xlsx. EF is the same for all years. 
+emission factor,SO2,all,aluminum,2000,2000,From Smelter_Emissions_Estimate.xlsx. EF is the same for all years. Multipled EF 0.0195 kt S by 2 to get 0.038 kt SO2.
