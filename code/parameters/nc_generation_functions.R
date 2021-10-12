@@ -118,8 +118,11 @@ generate_final_grids_nc <- function( int_grids_list,
   lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
   time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
 
+  suffix <- ""
+  if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
+
   # generate nc file name
-  nc_file_name <- paste0( 'CEDS_', em, '_anthro_', year, '_', grid_resolution, '.nc' )
+  nc_file_name <- paste0( 'CEDS_', em, '_anthro_', year, '_', grid_resolution, suffix, '.nc' )
 
   # generate the var_list
   variable_list <- list( AGR, ENE, IND, TRA, SLV, WST, SHP, RCO, lat_bnds, lon_bnds, time_bnds )
@@ -155,15 +158,17 @@ generate_final_grids_nc <- function( int_grids_list,
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2 ), ' Tg/year' ) )
 
   # species information
-  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4' ), stringsAsFactors = F )
+  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4', 'N2O' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4', 'Mass flux of N2O' ), stringsAsFactors = F )
   info_line <- reporting_info[ reporting_info$em == em, 'info' ]
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
 
   # close nc_new
   nc_close( nc_new)
 
-  # additional section: write a summary and check text
-  summary_name <- paste0( output_dir, 'CEDS_', em, '_anthro_', year, '_', grid_resolution, '.csv' )
+  # additional section: write a checksum file
+  suffix <- ""
+  if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
+  summary_name <- paste0( output_dir, 'CEDS_', em, '_anthro_', year, '_', grid_resolution, suffix, '.csv' )
   write.csv( total_month_em, file = summary_name, row.names = F )
 }
 
@@ -281,9 +286,12 @@ generate_final_grids_nc_subVOC <- function( int_grids_list,
   lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
   time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
 
+  suffix <- ""
+  if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
+
   # generate nc file name
   # object version stamp is from global environment
-  nc_file_name <- paste0( 'CEDS_', VOC_em, '_anthro_', year, '_', grid_resolution, '.nc' )
+  nc_file_name <- paste0( 'CEDS_', VOC_em, '_anthro_', year, '_', grid_resolution, suffix, '.nc' )
 
   # generate the var_list
   variable_list <- list( AGR, ENE, IND, TRA, SLV, WST, SHP, RCO, lat_bnds, lon_bnds, time_bnds )
@@ -325,7 +333,7 @@ generate_final_grids_nc_subVOC <- function( int_grids_list,
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2 ), ' Tg/year' ) )
 
   # species information
-  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4' ), stringsAsFactors = F )
+  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4', 'N2O' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4', 'Mass flux of N2O' ), stringsAsFactors = F )
   info_line <- reporting_info[ reporting_info$em == em, 'info' ]
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
 
@@ -333,7 +341,9 @@ generate_final_grids_nc_subVOC <- function( int_grids_list,
   nc_close( nc_new)
 
   # additional section: write a summary and check text
-  summary_name <- paste0( output_dir, 'CEDS_', VOC_em, '_anthro_', year, '_', grid_resolution, '.csv' )
+  suffix <- ""
+  if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
+  summary_name <- paste0( output_dir, 'CEDS_', VOC_em, '_anthro_', year, '_', grid_resolution, suffix, '.csv' )
   write.csv( total_month_em, file = summary_name, row.names = F )
 }
 
@@ -480,8 +490,11 @@ generate_final_grids_nc_solidbiofuel <- function( int_grids_list,
   lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
   time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
 
+  suffix <- ""
+  if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
+
   # generate nc file name
-  nc_file_name <- paste0( 'CEDS_', em, '_solidbiofuel_anthro_', year, '_', grid_resolution, '.nc' )
+  nc_file_name <- paste0( 'CEDS_', em, '_solidbiofuel_anthro_', year, '_', grid_resolution, suffix, '.nc' )
 
   # generate the var_list
   variable_list <- list( AGR, ENE, IND, TRA, SLV, WST, SHP, RCO, lat_bnds, lon_bnds, time_bnds )
@@ -518,7 +531,7 @@ generate_final_grids_nc_solidbiofuel <- function( int_grids_list,
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2 ), ' Tg/year' ) )
 
   # species information
-  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4' ), stringsAsFactors = F )
+  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4', 'N2O' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4', 'Mass flux of N2O' ), stringsAsFactors = F )
   info_line <- reporting_info[ reporting_info$em == em, 'info' ]
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
 
@@ -526,7 +539,9 @@ generate_final_grids_nc_solidbiofuel <- function( int_grids_list,
   nc_close( nc_new)
 
   # additional section: write a summary and check text
-  summary_name <- paste0( output_dir, 'CEDS_', em, '_solidbiofuel_anthro_', year, '_', grid_resolution, '.csv' )
+  suffix <- ""
+  if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
+  summary_name <- paste0( output_dir, 'CEDS_', em, '_solidbiofuel_anthro_', year, '_', grid_resolution, suffix, '.csv' )
   write.csv( total_month_em, file = summary_name, row.names = F )
 }
 
@@ -636,7 +651,7 @@ generate_final_grids_nc_aircraft <- function( AIR_em_global,
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2 ), ' Tg/year' ) )
 
   # species information
-  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4' ), stringsAsFactors = F )
+  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4', 'N2O' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4', 'Mass flux of N2O' ), stringsAsFactors = F )
   info_line <- reporting_info[ reporting_info$em == em, 'info' ]
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
 
@@ -678,7 +693,9 @@ singleVarChunking_bulkemissions <- function( em,
   chunk_yr_range <- year_1st:year_last
 
   # get in grids file list for current chunking
-  fin_grid_list <- paste( 'CEDS', em, 'anthro', chunk_yr_range, '0.5.nc', sep = '_' )
+  suffix <- '0.5.nc'
+  if ( grid_remove_iso != "" ) suffix <- paste0('0.5_','no_',grid_remove_iso,'.nc')
+  fin_grid_list <- paste( 'CEDS', em, 'anthro', chunk_yr_range, suffix, sep = '_' )
   yearly_grid_files <- file.path( input_dir, fin_grid_list )
   if ( !all( file.exists( yearly_grid_files ) ) ) {
       stop( "Cannot find all files need for chunk ", year_1st, "-", year_last )
@@ -769,13 +786,20 @@ singleVarChunking_bulkemissions <- function( em,
   MD_source_id_value <- filename_version_tag
   FN_source_id_value <- MD_source_id_value
   FN_variable_id_value <- paste0( em, '-em-anthro' )
+
+  ud_suffix <- ""
+  if ( user_defined_suffix != "" ) ud_suffix <- paste0('_',user_defined_suffix)
+
+  suffix <- ""
+  if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
+
   nc_file_name <- paste0( output_dir,
                           FN_variable_id_value,
                           '_input4MIPs_emissions_CMIP_',
                           FN_source_id_value,
                           '_gn_',
-                          chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12',
-                          '.nc' )
+                          chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12', ud_suffix,
+                          suffix, '.nc' )
 
   # generate flat_var variable name
   MD_variable_id_value <- paste0( em, '_em_anthro' ) # identical with FN_variable_id_value except the '-'
@@ -829,7 +853,7 @@ singleVarChunking_bulkemissions <- function( em,
   }
   # some other metadata
   ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes.' )
-  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4' ), stringsAsFactors = F )
+  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4', 'N2O' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4', 'Mass flux of N2O' ), stringsAsFactors = F )
   info_line <- reporting_info[ reporting_info$em == em, 'info' ]
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
 
@@ -874,7 +898,9 @@ singleVarChunking_subVOCemissions <- function( VOC_em,
   chunk_yr_range <- year_first:year_last
 
   # get in grids file list for current chunking
-  fin_grid_list <- paste( 'CEDS', VOC_em, 'anthro', chunk_yr_range, '0.5.nc', sep = '_' )
+  suffix <- '0.5.nc'
+  if ( grid_remove_iso != "" ) suffix <- paste0('0.5_','no_',grid_remove_iso,'.nc')
+  fin_grid_list <- paste( 'CEDS', VOC_em, 'anthro', chunk_yr_range, suffix, sep = '_' )
   yearly_grid_files <- file.path( input_dir, fin_grid_list )
   if ( !all( file.exists( yearly_grid_files ) ) ) {
       stop( "Cannot find all files need for chunk ", year_first, "-", year_last )
@@ -969,13 +995,18 @@ singleVarChunking_subVOCemissions <- function( VOC_em,
   VOC_name_10_dig <- gsub( '_', '-', VOC_name_10_dig, fixed = TRUE )
   VOC_mw <- VOC_names[ VOC_names$VOC_id == VOC_em, 'molecular.weight' ]
   FN_variable_id_value <- paste0( VOC_em, '-', VOC_name_10_dig, '-em-speciated-VOC-anthro' )
+  ud_suffix <- ""
+  if ( user_defined_suffix != "" ) ud_suffix <- paste0('_',user_defined_suffix)
+  suffix <- ""
+  if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
+
   nc_file_name <- paste0( output_dir,
                           FN_variable_id_value,
                           '_input4MIPs_emissions_CMIP_',
                           FN_source_id_value,
                           '_gn_',
-                          chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12',
-                          '.nc' )
+                          chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12', ud_suffix,
+                          suffix, '.nc' )
 
   # generate flat_var variable name
   MD_variable_id_value <- gsub( '-', '_', FN_variable_id_value, fixed = TRUE )
@@ -1065,7 +1096,9 @@ singleVarChunking_solidbiofuelemissions <- function( em,
   chunk_yr_range <- year_1st:year_last
 
   # get in grids file list for current chunking
-  fin_grid_list <- paste( 'CEDS', em, 'solidbiofuel_anthro', chunk_yr_range, '0.5.nc', sep = '_' )
+  suffix <- '0.5.nc'
+  if ( grid_remove_iso != "" ) suffix <- paste0('0.5_','no_',grid_remove_iso,'.nc')
+  fin_grid_list <- paste( 'CEDS', em, 'solidbiofuel_anthro', chunk_yr_range, suffix, sep = '_' )
   yearly_grid_files <- file.path( input_dir, fin_grid_list )
   if ( !all( file.exists( yearly_grid_files ) ) ) {
       stop( "Cannot find all files need for chunk ", year_1st, "-", year_last )
@@ -1188,13 +1221,18 @@ singleVarChunking_solidbiofuelemissions <- function( em,
   MD_source_id_value <- paste0( filename_version_tag, '-supplemental-data' )
   FN_source_id_value <- MD_source_id_value
   FN_variable_id_value <- paste0( em, '-em-SOLID-BIOFUEL-anthro' )
+  ud_suffix <- ""
+  if ( user_defined_suffix != "" ) ud_suffix <- paste0('_',user_defined_suffix)
+  suffix <- ""
+  if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
+
   nc_file_name <- paste0( output_dir,
                           FN_variable_id_value,
                           '_input4MIPs_emissions_CMIP_',
                           FN_source_id_value,
                           '_gn_',
-                          chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12',
-                          '.nc' )
+                          chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12', ud_suffix,
+                          suffix, '.nc' )
 
   # generate flat_var variable name
   MD_variable_id_value <- paste0( em, '_em_SOLID_BIOFUEL_anthro' )
@@ -1240,7 +1278,7 @@ singleVarChunking_solidbiofuelemissions <- function( em,
   }
   # some other metadata
   ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes. Supplemental data, emissions in this data file are already included in the primary data file. See README.' )
-  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4' ), stringsAsFactors = F )
+  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4', 'N2O' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4', 'Mass flux of N2O' ), stringsAsFactors = F )
   info_line <- reporting_info[ reporting_info$em == em, 'info' ]
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
 
@@ -1282,7 +1320,8 @@ singleVarChunking_aircraftemissions <- function( em,
   chunk_yr_range <- year_1st:year_last
 
   # get in grids file list for current chunking
-  fin_grid_list <- paste( 'CEDS', em, 'AIR_anthro', chunk_yr_range, '0.5.nc', sep = '_' )
+  suffix <- '0.5.nc'
+  fin_grid_list <- paste( 'CEDS', em, 'AIR_anthro', chunk_yr_range, suffix, sep = '_' )
   yearly_grid_files <- file.path( input_dir, fin_grid_list )
   if ( !all( file.exists( yearly_grid_files ) ) ) {
       stop( "Cannot find all files need for chunk ", year_1st, "-", year_last )
@@ -1350,12 +1389,15 @@ singleVarChunking_aircraftemissions <- function( em,
   MD_source_id_value <- filename_version_tag
   FN_source_id_value <- MD_source_id_value
   FN_variable_id_value <- paste0( em, '-em-AIR-anthro' )
+  ud_suffix <- ""
+  if ( user_defined_suffix != "" ) ud_suffix <- paste0('_',user_defined_suffix)
+
   nc_file_name <- paste0( output_dir,
                           FN_variable_id_value,
                           '_input4MIPs_emissions_CMIP_',
                           FN_source_id_value,
                           '_gn_',
-                          chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12',
+                          chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12', ud_suffix,
                           '.nc' )
 
   # generate flat_var variable name
@@ -1383,16 +1425,12 @@ singleVarChunking_aircraftemissions <- function( em,
   # put nc variables into the nc file
   # There is a 2GB limit for writing (perhaps because of an older rCPP version
   # in ncdf4), so the values need to be written in chunks of time-steps
-  write_chunk_size <- floor((2^31 - 1) / (prod(AIR_array[1:3]) * 8))
   time_start_idx <- 1
-  while ( time_start_idx < AIR_array[4] ) {
-      next_time_start <- min(time_start_idx + write_chunk_size, AIR_array[4] + 1)
-      time_steps <- next_time_start - time_start_idx
-      ncvar_put( nc_new, AIR_var, AIR_array[ , , , time_start_idx:(next_time_start - 1) ],
-                 start = c( 1, 1, 1, time_start_idx ),
-                 count = c( -1, -1, -1, time_steps ) )
-      time_start_idx <- next_time_start
+  for (i in 1:(n_months/12)) {
+      ncvar_put(nc_new, AIR_var, AIR_array[, , , time_start_idx:(time_start_idx + 11)], start=c(1, 1, 1, time_start_idx), count=c(-1, -1, -1, 12))
+      time_start_idx <- time_start_idx + 12
   }
+
   ncvar_put( nc_new, lon_bnds, t( lon_bnds_data ) )
   ncvar_put( nc_new, lat_bnds, t( lat_bnds_data ) )
   ncvar_put( nc_new, time_bnds, time_bnds_data )
@@ -1410,7 +1448,7 @@ singleVarChunking_aircraftemissions <- function( em,
   }
   # some other metadata
   ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes.' )
-  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4' ), stringsAsFactors = F )
+  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4', 'N2O' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4', 'Mass flux of N2O' ), stringsAsFactors = F )
   info_line <- reporting_info[ reporting_info$em == em, 'info' ]
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
 
@@ -1576,13 +1614,18 @@ singleVarChunking_extendedCH4bulk <- function( em,
   MD_source_id_value <- paste0( filename_version_tag, '-supplemental-data' )
   FN_source_id_value <- MD_source_id_value
   FN_variable_id_value <- paste0( em, '-em-anthro' )
+  ud_suffix <- ""
+  if ( user_defined_suffix != "" ) ud_suffix <- paste0('_',user_defined_suffix)
+  suffix <- ""
+  if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
+
   nc_file_name <- paste0( output_dir,
                           FN_variable_id_value,
                           '_input4MIPs_emissions_CMIP_',
                           FN_source_id_value,
                           '_gn_',
-                          chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12',
-                          '.nc' )
+                          chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12', ud_suffix,
+                          suffix, '.nc' )
 
   # generate flat_var variable name
   MD_variable_id_value <- paste0( em, '_em_anthro' ) # identical with FN_variable_id_value except the '-'
@@ -1627,7 +1670,7 @@ singleVarChunking_extendedCH4bulk <- function( em,
   }
   # some other metadata
   ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes.' )
-  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4' ), stringsAsFactors = F )
+  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4', 'N2O' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4', 'Mass flux of N2O' ), stringsAsFactors = F )
   info_line <- reporting_info[ reporting_info$em == em, 'info' ]
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
 
@@ -1746,12 +1789,15 @@ singleVarChunking_extendedCH4air <- function( em,
   MD_source_id_value <- paste0( filename_version_tag, '-supplemental-data' )
   FN_source_id_value <- MD_source_id_value
   FN_variable_id_value <- paste0( em, '-em-AIR-anthro' )
+  ud_suffix <- ""
+  if ( user_defined_suffix != "" ) ud_suffix <- paste0('_',user_defined_suffix)
+
   nc_file_name <- paste0( output_dir,
                           FN_variable_id_value,
                           '_input4MIPs_emissions_CMIP_',
                           FN_source_id_value,
                           '_gn_',
-                          chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12',
+                          chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12', ud_suffix,
                           '.nc' )
 
   # generate flat_var variable name
@@ -1781,15 +1827,10 @@ singleVarChunking_extendedCH4air <- function( em,
   # put nc variables into the nc file
   # There is a 2GB limit for writing (perhaps because of an older rCPP version
   # in ncdf4), so the values need to be written in chunks of time-steps
-  write_chunk_size <- floor((2^31 - 1) / (prod(array_dim[1:3]) * 8))
   time_start_idx <- 1
-  while ( time_start_idx < array_dim[4] ) {
-      next_time_start <- min(time_start_idx + write_chunk_size, array_dim[4] + 1)
-      time_steps <- next_time_start - time_start_idx
-      ncvar_put( nc_new, AIR_var, AIR_array[ , , , time_start_idx:(next_time_start - 1) ],
-                 start = c( 1, 1, 1, time_start_idx ),
-                 count = c( -1, -1, -1, time_steps ) )
-      time_start_idx <- next_time_start
+  for (i in 1:(n_months/12)) {
+      ncvar_put(nc_new, AIR_var, AIR_array[, , , time_start_idx:(time_start_idx + 11)], start=c(1, 1, 1, time_start_idx), count=c(-1, -1, -1, 12))
+      time_start_idx <- time_start_idx + 12
   }
 
   ncvar_put( nc_new, lon_bnds, t( lon_bnds_data ) )
@@ -1809,7 +1850,7 @@ singleVarChunking_extendedCH4air <- function( em,
   }
   # some other metadata
   ncatt_put( nc_new, 0, 'data_usage_tips', 'Note that these are monthly average fluxes.' )
-  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4' ), stringsAsFactors = F )
+  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4', 'N2O' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4', 'Mass flux of N2O' ), stringsAsFactors = F )
   info_line <- reporting_info[ reporting_info$em == em, 'info' ]
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
 
@@ -1878,8 +1919,14 @@ generate_annual_total_emissions_grids_nc <- function( output_dir, int_grids_list
   lon_bnds <- ncvar_def( 'lon_bnds', '', list( bndsdim, londim ), prec = 'double' )
   lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
 
+  ud_suffix <- ""
+  if ( user_defined_suffix != "" ) ud_suffix <- paste0('_',user_defined_suffix)
+
+  suffix <- ""
+  if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
+
   # generate nc file name
-  nc_file_name <- paste0( output_dir, 'CEDS_', em, '_anthro_', year, '_', 'TOTAL', '_', grid_resolution, '_', version_stamp, '.nc' )
+  nc_file_name <- paste0( output_dir, 'CEDS_', em, '_anthro_', year, '_', 'TOTAL', '_', grid_resolution, '_', version_stamp, ud_suffix, suffix,'.nc' )
 
   # generate the var_list
   variable_list <- list( total_emission, lat_bnds, lon_bnds )
@@ -1910,7 +1957,7 @@ generate_annual_total_emissions_grids_nc <- function( output_dir, int_grids_list
   global_total_emission <- total_sum_in_kt * 0.001
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2 ), ' Tg/year' ) )
   # species information
-  species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4' ), stringsAsFactors = F )
+  species_info <- data.frame( species = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4', 'N2O' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4', 'Mass flux of N2O' ), stringsAsFactors = F )
   info_line <- species_info[ species_info$species == em, ]$info
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
 
@@ -2033,8 +2080,14 @@ generate_monthly_total_emissions_grids_nc <- function( output_dir,
   lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
   time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
 
+  ud_suffix <- ""
+  if ( user_defined_suffix != "" ) ud_suffix <- paste0('_',user_defined_suffix)
+
+  suffix <- ""
+  if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
+
   # generate nc file name
-  nc_file_name <- paste0( output_dir, 'CEDS_', em, '_anthro_', year, '_', 'TOTAL_monthly', '_', grid_resolution, '_', version_stamp, '.nc' )
+  nc_file_name <- paste0( output_dir, 'CEDS_', em, '_anthro_', year, '_', 'TOTAL_monthly', '_', grid_resolution, '_', version_stamp, ud_suffix, suffix,'.nc' )
 
   # generate the var_list
   variable_list <- list( total_emission, lat_bnds, lon_bnds, time_bnds )
@@ -2059,7 +2112,7 @@ generate_monthly_total_emissions_grids_nc <- function( output_dir,
   global_total_emission <- sum( total_month_em$value ) * 0.001
   ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2 ), ' Tg/year' ) )
   # species information
-  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4' ), stringsAsFactors = F )
+  reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4', 'N2O' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4', 'Mass flux of N2O' ), stringsAsFactors = F )
   info_line <- reporting_info[ reporting_info$em == em, 'info' ]
   ncatt_put( nc_new, 0, 'reporting_unit', info_line )
 
@@ -2140,6 +2193,12 @@ add_global_attributes <- function( nc_new, title ) {
   ncatt_put( nc_new, 0, 'grid_resolution', '50 km' )
   ncatt_put( nc_new, 0, 'grid', '0.5x0.5 degree latitude x longitude' )
   ncatt_put( nc_new, 0, 'mip_era', 'post-CMIP6' )
+  if ( grid_remove_iso != "" ) {
+    ncatt_put( nc_new, 0, 'data_note',
+               paste('NOTE: this file was generated with emissions from country',
+                     grid_remove_iso, 'removed') )
+  }
+
 # Used for generating data for CMIP
 # ncatt_put( nc_new, 0, 'target_mip', 'CMIP' )
 }
@@ -2220,6 +2279,11 @@ add_global_attributes_single_var <- function( nc_new, title, flat_var_name, MD_d
 #  ncatt_put( nc_new, 0, 'target_mip', 'CMIP' )
   ncatt_put( nc_new, 0, 'title', title )
   ncatt_put( nc_new, 0, 'variable_id', MD_variable_id_value )
+  if ( grid_remove_iso != "" ) {
+    ncatt_put( nc_new, 0, 'data_note',
+               paste('NOTE: this file was generated with emissions from country',
+                     grid_remove_iso, 'removed') )
+  }
 }
 
 

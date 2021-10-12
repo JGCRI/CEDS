@@ -88,8 +88,44 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # 2. Write standard form inventory
     
     writeData( inv_data_sheet , domain = "MED_OUT", paste0('E.',em,'_',inv_name,'_inventory'))
-  
+
+    # Write out inventory country totals
+    # Remove sectors for CEDS comparison
+    if (length(inv_data_sheet)>1 ) {
+      country_total <- inv_data_sheet %>%
+        filter( !sector %in% c("Air Transportation",
+                               "Marine Transportation",
+                               "Prescribed Burning",
+                               "Natural Sources",
+                               "Biogenics (Vegetation,soils)",
+                               "Forest Fires",
+                               "TOTAL INDUSTRIAL SOURCES",
+                               "TOTAL NON-INDUSTRIAL SOURCES",
+                               "TOTAL MOBILE SOURCES",
+                               "TOTAL INCINERATION",
+                               "TOTAL MISCELLANEOUS",
+                               "TOTAL OPEN SOURCES",
+                               "TOTAL NATURAL SOURCES",
+                               "GRAND TOTAL",
+                               "WITHOUT OPEN AND NATURAL SOURCES"
+                               ))
+
+      writeData( country_total, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
+                 paste0('inventory_',em,'_', inv_name))
+
+      # sum sectors for total
+      country_total[is.na(country_total)] = 0
+      country_total <- country_total %>%
+        select(-sector)%>%
+        group_by(iso) %>%
+        summarize_each(funs(sum))
+
+      writeData( country_total, domain = "MED_OUT",
+                 paste0('E.',em,'_', inv_name, '_inventory_country_total'))
+
+    } else {Note <- c( "No CAN data available." )
+    output_final <- dplyr::tibble( Note )}
+
 # Every script should finish with this line
     logStop()
 # END
-  

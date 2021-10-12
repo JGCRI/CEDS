@@ -1,10 +1,10 @@
 #------------------------------------------------------------------------------
 # Program Name: E.Japan_emissions.R
 # Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly, Steve Smith, Ryan Bolt
-# Date Last Modified: Jan 15, 2016
+# Date Last Modified: March 25, 2021
 # Program Purpose: To read in and reformat Japan emissions inventory data
 # Input Files: CEDS_REAS_JAPAN.xlsx
-# Output Files: E.[em]_Japan_inventory.csv
+# Output Files: E.[em]_Japan_inventory.csv, E.[em]_Japan_inventory_country_total.csv
 # Notes:
 # TODO: Re-write read-in so that order of years is taken from input data instead of assumed.
 # ------------------------------------------------------------------------------
@@ -68,12 +68,34 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
         keep <- c( "iso", "sector", paste0( 'X', 1960:2010 ) )
         inv_data_sheet <- inv_data_sheet[ , keep ]
 
+
+        # Write out inventory country totals
+        # remove sectors aviation, international shipping, and open burning emissions, and TOTAL.
+        country_total <- inv_data_sheet %>%
+          filter( !sector %in% c("1A3ai_International-aviation","1A3aii_Domestic-aviation",
+                                 "1A3di_International-shipping","TOTAL") )
+
+        writeData( country_total, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
+                   paste0('inventory_',em,'_', inv_name))
+
+        country_total <- country_total %>%
+          select(-sector)%>%
+          group_by(iso) %>%
+          summarize_each(funs(sum))
+
+        writeData( country_total, domain = "MED_OUT",
+                   paste0('E.',em,'_', inv_name, '_inventory_country_total'))
+
+
     # Write out blank df if no inventory data exists for given emission
     } else  {
         inv_data_sheet <- data.frame()
     }
 
-    # ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------
     # 1.5 Filter BC/OC emissions by transportation
     if (em %in% c ('BC','OC') ) {
 
@@ -84,6 +106,8 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # 2. Write standard form inventory
     writeData( inv_data_sheet, domain = "MED_OUT",
                paste0( 'E.', em, '_', inv_name, '_inventory' ) )
+
+
 
 # Every script should finish with this line
 

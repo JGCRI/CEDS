@@ -6,7 +6,7 @@
 # This data only contains data from 2010-2017.
 # Units are initially in Tg, converted to kt
 # Input Files: Fig3_MEIC_detail_Zheng_etal_2018.xlsx
-# Output Files: E.[em]_CHN_2018_inventory.csv
+# Output Files: E.[em]_CHN_2018_inventory.csv, E.[em]_MEIC_2018_inventory_country_total.csv
 # Notes:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
@@ -96,6 +96,24 @@ if( em %!in% c("CH4", "N2O") ){
 # 4. Write out standard form inventory
     writeData( inv_data_species, domain = "MED_OUT",
                paste0( 'E.', em, '_', inv_name, '_inventory' ) )
+
+
+    # Write out inventory country totals
+    # Remove sectors not scaled in module F
+
+    # no sectors removed in module F. Write out sector and iso data.
+    writeData( inv_data_species, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
+               paste0('inventory_',em,'_', inv_name))
+
+    if (em %!in% c("BC","OC","CH4","N2O")){
+         country_total <- inv_data_species %>%
+            select(-sector)%>%
+            group_by(iso) %>%
+            summarize_each(funs(sum))
+
+    writeData( country_total, domain = "MED_OUT",
+               paste0('E.',em,'_', inv_name, '_inventory_country_total'))
+    }
 
     logStop( )
 

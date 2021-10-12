@@ -8,7 +8,7 @@
 #                  should be used last so that any discrepancies are resolved in
 #                  favor of the newer data.
 # Input Files: EN_APEI_Can_Prov_Terr.csv
-# Output Files: E.[em]_CAN_inventory.csv
+# Output Files: E.[em]_CAN_2018_inventory.csv, E.[em]_CAN_2018_inventory_country_total.csv
 # Notes:
 # TODO: Re-write read-in so that order of years is taken from input data instead of assumed.
 # ------------------------------------------------------------------------------
@@ -41,12 +41,6 @@
   if( em == "CO" ) em.read <- "CO (t)"
   if( em == "NH3" ) em.read <- "NH3 (t)"
   if (em %in% c ('BC','OC')) em.read <- "PM25 (t)"
-
-  # # Stop script if running for unsupported emissions species
-  # if ( em %!in% c( 'BC', 'CO', 'NH3', 'NMVOC', 'NOx',
-  #                  'OC', 'SO2' ) ) {
-  #   stop ( paste( 'CAN script is not supported for emission species', em ) )
-  # }
 
 # ------------------------------------------------------------------------------
 # 1. Define parameters for inventory specific script
@@ -121,7 +115,9 @@
       output_sector_sub_combined <- transform(output, sector_subsector=paste(sector,subsector,sep="_"))
       output_sector_sub_combined$sector_subsector <-gsub(" / ","",output_sector_sub_combined$sector_subsector, fixed=TRUE)
       output_final <- subset(output_sector_sub_combined, select = -c(sector,subsector))
-      output_final <- dplyr::rename(output_final,sector = sector_subsector)
+      output_final <- output_final %>%
+        dplyr::rename(sector = sector_subsector) %>%
+        dplyr::select(iso, sector, everything())
 
       # Make numeric
       output_final[ , paste0( 'X', inv_years ) ] <-
@@ -142,7 +138,7 @@
     PM <- "PM25"
     mapping_file <- readData("SCALE_MAPPINGS", "CAN_2018_scaling_mapping.csv")
     mapping_file <- mapping_file %>%
-      filter(str_detect(scaling_sector,"Road"))
+      filter(str_detect(road_flag,"Road"))
 
     inv_sector_name <- mapping_file$inv_sector
 
@@ -169,6 +165,30 @@
     writeData(output_final, domain = "MED_OUT",
               paste0('E.', em, '_', inv_name, '_inventory'))
 
+
+  # Write out inventory country totals
+    # remove sectors for CEDS comparison
+  if (length(output_final)>1 ) {
+      country_total <- output_final %>%
+      filter( !sector %in% c("Fires_Prescribed Burning",
+                             "Fires_Structural Fires",
+                             "Transportation and Mobile Equipment_Air Transportation",
+                             "Transportation and Mobile Equipment_Marine Transportation"
+                             ))
+
+      writeData( country_total, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
+                 paste0('inventory_',em,'_', inv_name))
+
+      country_total <- country_total %>%
+        select(-sector)%>%
+        group_by(iso) %>%
+        summarize_each(funs(sum))
+
+    writeData( country_total, domain = "MED_OUT",
+               paste0('E.',em,'_', inv_name, '_inventory_country_total'))
+
+    } else {Note <- c( "No CAN data available." )
+    output_final <- dplyr::tibble( Note )}
 
 
 # Every script should finish with this line
