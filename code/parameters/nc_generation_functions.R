@@ -341,7 +341,9 @@ generate_final_grids_nc_subVOC <- function( int_grids_list,
   nc_close( nc_new)
 
   # additional section: write a summary and check text
-  summary_name <- paste0( output_dir, 'CEDS_', VOC_em, '_anthro_', year, '_', grid_resolution, '.csv' )
+  suffix <- ""
+  if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
+  summary_name <- paste0( output_dir, 'CEDS_', VOC_em, '_anthro_', year, '_', grid_resolution, suffix, '.csv' )
   write.csv( total_month_em, file = summary_name, row.names = F )
 }
 
@@ -537,7 +539,9 @@ generate_final_grids_nc_solidbiofuel <- function( int_grids_list,
   nc_close( nc_new)
 
   # additional section: write a summary and check text
-  summary_name <- paste0( output_dir, 'CEDS_', em, '_solidbiofuel_anthro_', year, '_', grid_resolution, '.csv' )
+  suffix <- ""
+  if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
+  summary_name <- paste0( output_dir, 'CEDS_', em, '_solidbiofuel_anthro_', year, '_', grid_resolution, suffix, '.csv' )
   write.csv( total_month_em, file = summary_name, row.names = F )
 }
 
@@ -611,11 +615,8 @@ generate_final_grids_nc_aircraft <- function( AIR_em_global,
   lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
   time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
 
-  suffix <- ""
-  if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
-
   # generate nc file name
-  nc_file_name <- paste0( 'CEDS_', em, '_AIR_anthro_', year, '_', grid_resolution, suffix, '.nc' )
+  nc_file_name <- paste0( 'CEDS_', em, '_AIR_anthro_', year, '_', grid_resolution, '.nc' )
 
   # generate the var_list
   variable_list <- list( AIR, lat_bnds, lon_bnds, time_bnds )
@@ -1096,7 +1097,7 @@ singleVarChunking_solidbiofuelemissions <- function( em,
 
   # get in grids file list for current chunking
   suffix <- '0.5.nc'
-  if ( grid_remove_iso != "" ) suffix <- paste0('no_',grid_remove_iso,'0.5.nc')
+  if ( grid_remove_iso != "" ) suffix <- paste0('0.5_','no_',grid_remove_iso,'.nc')
   fin_grid_list <- paste( 'CEDS', em, 'solidbiofuel_anthro', chunk_yr_range, suffix, sep = '_' )
   yearly_grid_files <- file.path( input_dir, fin_grid_list )
   if ( !all( file.exists( yearly_grid_files ) ) ) {
@@ -1320,7 +1321,6 @@ singleVarChunking_aircraftemissions <- function( em,
 
   # get in grids file list for current chunking
   suffix <- '0.5.nc'
-  if ( grid_remove_iso != "" ) suffix <- paste0('no_',grid_remove_iso,'0.5.nc')
   fin_grid_list <- paste( 'CEDS', em, 'AIR_anthro', chunk_yr_range, suffix, sep = '_' )
   yearly_grid_files <- file.path( input_dir, fin_grid_list )
   if ( !all( file.exists( yearly_grid_files ) ) ) {
@@ -1391,8 +1391,6 @@ singleVarChunking_aircraftemissions <- function( em,
   FN_variable_id_value <- paste0( em, '-em-AIR-anthro' )
   ud_suffix <- ""
   if ( user_defined_suffix != "" ) ud_suffix <- paste0('_',user_defined_suffix)
-  suffix <- ""
-  if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
 
   nc_file_name <- paste0( output_dir,
                           FN_variable_id_value,
@@ -1400,7 +1398,7 @@ singleVarChunking_aircraftemissions <- function( em,
                           FN_source_id_value,
                           '_gn_',
                           chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12', ud_suffix,
-                          suffix,'.nc' )
+                          '.nc' )
 
   # generate flat_var variable name
   MD_variable_id_value <- paste0( em, '_em_AIR_anthro' )
@@ -1793,8 +1791,6 @@ singleVarChunking_extendedCH4air <- function( em,
   FN_variable_id_value <- paste0( em, '-em-AIR-anthro' )
   ud_suffix <- ""
   if ( user_defined_suffix != "" ) ud_suffix <- paste0('_',user_defined_suffix)
-  suffix <- ""
-  if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
 
   nc_file_name <- paste0( output_dir,
                           FN_variable_id_value,
@@ -1802,7 +1798,7 @@ singleVarChunking_extendedCH4air <- function( em,
                           FN_source_id_value,
                           '_gn_',
                           chunk_start_years[ chunk_count_index ], '01', '-', chunk_end_years[ chunk_count_index ], '12', ud_suffix,
-                          suffix, '.nc' )
+                          '.nc' )
 
   # generate flat_var variable name
   MD_variable_id_value <- paste0( em, '_em_AIR_anthro' )
