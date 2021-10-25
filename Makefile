@@ -590,6 +590,8 @@ $(MED_OUT)/A.NC_activity_extended_db.csv: \
 	$(MOD_A)/A7.2.add_activity_population.R \
 	$(MOD_A)/A7.2.add_activity_pulp_paper_consumption.R \
 	$(MOD_A)/A7.2.add_activity_fossil_fuel_production.R \
+	$(MOD_A)/A7.2.add_activity_aluminum.R \
+	$(MOD_A)/A7.2.add_activity_sintering.R \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
 	$(MED_OUT)/A.pulp_paper_consumption_full.csv \
 	$(MED_OUT)/A.NC_activity.csv \
@@ -599,6 +601,8 @@ $(MED_OUT)/A.NC_activity_extended_db.csv: \
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 	Rscript $(word 4,$^) $(EM) --nosave --no-restore
+	Rscript $(word 5,$^) $(EM) --nosave --no-restore
+	Rscript $(word 6,$^) $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.NC_default_activity_extended.csv: \
 	$(MOD_A)/A7.3.proc_activity.R \
