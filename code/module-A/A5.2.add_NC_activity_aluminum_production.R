@@ -19,7 +19,7 @@
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "data_functions.R", "timeframe_functions.R", "process_db_functions.R",
-                  "analysis_functions.R" ) # Additional function files required.
+                  "analysis_functions.R", "interpolation_extension_functions.R" ) # Additional function files required.
     log_msg <- "Initial reformatting of smelting process activity activity_data" # First message to be printed to the log
     script_name <- "A5.2.add_NC_activity_aluminum_smelting.R"
 
@@ -68,6 +68,9 @@
         results <- cbind( activity_data[ c( "iso", "activity", "units" ) ] ,
                           activity_data[ 2:( length( activity_data ) - 3 ) ] )
 
+        # remove redundant usa row
+        results <- na.omit(results)
+
     # Sort results by iso and activity
         results <- results[ with( results, order( iso, activity ) ), ]
 
@@ -81,6 +84,17 @@
         if ( activityCheck( results, check_all = FALSE ) ) {
               addToActivityDb( results )
         }
+
+        # historically extend, filling in 0s. Extend aluminum forward
+        results[ paste0('X', historical_pre_extension_year: 1849)] <- 0
+        results[ paste0('X', 2018:end_year)] <- NA
+        results[ paste0('X', 2018:end_year)] <- as.numeric(as.character(results[ paste0('X', 2018:end_year)]))
+        results <- results[ c( 'iso' , 'activity' , 'units' , X_extended_years ) ]
+        results_test <- extend_and_interpolate(results, paste0('X', 2017:end_year))
+
+        # write results
+        writeData( results, "MED_OUT", "A.Aluminum_production", meta = F )
+        writeData( results, "EXT_IN", "A.Aluminum_production", domain_extension = "extension-data/")
     }
 
     logStop()
