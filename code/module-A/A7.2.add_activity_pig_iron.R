@@ -1,10 +1,10 @@
 # ------------------------------------------------------------------------------
-# Program Name: A7.2.add_activity_sintering.R
+# Program Name: A7.2.add_activity_pig_iron.R
 # Author: Linh Vu, Andrea Mott
-# Date Last Modified: 21 October 2021
+# Date Last Modified: 4 November 2021
 # Program Purpose: Extend CEDS activity backward with pig iron production data
 # Input Files:  A.NC_activity_extended_db.csv, CEDS_historical_extension_drivers_activity.csv,
-#               A.Sintering_Production
+#               A.Pig_Iron_Production_full.csv
 # Output Files: A.NC_activity_extended_db.csv
 # TODO:
 # ---------------------------------------------------------------------------
@@ -17,8 +17,8 @@
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R","process_db_functions.R") # Additional function files may be required.
-log_msg <- "Extending CEDS activity_data before 1961 with pulp and paper consumption data" # First message to be printed to the log
-script_name <- "A7.2.add_activity_pulp_paper_consumption.R"
+log_msg <- "Extending CEDS activity_data before 1961 with pig iron data" # First message to be printed to the log
+script_name <- "A7.2.add_activity_pig_iron.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -28,18 +28,18 @@ initialize( script_name, log_msg, headers )
 
 activity_all <- readData( 'MED_OUT', 'A.NC_activity_extended_db' )
 extension_drivers_all <- readData("EXT_IN", 'CEDS_historical_extension_drivers_activity')
-sint_consumption <- readData( "EXT_IN" , 'A.Sintering_production', domain_extension = "extension-data/" )
+pigiron_consumption <- readData( "DIAG_OUT" , 'A.Pig_Iron_Production_full')
 
 # ---------------------------------------------------------------------------
 # 2. Select data to extend based on extension drivers
 
-drivers <- extension_drivers_all[which( extension_drivers_all$driver_data_source == 'sintering' ), ]
+drivers <- extension_drivers_all[which( extension_drivers_all$driver_data_source == 'pig_iron' ), ]
 activity <- activity_all
 
 # ---------------------------------------------------------------------------
 # 3. Driver data processing
-al_id_cols <- names( sint_consumption )[ !grepl( "X", names( sint_consumption ) ) ]
-sint <- sint_consumption[, c( al_id_cols, paste0("X", historical_pre_extension_year:end_year ) ) ]
+al_id_cols <- names( pigiron_consumption )[ !grepl( "X", names( pigiron_consumption ) ) ]
+pigiron <- pigiron_consumption[, c( al_id_cols, paste0("X", historical_pre_extension_year:end_year ) ) ]
 
 # ---------------------------------------------------------------------------
 # 4. Extend Data
@@ -54,8 +54,8 @@ sint <- sint_consumption[, c( al_id_cols, paste0("X", historical_pre_extension_y
   # select ceds data to extend
   ceds_extension <- activity[ which( paste(activity$sector, activity$fuel, sep="-") %in% sectors  ) , ]
 
-  # add pulp and paper
-  ceds_extension[extension_years] <- sint[match(ceds_extension$iso, sint$iso)  , extension_years ]
+  # add pig iron data
+  ceds_extension[extension_years] <- pigiron[match(ceds_extension$iso, pigiron$iso)  , extension_years ]
 
   # add to final activity
   activity <- replaceValueColMatch(activity, ceds_extension,
