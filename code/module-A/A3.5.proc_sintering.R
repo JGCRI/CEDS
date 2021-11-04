@@ -98,6 +98,10 @@
       mutate(units = "kt") %>%
       select(iso, sector, units, everything())
 
+# Fill in historical data with 0
+    kt_sint_wide[ paste0('X', historical_pre_extension_year: 1919)] <- 0
+    kt_sint_wide <- kt_sint_wide[ c( 'iso' , 'sector' , 'units' , X_extended_years ) ]
+
 # ---------------------------------- --------------------------------------------
 # 3. Read out kt of sinter
     writeData( kt_sint_wide, "MED_OUT", "A.Sintering_production", meta = F )
