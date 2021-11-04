@@ -591,7 +591,7 @@ $(MED_OUT)/A.NC_activity_extended_db.csv: \
 	$(MOD_A)/A7.2.add_activity_pulp_paper_consumption.R \
 	$(MOD_A)/A7.2.add_activity_fossil_fuel_production.R \
 	$(MOD_A)/A7.2.add_activity_aluminum.R \
-	$(MOD_A)/A7.2.add_activity_sintering.R \
+	$(MOD_A)/A7.2.add_activity_pig_iron.R \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
 	$(MED_OUT)/A.pulp_paper_consumption_full.csv \
 	$(MED_OUT)/A.NC_activity.csv \

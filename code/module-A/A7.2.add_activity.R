@@ -85,7 +85,7 @@ printLog('Running add_activity scripts to extend activity data')
                 "A7.2.add_activity_CDIAC.R",
                 "A7.2.add_activity_fossil_fuel_production.R",
                 "A7.2.add_activity_aluminum.R",
-                "A7.2.add_activity_sintering")
+                "A7.2.add_activity_pig_iron.R")
 
 
 # Run all child scripts for the given emissions type. The call to
