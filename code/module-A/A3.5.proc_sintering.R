@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: A3.5.proc_sintering.R
 # Author: Andrea Mott
-# Date Last Updated: 18 August 2021
+# Date Last Updated: 8 November 2021
 # Program Purpose: Process sintering emissions based on pig iron production data
 #                   for the iron-steel sector.
 # Input Files:  A.Pig_Iron_Production_full.csv
@@ -36,7 +36,8 @@
     sintering_percent <- readData( "ACTIVITY_IN", "percent_sintering", ".xlsx",
               sheet_selection = "input", domain_extension = "metals/")
 
-# read in Master Country List and remove isos in sintering_percent and "global"
+# read in Master Country List and remove isos in sintering_percent and "global".
+    # This is because these countries (and global) already have data specific to sintering.
     MCL <- readData( "MAPPINGS", "Master_Country_List", ".csv")
     MCL <- MCL %>%
       select(c(iso, Paper_Figure_Region)) %>%
@@ -44,31 +45,36 @@
       unique()
 
 # ------------------------------------------------------------------------------
-# 2. Calculate sintering emissions (up until EFs)
+# 2. Calculate kt of sintering for all countries
 
-    # Expand regions in sintering percent
-    # TODO: except for regions we already have sintering data for!
-
+    # Add all other countries to "sintering_percent".
     join <- sintering_percent %>%
       left_join(MCL, by = c("iso" = "Paper_Figure_Region")) %>%
       mutate(iso = if_else(!is.na(iso.y), iso.y, iso)) %>%
       select(-iso.y)
 
+    # Replace NAs from countries that we don't have sintering data for with
+    # global data.
     Fsint <- join %>%
       full_join(MCL, by = "iso") %>%
       dplyr::rename(region = iso)
 
+    # countries where we dot have sintering data (NAs)
     Fsint %>% filter(is.na(X1920)) -> df_w_na
+    # countries that have sintering data (no NAs)
     Fsint %>% filter(!is.na(X1920)) -> df_wo_na
+    # separate out global data
     Fsint %>% filter(region == "global ") -> df_global
 
     na_regions <- data.frame(iso_w_na = unique(df_w_na$region)) %>%
       mutate(region = "global ")
 
+    # replace countries with NAs with global average sintering data
     df_global %>% left_join(na_regions, by = "region") %>%
       mutate(region = iso_w_na) %>%
       select(-iso_w_na) -> df2
 
+    # rebind
     Fsint_final <- bind_rows(df_wo_na, df2)
     names(Fsint_final)[1] <- "iso"
 
@@ -85,9 +91,9 @@
     pig_and_sint <- left_join(pig_iron_long, sintering_long, by = c("iso","year"))
 
 # Equation: kt sinter = kt pig iron x Fsint/0.576
-#           (each kt of sinter is 57.6% iron)
+    perc_iron <- 0.576 # each kt of sinter is 57.6% iron
     calc_kt_sint <- pig_and_sint %>%
-      mutate(kt_sint = Fsint*pig_iron/0.576) %>%
+      mutate(kt_sint = Fsint*pig_iron/perc_iron) %>%
       na.omit()
 
 # Spread kt of sinter wide
@@ -106,8 +112,8 @@
 # 3. Read out kt of sinter
     writeData( kt_sint_wide, "MED_OUT", "A.Sintering_production", meta = F )
     writeData( kt_sint_wide, "EXT_IN", "A.Sintering_production", domain_extension = "extension-data/")
-    logStop()
 
+    logStop()
     # END
 
 
