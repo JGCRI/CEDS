@@ -1,10 +1,13 @@
 # ------------------------------------------------------------------------------
 # Program Name: A3.3.proc_pig_iron.R
 # TODO: This file could have a more informative name
-# Author: Linh Vu
-# Date Last Updated: 14 April 2016
+# Author: Linh Vu, Andrea Mott
+# Date Last Updated: 5 November 2021
 # Program Purpose: Process pig iron production
 # Input Files:  Blast_furnace_iron_production_1850-2014.xlsx,
+#               Blast_furnace_iron_production_1890-1980.xlsx,
+#               Blast_furnace_iron_production_1980-2014.xlsx,
+#               worldsteel_Pig_Iron_Production_2010-2019.xlsx,
 #               Pig_Iron_Production_US.csv, Pig_Iron_Production_Mitchell.csv,
 #               A.UN_pop_master.csv
 # Output Files: A.Pig_Iron_Production.csv, A.Pig_Iron_Production_full.csv
@@ -51,6 +54,7 @@
     spew_3 <- spew_3 %>% select(-Countries)
 
     spew <-  full_join(spew_1_plus_2, spew_3, by = c("iso"))
+
     # arrange alphabetically
     spew <- spew[order(spew$iso),]
 
@@ -244,21 +248,12 @@
     activity_data <- dplyr::select(activity_data, -fuel)
     activity_data$activity <- "pig_iron"
 
-    # add to activity database
-      # TODO: add checks prior to this. usually would use activityCheck() function.
-             # Not sure if it should apply here since the activity check applies to MSL...
-    addToActivityDb(activity_data)
-
-
-# Add reformatted activity_data to the activity database, extending or truncating it as necessary.
-# By default, it will be extended forward to the common end year, but not backwards.
-# Only do this if the activityCheck header function determines that the activities in
-# the reformatted activity_data are all present in the Master List.
-    # so right now, "pig_iron" is not in the MSL.
-    # if ( activityCheck( all_wide_out, check_all = FALSE ) ) {
-    #     addToActivityDb( all_wide_out )
-    # }
-
-
+    # Add reformatted activity_data to the activity database, extending or truncating it as necessary.
+    # By default, it will be extended forward to the common end year, but not backwards.
+    # Only do this if the activityCheck header function determines that the activities in
+    # the reformatted activity_data are all present in the Master List.
+        if ( activityCheck( activity_data, check_all = FALSE ) ) {
+            addToActivityDb( activity_data )
+        }
 
 logStop()
