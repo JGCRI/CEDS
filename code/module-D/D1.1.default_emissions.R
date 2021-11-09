@@ -138,6 +138,8 @@ nc_emissions <- calculateEmissions( nc_energy_data, nc_ef_data )
         if(em %in% c("SO2","NOx","CO")){
 
             sintering_emissions <- readData("MED_OUT",paste0( "C.", em, "_sintering_emissions"))
+            sintering_emissions <- sintering_emissions %>% select(-c(paste0("X", 1750:1959)))
+            # change years to be the same as pig iron
 
             # Combine sintering emissions with 2C1 in nc_emissions.
             # TODO: Write out diagnostic showing the sub-sectors?

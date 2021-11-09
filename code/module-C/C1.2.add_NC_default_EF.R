@@ -2,13 +2,12 @@
 # Program Name: C1.2.add_NC_default_EF.R
 # Author: Rachel Hoesly, Andrea Mott
 # Date Last Updated: 4 June 2021
-# Program Purpose: Adds default_EF data in the EF_parameters folder to the
-#                  ControlFrac_db
-# Input Files: files in the EF_parameters folder containing default_EF and em
+# Program Purpose: Adds default EF data from the EF_parameters folder to the
+#                  C.[em]_NC_EF.csv
+# Input Files: files in the EF_parameters folder containing default EFs
 # Output Files: C.[em]_NC_User_Added_EF.csv
 # Notes:
-# TODO: This file filters out "sintering" after generating a default EFs.
-    # Perhaps filter out if not included in MSL.
+
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
@@ -83,15 +82,6 @@
                          'data base for', em ) )
         writeData( EF, 'DIAG_OUT',
                    paste0( 'C.', em, '_NC_User_Added_EF' ) )
-
-        # remove sintering
-        # TODO: maybe change this to an if statement: if sector is not in master sector list,
-        #       then, filter out.
-            EF <- EF %>%
-                filter(sector != "2C1_Iron-steel-alloy-prod_sintering")
-        # writeData( EF, 'MED_OUT',
-        #            paste0('C.', em, '_NC_default_EF'))
-        # There is no existing db to overwrite?
         addToDb_overwrite( new_data = EF, em = em, module = "C",
                            file_extension = 'NC_EF' )
     } else {

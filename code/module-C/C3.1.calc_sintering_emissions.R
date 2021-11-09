@@ -3,7 +3,7 @@
 # Author: Andrea Mott
 # Date Last Updated: 17 August 2021
 # Program Purpose: Process sintering emissions based on sintering production data.
-# Input Files:  A.Sintering_production.csv
+# Input Files:  A.Sintering_production.csv, U.[em]_sintering_EF.csv
 # Output Files: C.(em)_sintering_emissions.csv
 # TODO:
 
@@ -30,31 +30,32 @@ if ( is.na( em ) ) em <- "SO2"
 
 # ---------------------------------------------------------------------------
 
-# input kt sinter
+# Input kt sinter
 kt_sinter <- readData( "MED_OUT", "A.Sintering_production")
 
 kt_sinter_long <- kt_sinter %>%
     select(-c(sector, units)) %>%
     gather(key = "year", value = "kt_sinter", -iso)
 
-# This script is intended only for those emission with user added EFs,
-#       such as CO, NOx, and SO2 for sintering.
-# TODO: maybe make this "if file.exists()"?
+# This script is intended only for those emission with user added EFs for sintering:
 if (em %in% c("CO", "NOx","SO2")){
-    EF <- readData('DIAG_OUT', paste0( 'C.', em, '_NC_User_Added_EF'))
+
+    EF <- readData( "DEFAULT_EF_PARAM_NC", paste0( 'U.', em, '_sintering_EF'), domain_extension = "sintering_EFs/")
+    EF_value <- EF$X2000
 
     EF_long <- EF %>%
         filter( sector == "2C1_Iron-steel-alloy-prod_sintering") %>%
         select(-c(sector,fuel,units)) %>%
         gather(key = "year", value = "EF", -iso)
 
+    emissions <- kt_sinter_long$kt_sinter * EF$X2000[1]
+    sint_em_bind <- cbind(kt_sinter_long, emissions)
+
     # Calculate sintering emissions
-    sint_em <- kt_sinter_long %>%
-        left_join(EF_long, by = c("iso","year")) %>%
-        mutate(em = kt_sinter * EF) %>%
-        select(iso,year,em) %>%
+    sint_em <- sint_em_bind %>%
+        select(iso,year,emissions) %>%
         na.omit() %>%
-        spread(key = "year","em") %>%
+        spread(key = "year","emissions") %>%
         mutate(sector = "sintering") %>%
         mutate(units = "kt*kt/kt") %>%
         mutate(fuel = "process") %>%
@@ -62,6 +63,7 @@ if (em %in% c("CO", "NOx","SO2")){
 
     # Write out sintering emissions
     writeData( sint_em, "MED_OUT", paste0( "C.", em, "_sintering_emissions"))
+
 } else {print("does not have any user defined input")}
 
 logStop()
