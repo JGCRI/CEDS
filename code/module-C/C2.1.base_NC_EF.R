@@ -109,7 +109,8 @@ emissions_replaced <- readData( domain = "DEFAULT_EF_IN" ,
 EDGAR_version_number <- "5.0"
 
 # Define sectors that should not be corrected for EDGAR
-excl_sectors <- c( )
+excl_sectors <- c("2C_Metal-production")
+
 if ( em == "CO2" ) {
 
   excl_sectors <- c( excl_sectors, "2A1_Cement-production", "3D_Soil-emissions" )
