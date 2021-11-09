@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: D1.1.default_emissions.R
-# Author(s): Jon Seibert, Tyler Pitkanen, Rachel Hoesly
-# Date Last Modified: Feb 1 2016
+# Author(s): Jon Seibert, Tyler Pitkanen, Rachel Hoesly, Andrea Mott
+# Date Last Modified: Nov 9 2021
 # Program Purpose: Reads in emissions factors (EFs) and historical fuel
 #                      consumption data to calculate historical emissions.
 # Input Files: A.final_comb_activity_modern.csv, B.[em]_default_EF.csv,
@@ -32,7 +32,7 @@
 # Define Em Species
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- 'SO2'
+    if ( is.na( em ) ) em <- 'NOx'
 
 # ------------------------------------------------------------------------------
 # 1. Read in files
@@ -122,9 +122,11 @@ printLog( "Calculating emissions data" )
 comb_emissions <- calculateEmissions( comb_energy_data, comb_ef_data )
 nc_emissions <- calculateEmissions( nc_energy_data, nc_ef_data )
 
-# Add additional emissions not directly related to activity data.
+# Add additional emissions to existing sectors
+    # (these are emissions that are not added in mod A activity data, since it's set up
+    # where  1 sector = 1 activity data. )
     # potential TODO: if this need to occur frequently, functionalize or create
-    #                 separate script to add together sub-sectors
+    #                 separate script to add together sub-sectors to create sectors.
 
     # Add sintering to nc_emissions.
         # Below adds together pig iron (calculated with the activity data)
@@ -137,9 +139,9 @@ nc_emissions <- calculateEmissions( nc_energy_data, nc_ef_data )
 
             sintering_emissions <- readData("MED_OUT",paste0( "C.", em, "_sintering_emissions"))
 
-            # combine sintering with nc_emissions.
-            # TODO: write out diagnostic showing the sub-sectors?
-            #       ex: pig iron and sintering emissions side
+            # Combine sintering emissions with 2C1 in nc_emissions.
+            # TODO: Write out diagnostic showing the sub-sectors?
+            #       ex: pig iron and sintering emissions side-by-side
             pig_iron_emissions <- nc_emissions %>%
               filter(sector == "2C1_Iron-steel-alloy-prod")
             iron_steel_sector <- rbind(pig_iron_emissions, sintering_emissions)
