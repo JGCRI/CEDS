@@ -123,13 +123,23 @@ comb_emissions <- calculateEmissions( comb_energy_data, comb_ef_data )
 nc_emissions <- calculateEmissions( nc_energy_data, nc_ef_data )
 
 # Add additional emissions not directly related to activity data.
-    # Add sintering to nc_emissions. Note: sintering data only exists for SO2, NOx, and CO.
+    # potential TODO: if this need to occur frequently, functionalize or create
+    #                 separate script to add together sub-sectors
+
+    # Add sintering to nc_emissions.
+        # Below adds together pig iron (calculated with the activity data)
+        # and sintering emissions (calculated separately in module C) to from the
+        # 2C1_Iron-steel-alloy-prod sector.
+
         # Read in sintering data
+        # Note: sintering data only exists for SO2, NOx, and CO.
         if(em %in% c("SO2","NOx","CO")){
 
             sintering_emissions <- readData("MED_OUT",paste0( "C.", em, "_sintering_emissions"))
 
-            # combine sintering with nc_emissions
+            # combine sintering with nc_emissions.
+            # TODO: write out diagnostic showing the sub-sectors?
+            #       ex: pig iron and sintering emissions side
             pig_iron_emissions <- nc_emissions %>%
               filter(sector == "2C1_Iron-steel-alloy-prod")
             iron_steel_sector <- rbind(pig_iron_emissions, sintering_emissions)
@@ -140,7 +150,7 @@ nc_emissions <- calculateEmissions( nc_energy_data, nc_ef_data )
               select(iso, sector, units, fuel, everything())
             nc_emissions <- filter(nc_emissions, sector != "2C1_Iron-steel-alloy-prod")
 
-            # combine nc emissions again
+            # recombine 2C1 with nc emissions
             nc_emissions <- rbind(data.frame(nc_emissions), data.frame(iron_steel_emissions))
             nc_emissions <- nc_emissions[order(nc_emissions$iso),]
         }
@@ -167,8 +177,6 @@ writeData( comb_emissions, domain = "MED_OUT", fn = paste0( "D.", em, "_default_
            comments = comments.emissions )
 writeData( nc_emissions, domain = "MED_OUT", fn = paste0( "D.", em, "_default_nc_emissions" ),
            comments = comments.emissions )
-
-
 
 # Every script should finish with this line
 logStop()
