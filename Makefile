@@ -187,6 +187,7 @@ clean-modF:
 
 clean-modH:
 	rm -fv $(MED_OUT)/H*.csv
+	rm -fv $(EXT_DATA)/H*.csv
 	find $(EXT_IN) -name "H*.csv" ! -name "H.N2O_7BC_extension-NH3_and_NOx_sectors_1_2*.csv"  -delete
 
 clean-SO2:
