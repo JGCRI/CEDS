@@ -38,7 +38,7 @@ pop <- readData("MED_OUT", "A.UN_pop_master", meta = T)
 final_iso <- unique(MCL[which(MCL$final_data_flag == 1),'iso'])
 
 # ---------------------------------------------------------------------------
-# 2. Select relavent driver-methods
+# 2. Select relevant driver-methods
 
 trend <- 'Emissions-trend'
 
