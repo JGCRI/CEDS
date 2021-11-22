@@ -435,17 +435,15 @@ $(MED_OUT)/A.IEA_CEDS_coal_difference.csv: \
 #	Rscript $< $(EM) --nosave --no-restore
 
 # aa3-3
-# Process pig iron production  # AM: maybe comment this out? Doesn't need it since it's being called for creating A.NC.activity
- #$(EXT_DATA)/A.Pig_Iron_Production.csv: \
-#	$(MOD_A)/A3.3.proc_pig_iron.R \
-#	$(MED_OUT)/A.UN_pop_master.csv
-	#(ACTIV)/metals/Blast_furnace_iron_production_1850-2014.xlsx \
-	#(ACTIV)/metals/Pig_Iron_Production_US.csv \
-	#(ACTIV)/metals/Pig_Iron_Production_Mitchell.csv
-#	Rscript $< $(EM) --nosave --no-restore
+# Process pig iron production
+$(EXT_DATA)/A.Pig_Iron_Production.csv: \
+	$(MOD_A)/A3.3.proc_pig_iron.R \
+	$(MED_OUT)/A.UN_pop_master.csv \
+	$(MED_OUT)/A.NC_activity_db.csv
+	Rscript $< $(EM) --nosave --no-restore
 
 # aa3-4
-# Process sintering production #TODO: is this a good place for this in the makefile?
+# Process sintering production
 $(MED_OUT)/A.Sintering_production.csv: \
 	$(MOD_A)/A3.5.proc_sintering.R
 	Rscript $< $(EM) --nosave --no-restore
