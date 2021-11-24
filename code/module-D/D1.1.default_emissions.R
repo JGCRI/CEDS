@@ -123,27 +123,55 @@ comb_emissions <- calculateEmissions( comb_energy_data, comb_ef_data )
 nc_emissions <- calculateEmissions( nc_energy_data, nc_ef_data )
 
 # Add additional emissions to existing sectors
-    # (these are emissions that are not added in mod A activity data, since it's set up
+    # (these are emissions that are not added in mod A activity data, since the system is set up
     # where  1 sector = 1 activity data. )
-    # potential TODO: if this need to occur frequently, functionalize or create
+    # TODO: if this need to occur frequently, functionalize or create
     #                 separate script to add together sub-sectors to create sectors.
 
     # Add sintering to nc_emissions.
         # Below adds together pig iron (calculated with the activity data)
         # and sintering emissions (calculated separately in module C) to from the
         # 2C1_Iron-steel-alloy-prod sector.
+        #TODO: potentially make this into it's own script
 
         # Read in sintering data
-        # Note: sintering data only exists for SO2, NOx, and CO.
-        if(em %in% c("SO2","NOx","CO")){
+        # Note: sintering data only exists for SO2, NOx, and CO.However, for SO2,
+        # some iron-steel isos have user added emissions data, and are therefore removed.
+        if(em %in% c("NOx","CO","SO2")){
 
             sintering_emissions <- readData("MED_OUT",paste0( "C.", em, "_sintering_emissions"))
             sintering_emissions <- sintering_emissions %>% select(-c(paste0("X", 1750:1959)))
-            # change years to be the same as pig iron
+
+            # Remove sintering emissions that have user-added iron-steel emissions
+
+                # Create dataframe of iso-sectors that have user-added emissions data
+                user_added_emissions_df <- readData('DEFAULT_EF_IN', domain_extension = 'non-combustion-emissions/',
+                                                    paste0('C.',em,'_NC_emissions_user_added'))
+
+                # Organize user-added emissions data, filter for iron-steel
+                user_added_emissions_iso_sector <- user_added_emissions_df %>%
+                  select(iso, sector) %>%
+                  filter(sector == "2C1_Iron-steel-alloy-prod") %>%
+                  dplyr::rename(iso2 = iso) %>%
+                  dplyr::rename(sector2 = sector)
+
+                if (nrow(user_added_emissions_iso_sector) > 0){
+                  user_added_emissions_iso_sector <- user_added_emissions_iso_sector %>% mutate(sector = "sintering")
+
+                  # Remove iso-sectors from EF dataframe that have user added emissions
+                  sintering_emissions <- sintering_emissions %>%
+                      anti_join(user_added_emissions_iso_sector, by = c("iso" = "iso2", "sector" = "sector2"))
+
+                  # Write warning for those iso-sectors removed:
+                  overlap <- sintering_emissions %>%
+                    semi_join(user_added_emissions_iso_sector, by = c("iso" = "iso2", "sector" = "sector2"))
+                  if (nrow(overlap) >0){
+                    warning("The following isos user added emissions are removed since they correspond to user-added emissions:",
+                            paste0(overlap$iso,", ",overlap$sector, "; "))
+                  }
+                }
 
             # Combine sintering emissions with 2C1 in nc_emissions.
-            # TODO: Write out diagnostic showing the sub-sectors?
-            #       ex: pig iron and sintering emissions side-by-side
             pig_iron_emissions <- nc_emissions %>%
               filter(sector == "2C1_Iron-steel-alloy-prod")
             iron_steel_sector <- rbind(pig_iron_emissions, sintering_emissions)
@@ -158,6 +186,7 @@ nc_emissions <- calculateEmissions( nc_energy_data, nc_ef_data )
             nc_emissions <- rbind(data.frame(nc_emissions), data.frame(iron_steel_emissions))
             nc_emissions <- nc_emissions[order(nc_emissions$iso),]
         }
+
 # Combine total emissions and total ef
 total_emissions <- rbind(comb_emissions, nc_emissions)
 total_efs <- rbind(comb_ef_data, nc_ef_data)
