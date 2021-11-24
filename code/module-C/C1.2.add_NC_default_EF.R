@@ -66,9 +66,30 @@
                            pre_ext_method_default = 'none' )
 
 # Add all EFs to a single dataframe
-    EF <- do.call( "rbind.fill", EF_extended )
+    EF_df <- do.call( "rbind.fill", EF_extended )
 
-    EF$units <- 'kt/kt'
+    EF_df$units <- 'kt/kt'
+
+# Remove iso-sectors that have user-added emissions data
+    user_added_emissions_df <- readData('DEFAULT_EF_IN', domain_extension = 'non-combustion-emissions/',
+                                        paste0('C.',em,'_NC_emissions_user_added'))
+
+    # Organize user-added emissions data
+    user_added_emissions_iso_sector <- user_added_emissions_df %>%
+        select(iso, sector) %>%
+        dplyr::rename(iso2 = iso) %>%
+        dplyr::rename(sector2 = sector)
+
+    # Remove iso-sectors from EF dataframe that have user added emissions
+    EF <- EF_df %>%
+        anti_join(user_added_emissions_iso_sector, by = c("iso" = "iso2", "sector" = "sector2"))
+
+    # Write warning for those iso-sectors removed:
+    overlap <- EF_df %>%
+        semi_join(user_added_emissions_iso_sector, by = c("iso" = "iso2", "sector" = "sector2"))
+    if (nrow(overlap) >0){
+        warning("The following iso-sector's user added emissions are removed", paste0(overlap$iso,", ",overlap$sector, "; "))
+    }
 # ---------------------------------------------------------------------------
 # 2. Add to existing parameter Dbs
 
