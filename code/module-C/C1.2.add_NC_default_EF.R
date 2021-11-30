@@ -81,15 +81,20 @@
         dplyr::rename(sector2 = sector)
 
     # Remove iso-sectors from EF dataframe that have user added emissions
-    EF <- EF_df %>%
-        anti_join(user_added_emissions_iso_sector, by = c("iso" = "iso2", "sector" = "sector2"))
+    if (length(EF_list) > 0){
+        EF <- EF_df %>%
+            anti_join(user_added_emissions_iso_sector, by = c("iso" = "iso2", "sector" = "sector2"))
 
-    # Write warning for those iso-sectors removed:
-    overlap <- EF_df %>%
-        semi_join(user_added_emissions_iso_sector, by = c("iso" = "iso2", "sector" = "sector2"))
-    if (nrow(overlap) >0){
-        warning("The following iso-sector's user added emissions are removed", paste0(overlap$iso,", ",overlap$sector, "; "))
-    }
+        # Write warning for those iso-sectors removed:
+        overlap <- EF_df %>%
+            semi_join(user_added_emissions_iso_sector, by = c("iso" = "iso2", "sector" = "sector2"))
+        if (nrow(overlap) >0){
+            warning("The following iso-sector's user added emissions are removed", paste0(overlap$iso,", ",overlap$sector, "; "))
+        }
+    } else {
+        EF <- EF_df
+        }
+
 # ---------------------------------------------------------------------------
 # 2. Add to existing parameter Dbs
 
