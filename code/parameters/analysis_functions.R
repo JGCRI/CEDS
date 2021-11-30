@@ -206,6 +206,57 @@ duplicateCEDSSectorCheck <- function( scaling_map, check_valid = TRUE, check_all
     return( valid )
 }
 
+# ----------------------------------------------------------------------------------
+# diagnosticsMappingFile
+# Brief : Lists 1) any inventory sectors from modE that are not mapped to scaling sectors.
+#               2) any inventory sectors that are not mapped to scaling sectors.
+#               3) any CEDS sectors that are not mapped to scaling sectors.
+# Params: scaling_map (mapping file)
+#         inv_data_full (module E inventory)
+# Author(s):     Andrea Mott
+
+diagnosticsMappingFile  <- function( scaling_map, inv_data_full){
+
+    # write out inventory sectors not included in mapping file
+    inv <- inv_data_full
+    inv$inv_sector <- inv$sector
+    inv_sectors_not_in_mapping_file <- anti_join(inv, scaling_map, by = "inv_sector") %>%
+        select(inv_sector) %>%
+        na.omit %>%
+        mutate(description = "inventory sectors not included in mapping file") %>%
+        mutate(sector_origin = "inventory") %>%
+        dplyr::rename(sector = inv_sector) %>%
+        select(sector_origin, sector, description)
+
+    # write out inventory sectors that are not mapped to scalings sectors
+    inv_sectors_not_scaled <- scaling_map %>%
+        filter(is.na(scaling_sector)) %>%
+        select(inv_sector) %>%
+        na.omit %>%
+        mutate(description = "inventory sectors not mapped to scalings sectors") %>%
+        dplyr::rename(sector = inv_sector) %>%
+        mutate(sector_origin = "inventory") %>%
+        select(sector_origin, sector, description)
+
+    # write out any CEDS sectors that are not mapped to scaling sectors
+    ceds_sectors_not_scaled <- scaling_map %>%
+        filter(is.na(scaling_sector)) %>%
+        select(ceds_sector) %>%
+        na.omit %>%
+        mutate(description = "CEDS sectors not mapped to scaling sectors") %>%
+        mutate(sector_origin = "CEDS") %>%
+        dplyr::rename(sector = ceds_sector) %>%
+        select(sector_origin, sector, description)
+
+    # combine all diagnostics into one df
+    all_diagnostics <- rbind(ceds_sectors_not_scaled, inv_sectors_not_in_mapping_file, inv_sectors_not_scaled)
+
+    if(nrow(all_diagnostics) > 1){
+        writeData(all_diagnostics,'DIAG_OUT', paste0('F.',em,'_',inv_name,'_mapping_file_diagnostics'),meta = FALSE)
+    }
+
+}
+
 # ---------------------------------------------------------------------------------
 # fuelCheck
 # Brief:         Checks whether all the fuels in the given dataset are in the
