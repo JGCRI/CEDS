@@ -436,11 +436,11 @@ $(MED_OUT)/A.IEA_CEDS_coal_difference.csv: \
 
 # aa3-3
 # Process pig iron production
-$(EXT_DATA)/A.Pig_Iron_Production.csv: \
-	$(MOD_A)/A3.3.proc_pig_iron.R \
-	$(MED_OUT)/A.UN_pop_master.csv \
-	$(MED_OUT)/A.NC_activity_db.csv
-	Rscript $< $(EM) --nosave --no-restore
+# $(EXT_DATA)/A.Pig_Iron_Production.csv: \
+#	$(MOD_A)/A3.3.proc_pig_iron.R \
+#	$(MED_OUT)/A.UN_pop_master.csv
+#	$(MED_OUT)/A.NC_activity_db.csv
+#	Rscript $< $(EM) --nosave --no-restore
 
 # aa3-4
 # Process sintering production
@@ -1015,7 +1015,6 @@ $(MED_OUT)/H.$(EM)_total_EFs_extended.csv: \
 	$(MOD_H)/H2.2.add_EFs_EF-trend.R \
 	$(MOD_H)/H2.2.add_EFs_Emissions-trend.R \
 	$(EXT_IN)/CEDS_historical_extension_methods_EF.csv \
-	$(EXT_IN)/extension-data/A.Pig_Iron_Production.csv \
 	$(MED_OUT)/H.$(EM)_total_EFs_adjusted-sector.csv \
 	$(MED_OUT)/A.total_activity_extended.csv
 	Rscript $< $(EM) --nosave --no-restore
